@@ -1,0 +1,5 @@
+Benchamarks
+===========
+
+.. toctree::
+    dedicated

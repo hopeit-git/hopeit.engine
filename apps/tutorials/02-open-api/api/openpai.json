@@ -1,0 +1,100 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "version": "1.0.1",
+    "title": "Sample endpoint",
+    "description": "sample-endpoint app with OpenAPI validation and API docs"
+  },
+  "paths": {
+    "/api/my-app/1x0/sample-endpoint": {
+      "get": {
+        "description": "API: sample-endpoint\n--------------\nSame as first app sample-endpoint now with Open API.\n\nThis endpoint adds the capability of json-schema validation and API docs.\n[CommonMark syntax](http://spec.commonmark.org/)  MAY be used for rich text\nrepresentation.",
+        "parameters": [
+          {
+            "name": "payload",
+            "in": "query",
+            "required": true,
+            "description": "provide a 'string' to create 'MyObject'",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "number",
+            "in": "query",
+            "required": true,
+            "description": "number to be added to the 'length' of the payload of MyObject",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MyObject where name is the received string uppercased and number its length",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyObject"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "my_app.1x0"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MyObject": {
+        "type": "object",
+        "required": [
+          "text",
+          "length"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "length": {
+            "type": "integer"
+          }
+        },
+        "description": "MyObject(text: str, length: int)"
+      }
+    },
+    "securitySchemes": {
+      "auth.basic": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "auth.bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": []
+}

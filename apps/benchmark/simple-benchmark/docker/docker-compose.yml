@@ -1,0 +1,29 @@
+version: '3'
+services:
+  redis:
+    image: redis:6
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    sysctls:
+      - net.core.somaxconn=4096
+    ports:
+      - '6379:6379'
+
+  bench-engine:
+    build:
+      context: ../../../../
+      dockerfile: ./apps/benchmark/simple-benchmark/docker/bench-engine/Dockerfile
+# Uncomment to tune haproxy and supervisord setting on running docker,
+# after changing these files, haproxy and supervisord will be restarted:
+#    volumes:
+#      - ./bench-engine/config/haproxy.cfg:/etc/haproxy/haproxy.cfg
+#      - ./bench-engine/config/supervisord.conf:/etc/supervisord.conf
+    ports:
+      - '8021:8021'
+      - '8022:8022'
+      - '8023:8023'
+      - '8024:8024'
+      - '8025:8025'
+    expose:
+      - 8025

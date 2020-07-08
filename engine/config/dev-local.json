@@ -1,0 +1,20 @@
+{
+  "streams": {
+    "connection_str": "redis://localhost:6379",
+    "delay_auto_start_seconds": 10
+  },
+  "logging": {
+    "log_level": "DEBUG",
+    "log_path": "work/logs/apps/"
+  },
+  "auth": {
+    "auth_passphrase": "dev-local",
+    "secrets_location": ".secrets/",
+    "create_keys": true,
+    "default_auth_methods": ["Bearer"],
+    "domain": "localhost"
+  },
+  "api": {
+    "docs_path": "/api/docs"
+  }
+}

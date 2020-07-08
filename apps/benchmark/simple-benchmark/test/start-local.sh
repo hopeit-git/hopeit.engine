@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+echo Starting hopeit.engine on http://localhost:8021 ...
+export PYTHONPATH=../src && nohup hopeit_server run --port=8021 --config-files=../config/dev-noauth.json,../config/1x0.json --api-file=../api/openapi.json  > local.log 2>&1 & echo $! > local.pid

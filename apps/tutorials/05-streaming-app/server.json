@@ -1,0 +1,11 @@
+{
+    "logging": {
+        "log_level": "DEBUG"
+    },
+    "streams": {
+        "connection_str": "redis://localhost:6379"
+    },
+    "api": {
+      "docs_path": "/api/docs"
+    }
+}

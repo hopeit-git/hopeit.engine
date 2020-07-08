@@ -1,0 +1,26 @@
+{
+  "app": {
+    "name": "my-streaming-app",
+    "version": "1.0"
+  },
+  "env" : {
+      "process_message": {
+          "save_path": "processed_messages"
+      }
+  },
+  "events": {
+    "send-message": {
+      "type": "POST",
+      "write_stream": {
+          "name": "my-stream"
+      }
+    },
+    "process-message": {
+      "type": "STREAM",
+      "read_stream": {
+          "name": "my-stream",
+          "consumer_group": "process-message-group"
+      }
+    }
+  }
+}

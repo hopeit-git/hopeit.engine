@@ -1,0 +1,16 @@
+{
+  "streams": {
+    "connection_str": "redis://localhost:6379"
+  },
+  "logging": {
+    "log_level": "INFO",
+    "log_path": "work/logs/apps/"
+  },
+  "auth": {
+    "auth_passphrase": "${AUTH_PASSPHRASE}",
+    "secrets_location": ".secrets/",
+    "create_keys": false,
+    "default_auth_methods": ["Bearer"],
+    "domain": "localhost"
+  }
+}

@@ -1,0 +1,8 @@
+{
+    "logging": {
+        "log_level": "DEBUG"
+    },
+    "api": {
+        "docs_path": "/api/docs"
+    }
+}

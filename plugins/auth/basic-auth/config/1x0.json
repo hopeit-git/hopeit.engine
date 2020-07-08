@@ -1,0 +1,39 @@
+{
+  "app" : {
+    "name": "basic-auth",
+    "version": "1.0"
+  },
+  "engine" : {
+    "import_modules": ["hopeit.basic_auth"],
+    "cors_origin": "http://localhost:8080"
+  },
+  "env" : {
+    "auth": {
+      "access_token_expiration": 600,
+      "refresh_token_expiration": 3600,
+      "access_token_renew_window": 5
+    }
+  },
+  "events": {
+    "login" : {
+      "type": "GET",
+      "plug_mode": "OnApp",
+      "auth": ["Basic"]
+    },
+    "refresh" : {
+      "type": "GET",
+      "plug_mode": "OnApp",
+      "auth": ["Refresh"]
+    },
+    "logout" : {
+      "type": "GET",
+      "plug_mode": "OnApp",
+      "auth": ["Refresh"]
+    },
+    "decode" : {
+      "type": "GET",
+      "plug_mode": "Standalone",
+      "auth": ["Bearer"]
+    }
+  }
+}

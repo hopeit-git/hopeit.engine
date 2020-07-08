@@ -1,0 +1,1248 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "version": "1.0.1",
+    "title": "Simple Example",
+    "description": "Simple Example OpenAPI Spec"
+  },
+  "paths": {
+    "/api/basic-auth/1x0/decode": {
+      "get": {
+        "description": "Basic Auth: Decode\n--------------------------------------------------------------------\nReturns decoded auth info",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Information extracted from token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextUserInfo"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "basic_auth.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/1x0/list-somethings": {
+      "get": {
+        "description": "Simple Example: List Objects\n--------------------------------------------------------------------\nLists all available Something objects",
+        "parameters": [
+          {
+            "name": "wildcard",
+            "in": "query",
+            "required": false,
+            "description": "Wildcard to filter objects by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "typing.List[model.Something]",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Something"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/1x0/query-something": {
+      "get": {
+        "description": "Simple Example: Query Something\n--------------------------------------------------------------------\nLoads Something from disk",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "query",
+            "required": true,
+            "description": "Item Id to read",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Something object returned when found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Something"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Information about not found object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SomethingNotFound"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      },
+      "post": {
+        "description": "Simple Example: Query Something Extended\n--------------------------------------------------------------------\nLoads Something from disk, update status base on POST body.\nObjects is saved with updated status and history.",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "query",
+            "required": true,
+            "description": "Item Id to read",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Status change for the retrieved object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Status"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Something object returned when found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Something"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Information about not found object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SomethingNotFound"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/1x0/save-something": {
+      "post": {
+        "description": "Simple Example: Save Something\n--------------------------------------------------------------------\nCreates and saves Something",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "provide `id` and `user` to create Something",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SomethingParams"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "path where object is saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "save_something"
+                  ],
+                  "properties": {
+                    "save_something": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "save_something string payload"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/1x0/streams/something-event": {
+      "post": {
+        "description": "Simple Example: Something Event\n--------------------------------------------------------------------\nSubmits a Something object to a stream to be processed asynchronously by process-events app event",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Something object to submitted to stream",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Something"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated Something object with status submitted to string",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Something"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/1x0/collector/query-concurrently": {
+      "post": {
+        "description": "Simple Example: Query Concurrently\n---------------------------------------------------------------------------\nLoads 2 Something objects concurrently from disk and combine the results\nusing `collector` steps constructor (instantiating an `AsyncCollector`)",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Items to read concurrently",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemsInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of one or two Something objects returned found, empty list if none is found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Something"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/1x0/collector/collect-spawn": {
+      "post": {
+        "description": "Simple Example: Collect and Spawn\n---------------------------------------------------------------------------\nLoads 2 Something objects concurrently from disk, combine the results\nusing `collector` steps constructor (instantiating an `AsyncCollector`)\nthen spawn the items found individually into a stream",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Items to read concurrently",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemsInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Number of items spawned (0,1 or 2)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "collector.collect_spawn"
+                  ],
+                  "properties": {
+                    "collector.collect_spawn": {
+                      "type": "integer"
+                    }
+                  },
+                  "description": "collector.collect_spawn integer payload"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/1x0/shuffle/spawn-event": {
+      "post": {
+        "description": "Simple Example: Spawn Event\n--------------------------------------------------------------------\nThis example will spawn 3 data events, those are going to be send to a stream using SHUFFLE\nand processed in asynchronously / in parallel if multiple nodes are available",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Something object to submitted several times to stream",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Something"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "events submitted successfully message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "shuffle.spawn_event"
+                  ],
+                  "properties": {
+                    "shuffle.spawn_event": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "shuffle.spawn_event string payload"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/1x0/shuffle/parallelize-event": {
+      "post": {
+        "description": "Simple Example: Parallelize Event\n--------------------------------------------------------------------\nThis example will spawn 2 copies of payload data, those are going to be send to a stream using SHUFFLE\nand processed in asynchronously / in parallel if multiple nodes are available,\nthen submitted to other stream to be updated and saved",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Something object to forked and submitted to be processed concurrently",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Something"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "events submitted successfully message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "shuffle.parallelize_event"
+                  ],
+                  "properties": {
+                    "shuffle.parallelize_event": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "shuffle.parallelize_event string payload"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/1x0/basic-auth/1x0/login": {
+      "get": {
+        "description": "Basic Auth: Login\n--------------------------------------------------------------------\nHandles users login using basic-auth\nand generate access tokens for external services invoking apps\nplugged in with basic-auth plugin.",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authentication information to be used for further API calls",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthInfo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Login failed, invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.basic": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/1x0/basic-auth/1x0/refresh": {
+      "get": {
+        "description": "Basic Auth: Refresh\n-------------------------------------------------------------------------------------\nThis event can be used for obtain new access token and update refresh token (http cookie),\nwith no need to re-login the user if there is a valid refresh token active.",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Refreshed authentication information to be used for further API calls",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthInfo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Login failed, invalid credentials. An http-cookie is expected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "simple_example.1x0.refresh": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/1x0/basic-auth/1x0/logout": {
+      "get": {
+        "description": "Basic Auth: Logout\n---------------------------------------------\nInvalidates previous refresh cookies.",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logged out message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "logout"
+                  ],
+                  "properties": {
+                    "logout": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "logout string payload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Login failed, invalid credentials or not logged in.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "simple_example.1x0.refresh": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorInfo": {
+        "type": "object",
+        "required": [
+          "msg",
+          "tb"
+        ],
+        "properties": {
+          "msg": {
+            "type": "string"
+          },
+          "tb": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "\n    Error information to be returned in failed responses\n    "
+      },
+      "ContextUserInfo": {
+        "type": "object",
+        "required": [
+          "id",
+          "user",
+          "email"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "description": "\n    User info that will be available in context during events execution\n    "
+      },
+      "AuthInfo": {
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type",
+          "renew"
+        ],
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "token_type": {
+            "type": "string"
+          },
+          "renew": {
+            "type": "integer"
+          }
+        },
+        "description": "\n    Minimal auth info that should be returned outside this app\n    "
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "description": "User information"
+      },
+      "Status": {
+        "type": "object",
+        "required": [
+          "ts",
+          "type"
+        ],
+        "properties": {
+          "ts": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "NEW",
+              "LOADED",
+              "SUBMITTED",
+              "PROCESSED"
+            ],
+            "x-enum-name": "StatusType"
+          }
+        },
+        "description": "Status change"
+      },
+      "Something": {
+        "type": "object",
+        "required": [
+          "id",
+          "user"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Status"
+            },
+            "default": []
+          }
+        },
+        "description": "Example Something event"
+      },
+      "SomethingNotFound": {
+        "type": "object",
+        "required": [
+          "path",
+          "id"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "description": "Item not found in datastore"
+      },
+      "SomethingParams": {
+        "type": "object",
+        "required": [
+          "id",
+          "user"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string"
+          }
+        },
+        "description": "Params to create and save Something"
+      },
+      "ItemsInfo": {
+        "type": "object",
+        "required": [
+          "item1_id",
+          "item2_id"
+        ],
+        "properties": {
+          "item1_id": {
+            "type": "string"
+          },
+          "item2_id": {
+            "type": "string"
+          }
+        },
+        "description": "\n    Items to read concurrently\n    "
+      }
+    },
+    "securitySchemes": {
+      "auth.basic": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "auth.bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "simple_example.1x0.refresh": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "simple_example.1x0.refresh"
+      }
+    }
+  },
+  "security": [
+    {
+      "auth.bearer": []
+    }
+  ]
+}

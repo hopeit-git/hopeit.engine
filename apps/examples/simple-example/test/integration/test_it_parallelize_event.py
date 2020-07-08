@@ -1,0 +1,32 @@
+import pytest  # type: ignore
+
+from hopeit.dataobjects import copy_payload
+from hopeit.testing.apps import execute_event
+
+from .fixtures import app_config  # noqa: F401
+from .fixtures import something_with_status_processed_example, something_with_status_example  # noqa: F401
+
+
+@pytest.mark.asyncio
+async def test_parallelize_event(monkeypatch, app_config,  # noqa: F811
+                                 something_with_status_processed_example, something_with_status_example):  # noqa: F811
+    results, msg, response = await execute_event(
+        app_config=app_config,
+        event_name='shuffle.parallelize_event',
+        payload=something_with_status_example,
+        postprocess=True)
+    first = copy_payload(something_with_status_processed_example)
+    first.id = 'first_' + first.id
+    second = copy_payload(something_with_status_processed_example)
+    second.id = 'second_' + second.id
+    for i, expected in enumerate([first, second]):
+        expected.status.ts = results[i].payload.status.ts
+        for j in range(len(expected.history)):
+            expected.history[j].ts = results[i].payload.history[j].ts
+    assert results[0].path == f"{app_config.env['fs']['data_path']}{first.id}.json"
+    assert results[0].payload == first
+    assert results[1].path == f"{app_config.env['fs']['data_path']}{second.id}.json"
+    assert results[1].payload == second
+    assert msg == f"events submitted to stream: {app_config.events['shuffle.parallelize_event'].write_stream.name}"
+    assert response.headers.get("X-Stream-Name") == app_config.events['shuffle.parallelize_event'].write_stream.name
+    assert len(results) == 2

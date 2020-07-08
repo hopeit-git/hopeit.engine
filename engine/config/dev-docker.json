@@ -1,0 +1,9 @@
+{
+  "streams": {
+    "connection_str": "redis://redis:6379"
+  },
+  "logging": {
+    "log_level": "DEBUG",
+    "log_path": "work/logs/apps/"
+  }
+}

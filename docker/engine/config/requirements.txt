@@ -1,0 +1,7 @@
+dataclasses-json
+aiohttp
+aiohttp_cors
+aiojobs
+aiofiles
+stringcase
+aioredis

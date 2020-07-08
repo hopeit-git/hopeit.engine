@@ -1,0 +1,115 @@
+{
+  "app": {
+    "name": "simple-example",
+    "version": "1.0"
+  },
+  "plugins": [
+    {"name": "basic-auth", "version": "1.0"}
+  ],
+  "engine" : {
+    "import_modules": ["simple_example"],
+    "read_stream_timeout": 10,
+    "read_stream_interval": 60,
+    "track_headers": ["caller", "session_id"],
+    "cors_origin": "*"
+  },
+  "env" : {
+    "fs": {
+      "data_path": "/tmp/{auto}/"
+    }
+  },
+  "events": {
+    "list_somethings": {
+      "type": "GET"
+    },
+    "query_something": {
+      "type": "GET",
+      "route": "{app.name}/{app.version}/query_something"
+    },
+    "query_something_extended": {
+      "type": "POST",
+      "route": "{app.name}/{app.version}/query_something"
+    },
+    "save_something" : {
+      "type": "POST"
+    },
+    "service.something_generator": {
+      "type": "SERVICE",
+      "write_stream": {
+        "name": "{events.streams.something_event.write_stream.name}"
+      }
+    },
+    "streams.something_event" : {
+      "type": "POST",
+      "write_stream": {
+        "name": "{auto}"
+      },
+      "config": {
+        "logging": {
+          "extra_fields": ["something_id"]
+        },
+        "stream": {
+          "target_max_len": 100
+        }
+      }
+    },
+    "collector.query_concurrently": {
+      "type": "POST"
+    },
+    "collector.collect_spawn" : {
+      "type": "POST",
+      "write_stream": {
+        "name": "{events.streams.something_event.write_stream.name}"
+      },
+      "config": {
+        "logging": {
+          "extra_fields": ["something_id"]
+        },
+        "stream": {
+          "target_max_len": 100
+        }
+      }
+    },
+    "streams.process_events": {
+      "type": "STREAM",
+      "read_stream": {
+        "name": "{events.streams.something_event.write_stream.name}",
+        "consumer_group": "{auto}"
+      },
+      "config": {
+        "logging": {
+          "stream_fields": ["name", "msg_id", "consumer_group", "event_id", "event_ts", "submit_ts", "read_ts"],
+          "extra_fields": ["something_id"]
+        }
+      }
+    },
+    "shuffle.spawn_event" : {
+      "type": "POST",
+      "write_stream": {
+        "name": "{events.streams.something_event.write_stream.name}"
+      },
+      "config": {
+        "logging": {
+          "extra_fields": ["something_id"]
+        },
+        "stream": {
+          "target_max_len": 100
+        }
+      }
+    },
+    "shuffle.parallelize_event" : {
+      "type": "POST",
+      "write_stream": {
+        "name": "{events.streams.something_event.write_stream.name}"
+      },
+      "config": {
+        "logging": {
+          "extra_fields": ["something_id"]
+        },
+        "stream": {
+          "target_max_len": 100
+        }
+      }
+    }
+  }
+}

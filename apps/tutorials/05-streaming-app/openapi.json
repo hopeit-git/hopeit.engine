@@ -1,0 +1,130 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "version": "1.0.0",
+    "title": "My Streaming app",
+    "description": "My Streaming App"
+  },
+  "paths": {
+    "/api/my-streaming-app/1x0/send-message": {
+      "post": {
+        "description": "Send Message:\n===============================================\nSends a message to be processed asynchronously",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "data received",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "message submitted to process",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyMessage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid message error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "send-message"
+                  ],
+                  "properties": {
+                    "send-message": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "send-message string payload"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "my_streaming_app.1x0"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MyData": {
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "description": "MyData(text: str)"
+      },
+      "MyMessage": {
+        "type": "object",
+        "required": [
+          "text",
+          "status"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "NEW",
+              "VALID",
+              "PROCESSED"
+            ],
+            "x-enum-name": "Status"
+          }
+        },
+        "description": "MyMessage(text: str, status: my_streaming_app.data_model.Status)"
+      }
+    },
+    "securitySchemes": {
+      "auth.basic": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "auth.bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": []
+}

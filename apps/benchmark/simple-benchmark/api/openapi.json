@@ -1,0 +1,415 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "version": "1.0.1",
+    "title": "Simple benchmark",
+    "description": "Simple benchmark app"
+  },
+  "paths": {
+    "/api/simple-benchmark/1x0/give-me-something": {
+      "get": {
+        "description": "Simple Benchamrck: Give me Something\n--------------------------------------------------------------------\nLoads Something from disk",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "query",
+            "required": true,
+            "description": "Item Id to read",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Something object returned when found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Something"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_benchmark.1x0"
+        ]
+      }
+    },
+    "/api/simple-benchmark/1x0/query-something-fs": {
+      "get": {
+        "description": "Simple Benchamrck: Query Something\n--------------------------------------------------------------------\nLoads Something from disk",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "query",
+            "required": true,
+            "description": "Item Id to read",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Something object returned when found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Something"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Information about not found object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SomethingNotFound"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_benchmark.1x0"
+        ]
+      }
+    },
+    "/api/simple-benchmark/1x0/save-something-fs": {
+      "post": {
+        "description": "Simple Benchmark: Save Something\n--------------------------------------------------------------------\nCreates and saves Something",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "provide `id` and `user` to create Something",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SomethingParams"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "path where object is saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "save_something_fs"
+                  ],
+                  "properties": {
+                    "save_something_fs": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "save_something_fs string payload"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_benchmark.1x0"
+        ]
+      }
+    },
+    "/api/simple-benchmark/1x0/query-something-redis": {
+      "get": {
+        "description": "Simple Benchamrck: Query Something\n--------------------------------------------------------------------\nLoads Something from disk",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "query",
+            "required": true,
+            "description": "Item Id to read",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Something object returned when found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Something"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Information about not found object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SomethingNotFound"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_benchmark.1x0"
+        ]
+      }
+    },
+    "/api/simple-benchmark/1x0/save-something-redis": {
+      "post": {
+        "description": "Simple Benchmark: Save Something\n--------------------------------------------------------------------\nCreates and saves Something",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "provide `id` and `user` to create Something",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SomethingParams"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "path where object is saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "save_something_redis"
+                  ],
+                  "properties": {
+                    "save_something_redis": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "save_something_redis string payload"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_benchmark.1x0"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "description": "User information"
+      },
+      "Status": {
+        "type": "object",
+        "required": [
+          "ts",
+          "type"
+        ],
+        "properties": {
+          "ts": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "NEW",
+              "LOADED",
+              "SUBMITTED",
+              "PROCESSED"
+            ],
+            "x-enum-name": "StatusType"
+          }
+        },
+        "description": "Status change"
+      },
+      "Something": {
+        "type": "object",
+        "required": [
+          "id",
+          "user"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Status"
+            },
+            "default": []
+          }
+        },
+        "description": "Example Something event"
+      },
+      "SomethingNotFound": {
+        "type": "object",
+        "required": [
+          "path",
+          "id"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "description": "Item not found in datastore"
+      },
+      "SomethingParams": {
+        "type": "object",
+        "required": [
+          "id",
+          "user"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string"
+          }
+        },
+        "description": "Params to create and save Something"
+      }
+    },
+    "securitySchemes": {
+      "auth.basic": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "auth.bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": []
+}

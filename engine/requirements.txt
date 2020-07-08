@@ -1,0 +1,15 @@
+aiohttp
+aiohttp-cors
+aiohttp-swagger3
+aiojobs
+aiofiles
+dataclasses-jsonschema[fast-validation]
+stringcase
+aioredis
+lz4
+cryptography
+pyjwt
+click
+deepdiff
+fastjsonschema==2.14.3
+typing_inspect

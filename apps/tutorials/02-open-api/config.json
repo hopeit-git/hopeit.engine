@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "my-app",
+    "version": "1.0"
+  },
+  "env" : {},
+  "events": {
+    "sample-endpoint": {
+      "type": "GET"
+    }
+  }
+}
