@@ -14,8 +14,8 @@ hopeit.engine requires:
 
  python -m venv venv
  source venv/bin/activate
- git clone git@gitlab.com:hopeit.biz/hopeit.py.git
- cd hopeit.py
+ git clone https://github.com/hopeit-git/hopeit.engine.git
+ cd hopeit.engine
  make dist-only
  cd engine/dist
  pip install "hopeit.engine-0.1.0-py3-none-any.whl"
@@ -28,7 +28,7 @@ hopeit.engine requires:
 
  python -m venv venv
  source venv/bin/activate
- git clone git@gitlab.com:hopeit.biz/hopeit.py.git
- cd hopeit.py
+ git clone https://github.com/hopeit-git/hopeit.engine.git
+ cd hopeit.engine
  make install
 
