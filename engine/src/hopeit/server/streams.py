@@ -185,9 +185,9 @@ class StreamManager:
                           batch_interval: int) -> List[Union[StreamEvent, Exception]]:
         """
         Attempts reading streams using a consumer group,
-        blocks for `access_token_expiration` seconds
+        blocks for `timeout` seconds
         and yields asynchronously the deserialized objects gotten from the stream.
-        In case access_token_expiration is reached, nothing is yielded
+        In case timeout is reached, nothing is yielded
         and read_stream must be called again,
         usually in an infinite loop while app is running.
 
