@@ -5,20 +5,22 @@ Run example application
 
 .. code-block:: bash
 
-``
-make install
-make PLUGINFOLDER=plugins/auth/basic-auth/ install-plugin
-make APPFOLDER=apps/examples/simple-example/ install-app
+ make install
+ make PLUGINFOLDER=plugins/auth/basic-auth/ install-plugin
+ make APPFOLDER=apps/examples/simple-example/ install-app
 
-cd docker
-docker-compose up -d redis
-cd ..
+ cd docker
+ docker-compose up -d redis
+ cd ..
 
-hopeit_engine run --port=8020 --start-streams ----config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/1x0.json,apps/examples/simple-example/config/1x0.json --api-file=apps/examples/simple-example/api/openapi.json
-```
+ hopeit_engine run --port=8020 --start-streams ----config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/1x0.json,apps/examples/simple-example/config/1x0.json --api-file=apps/examples/simple-example/api/openapi.json
+
 
 2 - To run and debug using VSCode, add this configuration to your .launch.json file:
-{
+
+.. code-block:: json 
+
+ {
     "version": "0.2.0",
     "configurations": [ 
         {
@@ -36,4 +38,4 @@ hopeit_engine run --port=8020 --start-streams ----config-files=engine/config/dev
             "cwd": "${workspaceFolder}"
         }
     ]
-}
+ }
