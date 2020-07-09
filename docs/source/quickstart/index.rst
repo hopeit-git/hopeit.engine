@@ -5,3 +5,4 @@ Quick start
    install
    ../tutorials/01-first-app
    redis
+   dev
