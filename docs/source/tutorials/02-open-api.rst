@@ -74,7 +74,7 @@ Step 5: Add OpenAPI json-schema validation and API docs
 To add Open API support to your endpoints, add a description header, and
 an ``__api__`` definition to your source file:
 
-.. code:: ipython3
+.. code:: python
 
     """
     API: sample-endpoint

@@ -61,7 +61,7 @@ Step 4: Create the event handler
 2. In the same folder, ``my_app``, now create a python file
    ``sample_endpoint.py`` with the following code
 
-.. code:: ipython3
+.. code:: python
 
     from dataclasses import dataclass
 

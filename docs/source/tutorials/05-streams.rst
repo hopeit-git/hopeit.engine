@@ -108,7 +108,7 @@ Step 5: Create the event handlers
 2. In the same folder, ``my_streaming_app``, now create a python file
    ``data_model.py`` with the following code
 
-.. code:: ipython3
+.. code:: python
 
     """
     Data Model for my_app
@@ -141,7 +141,7 @@ Step 5: Create the event handlers
 3. In the same folder, ``my_streaming_app``, now create a python file
    ``send_message.py`` with the following code
 
-.. code:: ipython3
+.. code:: python
 
     """
     Send Message:
@@ -233,7 +233,7 @@ Notice that we’ve introduced several new concepts:
 4. In the same folder, ``my_streaming_app``, now create a python file
    ``process_message.py`` with the following code
 
-.. code:: ipython3
+.. code:: python
 
     """
     Process Message:
