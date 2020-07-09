@@ -21,7 +21,7 @@ help:
 
 # Install prerequisits for make docs
 deps:
-	pip install -r requirements-docs.txt
+	pip install -r requirements.txt
 
 # Create apidocs for hopeit.py from source code, replacing existing files in ./source/apidocs
 apidocs:
