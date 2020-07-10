@@ -12,11 +12,10 @@
 #
 import os
 import sys
-import hopeit
+# Determine the absolute path to the directory containing the python modules.
 
-_pysrc = os.path.abspath(__file__), '../../engine/src/hopeit'
+_pysrc = os.path.abspath(os.path.join(os.path.abspath(__file__), '..', '..', 'engine', 'src',    'hopeit')
 sys.path.insert(0, _pysrc)
-
 
 
 # -- Project information -----------------------------------------------------
