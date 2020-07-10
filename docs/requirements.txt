@@ -1,3 +1,2 @@
-../engine/src/hopeit/
 sphinx
 sphinx_rtd_theme
