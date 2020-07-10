@@ -13,6 +13,7 @@ logger = app_logger()
 __steps__ = ['decode']
 
 __api__ = event_api(
+    title="Basic Auth: Decode",
     responses={
         200: (ContextUserInfo, "Information extracted from token")
     }

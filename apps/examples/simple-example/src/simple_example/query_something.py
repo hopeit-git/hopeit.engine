@@ -15,6 +15,7 @@ from model import Something, StatusType, Status, SomethingNotFound
 __steps__ = ['load', 'update_status_history']
 
 __api__ = event_api(
+    title="Simple Example: Query Something",
     query_args=[
         ('item_id', str, 'Item Id to read')
     ],
