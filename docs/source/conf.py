@@ -12,9 +12,11 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../engine/src/hopeit'))
-
 import hopeit
+
+_pysrc = os.path.abspath(__file__), '../../engine/src/hopeit'
+sys.path.insert(0, _pysrc)
+
 
 
 # -- Project information -----------------------------------------------------
