@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../engine/src/hopeit'))
+sys.path.insert(0, os.path.abspath('../engine/src/hopeit'))
 
 project = 'hopeit.engine'
 copyright = '2020, Leo Smerling and Pablo Canto'
