@@ -31,6 +31,7 @@ class ItemsInfo:
 __steps__ = [collector_step(payload=ItemsInfo).gather('load_first', 'load_second', 'combine'), 'result']
 
 __api__ = event_api(
+    title="Simple Example: Query Concurrently",
     payload=(ItemsInfo, "Items to read concurrently"),
     responses={
         200: (List[Something], "List of one or two Something objects returned found, empty list if none is found"),

@@ -22,6 +22,7 @@ logger, extra = app_extra_logger()
 __steps__ = ['fork_something', SHUFFLE, 'process_first_part', 'process_second_part', SHUFFLE, 'update_status', 'save']
 
 __api__ = event_api(
+    title="Simple Example: Parallelize Event",
     payload=(Something, "Something object to forked and submitted to be processed concurrently"),
     responses={
         200: (str, 'events submitted successfully message')

@@ -15,6 +15,7 @@ __steps__ = ['stream_event']
 logger, extra = app_extra_logger()
 
 __api__ = event_api(
+    title="Simple Example: Something Event",
     payload=(Something, "Something object to submitted to stream"),
     responses={
         200: (Something, 'Updated Something object with status submitted to string')
