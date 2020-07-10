@@ -1,0 +1,15 @@
+version: 2
+
+python:
+  version: 3.7
+  install:
+    - method: pip
+      path: ../engine/.
+    - method: pip
+      path: ../engine/.
+      extra_requirements:
+        - web
+    - method: pip
+      path: ../engine/.
+      extra_requirements:
+        - cmd
