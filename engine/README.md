@@ -26,7 +26,7 @@
 
 - Additional options:
 ```
-    --port: indicates to listen on another port number, default is --port=8080
+    --port: indicates to listen on another port number, default is --port=8020
     --path: indicates to listen in a unix socket path, default is disabled
     --start-streams: indicates to auomatically start events of type STREAM when starting server
     --config-files: comma-separated file of config files to load, starting with server config, then plugins, then apps

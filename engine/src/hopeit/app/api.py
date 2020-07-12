@@ -23,10 +23,9 @@ def api_from_config(module, *, app_config: AppConfig, event_name: str, plugin: O
     """
     Uses api definition exactly as it comes from --api-file specified at runtime.
 
-    Usage in app event implementation file:
-    ```
-    __api__ = api_from_config
-    ```
+    Usage in app event implementation file::
+
+        __api__ = api_from_config
 
     Notice that no arguments need to be provided (just the function) as the function will be invoked
     during server initialization.
@@ -167,21 +166,20 @@ def event_api(title: Optional[str] = None,
         payload parameter.
 
     Examples:
-    This will generate Open Schema with default types and description:
-    ```
-    __api__ = event_api(payload=CustomDataType, query_args['arg1'], responses={200: CustomResultDataType})
-    ```
 
-    Types and descriptions can be defined more precisely, and multiple response types can be specified:
-    ```
-    __api__ = event_api(
-        payload=(CustomDataType, "A CustomDataType object to be used as an input"),
-        query_args[('arg1', str, "Argument expected in query string",
-        responses: {
-            200: (CustomResultDataType, "Result in case operation is successful"),
-            404: (NotFoundInformation, "Information return in case object is not found")
-        }
-    )
-    ```
+    This will generate Open Schema with default types and description::
+
+        __api__ = event_api(payload=CustomDataType, query_args['arg1'], responses={200: CustomResultDataType})
+
+    Types and descriptions can be defined more precisely, and multiple response types can be specified::
+
+        __api__ = event_api(
+            payload=(CustomDataType, "A CustomDataType object to be used as an input"),
+            query_args[('arg1', str, "Argument expected in query string",
+            responses: {
+                200: (CustomResultDataType, "Result in case operation is successful"),
+                404: (NotFoundInformation, "Information return in case object is not found")
+            }
+        )
     """
     return partial(_event_api, title, payload, query_args, responses)

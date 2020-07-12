@@ -190,7 +190,7 @@ def enable_swagger(server_config: ServerConfig, app: web.Application):
     Enables Open API (a.k.a Swagger) on this server. This consists of:
         * All endpoints within API specification are to be handled by a Open API handler that will validate requests
         * If specified in server_config.api_docs_path, API docs site will be available at the given route.
-            i.e. http://server-address:8080/api/docs
+            i.e. http://server-address:8020/api/docs
     :param server_config: server configuration
     :param app: aiohttp web Application to host routes and docs
     """

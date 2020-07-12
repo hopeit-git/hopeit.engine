@@ -31,10 +31,10 @@ class AsyncCollector(AbstractCollector):
     """
     Allows to define a list of steps (functions) to be executed concurrently.
 
-    Example:
-        ```
+    Example::
+
         AsyncCollector.input(payload).steps(('step1', step1func, 'step2', step2func').run()
-        ```
+
 
     Gathers and run concurrently step1func and step2func and put their return values in the collector
     under the specified key ('step1' or 'step2')
