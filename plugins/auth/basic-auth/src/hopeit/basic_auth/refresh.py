@@ -18,6 +18,7 @@ logger = app_logger()
 __steps__ = ['refresh']
 
 __api__ = event_api(
+    title="Basic Auth: Refresh",
     responses={
         200: (AuthInfo, "Refreshed authentication information to be used for further API calls"),
         401: (Unauthorized.ErrorInfo, "Login failed, invalid credentials. An http-cookie is expected")

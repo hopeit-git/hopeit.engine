@@ -46,6 +46,7 @@ __steps__ = [
 ]
 
 __api__ = event_api(
+    title="Simple Example: Collect and Spawn",
     payload=(ItemsInfo, "Items to read concurrently"),
     responses={
         200: (int, "Number of items spawned (0,1 or 2)"),
