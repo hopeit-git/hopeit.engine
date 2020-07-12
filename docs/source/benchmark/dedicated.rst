@@ -49,7 +49,7 @@ Retrieve the hopeit.engine from the git repository, make the dist package, and i
 
     python -m venv venv
     source venv/bin/activate
-    git clone git@gitlab.com:hopeit.biz/hopeit.py.git
+    git clone https://github.com/hopeit-git/hopeit.engine.git
     cd hopeit.py
     make dist-only
     cd engine/dist

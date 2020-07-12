@@ -7,14 +7,4 @@ sphinx:
 python:
   version: 3.7
   install:
-    - requirements: docs/requirements.txt
-    - method: pip
-      path: engine/.
-    - method: pip
-      path: engine/.
-      extra_requirements:
-        - web
-    - method: pip
-      path: engine/.
-      extra_requirements:
-        - cmd
+    - requirements: engine/requirements.txt
