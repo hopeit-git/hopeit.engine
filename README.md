@@ -1,3 +1,5 @@
+![hopeit.engine QA](https://github.com/hopeit-git/hopeit.engine/workflows/hopeit.engine%20QA/badge.svg)
+
 ### hopeit.py engine
 
 Python engine that allows creation and operations of microservices with out-of-the-box:
