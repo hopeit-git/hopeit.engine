@@ -606,7 +606,7 @@ def parse_args(args) -> Tuple[Optional[str], Optional[int], Optional[str], bool,
     --api-file, optional path to openapi.json file with at least openapi and info sections
     Example::
 
-        web.py --port=8020 --path=/tmp/hopeit.01 --config-files=test.json
+        python web.py --port=8020 --path=/tmp/hopeit.01 --config-files=test.json
 
     Notes:
         --config-files argument is mandatory
