@@ -1,6 +1,6 @@
 # This workflow will install hopeit.engine dev Python dependencies, run tests in multiple version of Python
 
-name: Python application
+name: hopeit.engine QA
 
 on:
   push:
