@@ -28,41 +28,41 @@ def collector_step(*, payload: Type[EventPayloadType]) -> CollectorStepsDescript
         so Type of payload needs to be informed to create the appropriate handler: collector(payload=DataType)
 
     Example:
+
     Use inline in __steps__ definition of event implementation,
     to run step1, step2 and step3 concurrently using a Collector, and then
-    seq_step4, and seq_step5 sequentially:
-    ```
-    __steps__ = [
-        collector_step(payload=InputType).gather('step1', 'step2', 'step3),
-        'seq_step4', 'seq_step5')
-    ]
+    seq_step4, and seq_step5 sequentially::
 
-    async def step1(collector: Collector, context: EventContext) -> StepData:
-        payload = await collector['payload']
-        # do something with payload, this can run concurrently with step2
-        return StepData("some data")
+        __steps__ = [
+            collector_step(payload=InputType).gather('step1', 'step2', 'step3),
+            'seq_step4', 'seq_step5')
+        ]
 
-    async def step2(collector: Collector, context: EventContext) -> StepData:
-        payload = await collector['payload']
-        # do something with payload, this can run concurrently with step1
-        return StepData("some data")
+        async def step1(collector: Collector, context: EventContext) -> StepData:
+            payload = await collector['payload']
+            # do something with payload, this can run concurrently with step2
+            return StepData("some data")
 
-    async def step3(collector: Collector, context: EventContext) -> StepData:
-        step1data = await collector['step1']
-        step2data = await collector['step2']
-        # do something with step1data and step2data, step1 and step2 must be completed at this point
-        return StepData("some combined data")
+        async def step2(collector: Collector, context: EventContext) -> StepData:
+            payload = await collector['payload']
+            # do something with payload, this can run concurrently with step1
+            return StepData("some data")
 
-    async def seq_step4(collector: Collector, context: EventContext) -> SeqStepData:
-        step3data = await collector['step3']
-        # do something with step3data from the collector
-        return SeqStepData("some data")
+        async def step3(collector: Collector, context: EventContext) -> StepData:
+            step1data = await collector['step1']
+            step2data = await collector['step2']
+            # do something with step1data and step2data, step1 and step2 must be completed at this point
+            return StepData("some combined data")
 
-    async def seq_step5(payload: SeqStepData, context: EventContext) -> SeqStepData:
-        # do something with payload (no need to use collector anymore)
-        return SeqStepData("some data")
+        async def seq_step4(collector: Collector, context: EventContext) -> SeqStepData:
+            step3data = await collector['step3']
+            # do something with step3data from the collector
+            return SeqStepData("some data")
 
-    ```
+        async def seq_step5(payload: SeqStepData, context: EventContext) -> SeqStepData:
+            # do something with payload (no need to use collector anymore)
+            return SeqStepData("some data")
+
     Notice that collector steps can be combined with regular sequential steps. Each collector will create
     internally a single sequential step to be handled by the engine while the collector itself will
     handle execution for the steps specified in .gather(...) definition. After collector is executed

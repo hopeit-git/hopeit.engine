@@ -140,20 +140,21 @@ def replace_config_args(*, parsed_config: ConfigType,
     are replaced.
 
     Example:
-        `{app.name}` will be replaced by the contents of `parsed_config.app.name`
+    `{app.name}` will be replaced by the contents of `parsed_config.app.name`
 
     `{auto}` will be replaced by the path of keys to the current object
     built using dot notation and prefixed by `app.name`.`app.version`
 
-    Example:
-        ```AppConfig(
+    Example::
+
+        AppConfig(
             app=App(name="myapp", version="1x0"),
             events={"event1": EventDescriptor(
                 steps={"step1": StepDescriptor(notify="{auto}" ... )}
             )}
         )
-        ```
-        `{auto}` wil ne replaced by `myapp.1x0.event1.step1`
+
+    `{auto}` will be replaced by `myapp.1x0.event1.step1`
     """
 
     def _replace_in_dict(node: dict, expr: str, replacement: str):

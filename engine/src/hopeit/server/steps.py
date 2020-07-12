@@ -300,15 +300,15 @@ class CollectorStepsDescriptor:
     in __steps__ definition of a method. This class should be instantiated using `collector` method
     from hopeit.app.events module.
 
-    Example:
-        ```
+    Example::
+
         from hopeit.app.events import collector_step
 
         __steps__ == [collector_step(payload=InputType).steps('step1', 'step2'), 'step_outside_collector']
-        ```
-        will generate a steps definition of two steps: First a collector, which receives an InputType object
-        and run step1 and step2 functions concurrently. Step result will be a Collector to be used by
-        `step_outside_collector`.
+
+    will generate a steps definition of two steps: First a collector, which receives an InputType object
+    and run step1 and step2 functions concurrently. Step result will be a Collector to be used by
+    `step_outside_collector`.
 
     """
     def __init__(self, input_type: Type[EventPayloadType]):

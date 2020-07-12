@@ -269,11 +269,11 @@ def engine_logger() -> EngineLoggerWrapper:
     Returns logger wrapper for engine modules
     Allows to reference `logger` as a module variable.
 
-    Use at module level in events implementation:
-    ```
-    from hopeit.logger import engine_logger()
+    Use at module level in events implementation::
 
-    logger = engine_logger()
-    ```
+        from hopeit.logger import engine_logger()
+
+        logger = engine_logger()
+
     """
     return EngineLoggerWrapper()

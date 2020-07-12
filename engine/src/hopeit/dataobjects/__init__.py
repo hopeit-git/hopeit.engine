@@ -115,21 +115,20 @@ def dataobject(
     In case event_id is not provided, an uuid will be generated on each call to `event_id()`
     In case event_ts is not provided, None will be returned on each call to `event_ts()`
 
-    Example:
-    ```
-    @dataobject
-    @dataclass
-    class StatusChange:
-        ts: datetime
-        status: str
+    Example::
 
-    @dataobject(event_id='id', event_ts='last_status.ts', unsafe=True, validate=False)
-    @dataclass
-    class EventData:
-        id: str
-        last_status: StatusChange
+        @dataobject
+        @dataclass
+        class StatusChange:
+            ts: datetime
+            status: str
 
-    ```
+        @dataobject(event_id='id', event_ts='last_status.ts', unsafe=True, validate=False)
+        @dataclass
+        class EventData:
+            id: str
+            last_status: StatusChange
+
     """
 
     def wrap(cls):

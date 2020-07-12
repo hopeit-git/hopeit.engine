@@ -18,12 +18,12 @@ def app_logger() -> logging.Logger:
     Returns a placeholder to allow engine to setup later proper logger
     Allows to reference `logger` as a module variable.
 
-    Use at module level in events implementation:
-    ```
-    from hopeit.logger import app_logger()
+    Use at module level in events implementation::
 
-    logger = app_logger()
-    ```
+        from hopeit.logger import app_logger()
+
+        logger = app_logger()
+
     """
     return logging.getLogger(DEFAULT_APP_LOGGER)
 
@@ -35,11 +35,11 @@ def app_extra_logger() -> Tuple[logging.Logger, Callable]:
     and the function `extra` to send extra values to logger.
 
 
-    Use at module level in events implementation:
-    ```
-    from hopeit.logger import app_extra_logger()
+    Use at module level in events implementation::
 
-    logger, extra = app_extra_logger()
-    ```
+     from hopeit.logger import app_extra_logger()
+
+     logger, extra = app_extra_logger()
+
     """
     return logging.getLogger(DEFAULT_APP_LOGGER), partial(extra_values, [])

@@ -604,10 +604,10 @@ def parse_args(args) -> Tuple[Optional[str], Optional[int], Optional[str], bool,
     --start-streams, optional True if to auto start all events of STREAM type
     --config-files, is a comma-separated list of hopeit apps config files relative or full paths
     --api-file, optional path to openapi.json file with at least openapi and info sections
-    Example:
-    ```
-    web.py --port=8020 --path=/tmp/hopeit.01 --config-files=test.json
-    ```
+    Example::
+
+        web.py --port=8020 --path=/tmp/hopeit.01 --config-files=test.json
+
     Notes:
         --config-files argument is mandatory
         if --port and --path are not supplied the engine start on 8020 port by default

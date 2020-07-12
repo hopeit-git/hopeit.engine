@@ -63,8 +63,7 @@ class EventHandler:
             * an object from a class with CamelCase name same as event name is instantiated
             * find the next step to execute that accepts input with payload type
             * method with same name as step is invoked in instantiated object
-            * if a step specifies write_stream, and event is not None,
-                payload is published to a stream
+            * if a step specifies write_stream, and event is not None, payload is published to a stream
             * repeats previous 3 steps executing next step that accepts current payload type
 
         :param context: EventContext

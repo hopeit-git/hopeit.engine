@@ -158,17 +158,16 @@ def validate(validation_mode: Union[str, Mode] = Mode.STRICT, cls=None, **kwargs
     """
     Decorator specifying validators to be used in a dataclass fields
 
-    Example:
-    ```
-    @dataclass
-    @validate(
-        Mode.STRICT,
-        field_a=same_as('field_b')
-    )
-    class ValidatedObject:
-        field_a: int
-        field_b: int
-    ```
+    Example::
+
+        @dataclass
+        @validate(
+            Mode.STRICT,
+            field_a=same_as('field_b')
+        )
+        class ValidatedObject:
+            field_a: int
+            field_b: int
 
     When object is created (Mode.STRICT) an ValueException will be raised
     if field_a is not the same as field_b.
