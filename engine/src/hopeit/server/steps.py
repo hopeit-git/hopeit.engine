@@ -214,8 +214,7 @@ async def _invoke_step(*,
 def _find_next_step(payload: Optional[EventPayload], *,
                     pending_steps: Dict[str, StepInfo]) -> Tuple[Optional[str], Optional[Callable]]:
     """
-    Finds next step to exectute in pending_steps list,
-    base on the payload data type
+    Finds next step to exectute in pending_steps list, base on the payload data type
     """
     for step_name, step_info in pending_steps.items():
         func, input_type, _ = step_info
@@ -309,7 +308,6 @@ class CollectorStepsDescriptor:
     will generate a steps definition of two steps: First a collector, which receives an InputType object
     and run step1 and step2 functions concurrently. Step result will be a Collector to be used by
     `step_outside_collector`.
-
     """
     def __init__(self, input_type: Type[EventPayloadType]):
         self.input_type = input_type
