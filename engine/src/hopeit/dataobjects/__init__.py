@@ -19,6 +19,7 @@ Example:
 """
 import pickle
 import uuid
+import dataclasses
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
@@ -29,6 +30,8 @@ from dataclasses_jsonschema import JsonSchemaMixin
 __all__ = ['EventPayload',
            'EventPayloadType',
            'StreamEventParams',
+           'dataclass',
+           'field',
            'dataobject',
            'DataObject',
            'copy_payload',
@@ -189,3 +192,17 @@ def copy_payload(original: Optional[EventPayload]) -> Optional[EventPayload]:
     if hasattr(original, '__data_object__') and original.__data_object__['unsafe']:
         return original
     return _binary_copy(original)
+
+
+def field(description: str, *, default=dataclasses.MISSING, 
+          default_factory=dataclasses.MISSING, init=True, repr=True,
+          hash=None, compare=True, metadata=None):
+    """
+    Wrapper over dataclasses.field adding description for json_schema generation
+    """
+    if metadata is None:
+        metadata = {}
+    metadata['description'] = description
+    return dataclasses.field(default=default, default_factory=default_factory, init=init,
+        repr=repr, hash=hash, compare=compare, metadata=metadata)
+

@@ -2,9 +2,9 @@ import pytest
 import json
 import uuid
 from datetime import datetime, timezone
-from dataclasses import dataclass
+import dataclasses
 
-from hopeit.dataobjects import StreamEventParams, dataobject, copy_payload
+from hopeit.dataobjects import StreamEventParams, dataobject, copy_payload, dataclass, field
 from hopeit.dataobjects.jsonify import Json
 
 
@@ -298,3 +298,18 @@ def test_to_json_invalid_types():
 
     with pytest.raises(ValueError):
         Json.to_json(MockData(id='1', value='ok-value', nested=MockNested(ts="NOT A DATETIME")))  # type: ignore
+
+
+def test_dataclass_field_wrapper():
+    def assert_eq_field(a, b):
+        assert a.metadata == b.metadata
+        assert a.default == b.default
+        assert a.default_factory == b.default_factory
+        assert a.name == b.name
+        assert a.init == b.init
+        assert a.hash == b.hash
+        assert a.repr == b.repr
+    
+    assert_eq_field(field("Foo"), dataclasses.field(metadata={"description": "Foo"}))
+    assert_eq_field(field("Foo", default_factory=dict),
+         dataclasses.field(metadata={"description": "Foo"}, default_factory=dict))
