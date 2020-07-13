@@ -133,21 +133,21 @@ class Serialization(Enum):
 class EventStreamConfig:
     """
     Stream configuration for STREAM events
-    :field: timeout, float: timeout for stream processing im seconds. If timeout is exceeded event
+    :field timeout: float, timeout for stream processing im seconds. If timeout is exceeded event
         processing will be cancelled. Default 60 seconds
-    :field: target_max_len: int, default 0, max number of elements to be used as a target
+    :field target_max_len: int, default 0, max number of elements to be used as a target
         for the stream collection size. Messages above this value might be dropped
         from the collection when new items are added. Notice that the number of the items
         in the collection could exceed temporary this value to allow optimized behaviour,
         but no items will be dropped until the collection exceeds target_max_len.
         With default value of 0, collection size is unlimited and items should be removed by apps.
-    :field: throttle_ms, int: milliseconds specifying minimum duration for each event
-    :filed: step_delay, int: milliseconds to sleep between steps
-    :field: batch_size, int: number of max messages to process each time when reading stream,
+    :field throttle_ms: int, milliseconds specifying minimum duration for each event
+    :filed step_delay: int, milliseconds to sleep between steps
+    :field batch_size: int, number of max messages to process each time when reading stream,
         set to 1 to ensure min losses in case of process stop, set higher for performance
-    :field: compression, Compression: compression algorithm used to send messages to stream, if not specified
+    :field compression: Compression, compression algorithm used to send messages to stream, if not specified
         default from Server config will be used.
-    :field: serialization, Serialization: serialization method used to send messages to stream, if not specified
+    :field serialization: Serialization, serialization method used to send messages to stream, if not specified
         default from Server config will be used.
     """
     timeout: float = 60.0
@@ -164,7 +164,7 @@ class EventStreamConfig:
 class EventConfig:
     """
     Event execution configuration
-    :field response_timeout, float, default 60.0: seconds to timeout waiting for event execution
+    :field response_timeout: float, default 60.0: seconds to timeout waiting for event execution
         when invoked externally .i.e. GET or POST events. If exceeded, Timed Out response will be returned.
         Notice that this timeout does not apply for stream processing events. Use EventStreamsConfig.timeout
         to set up timeout on stream processing.

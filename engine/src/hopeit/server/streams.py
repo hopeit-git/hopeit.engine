@@ -200,7 +200,7 @@ class StreamManager:
             or '$' to consume upcoming events
         :param batch_size: max number of messages to process on each iteration
         :param timeout: time to block waiting for messages, in milliseconds
-        :param batch_interval, time to sleep between requests to connection pool in case no
+        :param batch_interval: int, time to sleep between requests to connection pool in case no
             messages are returned. In milliseconds. Used to prevent blocking the pool.
         :param compression: Compression, supported compression algorithm from enum
         :return: yields Tuples of message id (bytes) and deserialized DataObject
@@ -284,11 +284,11 @@ class StreamManager:
 
         :param payload, DataEvent
         :return: dict of str containing:
-            id: extracted from payload.event_id() method
-            type: datatype name
-            submit_ts: datetime at the moment of this call, in UTC ISO format
-            event_ts: extracted from payload.event_ts() if defined, if not empty string
-            payload: json serialized payload
+            :id: extracted from payload.event_id() method
+            :type: datatype name
+            :submit_ts: datetime at the moment of this call, in UTC ISO format
+            :event_ts: extracted from payload.event_ts() if defined, if not empty string
+            :payload: json serialized payload
         """
         event_fields = {
             'id': payload.event_id(),  # type: ignore

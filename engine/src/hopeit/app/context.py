@@ -18,14 +18,12 @@ class EventContext:
     created automatically by the engine on every request.
 
     Instantiated objects contain static information during app lifecycle:
-    app_key: app key string of the engine app running
-    app: AppDescriptor of the engine app running
-    env: dict of env configuration
-
-    and dynamic information per event execution:
-    event_name: str
-    event_info: EventDescriptor of the event executed
-    track_ids: dict of keys and id values to be tracked
+    :param app_key: app key string of the engine app running
+    :param app: AppDescriptor of the engine app running
+    :param env: dict of env configuration and dynamic information per event execution:
+    :param event_name: str
+    :param event_info: EventDescriptor of the event executed
+    :param track_ids: dict of keys and id values to be tracked
     """
     def __init__(self, *,
                  app_config: AppConfig,
