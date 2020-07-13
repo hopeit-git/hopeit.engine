@@ -2,6 +2,20 @@
 Data Objects type abstractions.
 A Dataobject is basically any object wrapped in a Dataclass and that is able
 to be stored, retrieved, serialized and deserialized by the platform toolkit.
+
+Annotate dataclasses with @dataobject annotation to make it support:
+    - JSON schema generation, validation and serialization/deserialization
+    - Compression and Serialization using different mechanisms
+
+Example:
+
+    from hopeit.dataobjects import dataclass, dataobject
+
+    @dataobject
+    @dataclass
+    class MyObject:
+        name: str
+        number: int
 """
 import pickle
 import uuid
