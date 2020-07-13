@@ -25,4 +25,4 @@ deps:
 
 # Create apidocs for hopeit.py from source code, replacing existing files in ./source/apidocs
 apidocs:
-	sphinx-apidoc --implicit-namespaces -f --tocfile index -o source/apidocs ../engine/src/hopeit
+	sphinx-apidoc --module-first -d 6 --no-headings --implicit-namespaces -f --tocfile index -o source/apidocs ../engine/src/hopeit
