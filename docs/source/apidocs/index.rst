@@ -2,8 +2,9 @@ hopeit
 ======
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 5
 
+   overview
    hopeit.app
    hopeit.cli
    hopeit.dataobjects
