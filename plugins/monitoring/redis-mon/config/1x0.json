@@ -1,0 +1,24 @@
+{
+  "app" : {
+    "name": "redis-mon",
+    "version": "1.0"
+  },
+  "engine" : {
+    "import_modules": ["hopeit.redis_mon"]
+  },
+  "env" : {
+    "log_reader": {
+        "path": "work/logs/apps/"
+    }
+  },
+  "events": {
+    "log_reader" : {
+      "type": "SERVICE",
+      "plug_mode": "Standalone"
+    },
+    "request_status" : {
+      "type": "GET",
+      "plug_mode": "Standalone"
+    }
+  }
+}
