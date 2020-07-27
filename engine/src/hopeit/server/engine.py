@@ -61,7 +61,7 @@ class AppEngine:
             effective_events=self.effective_events)
         streams_present = any(
             True for _, event_info in self.effective_events.items()
-            if event_info.type == EventType.STREAM
+            if (event_info.type == EventType.STREAM) or (event_info.write_stream is not None)
         )
         if streams_present and self.streams_enabled:
             self.stream_manager = await StreamManager(
