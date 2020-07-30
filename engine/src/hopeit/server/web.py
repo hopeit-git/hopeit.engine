@@ -476,8 +476,7 @@ async def _request_process_payload(
     """
     try:
         payload_str = (await request.read()).decode()
-        print("payload_str", payload_str)
-        if payload_str is None or payload_str == '':
+        if (payload_str is None) or (payload_str == ''):
             return None
         payload = Json.from_json(payload_str, datatype) if datatype else payload_str
         return payload  # type: ignore
