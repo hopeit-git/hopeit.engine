@@ -118,6 +118,22 @@ async def call_post_mock_event(client):
     assert result == '{"value": "ok: ok", "processed": true}'
 
 
+async def call_post_nopayload(client):
+    res: ClientResponse = await client.post(
+        '/api/mock-app/test/mock-post-nopayload',
+        params={'query_arg1': 'ok'},
+        headers={
+            'X-Track-Request-Id': 'test_request_id',
+            'X-Track-Session-Id': 'test_session_id'
+        }
+    )
+    assert res.status == 200
+    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
+    assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+    result = (await res.read()).decode()
+    assert result == '{"mock_post_nopayload": "ok: nopayload ok"}'
+
+
 async def call_post_invalid_payload(client):
     res: ClientResponse = await client.post(
         '/api/mock-app/test/mock-event-test',
@@ -421,6 +437,7 @@ def test_all(monkeypatch,
     loop.run_until_complete(call_get_fail_request(test_client))
     loop.run_until_complete(call_get_mock_spawn_event(test_client))
     loop.run_until_complete(call_post_mock_event(test_client))
+    loop.run_until_complete(call_post_nopayload(test_client))
     loop.run_until_complete(call_post_fail_request(test_client))
     loop.run_until_complete(call_get_file_response(test_client))
     loop.run_until_complete(call_get_mock_auth_event(test_client))
