@@ -60,6 +60,10 @@ def mock_app_config():
                 type=EventType.POST,
                 route='mock-app/test/mock-event-test'
             ),
+            "mock_post_nopayload": EventDescriptor(
+                type=EventType.POST,
+                route='mock-app/test/mock-post-nopayload'
+            ),
             "mock_stream_event": EventDescriptor(
                 type=EventType.STREAM,
                 read_stream=StreamDescriptor(
