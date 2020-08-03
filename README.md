@@ -57,7 +57,7 @@ Check [*LICENSE*](https://github.com/hopeit-git/hopeit.engine/blob/master/LICENS
 - Stream processing is supported using [*Redis*](https://redis.io/) and connected using [*aioredis*](https://pypi.org/project/aioredis/)
 - To develop in Jupyter Notebooks we recommed using [*nbdev*](https://pypi.org/project/nbdev/)
 
-For a full list of required libraries and licenses check [*THIRDPARTY*](https://github.com/hopeit-git/hopeit.engine/blob/master/THIRDPARTY) file.
+For a full list of required libraries and licenses check [*THIRDPARTY*](THIRDPARTY) file.
 
 ## Architecture
 
