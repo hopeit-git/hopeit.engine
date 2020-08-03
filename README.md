@@ -50,7 +50,7 @@ Microservices architecture is proven to be an efficient way that allows company 
 ## Open Source
 
 *hopeit.engine* is Open Source, and we encourage people to adopt it, improve it and contribute changes back. 
-Check [*LICENSE*](https://github.com/hopeit-git/hopeit.engine/blob/master/LICENSE) file. The library also takes advantage of other well-known python open source libraries to deliver the features described above:
+Check [*LICENSE*](LICENSE) file. The library also takes advantage of other well-known python open source libraries to deliver the features described above:
 
 - HTTP endpoints are based on [*aiohttp*](https://pypi.org/project/aiohttp/)
 - Open API / Swagger support is enables by [*aiohttp_swagger3*](https://pypi.org/project/aiohttp-swagger3/)
