@@ -1,0 +1,112 @@
+The following third-party libraries and services are needed to run hopeit.engine:
+
+
+python 3.7+:
+    Link:
+    License:
+
+aiohttp
+    Link:
+    License:
+
+aiohttp-cors
+    Link:
+    License:
+
+aiohttp-swagger3
+    Link:
+    License:
+
+aiojobs
+    Link:
+    License:
+
+aiofiles
+    Link:
+    License:
+
+dataclasses-jsonschema
+    Link:
+    License:
+
+stringcase
+    Link:
+    License:
+
+aioredis
+    Link:
+    License:
+
+lz4
+    Link:
+    License:
+
+cryptography
+    Link:
+    License:
+
+pyjwt
+    Link:
+    License:
+
+click
+    Link:
+    License:
+
+deepdiff
+    Link:
+    License:
+
+fastjsonschema==2.14.3
+    Link:
+    License:
+
+typing_inspect
+    Link:
+    License:
+
+Redis:
+    Link:
+    License:
+
+
+The following libraries are used to test and develop hopeit.engine:
+flake8:
+    Link:
+    License:
+
+pylint
+    Link:
+    License:
+
+pytest
+    Link:
+    License:
+
+pytest-cov
+    Link:
+    License:
+
+pytest-aiohttp
+    Link:
+    License:
+
+pytest-asyncio
+    Link:
+    License:
+
+coverage
+    Link:
+    License:
+
+coverage-badge
+    Link:
+    License:
+
+mypy
+    Link:
+    License:
+
+wheel
+    Link:
+    License:

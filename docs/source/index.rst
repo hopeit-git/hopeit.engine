@@ -1,9 +1,19 @@
-hopeit.engine documentation
-===========================
+hopeit engine
+=============
 
-This is the hopeit.engine documentation. hopeit.engine is a Python engine that allows creation and operations of
-microservices with out-of-the box API generation, data validation, stream processing, logging, metrics and tracking.
+**“Microservices with Data Streams”**
 
+*hopeit.engine* is a library that allows development and deployment of
+reactive, data driven microservices in Python. It provides a way to
+create APIs, implement business and data driven applications in Python,
+communicate between services using data streams, test, deploy and scale
+services.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Overview:
+
+   overview
 
 .. toctree::
    :maxdepth: 2
