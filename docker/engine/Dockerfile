@@ -26,7 +26,7 @@ RUN \
 COPY config/supervisord.conf /etc/supervisord.conf
 COPY config/haproxy.cfg /etc/haproxy/hapoxy.conf
 RUN mkdir -p  /var/log/supervisor
-RUN mkdir -p  /opt/hopeit.py
+RUN mkdir -p  /opt/hopeit.engine/logs
 
 
 # ------------------------
@@ -48,8 +48,8 @@ RUN conda install -y python=3.8
 # requierements, supervisor
 # ---------------------------
 # install python deps
-COPY config/requirements.txt /opt/hopeit.py/requirements.txt
-RUN /bin/bash -c "pip install -r /opt/hopeit.py/requirements.txt"
+COPY config/requirements.txt /opt/hopeit.engine/requirements.txt
+RUN /bin/bash -c "pip install -r /opt/hopeit.engine/requirements.txt"
 COPY config/bootstrap.sh /
 
 ENTRYPOINT ["/bootstrap.sh"]

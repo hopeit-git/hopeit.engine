@@ -1,7 +1,9 @@
 version: '2'
 services:
+
+  # Redis cluster needed for STREAM events (Single node, development only)
   redis:
-    image: 'redis:5.0'
+    image: 'redis:6.0'
     environment:
       # ALLOW_EMPTY_PASSWORD is recommended only for development.
       - ALLOW_EMPTY_PASSWORD=yes
@@ -12,63 +14,18 @@ services:
     ports:
       - '6379:6379'
 
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:7.5.1
-    depends_on:
-      - elasticsearch
-    environment:
-      - kibana_host=kibana:5601
-      - output.elasticsearch.hosts=http://elasticsearch:9200
-      - LOGSTASH_HOST=logstash
-      - LOGSTASH_PORT=5044
-    volumes:
-      - ./conf/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ../work/logs/:/logs/hopeit/
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.1
-    environment:
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - reindex.remote.whitelist=localhost:9500
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - ./data/es01:/usr/share/elasticsearch/data:cached
-    ports:
-      - 9200:9200
-
-  engine:
+  # Simple Example application with HAProxy load balancer (Development only)
+  # WARNING: local filesystem is mounted into docker image to help development and debugging
+  # for production use `make dist`, copy and install engine and apps with pip from DockerFile.
+  simple-example:
     build: engine
     volumes:
       - ./engine/config/haproxy.cfg:/etc/haproxy/haproxy.cfg
       - ./engine/config/supervisord.conf:/etc/supervisord.conf
-      - ./engine/config/run_engine.sh:/opt/hopeit.py/run_engine.sh
-      - ../logs:/opt/hopeit.py/logs
-      - ../engine:/opt/hopeit.py/engine
-      - ../apps:/opt/hopeit.py/apps
+      - ./engine/config/bootstrap.sh:/opt/hopeit.engine/bootstrap.sh
+      - ../engine:/opt/hopeit.engine/engine
+      - ../apps:/opt/hopeit.engine/apps
+      - ../plugins:/opt/hopeit.engine/plugins
     ports:
       - '80:80'
       - '443:443'
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.5.1
-    depends_on:
-      - elasticsearch
-    environment:
-      - SERVER_NAME=kibana
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - 5601:5601
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:7.1.1
-    depends_on:
-      - elasticsearch
-    ports:
-      - 12201:12201/udp
-    volumes:
-      - ./conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro

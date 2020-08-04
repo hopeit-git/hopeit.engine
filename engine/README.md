@@ -1,13 +1,15 @@
-### Hopeit.py Engine
+### hopeit.engine
+
+#### Engine development README
 
 ##### Install locally for apps or plugins development:
 - Install python 3.8
 - Create and activate a virtual environment (recommended)
-- Run
+- Run from hopeit.engine project root
 ```
-    cd engine && make install
+    make dev-deps && make install
 ```
-- Now hopeit.engine package should be installed into your virtualenv linked to the source code in ./src
+- Now hopeit.engine package should be installed into your virtual/conda env linked to the source code in ./src
 - Then you can create your apps or plugins and run the server
 
 ##### Configure
@@ -54,7 +56,7 @@
     make check
 ```
 
-- To create distribution library
+- To create distribution library (hopeit.engine)
 ```
     make dist
 ```
@@ -67,6 +69,6 @@
 - Examples: to install plugin or app in virtual environment
     - to use existing app and plugins, you will need to obtain also a configuration file for each app and plugin. install-app will only install source code.
 ```
-    make APPFOLDER=plugins/auth/basic-auth install-app
+    make PLUGINFOLDER=plugins/auth/basic-auth install-plugin
     make APPFOLDER=apps/examples/simple-example install-app
 ```
