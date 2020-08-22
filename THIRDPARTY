@@ -2,111 +2,111 @@ The following third-party libraries and services are needed to run hopeit.engine
 
 
 python 3.7+:
-    Link:
-    License:
+    Link: https://www.python.org/
+    License: Python releases are Open Source. Historically, most, but not all, Python releases have also been GPL-compatible. The Licenses page details GPL-compatibility and Terms and Conditions. (https://docs.python.org/3/license.html)
 
 aiohttp
-    Link:
-    License:
+    Link: https://github.com/aio-libs/aiohttp
+    License: Apache 2.0 (https://github.com/aio-libs/aiohttp/blob/master/LICENSE.txt)
 
 aiohttp-cors
-    Link:
-    License:
+    Link: https://github.com/aio-libs/aiohttp-cors
+    License: Apache 2.0 (https://github.com/aio-libs/aiohttp-cors/blob/master/LICENSE)
 
 aiohttp-swagger3
-    Link:
-    License:
+    Link: https://github.com/hh-h/aiohttp-swagger3
+    License: Apache 2.0 (https://github.com/hh-h/aiohttp-swagger3/blob/master/LICENSE)
 
 aiojobs
-    Link:
-    License:
+    Link: https://github.com/aio-libs/aiojobs
+    License: Apache 2.0 (https://github.com/aio-libs/aiojobs/blob/master/LICENSE)
 
 aiofiles
-    Link:
-    License:
+    Link: https://github.com/Tinche/aiofiles
+    License: Apache-2.0 (https://github.com/Tinche/aiofiles/blob/master/LICENSE)
 
 dataclasses-jsonschema
-    Link:
-    License:
+    Link: https://github.com/s-knibbs/dataclasses-jsonschema
+    License: MIT (https://github.com/s-knibbs/dataclasses-jsonschema/blob/master/LICENSE)
 
 stringcase
-    Link:
-    License:
+    Link: https://github.com/okunishinishi/python-stringcase
+    License: MIT (https://github.com/okunishinishi/python-stringcase/blob/master/LICENSE)
 
 aioredis
-    Link:
-    License:
+    Link: https://github.com/aio-libs/aioredis
+    License: MIT (https://github.com/aio-libs/aioredis/blob/master/LICENSE)
 
 lz4
-    Link:
-    License:
+    Link: https://github.com/lz4/lz4
+    License: All files in the `lib` directory use a BSD 2-Clause license; all other files use a GPLv2 license, (https://github.com/lz4/lz4/blob/dev/LICENSE)
 
 cryptography
-    Link:
-    License:
+    Link: https://github.com/pyca/cryptography
+    License: This software is made available under the terms of *either* of the licenses found in LICENSE.APACHE or LICENSE.BSD. (https://github.com/pyca/cryptography/blob/master/LICENSE)
 
 pyjwt
-    Link:
-    License:
+    Link: https://github.com/jpadilla/pyjwt
+    License: MIT (https://github.com/jpadilla/pyjwt/blob/master/LICENSE)
 
 click
-    Link:
-    License:
+    Link: https://github.com/pallets/click
+    License: BSD 3-Clause "New" or "Revised" (https://github.com/pallets/click/blob/master/LICENSE.rst)
 
 deepdiff
-    Link:
-    License:
+    Link: https://github.com/seperman/deepdiff
+    License: MIT (https://github.com/seperman/deepdiff/blob/master/LICENSE)
 
-fastjsonschema==2.14.3
-    Link:
-    License:
+fastjsonschema
+    Link: https://github.com/horejsek/python-fastjsonschema
+    License: BSD 3-Clause "New" or "Revised" (https://github.com/horejsek/python-fastjsonschema/blob/master/LICENSE)
 
 typing_inspect
-    Link:
-    License:
+    Link: https://github.com/ilevkivskyi/typing_inspect
+    License: MIT (https://github.com/ilevkivskyi/typing_inspect/blob/master/LICENSE)
 
 Redis:
-    Link:
-    License:
+    Link: https://redis.io/
+    License: BSD (https://redis.io/topics/license)
 
 
 The following libraries are used to test and develop hopeit.engine:
 flake8:
-    Link:
-    License:
+    Link: https://gitlab.com/pycqa/flake8
+    License: MIT https://gitlab.com/pycqa/flake8/-/blob/master/LICENSE
 
 pylint
-    Link:
-    License:
+    Link: https://github.com/PyCQA/pylint
+    License: GNU General Public License v2.0 (https://github.com/PyCQA/pylint/blob/master/COPYING)
 
 pytest
-    Link:
-    License:
+    Link: https://github.com/pytest-dev/pytest
+    License: MIT (https://github.com/pytest-dev/pytest/blob/master/LICENSE)
 
 pytest-cov
-    Link:
-    License:
+    Link: https://github.com/pytest-dev/pytest-cov
+    License: MIT (https://github.com/pytest-dev/pytest-cov/blob/master/LICENSE)
 
 pytest-aiohttp
-    Link:
-    License:
+    Link: https://github.com/aio-libs/pytest-aiohttp
+    License: Apache 2.0 (https://github.com/aio-libs/pytest-aiohttp/blob/master/LICENSE)
 
 pytest-asyncio
-    Link:
-    License:
+    Link: https://github.com/pytest-dev/pytest-asyncio
+    License: Apache 2.0 (https://github.com/pytest-dev/pytest-asyncio/blob/master/LICENSE)
 
 coverage
-    Link:
-    License:
+    Link: https://github.com/nedbat/coveragepy
+    License: Apache 2.0 (https://github.com/nedbat/coveragepy/blob/master/LICENSE.txt)
 
 coverage-badge
-    Link:
-    License:
+    Link: https://github.com/dbrgn/coverage-badge
+    License: MIT (https://github.com/dbrgn/coverage-badge/blob/master/LICENSE.txt)
 
 mypy
-    Link:
-    License:
+    Link: https://github.com/python/mypy
+    License: MIT (https://github.com/python/mypy/blob/master/LICENSE)
 
 wheel
-    Link:
-    License:
+    Link: https://github.com/pypa/wheel
+    License: MIT (https://github.com/pypa/wheel/blob/master/LICENSE.txt)
