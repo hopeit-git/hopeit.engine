@@ -57,7 +57,7 @@ deepdiff
     Link: https://github.com/seperman/deepdiff
     License: MIT (https://github.com/seperman/deepdiff/blob/master/LICENSE)
 
-fastjsonschema==2.14.3
+fastjsonschema
     Link: https://github.com/horejsek/python-fastjsonschema
     License: BSD 3-Clause "New" or "Revised" (https://github.com/horejsek/python-fastjsonschema/blob/master/LICENSE)
 
