@@ -78,7 +78,7 @@ class StreamManager:
             return self
         except (OSError, RedisError) as e:
             logger.error(__name__, e)
-            raise StreamOSError(e)
+            raise StreamOSError(e) from e
 
     async def close(self):
         """
@@ -239,7 +239,7 @@ class StreamManager:
             await asyncio.sleep(batch_interval / 1000.0)
             return []
         except (OSError, RedisError) as e:
-            raise StreamOSError(e)
+            raise StreamOSError(e) from e
 
     async def ack_read_stream(self, *,
                               stream_name: str,

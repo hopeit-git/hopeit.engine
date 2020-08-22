@@ -101,8 +101,8 @@ class AppEngine:
                 self._execute_event(context, query_args, payload),
                 timeout=timeout
             )
-        except asyncio.TimeoutError:
-            raise TimeoutError(f"Response timeout exceeded seconds={timeout}")
+        except asyncio.TimeoutError as e:
+            raise TimeoutError(f"Response timeout exceeded seconds={timeout}") from e
 
     async def _execute_event(self, context: EventContext, query_args: Optional[dict],
                              payload: Optional[EventPayload]) -> Optional[EventPayload]:

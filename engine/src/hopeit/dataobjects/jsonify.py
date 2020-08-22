@@ -36,7 +36,7 @@ class Json(Generic[EventPayloadType]):
         try:
             return datatype.from_json(json_str, validate=datatype.__data_object__['validate'])  # type: ignore
         except ValidationError as e:
-            raise ValueError(f"Cannot read JSON: type={datatype} validation_error={str(e)}")
+            raise ValueError(f"Cannot read JSON: type={datatype} validation_error={str(e)}") from e
 
     @staticmethod
     def to_json(payload: EventPayloadType, key: Optional[str] = 'value') -> str:
@@ -61,4 +61,4 @@ class Json(Generic[EventPayloadType]):
         try:
             return payload.to_json(validate=payload.__data_object__['validate'])  # type: ignore
         except (ValidationError, AttributeError) as e:
-            raise ValueError(f"Cannot convert to JSON: type={type(payload)} validation_error={str(e)}")
+            raise ValueError(f"Cannot convert to JSON: type={type(payload)} validation_error={str(e)}") from e
