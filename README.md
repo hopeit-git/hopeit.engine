@@ -17,6 +17,8 @@
 
 *hopeit.engine* is a library that allows development and deployment of reactive, data driven microservices in Python. It provides a way to create APIs, implement business and data driven applications in Python, communicate between services using data streams, test, deploy and scale services.
 
+[Click here to watch an intro video](https://www.youtube.com/watch?v=wG5NQqUsYgg)
+
 ### Motivation
 
 **Small organizations**: *hopeit.engine* is intended initially to enable small organizations and companies, which don't have a huge software development infrastructure, to create new systems with the benefits of microservices: quick to develop, simple and small, easy to maintain and operate. These characteristics allow also migration of existing systems piece by piece to microservices. But that's not all: *hopeit.engine* adds a few features and good practices that all production-grade microservices must have out-of-the-box: modularity, scalability, logging, tracking/tracing, stream processing, metrics and monitoring. 
