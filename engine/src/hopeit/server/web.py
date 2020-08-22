@@ -434,8 +434,8 @@ def _validate_authorization(app_config: AppConfig,
     auth_header = _extract_authorization(auth_methods, request, context)
     try:
         method, data = auth_header.split(" ")
-    except ValueError:
-        raise BadRequest("Malformed Authorization")
+    except ValueError as e:
+        raise BadRequest("Malformed Authorization") from e
     for auth_type in auth_types:
         if method.upper() == auth_type.name.upper():
             auth.validate_auth_method(auth_type, data, context)
@@ -482,7 +482,7 @@ async def _request_process_payload(
         return payload  # type: ignore
     except ValueError as e:
         logger.error(context, e)
-        raise BadRequest(e)
+        raise BadRequest(e) from e
 
 
 async def _handle_post_invocation(
