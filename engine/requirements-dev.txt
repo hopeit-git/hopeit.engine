@@ -6,6 +6,6 @@ pytest-aiohttp
 pytest-asyncio
 coverage
 coverage-badge
-mypy
+mypy==0.770
 wheel
 docker-compose
