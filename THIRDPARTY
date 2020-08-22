@@ -3,7 +3,7 @@ The following third-party libraries and services are needed to run hopeit.engine
 
 python 3.7+:
     Link: https://www.python.org/
-    License: Python releases are Open Source. Historically, most, but not all, Python releases have also been GPL-compatible. The Licenses page details GPL-compatibility and Terms and Conditions. https://docs.python.org/3/license.html
+    License: Python releases are Open Source. Historically, most, but not all, Python releases have also been GPL-compatible. The Licenses page details GPL-compatibility and Terms and Conditions. (https://docs.python.org/3/license.html)
 
 aiohttp
     Link: https://github.com/aio-libs/aiohttp
@@ -23,7 +23,7 @@ aiojobs
 
 aiofiles
     Link: https://github.com/Tinche/aiofiles
-    License:  Apache-2.0 (https://github.com/Tinche/aiofiles/blob/master/LICENSE)
+    License: Apache-2.0 (https://github.com/Tinche/aiofiles/blob/master/LICENSE)
 
 dataclasses-jsonschema
     Link: https://github.com/s-knibbs/dataclasses-jsonschema
