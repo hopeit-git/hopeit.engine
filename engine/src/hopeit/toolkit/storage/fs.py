@@ -14,6 +14,8 @@ from hopeit.dataobjects.jsonify import Json
 
 __all__ = ['FileStorage']
 
+SUFFIX = '.json'
+
 
 class FileStorage(Generic[DataObject]):
     """
@@ -28,8 +30,15 @@ class FileStorage(Generic[DataObject]):
         self.path: Path = Path(path)
 
     async def list_objects(self, wildcard: str = '*') -> List[str]:
-        path = str(self.path.absolute()) + '/' + wildcard + '.json'
-        return [Path(path).name.rstrip('.json') for path in glob(path)]
+        """
+        Retrieves list of objects keys from the file storage
+
+        :param wilcard: allow filter the listing of objects
+        :return: List of objects key
+        """
+
+        path = str(self.path.absolute()) + '/' + wildcard + SUFFIX
+        return [Path(path).name[:-len(SUFFIX)] for path in glob(path)]
 
     async def get(self, key: str, *, datatype: Type[DataObject]) -> Optional[DataObject]:
         """
@@ -39,7 +48,7 @@ class FileStorage(Generic[DataObject]):
         :param datatype: dataclass implementing @dataobject (@see DataObject)
         :return: instance of datatype or None if not found
         """
-        payload_str = await self._load_file(path=self.path, file_name=key + '.json')
+        payload_str = await self._load_file(path=self.path, file_name=key + SUFFIX)
         if payload_str:
             return Json.from_json(payload_str, datatype)
         return None
@@ -53,7 +62,7 @@ class FileStorage(Generic[DataObject]):
         :return: str, path where the object was stored
         """
         payload_str = Json.to_json(value)
-        return await self._save_file(payload_str, path=self.path, file_name=key + '.json')
+        return await self._save_file(payload_str, path=self.path, file_name=key + SUFFIX)
 
     @staticmethod
     async def _load_file(*, path: Path, file_name: str) -> Optional[str]:
