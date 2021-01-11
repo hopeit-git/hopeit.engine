@@ -2,7 +2,9 @@ echo "=========================="
 echo "CI STATIC ANALYSIS: ENGINE"
 echo "=========================="
 code=0
-export MYPYPATH=engine/src/ && python3 -m mypy --namespace-packages engine/src/hopeit/ engine/test/
+export MYPYPATH=engine/src/ && python3 -m mypy --namespace-packages -p hopeit
+code+=$?
+export MYPYPATH=engine/src/ && python3 -m mypy --namespace-packages engine/test/
 code+=$?
 python3 -m flake8 --max-line-length=120 engine/src/hopeit/ engine/test/
 code+=$?

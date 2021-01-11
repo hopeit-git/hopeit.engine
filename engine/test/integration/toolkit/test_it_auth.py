@@ -48,7 +48,7 @@ def test_token_lifecycle(mock_app_config):  # noqa: F811
     context = _setup_event_context(mock_app_config)
     payload = {
         'test': 'test_value',
-        'iat': datetime.now().astimezone(timezone.utc),
+        'iat': datetime.now().astimezone(timezone.utc).timestamp(),
         'exp': datetime.now().astimezone(timezone.utc) + timedelta(seconds=2)
     }
     token = auth.new_token(payload)

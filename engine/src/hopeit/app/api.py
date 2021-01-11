@@ -3,7 +3,7 @@ API Definition helpers for user apps
 """
 import inspect
 from functools import partial
-from typing import Optional, List, Type, Dict, Callable, Union, Tuple, Any
+from typing import Optional, List, Type, Dict, Callable, Union, Tuple, Any, TypeVar
 
 import typing_inspect  # type: ignore
 
@@ -15,7 +15,8 @@ __all__ = ['api_from_config',
            'event_api',
            'app_base_route_name']
 
-ArgDef = Union[str, Tuple[str, Type], Tuple[str, Type, str]]
+ArgType = TypeVar("ArgType", bound=Type)
+ArgDef = Union[str, Tuple[str, ArgType], Tuple[str, ArgType, str]]
 PayloadDef = Union[Type, Tuple[Type, str]]
 
 

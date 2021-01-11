@@ -87,6 +87,7 @@ def init(auth_config: AuthConfig):
 def new_token(payload: dict) -> str:
     assert private_key
     token = jwt.encode(payload, private_key, algorithm='RS256')
+    print(type(token))
     return token.decode()
 
 

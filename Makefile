@@ -19,7 +19,7 @@ check-plugins:
 check-apps:
 	/bin/bash apps/build/ci-static-apps.sh
 
-check: check-engine check-plugins check apps
+check: check-engine check-plugins check-apps
 
 test-engine:
 	/bin/bash engine/build/ci-test-engine.sh

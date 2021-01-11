@@ -390,11 +390,11 @@ def _request_start(app_engine: AppEngine,
     return context
 
 
-def _extract_auth_header(request: web.Request, context: EventContext) -> str:
+def _extract_auth_header(request: web.Request, context: EventContext) -> Optional[str]:
     return request.headers.get("Authorization")
 
 
-def _extract_refresh_cookie(request: web.Request, context: EventContext) -> str:
+def _extract_refresh_cookie(request: web.Request, context: EventContext) -> Optional[str]:
     return request.cookies.get(f"{context.app_key}.refresh")
 
 
