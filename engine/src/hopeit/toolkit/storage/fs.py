@@ -7,7 +7,7 @@ from pathlib import Path
 import uuid
 from typing import Optional, Type, Generic, List
 
-import aiofiles  # type: ignore
+import aiofiles
 
 from hopeit.dataobjects import DataObject
 from hopeit.dataobjects.jsonify import Json
@@ -63,7 +63,7 @@ class FileStorage(Generic[DataObject]):
         """
         file_path = path / file_name
         try:
-            async with aiofiles.open(file_path) as f:
+            async with aiofiles.open(file_path) as f:  # type: ignore
                 return await f.read()
         except FileNotFoundError:
             return None
@@ -79,7 +79,7 @@ class FileStorage(Generic[DataObject]):
         file_path = path / file_name
         tmp_path = path / str(f".{uuid.uuid4()}")
         os.makedirs(str(path), exist_ok=True)
-        async with aiofiles.open(tmp_path, 'w') as f:
+        async with aiofiles.open(tmp_path, 'w') as f:  # type: ignore
             await f.write(payload_str)
             await f.flush()
         os.rename(str(tmp_path), str(file_path))

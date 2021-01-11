@@ -7,9 +7,9 @@ dataclasses-jsonschema[fast-validation]
 stringcase
 aioredis
 lz4
-cryptography
-pyjwt
+pyjwt[crypto]>=1.7.0,<2
 click
 deepdiff
-fastjsonschema==2.14.3
+fastjsonschema
 typing_inspect
+idna<3,>=2.5
