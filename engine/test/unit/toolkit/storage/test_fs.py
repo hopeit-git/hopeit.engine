@@ -1,9 +1,11 @@
+from typing import List
 import pytest  # type: ignore
 import os
 from dataclasses import dataclass
 
 import aiofiles  # type: ignore
 
+from hopeit.toolkit.storage import fs as fs_module
 from hopeit.dataobjects import dataobject
 from hopeit.toolkit.storage.fs import FileStorage
 
@@ -97,6 +99,14 @@ class MockOs:
         pass
 
 
+def mock_glob(wc: str) -> List[str]:
+    if wc == '/path/*.json':
+        return ["/path/1.json", "/path/2.json", "/path/3.json"]
+    elif wc == '/path/1*.json':
+        return ["/path/1.json"]
+    raise ValueError(f"glob received unexpected wildcard: {wc}")
+
+
 @pytest.mark.asyncio
 async def test_load_file(monkeypatch):
     monkeypatch.setattr(aiofiles, 'open', MockFile.open)
@@ -110,3 +120,16 @@ async def test_load_file(monkeypatch):
 async def test_load_missing_file(monkeypatch):
     monkeypatch.setattr(aiofiles, 'open', MockFile.open)
     await load_missing_file()
+
+
+@pytest.mark.asyncio
+async def test_list_objects(monkeypatch):
+    monkeypatch.setattr(os, 'makedirs', MockOs.makedirs)
+    monkeypatch.setattr(fs_module, 'glob', mock_glob)
+    fs = FileStorage(path='/path')
+
+    files = await fs.list_objects()
+    assert files == ['1', '2', '3']
+
+    files = await fs.list_objects(wildcard="1*")
+    assert files == ['1']
