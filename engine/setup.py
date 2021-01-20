@@ -18,10 +18,35 @@ def libversion(lib):
 
 setuptools.setup(
     name="hopeit.engine",
-    version="0.1.3",
+    version="0.1.2c",
     description="Hopeit.py Engine",
+    long_description=open('README.md').read(),
+    long_description_content_type="text/markdown",
+    author="Leo Smerling and Pablo Canto",
+    author_email="contact@hopeit.com.ar",
+    url="https://github.com/hopeit-git/hopeit.engine",
+    classifiers=[
+        "License :: OSI Approved :: Apache Software License",
+        "Intended Audience :: Developers",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Development Status :: 4 - Beta",
+        "Operating System :: POSIX",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: Microsoft :: Windows",
+        "Topic :: Internet :: WWW/HTTP",
+        "Framework :: AsyncIO",
+    ],
+    license="Apache 2",
     package_dir={
         "": "src"
+    },
+    project_urls={
+        "CI: GitHub Actions": "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow",  # noqa
+        "Docs: RTD": "https://hopeitengine.readthedocs.io/en/latest/",
+        "GitHub: issues": "https://github.com/hopeit-git/hopeit.engine/issues",
+        "GitHub: repo": "https://github.com/hopeit-git/hopeit.engine",
     },
     packages=[
         "hopeit.app",
@@ -40,11 +65,21 @@ setuptools.setup(
         "aioredis",
         "lz4",
         "stringcase",
+<<<<<<< HEAD
         "PyJWT[crypto]",
         "click",
         "deepdiff",
         "typing-inspect"
     ]],
+=======
+        "cryptography",
+        "pyjwt[crypto]>=1.7.0,<2",
+        "click",
+        "deepdiff",
+        "typing_inspect",
+        "idna<3,>=2.5"
+    ],
+>>>>>>> add summary to method api
     extras_require={
         "web": [ f"{lib}=={libversion(lib)}" for lib in [
             "aiohttp",
@@ -52,11 +87,19 @@ setuptools.setup(
             "aiohttp-swagger3",
             "dataclasses-jsonschema[fast-validation]",
             "fastjsonschema"
+<<<<<<< HEAD
         ]],
         "cli": [ f"{lib}=={libversion(lib)}" for lib in [
             "dataclasses-jsonschema[fast-validation]",
             "fastjsonschema"
         ]]
+=======
+        ],
+        "cli": [
+            "dataclasses-jsonschema[fast-validation]",
+            "fastjsonschema"
+        ]
+>>>>>>> add summary to method api
     },
     entry_points={
         "console_scripts": [

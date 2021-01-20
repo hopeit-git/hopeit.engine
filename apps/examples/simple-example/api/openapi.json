@@ -8,7 +8,8 @@
   "paths": {
     "/api/basic-auth/1x0/decode": {
       "get": {
-        "description": "Basic Auth: Decode",
+        "summary": "Basic Auth: Decode",
+        "description": "Returns decoded auth info",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -54,7 +55,8 @@
     },
     "/api/simple-example/1x0/list-somethings": {
       "get": {
-        "description": "Simple Example: List Objects",
+        "summary": "Simple Example: List Objects",
+        "description": "Lists all available Something objects",
         "parameters": [
           {
             "name": "wildcard",
@@ -132,7 +134,8 @@
     },
     "/api/simple-example/1x0/query-something": {
       "get": {
-        "description": "Simple Example: Query Something",
+        "summary": "Simple Example: Query Something",
+        "description": "Loads Something from disk",
         "parameters": [
           {
             "name": "item_id",
@@ -215,7 +218,8 @@
         ]
       },
       "post": {
-        "description": "Simple Example: Query Something Extended",
+        "summary": "Simple Example: Query Something Extended",
+        "description": "Loads Something from disk, update status base on POST body.\nObjects is saved with updated status and history.",
         "parameters": [
           {
             "name": "item_id",
@@ -311,7 +315,8 @@
     },
     "/api/simple-example/1x0/save-something": {
       "post": {
-        "description": "Simple Example: Save Something",
+        "summary": "Simple Example: Save Something",
+        "description": "Creates and saves Something",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -397,7 +402,8 @@
     },
     "/api/simple-example/1x0/streams/something-event": {
       "post": {
-        "description": "Simple Example: Something Event",
+        "summary": "Simple Example: Something Event",
+        "description": "Submits a Something object to a stream to be processed asynchronously by process-events app event",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -474,7 +480,8 @@
     },
     "/api/simple-example/1x0/collector/query-concurrently": {
       "post": {
-        "description": "Simple Example: Query Concurrently",
+        "summary": "Simple Example: Query Concurrently",
+        "description": "Loads 2 Something objects concurrently from disk and combine the results\nusing `collector` steps constructor (instantiating an `AsyncCollector`)",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -554,7 +561,8 @@
     },
     "/api/simple-example/1x0/collector/collect-spawn": {
       "post": {
-        "description": "Simple Example: Collect and Spawn",
+        "summary": "Simple Example: Collect and Spawn",
+        "description": "Loads 2 Something objects concurrently from disk, combine the results\nusing `collector` steps constructor (instantiating an `AsyncCollector`)\nthen spawn the items found individually into a stream",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -640,7 +648,8 @@
     },
     "/api/simple-example/1x0/shuffle/spawn-event": {
       "post": {
-        "description": "Simple Example: Spawn Event",
+        "summary": "Simple Example: Spawn Event",
+        "description": "This example will spawn 3 data events, those are going to be send to a stream using SHUFFLE\nand processed in asynchronously / in parallel if multiple nodes are available",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -726,7 +735,8 @@
     },
     "/api/simple-example/1x0/shuffle/parallelize-event": {
       "post": {
-        "description": "Simple Example: Parallelize Event",
+        "summary": "Simple Example: Parallelize Event",
+        "description": "This example will spawn 2 copies of payload data, those are going to be send to a stream using SHUFFLE\nand processed in asynchronously / in parallel if multiple nodes are available,\nthen submitted to other stream to be updated and saved",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -812,7 +822,8 @@
     },
     "/api/simple-example/1x0/basic-auth/1x0/login": {
       "get": {
-        "description": "Basic Auth: Login",
+        "summary": "Basic Auth: Login",
+        "description": "Handles users login using basic-auth\nand generate access tokens for external services invoking apps\nplugged in with basic-auth plugin.",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -888,7 +899,8 @@
     },
     "/api/simple-example/1x0/basic-auth/1x0/refresh": {
       "get": {
-        "description": "Basic Auth: Refresh",
+        "summary": "Basic Auth: Refresh",
+        "description": "This event can be used for obtain new access token and update refresh token (http cookie),\nwith no need to re-login the user if there is a valid refresh token active.",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -964,7 +976,8 @@
     },
     "/api/simple-example/1x0/basic-auth/1x0/logout": {
       "get": {
-        "description": "Basic Auth: Logout",
+        "summary": "Basic Auth: Logout",
+        "description": "Invalidates previous refresh cookies.",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
