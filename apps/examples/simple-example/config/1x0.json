@@ -33,6 +33,9 @@
     "save_something" : {
       "type": "POST"
     },
+    "upload_something": {
+      "type": "MULTIPART"
+    },
     "service.something_generator": {
       "type": "SERVICE",
       "write_stream": {
