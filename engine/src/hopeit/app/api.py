@@ -97,12 +97,19 @@ def _payload_description(arg: PayloadDef) -> str:
 
 
 def _method_summay(title, module) -> str:
-    return title if title else inspect.getdoc(module).split("\n")[0] if inspect.getdoc(module) else ""
+    ds = inspect.getdoc(module)
+    if title is not None:
+        return title
+    if isinstance(ds, str):
+        return ds.split("\n")[0]
+    return ""
 
 
-def _method_description(title, module ) -> str:
-    return inspect.getdoc(module).split("\n", 2)[2] if inspect.getdoc(module) \
-        is not None and inspect.getdoc(module).count('\n') > 1 else title
+def _method_description(title, module) -> str:
+    ds = inspect.getdoc(module)
+    if ds is not None and ds.count('\n') > 1:
+        return ds.split("\n", 2)[2]
+    return _method_summay(title, module)
 
 
 def _event_api(
@@ -133,8 +140,8 @@ def _event_api(
             }
         })
     method_spec: Dict[str, Any] = {
-        "summary": _method_summay(title,module),
-        "description": _method_description(title,module),
+        "summary": _method_summay(title, module),
+        "description": _method_description(title, module),
         "parameters": parameters
     }
     if payload is not None:
