@@ -3,7 +3,7 @@
 #### Engine development README
 
 ##### Install locally for apps or plugins development:
-- Install python 3.8
+- Install python 3.7 or 3.8
 - Create and activate a virtual environment (recommended)
 - Run from hopeit.engine project root
 ```
@@ -28,10 +28,13 @@
 
 - Additional options:
 ```
-    --port: indicates to listen on another port number, default is --port=8020
-    --path: indicates to listen in a unix socket path, default is disabled
-    --start-streams: indicates to auomatically start events of type STREAM when starting server
     --config-files: comma-separated file of config files to load, starting with server config, then plugins, then apps
+    --api-file: path to openapi complaint json specification
+    --host: server host address or name, default is --host=0.0.0.0
+    --port: indicates to listen on another port number, default is --port=8020
+    --path: indicates to listen in a unix socket path, default is disabled    
+    --start-streams: indicates to auomatically start events of type STREAM when starting server
+    
 ```
 
 - Example starting a single app that depends on plugins:
