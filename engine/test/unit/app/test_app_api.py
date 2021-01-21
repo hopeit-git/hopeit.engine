@@ -54,6 +54,8 @@ def test_event_api_post(monkeypatch, mock_api_spec, mock_api_app_config):  # noq
         query_args=['arg1'],
         responses={200: int}
     )(mock_app_api_post, app_config=mock_api_app_config, event_name='mock-app-api-post', plugin=None)
+    assert spec['summary'] == \
+        mock_api_spec['paths']['/api/mock-app-api/test/mock-app-api']['post']['summary']
     assert spec['description'] == \
         mock_api_spec['paths']['/api/mock-app-api/test/mock-app-api']['post']['description']
     assert spec['parameters'][0] == \
