@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="simple_example",
-    version="0.1.0",
+    version="0.1.2",
     description="Hopeit.py Example App",
     package_dir={
         "": "src"

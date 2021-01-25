@@ -6,12 +6,12 @@ from typing import Dict, Optional, List, Tuple, AsyncGenerator
 from asyncio import iscoroutine
 
 from hopeit.dataobjects import EventPayload
-from hopeit.server.steps import extract_postprocess_handler, execute_steps, StepInfo, \
-    invoke_single_step, extract_module_steps, effective_steps, event_and_step
+from hopeit.server.steps import extract_postprocess_handler, extract_preprocess_handler, execute_steps, \
+    invoke_single_step, extract_module_steps, effective_steps, event_and_step, StepInfo
 from hopeit.server.logger import setup_app_logger, engine_logger, extra_logger
 from hopeit.server.imports import find_event_handler
 from hopeit.app.config import AppConfig, EventDescriptor
-from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 
 __all__ = ['EventHandler']
 
@@ -36,7 +36,8 @@ class EventHandler:
         self.app_config = app_config
         self.modules: Dict[str, Tuple[ModuleType, bool, list]] = {}
         self.steps: Dict[str, Dict[str, StepInfo]] = {}
-        self.pp_handlers: Dict[str, Optional[StepInfo]] = {}
+        self.preprocess_handlers: Dict[str, Optional[StepInfo]] = {}
+        self.postprocess_handlers: Dict[str, Optional[StepInfo]] = {}
         logger.init_app(app_config, plugins)
         self.load_modules(effective_events)
 
@@ -46,7 +47,8 @@ class EventHandler:
             module = find_event_handler(app_config=self.app_config, event_name=base_event)
             steps = extract_module_steps(module)
             self.modules[base_event] = (module, False, steps)
-            self.pp_handlers[base_event] = extract_postprocess_handler(module)
+            self.preprocess_handlers[base_event] = extract_preprocess_handler(module)
+            self.postprocess_handlers[base_event] = extract_postprocess_handler(module)
             setup_app_logger(module, app_config=self.app_config, name=base_event, event_info=event_info)
             self.steps[event_name] = effective_steps(event_name, steps)
 
@@ -72,11 +74,13 @@ class EventHandler:
         """
         if query_args is None:
             query_args = {}
-        base_event, _ = event_and_step(context.event_name)
-        impl, initialized, raw_steps = self.modules[base_event]
-        if not initialized:
-            await self._init_module(module=impl, context=context)
-            self.modules[base_event] = (impl, True, raw_steps)
+        # base_event, _ = event_and_step(context.event_name)
+        # _, initialized, _ = self.modules[base_event]
+        # assert initialized, \
+        #         "Module not initialized."
+        # if not initialized:
+        #     await self._init_module(module=impl, context=context)
+        #     self.modules[base_event] = (impl, True, raw_steps)
         steps = self.steps[context.event_name]
         async for result in execute_steps(steps, context=context, payload=payload, **query_args):
             yield result
@@ -89,12 +93,30 @@ class EventHandler:
         Invokes postprocess method in event if defined in event configuration,
         allowing events to append headers, cookies and status to a response
         """
-        pp_handler = self.pp_handlers[context.event_name]
+        pp_handler = self.postprocess_handlers[context.event_name]
         if pp_handler:
             _, initialized, _ = self.modules[context.event_name]
             assert initialized, \
                 "Module not initialized. Postprocess requires events steps to be executed first"
             return await invoke_single_step(payload=payload, context=context, func=pp_handler[0], response=response)
+        return payload
+
+    async def preprocess(self, *,
+                          context: EventContext,
+                          payload: Optional[EventPayload],
+                          request: PreprocessHook) -> Optional[EventPayload]:
+        """
+        Invokes __preprocess__ method in event if defined in event,
+        allowing events to process elements from requests.
+        """
+        base_event, _ = event_and_step(context.event_name)
+        impl, initialized, raw_steps = self.modules[base_event]
+        if not initialized:
+            await self._init_module(module=impl, context=context)
+            self.modules[base_event] = (impl, True, raw_steps)
+        pp_handler = self.preprocess_handlers[context.event_name]
+        if pp_handler:
+            return await invoke_single_step(payload=payload, context=context, func=pp_handler[0], request=request)
         return payload
 
     async def _init_module(self, *, module, context: EventContext):

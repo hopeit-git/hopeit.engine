@@ -12,7 +12,7 @@ from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import split_event_stages, event_and_step, extract_module_steps, effective_steps
 from hopeit.toolkit import auth
 from hopeit.app.config import AppConfig, EventType, StreamDescriptor, EventDescriptor
-from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import ServerConfig
 from hopeit.server.events import EventHandler
@@ -154,6 +154,13 @@ class AppEngine:
             target_max_len=event_info.config.stream.target_max_len
         )
 
+    async def preprocess(self, *,
+                          context: EventContext,
+                          payload: Optional[EventPayload],
+                          request: PreprocessHook) -> Optional[EventPayload]:
+        assert self.event_handler, "event_handler not created. Call `start()`."
+        return await self.event_handler.preprocess(context=context, payload=payload, request=request)
+        
     async def postprocess(self, *,
                           context: EventContext,
                           payload: Optional[EventPayload],

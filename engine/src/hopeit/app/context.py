@@ -1,9 +1,13 @@
 """
 Context information and handling
 """
+from typing import AsyncGenerator
 from pathlib import Path
 from typing import Dict, Optional, Any, Tuple, Union, List
 from datetime import datetime, timezone
+
+import aiohttp
+
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventType
 
@@ -52,7 +56,7 @@ class EventContext:
 class PostprocessHook:
     """
     Post process hook that keeps additional changes to add to response on
-    postprocess(...) event methods.
+    `__postprocess__(...)` event methods.
 
     Useful to set cookies, change status and set additional headers in web responses.
     """
@@ -77,3 +81,44 @@ class PostprocessHook:
 
     def set_file_response(self, path: Union[str, Path]):
         self.file_response = path
+
+
+class PreprocessFileHook:
+    """
+    Hook to read files from multipart requests
+    """
+    def __init__(self, *, name: str, file_name: str, data: aiohttp.multipart.BodyPartReader):
+        self.name = name
+        self.file_name = file_name
+        self.data = data
+        self.size = 0
+
+    async def read_chunks(self) -> AsyncGenerator[bytes, None]:
+        async for chunk in self.data:
+            self.size += len(chunk)
+            yield chunk
+
+
+class PreprocessHook:
+    """
+    Preprocess hook that handles information available in the request to be accessed
+    from `__preprocess__(...)` event method when defined.
+    """
+    def __init__(self, first_file, reader):           
+        self._first_file = first_file
+        self._reader = reader
+        self._args = {}
+
+    @property
+    def parsed_args(self):
+        return self._args
+
+    async def files(self) -> AsyncGenerator[Any, None]:
+        if self._first_file is not None:
+            yield PreprocessFileHook(name=self._first_file.name, file_name=self._first_file.filename, data=self._first_file)
+        if self._reader is not None:
+            async for field in self._reader:
+                if field.filename:
+                    yield PreprocessFileHook(name=field.name, file_name=field.filename, data=field)
+                else:
+                    self._args[field.name] = await field.text()

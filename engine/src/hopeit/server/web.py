@@ -30,7 +30,7 @@ from hopeit.server import api
 from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
 from hopeit.dataobjects.jsonify import Json
-from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook, PreprocessFileHook
 from hopeit.dataobjects import DataObject, EventPayloadType
 from hopeit.app.errors import Unauthorized, BadRequest
 from hopeit.server.engine import Server, AppEngine
@@ -203,6 +203,12 @@ def _setup_app_event_routes(app_engine: AppEngine,
                     app_engine, plugin=plugin, event_name=event_name, override_route_name=event_info.route
                 )
             ])
+        elif event_info.type == EventType.MULTIPART:
+            web_server.add_routes([
+                _create_multipart_event_route(
+                    app_engine, plugin=plugin, event_name=event_name, override_route_name=event_info.route
+                )
+            ])
         elif event_info.type == EventType.STREAM and plugin is None:
             web_server.add_routes(
                 _create_event_management_routes(
@@ -267,6 +273,28 @@ def _create_get_event_route(
     setattr(handler, '__code__', _handle_post_invocation.__code__)
     api_handler = api.add_route('get', route, handler)
     return web.get(route, api_handler)
+
+
+def _create_multipart_event_route(
+        app_engine: AppEngine, *,
+        plugin: Optional[AppEngine] = None,
+        event_name: str,
+        override_route_name: Optional[str]) -> web.RouteDef:
+    """
+    Creates route for handling MULTIPART event
+    """
+    datatype = find_datatype_handler(app_config=app_engine.app_config, event_name=event_name)
+    route = app_route_name(app_engine.app_config.app, event_name=event_name,
+                           plugin=None if plugin is None else plugin.app_config.app,
+                           override_route_name=override_route_name)
+    logger.info(__name__, f"MULTIPART path={route} input={str(datatype)}")
+    impl = plugin if plugin else app_engine
+    handler = partial(_handle_multipart_invocation, app_engine, impl,
+                      event_name, datatype, _auth_types(impl, event_name))
+    setattr(handler, '__closure__', None)
+    setattr(handler, '__code__', _handle_multipart_invocation.__code__)
+    # TODO: api_handler = api.add_route('post', route, handler)
+    return web.post(route, handler) #  TODO: api_handler)
 
 
 def _create_event_management_routes(
@@ -449,15 +477,17 @@ async def _request_execute(
         event_name: str,
         context: EventContext,
         query_args: Dict[str, Any],
-        payload: Optional[EventPayloadType] = None) -> ResponseType:
+        payload: Optional[EventPayloadType] = None,
+        preprocess_hook: Optional[PreprocessHook] = None) -> ResponseType:
     """
     Executes request using engine event handler
     """
+    result = await app_engine.preprocess(context=context, payload=payload, request=preprocess_hook)
+    query_args = {**query_args, **preprocess_hook.parsed_args}
     result = await app_engine.execute(
         context=context, query_args=query_args, payload=payload)
     response_hook = PostprocessHook()
-    result = await app_engine.postprocess(context=context, payload=result,
-                                          response=response_hook)
+    result = await app_engine.postprocess(context=context, payload=result, response=response_hook)
     body = Json.to_json(result, key=event_name)
     response = _response(track_ids=context.track_ids, body=body, hook=response_hook)
     logger.done(context, extra=combined(
@@ -535,6 +565,46 @@ async def _handle_get_invocation(
     except Exception as e:  # pylint: disable=broad-except
         return _failed_response(context, e)
 
+
+async def _request_multipart_extract(
+    context: EventContext, datatype: Type[DataObject], request: web.Request
+) -> Tuple[DataObject, PreprocessHook]:
+    reader = await request.multipart()
+    payload, first_file = None, None
+    async for field in reader:
+        if field.filename is None:
+            if field.name == 'payload':
+                payload = datatype.from_dict(await field.json())
+        else:
+            first_file = field
+        break
+    hook = PreprocessHook(first_file=first_file, reader=reader)
+    return payload, hook
+
+
+async def _handle_multipart_invocation(
+        app_engine: AppEngine,
+        impl: AppEngine,
+        event_name: str,
+        datatype: Optional[Type[DataObject]],
+        auth_types: List[AuthType],
+        request: web.Request) -> ResponseType:
+    """
+    Handler to execute POST calls
+    """
+    context = None
+    try:
+        context = _request_start(app_engine, impl, event_name, request)
+        query_args = dict(request.query)
+        _validate_authorization(app_engine.app_config, context, auth_types, request)
+        payload, hook = await _request_multipart_extract(context, datatype, request)
+        return await _request_execute(impl, event_name, context, query_args, payload, hook)
+    except Unauthorized as e:
+        return _ignored_response(context, 401, e)
+    except BadRequest as e:
+        return _ignored_response(context, 400, e)
+    except Exception as e:  # pylint: disable=broad-except
+        return _failed_response(context, e)
 
 async def _start_streams(app_engine: AppEngine, scheduler: Scheduler):
     """
