@@ -4,7 +4,8 @@ Simple Example: Upload Something
 WIP
 Test with
 ```
-curl -F "user=test" -F "file1=@some_file.big" -F "file2=@some_file2.big" "localhost:8020/api/simple-example/1x0/upload-something"
+curl -F "user=test" -F "file1=@some_file.big" -F "file2=@some_file2.big" -H "Content-Type:multipart/form-data" "localhost:8020/api/simple-example/1x0/upload-something?qa=yes"
+
 ```
 """
 from typing import Optional, List, Any
