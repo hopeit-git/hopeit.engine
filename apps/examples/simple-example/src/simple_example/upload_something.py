@@ -1,5 +1,15 @@
+"""
+Simple Example: Upload Something
+-----------------------------------------
+WIP
+Test with
+```
+curl -F "user=test" -F "file1=@some_file.big" -F "file2=@some_file2.big" "localhost:8020/api/simple-example/1x0/upload-something"
+```
+"""
 from typing import Optional, List, Any
 from dataclasses import dataclass, field
+import os
 
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
@@ -39,26 +49,27 @@ class FileUploadInfo:
     uploaded_files: List[UploadedFile] = field(default_factory=list)
 
 
-
-async def __preprocess__(payload: SomethingParams, context: Any, request: PreprocessHook) -> FileUploadInfo:
+async def __preprocess__(payload: None, context: Any, request: PreprocessHook) -> FileUploadInfo:
     result = FileUploadInfo()
+    os.makedirs("tmp/upload_something", exist_ok=True)
     async for file in request.files():
-        file_name = f"attachment-{payload.id}-{file.name}-{file.file_name}"
-        with open(os.path.join('/tmp/upload_something', file_name), 'wb') as f:
+        file_name = f"attachment-{file.name}-{file.file_name}"
+        with open(os.path.join('tmp/upload_something', file_name), 'wb') as f:
             async for chunk in file.read_chunks():
                 f.write(chunk)
-        uploaded_file = UploadedFile(request.name, file_name, "tmp/upload_something", size=request.size)
+        uploaded_file = UploadedFile(file.name, file_name, "tmp/upload_something", size=file.size)
         result.uploaded_files.append(uploaded_file)
     return result
 
 
 async def create_items(payload: FileUploadInfo, context: EventContext, *, user: str) -> List[Something]:
+    result = []
     for item in payload.uploaded_files:
         logger.info(context, "Creating something from uploaded item...", extra=extra(
             file_id=item.file_id, user=user
         ))
-        result = Something(
+        result.append(Something(
             id=item.file_id,
-            user=User(id=user, name=user)
-        )
+            user=User(id=user, name=item.file_name)
+        ))
     return result

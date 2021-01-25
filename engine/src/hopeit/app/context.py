@@ -104,18 +104,20 @@ class PreprocessHook:
     Preprocess hook that handles information available in the request to be accessed
     from `__preprocess__(...)` event method when defined.
     """
-    def __init__(self, first_file, reader):           
-        self._first_file = first_file
+    def __init__(self, reader):           
         self._reader = reader
         self._args = {}
+        self._iterated = False
 
-    @property
-    def parsed_args(self):
+    async def parsed_args(self):
+        if not self._iterated:
+            async for _ in self.files():
+                pass
         return self._args
 
     async def files(self) -> AsyncGenerator[Any, None]:
-        if self._first_file is not None:
-            yield PreprocessFileHook(name=self._first_file.name, file_name=self._first_file.filename, data=self._first_file)
+        assert not self._iterated, "Request fields already extracted"
+        self._iterated = True
         if self._reader is not None:
             async for field in self._reader:
                 if field.filename:

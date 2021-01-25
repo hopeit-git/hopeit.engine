@@ -483,9 +483,9 @@ async def _request_execute(
     Executes request using engine event handler
     """
     result = await app_engine.preprocess(context=context, payload=payload, request=preprocess_hook)
-    query_args = {**query_args, **preprocess_hook.parsed_args}
+    query_args = {**query_args, **(await preprocess_hook.parsed_args())}
     result = await app_engine.execute(
-        context=context, query_args=query_args, payload=payload)
+        context=context, query_args=query_args, payload=result)
     response_hook = PostprocessHook()
     result = await app_engine.postprocess(context=context, payload=result, response=response_hook)
     body = Json.to_json(result, key=event_name)
@@ -566,22 +566,6 @@ async def _handle_get_invocation(
         return _failed_response(context, e)
 
 
-async def _request_multipart_extract(
-    context: EventContext, datatype: Type[DataObject], request: web.Request
-) -> Tuple[DataObject, PreprocessHook]:
-    reader = await request.multipart()
-    payload, first_file = None, None
-    async for field in reader:
-        if field.filename is None:
-            if field.name == 'payload':
-                payload = datatype.from_dict(await field.json())
-        else:
-            first_file = field
-        break
-    hook = PreprocessHook(first_file=first_file, reader=reader)
-    return payload, hook
-
-
 async def _handle_multipart_invocation(
         app_engine: AppEngine,
         impl: AppEngine,
@@ -597,8 +581,8 @@ async def _handle_multipart_invocation(
         context = _request_start(app_engine, impl, event_name, request)
         query_args = dict(request.query)
         _validate_authorization(app_engine.app_config, context, auth_types, request)
-        payload, hook = await _request_multipart_extract(context, datatype, request)
-        return await _request_execute(impl, event_name, context, query_args, payload, hook)
+        hook = PreprocessHook(reader=await request.multipart())
+        return await _request_execute(impl, event_name, context, query_args, None, hook)
     except Unauthorized as e:
         return _ignored_response(context, 401, e)
     except BadRequest as e:
