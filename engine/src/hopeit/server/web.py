@@ -483,7 +483,6 @@ async def _request_execute(
     Executes request using engine event handler
     """
     result = await app_engine.preprocess(context=context, payload=payload, request=preprocess_hook)
-    query_args = {**query_args, **(await preprocess_hook.parsed_args())}
     result = await app_engine.execute(
         context=context, query_args=query_args, payload=result)
     response_hook = PostprocessHook()

@@ -46,30 +46,33 @@ class UploadedFile:
 @dataobject
 @dataclass
 class FileUploadInfo:
+    user: str
     uploaded_files: List[UploadedFile] = field(default_factory=list)
 
 
 async def __preprocess__(payload: None, context: Any, request: PreprocessHook) -> FileUploadInfo:
-    result = FileUploadInfo()
+    result = FileUploadInfo("no-user")
     os.makedirs("tmp/upload_something", exist_ok=True)
     async for file in request.files():
         file_name = f"attachment-{file.name}-{file.file_name}"
         with open(os.path.join('tmp/upload_something', file_name), 'wb') as f:
             async for chunk in file.read_chunks():
+                print("Chunk", file.name)
                 f.write(chunk)
         uploaded_file = UploadedFile(file.name, file_name, "tmp/upload_something", size=file.size)
         result.uploaded_files.append(uploaded_file)
+    result.user = (await request.parsed_args())['user']
     return result
 
 
-async def create_items(payload: FileUploadInfo, context: EventContext, *, user: str) -> List[Something]:
+async def create_items(payload: FileUploadInfo, context: EventContext, *, qa: str) -> List[Something]:
     result = []
     for item in payload.uploaded_files:
         logger.info(context, "Creating something from uploaded item...", extra=extra(
-            file_id=item.file_id, user=user
+            file_id=item.file_id, user=payload.user, qa=qa, size=item.size
         ))
         result.append(Something(
             id=item.file_id,
-            user=User(id=user, name=item.file_name)
+            user=User(id=payload.user, name=item.file_name)
         ))
     return result

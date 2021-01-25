@@ -87,16 +87,19 @@ class PreprocessFileHook:
     """
     Hook to read files from multipart requests
     """
-    def __init__(self, *, name: str, file_name: str, data: aiohttp.multipart.BodyPartReader):
+    def __init__(self, *, name: str, file_name: str, data: aiohttp.MultipartReader):
         self.name = name
         self.file_name = file_name
         self.data = data
         self.size = 0
 
     async def read_chunks(self) -> AsyncGenerator[bytes, None]:
-        async for chunk in self.data:
+        chunk = await self.data.read_chunk(size=8192)
+        while chunk:
+            print(len(chunk))
             self.size += len(chunk)
             yield chunk
+            chunk = await self.data.read_chunk(size=8192)
 
 
 class PreprocessHook:
