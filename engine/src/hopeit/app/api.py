@@ -96,24 +96,27 @@ def _payload_description(arg: PayloadDef) -> str:
     return str(arg)
 
 
-def _method_summary(title, module) -> str:
-    ds = inspect.getdoc(module)
+def _method_summary(module: str, title: Optional[str] = None) -> str:
     if title is not None:
         return title
-    if isinstance(ds, str):
-        return ds.split("\n")[0]
+    doc_str = inspect.getdoc(module)
+    if doc_str is not None:
+        return doc_str.split("\n")[0]
     return ""
 
 
-def _method_description(title, module) -> str:
-    ds = inspect.getdoc(module)
-    if ds is not None and ds.count('\n') > 1:
-        return ds.split("\n", 2)[2]
-    return _method_summary(title, module)
+def _method_description(module, title: Optional[str] = None, description: Optional[str] = None) -> str:
+    if description is not None:
+        return description
+    doc_str = inspect.getdoc(module)
+    if doc_str is not None and doc_str.count('\n') > 1:
+        return doc_str.split("\n", 2)[2]
+    return _method_summary(module, title)
 
 
 def _event_api(
         title: Optional[str],
+        description: Optional[str],
         payload: Optional[Type],
         query_args: Optional[List[ArgDef]],
         responses: Optional[Dict[int, PayloadDef]],
@@ -140,8 +143,8 @@ def _event_api(
             }
         })
     method_spec: Dict[str, Any] = {
-        "summary": _method_summary(title, module),
-        "description": _method_description(title, module),
+        "summary": _method_summary(module, title),
+        "description": _method_description(module, title, description),
         "parameters": parameters
     }
     if payload is not None:
@@ -169,13 +172,15 @@ def _event_api(
 
 
 def event_api(title: Optional[str] = None,
+              description: Optional[str] = None,
               payload: Optional[PayloadDef] = None,
               query_args: Optional[List[ArgDef]] = None,
               responses: Optional[Dict[int, PayloadDef]] = None) -> Callable[..., dict]:
     """
     Provides a convenient way to define Open API specification using Python types for a given app event
     implementation module.
-
+    :param title: An optional, string summary. If not provides it gets from the doc_string definition.
+    :param description: An optional, string description. If not provides it gets from the doc_string definition.
     :param payload: Payload schema definition. Could be a single data type, or a tuple with a Type and a description.
     :param query_args: List of query arguments: each argument could be a single string with the arg name (in which case
         str type will be assumed), or a tuple of (str, type), where type if a valid datatype for query args (str, int,
@@ -200,4 +205,4 @@ def event_api(title: Optional[str] = None,
             }
         )
     """
-    return partial(_event_api, title, payload, query_args, responses)
+    return partial(_event_api, title, description, payload, query_args, responses)
