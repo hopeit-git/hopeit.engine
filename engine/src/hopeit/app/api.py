@@ -143,7 +143,7 @@ def _event_api(
             }
         })
     method_spec: Dict[str, Any] = {
-        "summary": _method_summay(title, module),
+        "summary": _method_summary(title, module),
         "description": _method_description(title, module),
         "parameters": parameters
     }
