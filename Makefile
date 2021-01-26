@@ -67,11 +67,8 @@ dist-only: clean
 	cd engine && \
 	python setup.py sdist bdist_wheel
 
-pypi_test: 
-	python -m twine upload --repository testpypi engine/dist/*
-
-#pypi: dist
-#	twine upload --repository pypi dist/*
+pypi: dist
+	twine upload --repository pypi dist/*
 
 clean:
 	cd engine && \
