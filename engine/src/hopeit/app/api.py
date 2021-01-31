@@ -96,26 +96,26 @@ def _payload_description(arg: PayloadDef) -> str:
     return str(arg)
 
 
-def _method_summary(module: str, title: Optional[str] = None) -> str:
-    if title is not None:
-        return title
+def _method_summary(module: str, summary: Optional[str] = None) -> str:
+    if summary is not None:
+        return summary
     doc_str = inspect.getdoc(module)
     if doc_str is not None:
         return doc_str.split("\n")[0]
     return ""
 
 
-def _method_description(module, title: Optional[str] = None, description: Optional[str] = None) -> str:
+def _method_description(module, summary: Optional[str] = None, description: Optional[str] = None) -> str:
     if description is not None:
         return description
     doc_str = inspect.getdoc(module)
     if doc_str is not None and doc_str.count('\n') > 1:
         return doc_str.split("\n", 2)[2]
-    return _method_summary(module, title)
+    return _method_summary(module, summary)
 
 
 def _event_api(
-        title: Optional[str],
+        summary: Optional[str],
         description: Optional[str],
         payload: Optional[Type],
         query_args: Optional[List[ArgDef]],
@@ -143,8 +143,8 @@ def _event_api(
             }
         })
     method_spec: Dict[str, Any] = {
-        "summary": _method_summary(module, title),
-        "description": _method_description(module, title, description),
+        "summary": _method_summary(module, summary),
+        "description": _method_description(module, summary, description),
         "parameters": parameters
     }
     if payload is not None:

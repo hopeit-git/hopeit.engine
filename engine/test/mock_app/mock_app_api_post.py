@@ -12,6 +12,7 @@ from mock_app import MockData
 logger, extra = app_extra_logger()
 
 __api__ = event_api(
+    description="Description Test app api part 2",
     payload=(MockData, "MockData payload"),
     query_args=[('arg1', str, "Argument 1")],
     responses={
