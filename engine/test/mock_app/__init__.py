@@ -384,11 +384,7 @@ def mock_api_spec():
             }, '/api/mock-app-api/test/mock-app-api-get-list': {
                 'get': {
                     'summary': 'Test app api list',
-<<<<<<< HEAD
                     'description': 'Description of Test app api list',
-=======
-                    'description': 'Test app api list',
->>>>>>> 6dccba4... testing and style check
                     'parameters': [{
                         'description': 'Argument 1',
                         'in': 'query',

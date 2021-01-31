@@ -143,8 +143,8 @@ def _event_api(
             }
         })
     method_spec: Dict[str, Any] = {
-        "summary": _method_summary(module, title),
-        "description": _method_description(module, title, description),
+        "summary": _method_summary(module, summary),
+        "description": _method_description(module, summary, description),
         "parameters": parameters
     }
     if payload is not None:
