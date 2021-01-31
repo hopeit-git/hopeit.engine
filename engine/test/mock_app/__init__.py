@@ -305,7 +305,7 @@ def mock_api_spec():
                 },
                 "post": {
                     "summary": "Test app api part 2",
-                    "description": "Test app api part 2",
+                    "description": "Description Test app api part 2",
                     "parameters": [
                         {
                             "name": "arg1",
@@ -384,7 +384,7 @@ def mock_api_spec():
             }, '/api/mock-app-api/test/mock-app-api-get-list': {
                 'get': {
                     'summary': 'Test app api list',
-                    'description': 'Test app api list',
+                    'description': 'Description of Test app api list',
                     'parameters': [{
                         'description': 'Argument 1',
                         'in': 'query',
