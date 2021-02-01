@@ -3,7 +3,7 @@ import pytest  # type: ignore
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.server.config import AuthType
 from hopeit.server.events import EventHandler
-from mock_engine import MockStreamManager
+from mock_engine import MockStreamManager  # type: ignore
 
 from mock_app import MockData, MockResult, mock_app_config  # type: ignore  # noqa: F401
 from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401

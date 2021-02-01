@@ -5,7 +5,7 @@ from hopeit.server.engine import Server, AppEngine
 
 from mock_app import mock_app_config  # type: ignore  # noqa: F401
 from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401
-from mock_engine import MockAppEngine
+from mock_engine import MockAppEngine  # type: ignore
 
 
 async def start_server(app_config: AppConfig,
