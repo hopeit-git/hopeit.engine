@@ -435,7 +435,8 @@ def mock_api_spec():
                             "type": "string"
                         }
                     },
-                    "description": "MockData object"
+                    "description": "MockData object",
+                    "x-module-name": "mock_app"
                 }
             }, "securitySchemes": {
                 "auth.basic": {
