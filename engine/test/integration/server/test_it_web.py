@@ -13,8 +13,8 @@ from hopeit.server.web import start_server, stop_server, start_app
 from hopeit.server.streams import StreamManager
 
 from mock_engine import MockStreamManager, MockEventHandler
-from mock_app import MockResult, mock_app_config  # noqa: F401
-from mock_plugin import mock_plugin_config  # noqa: F401
+from mock_app import MockResult, mock_app_config  # type: ignore  # noqa: F401
+from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401
 
 
 async def call_get_mock_event(client):

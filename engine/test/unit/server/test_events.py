@@ -5,8 +5,8 @@ from hopeit.server.config import AuthType
 from hopeit.server.events import EventHandler
 from mock_engine import MockStreamManager
 
-from mock_app import MockData, MockResult, mock_app_config  # noqa: F401
-from mock_plugin import mock_plugin_config  # noqa: F401
+from mock_app import MockData, MockResult, mock_app_config  # type: ignore  # noqa: F401
+from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401
 
 
 async def mock_handle_request_response_event(app_config, *, payload, expected):
