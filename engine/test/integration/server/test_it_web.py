@@ -1,10 +1,10 @@
 import json
 import uuid
+import asyncio
 
 import aiojobs  # type: ignore
 import pytest
 from aiohttp import ClientResponse
-import asyncio
 from pytest_aiohttp import aiohttp_server, aiohttp_client  # type: ignore  # noqa: F401
 
 import hopeit.server.web
