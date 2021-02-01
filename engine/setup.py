@@ -18,7 +18,7 @@ def libversion(lib):
 
 setuptools.setup(
     name="hopeit.engine",
-    version="0.1.2",
+    version="0.1.4",
     description="Hopeit.py Engine",
     package_dir={
         "": "src"
@@ -40,44 +40,23 @@ setuptools.setup(
         "aioredis",
         "lz4",
         "stringcase",
-<<<<<<< HEAD
         "PyJWT[crypto]",
         "click",
         "deepdiff",
         "typing-inspect"
     ]],
-=======
-        "cryptography",
-        "pyjwt",
-        "click",
-        "deepdiff",
-        "typing_inspect"
-    ],
->>>>>>> add summary to method api
     extras_require={
         "web": [ f"{lib}=={libversion(lib)}" for lib in [
             "aiohttp",
             "aiohttp-cors",
             "aiohttp-swagger3",
             "dataclasses-jsonschema[fast-validation]",
-<<<<<<< HEAD
             "fastjsonschema"
-<<<<<<< HEAD
         ]],
         "cli": [ f"{lib}=={libversion(lib)}" for lib in [
             "dataclasses-jsonschema[fast-validation]",
             "fastjsonschema"
         ]]
-=======
-=======
-            "fastjsonschema==2.14.3"
->>>>>>> cleanup; typo
-        ],
-        "cli": [
-            "dataclasses-jsonschema[fast-validation]",
-            "fastjsonschema==2.14.3"
-        ]
->>>>>>> add summary to method api
     },
     entry_points={
         "console_scripts": [
