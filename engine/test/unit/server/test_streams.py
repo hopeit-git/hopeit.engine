@@ -1,6 +1,6 @@
 import aioredis  # type: ignore
 
-import pytest  # type: ignore
+import pytest
 from datetime import datetime, timezone
 from dataclasses import dataclass
 
