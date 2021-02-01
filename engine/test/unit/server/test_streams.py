@@ -4,8 +4,8 @@ import pytest
 from datetime import datetime, timezone
 from dataclasses import dataclass
 
-from hopeit.app.config import Compression, Serialization   # type: ignore
-from mock_engine import MockStreamManager, MockEventHandler  # type: ignore
+from hopeit.app.config import Compression, Serialization
+from mock_engine import MockStreamManager, MockEventHandler
 from hopeit.dataobjects import dataobject
 from hopeit.server.config import AuthType
 

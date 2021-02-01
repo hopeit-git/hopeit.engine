@@ -9,7 +9,7 @@ import pytest  # type: ignore
 from hopeit.app.context import EventContext
 from hopeit.server.config import AuthType
 from hopeit.testing.apps import config, server_config, create_test_context, execute_event, execute_service
-from mock_app import mock_app_config, MockData, mock_event, MockResult  # type: ignore  # noqa: F401
+from mock_app import mock_app_config, MockData, mock_event, MockResult  # noqa: F401
 
 
 def test_config(mock_app_config):  # noqa: F811

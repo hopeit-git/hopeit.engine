@@ -5,7 +5,7 @@ from hopeit.app.context import EventContext
 
 __steps__ = ['wait']
 
-from mock_app import MockData, MockResult   # type: ignore
+from mock_app import MockData, MockResult
 
 logger, extra = app_extra_logger()
 

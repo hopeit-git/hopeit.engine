@@ -13,7 +13,7 @@ from hopeit.app.context import EventContext
 from hopeit.toolkit import auth
 from hopeit.server.config import AuthConfig, AuthType
 
-from mock_app import mock_app_config  # type: ignore  # noqa: F401
+from mock_app import mock_app_config  # noqa: F401
 
 
 def test_init():
