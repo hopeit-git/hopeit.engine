@@ -9,8 +9,8 @@ from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
 
 from hopeit.server import api
 from hopeit.server.api import app_route_name, APIError
-from mock_app import mock_api_spec, mock_api_app_config, mock_app_api_generated  # noqa: F401
-from mock_plugin import mock_plugin_config  # noqa: F401
+from mock_app import mock_api_spec, mock_api_app_config, mock_app_api_generated  # type: ignore  # noqa: F401
+from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401
 
 
 def test_init_empty_spec(mock_api_spec):  # noqa: F811
