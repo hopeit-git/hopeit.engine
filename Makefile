@@ -4,11 +4,19 @@ SRC = $(wildcard src/*.py)
 
 deps:
 	cd engine && \
-	pip install --force-reinstall -r requirements.txt
+	pip install -U -r requirements.txt
 
 dev-deps: deps
 	cd engine && \
-	pip install --force-reinstall -r requirements-dev.txt
+	pip install -U -r requirements-dev.txt
+
+locked-deps: deps
+	cd engine && \
+	pip install --force-reinstall -r requirements.lock
+
+lock-requirements: clean dev-deps
+	cd engine && \
+	pip freeze > requirements.lock
 
 check-engine:
 	/bin/bash engine/build/ci-static-engine.sh
