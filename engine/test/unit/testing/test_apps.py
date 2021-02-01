@@ -130,7 +130,7 @@ async def test_execute_shuffle_event_default_step_fail(mock_app_config):  # noqa
 def mock_module(module: ModuleType, context: EventContext):
     async def mock_handle_ok_case(payload: MockData, context: EventContext) -> str:
         return "mock: " + payload.value
-    module.handle_ok_case = mock_handle_ok_case
+    setattr(module, "handle_ok_case", mock_handle_ok_case)
 
 
 @pytest.mark.asyncio

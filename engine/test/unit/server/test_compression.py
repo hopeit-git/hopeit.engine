@@ -4,7 +4,7 @@ import zlib
 import gzip
 import bz2
 import lzma
-import lz4.frame
+import lz4.frame  # type: ignore
 
 data = bytes([65] * 1000)
 
