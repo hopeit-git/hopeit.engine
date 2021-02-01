@@ -5,7 +5,7 @@ from copy import deepcopy
 
 import pytest
 from aiohttp import web
-from aiohttp_swagger3.swagger_route import SwaggerRoute
+from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
 
 from hopeit.server import api
 from hopeit.server.api import app_route_name, APIError
