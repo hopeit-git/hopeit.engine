@@ -5,8 +5,8 @@ import pytest
 import hopeit.app.api as api
 from hopeit.app.config import EventType
 from hopeit.server.api import APIError
-from mock_app import mock_app_api_get, MockData, mock_app_api_post, mock_app_api_get_list  # type: ignore
-from mock_app import mock_api_app_config, mock_api_spec  # type: ignore  # noqa: F401
+from mock_app import mock_app_api_get, MockData, mock_app_api_post, mock_app_api_get_list
+from mock_app import mock_api_app_config, mock_api_spec  # noqa: F401
 
 
 def test_api_from_config(monkeypatch, mock_api_spec, mock_api_app_config):  # noqa: F811

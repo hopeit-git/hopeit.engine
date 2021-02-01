@@ -7,7 +7,7 @@ from hopeit.app.context import EventContext
 
 __steps__ = ['entry_point']
 
-from mock_app import MockData  # type: ignore
+from mock_app import MockData
 
 logger, extra = app_extra_logger()
 
