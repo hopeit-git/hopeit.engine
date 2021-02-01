@@ -179,8 +179,8 @@ def event_api(title: Optional[str] = None,
     """
     Provides a convenient way to define Open API specification using Python types for a given app event
     implementation module.
-    :param title: An optional, string summary. If not provides it gets from the doc_string definition.
-    :param description: An optional, string description. If not provides it gets from the doc_string definition.
+    :param title: An optional, string summary. If not provided will be taken from module docstring.
+    :param description: An optional, string description. If not provided will be taken from module docstring.
     :param payload: Payload schema definition. Could be a single data type, or a tuple with a Type and a description.
     :param query_args: List of query arguments: each argument could be a single string with the arg name (in which case
         str type will be assumed), or a tuple of (str, type), where type if a valid datatype for query args (str, int,
