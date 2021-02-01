@@ -5,7 +5,7 @@ from typing import Optional
 
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
-from mock_app import MockData
+from mock_app import MockData  # type: ignore
 
 logger, extra = app_extra_logger()
 
