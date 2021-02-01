@@ -10,9 +10,9 @@ from hopeit.dataobjects import DataObject
 from hopeit.app.config import AppConfig
 from hopeit.server.engine import AppEngine
 from mock_engine import MockEventHandler, MockStreamManager
-from mock_app import MockData, MockResult
-from mock_app import mock_app_config  # noqa: F401
-from mock_plugin import mock_plugin_config  # noqa: F401
+from mock_app import MockData, MockResult  # type: ignore
+from mock_app import mock_app_config  # type: ignore  # noqa: F401
+from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401
 
 
 async def create_engine(app_config: AppConfig, plugin: AppConfig) -> AppEngine:
