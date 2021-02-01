@@ -1,5 +1,21 @@
 import setuptools
 
+def read_requirements_lock():
+    with open("requirements.lock") as fb:
+        libs = {}
+        for line in fb.readlines():
+            lv = line.split("==")
+            if len(lv) >  1:
+                libs[lv[0]] = lv[1].strip('\n')
+    return libs
+
+versions = read_requirements_lock()
+
+
+def libversion(lib):
+    return versions[lib.split('[')[0]]
+
+
 setuptools.setup(
     name="hopeit.engine",
     version="0.1.2",
@@ -13,35 +29,34 @@ setuptools.setup(
         "hopeit.dataobjects",
         "hopeit.server",
         "hopeit.testing",
-        "hopeit.toolkit",
+        "hopeit.toolkit", 
         "hopeit.toolkit.storage"
     ],
     include_package_data=True,
     python_requires=">=3.7",
-    install_requires=[
+    install_requires=[ f"{lib}=={libversion(lib)}" for lib in [
         "aiojobs",
         "aiofiles",
         "aioredis",
         "lz4",
         "stringcase",
-        "cryptography",
-        "pyjwt",
+        "PyJWT[crypto]",
         "click",
         "deepdiff",
-        "typing_inspect"
-    ],
+        "typing-inspect"
+    ]],
     extras_require={
-        "web": [
+        "web": [ f"{lib}=={libversion(lib)}" for lib in [
             "aiohttp",
-            "aiohttp_cors",
+            "aiohttp-cors",
             "aiohttp-swagger3",
             "dataclasses-jsonschema[fast-validation]",
-            "fastjsonschema==2.14.3"
-        ],
-        "cli": [
+            "fastjsonschema"
+        ]],
+        "cli": [ f"{lib}=={libversion(lib)}" for lib in [
             "dataclasses-jsonschema[fast-validation]",
-            "fastjsonschema==2.14.3"
-        ]
+            "fastjsonschema"
+        ]]
     },
     entry_points={
         "console_scripts": [
