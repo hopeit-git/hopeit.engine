@@ -246,6 +246,7 @@ def mock_api_spec():
         "paths": {
             "/api/mock-app-api/test/mock-app-api": {
                 "get": {
+                    "summary": "Test app api",
                     "description": "Test app api",
                     "parameters": [
                         {
@@ -303,7 +304,8 @@ def mock_api_spec():
                     ]
                 },
                 "post": {
-                    "description": "Test app api part 2",
+                    "summary": "Test app api part 2",
+                    "description": "Description Test app api part 2",
                     "parameters": [
                         {
                             "name": "arg1",
@@ -381,7 +383,8 @@ def mock_api_spec():
                 }
             }, '/api/mock-app-api/test/mock-app-api-get-list': {
                 'get': {
-                    'description': 'Test app api list',
+                    'summary': 'Test app api list',
+                    'description': 'Description of Test app api list',
                     'parameters': [{
                         'description': 'Argument 1',
                         'in': 'query',
