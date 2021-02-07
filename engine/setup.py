@@ -18,7 +18,7 @@ def libversion(lib):
 
 setuptools.setup(
     name="hopeit.engine",
-    version="0.1.3",
+    version="0.1.4",
     description="Hopeit.py Engine",
     package_dir={
         "": "src"
