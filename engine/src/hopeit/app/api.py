@@ -173,16 +173,15 @@ def _event_api(
 
 
 def event_api(summary: Optional[str] = None,
-              title: Optional[str] = None,
               description: Optional[str] = None,
               payload: Optional[PayloadDef] = None,
               query_args: Optional[List[ArgDef]] = None,
-              responses: Optional[Dict[int, PayloadDef]] = None) -> Callable[..., dict]:
+              responses: Optional[Dict[int, PayloadDef]] = None, *,
+              title: Optional[str] = None) -> Callable[..., dict]:
     """
     Provides a convenient way to define Open API specification using Python types for a given app event
     implementation module.
     :param summary: An optional, string summary. If not provided will be taken from module docstring first line.
-    :param title: Deprectated, use summary insted.
     :param description: An optional, string description. If not provided will be taken from module docstring.
     :param payload: Payload schema definition. Could be a single data type, or a tuple with a Type and a description.
     :param query_args: List of query arguments: each argument could be a single string with the arg name (in which case
@@ -190,6 +189,8 @@ def event_api(summary: Optional[str] = None,
         float, bool), or a tuple of (str, type, str) where last string is argument description.
     :param responses: a dictionary where key HTTP status code and value is the payload definition as describer in
         payload parameter.
+    :param title: Deprectated, use summary insted.
+
 
     Examples:
 
