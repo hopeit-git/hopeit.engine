@@ -106,7 +106,7 @@ def _method_summary(module: str, summary: Optional[str] = None) -> str:
     return ""
 
 
-def _method_description(module, summary: Optional[str] = None, description: Optional[str] = None) -> str:
+def _method_description(module: str, description: Optional[str] = None, summary: Optional[str] = None) -> str:
     if description is not None:
         return description
     doc_str = inspect.getdoc(module)
@@ -145,7 +145,7 @@ def _event_api(
         })
     method_spec: Dict[str, Any] = {
         "summary": _method_summary(module, summary),
-        "description": _method_description(module, summary, description),
+        "description": _method_description(module, description, summary),
         "parameters": parameters
     }
     if payload is not None:
