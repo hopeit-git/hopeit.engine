@@ -172,15 +172,17 @@ def _event_api(
     return method_spec
 
 
-def event_api(summary: Optional[str] = None,
-              description: Optional[str] = None,
+def event_api(title: Optional[str] = None,
               payload: Optional[PayloadDef] = None,
               query_args: Optional[List[ArgDef]] = None,
               responses: Optional[Dict[int, PayloadDef]] = None, *,
-              title: Optional[str] = None) -> Callable[..., dict]:
+              summary: Optional[str] = None,
+              description: Optional[str] = None
+              ) -> Callable[..., dict]:
     """
     Provides a convenient way to define Open API specification using Python types for a given app event
     implementation module.
+
     :param summary: An optional, string summary. If not provided will be taken from module docstring first line.
     :param description: An optional, string description. If not provided will be taken from module docstring.
     :param payload: Payload schema definition. Could be a single data type, or a tuple with a Type and a description.
@@ -189,7 +191,7 @@ def event_api(summary: Optional[str] = None,
         float, bool), or a tuple of (str, type, str) where last string is argument description.
     :param responses: a dictionary where key HTTP status code and value is the payload definition as describer in
         payload parameter.
-    :param title: Deprectated, use summary insted.
+    :param title: Deprecated, use summary instead.
 
 
     Examples:
@@ -211,7 +213,9 @@ def event_api(summary: Optional[str] = None,
     """
 
     if title is not None:
-        warnings.warn("title parameter is deprectated, use summary instead", DeprecationWarning)
+        warnings.warn(
+            "title parameter is deprecated since 0.1.4 and will be removed in version 0.2.0, use summary instead",
+            DeprecationWarning)
         if summary is None:
             summary = title
 
