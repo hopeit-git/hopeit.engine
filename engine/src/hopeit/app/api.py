@@ -6,6 +6,7 @@ import warnings
 from functools import partial
 from typing import Optional, List, Type, Dict, Callable, Union, Tuple, Any, TypeVar
 
+import re
 import typing_inspect  # type: ignore
 
 from hopeit.app.config import AppConfig, AppDescriptor
@@ -111,7 +112,7 @@ def _method_description(module: str, description: Optional[str] = None, summary:
         return description
     doc_str = inspect.getdoc(module)
     if doc_str is not None and doc_str.count('\n') > 1:
-        return doc_str.split("\n", 2)[2]
+        return re.sub(r"^\W+", "", doc_str.split("\n", 1)[1])
     return _method_summary(module, summary)
 
 

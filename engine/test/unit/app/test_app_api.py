@@ -31,6 +31,7 @@ def test_api_from_config_missing(monkeypatch, mock_api_spec, mock_api_app_config
 def test_event_api(monkeypatch, mock_api_spec, mock_api_app_config):  # noqa: F811
     monkeypatch.setattr(api, 'spec', mock_api_spec)
     spec = api.event_api(
+        description="Test app api",
         payload=(str, "Payload"),
         query_args=[('arg1', Optional[int], "Argument 1")],
         responses={200: (MockData, "MockData result")}
