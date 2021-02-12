@@ -19,7 +19,7 @@ Since version 0.1.4 method adds ``summary`` and ``description`` params:
                 description: Optional[str] = None
                 ) -> Callable[..., dict]:
 
-Remove in version 0.2.0 ``title`` parameter, use ``summary`` instead. Stariting this version method will require named args for all parameters:
+From version 0.2.0 'title' will be removed, use ``summary`` instead. Stariting this version method will require named args for all parameters:
 
 .. code:: python3
 
