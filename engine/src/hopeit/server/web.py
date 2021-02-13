@@ -482,11 +482,14 @@ async def _request_execute(
     """
     Executes request using engine event handler
     """
-    result = await app_engine.preprocess(context=context, payload=payload, request=preprocess_hook)
-    result = await app_engine.execute(
-        context=context, query_args=query_args, payload=result)
     response_hook = PostprocessHook()
-    result = await app_engine.postprocess(context=context, payload=result, response=response_hook)
+    result = await app_engine.preprocess(context=context, payload=payload, request=preprocess_hook)
+    if (preprocess_hook.status is None) or (preprocess_hook.status == 200):
+        result = await app_engine.execute(
+            context=context, query_args=query_args, payload=result)
+        result = await app_engine.postprocess(context=context, payload=result, response=response_hook)
+    else:
+        response_hook.set_status(preprocess_hook.status)
     body = Json.to_json(result, key=event_name)
     response = _response(track_ids=context.track_ids, body=body, hook=response_hook)
     logger.done(context, extra=combined(
@@ -530,7 +533,9 @@ async def _handle_post_invocation(
         query_args = dict(request.query)
         _validate_authorization(app_engine.app_config, context, auth_types, request)
         payload = await _request_process_payload(context, datatype, request)
-        return await _request_execute(impl, event_name, context, query_args, payload)
+        hook = PreprocessHook(headers=request.headers)
+        return await _request_execute(impl, event_name, context, query_args, payload, 
+                                      preprocess_hook=hook)
     except Unauthorized as e:
         return _ignored_response(context, 401, e)
     except BadRequest as e:
@@ -556,7 +561,9 @@ async def _handle_get_invocation(
         payload = query_args.get('payload')
         if payload is not None:
             del query_args['payload']
-        return await _request_execute(impl, event_name, context, query_args, payload=payload)
+        hook = PreprocessHook(headers=request.headers)
+        return await _request_execute(impl, event_name, context, query_args, payload=payload,
+                                      preprocess_hook=hook)
     except Unauthorized as e:
         return _ignored_response(context, 401, e)
     except BadRequest as e:
@@ -580,8 +587,9 @@ async def _handle_multipart_invocation(
         context = _request_start(app_engine, impl, event_name, request)
         query_args = dict(request.query)
         _validate_authorization(app_engine.app_config, context, auth_types, request)
-        hook = PreprocessHook(reader=await request.multipart())
-        return await _request_execute(impl, event_name, context, query_args, None, hook)
+        hook = PreprocessHook(request.headers, multipart_reader=await request.multipart())
+        return await _request_execute(impl, event_name, context, query_args, payload=None,
+                                      preprocess_hook=hook)
     except Unauthorized as e:
         return _ignored_response(context, 401, e)
     except BadRequest as e:

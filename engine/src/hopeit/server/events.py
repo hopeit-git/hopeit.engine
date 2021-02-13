@@ -116,7 +116,7 @@ class EventHandler:
             self.modules[base_event] = (impl, True, raw_steps)
         pp_handler = self.preprocess_handlers[context.event_name]
         if pp_handler:
-            return await invoke_single_step(payload=None, context=context, func=pp_handler[0], request=request)
+            return await invoke_single_step(payload=payload, context=context, func=pp_handler[0], request=request)
         return payload
 
     async def _init_module(self, *, module, context: EventContext):

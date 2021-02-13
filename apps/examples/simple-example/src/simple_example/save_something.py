@@ -3,11 +3,11 @@ Simple Example: Save Something
 --------------------------------------------------------------------
 Creates and saves Something
 """
-from typing import Optional
+from typing import Optional, Union
 
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
-from hopeit.app.context import EventContext
+from hopeit.app.context import EventContext, PreprocessHook
 from hopeit.toolkit.storage.fs import FileStorage
 
 from model import Something, User, SomethingParams
@@ -20,7 +20,8 @@ __api__ = event_api(
     title="Simple Example: Save Something",
     payload=(SomethingParams, "provide `id` and `user` to create Something"),
     responses={
-        200: (str, 'path where object is saved')
+        200: (str, 'path where object is saved'),
+        400: (str, 'bad request reason')
     }
 )
 
@@ -33,6 +34,17 @@ async def __init_event__(context):
     global fs
     if fs is None:
         fs = FileStorage(path=str(context.env['fs']['data_path']))
+
+
+async def __preprocess__(payload: SomethingParams, context: EventContext, request: PreprocessHook) -> Union[str, SomethingParams]:
+    user_agent = request.headers.get('user-agent')
+    if (user_agent is None) or (user_agent.strip() == ''):
+        logger.info(context, "Missing required user-agent")
+        request.set_status(400)
+        return "Missing required user-agent"
+   
+    logger.info(context, "Save request", extra=extra(user_agent=user_agent))
+    return payload    
 
 
 async def create_something(payload: SomethingParams, context: EventContext) -> Something:

@@ -11,11 +11,13 @@ curl -F "user=test" -F "file1=@some_file.big" -F "file2=@some_file2.big" -H "Con
 from typing import Optional, List, Any
 from dataclasses import dataclass, field
 import os
+from pathlib import Path
 
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
 from hopeit.dataobjects import dataobject
+from hopeit.toolkit.web import save_multipart_file
 
 from model import Something, User, SomethingParams
 
@@ -51,16 +53,19 @@ class FileUploadInfo:
     uploaded_files: List[UploadedFile] = field(default_factory=list)
 
 
-async def __preprocess__(payload: None, context: Any, request: PreprocessHook) -> FileUploadInfo:
+async def __init_event__(context: EventContext):
+    save_path = Path(context.env['upload_something']['save_path'])
+    os.makedirs(save_path, exist_ok=True)
+
+
+async def __preprocess__(payload: None, context: EventContext, request: PreprocessHook) -> FileUploadInfo:
     result = FileUploadInfo("no-user")
-    os.makedirs("tmp/upload_something", exist_ok=True)
-    async for file in request.files():
-        file_name = f"attachment-{file.name}-{file.file_name}"
-        with open(os.path.join('tmp/upload_something', file_name), 'wb') as f:
-            async for chunk in file.read_chunks():
-                print("Chunk", file.name)
-                f.write(chunk)
-        uploaded_file = UploadedFile(file.name, file_name, "tmp/upload_something", size=file.size)
+    save_path = Path(context.env['upload_something']['save_path'])
+    chunk_size = int(context.env['upload_something']['chunk_size'])
+    async for file_hook in request.files():
+        file_name = f"attachment-{file_hook.name}-{file_hook.file_name}"
+        await save_multipart_file(file_hook, save_path / file_name, chunk_size=chunk_size)
+        uploaded_file = UploadedFile(file_hook.name, file_name, save_path, size=file_hook.size)
         result.uploaded_files.append(uploaded_file)
     result.user = (await request.parsed_args())['user']
     return result

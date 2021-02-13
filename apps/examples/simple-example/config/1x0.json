@@ -16,6 +16,10 @@
   "env" : {
     "fs": {
       "data_path": "/tmp/{auto}/"
+    },
+    "upload_something": {
+      "save_path": "/tmp/{auto}/",
+      "chunk_size": 16384
     }
   },
   "events": {

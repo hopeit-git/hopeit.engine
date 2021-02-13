@@ -7,6 +7,7 @@ from typing import Dict, Optional, Any, Tuple, Union, List
 from datetime import datetime, timezone
 
 import aiohttp
+from multidict import MultiDict
 
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventType
@@ -93,13 +94,26 @@ class PreprocessFileHook:
         self.data = data
         self.size = 0
 
-    async def read_chunks(self) -> AsyncGenerator[bytes, None]:
-        chunk = await self.data.read_chunk(size=8192)
+    async def read_chunks(self, *, chunk_size: int=8192) -> AsyncGenerator[bytes, None]:
+        chunk = await self.data.read_chunk(size=chunk_size)
         while chunk:
-            print(len(chunk))
             self.size += len(chunk)
             yield chunk
-            chunk = await self.data.read_chunk(size=8192)
+            chunk = await self.data.read_chunk(size=chunk_size)
+
+
+class PreprocessHeaders:
+    def __init__(self, request_headers: MultiDict) -> None:
+        self._headers: MultiDict = request_headers
+
+    def __getitem__(self, key: str) -> str:
+        return self._headers[key]
+
+    def get(self, key: str) -> str:
+        return self._headers.get(key)
+
+    def __repr__(self):
+        return self._headers.__repr__()
 
 
 class PreprocessHook:
@@ -107,10 +121,19 @@ class PreprocessHook:
     Preprocess hook that handles information available in the request to be accessed
     from `__preprocess__(...)` event method when defined.
     """
-    def __init__(self, reader):           
-        self._reader = reader
+    def __init__(self, *, headers: dict, multipart_reader: Optional[aiohttp.MultipartReader]=None):
+        self._headers = PreprocessHeaders(headers)    
+        self._multipart_reader = multipart_reader
         self._args = {}
         self._iterated = False
+        self.status: Optional[int] = None
+
+    @property
+    def headers(self):
+        return self._headers
+
+    def set_status(self, status: int):
+        self.status = status
 
     async def parsed_args(self):
         if not self._iterated:
@@ -121,8 +144,8 @@ class PreprocessHook:
     async def files(self) -> AsyncGenerator[Any, None]:
         assert not self._iterated, "Request fields already extracted"
         self._iterated = True
-        if self._reader is not None:
-            async for field in self._reader:
+        if self._multipart_reader is not None:
+            async for field in self._multipart_reader:
                 if field.filename:
                     yield PreprocessFileHook(name=field.name, file_name=field.filename, data=field)
                 else:
