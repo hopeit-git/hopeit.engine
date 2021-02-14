@@ -16,10 +16,12 @@
 
 - Install python 3.8
 - Create and activate a virtual environment (recommended)
-pip install hopeit.engine
+
+```
+pip install "hopeit.engine"
 pip intsall "hopiet.engine[web]"
 pip install "hopiet.engine[cli]"
-
+```
 
 ##### Configure
 - Create server configuration json file
