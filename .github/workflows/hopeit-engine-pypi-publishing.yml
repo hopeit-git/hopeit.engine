@@ -1,5 +1,11 @@
 # This workflow will make hopeit.engine pavkage and deploy on PyPI
+
 name: hopeit.engine PyPI Publishing
+
+on:
+  push:
+    branches: [ master ]
+
 jobs:
   upload:
     runs-on: ubuntu-latest
