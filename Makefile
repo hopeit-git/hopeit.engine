@@ -76,8 +76,10 @@ schemas:
 	cd engine/config/schemas && \
 	python update_config_schemas.py
 
-pypi: dist
+pypi:
+	pip install twine && \
 	python -m twine upload -u=__token__ -p=$(PYPI_API_TOKEN) --repository pypi engine/dist/*
 
 pypi_test:
+	pip install twine && \
 	python -m twine upload -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --repository testpypi engine/dist/*
