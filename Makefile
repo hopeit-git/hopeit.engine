@@ -59,6 +59,7 @@ qa: test check
 	echo "DONE."
 
 dist: clean check test
+	pip install wheel && \
 	cd engine && \
 	python setup.py sdist bdist_wheel
 
@@ -67,9 +68,6 @@ dist-only: clean
 	cd engine && \
 	python setup.py sdist bdist_wheel
 
-pypi: dist
-	twine upload --repository pypi dist/*
-
 clean:
 	cd engine && \
 	rm -rf dist
@@ -77,3 +75,9 @@ clean:
 schemas:
 	cd engine/config/schemas && \
 	python update_config_schemas.py
+
+pypi: dist
+	python -m twine upload -u=__token__ -p=$(PYPI_API_TOKEN) --repository pypi engine/dist/*
+
+pypi_test:
+	python -m twine upload -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --repository testpypi engine/dist/*
