@@ -18,7 +18,7 @@ def libversion(lib):
 
 setuptools.setup(
     name="hopeit.engine",
-    version="0.1.4",
+    version="0.1.5",
     description="Hopeit.py Engine",
     license="Apache 2",
     long_description=open('README.md').read(),
