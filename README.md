@@ -106,6 +106,8 @@ If an external request triggers a process that requires background tasks to run,
 
 ## Current status and roadmap
 
+- **FEBRUARY 2021**: hopeit.engine version 0.1.5 is released on PyPI, enjoy!
+
 - **JULY 2020**: hopeit.engine version 0.1.0 is released as Open Source in github!
     
 - We are mainly working in improving documentation and tutorials.
