@@ -19,8 +19,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-      env: 
-        PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
     - name: Install dependencies
       run: |
         make locked-deps
@@ -28,5 +26,7 @@ jobs:
       run: |
         make dist
     - name: Publish hopeit.engine on PyPI
+      env: 
+        PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make pypi
