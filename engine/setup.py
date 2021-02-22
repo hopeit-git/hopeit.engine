@@ -19,7 +19,7 @@ def libversion(lib):
 setuptools.setup(
     name="hopeit.engine",
     version="0.1.5",
-    description="Hopeit.py Engine",
+    description="Hopeit Engine: Microservices with Streams",
     license="Apache 2",
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",

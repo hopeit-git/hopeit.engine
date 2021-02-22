@@ -1,4 +1,4 @@
-# This workflow will make hopeit.engine pavkage and deploy on PyPI
+# This workflow will make hopeit.engine package and deploy on PyPI
 
 name: hopeit.engine PyPI Publishing
 
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7]
+        python-version: [3.8]
 
     steps:
     - uses: actions/checkout@v2

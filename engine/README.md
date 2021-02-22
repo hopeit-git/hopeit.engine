@@ -1,8 +1,8 @@
-### hopeit.engine
+## hopeit.engine
 
-#### Engine development README
+### Engine development README
 
-##### Install locally for apps or plugins development:
+#### Install locally for apps or plugins development:
 - Install python 3.8
 - Create and activate a virtual environment (recommended)
 - Run from hopeit.engine project root
@@ -12,26 +12,30 @@
 - Now hopeit.engine package should be installed into your virtual/conda env linked to the source code in ./src
 - Then you can create your apps or plugins and run the server
 
-##### Install from Python Package Index
+#### Install from Python Package Index
 
 - Install python 3.8
 - Create and activate a virtual environment (recommended)
+- Install hopeit.engine
 
+Install core hopeit.engine lib:
 ```
 pip install "hopeit.engine"
-pip intsall "hopiet.engine[web]"
-pip install "hopiet.engine[cli]"
+```
+Install extras needed to run as a server and command line tools:
+```
+pip install "hopeit.engine[web,cli]"
 ```
 
-##### Configure
+#### Configure
 - Create server configuration json file
     - See [configuration examples](./config/)
 - Create apps configuration and python files
     - See [apps examples](../apps/examples/)
 - Optionally you can develop plugins, similar to apps but can be shared
     - See available [plugins](../plugins/)
-    
-##### Start http server
+
+#### Start http server
 - Example starting a single app/microservice
 ```
     python -m hopeit.server.web --config-files=server-config.json,app-folder/config/app-config.json
@@ -86,3 +90,5 @@ pip install "hopiet.engine[cli]"
     make PLUGINFOLDER=plugins/auth/basic-auth install-plugin
     make APPFOLDER=apps/examples/simple-example install-app
 ```
+
+More details at https://hopeitengine.readthedocs.io/en/latest/
