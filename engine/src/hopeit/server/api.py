@@ -6,23 +6,26 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
+from dataclasses import dataclass
 from typing import List, Type, Optional, Callable, Awaitable, Union
 
 from aiohttp import web
 from aiohttp_swagger3 import RapiDocUiSettings  # type: ignore
 from aiohttp_swagger3.swagger import Swagger  # type: ignore
-from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
+from aiohttp_swagger3.swagger_route import SwaggerRoute
+from hopeit.dataobjects import dataobject, BinaryAttachment  # type: ignore
 from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
 from dataclasses_jsonschema import SchemaType
 
-from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventPlugMode
+from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventPlugMode, EventType
 from hopeit.server.config import ServerConfig, AuthType
 from hopeit.server.errors import ErrorInfo
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger
 from hopeit.server.names import route_name
-from hopeit.server.steps import extract_module_steps, extract_postprocess_handler, StepInfo
+from hopeit.server.steps import extract_module_steps, extract_postprocess_handler, extract_preprocess_handler, \
+    StepInfo
 
 
 __all__ = ['init_empty_spec',
@@ -47,6 +50,12 @@ _options = {
 }
 
 OPEN_API_VERSION = '3.0.3'
+
+METHOD_MAPPING = {
+    EventType.GET: 'get',
+    EventType.POST: 'post',
+    EventType.MULTIPART: 'post'
+}
 
 
 class APIError(Exception):
@@ -412,7 +421,9 @@ def _update_api_paths(app_config: AppConfig, plugin: Optional[AppConfig] = None)
     for event_name, event_info in events.items():
         route = app_route_name(app_config.app, event_name=event_name, plugin=plugin_app,
                                override_route_name=event_info.route)
-        method = event_info.type.value.lower()
+        method = METHOD_MAPPING.get(event_info.type)
+        if method is None:
+            continue
         event_api_spec = _extract_event_api_spec(app_config if plugin is None else plugin, event_name)
         if event_api_spec is None:
             event_api_spec = paths.get(route, {}).get(method)
@@ -522,6 +533,8 @@ def _generate_schemas(app_config: AppConfig, event_name: str) -> dict:
         _update_step_schemas(schemas, step_info)
     step_info = extract_postprocess_handler(module)
     _update_step_schemas(schemas, step_info)
+    step_info = extract_preprocess_handler(module)
+    _update_step_schemas(schemas, step_info)
     return schemas
 
 
@@ -557,8 +570,12 @@ def _array_schema(event_name: str, datatype: type):
     }
 
 
-def _builtin_schema(type_name: str, event_name: str, datatype: type) -> dict:
-    return {
+def _builtin_schema(type_name: str, type_format: Optional[str],
+                    event_name: str, datatype: type) -> dict:
+    """
+    Build type schema for predefined datatypes
+    """
+    schema = {
         "type": "object",
         "required": [
             event_name
@@ -570,14 +587,18 @@ def _builtin_schema(type_name: str, event_name: str, datatype: type) -> dict:
         },
         "description": f"{event_name} {type_name} payload"
     }
+    if type_format is not None:
+        schema['properties'][event_name]['format'] = type_format
+    return schema
 
 
 TYPE_MAPPERS = {
-    str: partial(_builtin_schema, 'string'),
-    int: partial(_builtin_schema, 'integer'),
-    float: partial(_builtin_schema, 'number'),
-    bool: partial(_builtin_schema, 'boolean'),
-    list: _array_schema
+    str: partial(_builtin_schema, 'string', None),
+    int: partial(_builtin_schema, 'integer', None),
+    float: partial(_builtin_schema, 'number', None),
+    bool: partial(_builtin_schema, 'boolean', None),
+    list: _array_schema,
+    BinaryAttachment: partial(_builtin_schema, 'string', 'binary')
 }
 
 BUILTIN_TYPES = {

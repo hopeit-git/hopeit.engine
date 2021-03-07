@@ -7,7 +7,8 @@ from typing import Optional, List, Type, Dict, Callable, Union, Tuple, Any, Type
 
 import typing_inspect  # type: ignore
 
-from hopeit.app.config import AppConfig, AppDescriptor
+from hopeit.dataobjects import BinaryAttachment
+from hopeit.app.config import AppConfig, AppDescriptor, EventType
 from hopeit.server.api import spec, app_route_name, APIError, BUILTIN_TYPES, datatype_schema
 from hopeit.server.names import route_name
 
@@ -96,21 +97,9 @@ def _payload_description(arg: PayloadDef) -> str:
     return str(arg)
 
 
-def _event_api(
-        title: Optional[str],
-        payload: Optional[Type],
-        query_args: Optional[List[ArgDef]],
-        responses: Optional[Dict[int, PayloadDef]],
-        module, app_config: AppConfig, event_name: str, plugin: Optional[AppConfig]) -> dict:
-    """
-    Handler returned by event_api(...)
-    """
-    if query_args is None:
-        query_args = []
-    if responses is None:
-        responses = {}
+def _parse_args_schema(query_args: Optional[List[ArgDef]]):
     parameters = []
-    for query_arg in query_args:
+    for query_arg in (query_args or []):
         arg_name = _arg_name(query_arg)
         arg_type, arg_req = _arg_type(query_arg)
         arg_desc = _arg_description(query_arg)
@@ -123,17 +112,59 @@ def _event_api(
                 "type": arg_type
             }
         })
+    return parameters
+
+
+def _parse_fields_schema(fields: Optional[List[ArgDef]]):
+    fields_schema = {"type": "object", "required": [], "properties": {}}
+    for field in (fields or []):
+        arg_name = _arg_name(field)
+        arg_type = str if len(field) == 1 else field[1]
+        arg_schema = datatype_schema(arg_name, arg_type)
+        fields_schema['required'].extend(arg_schema['required'])
+        fields_schema['properties'].update(arg_schema['properties'])
+        arg_desc = _arg_description(field)
+        if arg_desc is not None:
+            fields_schema['properties'][arg_name]['description'] = arg_desc
+    return fields_schema
+
+
+def _event_api(
+        title: Optional[str],
+        payload: Optional[Type],
+        query_args: Optional[List[ArgDef]],
+        fields: Optional[List[ArgDef]],
+        responses: Optional[Dict[int, PayloadDef]],
+        module, app_config: AppConfig, event_name: str, plugin: Optional[AppConfig]) -> dict:
+    """
+    Handler returned by event_api(...)
+    """
+    parameters = _parse_args_schema(query_args)
+
     method_spec: Dict[str, Any] = {
         "description": title if title is not None else inspect.getdoc(module),
         "parameters": parameters
     }
+
+    event_config = app_config.events[event_name]
+    content_type = 'multipart/form-data' if event_config.type == EventType.MULTIPART else 'application/json'
     if payload is not None:
         method_spec['requestBody'] = {
             "description": _payload_description(payload),
             "required": True,
             "content": {
-                "application/json": {
+                content_type: {
                     "schema": _payload_schema(event_name, payload)
+                }
+            }
+        }
+
+    if fields is not None:
+        method_spec['requestBody'] = {
+            "required": True,
+            "content": {
+                content_type: {
+                    "schema": _parse_fields_schema(fields)
                 }
             }
         }
@@ -146,7 +177,7 @@ def _event_api(
                     "schema": _payload_schema(event_name, datatype)
                 }
             }
-        } for status, datatype in responses.items()}
+        } for status, datatype in (responses or {}).items()}
     method_spec['responses'] = api_responses
     return method_spec
 
@@ -154,6 +185,7 @@ def _event_api(
 def event_api(title: Optional[str] = None,
               payload: Optional[PayloadDef] = None,
               query_args: Optional[List[ArgDef]] = None,
+              fields: Optional[List[ArgDef]] = None,
               responses: Optional[Dict[int, PayloadDef]] = None) -> Callable[..., dict]:
     """
     Provides a convenient way to define Open API specification using Python types for a given app event
@@ -183,4 +215,4 @@ def event_api(title: Optional[str] = None,
             }
         )
     """
-    return partial(_event_api, title, payload, query_args, responses)
+    return partial(_event_api, title, payload, query_args, fields, responses)

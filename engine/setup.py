@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="hopeit.engine",
-    version="0.1.2",
+    version="0.2.0",
     description="Hopeit.py Engine",
     package_dir={
         "": "src"

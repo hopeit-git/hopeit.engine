@@ -1,16 +1,19 @@
 """
 Context information and handling
 """
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Type
 from pathlib import Path
 from typing import Dict, Optional, Any, Tuple, Union, List
 from datetime import datetime, timezone
 
 import aiohttp
+from hopeit.dataobjects import DataObject
 from multidict import MultiDict
 
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventType
+from hopeit.server.api import BinaryAttachment
+
 
 __all__ = ['EventContext',
            'PostprocessHook']
@@ -147,6 +150,7 @@ class PreprocessHook:
         if self._multipart_reader is not None:
             async for field in self._multipart_reader:
                 if field.filename:
+                    self._args[field.name] = BinaryAttachment()
                     yield PreprocessFileHook(name=field.name, file_name=field.filename, data=field)
                 else:
                     self._args[field.name] = await field.text()

@@ -82,6 +82,10 @@ EventPayload = Union[str, int, float, bool, dict, set, list, DataObject]
 EventPayloadType = TypeVar("EventPayloadType")
 
 
+class BinaryAttachment:
+    """File name of Multipart upload binary attachments"""
+
+
 def dataobject(
         decorated_class=None, *,
         event_id: Optional[str] = None,

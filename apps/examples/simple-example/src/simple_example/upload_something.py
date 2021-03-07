@@ -4,7 +4,7 @@ Simple Example: Upload Something
 WIP
 Test with
 ```
-curl -F "user=test" -F "file1=@some_file.big" -F "file2=@some_file2.big" -H "Content-Type:multipart/form-data" "localhost:8020/api/simple-example/1x0/upload-something?qa=yes"
+curl -F "id=test" -F "user=test" -F "attachment=@some_file.big" -H "Content-Type:multipart/form-data" "localhost:8020/api/simple-example/1x0/upload-something?qa=yes"
 
 ```
 """
@@ -16,20 +16,20 @@ from pathlib import Path
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataobject, BinaryAttachment
 from hopeit.toolkit.web import save_multipart_file
 
-from model import Something, User, SomethingParams
+from model import Something, User
 
 
 __steps__ = ['create_items']
 
 __api__ = event_api(
-    title="Simple Example: Upload Something with files",
-    payload=(SomethingParams, "provide `id` and `user` to create Something"),
-    # fields=[("user", str), ("attachment", MultipartUploadFile)],
+    title="Simple Example: Multipart Upload files",
+    query_args=[('something_id', str)],
+    fields=[('id', str), ('user', str), ('attachment', BinaryAttachment)],
     responses={
-        200: (str, 'path where object is saved')
+        200: (List[Something], 'list of created Something objects')
     }
 )
 
@@ -49,6 +49,7 @@ class UploadedFile:
 @dataobject
 @dataclass
 class FileUploadInfo:
+    id: str
     user: str
     uploaded_files: List[UploadedFile] = field(default_factory=list)
 
@@ -59,26 +60,26 @@ async def __init_event__(context: EventContext):
 
 
 async def __preprocess__(payload: None, context: EventContext, request: PreprocessHook) -> FileUploadInfo:
-    result = FileUploadInfo("no-user")
+    uploaded_files = []
     save_path = Path(context.env['upload_something']['save_path'])
     chunk_size = int(context.env['upload_something']['chunk_size'])
     async for file_hook in request.files():
-        file_name = f"attachment-{file_hook.name}-{file_hook.file_name}"
+        file_name = f"{file_hook.name}-{file_hook.file_name}"
         await save_multipart_file(file_hook, save_path / file_name, chunk_size=chunk_size)
         uploaded_file = UploadedFile(file_hook.name, file_name, save_path, size=file_hook.size)
-        result.uploaded_files.append(uploaded_file)
-    result.user = (await request.parsed_args())['user']
-    return result
+        uploaded_files.append(uploaded_file)
+    args = await request.parsed_args()
+    return FileUploadInfo(id=args['id'], user=args['user'], uploaded_files=uploaded_files)
 
 
-async def create_items(payload: FileUploadInfo, context: EventContext, *, qa: str) -> List[Something]:
+async def create_items(payload: FileUploadInfo, context: EventContext, *, something_id: str) -> List[Something]:
     result = []
     for item in payload.uploaded_files:
         logger.info(context, "Creating something from uploaded item...", extra=extra(
-            file_id=item.file_id, user=payload.user, qa=qa, size=item.size
+            file_id=item.file_id, user=payload.user, something_id=something_id, size=item.size
         ))
         result.append(Something(
-            id=item.file_id,
-            user=User(id=payload.user, name=item.file_name)
+            id=something_id,
+            user=User(id=payload.id, name=payload.user)
         ))
     return result

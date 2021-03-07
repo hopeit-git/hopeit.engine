@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "1.0.0",
+    "version": "0.2.0",
     "title": "Simple Example",
     "description": "Simple Example"
   },
@@ -122,11 +122,6 @@
         },
         "tags": [
           "simple_example.1x0"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -207,11 +202,6 @@
         },
         "tags": [
           "simple_example.1x0"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       },
       "post": {
@@ -301,11 +291,6 @@
         },
         "tags": [
           "simple_example.1x0"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -383,15 +368,132 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request reason",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "save_something"
+                  ],
+                  "properties": {
+                    "save_something": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "save_something string payload"
+                }
+              }
+            }
           }
         },
         "tags": [
           "simple_example.1x0"
-        ],
-        "security": [
+        ]
+      }
+    },
+    "/api/simple-example/1x0/upload-something": {
+      "post": {
+        "description": "Simple Example: Multipart Upload files",
+        "parameters": [
           {
-            "auth.bearer": []
+            "name": "something_id",
+            "in": "query",
+            "required": true,
+            "description": "something_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
           }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "user",
+                  "attachment"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "id"
+                  },
+                  "user": {
+                    "type": "string",
+                    "description": "user"
+                  },
+                  "attachment": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "attachment"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "list of created Something objects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Something"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.1x0"
         ]
       }
     },
@@ -464,11 +566,6 @@
         },
         "tags": [
           "simple_example.1x0"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -544,11 +641,6 @@
         },
         "tags": [
           "simple_example.1x0"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -630,11 +722,6 @@
         },
         "tags": [
           "simple_example.1x0"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -716,11 +803,6 @@
         },
         "tags": [
           "simple_example.1x0"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -802,11 +884,6 @@
         },
         "tags": [
           "simple_example.1x0"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -1067,6 +1144,7 @@
             }
           }
         },
+        "x-module-name": "hopeit.server.errors",
         "description": "\n    Error information to be returned in failed responses\n    "
       },
       "ContextUserInfo": {
@@ -1087,6 +1165,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "hopeit.basic_auth",
         "description": "\n    User info that will be available in context during events execution\n    "
       },
       "AuthInfo": {
@@ -1107,6 +1186,7 @@
             "type": "integer"
           }
         },
+        "x-module-name": "hopeit.basic_auth",
         "description": "\n    Minimal auth info that should be returned outside this app\n    "
       },
       "User": {
@@ -1123,6 +1203,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "model",
         "description": "User information"
       },
       "Status": {
@@ -1144,9 +1225,11 @@
               "SUBMITTED",
               "PROCESSED"
             ],
-            "x-enum-name": "StatusType"
+            "x-enum-name": "StatusType",
+            "x-module-name": "model"
           }
         },
+        "x-module-name": "model",
         "description": "Status change"
       },
       "Something": {
@@ -1173,6 +1256,7 @@
             "default": []
           }
         },
+        "x-module-name": "model",
         "description": "Example Something event"
       },
       "SomethingNotFound": {
@@ -1189,6 +1273,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "model",
         "description": "Item not found in datastore"
       },
       "SomethingParams": {
@@ -1205,6 +1290,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "model",
         "description": "Params to create and save Something"
       },
       "ItemsInfo": {
@@ -1221,6 +1307,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "simple_example.collector.query_concurrently",
         "description": "\n    Items to read concurrently\n    "
       }
     },
@@ -1240,9 +1327,5 @@
       }
     }
   },
-  "security": [
-    {
-      "auth.bearer": []
-    }
-  ]
+  "security": []
 }
