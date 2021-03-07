@@ -26,7 +26,7 @@ __steps__ = ['create_items']
 
 __api__ = event_api(
     summary="Simple Example: Multipart Upload files",
-    description="Updload files using Multipart form request",
+    description="Upload files using Multipart form request",
     query_args=[('something_id', str)],
     fields=[('id', str), ('user', str), ('attachment', BinaryAttachment)],
     responses={

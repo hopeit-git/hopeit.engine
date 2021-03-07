@@ -402,7 +402,7 @@
     "/api/simple-example/1x0/upload-something": {
       "post": {
         "summary": "Simple Example: Multipart Upload files",
-        "description": "WIP\nTest with\n```\ncurl -F \"id=test\" -F \"user=test\" -F \"attachment=@some_file.big\" -H \"Content-Type:multipart/form-data\" \"localhost:8020/api/simple-example/1x0/upload-something?qa=yes\"\n\n```",
+        "description": "Updload files using Multipart form request",
         "parameters": [
           {
             "name": "something_id",
