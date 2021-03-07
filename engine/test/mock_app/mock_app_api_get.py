@@ -12,6 +12,7 @@ logger, extra = app_extra_logger()
 __steps__ = ['entry_point']
 
 __api__ = {
+    "summary": "Test app api",
     "description": "Test app api",
     "parameters": [
         {

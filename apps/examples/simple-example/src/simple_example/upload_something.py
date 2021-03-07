@@ -65,7 +65,9 @@ async def __preprocess__(payload: None, context: EventContext, request: Preproce
     chunk_size = int(context.env['upload_something']['chunk_size'])
     async for file_hook in request.files():
         file_name = f"{file_hook.name}-{file_hook.file_name}"
-        await save_multipart_file(file_hook, save_path / file_name, chunk_size=chunk_size)
+        path = save_path / file_name
+        logger.info(context, f"Saving {path}...")
+        await save_multipart_file(file_hook, path, chunk_size=chunk_size)
         uploaded_file = UploadedFile(file_hook.name, file_name, save_path, size=file_hook.size)
         uploaded_files.append(uploaded_file)
     args = await request.parsed_args()

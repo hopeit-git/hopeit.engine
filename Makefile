@@ -4,11 +4,19 @@ SRC = $(wildcard src/*.py)
 
 deps:
 	cd engine && \
-	pip install --force-reinstall -r requirements.txt
+	pip install -U -r requirements.txt
 
 dev-deps: deps
 	cd engine && \
-	pip install --force-reinstall -r requirements-dev.txt
+	pip install -U -r requirements-dev.txt
+
+locked-deps: deps
+	cd engine && \
+	pip install --force-reinstall -r requirements.lock
+
+lock-requirements: clean dev-deps
+	cd engine && \
+	pip freeze > requirements.lock
 
 check-engine:
 	/bin/bash engine/build/ci-static-engine.sh
@@ -51,6 +59,7 @@ qa: test check
 	echo "DONE."
 
 dist: clean check test
+	pip install wheel && \
 	cd engine && \
 	python setup.py sdist bdist_wheel
 
@@ -59,9 +68,6 @@ dist-only: clean
 	cd engine && \
 	python setup.py sdist bdist_wheel
 
-pypi: dist
-	twine upload --repository pypi dist/*
-
 clean:
 	cd engine && \
 	rm -rf dist
@@ -69,3 +75,11 @@ clean:
 schemas:
 	cd engine/config/schemas && \
 	python update_config_schemas.py
+
+pypi:
+	pip install twine && \
+	python -m twine upload -u=__token__ -p=$(PYPI_API_TOKEN) --repository pypi engine/dist/*
+
+pypi_test:
+	pip install twine && \
+	python -m twine upload -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --repository testpypi engine/dist/*

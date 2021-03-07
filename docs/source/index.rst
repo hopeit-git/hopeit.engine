@@ -43,6 +43,13 @@ services.
 
 .. toctree::
    :maxdepth: 2
+   :caption: Deprecations:
+
+   deprecations
+
+
+.. toctree::
+   :maxdepth: 2
    :caption: License:
 
    license

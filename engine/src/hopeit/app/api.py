@@ -2,9 +2,11 @@
 API Definition helpers for user apps
 """
 import inspect
+import warnings
 from functools import partial
 from typing import Optional, List, Type, Dict, Callable, Union, Tuple, Any, TypeVar
 
+import re
 import typing_inspect  # type: ignore
 
 from hopeit.dataobjects import BinaryAttachment
@@ -97,6 +99,24 @@ def _payload_description(arg: PayloadDef) -> str:
     return str(arg)
 
 
+def _method_summary(module: str, summary: Optional[str] = None) -> str:
+    if summary is not None:
+        return summary
+    doc_str = inspect.getdoc(module)
+    if doc_str is not None:
+        return doc_str.split("\n")[0]
+    return ""
+
+
+def _method_description(module: str, description: Optional[str] = None, summary: Optional[str] = None) -> str:
+    if description is not None:
+        return description
+    doc_str = inspect.getdoc(module)
+    if doc_str is not None and doc_str.count('\n') > 1:
+        return re.sub(r"^\W+", "", doc_str.split("\n", 1)[1])
+    return _method_summary(module, summary)
+
+
 def _parse_args_schema(query_args: Optional[List[ArgDef]]):
     parameters = []
     for query_arg in (query_args or []):
@@ -130,7 +150,8 @@ def _parse_fields_schema(fields: Optional[List[ArgDef]]):
 
 
 def _event_api(
-        title: Optional[str],
+        summary: Optional[str],
+        description: Optional[str],
         payload: Optional[Type],
         query_args: Optional[List[ArgDef]],
         fields: Optional[List[ArgDef]],
@@ -142,7 +163,8 @@ def _event_api(
     parameters = _parse_args_schema(query_args)
 
     method_spec: Dict[str, Any] = {
-        "description": title if title is not None else inspect.getdoc(module),
+        "summary": _method_summary(module, summary),
+        "description": _method_description(module, description, summary),
         "parameters": parameters
     }
 
@@ -186,17 +208,24 @@ def event_api(title: Optional[str] = None,
               payload: Optional[PayloadDef] = None,
               query_args: Optional[List[ArgDef]] = None,
               fields: Optional[List[ArgDef]] = None,
-              responses: Optional[Dict[int, PayloadDef]] = None) -> Callable[..., dict]:
+              responses: Optional[Dict[int, PayloadDef]] = None, *,
+              summary: Optional[str] = None,
+              description: Optional[str] = None
+              ) -> Callable[..., dict]:
     """
     Provides a convenient way to define Open API specification using Python types for a given app event
     implementation module.
 
+    :param summary: An optional, string summary. If not provided will be taken from module docstring first line.
+    :param description: An optional, string description. If not provided will be taken from module docstring.
     :param payload: Payload schema definition. Could be a single data type, or a tuple with a Type and a description.
     :param query_args: List of query arguments: each argument could be a single string with the arg name (in which case
         str type will be assumed), or a tuple of (str, type), where type if a valid datatype for query args (str, int,
         float, bool), or a tuple of (str, type, str) where last string is argument description.
     :param responses: a dictionary where key HTTP status code and value is the payload definition as describer in
         payload parameter.
+    :param title: Deprecated, use summary instead.
+
 
     Examples:
 
@@ -215,4 +244,11 @@ def event_api(title: Optional[str] = None,
             }
         )
     """
-    return partial(_event_api, title, payload, query_args, fields, responses)
+    if title is not None:
+        warnings.warn(
+            "title parameter is deprecated since 0.1.4 and will be removed in version 0.2.0, use summary instead",
+            DeprecationWarning)
+        if summary is None:
+            summary = title
+
+    return partial(_event_api, summary, description, payload, query_args, fields, responses)

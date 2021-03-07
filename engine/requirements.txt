@@ -13,3 +13,4 @@ deepdiff
 fastjsonschema
 typing_inspect
 idna<3,>=2.5
+pyyaml<5.4,>=5.3

@@ -1,0 +1,32 @@
+# This workflow will make hopeit.engine package and deploy on PyPI
+
+name: hopeit.engine PyPI Publishing
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build and publish Python 🐍 distributions 📦 to PyPI
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        make locked-deps
+    - name: make hopeit.engine package
+      run: |
+        make dist
+    - name: Publish hopeit.engine on PyPI
+      env: 
+        PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        make pypi
