@@ -1,11 +1,7 @@
 """
 Simple Example: Upload Something
 -----------------------------------------
-WIP
-Test with
-```
-curl -F "id=test" -F "user=test" -F "attachment=@some_file.big" -H "Content-Type:multipart/form-data" "localhost:8020/api/simple-example/1x0/upload-something?qa=yes"
-
+Uploads file using multipart upload support. Returns metadata Something object.
 ```
 """
 from typing import Optional, List, Any
@@ -17,7 +13,7 @@ from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
 from hopeit.dataobjects import dataobject, BinaryAttachment
-from hopeit.toolkit.web import save_multipart_file
+from hopeit.toolkit.web import save_multipart_attachment
 
 from model import Something, User
 
@@ -68,7 +64,7 @@ async def __preprocess__(payload: None, context: EventContext, request: Preproce
         file_name = f"{file_hook.name}-{file_hook.file_name}"
         path = save_path / file_name
         logger.info(context, f"Saving {path}...")
-        await save_multipart_file(file_hook, path, chunk_size=chunk_size)
+        await save_multipart_attachment(file_hook, path, chunk_size=chunk_size)
         uploaded_file = UploadedFile(file_hook.name, file_name, save_path, size=file_hook.size)
         uploaded_files.append(uploaded_file)
     args = await request.parsed_args()

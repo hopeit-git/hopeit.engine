@@ -83,7 +83,7 @@ EventPayloadType = TypeVar("EventPayloadType")
 
 
 class BinaryAttachment:
-    """File name of Multipart upload binary attachments"""
+    """Type descriptor for multipart binary attachments"""
 
 
 def dataobject(

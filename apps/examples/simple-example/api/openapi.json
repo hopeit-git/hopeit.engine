@@ -124,6 +124,11 @@
         },
         "tags": [
           "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -205,6 +210,11 @@
         },
         "tags": [
           "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       },
       "post": {
@@ -295,6 +305,11 @@
         },
         "tags": [
           "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -396,13 +411,18 @@
         },
         "tags": [
           "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
     "/api/simple-example/1x0/upload-something": {
       "post": {
         "summary": "Simple Example: Multipart Upload files",
-        "description": "Updload files using Multipart form request",
+        "description": "Upload files using Multipart form request",
         "parameters": [
           {
             "name": "something_id",
@@ -500,6 +520,11 @@
         },
         "tags": [
           "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -573,6 +598,11 @@
         },
         "tags": [
           "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -649,6 +679,11 @@
         },
         "tags": [
           "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -731,6 +766,11 @@
         },
         "tags": [
           "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -813,6 +853,11 @@
         },
         "tags": [
           "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -895,6 +940,11 @@
         },
         "tags": [
           "simple_example.1x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -1341,5 +1391,9 @@
       }
     }
   },
-  "security": []
+  "security": [
+    {
+      "auth.bearer": []
+    }
+  ]
 }
