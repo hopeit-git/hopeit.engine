@@ -3,9 +3,6 @@ import pytest  # type: ignore
 from hopeit.testing.apps import execute_event
 from simple_example.streams.process_events import SomethingStored
 
-from .fixtures import app_config  # noqa: F401
-from .fixtures import something_processed, something_submitted  # noqa: F401
-
 
 @pytest.mark.asyncio
 async def test_it_process_events(app_config,  # noqa: F811

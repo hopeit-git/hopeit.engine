@@ -52,6 +52,13 @@ class EventHandler:
             setup_app_logger(module, app_config=self.app_config, name=base_event, event_info=event_info)
             self.steps[event_name] = effective_steps(event_name, steps)
 
+    async def _ensure_initialized(self, context: EventContext):
+        base_event, _ = event_and_step(context.event_name)
+        impl, initialized, raw_steps = self.modules[base_event]
+        if not initialized:
+            await self._init_module(module=impl, context=context)
+            self.modules[base_event] = (impl, True, raw_steps)
+
     async def handle_async_event(self, *,
                                  context: EventContext,
                                  query_args: Optional[dict],
@@ -74,13 +81,7 @@ class EventHandler:
         """
         if query_args is None:
             query_args = {}
-        # base_event, _ = event_and_step(context.event_name)
-        # _, initialized, _ = self.modules[base_event]
-        # assert initialized, \
-        #         "Module not initialized."
-        # if not initialized:
-        #     await self._init_module(module=impl, context=context)
-        #     self.modules[base_event] = (impl, True, raw_steps)
+        await self._ensure_initialized(context)
         steps = self.steps[context.event_name]
         async for result in execute_steps(steps, context=context, payload=payload, **query_args):
             yield result
@@ -109,13 +110,9 @@ class EventHandler:
         Invokes __preprocess__ method in event if defined in event,
         allowing events to process elements from requests.
         """
-        base_event, _ = event_and_step(context.event_name)
-        impl, initialized, raw_steps = self.modules[base_event]
-        if not initialized:
-            await self._init_module(module=impl, context=context)
-            self.modules[base_event] = (impl, True, raw_steps)
         pp_handler = self.preprocess_handlers[context.event_name]
         if pp_handler:
+            await self._ensure_initialized(context)
             return await invoke_single_step(payload=payload, context=context, func=pp_handler[0], request=request)
         return payload
 

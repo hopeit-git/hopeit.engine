@@ -7,13 +7,14 @@ from typing import Union, Callable, List, Optional, Dict, Tuple
 from datetime import datetime, timezone
 
 from hopeit.app.config import AppConfig, parse_app_config_json, EventDescriptor
-from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import AuthType, ServerConfig, LoggingConfig
 from hopeit.server.events import EventHandler
 from hopeit.server.steps import split_event_stages, find_datatype_handler
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger
+from hopeit.testing.hooks import MockFileHook, MockMultipartReader
 
 __all__ = [
     'config',
@@ -74,6 +75,10 @@ async def execute_event(app_config: AppConfig,
                         event_name: str,
                         payload: Optional[EventPayload],
                         mocks: Optional[List[Callable[[ModuleType, EventContext], None]]] = None,
+                        *,
+                        fields: Optional[Dict[str, str]] = None,
+                        attachments: Optional[Dict[str, bytes]] = None,
+                        preprocess: bool = False,
                         postprocess: bool = False,
                         **kwargs) -> Union[
                             Optional[EventPayload],
@@ -105,21 +110,32 @@ async def execute_event(app_config: AppConfig,
         pp_result = await handler.postprocess(context=context, payload=pp_payload, response=hook)
         return pp_result, hook
 
+    async def _preprocess(fields: Dict[str, str], attachments: Dict[str, bytes], payload: EventPayload) -> EventPayload:
+        reader = MockMultipartReader(fields, attachments)
+        hook = PreprocessHook(headers={}, multipart_reader=reader, file_hook_factory=MockFileHook)
+        pp_result = await handler.preprocess(context=context, payload=payload, request=hook)
+        return pp_result
+
     context = create_test_context(app_config, event_name)
     impl = find_event_handler(app_config=app_config, event_name=event_name)
-    datatype = find_datatype_handler(app_config=app_config, event_name=event_name)
-    if datatype is None:
-        if payload is not None:
-            raise ValueError("Invalid payload. Expected None")
-    elif not isinstance(payload, datatype):
-        raise ValueError(f"Invalid payload type={type(payload).__name__}. Expected type={datatype.__name__}")
+
     event_info = app_config.events[event_name]
     effective_events = {**split_event_stages(app_config.app, event_name, event_info, impl)}
     handler = EventHandler(app_config=app_config, plugins=[],
                            effective_events=effective_events)
     if mocks is not None:
         _apply_mocks(context, handler, event_name, effective_events, mocks)
-    on_queue, pp_result, response = [payload], None, None
+
+    if preprocess:
+        payload = await _preprocess(fields, attachments, payload)
+    datatype = find_datatype_handler(app_config=app_config, event_name=event_name)
+    if datatype is None:
+        if payload is not None:
+            raise ValueError("Invalid payload. Expected None")
+    elif not isinstance(payload, datatype):
+        raise ValueError(f"Invalid payload type={type(payload).__name__}. Expected type={datatype.__name__}")    
+    
+    on_queue, pp_result, response = [payload], None, None        
     for effective_event_name, event_info in effective_events.items():
         context = create_test_context(app_config, effective_event_name)
         stage_results = []

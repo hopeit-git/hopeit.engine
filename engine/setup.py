@@ -46,7 +46,6 @@ setuptools.setup(
         "GitHub: issues": "https://github.com/hopeit-git/hopeit.engine/issues",
         "GitHub: repo": "https://github.com/hopeit-git/hopeit.engine",
     },
->>>>>>> 98bc053bc26d9ee88e182a80b41fa30e48b37497
     package_dir={
         "": "src"
     },

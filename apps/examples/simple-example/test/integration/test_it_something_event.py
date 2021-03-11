@@ -2,11 +2,6 @@ import pytest  # type: ignore
 
 from hopeit.testing.apps import execute_event
 
-from .fixtures import app_config  # noqa: F401
-from .fixtures import something_submitted, something_example  # noqa: F401
-from .fixtures import something_with_status_submitted_example  # noqa: F401
-from .fixtures import something_with_status_example  # noqa: F401
-
 
 @pytest.mark.asyncio
 async def test_it_process_something(app_config,  # noqa: F811

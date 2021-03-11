@@ -1,22 +1,22 @@
 """
 Context information and handling
 """
-from typing import AsyncGenerator, Type
+from typing import AsyncGenerator, Callable
 from pathlib import Path
 from typing import Dict, Optional, Any, Tuple, Union, List
 from datetime import datetime, timezone
 
 import aiohttp
-from hopeit.dataobjects import DataObject
 from multidict import MultiDict
 
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventType
-from hopeit.server.api import BinaryAttachment
+from hopeit.dataobjects import BinaryAttachment
 
 
 __all__ = ['EventContext',
-           'PostprocessHook']
+           'PostprocessHook',
+           'PreprocessHook']
 
 
 class EventContext:
@@ -124,12 +124,14 @@ class PreprocessHook:
     Preprocess hook that handles information available in the request to be accessed
     from `__preprocess__(...)` event method when defined.
     """
-    def __init__(self, *, headers: dict, multipart_reader: Optional[aiohttp.MultipartReader]=None):
-        self._headers = PreprocessHeaders(headers)    
+    def __init__(self, *, headers: dict, multipart_reader: Optional[aiohttp.MultipartReader]=None,
+                 file_hook_factory: Callable=PreprocessFileHook):
+        self._headers = PreprocessHeaders(headers)
         self._multipart_reader = multipart_reader
         self._args = {}
         self._iterated = False
         self.status: Optional[int] = None
+        self.file_hook_factory = file_hook_factory
 
     @property
     def headers(self):
@@ -151,6 +153,6 @@ class PreprocessHook:
             async for field in self._multipart_reader:
                 if field.filename:
                     self._args[field.name] = BinaryAttachment()
-                    yield PreprocessFileHook(name=field.name, file_name=field.filename, data=field)
+                    yield self.file_hook_factory(name=field.name, file_name=field.filename, data=field)
                 else:
                     self._args[field.name] = await field.text()
