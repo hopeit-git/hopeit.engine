@@ -75,7 +75,7 @@ def test_event_api_title(monkeypatch, mock_api_spec, mock_api_app_config):  # no
     mock_api_spec['paths']['/api/mock-app-api/test/mock-app-api']['post']['requestBody']['description'] = \
         'MockData'
     spec = api.event_api(
-        title="Test app api part 2",
+        summary="Test app api part 2",
         description="Description Test app api part 2",
         payload=MockData,
         query_args=['arg1'],

@@ -21,7 +21,7 @@ logger, extra = app_extra_logger()
 __steps__ = ['spawn_many_events', SHUFFLE, 'update_status', 'save']
 
 __api__ = event_api(
-    title="Simple Example: Spawn Event",
+    summary="Simple Example: Spawn Event",
     payload=(Something, "Something object to submitted several times to stream"),
     responses={
         200: (str, 'events submitted successfully message')
