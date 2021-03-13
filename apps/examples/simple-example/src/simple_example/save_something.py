@@ -42,7 +42,7 @@ async def __preprocess__(payload: SomethingParams, context: EventContext, reques
         logger.info(context, "Missing required user-agent")
         request.set_status(400)
         return "Missing required user-agent"
-   
+ 
     logger.info(context, "Save request", extra=extra(user_agent=user_agent))
     return payload    
 
