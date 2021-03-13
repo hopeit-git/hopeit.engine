@@ -16,7 +16,7 @@ from model import Something, Status, SomethingNotFound
 __steps__ = ['load', 'save_with_updated_status']
 
 __api__ = event_api(
-    title="Simple Example: Query Something Extended",
+    summary="Simple Example: Query Something Extended",
     query_args=[
         ('item_id', str, 'Item Id to read')
     ],

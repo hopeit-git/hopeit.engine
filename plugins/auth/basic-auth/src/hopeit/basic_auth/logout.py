@@ -14,7 +14,7 @@ logger = app_logger()
 __steps__ = ['logout']
 
 __api__ = event_api(
-    title="Basic Auth: Logout",
+    summary="Basic Auth: Logout",
     responses={
         200: (str, "Logged out message."),
         401: (Unauthorized.ErrorInfo, "Login failed, invalid credentials or not logged in.")

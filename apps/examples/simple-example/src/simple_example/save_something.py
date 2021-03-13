@@ -17,7 +17,7 @@ from common.validation import validate
 __steps__ = ['create_something', 'save']
 
 __api__ = event_api(
-    title="Simple Example: Save Something",
+    summary="Simple Example: Save Something",
     payload=(SomethingParams, "provide `id` and `user` to create Something"),
     responses={
         200: (str, 'path where object is saved'),
