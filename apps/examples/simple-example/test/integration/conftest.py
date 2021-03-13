@@ -17,7 +17,7 @@ def something_example():
 @pytest.fixture
 def something_upload_example():
     return Something(
-        id='test_something_id', 
+        id='test_something_id',
         user=User(id='test', name='test_user')
     )
 

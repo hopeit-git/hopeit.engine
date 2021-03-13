@@ -4,7 +4,7 @@ Simple Example: Upload Something
 Uploads file using multipart upload support. Returns metadata Something object.
 ```
 """
-from typing import Optional, List, Any
+from typing import List
 from dataclasses import dataclass, field
 import os
 from pathlib import Path

@@ -36,15 +36,16 @@ async def __init_event__(context):
         fs = FileStorage(path=str(context.env['fs']['data_path']))
 
 
-async def __preprocess__(payload: SomethingParams, context: EventContext, request: PreprocessHook) -> Union[str, SomethingParams]:
+async def __preprocess__(payload: SomethingParams, context: EventContext,
+                         request: PreprocessHook) -> Union[str, SomethingParams]:
     user_agent = request.headers.get('user-agent')
     if (user_agent is None) or (user_agent.strip() == ''):
         logger.info(context, "Missing required user-agent")
         request.set_status(400)
         return "Missing required user-agent"
- 
+
     logger.info(context, "Save request", extra=extra(user_agent=user_agent))
-    return payload    
+    return payload
 
 
 async def create_something(payload: SomethingParams, context: EventContext) -> Something:

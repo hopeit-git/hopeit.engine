@@ -5,7 +5,6 @@ from datetime import datetime
 from typing import List, Optional
 from enum import Enum
 from dataclasses import dataclass, field
-from hopeit.app.api import BinaryAttachment
 
 from hopeit.dataobjects import dataobject
 from hopeit.dataobjects.validation import validate

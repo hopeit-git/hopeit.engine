@@ -12,7 +12,7 @@ from typing import List, Type, Optional, Callable, Awaitable, Union
 from aiohttp import web
 from aiohttp_swagger3 import RapiDocUiSettings  # type: ignore
 from aiohttp_swagger3.swagger import Swagger  # type: ignore
-from aiohttp_swagger3.swagger_route import SwaggerRoute
+from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
 from hopeit.dataobjects import dataobject, BinaryAttachment  # type: ignore
 from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
