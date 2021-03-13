@@ -30,7 +30,7 @@ from hopeit.server import api
 from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
 from hopeit.dataobjects.jsonify import Json
-from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook, PreprocessFileHook
+from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import DataObject, EventPayloadType
 from hopeit.app.errors import Unauthorized, BadRequest
 from hopeit.server.engine import Server, AppEngine
@@ -534,8 +534,7 @@ async def _handle_post_invocation(
         _validate_authorization(app_engine.app_config, context, auth_types, request)
         payload = await _request_process_payload(context, datatype, request)
         hook = PreprocessHook(headers=request.headers)
-        return await _request_execute(impl, event_name, context, query_args, payload, 
-                                      preprocess_hook=hook)
+        return await _request_execute(impl, event_name, context, query_args, payload, preprocess_hook=hook)
     except Unauthorized as e:
         return _ignored_response(context, 401, e)
     except BadRequest as e:

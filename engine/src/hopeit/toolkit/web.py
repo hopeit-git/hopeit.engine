@@ -7,8 +7,8 @@ from pathlib import Path
 from hopeit.app.context import PreprocessFileHook
 
 
-async def save_multipart_attachment(file_hook: PreprocessFileHook, path: Union[str, Path], 
-                                    *, chunk_size : Optional[int]=None):
+async def save_multipart_attachment(file_hook: PreprocessFileHook, path: Union[str, Path],
+                                    *, chunk_size: Optional[int] = None):
     """
     Save file using chunks from multipart upload to specified path
     """

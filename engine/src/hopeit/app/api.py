@@ -9,7 +9,6 @@ from typing import Optional, List, Type, Dict, Callable, Union, Tuple, Any, Type
 import re
 import typing_inspect  # type: ignore
 
-from hopeit.dataobjects import BinaryAttachment
 from hopeit.app.config import AppConfig, AppDescriptor, EventType
 from hopeit.server.api import spec, app_route_name, APIError, BUILTIN_TYPES, datatype_schema
 from hopeit.server.names import route_name

@@ -129,7 +129,9 @@ async def execute_event(app_config: AppConfig,
     preprocess_hook, postprocess_hook = None, None
     if preprocess:
         preprocess_hook = PreprocessHook(
-            headers={}, multipart_reader=MockMultipartReader(fields or {}, attachments or {}), file_hook_factory=MockFileHook
+            headers={},
+            multipart_reader=MockMultipartReader(fields or {}, attachments or {}),
+            file_hook_factory=MockFileHook
         )
     if postprocess:
         postprocess_hook = PostprocessHook()
@@ -145,8 +147,8 @@ async def execute_event(app_config: AppConfig,
             # raise ValueError("Invalid payload. Expected None")
     elif not isinstance(payload, datatype):
         return payload
-        # raise ValueError(f"Invalid payload type={type(payload).__name__}. Expected type={datatype.__name__}")    
-    
+        # raise ValueError(f"Invalid payload type={type(payload).__name__}. Expected type={datatype.__name__}")
+
     on_queue, pp_result, pp_called = [payload], None, False
     for effective_event_name, event_info in effective_events.items():
         context = create_test_context(app_config, effective_event_name)

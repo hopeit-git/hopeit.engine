@@ -1,9 +1,8 @@
 """
 Context information and handling
 """
-from typing import AsyncGenerator, Callable
+from typing import AsyncGenerator, Callable, Dict, Optional, Any, Tuple, Union, List
 from pathlib import Path
-from typing import Dict, Optional, Any, Tuple, Union, List
 from datetime import datetime, timezone
 
 import aiohttp
@@ -97,7 +96,7 @@ class PreprocessFileHook:
         self.data = data
         self.size = 0
 
-    async def read_chunks(self, *, chunk_size: int=8192) -> AsyncGenerator[bytes, None]:
+    async def read_chunks(self, *, chunk_size: int = 8192) -> AsyncGenerator[bytes, None]:
         chunk = await self.data.read_chunk(size=chunk_size)
         while chunk:
             self.size += len(chunk)
@@ -124,8 +123,8 @@ class PreprocessHook:
     Preprocess hook that handles information available in the request to be accessed
     from `__preprocess__(...)` event method when defined.
     """
-    def __init__(self, *, headers: dict, multipart_reader: Optional[aiohttp.MultipartReader]=None,
-                 file_hook_factory: Callable=PreprocessFileHook):
+    def __init__(self, *, headers: dict, multipart_reader: Optional[aiohttp.MultipartReader] = None,
+                 file_hook_factory: Callable = PreprocessFileHook):
         self._headers = PreprocessHeaders(headers)
         self._multipart_reader = multipart_reader
         self._args = {}

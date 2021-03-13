@@ -23,10 +23,9 @@ class MockFileHook:
         self.file_data = data.file_data
         self.size = 0
 
-    async def read_chunks(self, *, chunk_size: int=16) -> AsyncGenerator[bytes, None]:
+    async def read_chunks(self, *, chunk_size: int = 16) -> AsyncGenerator[bytes, None]:
         for i in range(0, len(self.file_data), chunk_size):
             yield self.file_data[i:min(len(self.file_data), i+chunk_size)]
-
 
 
 class MockMultipartReader:
@@ -34,7 +33,7 @@ class MockMultipartReader:
         self.fields = fields
         self.it = iter([
             MockField(name=k, value=v, file_data=attachments.get(k))
-            for k,v in fields.items()
+            for k, v in fields.items()
         ])
 
     def __aiter__(self) -> AsyncIterator["MockField"]:

@@ -155,12 +155,12 @@ class AppEngine:
         )
 
     async def preprocess(self, *,
-                          context: EventContext,
-                          payload: Optional[EventPayload],
-                          request: PreprocessHook) -> Optional[EventPayload]:
+                         context: EventContext,
+                         payload: Optional[EventPayload],
+                         request: PreprocessHook) -> Optional[EventPayload]:
         assert self.event_handler, "event_handler not created. Call `start()`."
         return await self.event_handler.preprocess(context=context, payload=payload, request=request)
-        
+
     async def postprocess(self, *,
                           context: EventContext,
                           payload: Optional[EventPayload],

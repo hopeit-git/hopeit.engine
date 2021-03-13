@@ -103,9 +103,9 @@ class EventHandler:
         return payload
 
     async def preprocess(self, *,
-                          context: EventContext,
-                          payload: Optional[EventPayload],
-                          request: PreprocessHook) -> Optional[EventPayload]:
+                         context: EventContext,
+                         payload: Optional[EventPayload],
+                         request: PreprocessHook) -> Optional[EventPayload]:
         """
         Invokes __preprocess__ method in event if defined in event,
         allowing events to process elements from requests.

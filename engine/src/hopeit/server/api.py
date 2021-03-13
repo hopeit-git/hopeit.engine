@@ -6,18 +6,17 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
-from dataclasses import dataclass
 from typing import List, Type, Optional, Callable, Awaitable, Union
 
 from aiohttp import web
 from aiohttp_swagger3 import RapiDocUiSettings  # type: ignore
 from aiohttp_swagger3.swagger import Swagger  # type: ignore
 from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
-from hopeit.dataobjects import dataobject, BinaryAttachment  # type: ignore
 from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
 from dataclasses_jsonschema import SchemaType
 
+from hopeit.dataobjects import BinaryAttachment  # type: ignore
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventPlugMode, EventType
 from hopeit.server.config import ServerConfig, AuthType
 from hopeit.server.errors import ErrorInfo
