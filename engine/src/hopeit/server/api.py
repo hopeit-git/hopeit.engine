@@ -199,6 +199,7 @@ async def _passthru_handler(request: web.Request) -> Tuple[web.Request, bool]:
     return request, True
 
 
+# pragme: no cover
 class CustomizedObjectValidator(validators.Object):
     """
     Replacements of Object Validator provided by aiohttp3_swagger
