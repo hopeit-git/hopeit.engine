@@ -117,6 +117,9 @@ def _method_description(module: str, description: Optional[str] = None, summary:
 
 
 def _parse_args_schema(query_args: Optional[List[ArgDef]]):
+    """
+    Parse query args schema
+    """
     parameters = []
     for query_arg in (query_args or []):
         arg_name = _arg_name(query_arg)
@@ -135,16 +138,19 @@ def _parse_args_schema(query_args: Optional[List[ArgDef]]):
 
 
 def _parse_fields_schema(fields: Optional[List[ArgDef]]):
+    """
+    Parse form fields schema
+    """
     fields_schema = {"type": "object", "required": [], "properties": {}}
     for field in (fields or []):
         arg_name = _arg_name(field)
         arg_type = str if len(field) == 1 else field[1]
-        arg_schema = datatype_schema(arg_name, arg_type)
-        fields_schema['required'].extend(arg_schema['required'])
-        fields_schema['properties'].update(arg_schema['properties'])
+        arg_schema = datatype_schema(arg_name, arg_type)  # type: ignore
+        fields_schema['required'].extend(arg_schema['required'])  # type: ignore
+        fields_schema['properties'].update(arg_schema['properties'])  # type: ignore
         arg_desc = _arg_description(field)
         if arg_desc is not None:
-            fields_schema['properties'][arg_name]['description'] = arg_desc
+            fields_schema['properties'][arg_name]['description'] = arg_desc  # type: ignore
     return fields_schema
 
 

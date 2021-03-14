@@ -516,6 +516,25 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Missing or invalid fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "upload_something"
+                  ],
+                  "properties": {
+                    "upload_something": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "upload_something string payload"
+                }
+              }
+            }
           }
         },
         "tags": [

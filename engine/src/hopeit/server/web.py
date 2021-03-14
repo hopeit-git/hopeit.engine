@@ -293,8 +293,8 @@ def _create_multipart_event_route(
                       event_name, datatype, _auth_types(impl, event_name))
     setattr(handler, '__closure__', None)
     setattr(handler, '__code__', _handle_multipart_invocation.__code__)
-    # TODO: api_handler = api.add_route('post', route, handler)
-    return web.post(route, handler) #  TODO: api_handler)
+    api_handler = api.add_route('post', route, handler)
+    return web.post(route, api_handler)
 
 
 def _create_event_management_routes(
@@ -477,8 +477,8 @@ async def _request_execute(
         event_name: str,
         context: EventContext,
         query_args: Dict[str, Any],
-        payload: Optional[EventPayloadType] = None,
-        preprocess_hook: Optional[PreprocessHook] = None) -> ResponseType:
+        payload: Optional[EventPayloadType],
+        preprocess_hook: PreprocessHook) -> ResponseType:
     """
     Executes request using engine event handler
     """

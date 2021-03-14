@@ -1,14 +1,14 @@
 """
 Utilities for handling Web requests
 """
-from typing import Optional, Union
+from typing import Union
 from pathlib import Path
 
 from hopeit.app.context import PreprocessFileHook
 
 
 async def save_multipart_attachment(file_hook: PreprocessFileHook, path: Union[str, Path],
-                                    *, chunk_size: Optional[int] = None):
+                                    *, chunk_size: int = 8192):
     """
     Save file using chunks from multipart upload to specified path
     """

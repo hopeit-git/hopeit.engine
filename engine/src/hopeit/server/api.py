@@ -6,11 +6,13 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
-from typing import List, Type, Optional, Callable, Awaitable, Union
+from typing import Any, Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
 
 from aiohttp import web
 from aiohttp_swagger3 import RapiDocUiSettings  # type: ignore
 from aiohttp_swagger3.swagger import Swagger  # type: ignore
+from aiohttp_swagger3.exceptions import ValidatorError  # type: ignore
+from aiohttp_swagger3 import validators  # type: ignore
 from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
 from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
@@ -193,6 +195,70 @@ def diff_specs() -> bool:
     return static_spec != spec
 
 
+async def _passthru_handler(request: web.Request) -> Tuple[web.Request, bool]:
+    return request, True
+
+
+class CustomizedObjectValidator(validators.Object):
+    """
+    Replacements of Object Validator provided by aiohttp3_swagger
+    to handle multipart form requests
+    """
+    def validate(self, raw_value: Union[None, Dict, Any], raw: bool) -> Union[None, Dict, Any]:
+        # FIXED: is_missing = isinstance(raw_value, validators._MissingType)
+        is_missing = (raw_value is not None) and (not isinstance(raw_value, dict))
+        # FIXED END
+        if not is_missing and self.readOnly:
+            raise ValidatorError("property is read-only")
+        if raw_value is None:
+            if self.nullable:
+                return None
+            raise ValidatorError("value should be type of dict")
+        if not isinstance(raw_value, dict):
+            if is_missing:
+                return raw_value
+            raise ValidatorError("value should be type of dict")
+        value = {}
+        errors: Dict = {}
+        for name in self.required:
+            if name not in raw_value:
+                errors[name] = "required property"
+        if errors:
+            raise ValidatorError(errors)
+
+        for name, validator in self.properties.items():
+            prop = raw_value.get(name, validators.MISSING)
+            try:
+                val = validator.validate(prop, raw)
+                if val != validators.MISSING:
+                    value[name] = val
+            except ValidatorError as e:
+                errors[name] = e.error
+        if errors:
+            raise ValidatorError(errors)
+
+        if isinstance(self.additionalProperties, bool):
+            if not self.additionalProperties:
+                additional_properties = raw_value.keys() - value.keys()
+                if additional_properties:
+                    raise ValidatorError({k: "additional property not allowed" for k in additional_properties})
+            else:
+                for key in raw_value.keys() - value.keys():
+                    value[key] = raw_value[key]
+        else:
+            for name in raw_value.keys() - value.keys():
+                validator = self.additionalProperties
+                value[name] = validator.validate(raw_value[name], raw)
+        if self.minProperties is not None and len(value) < self.minProperties:
+            raise ValidatorError(f"number or properties must be more than {self.minProperties}")
+        if self.maxProperties is not None and len(value) > self.maxProperties:
+            raise ValidatorError(f"number or properties must be less than {self.maxProperties}")
+        return None
+
+
+setattr(validators.Object, "validate", CustomizedObjectValidator.validate)
+
+
 def enable_swagger(server_config: ServerConfig, app: web.Application):
     """
     Enables Open API (a.k.a Swagger) on this server. This consists of:
@@ -242,6 +308,7 @@ def enable_swagger(server_config: ServerConfig, app: web.Application):
         redoc_ui_settings=None,
         swagger_ui_settings=None
     )
+    swagger.register_media_type_handler("multipart/form-data", _passthru_handler)
     logger.info(__name__, "OpenAPI validations enabled.")
 
 
@@ -587,7 +654,7 @@ def _builtin_schema(type_name: str, type_format: Optional[str],
         "description": f"{event_name} {type_name} payload"
     }
     if type_format is not None:
-        schema['properties'][event_name]['format'] = type_format
+        schema['properties'][event_name]['format'] = type_format  # type: ignore
     return schema
 
 

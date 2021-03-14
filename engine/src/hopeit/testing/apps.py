@@ -3,7 +3,7 @@ Test utilities/wrappers for app development
 """
 from pathlib import Path
 from types import ModuleType
-from typing import Union, Callable, List, Optional, Dict, Tuple
+from typing import Union, Callable, List, Optional, Dict, Tuple, Any
 from datetime import datetime, timezone
 
 from hopeit.app.config import AppConfig, parse_app_config_json, EventDescriptor
@@ -15,6 +15,7 @@ from hopeit.server.steps import split_event_stages, find_datatype_handler
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger
 from hopeit.testing.hooks import MockFileHook, MockMultipartReader
+from multidict import CIMultiDict, CIMultiDictProxy
 
 __all__ = [
     'config',
@@ -59,8 +60,8 @@ def _apply_mocks(context: EventContext,
                  handler: EventHandler,
                  event_name: str,
                  effective_events: Dict[str, EventDescriptor],
-                 preprocess_hook: PreprocessHook,
-                 postprocess_hook: PostprocessHook,
+                 preprocess_hook: Optional[PreprocessHook],
+                 postprocess_hook: Optional[PostprocessHook],
                  mocks: List[Callable[[ModuleType, EventContext], None]]):
     """
     Execute a list of functions to mock module properties.
@@ -68,12 +69,12 @@ def _apply_mocks(context: EventContext,
     module, _, _ = handler.modules[event_name]
     logger.debug(context, f"[test.apps] executing mocks for module={module.__name__}...")
     for mock in mocks:
-        hooks = {}
+        hooks: Dict[str, Any] = {}
         if preprocess_hook is not None:
             hooks['preprocess_hook'] = preprocess_hook
         if postprocess_hook is not None:
             hooks['postprocess_hook'] = postprocess_hook
-        mock(module, context, **hooks)
+        mock(module, context, **hooks)  # type: ignore
     handler.load_modules(effective_events=effective_events)
     logger.debug(context, '[test.apps] mocking done.')
 
@@ -129,8 +130,8 @@ async def execute_event(app_config: AppConfig,
     preprocess_hook, postprocess_hook = None, None
     if preprocess:
         preprocess_hook = PreprocessHook(
-            headers={},
-            multipart_reader=MockMultipartReader(fields or {}, attachments or {}),
+            headers=CIMultiDictProxy(CIMultiDict()),
+            multipart_reader=MockMultipartReader(fields or {}, attachments or {}),  # type: ignore
             file_hook_factory=MockFileHook
         )
     if postprocess:
@@ -138,7 +139,7 @@ async def execute_event(app_config: AppConfig,
     if mocks is not None:
         _apply_mocks(context, handler, event_name, effective_events, preprocess_hook, postprocess_hook, mocks)
 
-    if preprocess:
+    if preprocess_hook:
         payload = await _preprocess(preprocess_hook, payload)
     datatype = find_datatype_handler(app_config=app_config, event_name=event_name)
     if datatype is None:
@@ -157,7 +158,7 @@ async def execute_event(app_config: AppConfig,
             async for res in handler.handle_async_event(context=context, query_args=kwargs, payload=elem):
                 stage_results.append(res)
         on_queue = stage_results if len(stage_results) > 0 else on_queue
-        if postprocess and not pp_called:
+        if postprocess_hook and not pp_called:
             pp_called = True
             pp_result = await _postprocess(postprocess_hook, on_queue)
         kwargs = {}

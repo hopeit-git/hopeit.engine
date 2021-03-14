@@ -1,4 +1,5 @@
-from hopeit.app.context import PreprocessHook
+from hopeit.app.context import PreprocessHeaders, PreprocessHook
+from multidict import CIMultiDict, CIMultiDictProxy
 import pytest  # type: ignore
 import json
 
@@ -6,7 +7,7 @@ from hopeit.testing.apps import execute_event
 
 
 def mock_user_agent_header(module, context, *, preprocess_hook: PreprocessHook):
-    preprocess_hook._headers._headers['user-agent'] = 'Testing!'
+    preprocess_hook.headers = PreprocessHeaders.from_dict({'user-agent': 'Testing!'})
 
 
 @pytest.mark.asyncio

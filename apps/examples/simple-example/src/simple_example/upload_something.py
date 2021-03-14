@@ -4,7 +4,7 @@ Simple Example: Upload Something
 Uploads file using multipart upload support. Returns metadata Something object.
 ```
 """
-from typing import List
+from typing import List, Union
 from dataclasses import dataclass, field
 import os
 from pathlib import Path
@@ -26,7 +26,8 @@ __api__ = event_api(
     query_args=[('something_id', str)],
     fields=[('id', str), ('user', str), ('attachment', BinaryAttachment)],
     responses={
-        200: (List[Something], 'list of created Something objects')
+        200: (List[Something], 'list of created Something objects'),
+        400: (str, "Missing or invalid fields")
     }
 )
 
@@ -56,7 +57,8 @@ async def __init_event__(context: EventContext):
     os.makedirs(save_path, exist_ok=True)
 
 
-async def __preprocess__(payload: None, context: EventContext, request: PreprocessHook) -> FileUploadInfo:
+async def __preprocess__(payload: None, context: EventContext, 
+                         request: PreprocessHook) -> Union[str, FileUploadInfo]:
     uploaded_files = []
     save_path = Path(context.env['upload_something']['save_path'])
     chunk_size = int(context.env['upload_something']['chunk_size'])
@@ -67,7 +69,12 @@ async def __preprocess__(payload: None, context: EventContext, request: Preproce
         await save_multipart_attachment(file_hook, path, chunk_size=chunk_size)
         uploaded_file = UploadedFile(file_hook.name, file_name, save_path, size=file_hook.size)
         uploaded_files.append(uploaded_file)
+    
     args = await request.parsed_args()
+    if not all(x in args for x in ('id', 'user', 'attachment')):
+        request.status = 400
+        return "Missing required fields"
+
     return FileUploadInfo(id=args['id'], user=args['user'], uploaded_files=uploaded_files)
 
 

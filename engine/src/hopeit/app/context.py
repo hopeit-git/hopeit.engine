@@ -6,11 +6,10 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 import aiohttp
-from multidict import MultiDict
+from multidict import CIMultiDict, CIMultiDictProxy
 
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventType
-from hopeit.dataobjects import BinaryAttachment
 
 
 __all__ = ['EventContext',
@@ -90,13 +89,13 @@ class PreprocessFileHook:
     """
     Hook to read files from multipart requests
     """
-    def __init__(self, *, name: str, file_name: str, data: aiohttp.MultipartReader):
+    def __init__(self, *, name: str, file_name: str, data: aiohttp.multipart.BodyPartReader):
         self.name = name
         self.file_name = file_name
         self.data = data
         self.size = 0
 
-    async def read_chunks(self, *, chunk_size: int = 8192) -> AsyncGenerator[bytes, None]:
+    async def read_chunks(self, *, chunk_size: int) -> AsyncGenerator[bytes, None]:
         chunk = await self.data.read_chunk(size=chunk_size)
         while chunk:
             self.size += len(chunk)
@@ -105,17 +104,24 @@ class PreprocessFileHook:
 
 
 class PreprocessHeaders:
-    def __init__(self, request_headers: MultiDict) -> None:
-        self._headers: MultiDict = request_headers
+    """
+    Wrapper to receive request headers in `__preprocess__` functions
+    """
+    def __init__(self, request_headers: CIMultiDictProxy[str]) -> None:
+        self._headers = request_headers
 
-    def __getitem__(self, key: str) -> str:
+    def __getitem__(self, key: str) -> Any:
         return self._headers[key]
 
-    def get(self, key: str) -> str:
+    def get(self, key: str) -> Any:
         return self._headers.get(key)
 
     def __repr__(self):
         return self._headers.__repr__()
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, str]):
+        return cls(CIMultiDictProxy(CIMultiDict(data)))
 
 
 class PreprocessHook:
@@ -123,18 +129,17 @@ class PreprocessHook:
     Preprocess hook that handles information available in the request to be accessed
     from `__preprocess__(...)` event method when defined.
     """
-    def __init__(self, *, headers: dict, multipart_reader: Optional[aiohttp.MultipartReader] = None,
+    def __init__(self, *, headers: CIMultiDictProxy[str],
+                 multipart_reader: Union[
+                    aiohttp.MultipartReader, aiohttp.multipart.BodyPartReader, None
+                 ] = None,
                  file_hook_factory: Callable = PreprocessFileHook):
-        self._headers = PreprocessHeaders(headers)
+        self.headers = PreprocessHeaders(headers)
         self._multipart_reader = multipart_reader
-        self._args = {}
+        self._args: Dict[str, str] = {}
         self._iterated = False
         self.status: Optional[int] = None
         self.file_hook_factory = file_hook_factory
-
-    @property
-    def headers(self):
-        return self._headers
 
     def set_status(self, status: int):
         self.status = status
@@ -146,12 +151,16 @@ class PreprocessHook:
         return self._args
 
     async def files(self) -> AsyncGenerator[Any, None]:
+        """
+        Iterator over attached files in multipart uploads
+        """
         assert not self._iterated, "Request fields already extracted"
         self._iterated = True
         if self._multipart_reader is not None:
             async for field in self._multipart_reader:
-                if field.filename:
-                    self._args[field.name] = field.filename
-                    yield self.file_hook_factory(name=field.name, file_name=field.filename, data=field)
-                else:
-                    self._args[field.name] = await field.text()
+                if field.name is not None:
+                    if field.filename:
+                        self._args[field.name] = field.filename
+                        yield self.file_hook_factory(name=field.name, file_name=field.filename, data=field)
+                    else:
+                        self._args[field.name] = await field.text()
