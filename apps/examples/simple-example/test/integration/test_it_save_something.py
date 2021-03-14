@@ -1,5 +1,4 @@
 from hopeit.app.context import PreprocessHeaders, PreprocessHook
-from multidict import CIMultiDict, CIMultiDictProxy
 import pytest  # type: ignore
 import json
 

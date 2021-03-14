@@ -36,6 +36,7 @@ async def __init_event__(context):
         fs = FileStorage(path=str(context.env['fs']['data_path']))
 
 
+# pylint: disable=invalid-name
 async def __preprocess__(payload: SomethingParams, context: EventContext,
                          request: PreprocessHook) -> Union[str, SomethingParams]:
     user_agent = request.headers.get('user-agent')

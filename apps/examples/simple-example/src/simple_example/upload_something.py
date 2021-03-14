@@ -53,32 +53,34 @@ class FileUploadInfo:
 
 
 async def __init_event__(context: EventContext):
-    save_path = Path(context.env['upload_something']['save_path'])
+    save_path = Path(str(context.env['upload_something']['save_path']))
     os.makedirs(save_path, exist_ok=True)
 
 
-async def __preprocess__(payload: None, context: EventContext, 
+# pylint: disable=invalid-name
+async def __preprocess__(payload: None, context: EventContext,
                          request: PreprocessHook) -> Union[str, FileUploadInfo]:
     uploaded_files = []
-    save_path = Path(context.env['upload_something']['save_path'])
+    save_path = Path(str(context.env['upload_something']['save_path']))
     chunk_size = int(context.env['upload_something']['chunk_size'])
     async for file_hook in request.files():
         file_name = f"{file_hook.name}-{file_hook.file_name}"
         path = save_path / file_name
         logger.info(context, f"Saving {path}...")
         await save_multipart_attachment(file_hook, path, chunk_size=chunk_size)
-        uploaded_file = UploadedFile(file_hook.name, file_name, save_path, size=file_hook.size)
+        uploaded_file = UploadedFile(file_hook.name, file_name, save_path.as_posix(), size=file_hook.size)
         uploaded_files.append(uploaded_file)
-    
     args = await request.parsed_args()
     if not all(x in args for x in ('id', 'user', 'attachment')):
         request.status = 400
         return "Missing required fields"
-
     return FileUploadInfo(id=args['id'], user=args['user'], uploaded_files=uploaded_files)
 
 
 async def create_items(payload: FileUploadInfo, context: EventContext, *, something_id: str) -> List[Something]:
+    """
+    Create Something objects to be returned for each uploaded file
+    """
     result = []
     for item in payload.uploaded_files:
         logger.info(context, "Creating something from uploaded item...", extra=extra(
