@@ -127,13 +127,10 @@ async def call_multipart_mock_event(client):
 
     attachment = open('/tmp/call_multipart_mock_event/test_attachment', 'rb')
     with aiohttp.MultipartWriter("form-data", boundary=":") as mp:
-        part = mp.append("value1")
-        part.set_content_disposition('form-data', name="field1")
-        part = mp.append("value2")
-        part.set_content_disposition('form-data', name="field2")
-        part = mp.append(attachment)
-        part.set_content_disposition(
-            'form-data', name="attachment", filename='secret.txt')
+        mp.append("value1", headers={'Content-Disposition': 'form-data; name="field1"'})
+        mp.append("value2", headers={'Content-Disposition': 'form-data; name="field2"'})
+        mp.append(attachment,
+                  headers={'Content-Disposition': 'attachments; name="attachment"; filename="test_attachment"'})
 
         res: ClientResponse = await client.post(
             '/api/mock-app/test/mock-multipart-event-test',
@@ -148,7 +145,7 @@ async def call_multipart_mock_event(client):
         assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
         assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
         result = (await res.read()).decode()
-        assert result == '{"value": "field1=value1 field2=value2 attachment=secret.txt ok"}'
+        assert result == '{"value": "field1=value1 field2=value2 attachment=test_attachment ok"}'
 
 
 async def call_post_nopayload(client):
