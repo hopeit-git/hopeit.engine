@@ -124,30 +124,31 @@ async def call_multipart_mock_event(client):
     os.makedirs('/tmp/call_multipart_mock_event/', exist_ok=True)
     with open('/tmp/call_multipart_mock_event/test_attachment', 'wb') as f:
         f.write(b'testdata')
-   
-    # attachment = open('/tmp/call_multipart_mock_event/test_attachment', 'rb')
-    with aiohttp.MultipartWriter("form-data") as mp:
-        mp.append_form([
-            ('field1', 'value1'),
-            ('field2', 'value2'),
-            ('attachment', '@/tmp/call_multipart_mock_event/test_attachment')
-        ])
-        print(mp.__dict__)
+
+    attachment = open('/tmp/call_multipart_mock_event/test_attachment', 'rb')
+    with aiohttp.MultipartWriter("form-data", boundary=":") as mp:
+        part = mp.append("value1")
+        part.set_content_disposition('form-data', name="field1")
+        part = mp.append("value2")
+        part.set_content_disposition('form-data', name="field2")
+        part = mp.append(attachment)
+        part.set_content_disposition(
+            'form-data', name="attachment", filename='secret.txt')
+
         res: ClientResponse = await client.post(
             '/api/mock-app/test/mock-multipart-event-test',
             params={'query_arg1': 'ok'},
             data=mp,
-            # headers={
-            #     'X-Track-Request-Id': 'test_request_id',
-            #     'X-Track-Session-Id': 'test_session_id'
-            # }
-        )
+            headers={
+                'X-Track-Request-Id': 'test_request_id',
+                'X-Track-Session-Id': 'test_session_id',
+                'Content-Type': 'multipart/form-data; boundary=":"'}
+                )
         assert res.status == 200
-        #assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-        #assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+        assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
+        assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
         result = (await res.read()).decode()
-        assert result == '{"value": "field1=value1 field2=value2' \
-                         ' attachment=/tmp/call_multipart_mock_event/test_attachment ok"}'
+        assert result == '{"value": "field1=value1 field2=value2 attachment=secret.txt ok"}'
 
 
 async def call_post_nopayload(client):
