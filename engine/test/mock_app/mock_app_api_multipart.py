@@ -24,7 +24,7 @@ __api__ = event_api(
 
 async def __preprocess__(payload: None, context: EventContext, request: PreprocessHook) -> MockData:
     return MockData(value='-'.join(request.parsed_args()))
-   
+
 
 def entry_point(payload: MockData, context: EventContext, arg1: str) -> int:
     logger.info(context, "mock_app_api_multipart.entry_point")

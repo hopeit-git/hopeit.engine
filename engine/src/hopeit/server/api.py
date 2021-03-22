@@ -199,13 +199,12 @@ async def _passthru_handler(request: web.Request) -> Tuple[web.Request, bool]:
     return request, True
 
 
-# pragma: no cover
-class CustomizedObjectValidator(validators.Object):
+class CustomizedObjectValidator(validators.Object):  # pragma: no cover
     """
     Replacements of Object Validator provided by aiohttp3_swagger
     to handle multipart form requests
     """
-    def validate(self, raw_value: Union[None, Dict, Any], raw: bool) -> Union[None, Dict, Any]:
+    def validate(self, raw_value: Union[None, Dict, Any], raw: bool) -> Union[None, Dict, Any]:  # pragma: no cover
         # FIXED: is_missing = isinstance(raw_value, validators._MissingType)
         is_missing = (raw_value is not None) and (not isinstance(raw_value, dict))
         # FIXED END

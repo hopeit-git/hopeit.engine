@@ -6,7 +6,7 @@ from types import ModuleType
 
 import pytest  # type: ignore
 
-from hopeit.app.context import EventContext
+from hopeit.app.context import EventContext, PostprocessHook, PreprocessHeaders, PreprocessHook
 from hopeit.server.config import AuthType
 from hopeit.testing.apps import config, server_config, create_test_context, execute_event, execute_service
 from mock_app import mock_app_config, MockData, mock_event, MockResult  # noqa: F401
@@ -138,3 +138,40 @@ async def test_execute_event_with_mocks(mock_app_config):  # noqa: F811
     result = await execute_event(mock_app_config, 'mock_event', None, mocks=[mock_module], query_arg1='ok')
     assert result == 'mock: ok'
     importlib.reload(mock_event)
+
+
+@pytest.mark.asyncio
+async def test_execute_multipart_event(mock_app_config):  # noqa: F811
+
+    fields = {
+        'field1': 'value1',
+        'field2': 'value2',
+        'attachment': 'test_file_name.bytes'
+    }
+
+    attachments = {
+        'attachment': b'testdata'
+    }
+
+    result = await execute_event(
+        mock_app_config, 'mock_multipart_event', None,
+        fields=fields, attachments=attachments,
+        query_arg1='ok', preprocess=True
+    )
+    assert result == MockData(value='field1=value1 field2=value2 attachment=test_file_name.bytes ok')
+
+
+@pytest.mark.asyncio
+async def test_execute_event_preprocess(mock_app_config):  # noqa: F811
+
+    def mock_hooks(module, context: EventContext, preprocess_hook: PreprocessHook, postprocess_hook: PostprocessHook):
+        preprocess_hook.headers = PreprocessHeaders.from_dict({'user-agent': 'Testing!'})
+        assert postprocess_hook.headers.get('recognized') is None
+
+    result, pp_result, response = await execute_event(
+        mock_app_config, 'mock_post_preprocess', None, query_arg1='ok', preprocess=True, postprocess=True,
+        mocks=[mock_hooks]
+    )
+    assert result == MockData(value='ok: Testing!')
+    assert pp_result == result
+    assert response.headers['recognized'] == 'ok: Testing!'
