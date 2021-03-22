@@ -4,7 +4,7 @@ Release Notes
 Version 0.2.0
 _____________
 - MULTIPART uploads http endpoints support: post form-data with file attachments in request (with Json response)
-- Support for __preprocess__ web requests in GET, POST and MULTIPART endpoints
+- Support for `__preprocess__` web requests in GET, POST and MULTIPART endpoints
 
 
 Version 0.1.5
@@ -17,7 +17,7 @@ _____________
 Version 0.1.0
 _____________
 
-Initial `hopeit.engine` version support for:
+Initial __hopeit.engine__ version support for:
 - Enables development of microservices in Python (3.7+)
 - Provides aiohttp web server for API endpoints.
 - Open API schema validation and docs site.
