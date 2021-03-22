@@ -1,6 +1,8 @@
 """
 Test multipart post form
 """
+from typing import Union
+
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
@@ -13,10 +15,11 @@ from mock_app import MockData
 logger, extra = app_extra_logger()
 
 
-async def __preprocess__(payload: None, context: EventContext, request: PreprocessHook) -> MockData:
+async def __preprocess__(payload: None, context: EventContext, request: PreprocessHook) -> Union[str, MockData]:
     fields = await request.parsed_args()
-    print("fields", fields)
-    print("headers", request.headers)
+    if any(x not in fields for x in ('field1', 'field2', 'attachment')):
+        request.set_status(400)
+        return "Missing required fields"
     return MockData(value=' '.join(f"{k}={v}" for k,v in fields.items()))
 
 

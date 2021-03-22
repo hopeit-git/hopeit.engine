@@ -50,6 +50,13 @@ services.
 
 .. toctree::
    :maxdepth: 2
+   :caption: Release Notes:
+
+   release-notes
+
+
+.. toctree::
+   :maxdepth: 2
    :caption: License:
 
    license
