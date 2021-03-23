@@ -85,7 +85,7 @@ async def execute_event(app_config: AppConfig,
                         mocks: Optional[List[Callable[[ModuleType, EventContext], None]]] = None,
                         *,
                         fields: Optional[Dict[str, str]] = None,
-                        attachments: Optional[Dict[str, bytes]] = None,
+                        upload: Optional[Dict[str, bytes]] = None,
                         preprocess: bool = False,
                         postprocess: bool = False,
                         **kwargs) -> Union[
@@ -131,7 +131,7 @@ async def execute_event(app_config: AppConfig,
     if preprocess:
         preprocess_hook = PreprocessHook(
             headers=CIMultiDictProxy(CIMultiDict()),
-            multipart_reader=MockMultipartReader(fields or {}, attachments or {}),  # type: ignore
+            multipart_reader=MockMultipartReader(fields or {}, upload or {}),  # type: ignore
             file_hook_factory=MockFileHook
         )
     if postprocess:
@@ -141,14 +141,14 @@ async def execute_event(app_config: AppConfig,
 
     if preprocess_hook:
         payload = await _preprocess(preprocess_hook, payload)
+        if postprocess_hook and preprocess_hook.status is not None:
+            postprocess_hook.set_status(preprocess_hook.status)
     datatype = find_datatype_handler(app_config=app_config, event_name=event_name)
     if datatype is None:
         if payload is not None:
-            return payload
-            # raise ValueError("Invalid payload. Expected None")
+            return (payload, payload, postprocess_hook) if postprocess else payload
     elif not isinstance(payload, datatype):
-        return payload
-        # raise ValueError(f"Invalid payload type={type(payload).__name__}. Expected type={datatype.__name__}")
+        return (payload, payload, postprocess_hook) if postprocess else payload
 
     on_queue, pp_result, pp_called = [payload], None, False
     for effective_event_name, event_info in effective_events.items():

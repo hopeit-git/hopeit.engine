@@ -454,8 +454,8 @@ def mock_api_spec():
                                             "description": "Field 1"
                                         },
                                         "field2": {
-                                            "type": "string",
-                                            "description": "Field 2"
+                                            "$ref": "#/components/schemas/MockData",
+                                            "description": "Field 2 json"
                                         },
                                         "file": {
                                             "type": "string",
@@ -463,6 +463,11 @@ def mock_api_spec():
                                             "description": "Upload file"
                                         }
                                     }
+                                },
+                                "encoding": {
+                                    "field1": {"contentType": "text/plain"},
+                                    "field2": {"contentType": "application/json"},
+                                    "file": {"contentType": "application/octect-stream"}
                                 }
                             }
                         }

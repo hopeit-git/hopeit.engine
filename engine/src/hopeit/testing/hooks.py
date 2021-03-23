@@ -1,21 +1,36 @@
 """
 Mock hooks for testing apps
 """
-from typing import Optional, AsyncGenerator, Dict, AsyncIterator
+from typing import Optional, AsyncGenerator, Dict, AsyncIterator, Union
+
+from multidict import CIMultiDict
 
 
 class MockField:
     """
     Replacement for field object to be used for testing form preprocess methods
     """
-    def __init__(self, name: str, value: str, file_data: Optional[bytes] = None) -> None:
+    def __init__(self, name: str, value: Union[str, dict], file_data: Optional[bytes] = None,
+                 headers: Optional[CIMultiDict] = None) -> None:
         self.name = name
         self._value = value
         self.filename = None if file_data is None else value
         self.file_data = file_data
+        self.headers = CIMultiDict({
+            'Content-Type': 'application/json' if isinstance(value, dict)
+            else 'application/octect-stream' if file_data is not None
+            else 'text/plain'
+        })
 
     async def text(self):
-        return self._value
+        if isinstance(self._value, str):
+            return self._value
+        raise TypeError("field value must be str")
+
+    async def json(self):
+        if isinstance(self._value, dict):
+            return self._value
+        raise TypeError("field value must be dict")
 
     def __repr__(self):
         return f"{type(self).__name__}(name={self.name}, value={self._value}, filename={self.filename}, " \

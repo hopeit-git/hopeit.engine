@@ -149,9 +149,10 @@ def _parse_fields_schema(fields: Optional[List[ArgDef]]):
         arg_schema = datatype_schema(arg_name, arg_type)  # type: ignore
         fields_schema['required'].append(arg_name)  # type: ignore
         props = arg_schema.get('properties', {arg_name: arg_schema})
-        fields_schema['properties'].update(props)
+        fields_schema['properties'].update(props)  # type: ignore
         if props[arg_name].get('type') == 'string':
-            encoding[arg_name] = {'contentType':
+            encoding[arg_name] = {
+                'contentType':
                 'application/octect-stream' if props[arg_name].get('format') == 'binary' else 'text/plain'
             }
         else:

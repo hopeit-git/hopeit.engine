@@ -127,8 +127,45 @@ async def call_multipart_mock_event(client):
 
     attachment = open('/tmp/call_multipart_mock_event/test_attachment', 'rb')
     with aiohttp.MultipartWriter("form-data", boundary=":") as mp:
-        mp.append("value1", headers={'Content-Disposition': 'form-data; name="field1"'})
-        mp.append("value2", headers={'Content-Disposition': 'form-data; name="field2"'})
+        mp.append("value1", headers={
+            'Content-Disposition': 'form-data; name="field1"'
+        })
+        mp.append_json({"value": "value2"}, headers={
+            'Content-Disposition': 'form-data; name="field2"'
+        })
+        mp.append(attachment, headers={
+            'Content-Disposition': 'attachments; name="attachment"; filename="test_attachment"'
+        })
+
+        res: ClientResponse = await client.post(
+            '/api/mock-app/test/mock-multipart-event-test',
+            params={'query_arg1': 'ok'},
+            data=mp,
+            headers={
+                'X-Track-Request-Id': 'test_request_id',
+                'X-Track-Session-Id': 'test_session_id',
+                'Content-Type': 'multipart/form-data; boundary=":"'}
+                )
+        assert res.status == 200
+        assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
+        assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+        result = (await res.read()).decode()
+        assert result == '{"value": "field1=value1 field2=value2 attachment=test_attachment ok"}'
+
+
+async def call_multipart_mock_event_plain_text_json(client):
+    os.makedirs('/tmp/call_multipart_mock_event/', exist_ok=True)
+    with open('/tmp/call_multipart_mock_event/test_attachment', 'wb') as f:
+        f.write(b'testdata')
+
+    attachment = open('/tmp/call_multipart_mock_event/test_attachment', 'rb')
+    with aiohttp.MultipartWriter("form-data", boundary=":") as mp:
+        mp.append("value1", headers={
+            'Content-Disposition': 'form-data; name="field1"'
+        })
+        mp.append('{"value": "value2"}', headers={
+            'Content-Disposition': 'form-data; name="field2"'
+        })
         mp.append(attachment, headers={
             'Content-Disposition': 'attachments; name="attachment"; filename="test_attachment"'
         })
@@ -486,6 +523,7 @@ def test_all(monkeypatch,
     loop.run_until_complete(call_get_mock_spawn_event(test_client))
     loop.run_until_complete(call_post_mock_event(test_client))
     loop.run_until_complete(call_multipart_mock_event(test_client))
+    loop.run_until_complete(call_multipart_mock_event_plain_text_json(test_client))
     loop.run_until_complete(call_multipart_mock_event_bad_request(test_client))
     loop.run_until_complete(call_post_nopayload(test_client))
     loop.run_until_complete(call_post_fail_request(test_client))

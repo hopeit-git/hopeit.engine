@@ -64,11 +64,9 @@ class Json(Generic[EventPayloadType]):
             raise ValueError(f"Cannot convert to JSON: type={type(payload)} validation_error={str(e)}") from e
 
     @staticmethod
-    def parse_form_field(field_data: Union[str, dict],
-                        datatype: Type[EventPayloadType],
-                        key: str = 'value') -> EventPayloadType:
+    def parse_form_field(field_data: Union[str, dict], datatype: Type[EventPayloadType],
+                         key: str = 'value') -> EventPayloadType:
         """Helper to parse dataobjects from form-fields where encoding type is not correctly set to json"""
         if isinstance(field_data, str):
             return Json.from_json(field_data, datatype, key)
-        else:
-            return datatype.from_dict(field_data)
+        return datatype.from_dict(field_data)  # type: ignore

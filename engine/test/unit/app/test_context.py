@@ -25,7 +25,8 @@ async def test_preprocess_file_hook():
 @pytest.mark.asyncio
 async def test_preprocess_hook():
     attachment_data = b'testdatatestdatatestdatatestdata'
-    fields = {'a': 'field-a', 'b': 'field-b', 'file-a': 'filename-a', 'file-b': 'filename-b', 'c': 'field-c'}
+    fields = {'a': 'field-a', 'b': 'field-b', 'file-a': 'filename-a', 'file-b': 'filename-b',
+              'c': {"name": "field-c"}}
     attachments = {'file-a': attachment_data, 'file-b': attachment_data}
     reader = MockMultipartReader(fields=fields, attachments=attachments)
     hook = PreprocessHook(

@@ -136,7 +136,7 @@ class PreprocessHook:
                  file_hook_factory: Callable = PreprocessFileHook):
         self.headers = PreprocessHeaders(headers)
         self._multipart_reader = multipart_reader
-        self._args: Dict[str, str] = {}
+        self._args: Dict[str, Any] = {}
         self._iterated = False
         self.status: Optional[int] = None
         self.file_hook_factory = file_hook_factory
@@ -159,7 +159,7 @@ class PreprocessHook:
         if self._multipart_reader is not None:
             async for field in self._multipart_reader:
                 if field.name is not None:
-                    print(field.headers)
+                    print("HEADERS************************", field.name, field.headers)
                     if field.filename:
                         self._args[field.name] = field.filename
                         yield self.file_hook_factory(name=field.name, file_name=field.filename, data=field)

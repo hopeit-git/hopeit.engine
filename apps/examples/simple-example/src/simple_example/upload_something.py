@@ -16,7 +16,7 @@ from hopeit.dataobjects import dataobject, BinaryAttachment
 from hopeit.dataobjects.jsonify import Json
 from hopeit.toolkit.web import save_multipart_attachment
 
-from model import Something, User
+from model import Something
 
 
 __steps__ = ['create_items']
@@ -73,7 +73,6 @@ async def __preprocess__(payload: None, context: EventContext,
         uploaded_file = UploadedFile(file_hook.name, file_name, save_path.as_posix(), size=file_hook.size)
         uploaded_files.append(uploaded_file)
     args = await request.parsed_args()
-    print(args)
     if not all(x in args for x in ('id', 'user', 'attachment', 'object')):
         request.status = 400
         return "Missing required fields"
