@@ -20,7 +20,7 @@ logger = app_logger()
 __steps__ = ['login']
 
 __api__ = event_api(
-    title="Basic Auth: Login",
+    summary="Basic Auth: Login",
     responses={
         200: (AuthInfo, "Authentication information to be used for further API calls"),
         401: (Unauthorized.ErrorInfo, "Login failed, invalid credentials")

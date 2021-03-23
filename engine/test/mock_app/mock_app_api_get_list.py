@@ -15,7 +15,7 @@ logger, extra = app_extra_logger()
 __steps__ = ['entry_point']
 
 __api__ = event_api(
-    title="Test app api list",
+    summary="Test app api list",
     query_args=[('arg1', Optional[int], "Argument 1")],
     responses={
         200: (List[MockData], "MockData result")
