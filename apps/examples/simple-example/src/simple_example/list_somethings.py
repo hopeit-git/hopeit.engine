@@ -14,7 +14,7 @@ from model import Something
 __steps__ = ['load_all']
 
 __api__ = event_api(
-    title="Simple Example: List Objects",
+    summary="Simple Example: List Objects",
     query_args=[
         ('wildcard', Optional[str], "Wildcard to filter objects by name")
     ],

@@ -1080,6 +1080,7 @@
             }
           }
         },
+        "x-module-name": "hopeit.server.errors",
         "description": "\n    Error information to be returned in failed responses\n    "
       },
       "ContextUserInfo": {
@@ -1100,6 +1101,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "hopeit.basic_auth",
         "description": "\n    User info that will be available in context during events execution\n    "
       },
       "AuthInfo": {
@@ -1120,6 +1122,7 @@
             "type": "integer"
           }
         },
+        "x-module-name": "hopeit.basic_auth",
         "description": "\n    Minimal auth info that should be returned outside this app\n    "
       },
       "User": {
@@ -1136,6 +1139,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "model",
         "description": "User information"
       },
       "Status": {
@@ -1157,9 +1161,11 @@
               "SUBMITTED",
               "PROCESSED"
             ],
-            "x-enum-name": "StatusType"
+            "x-enum-name": "StatusType",
+            "x-module-name": "model"
           }
         },
+        "x-module-name": "model",
         "description": "Status change"
       },
       "Something": {
@@ -1186,6 +1192,7 @@
             "default": []
           }
         },
+        "x-module-name": "model",
         "description": "Example Something event"
       },
       "SomethingNotFound": {
@@ -1202,6 +1209,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "model",
         "description": "Item not found in datastore"
       },
       "SomethingParams": {
@@ -1218,6 +1226,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "model",
         "description": "Params to create and save Something"
       },
       "ItemsInfo": {
@@ -1234,6 +1243,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "simple_example.collector.query_concurrently",
         "description": "\n    Items to read concurrently\n    "
       }
     },
