@@ -142,16 +142,25 @@ def _parse_fields_schema(fields: Optional[List[ArgDef]]):
     Parse form fields schema
     """
     fields_schema = {"type": "object", "required": [], "properties": {}}
+    encoding = {}
     for field in (fields or []):
         arg_name = _arg_name(field)
         arg_type = str if len(field) == 1 else field[1]
         arg_schema = datatype_schema(arg_name, arg_type)  # type: ignore
-        fields_schema['required'].extend(arg_schema['required'])  # type: ignore
-        fields_schema['properties'].update(arg_schema['properties'])  # type: ignore
+        fields_schema['required'].append(arg_name)  # type: ignore
+        props = arg_schema.get('properties', {arg_name: arg_schema})
+        fields_schema['properties'].update(props)
+        if props[arg_name].get('type') == 'string':
+            encoding[arg_name] = {'contentType':
+                'application/octect-stream' if props[arg_name].get('format') == 'binary' else 'text/plain'
+            }
+        else:
+            encoding[arg_name] = {'contentType': 'application/json'}
         arg_desc = _arg_description(field)
+        print(fields_schema, encoding)
         if arg_desc is not None:
             fields_schema['properties'][arg_name]['description'] = arg_desc  # type: ignore
-    return fields_schema
+    return fields_schema, encoding
 
 
 def _event_api(
@@ -187,11 +196,16 @@ def _event_api(
         }
 
     if fields is not None:
+        if payload is not None:
+            raise APIError("Payload and fields cannot be specified at the same time.")
+
+        method_schema, encoding = _parse_fields_schema(fields)
         method_spec['requestBody'] = {
             "required": True,
             "content": {
                 content_type: {
-                    "schema": _parse_fields_schema(fields)
+                    "schema": method_schema,
+                    "encoding": encoding
                 }
             }
         }

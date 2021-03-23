@@ -13,7 +13,8 @@ from aiohttp_swagger3 import RapiDocUiSettings  # type: ignore
 from aiohttp_swagger3.swagger import Swagger  # type: ignore
 from aiohttp_swagger3.exceptions import ValidatorError  # type: ignore
 from aiohttp_swagger3 import validators  # type: ignore
-from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
+from aiohttp_swagger3.swagger_route import SwaggerRoute
+from aiohttp_swagger3.ui_settings import SwaggerUiSettings  # type: ignore
 from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
 from dataclasses_jsonschema import SchemaType
@@ -501,9 +502,9 @@ def _update_api_paths(app_config: AppConfig, plugin: Optional[AppConfig] = None)
             _set_track_headers(event_api_spec, app_config)
             _set_path_security(event_api_spec, app_config, event_info)
             route_path = paths.get(route, {})
-            method_path = route_path.get(method)
-            if method_path is None:
-                route_path[method] = event_api_spec
+            #method_path = route_path.get(method)
+            #if method_path is None:
+            route_path[method] = event_api_spec
             paths[route] = route_path
     spec['paths'] = paths
 

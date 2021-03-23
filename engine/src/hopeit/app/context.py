@@ -159,8 +159,11 @@ class PreprocessHook:
         if self._multipart_reader is not None:
             async for field in self._multipart_reader:
                 if field.name is not None:
+                    print(field.headers)
                     if field.filename:
                         self._args[field.name] = field.filename
                         yield self.file_hook_factory(name=field.name, file_name=field.filename, data=field)
+                    elif field.headers.get(aiohttp.hdrs.CONTENT_TYPE) == 'application/json':
+                        self._args[field.name] = await field.json()
                     else:
                         self._args[field.name] = await field.text()

@@ -13,6 +13,7 @@ from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
 from hopeit.dataobjects import dataobject, BinaryAttachment
+from hopeit.dataobjects.jsonify import Json
 from hopeit.toolkit.web import save_multipart_attachment
 
 from model import Something, User
@@ -24,7 +25,7 @@ __api__ = event_api(
     summary="Simple Example: Multipart Upload files",
     description="Upload files using Multipart form request",
     query_args=[('something_id', str)],
-    fields=[('id', str), ('user', str), ('attachment', BinaryAttachment)],
+    fields=[('id', str), ('user', str), ('attachment', BinaryAttachment), ('object', Something)],
     responses={
         200: (List[Something], 'list of created Something objects'),
         400: (str, "Missing or invalid fields")
@@ -49,6 +50,7 @@ class UploadedFile:
 class FileUploadInfo:
     id: str
     user: str
+    object: Something
     uploaded_files: List[UploadedFile] = field(default_factory=list)
 
 
@@ -71,10 +73,12 @@ async def __preprocess__(payload: None, context: EventContext,
         uploaded_file = UploadedFile(file_hook.name, file_name, save_path.as_posix(), size=file_hook.size)
         uploaded_files.append(uploaded_file)
     args = await request.parsed_args()
-    if not all(x in args for x in ('id', 'user', 'attachment')):
+    print(args)
+    if not all(x in args for x in ('id', 'user', 'attachment', 'object')):
         request.status = 400
         return "Missing required fields"
-    return FileUploadInfo(id=args['id'], user=args['user'], uploaded_files=uploaded_files)
+    something_obj = Json.parse_form_field(args['object'], Something)
+    return FileUploadInfo(id=args['id'], user=args['user'], object=something_obj, uploaded_files=uploaded_files)
 
 
 async def create_items(payload: FileUploadInfo, context: EventContext, *, something_id: str) -> List[Something]:
@@ -87,7 +91,7 @@ async def create_items(payload: FileUploadInfo, context: EventContext, *, someth
             file_id=item.file_id, user=payload.user, something_id=something_id, size=item.size
         ))
         result.append(Something(
-            id=something_id,
-            user=User(id=payload.id, name=payload.user)
+            id=item.file_id,
+            user=payload.object.user
         ))
     return result

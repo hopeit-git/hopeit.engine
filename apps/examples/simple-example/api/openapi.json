@@ -482,7 +482,8 @@
                 "required": [
                   "id",
                   "user",
-                  "attachment"
+                  "attachment",
+                  "object"
                 ],
                 "properties": {
                   "id": {
@@ -497,7 +498,25 @@
                     "type": "string",
                     "format": "binary",
                     "description": "attachment"
+                  },
+                  "object": {
+                    "$ref": "#/components/schemas/Something",
+                    "description": "object"
                   }
+                }
+              },
+              "encoding": {
+                "id": {
+                  "contentType": "text/plain"
+                },
+                "user": {
+                  "contentType": "text/plain"
+                },
+                "attachment": {
+                  "contentType": "application/octect-stream"
+                },
+                "object": {
+                  "contentType": "application/json"
                 }
               }
             }
