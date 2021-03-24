@@ -1,5 +1,9 @@
 import setuptools
 
+version = {}
+with open("src/hopeit/server/version.py") as fp:
+    exec(fp.read(), version)
+
 def read_requirements_lock():
     with open("requirements.lock") as fb:
         libs = {}
@@ -11,14 +15,13 @@ def read_requirements_lock():
 
 versions = read_requirements_lock()
 
-
 def libversion(lib):
     return versions[lib.split('[')[0]]
 
 
 setuptools.setup(
     name="hopeit.engine",
-    version="0.1.5",
+    version=version['ENGINE_VERSION'],
     description="Hopeit Engine: Microservices with Streams",
     license="Apache 2",
     long_description=open('README.md').read(),
