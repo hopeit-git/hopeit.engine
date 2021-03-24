@@ -10,9 +10,10 @@ dev-deps: deps
 	cd engine && \
 	pip install -U -r requirements-dev.txt
 
-locked-deps: deps
+locked-deps:
 	cd engine && \
-	pip install --force-reinstall -r requirements.lock
+	pip install --force-reinstall -r requirements.lock && \
+	pip install -U -r requirements-dev.txt
 
 lock-requirements: clean dev-deps
 	cd engine && \
