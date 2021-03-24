@@ -410,7 +410,7 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
@@ -419,7 +419,7 @@
         ]
       }
     },
-    "/api/simple-example/1x0/upload-something": {
+    "/api/simple-example/2x0/upload-something": {
       "post": {
         "summary": "Simple Example: Multipart Upload files",
         "description": "Upload files using Multipart form request",
