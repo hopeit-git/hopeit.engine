@@ -10,7 +10,6 @@
 > - Included plugins integration tests
                                                                       
 
-
 # hopeit engine
 
 **"Microservices with Data Streams"**
@@ -106,11 +105,13 @@ If an external request triggers a process that requires background tasks to run,
 
 ## Current status and roadmap
 
+- **MARCH 2021**: hopeit.engine version 0.2.0rc1 released with multipart uploads support.
+
 - **FEBRUARY 2021**: hopeit.engine version 0.1.5 is released on PyPI, enjoy!
 
 - **JULY 2020**: hopeit.engine version 0.1.0 is released as Open Source in github!
     
-- We are mainly working in improving documentation and tutorials.
+- We are still working on improving documentation and tutorials.
 
 - Early adopters are implementing solutions in small organizations using hopeit.engine. We are continuously gathering feedback and making the engine more stable and easy to use as we learn from real use case scenarios.
 
@@ -124,4 +125,3 @@ Please check the [docs](https://hopeitengine.readthedocs.io/en/latest/index.html
 If you are interested to become an early adopter, to learn microservices using *hopeit.engine* or to contribute and collaborate, contact the authors at ![_@_](docs/source/readme/contact.png)
 
 Thank you!
-

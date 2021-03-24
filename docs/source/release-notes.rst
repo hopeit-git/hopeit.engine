@@ -5,6 +5,7 @@ Version 0.2.0
 _____________
 - MULTIPART uploads http endpoints support: post form-data with file attachments in request (with Json response)
 - Support for `__preprocess__` web requests in GET, POST and MULTIPART endpoints
+- DEPRECATION: `title` parameter removed in `app.api.event_api(...)` in favor of `summary` and `description`
 
 
 Version 0.1.5
