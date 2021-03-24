@@ -111,7 +111,7 @@ If an external request triggers a process that requires background tasks to run,
 
 - **JULY 2020**: hopeit.engine version 0.1.0 is released as Open Source in github!
     
-- We are still working in improving documentation and tutorials.
+- We are still working on improving documentation and tutorials.
 
 - Early adopters are implementing solutions in small organizations using hopeit.engine. We are continuously gathering feedback and making the engine more stable and easy to use as we learn from real use case scenarios.
 
