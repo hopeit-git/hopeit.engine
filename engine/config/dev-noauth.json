@@ -12,5 +12,8 @@
     "enabled": false,
     "create_keys": false,
     "default_auth_methods": ["Unsecured"]
+  },
+  "api": {
+    "docs_path": "/api/docs"
   }
 }

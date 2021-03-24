@@ -60,9 +60,17 @@ def mock_app_config():
                 type=EventType.POST,
                 route='mock-app/test/mock-event-test'
             ),
+            "mock_multipart_event": EventDescriptor(
+                type=EventType.MULTIPART,
+                route='mock-app/test/mock-multipart-event-test'
+            ),
             "mock_post_nopayload": EventDescriptor(
                 type=EventType.POST,
                 route='mock-app/test/mock-post-nopayload'
+            ),
+            "mock_post_preprocess": EventDescriptor(
+                type=EventType.POST,
+                route='mock-app/test/mock-post-preprocess'
             ),
             "mock_stream_event": EventDescriptor(
                 type=EventType.STREAM,
@@ -174,7 +182,8 @@ def mock_app_config():
             )
         },
         server=ServerConfig(
-            logging=LoggingConfig(log_level="DEBUG", log_path="work/logs/test/")
+            logging=LoggingConfig(
+                log_level="DEBUG", log_path="work/logs/test/")
         )
     )
 
@@ -212,6 +221,10 @@ def mock_api_app_config():
                 type=EventType.POST,
                 route='mock-app-api/test/mock-app-api'
             ),
+            "mock-app-api-multipart": EventDescriptor(
+                type=EventType.MULTIPART,
+                route='mock-app-api/test/mock-app-api-multipart'
+            ),
             "mock-app-api-get-list": EventDescriptor(
                 type=EventType.GET,
                 auth=[AuthType.REFRESH]
@@ -221,7 +234,8 @@ def mock_api_app_config():
             )
         },
         server=ServerConfig(
-            logging=LoggingConfig(log_level="DEBUG", log_path="work/logs/test/"),
+            logging=LoggingConfig(
+                log_level="DEBUG", log_path="work/logs/test/"),
             auth=AuthConfig(
                 secrets_location='/tmp',
                 auth_passphrase='test',
@@ -367,6 +381,113 @@ def mock_api_spec():
                                             }
                                         },
                                         "description": "mock-app-api-post integer payload"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "tags": [
+                        "mock_app_api.test"
+                    ],
+                    "security": [
+                        {
+                            "auth.bearer": []
+                        }
+                    ]
+                }
+            }, "/api/mock-app-api/test/mock-app-api-multipart": {
+                "post": {
+                    "summary": "Test app api multipart post form",
+                    "description": "Description Test app api part 2",
+                    "parameters": [{
+                        "name": "arg1",
+                        "in": "query",
+                        "required": True,
+                        "description": "Argument 1",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                        {
+                        "name": "X-Track-Request-Id",
+                        "in": "header",
+                        "required": False,
+                        "description": "Track information: Request-Id",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                        {
+                        "name": "X-Track-Request-Ts",
+                        "in": "header",
+                        "required": False,
+                        "description": "Track information: Request-Ts",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                        {
+                        "name": "X-Track-Session-Id",
+                        "in": "header",
+                        "required": True,
+                        "description": "Track information: track.session_id",
+                        "schema": {
+                            "type": "string",
+                            "default": "test.session_id"
+                        }
+                    }],
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "multipart/form-data": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "field1",
+                                        "field2",
+                                        "file"
+                                    ],
+                                    "properties": {
+                                        "field1": {
+                                            "type": "string",
+                                            "description": "Field 1"
+                                        },
+                                        "field2": {
+                                            "$ref": "#/components/schemas/MockData",
+                                            "description": "Field 2 json"
+                                        },
+                                        "file": {
+                                            "type": "string",
+                                            "format": "binary",
+                                            "description": "Upload file"
+                                        }
+                                    }
+                                },
+                                "encoding": {
+                                    "field1": {"contentType": "text/plain"},
+                                    "field2": {"contentType": "application/json"},
+                                    "file": {"contentType": "application/octect-stream"}
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "int",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": [
+                                            "mock-app-api-multipart"
+                                        ],
+                                        "properties": {
+                                            "mock-app-api-multipart": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "description": "mock-app-api-multipart integer payload"
                                     }
                                 }
                             }

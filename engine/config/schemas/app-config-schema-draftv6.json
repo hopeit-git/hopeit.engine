@@ -152,7 +152,8 @@
             "GET",
             "POST",
             "STREAM",
-            "SERVICE"
+            "SERVICE",
+            "MULTIPART"
           ]
         },
         "plug_mode": {
@@ -257,7 +258,7 @@
           }
         }
       },
-      "description": "\n    Event execution configuration\n    :field response_timeout, float, default 60.0: seconds to timeout waiting for event execution\n        when invoked externally .i.e. GET or POST events. If exceeded, Timed Out response will be returned.\n        Notice that this timeout does not apply for stream processing events. Use EventStreamsConfig.timeout\n        to set up timeout on stream processing.\n    :field logging: EventLoggingConfig, configuration for logging for this particular event\n    :field stream: EventStreamConfig, configuration for stream processing for this particular event\n    "
+      "description": "\n    Event execution configuration\n    :field response_timeout: float, default 60.0: seconds to timeout waiting for event execution\n        when invoked externally .i.e. GET or POST events. If exceeded, Timed Out response will be returned.\n        Notice that this timeout does not apply for stream processing events. Use EventStreamsConfig.timeout\n        to set up timeout on stream processing.\n    :field logging: EventLoggingConfig, configuration for logging for this particular event\n    :field stream: EventStreamConfig, configuration for stream processing for this particular event\n    "
     },
     "EventLoggingConfig": {
       "type": "object",
@@ -332,7 +333,7 @@
           ]
         }
       },
-      "description": "\n    Stream configuration for STREAM events\n    :field: timeout, float: timeout for stream processing im seconds. If timeout is exceeded event\n        processing will be cancelled. Default 60 seconds\n    :field: target_max_len: int, default 0, max number of elements to be used as a target\n        for the stream collection size. Messages above this value might be dropped\n        from the collection when new items are added. Notice that the number of the items\n        in the collection could exceed temporary this value to allow optimized behaviour,\n        but no items will be dropped until the collection exceeds target_max_len.\n        With default value of 0, collection size is unlimited and items should be removed by apps.\n    :field: throttle_ms, int: milliseconds specifying minimum duration for each event\n    :filed: step_delay, int: milliseconds to sleep between steps\n    :field: batch_size, int: number of max messages to process each time when reading stream,\n        set to 1 to ensure min losses in case of process stop, set higher for performance\n    :field: compression, Compression: compression algorithm used to send messages to stream, if not specified\n        default from Server config will be used.\n    :field: serialization, Serialization: serialization method used to send messages to stream, if not specified\n        default from Server config will be used.\n    "
+      "description": "\n    Stream configuration for STREAM events\n    :field timeout: float, timeout for stream processing im seconds. If timeout is exceeded event\n        processing will be cancelled. Default 60 seconds\n    :field target_max_len: int, default 0, max number of elements to be used as a target\n        for the stream collection size. Messages above this value might be dropped\n        from the collection when new items are added. Notice that the number of the items\n        in the collection could exceed temporary this value to allow optimized behaviour,\n        but no items will be dropped until the collection exceeds target_max_len.\n        With default value of 0, collection size is unlimited and items should be removed by apps.\n    :field throttle_ms: int, milliseconds specifying minimum duration for each event\n    :filed step_delay: int, milliseconds to sleep between steps\n    :field batch_size: int, number of max messages to process each time when reading stream,\n        set to 1 to ensure min losses in case of process stop, set higher for performance\n    :field compression: Compression, compression algorithm used to send messages to stream, if not specified\n        default from Server config will be used.\n    :field serialization: Serialization, serialization method used to send messages to stream, if not specified\n        default from Server config will be used.\n    "
     },
     "ServerConfig": {
       "type": "object",

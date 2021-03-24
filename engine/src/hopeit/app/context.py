@@ -1,14 +1,20 @@
 """
 Context information and handling
 """
+from typing import AsyncGenerator, Callable, Dict, Optional, Any, Tuple, Union, List
 from pathlib import Path
-from typing import Dict, Optional, Any, Tuple, Union, List
 from datetime import datetime, timezone
+
+import aiohttp
+from multidict import CIMultiDict, CIMultiDictProxy
+
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventType
 
+
 __all__ = ['EventContext',
-           'PostprocessHook']
+           'PostprocessHook',
+           'PreprocessHook']
 
 
 class EventContext:
@@ -52,7 +58,7 @@ class EventContext:
 class PostprocessHook:
     """
     Post process hook that keeps additional changes to add to response on
-    postprocess(...) event methods.
+    `__postprocess__(...)` event methods.
 
     Useful to set cookies, change status and set additional headers in web responses.
     """
@@ -77,3 +83,87 @@ class PostprocessHook:
 
     def set_file_response(self, path: Union[str, Path]):
         self.file_response = path
+
+
+class PreprocessFileHook:
+    """
+    Hook to read files from multipart requests
+    """
+    def __init__(self, *, name: str, file_name: str, data: aiohttp.multipart.BodyPartReader):
+        self.name = name
+        self.file_name = file_name
+        self.data = data
+        self.size = 0
+
+    async def read_chunks(self, *, chunk_size: int) -> AsyncGenerator[bytes, None]:
+        chunk = await self.data.read_chunk(size=chunk_size)
+        while chunk:
+            self.size += len(chunk)
+            yield chunk
+            chunk = await self.data.read_chunk(size=chunk_size)
+
+
+class PreprocessHeaders:
+    """
+    Wrapper to receive request headers in `__preprocess__` functions
+    """
+    def __init__(self, request_headers: CIMultiDictProxy[str]) -> None:
+        self._headers = request_headers
+
+    def __getitem__(self, key: str) -> Any:
+        return self._headers[key]
+
+    def get(self, key: str) -> Any:
+        return self._headers.get(key)
+
+    def __repr__(self):
+        return self._headers.__repr__()
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, str]):
+        return cls(CIMultiDictProxy(CIMultiDict(data)))
+
+
+class PreprocessHook:
+    """
+    Preprocess hook that handles information available in the request to be accessed
+    from `__preprocess__(...)` event method when defined.
+    """
+    def __init__(self, *, headers: CIMultiDictProxy[str],
+                 multipart_reader: Union[
+                    aiohttp.MultipartReader, aiohttp.multipart.BodyPartReader, None
+                 ] = None,
+                 file_hook_factory: Callable = PreprocessFileHook):
+        self.headers = PreprocessHeaders(headers)
+        self._multipart_reader = multipart_reader
+        self._args: Dict[str, Any] = {}
+        self._iterated = False
+        self.status: Optional[int] = None
+        self.file_hook_factory = file_hook_factory
+
+    def set_status(self, status: int):
+        self.status = status
+
+    async def parsed_args(self):
+        if not self._iterated:
+            async for _ in self.files():
+                pass
+        return self._args
+
+    async def files(self) -> AsyncGenerator[Any, None]:
+        """
+        Iterator over attached files in multipart uploads
+        """
+        assert not self._iterated, "Request fields already extracted"
+        self._iterated = True
+        if self._multipart_reader is not None:
+            async for field in self._multipart_reader:
+                if field.name is not None:
+                    print("HEADERS************************", field.name, field.headers)
+                    if field.filename:
+                        self._args[field.name] = field.filename
+                        yield self.file_hook_factory(name=field.name, file_name=field.filename, data=field)
+                    elif field.headers.get(aiohttp.hdrs.CONTENT_TYPE) == 'application/json':
+                        self._args[field.name] = await field.json()
+                    else:
+                        self._args[field.name] = await field.text()

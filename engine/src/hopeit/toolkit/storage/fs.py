@@ -7,7 +7,7 @@ from pathlib import Path
 import uuid
 from typing import Optional, Type, Generic, List
 
-import aiofiles
+import aiofiles  # type: ignore
 
 from hopeit.dataobjects import DataObject
 from hopeit.dataobjects.jsonify import Json

@@ -55,11 +55,13 @@ class EventType(Enum):
     POST: event triggered from api post endpoint
     STREAM: event triggered read events from stream. Can be started and stopped.
     SERVICE: event executed on demand or continuously. Long lived. Can be started and stopped.
+    MULTIPART: event triggered from api postform-multipart request via endpoint.
     """
     GET = 'GET'
     POST = 'POST'
     STREAM = 'STREAM'
     SERVICE = 'SERVICE'
+    MULTIPART = 'MULTIPART'
 
 
 @dataobject

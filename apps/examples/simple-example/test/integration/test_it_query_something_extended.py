@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 import pytest  # type: ignore
 
 from hopeit.testing.apps import execute_event
-from .fixtures import app_config  # noqa: F401
 
 from model import Something, SomethingNotFound, Status, StatusType
 

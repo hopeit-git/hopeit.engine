@@ -388,6 +388,172 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request reason",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "save_something"
+                  ],
+                  "properties": {
+                    "save_something": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "save_something string payload"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.2x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/simple-example/2x0/upload-something": {
+      "post": {
+        "summary": "Simple Example: Multipart Upload files",
+        "description": "Upload files using Multipart form request",
+        "parameters": [
+          {
+            "name": "something_id",
+            "in": "query",
+            "required": true,
+            "description": "something_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "user",
+                  "attachment",
+                  "object"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "id"
+                  },
+                  "user": {
+                    "type": "string",
+                    "description": "user"
+                  },
+                  "attachment": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "attachment"
+                  },
+                  "object": {
+                    "$ref": "#/components/schemas/Something",
+                    "description": "object"
+                  }
+                }
+              },
+              "encoding": {
+                "id": {
+                  "contentType": "text/plain"
+                },
+                "user": {
+                  "contentType": "text/plain"
+                },
+                "attachment": {
+                  "contentType": "application/octect-stream"
+                },
+                "object": {
+                  "contentType": "application/json"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "list of created Something objects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Something"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "upload_something"
+                  ],
+                  "properties": {
+                    "upload_something": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "upload_something string payload"
+                }
+              }
+            }
           }
         },
         "tags": [

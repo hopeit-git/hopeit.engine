@@ -6,7 +6,6 @@ import pytest  # type: ignore
 from hopeit.testing.apps import execute_event
 from model import Something
 from simple_example.collector.collect_spawn import ItemsInfo, ItemsCollected
-from .fixtures import app_config  # noqa: F401
 
 
 @pytest.fixture

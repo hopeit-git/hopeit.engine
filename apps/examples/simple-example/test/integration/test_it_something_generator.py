@@ -2,8 +2,6 @@ import pytest  # type: ignore
 
 from hopeit.testing.apps import execute_event, execute_service
 from model import Something, User
-from .fixtures import app_config  # noqa: F401
-from .fixtures import something_example, something_params_example  # noqa: F401
 
 
 @pytest.mark.asyncio

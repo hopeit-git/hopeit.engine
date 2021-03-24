@@ -15,6 +15,14 @@ def something_example():
 
 
 @pytest.fixture
+def something_upload_example():
+    return Something(
+        id='attachment',
+        user=User(id='test', name='test_user')
+    )
+
+
+@pytest.fixture
 def something_params_example():
     return SomethingParams(id='test', user='test_user')
 

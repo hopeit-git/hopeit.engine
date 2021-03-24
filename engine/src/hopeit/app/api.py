@@ -8,7 +8,7 @@ from typing import Optional, List, Type, Dict, Callable, Union, Tuple, Any, Type
 import re
 import typing_inspect  # type: ignore
 
-from hopeit.app.config import AppConfig, AppDescriptor
+from hopeit.app.config import AppConfig, AppDescriptor, EventType
 from hopeit.server.api import spec, app_route_name, APIError, BUILTIN_TYPES, datatype_schema
 from hopeit.server.names import route_name
 
@@ -115,22 +115,12 @@ def _method_description(module: str, description: Optional[str] = None, summary:
     return _method_summary(module, summary)
 
 
-def _event_api(
-        summary: Optional[str],
-        description: Optional[str],
-        payload: Optional[Type],
-        query_args: Optional[List[ArgDef]],
-        responses: Optional[Dict[int, PayloadDef]],
-        module, app_config: AppConfig, event_name: str, plugin: Optional[AppConfig]) -> dict:
+def _parse_args_schema(query_args: Optional[List[ArgDef]]):
     """
-    Handler returned by event_api(...)
+    Parse query args schema
     """
-    if query_args is None:
-        query_args = []
-    if responses is None:
-        responses = {}
     parameters = []
-    for query_arg in query_args:
+    for query_arg in (query_args or []):
         arg_name = _arg_name(query_arg)
         arg_type, arg_req = _arg_type(query_arg)
         arg_desc = _arg_description(query_arg)
@@ -143,18 +133,79 @@ def _event_api(
                 "type": arg_type
             }
         })
+    return parameters
+
+
+def _parse_fields_schema(fields: Optional[List[ArgDef]]):
+    """
+    Parse form fields schema
+    """
+    fields_schema = {"type": "object", "required": [], "properties": {}}
+    encoding = {}
+    for field in (fields or []):
+        arg_name = _arg_name(field)
+        arg_type = str if len(field) == 1 else field[1]
+        arg_schema = datatype_schema(arg_name, arg_type)  # type: ignore
+        fields_schema['required'].append(arg_name)  # type: ignore
+        props = arg_schema.get('properties', {arg_name: arg_schema})
+        fields_schema['properties'].update(props)  # type: ignore
+        if props[arg_name].get('type') == 'string':
+            encoding[arg_name] = {
+                'contentType':
+                'application/octect-stream' if props[arg_name].get('format') == 'binary' else 'text/plain'
+            }
+        else:
+            encoding[arg_name] = {'contentType': 'application/json'}
+        arg_desc = _arg_description(field)
+        print(fields_schema, encoding)
+        if arg_desc is not None:
+            fields_schema['properties'][arg_name]['description'] = arg_desc  # type: ignore
+    return fields_schema, encoding
+
+
+def _event_api(
+        summary: Optional[str],
+        description: Optional[str],
+        payload: Optional[Type],
+        query_args: Optional[List[ArgDef]],
+        fields: Optional[List[ArgDef]],
+        responses: Optional[Dict[int, PayloadDef]],
+        module, app_config: AppConfig, event_name: str, plugin: Optional[AppConfig]) -> dict:
+    """
+    Handler returned by event_api(...)
+    """
+    parameters = _parse_args_schema(query_args)
+
     method_spec: Dict[str, Any] = {
         "summary": _method_summary(module, summary),
         "description": _method_description(module, description, summary),
         "parameters": parameters
     }
+
+    event_config = app_config.events[event_name]
+    content_type = 'multipart/form-data' if event_config.type == EventType.MULTIPART else 'application/json'
     if payload is not None:
         method_spec['requestBody'] = {
             "description": _payload_description(payload),
             "required": True,
             "content": {
-                "application/json": {
+                content_type: {
                     "schema": _payload_schema(event_name, payload)
+                }
+            }
+        }
+
+    if fields is not None:
+        if payload is not None:
+            raise APIError("Payload and fields cannot be specified at the same time.")
+
+        method_schema, encoding = _parse_fields_schema(fields)
+        method_spec['requestBody'] = {
+            "required": True,
+            "content": {
+                content_type: {
+                    "schema": method_schema,
+                    "encoding": encoding
                 }
             }
         }
@@ -167,7 +218,7 @@ def _event_api(
                     "schema": _payload_schema(event_name, datatype)
                 }
             }
-        } for status, datatype in responses.items()}
+        } for status, datatype in (responses or {}).items()}
     method_spec['responses'] = api_responses
     return method_spec
 
@@ -176,8 +227,8 @@ def event_api(*, summary: Optional[str] = None,
               description: Optional[str] = None,
               payload: Optional[PayloadDef] = None,
               query_args: Optional[List[ArgDef]] = None,
-              responses: Optional[Dict[int, PayloadDef]] = None
-              ) -> Callable[..., dict]:
+              fields: Optional[List[ArgDef]] = None,
+              responses: Optional[Dict[int, PayloadDef]] = None) -> Callable[..., dict]:
     """
     Provides a convenient way to define Open API specification using Python types for a given app event
     implementation module.
@@ -209,4 +260,4 @@ def event_api(*, summary: Optional[str] = None,
         )
     """
 
-    return partial(_event_api, summary, description, payload, query_args, responses)
+    return partial(_event_api, summary, description, payload, query_args, fields, responses)

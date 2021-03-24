@@ -6,23 +6,27 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
-from typing import List, Type, Optional, Callable, Awaitable, Union
+from typing import Any, Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
 
 from aiohttp import web
 from aiohttp_swagger3 import RapiDocUiSettings  # type: ignore
 from aiohttp_swagger3.swagger import Swagger  # type: ignore
+from aiohttp_swagger3.exceptions import ValidatorError  # type: ignore
+from aiohttp_swagger3 import validators  # type: ignore
 from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
 from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
 from dataclasses_jsonschema import SchemaType
 
-from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventPlugMode
+from hopeit.dataobjects import BinaryAttachment  # type: ignore
+from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventPlugMode, EventType
 from hopeit.server.config import ServerConfig, AuthType
 from hopeit.server.errors import ErrorInfo
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger
 from hopeit.server.names import route_name
-from hopeit.server.steps import extract_module_steps, extract_postprocess_handler, StepInfo
+from hopeit.server.steps import extract_module_steps, extract_postprocess_handler, extract_preprocess_handler, \
+    StepInfo
 
 
 __all__ = ['init_empty_spec',
@@ -47,6 +51,12 @@ _options = {
 }
 
 OPEN_API_VERSION = '3.0.3'
+
+METHOD_MAPPING = {
+    EventType.GET: 'get',
+    EventType.POST: 'post',
+    EventType.MULTIPART: 'post'
+}
 
 
 class APIError(Exception):
@@ -185,6 +195,70 @@ def diff_specs() -> bool:
     return static_spec != spec
 
 
+async def _passthru_handler(request: web.Request) -> Tuple[web.Request, bool]:
+    return request, True
+
+
+class CustomizedObjectValidator(validators.Object):  # pragma: no cover
+    """
+    Replacements of Object Validator provided by aiohttp3_swagger
+    to handle multipart form requests
+    """
+    def validate(self, raw_value: Union[None, Dict, Any], raw: bool) -> Union[None, Dict, Any]:  # pragma: no cover
+        # FIXED: is_missing = isinstance(raw_value, validators._MissingType)
+        is_missing = (raw_value is not None) and (not isinstance(raw_value, dict))
+        # FIXED END
+        if not is_missing and self.readOnly:
+            raise ValidatorError("property is read-only")
+        if raw_value is None:
+            if self.nullable:
+                return None
+            raise ValidatorError("value should be type of dict")
+        if not isinstance(raw_value, dict):
+            if is_missing:
+                return raw_value
+            raise ValidatorError("value should be type of dict")
+        value = {}
+        errors: Dict = {}
+        for name in self.required:
+            if name not in raw_value:
+                errors[name] = "required property"
+        if errors:
+            raise ValidatorError(errors)
+
+        for name, validator in self.properties.items():
+            prop = raw_value.get(name, validators.MISSING)
+            try:
+                val = validator.validate(prop, raw)
+                if val != validators.MISSING:
+                    value[name] = val
+            except ValidatorError as e:
+                errors[name] = e.error
+        if errors:
+            raise ValidatorError(errors)
+
+        if isinstance(self.additionalProperties, bool):
+            if not self.additionalProperties:
+                additional_properties = raw_value.keys() - value.keys()
+                if additional_properties:
+                    raise ValidatorError({k: "additional property not allowed" for k in additional_properties})
+            else:
+                for key in raw_value.keys() - value.keys():
+                    value[key] = raw_value[key]
+        else:
+            for name in raw_value.keys() - value.keys():
+                validator = self.additionalProperties
+                value[name] = validator.validate(raw_value[name], raw)
+        if self.minProperties is not None and len(value) < self.minProperties:
+            raise ValidatorError(f"number or properties must be more than {self.minProperties}")
+        if self.maxProperties is not None and len(value) > self.maxProperties:
+            raise ValidatorError(f"number or properties must be less than {self.maxProperties}")
+        return None
+
+
+setattr(validators.Object, "validate", CustomizedObjectValidator.validate)
+
+
 def enable_swagger(server_config: ServerConfig, app: web.Application):
     """
     Enables Open API (a.k.a Swagger) on this server. This consists of:
@@ -234,6 +308,7 @@ def enable_swagger(server_config: ServerConfig, app: web.Application):
         redoc_ui_settings=None,
         swagger_ui_settings=None
     )
+    swagger.register_media_type_handler("multipart/form-data", _passthru_handler)
     logger.info(__name__, "OpenAPI validations enabled.")
 
 
@@ -412,7 +487,9 @@ def _update_api_paths(app_config: AppConfig, plugin: Optional[AppConfig] = None)
     for event_name, event_info in events.items():
         route = app_route_name(app_config.app, event_name=event_name, plugin=plugin_app,
                                override_route_name=event_info.route)
-        method = event_info.type.value.lower()
+        method = METHOD_MAPPING.get(event_info.type)
+        if method is None:
+            continue
         event_api_spec = _extract_event_api_spec(app_config if plugin is None else plugin, event_name)
         if event_api_spec is None:
             event_api_spec = paths.get(route, {}).get(method)
@@ -424,9 +501,7 @@ def _update_api_paths(app_config: AppConfig, plugin: Optional[AppConfig] = None)
             _set_track_headers(event_api_spec, app_config)
             _set_path_security(event_api_spec, app_config, event_info)
             route_path = paths.get(route, {})
-            method_path = route_path.get(method)
-            if method_path is None:
-                route_path[method] = event_api_spec
+            route_path[method] = event_api_spec
             paths[route] = route_path
     spec['paths'] = paths
 
@@ -522,6 +597,8 @@ def _generate_schemas(app_config: AppConfig, event_name: str) -> dict:
         _update_step_schemas(schemas, step_info)
     step_info = extract_postprocess_handler(module)
     _update_step_schemas(schemas, step_info)
+    step_info = extract_preprocess_handler(module)
+    _update_step_schemas(schemas, step_info)
     return schemas
 
 
@@ -557,8 +634,12 @@ def _array_schema(event_name: str, datatype: type):
     }
 
 
-def _builtin_schema(type_name: str, event_name: str, datatype: type) -> dict:
-    return {
+def _builtin_schema(type_name: str, type_format: Optional[str],
+                    event_name: str, datatype: type) -> dict:
+    """
+    Build type schema for predefined datatypes
+    """
+    schema = {
         "type": "object",
         "required": [
             event_name
@@ -570,14 +651,18 @@ def _builtin_schema(type_name: str, event_name: str, datatype: type) -> dict:
         },
         "description": f"{event_name} {type_name} payload"
     }
+    if type_format is not None:
+        schema['properties'][event_name]['format'] = type_format  # type: ignore
+    return schema
 
 
 TYPE_MAPPERS = {
-    str: partial(_builtin_schema, 'string'),
-    int: partial(_builtin_schema, 'integer'),
-    float: partial(_builtin_schema, 'number'),
-    bool: partial(_builtin_schema, 'boolean'),
-    list: _array_schema
+    str: partial(_builtin_schema, 'string', None),
+    int: partial(_builtin_schema, 'integer', None),
+    float: partial(_builtin_schema, 'number', None),
+    bool: partial(_builtin_schema, 'boolean', None),
+    list: _array_schema,
+    BinaryAttachment: partial(_builtin_schema, 'string', 'binary')
 }
 
 BUILTIN_TYPES = {

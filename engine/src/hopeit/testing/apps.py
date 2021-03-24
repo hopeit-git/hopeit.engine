@@ -3,17 +3,19 @@ Test utilities/wrappers for app development
 """
 from pathlib import Path
 from types import ModuleType
-from typing import Union, Callable, List, Optional, Dict, Tuple
+from typing import Union, Callable, List, Optional, Dict, Tuple, Any
 from datetime import datetime, timezone
 
 from hopeit.app.config import AppConfig, parse_app_config_json, EventDescriptor
-from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import AuthType, ServerConfig, LoggingConfig
 from hopeit.server.events import EventHandler
 from hopeit.server.steps import split_event_stages, find_datatype_handler
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger
+from hopeit.testing.hooks import MockFileHook, MockMultipartReader
+from multidict import CIMultiDict, CIMultiDictProxy
 
 __all__ = [
     'config',
@@ -58,6 +60,8 @@ def _apply_mocks(context: EventContext,
                  handler: EventHandler,
                  event_name: str,
                  effective_events: Dict[str, EventDescriptor],
+                 preprocess_hook: Optional[PreprocessHook],
+                 postprocess_hook: Optional[PostprocessHook],
                  mocks: List[Callable[[ModuleType, EventContext], None]]):
     """
     Execute a list of functions to mock module properties.
@@ -65,7 +69,12 @@ def _apply_mocks(context: EventContext,
     module, _, _ = handler.modules[event_name]
     logger.debug(context, f"[test.apps] executing mocks for module={module.__name__}...")
     for mock in mocks:
-        mock(module, context)
+        hooks: Dict[str, Any] = {}
+        if preprocess_hook is not None:
+            hooks['preprocess_hook'] = preprocess_hook
+        if postprocess_hook is not None:
+            hooks['postprocess_hook'] = postprocess_hook
+        mock(module, context, **hooks)  # type: ignore
     handler.load_modules(effective_events=effective_events)
     logger.debug(context, '[test.apps] mocking done.')
 
@@ -74,6 +83,10 @@ async def execute_event(app_config: AppConfig,
                         event_name: str,
                         payload: Optional[EventPayload],
                         mocks: Optional[List[Callable[[ModuleType, EventContext], None]]] = None,
+                        *,
+                        fields: Optional[Dict[str, str]] = None,
+                        upload: Optional[Dict[str, bytes]] = None,
+                        preprocess: bool = False,
                         postprocess: bool = False,
                         **kwargs) -> Union[
                             Optional[EventPayload],
@@ -99,27 +112,45 @@ async def execute_event(app_config: AppConfig,
         above, second element the output of call to __postprocess__, and third one a PostprocessHook
         with response information used during call to __postprocess__
     """
-    async def _postprocess(results: List[EventPayload]) -> Tuple[EventPayload, PostprocessHook]:
+    async def _postprocess(hook: PostprocessHook, results: List[EventPayload]) -> EventPayload:
         pp_payload = results[-1] if len(results) > 0 else None
-        hook = PostprocessHook()
-        pp_result = await handler.postprocess(context=context, payload=pp_payload, response=hook)
-        return pp_result, hook
+        return await handler.postprocess(context=context, payload=pp_payload, response=hook)
+
+    async def _preprocess(hook: PreprocessHook, payload: EventPayload) -> EventPayload:
+        return await handler.preprocess(context=context, payload=payload, request=hook)
 
     context = create_test_context(app_config, event_name)
     impl = find_event_handler(app_config=app_config, event_name=event_name)
-    datatype = find_datatype_handler(app_config=app_config, event_name=event_name)
-    if datatype is None:
-        if payload is not None:
-            raise ValueError("Invalid payload. Expected None")
-    elif not isinstance(payload, datatype):
-        raise ValueError(f"Invalid payload type={type(payload).__name__}. Expected type={datatype.__name__}")
+
     event_info = app_config.events[event_name]
     effective_events = {**split_event_stages(app_config.app, event_name, event_info, impl)}
     handler = EventHandler(app_config=app_config, plugins=[],
                            effective_events=effective_events)
+
+    preprocess_hook, postprocess_hook = None, None
+    if preprocess:
+        preprocess_hook = PreprocessHook(
+            headers=CIMultiDictProxy(CIMultiDict()),
+            multipart_reader=MockMultipartReader(fields or {}, upload or {}),  # type: ignore
+            file_hook_factory=MockFileHook
+        )
+    if postprocess:
+        postprocess_hook = PostprocessHook()
     if mocks is not None:
-        _apply_mocks(context, handler, event_name, effective_events, mocks)
-    on_queue, pp_result, response = [payload], None, None
+        _apply_mocks(context, handler, event_name, effective_events, preprocess_hook, postprocess_hook, mocks)
+
+    if preprocess_hook:
+        payload = await _preprocess(preprocess_hook, payload)
+        if postprocess_hook and preprocess_hook.status is not None:
+            postprocess_hook.set_status(preprocess_hook.status)
+    datatype = find_datatype_handler(app_config=app_config, event_name=event_name)
+    if datatype is None:
+        if payload is not None:
+            return (payload, payload, postprocess_hook) if postprocess else payload
+    elif not isinstance(payload, datatype):
+        return (payload, payload, postprocess_hook) if postprocess else payload
+
+    on_queue, pp_result, pp_called = [payload], None, False
     for effective_event_name, event_info in effective_events.items():
         context = create_test_context(app_config, effective_event_name)
         stage_results = []
@@ -127,16 +158,17 @@ async def execute_event(app_config: AppConfig,
             async for res in handler.handle_async_event(context=context, query_args=kwargs, payload=elem):
                 stage_results.append(res)
         on_queue = stage_results if len(stage_results) > 0 else on_queue
-        if postprocess and response is None:
-            pp_result, response = await _postprocess(on_queue)
+        if postprocess_hook and not pp_called:
+            pp_called = True
+            pp_result = await _postprocess(postprocess_hook, on_queue)
         kwargs = {}
 
     if postprocess:
         if len(on_queue) == 0:
-            return None, pp_result, response
+            return None, pp_result, postprocess_hook
         if len(on_queue) == 1:
-            return on_queue[0], pp_result, response
-        return list(on_queue), pp_result, response
+            return on_queue[0], pp_result, postprocess_hook
+        return list(on_queue), pp_result, postprocess_hook
 
     if len(on_queue) == 0:
         return None

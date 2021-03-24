@@ -21,6 +21,7 @@ __all__ = ['extract_module_steps',
            'effective_steps',
            'event_and_step',
            'extract_event_stages',
+           'extract_preprocess_handler',
            'extract_postprocess_handler',
            'extract_input_type',
            'execute_steps',
@@ -99,6 +100,12 @@ def extract_event_stages(impl: ModuleType) -> List[str]:
 def extract_postprocess_handler(impl: ModuleType) -> Optional[StepInfo]:
     if hasattr(impl, '__postprocess__'):
         return _signature(impl, '__postprocess__')
+    return None
+
+
+def extract_preprocess_handler(impl: ModuleType) -> Optional[StepInfo]:
+    if hasattr(impl, '__preprocess__'):
+        return _signature(impl, '__preprocess__')
     return None
 
 
