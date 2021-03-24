@@ -15,11 +15,11 @@ import sys
 sys.path.insert(0, os.path.abspath('../../engine/src'))
 
 project = 'hopeit.engine'
-copyright = '2020, Leo Smerling and Pablo Canto'
+copyright = '2021, Leo Smerling and Pablo Canto'
 author = 'Leo Smerling and Pablo Canto'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = '0.2.0rc1'
 
 # -- General configuration ---------------------------------------------------
 

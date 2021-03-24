@@ -1,5 +1,8 @@
 ## hopeit.engine
 
+Docs: https://hopeitengine.readthedocs.io/en/latest/
+
+
 ### Engine development README
 
 #### Install locally for apps or plugins development:
@@ -90,5 +93,3 @@ pip install "hopeit.engine[web,cli]"
     make PLUGINFOLDER=plugins/auth/basic-auth install-plugin
     make APPFOLDER=apps/examples/simple-example install-app
 ```
-
-More details at https://hopeitengine.readthedocs.io/en/latest/
