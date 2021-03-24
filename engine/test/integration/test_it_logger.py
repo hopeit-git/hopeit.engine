@@ -350,21 +350,21 @@ def test_cli_logger(monkeypatch):  # noqa: F811
         extra=server_logging.extra_values([], field1='value1', field2=42)
     )
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| INFO | hopeit.engine 0.1.0 test_cli_logger test_host test_pid | [test_cli_logger] Log message " \
-           "| extra.field1=value1 | extra.field2=42"
+        == f"| INFO | hopeit.engine {version.ENGINE_VERSION} test_cli_logger test_host test_pid " \
+           "| [test_cli_logger] Log message | extra.field1=value1 | extra.field2=42"
 
     logger.warning(
         "test_cli_logger", "Log message",
         extra=server_logging.extra_values([], field1='value1', field2=42)
     )
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| WARNING | hopeit.engine 0.1.0 test_cli_logger test_host test_pid | [test_cli_logger] Log message " \
-           "| extra.field1=value1 | extra.field2=42"
+        == f"| WARNING | hopeit.engine {version.ENGINE_VERSION} test_cli_logger test_host test_pid " \
+           "| [test_cli_logger] Log message | extra.field1=value1 | extra.field2=42"
 
     logger.error(
         "test_cli_logger", "Log message",
         extra=server_logging.extra_values([], field1='value1', field2=42)
     )
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| ERROR | hopeit.engine 0.1.0 test_cli_logger test_host test_pid | [test_cli_logger] Log message " \
-           "| extra.field1=value1 | extra.field2=42"
+        == f"| ERROR | hopeit.engine {version.ENGINE_VERSION} test_cli_logger test_host test_pid " \
+           "| [test_cli_logger] Log message | extra.field1=value1 | extra.field2=42"
