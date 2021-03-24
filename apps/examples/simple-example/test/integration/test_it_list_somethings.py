@@ -17,11 +17,11 @@ def sample_file_id():
                 + '"status": {"ts": "2020-05-01T00:00:00Z", "type": "NEW"}, "history": []}'
     json_str2 = '{"id": "' + test_id2 + '", "user": {"id": "u1", "name": "test_user"}, ' \
                 + '"status": {"ts": "2020-05-01T00:00:00Z", "type": "NEW"}, "history": []}'
-    os.makedirs('/tmp/simple_example.1x0.fs.data_path/', exist_ok=True)
-    with open(f'/tmp/simple_example.1x0.fs.data_path/{test_id1}.json', 'w') as f:
+    os.makedirs('/tmp/simple_example.2x0.fs.data_path/', exist_ok=True)
+    with open(f'/tmp/simple_example.2x0.fs.data_path/{test_id1}.json', 'w') as f:
         f.write(json_str1)
         f.flush()
-    with open(f'/tmp/simple_example.1x0.fs.data_path/{test_id2}.json', 'w') as f:
+    with open(f'/tmp/simple_example.2x0.fs.data_path/{test_id2}.json', 'w') as f:
         f.write(json_str2)
         f.flush()
     return test_id
