@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "1.0.0",
+    "version": "0.2.0",
     "title": "Simple Example",
     "description": "Simple Example"
   },
   "paths": {
-    "/api/basic-auth/1x0/decode": {
+    "/api/basic-auth/2x0/decode": {
       "get": {
         "summary": "Basic Auth: Decode",
         "description": "Returns decoded auth info",
@@ -44,7 +44,7 @@
           }
         },
         "tags": [
-          "basic_auth.1x0"
+          "basic_auth.2x0"
         ],
         "security": [
           {
@@ -53,7 +53,7 @@
         ]
       }
     },
-    "/api/simple-example/1x0/list-somethings": {
+    "/api/simple-example/2x0/list-somethings": {
       "get": {
         "summary": "Simple Example: List Objects",
         "description": "Lists all available Something objects",
@@ -123,7 +123,7 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
@@ -132,7 +132,7 @@
         ]
       }
     },
-    "/api/simple-example/1x0/query-something": {
+    "/api/simple-example/2x0/query-something": {
       "get": {
         "summary": "Simple Example: Query Something",
         "description": "Loads Something from disk",
@@ -209,7 +209,7 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
@@ -304,7 +304,7 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
@@ -313,7 +313,7 @@
         ]
       }
     },
-    "/api/simple-example/1x0/save-something": {
+    "/api/simple-example/2x0/save-something": {
       "post": {
         "summary": "Simple Example: Save Something",
         "description": "Creates and saves Something",
@@ -391,7 +391,7 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
@@ -400,7 +400,7 @@
         ]
       }
     },
-    "/api/simple-example/1x0/streams/something-event": {
+    "/api/simple-example/2x0/streams/something-event": {
       "post": {
         "summary": "Simple Example: Something Event",
         "description": "Submits a Something object to a stream to be processed asynchronously by process-events app event",
@@ -469,7 +469,7 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
@@ -478,7 +478,7 @@
         ]
       }
     },
-    "/api/simple-example/1x0/collector/query-concurrently": {
+    "/api/simple-example/2x0/collector/query-concurrently": {
       "post": {
         "summary": "Simple Example: Query Concurrently",
         "description": "Loads 2 Something objects concurrently from disk and combine the results\nusing `collector` steps constructor (instantiating an `AsyncCollector`)",
@@ -550,7 +550,7 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
@@ -559,7 +559,7 @@
         ]
       }
     },
-    "/api/simple-example/1x0/collector/collect-spawn": {
+    "/api/simple-example/2x0/collector/collect-spawn": {
       "post": {
         "summary": "Simple Example: Collect and Spawn",
         "description": "Loads 2 Something objects concurrently from disk, combine the results\nusing `collector` steps constructor (instantiating an `AsyncCollector`)\nthen spawn the items found individually into a stream",
@@ -637,7 +637,7 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
@@ -646,7 +646,7 @@
         ]
       }
     },
-    "/api/simple-example/1x0/shuffle/spawn-event": {
+    "/api/simple-example/2x0/shuffle/spawn-event": {
       "post": {
         "summary": "Simple Example: Spawn Event",
         "description": "This example will spawn 3 data events, those are going to be send to a stream using SHUFFLE\nand processed in asynchronously / in parallel if multiple nodes are available",
@@ -724,7 +724,7 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
@@ -733,7 +733,7 @@
         ]
       }
     },
-    "/api/simple-example/1x0/shuffle/parallelize-event": {
+    "/api/simple-example/2x0/shuffle/parallelize-event": {
       "post": {
         "summary": "Simple Example: Parallelize Event",
         "description": "This example will spawn 2 copies of payload data, those are going to be send to a stream using SHUFFLE\nand processed in asynchronously / in parallel if multiple nodes are available,\nthen submitted to other stream to be updated and saved",
@@ -811,7 +811,7 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
@@ -820,7 +820,7 @@
         ]
       }
     },
-    "/api/simple-example/1x0/basic-auth/1x0/login": {
+    "/api/simple-example/2x0/basic-auth/2x0/login": {
       "get": {
         "summary": "Basic Auth: Login",
         "description": "Handles users login using basic-auth\nand generate access tokens for external services invoking apps\nplugged in with basic-auth plugin.",
@@ -888,7 +888,7 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
@@ -897,7 +897,7 @@
         ]
       }
     },
-    "/api/simple-example/1x0/basic-auth/1x0/refresh": {
+    "/api/simple-example/2x0/basic-auth/2x0/refresh": {
       "get": {
         "summary": "Basic Auth: Refresh",
         "description": "This event can be used for obtain new access token and update refresh token (http cookie),\nwith no need to re-login the user if there is a valid refresh token active.",
@@ -965,16 +965,16 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
-            "simple_example.1x0.refresh": []
+            "simple_example.2x0.refresh": []
           }
         ]
       }
     },
-    "/api/simple-example/1x0/basic-auth/1x0/logout": {
+    "/api/simple-example/2x0/basic-auth/2x0/logout": {
       "get": {
         "summary": "Basic Auth: Logout",
         "description": "Invalidates previous refresh cookies.",
@@ -1051,11 +1051,11 @@
           }
         },
         "tags": [
-          "simple_example.1x0"
+          "simple_example.2x0"
         ],
         "security": [
           {
-            "simple_example.1x0.refresh": []
+            "simple_example.2x0.refresh": []
           }
         ]
       }
@@ -1256,10 +1256,10 @@
         "type": "http",
         "scheme": "bearer"
       },
-      "simple_example.1x0.refresh": {
+      "simple_example.2x0.refresh": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "simple_example.1x0.refresh"
+        "name": "simple_example.2x0.refresh"
       }
     }
   },
