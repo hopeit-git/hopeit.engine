@@ -2,7 +2,6 @@
 API Definition helpers for user apps
 """
 import inspect
-import warnings
 from functools import partial
 from typing import Optional, List, Type, Dict, Callable, Union, Tuple, Any, TypeVar
 
@@ -224,14 +223,12 @@ def _event_api(
     return method_spec
 
 
-def event_api(title: Optional[str] = None,
+def event_api(*, summary: Optional[str] = None,
+              description: Optional[str] = None,
               payload: Optional[PayloadDef] = None,
               query_args: Optional[List[ArgDef]] = None,
               fields: Optional[List[ArgDef]] = None,
-              responses: Optional[Dict[int, PayloadDef]] = None, *,
-              summary: Optional[str] = None,
-              description: Optional[str] = None
-              ) -> Callable[..., dict]:
+              responses: Optional[Dict[int, PayloadDef]] = None) -> Callable[..., dict]:
     """
     Provides a convenient way to define Open API specification using Python types for a given app event
     implementation module.
@@ -244,8 +241,6 @@ def event_api(title: Optional[str] = None,
         float, bool), or a tuple of (str, type, str) where last string is argument description.
     :param responses: a dictionary where key HTTP status code and value is the payload definition as describer in
         payload parameter.
-    :param title: Deprecated, use summary instead.
-
 
     Examples:
 
@@ -264,11 +259,5 @@ def event_api(title: Optional[str] = None,
             }
         )
     """
-    if title is not None:
-        warnings.warn(
-            "title parameter is deprecated since 0.1.4 and will be removed in version 0.2.0, use summary instead",
-            DeprecationWarning)
-        if summary is None:
-            summary = title
 
     return partial(_event_api, summary, description, payload, query_args, fields, responses)

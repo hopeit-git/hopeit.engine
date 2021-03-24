@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="hopeit.plugins.basic_auth",
-    version="0.1.0",
+    version="0.2.0",
     description="Hopeit.py Basic Auth Plugin",
     package_dir={
         "": "src"
