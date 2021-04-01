@@ -6,13 +6,14 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
+from typing import Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
 
 from aiohttp import web
 from aiohttp_swagger3 import RapiDocUiSettings  # type: ignore
 from aiohttp_swagger3.swagger import Swagger  # type: ignore
 from aiohttp_swagger3.exceptions import ValidatorError  # type: ignore
 from aiohttp_swagger3 import validators  # type: ignore
+from aiohttp_swagger3.validators import MISSING, _MissingType  # type: ignore
 from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
 from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
@@ -204,9 +205,14 @@ class CustomizedObjectValidator(validators.Object):  # pragma: no cover
     Replacements of Object Validator provided by aiohttp3_swagger
     to handle multipart form requests
     """
-    def validate(self, raw_value: Union[None, Dict, Any], raw: bool) -> Union[None, Dict, Any]:  # pragma: no cover
-        # FIXED: is_missing = isinstance(raw_value, validators._MissingType)
-        is_missing = (raw_value is not None) and (not isinstance(raw_value, dict))
+    def validate(self, raw_value: Union[None, Dict, _MissingType],
+                 raw: bool) -> Union[None, Dict, _MissingType]:
+        # FIXED: is_missing = isinstance(raw_value, _MissingType)
+        is_missing = (
+            isinstance(raw_value, _MissingType)
+            or ((raw_value is not None) and (not isinstance(raw_value, dict)))
+        )
+        # ORIGINAL CODE: https://github.com/hh-h/aiohttp-swagger3/blob/master/aiohttp_swagger3/validators.py
         # FIXED END
         if not is_missing and self.readOnly:
             raise ValidatorError("property is read-only")
@@ -227,10 +233,10 @@ class CustomizedObjectValidator(validators.Object):  # pragma: no cover
             raise ValidatorError(errors)
 
         for name, validator in self.properties.items():
-            prop = raw_value.get(name, validators.MISSING)
+            prop = raw_value.get(name, MISSING)
             try:
                 val = validator.validate(prop, raw)
-                if val != validators.MISSING:
+                if val != MISSING:
                     value[name] = val
             except ValidatorError as e:
                 errors[name] = e.error
@@ -253,7 +259,7 @@ class CustomizedObjectValidator(validators.Object):  # pragma: no cover
             raise ValidatorError(f"number or properties must be more than {self.minProperties}")
         if self.maxProperties is not None and len(value) > self.maxProperties:
             raise ValidatorError(f"number or properties must be less than {self.maxProperties}")
-        return None
+        return value
 
 
 setattr(validators.Object, "validate", CustomizedObjectValidator.validate)
