@@ -1,7 +1,7 @@
 aiofiles==0.6.0
 aiohttp==3.7.4.post0
 aiohttp-cors==0.7.0
-aiohttp-swagger3==0.5.3
+aiohttp-swagger3==0.5.4
 aiojobs==0.3.0
 aioredis==1.3.1
 async-timeout==3.0.1

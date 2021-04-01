@@ -1,6 +1,6 @@
 aiohttp
 aiohttp-cors
-aiohttp-swagger3
+aiohttp-swagger3==0.5.4
 aiojobs
 aiofiles
 dataclasses-jsonschema[fast-validation]
