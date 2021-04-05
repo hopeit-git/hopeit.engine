@@ -117,7 +117,8 @@ async def execute_event(app_config: AppConfig,
         return await handler.postprocess(context=context, payload=pp_payload, response=hook)
 
     async def _preprocess(hook: PreprocessHook, payload: EventPayload) -> EventPayload:
-        return await handler.preprocess(context=context, payload=payload, request=hook)
+        return await handler.preprocess(
+            context=context, query_args=kwargs, payload=payload, request=hook)
 
     context = create_test_context(app_config, event_name)
     impl = find_event_handler(app_config=app_config, event_name=event_name)

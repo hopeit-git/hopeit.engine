@@ -6,7 +6,7 @@ import random
 import uuid
 from asyncio import CancelledError
 from datetime import datetime, timezone
-from typing import Optional, Dict, List, Union, Tuple
+from typing import Optional, Dict, List, Union, Tuple, Any
 
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import split_event_stages, event_and_step, extract_module_steps, effective_steps
@@ -156,10 +156,12 @@ class AppEngine:
 
     async def preprocess(self, *,
                          context: EventContext,
+                         query_args: Optional[Dict[str, Any]],
                          payload: Optional[EventPayload],
                          request: PreprocessHook) -> Optional[EventPayload]:
         assert self.event_handler, "event_handler not created. Call `start()`."
-        return await self.event_handler.preprocess(context=context, payload=payload, request=request)
+        return await self.event_handler.preprocess(
+            context=context, query_args=query_args, payload=payload, request=request)
 
     async def postprocess(self, *,
                           context: EventContext,

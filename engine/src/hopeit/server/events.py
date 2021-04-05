@@ -2,7 +2,7 @@
 Events base classes and low level handlers to execute events specified by apps
 """
 from types import ModuleType
-from typing import Dict, Optional, List, Tuple, AsyncGenerator
+from typing import Dict, Optional, List, Tuple, AsyncGenerator, Any
 from asyncio import iscoroutine
 
 from hopeit.dataobjects import EventPayload
@@ -61,7 +61,7 @@ class EventHandler:
 
     async def handle_async_event(self, *,
                                  context: EventContext,
-                                 query_args: Optional[dict],
+                                 query_args: Optional[Dict[str, Any]],
                                  payload: Optional[EventPayload]) -> AsyncGenerator[Optional[EventPayload], None]:
         """
         Handles execution of engine defined event.
@@ -79,11 +79,9 @@ class EventHandler:
         :param query_args: arguments from a query context in the form of a dictionary
         :param payload: EventPayload, to be sent to event implementor
         """
-        if query_args is None:
-            query_args = {}
         await self._ensure_initialized(context)
         steps = self.steps[context.event_name]
-        async for result in execute_steps(steps, context=context, payload=payload, **query_args):
+        async for result in execute_steps(steps, context=context, payload=payload, **(query_args or {})):
             yield result
 
     async def postprocess(self, *,
@@ -104,6 +102,7 @@ class EventHandler:
 
     async def preprocess(self, *,
                          context: EventContext,
+                         query_args: Optional[Dict[str, Any]],
                          payload: Optional[EventPayload],
                          request: PreprocessHook) -> Optional[EventPayload]:
         """
@@ -113,7 +112,8 @@ class EventHandler:
         pp_handler = self.preprocess_handlers[context.event_name]
         if pp_handler:
             await self._ensure_initialized(context)
-            return await invoke_single_step(payload=payload, context=context, func=pp_handler[0], request=request)
+            return await invoke_single_step(payload=payload, context=context,
+                                            func=pp_handler[0], request=request, **(query_args or {}))
         return payload
 
     async def _init_module(self, *, module, context: EventContext):
