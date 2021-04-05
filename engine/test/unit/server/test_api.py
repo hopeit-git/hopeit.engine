@@ -103,8 +103,6 @@ def test_register_server_config(mock_api_app_config, mock_api_spec):  # noqa: F8
 def test_register_apps(mock_api_app_config, mock_api_spec, mock_plugin_config):  # noqa: F811
     _init_api(mock_api_app_config, mock_api_spec, plugin=mock_plugin_config, init_server=True, init_apps=True)
     assert api.spec['components']['schemas'] == mock_api_spec['components']['schemas']
-    print(json.dumps(api.spec['paths']['/api/mock-app-api/test/mock-app-api-multipart'], indent=2))
-    print(json.dumps(mock_api_spec['paths']['/api/mock-app-api/test/mock-app-api-multipart'], indent=2))
     assert api.spec['paths'] == mock_api_spec['paths']
 
 
