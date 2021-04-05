@@ -157,7 +157,6 @@ def _parse_fields_schema(fields: Optional[List[ArgDef]]):
         else:
             encoding[arg_name] = {'contentType': 'application/json'}
         arg_desc = _arg_description(field)
-        print(fields_schema, encoding)
         if arg_desc is not None:
             fields_schema['properties'][arg_name]['description'] = arg_desc  # type: ignore
     return fields_schema, encoding

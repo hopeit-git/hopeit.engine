@@ -150,7 +150,6 @@ def test_parse_invalid_event_type(monkeypatch, valid_config_json: str):
 def _replace_in_config(config_json: str, *, key: str, value: str) -> str:
     config_dict = json.loads(config_json)
     aux = config_dict
-    print(aux)
     for k in key.split('.'):
         if isinstance(aux[k], dict):
             aux = aux[k]

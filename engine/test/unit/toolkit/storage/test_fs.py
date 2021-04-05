@@ -60,11 +60,9 @@ class MockFile:
         return self.await_nothing().__await__()
 
     async def read(self):
-        print('read', self.payload_str)
         return self.payload_str
 
     async def write(self, payload_str):
-        print('write', self.payload_str)
         self.payload_str = payload_str
 
     async def flush(self):

@@ -268,9 +268,6 @@ def test_split_event_stages(mock_app_config):  # noqa: F811
 def test_collector_steps_descriptor(mock_app_config):  # noqa: F811
     impl = find_event_handler(app_config=mock_app_config, event_name='mock_collector')
     steps = extract_module_steps(impl)
-    print()
-    print(steps[0][1])
-    print()
     collector: CollectorStepsDescriptor = steps[0][0]
     assert isinstance(collector, CollectorStepsDescriptor)
     assert collector.steps == [
