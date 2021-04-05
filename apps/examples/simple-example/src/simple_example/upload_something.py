@@ -60,8 +60,8 @@ async def __init_event__(context: EventContext):
 
 
 # pylint: disable=invalid-name
-async def __preprocess__(payload: None, context: EventContext,
-                         request: PreprocessHook) -> Union[str, FileUploadInfo]:
+async def __preprocess__(payload: None, context: EventContext, request: PreprocessHook,
+                         *, something_id: str) -> Union[str, FileUploadInfo]:
     uploaded_files = []
     save_path = Path(str(context.env['upload_something']['save_path']))
     chunk_size = int(context.env['upload_something']['chunk_size'])

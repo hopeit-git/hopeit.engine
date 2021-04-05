@@ -15,7 +15,8 @@ async def __init_event__(context: EventContext):
     initialized = True
 
 
-async def __preprocess__(payload: None, context: EventContext, request: PreprocessHook) -> MockData:
+async def __preprocess__(payload: None, context: EventContext, request: PreprocessHook,
+                         *, query_arg1: str) -> MockData:
     return MockData(value=request.headers.get('user-agent'))
 
 
