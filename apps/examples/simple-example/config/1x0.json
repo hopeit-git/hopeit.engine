@@ -37,6 +37,9 @@
     "save_something" : {
       "type": "POST"
     },
+    "download_something": {
+      "type": "GET"
+    },
     "upload_something": {
       "type": "MULTIPART"
     },

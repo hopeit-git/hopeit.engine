@@ -419,6 +419,93 @@
         ]
       }
     },
+    "/api/simple-example/2x0/download-something": {
+      "get": {
+        "summary": "Simple Example: Download Something",
+        "description": "Download image file. The PostprocessHook return the requested file as stream.",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return requested image file",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Image file not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "download_something"
+                  ],
+                  "properties": {
+                    "download_something": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "download_something string payload"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.2x0"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
     "/api/simple-example/2x0/upload-something": {
       "post": {
         "summary": "Simple Example: Multipart Upload files",
