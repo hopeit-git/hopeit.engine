@@ -194,6 +194,19 @@ def _event_api(
             }
         }
 
+    def _payload_content_type(arg: PayloadDef) -> Optional[str]:
+        return getattr(arg[0] if isinstance(arg, tuple) else arg, 'content_type', None)
+
+    def _response_content(datatype) -> dict:
+        content_type = _payload_content_type(datatype)
+        if content_type and content_type != "application/json":
+            return {content_type: {"schema": {"type": "string", "format": "binary"}}}
+        return {
+            "application/json": {
+                "schema": _payload_schema(event_name, datatype)
+            }
+        }
+
     if fields is not None:
         if payload is not None:
             raise APIError("Payload and fields cannot be specified at the same time.")
@@ -212,11 +225,7 @@ def _event_api(
     api_responses = {
         str(status): {
             "description": _payload_description(datatype),
-            "content": {
-                "application/json": {
-                    "schema": _payload_schema(event_name, datatype)
-                }
-            }
+            "content": _response_content(datatype)
         } for status, datatype in (responses or {}).items()}
     method_spec['responses'] = api_responses
     return method_spec
