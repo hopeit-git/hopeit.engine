@@ -8,6 +8,7 @@ from typing import Optional, List, Type, Dict, Callable, Union, Tuple, Any, Type
 import re
 import typing_inspect  # type: ignore
 
+from hopeit.dataobjects import BinaryDownload
 from hopeit.app.config import AppConfig, AppDescriptor, EventType
 from hopeit.server.api import spec, app_route_name, APIError, BUILTIN_TYPES, datatype_schema
 from hopeit.server.names import route_name
@@ -194,18 +195,17 @@ def _event_api(
             }
         }
 
-    def _payload_content_type(arg: PayloadDef) -> Optional[str]:
-        return getattr(arg[0] if isinstance(arg, tuple) else arg, 'content_type', None)
+    def _payload_content_type(arg: PayloadDef) -> Tuple[PayloadDef, str]:
+        dt = arg[0] if isinstance(arg, tuple) else arg
+        if inspect.isclass(dt) and issubclass(dt, BinaryDownload):
+            content_type = getattr(dt, 'content_type', "application/json")
+            return (BinaryDownload, arg[1]) if isinstance(arg, tuple) else BinaryDownload, content_type
+        return arg, "application/json"
 
     def _response_content(datatype) -> dict:
-        content_type = _payload_content_type(datatype)
-        if content_type and content_type != "application/json":
-            return {content_type: {"schema": {"type": "string", "format": "binary"}}}
-        return {
-            "application/json": {
-                "schema": _payload_schema(event_name, datatype)
-            }
-        }
+        dt, content_type = _payload_content_type(datatype)
+        return {content_type: {
+                "schema": _payload_schema(event_name, dt)}}
 
     if fields is not None:
         if payload is not None:
