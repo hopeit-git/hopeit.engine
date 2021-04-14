@@ -19,7 +19,7 @@ from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
 from dataclasses_jsonschema import SchemaType
 
-from hopeit.dataobjects import BinaryAttachment  # type: ignore
+from hopeit.dataobjects import BinaryAttachment, BinaryDownload  # type: ignore
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventPlugMode, EventType
 from hopeit.server.config import ServerConfig, AuthType
 from hopeit.server.errors import ErrorInfo
@@ -640,6 +640,13 @@ def _array_schema(event_name: str, datatype: type):
     }
 
 
+def _binary_download_schema(event_name: str, datatype: type):
+    return {
+        "type": "string",
+        "format": "binary"
+    }
+
+
 def _builtin_schema(type_name: str, type_format: Optional[str],
                     event_name: str, datatype: type) -> dict:
     """
@@ -668,7 +675,8 @@ TYPE_MAPPERS = {
     float: partial(_builtin_schema, 'number', None),
     bool: partial(_builtin_schema, 'boolean', None),
     list: _array_schema,
-    BinaryAttachment: partial(_builtin_schema, 'string', 'binary')
+    BinaryAttachment: partial(_builtin_schema, 'string', 'binary'),
+    BinaryDownload: _binary_download_schema
 }
 
 BUILTIN_TYPES = {

@@ -86,6 +86,10 @@ class BinaryAttachment:
     """Type descriptor for multipart binary attachments"""
 
 
+class BinaryDownload:
+    """Type descriptor for binary download"""
+
+
 def dataobject(
         decorated_class=None, *,
         event_id: Optional[str] = None,
