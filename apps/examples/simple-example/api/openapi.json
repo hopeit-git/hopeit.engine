@@ -425,6 +425,15 @@
         "description": "Download image file. The PostprocessHook return the requested file as stream.",
         "parameters": [
           {
+            "name": "file_name",
+            "in": "query",
+            "required": true,
+            "description": "return file name, try with something.png",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "X-Track-Request-Id",
             "in": "header",
             "required": false,

@@ -4,10 +4,10 @@ Simple Example: Download Something
 Download image file. The PostprocessHook return the requested file as stream.
 """
 from dataclasses import dataclass
-from pathlib import Path
 import os
+import shutil
 
-from hopeit.dataobjects import BinaryAttachment
+from hopeit.dataobjects import BinaryDownload
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PostprocessHook
@@ -17,11 +17,14 @@ __steps__ = ['find_image']
 
 
 @dataclass
-class ImagePng(BinaryAttachment):
+class ImagePng(BinaryDownload):
     content_type = 'image/png'
+    file_name: str
+    file_path: str
 
 
 __api__ = event_api(
+    query_args=[("file_name", str, "return file name, try with something.png")],
     responses={
         200: (ImagePng, "Return requested image file"),
         400: (str, "Image file not found")
@@ -31,25 +34,28 @@ __api__ = event_api(
 logger, extra = app_extra_logger()
 
 
-async def find_image(payload: None, context: EventContext) -> str:
+async def find_image(payload: None, context: EventContext, *, file_name: str) -> ImagePng:
     """
     Finde image file
     """
-    file_name = f"{Path(__file__).parent.absolute()}/../../resources/hopeit-iso.png"
+    src_file_path = "./apps/examples/simple-example/resources/hopeit-iso.png"
+    tgt_file_path = os.path.join(str(context.env['fs']['data_path']), file_name)
+    shutil.copy(src_file_path, tgt_file_path)
+    img_file = ImagePng(file_name=file_name, file_path=tgt_file_path)
 
-    return file_name
+    return img_file
 
 
-async def __postprocess__(file_path: str,
+async def __postprocess__(img_file: ImagePng,
                           context: EventContext,
                           response: PostprocessHook) -> str:
 
-    if os.path.isfile(file_path):
+    if os.path.isfile(img_file.file_path):
         response.set_header('Content-Disposition',
-                            "attachment; filename=hopeit-iso.png")
-        response.set_header("Content-Type", 'image/png')
-        response.set_file_response(file_path)
-        return file_path
+                            f"attachment; filename={img_file.file_name}")
+        response.set_header("Content-Type", img_file.content_type)
+        response.set_file_response(img_file.file_path)
+        return f"File {img_file.file_name}"
 
     response.set_status(400)
-    return f"File {file_path} not found"
+    return f"File {img_file.file_name} not found"
