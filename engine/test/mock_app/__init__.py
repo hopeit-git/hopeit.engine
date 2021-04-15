@@ -165,6 +165,9 @@ def mock_app_config():
             "mock_file_response": EventDescriptor(
                 type=EventType.GET
             ),
+            "mock_file_response_content_type": EventDescriptor(
+                type=EventType.GET
+            ),
             "mock_auth": EventDescriptor(
                 type=EventType.GET,
                 auth=[AuthType.BASIC]
@@ -231,7 +234,10 @@ def mock_api_app_config():
             ),
             "mock-app-noapi": EventDescriptor(
                 type=EventType.GET
-            )
+            ),
+            "mock_file_response_content_type": EventDescriptor(
+                type=EventType.GET
+            ),
         },
         server=ServerConfig(
             logging=LoggingConfig(
@@ -545,6 +551,73 @@ def mock_api_spec():
                     },
                     'security': [{'mock_app_api.test.refresh': []}],
                     'tags': ['mock_app_api.test']
+                }
+            },
+            "/api/mock-app-api/test/mock-file-response-content-type": {
+                "get": {
+                    "description": "Test app file response",
+                    "parameters": [
+                        {
+                            "description": "File Name",
+                            "in": "query",
+                            "name": "file_name",
+                            "required": True,
+                            "schema": {
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "description": "Track information: Request-Id",
+                            "in": "header",
+                            "name": "X-Track-Request-Id",
+                            "required": False,
+                            "schema": {
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "description": "Track information: Request-Ts",
+                            "in": "header",
+                            "name": "X-Track-Request-Ts",
+                            "required": False,
+                            "schema": {
+                                "format": "date-time",
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "description": "Track information: track.session_id",
+                            "in": "header",
+                            "name": "X-Track-Session-Id",
+                            "required": True,
+                            "schema": {
+                                "default": "test.session_id",
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "content": {
+                                "image/png": {
+                                    "schema": {
+                                        "format": "binary",
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "description": ""
+                        }
+                    },
+                    "security": [
+                        {
+                            "auth.bearer": []
+                        }
+                    ],
+                    "summary": "Test app file response",
+                    "tags": [
+                        "mock_app_api.test"
+                    ]
                 }
             }
         }, "components": {
