@@ -335,6 +335,23 @@ async def call_get_file_response(client):
     assert result == 'mock_file_response test file_response'
 
 
+async def call_get_file_response_content_type(client):
+    file_name = "binary.png"
+    res: ClientResponse = await client.get(
+        '/api/mock-app/test/mock-file-response_content_type',
+        params={'file_name': file_name},
+        headers={'X-Track-Session-Id': 'test_session_id'}
+    )
+    assert res.status == 200
+    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
+    assert res.headers.get('X-Track-Request-Id')
+    assert res.headers.get('X-Track-Request-Ts')
+    assert res.headers.get("Content-Disposition") == f"attachment; filename={file_name}"
+    assert res.headers.get("Content-Type") == 'image/png'
+    result = (await res.read()).decode()
+    assert result == file_name
+
+
 async def call_get_mock_auth_event(client):
     res: ClientResponse = await client.get(
         '/api/mock-app/test/mock-auth',
