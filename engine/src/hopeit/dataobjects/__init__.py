@@ -86,8 +86,22 @@ class BinaryAttachment:
     """Type descriptor for multipart binary attachments"""
 
 
+@dataclass
 class BinaryDownload:
-    """Type descriptor for binary download"""
+    """
+    Type descriptor for binary download. Events returning files to download
+    should specialize this class for specififc content types, i.e.:
+
+    ```
+    @dataobject
+    @dataclass
+    class ImagePng(BinaryDownload):
+        content_type = "image/png"
+    ```
+
+    This way, the  type can be used in event API speficacation as reponse type.
+    """
+    content_type: str = "application/octet-stream"
 
 
 def dataobject(
