@@ -86,7 +86,6 @@ class BinaryAttachment:
     """Type descriptor for multipart binary attachments"""
 
 
-@dataclass
 class BinaryDownload:
     """
     Type descriptor for binary download. Events returning files to download

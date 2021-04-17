@@ -36,14 +36,13 @@ logger, extra = app_extra_logger()
 
 async def find_image(payload: None, context: EventContext, *, file_name: str) -> ImagePng:
     """
-    Finde image file
+    Find image file
     """
     src_file_path = "./apps/examples/simple-example/resources/hopeit-iso.png"
     tgt_file_path = os.path.join(str(context.env['fs']['data_path']), file_name)
     shutil.copy(src_file_path, tgt_file_path)
-    img_file = ImagePng(file_name=file_name, file_path=tgt_file_path)
 
-    return img_file
+    return ImagePng(file_name=file_name, file_path=tgt_file_path)
 
 
 async def __postprocess__(img_file: ImagePng,
