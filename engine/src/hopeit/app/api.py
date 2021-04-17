@@ -198,8 +198,7 @@ def _event_api(
     def _payload_content_type(arg: PayloadDef) -> Tuple[PayloadDef, str]:
         dt = arg[0] if isinstance(arg, tuple) else arg
         if inspect.isclass(dt) and issubclass(dt, BinaryDownload):
-            content_type = getattr(dt, 'content_type', "application/json")
-            return (BinaryDownload, arg[1]) if isinstance(arg, tuple) else BinaryDownload, content_type
+            return (BinaryDownload, arg[1]) if isinstance(arg, tuple) else BinaryDownload, dt.content_type
         return arg, "application/json"
 
     def _response_content(datatype) -> dict:
