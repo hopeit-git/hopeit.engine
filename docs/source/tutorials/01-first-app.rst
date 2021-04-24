@@ -190,13 +190,5 @@ What’s next?
 These are just the basics, in the next tutorials you will see:
 
 -  `Add Open API specification to your service <02-open-api.html>`__
--  `Support GET and POST endpoints <03-get-post.html>`__
--  `Add authentication to our service <04-auth.html>`__
 -  `Send data to a STREAM, backed by Redis and process the objects
    asynchronously <05-streams.html>`__
--  `Start a process that run continuously or on demand as a
-   SERVICE <06-service.html>`__
--  `Run multiple instances of your microservice in parallel, and how to
-   scale up <07-scaleup.html>`__
--  `Perform distributed data processing using multiple instances in
-   multiple nodes, Redis and STREAM events <08-distributed.html>`__
