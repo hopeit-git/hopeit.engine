@@ -1,13 +1,10 @@
 ![hopeit.engine QA](https://github.com/hopeit-git/hopeit.engine/workflows/hopeit.engine%20QA/badge.svg)
 
-**Our QA pipeline**:
-> - Engine and example application built and tested on Linux using Python 3.7 and 3.8
-> - Types checked with [*mypy*](https://pypi.org/project/mypy/)
-> - Code style checked with [*flake*](https://pypi.org/project/flake8/), [*pylint*](https://pypi.org/project/pylint/)
+> - Tested on Python 3.7 and 3.8
+> - Types and code style checks with [*mypy*](https://pypi.org/project/mypy/), [*flake*](https://pypi.org/project/flake8/) and [*pylint*](https://pypi.org/project/pylint/)
 > - *hopeit.engine* unit tested using [*pytest*](https://pypi.org/project/pytest/), required coverage > 90%
 > - HTTP server integration tests using [*pytest_aiohttp*](https://pypi.org/project/pytest-aiohttp/)
-> - *simple-example* application integration tests
-> - Included plugins integration tests
+> - *simple-example* application and plugins integration tests
                                                                       
 
 # hopeit engine
@@ -32,6 +29,24 @@
 
 Microservices architecture is proven to be an efficient way that allows systems to grow and adapt, being adopted since years now by mainstream internet and e-commerce companies. If you are small organization and want to start modernizing and scaling, *hopeit.engine* can help you start quickly. If you are already running microservices or you are running a bigger infrastructure, *hopeit.engine* can help you create new features that will be easily integrated with your current services. If you want to learn microservices or how to build production-grade applications in Python, check our [*docs and tutorials*](https://hopeitengine.readthedocs.io/en/latest/index.html). 
 
+## Adopters
+
+**hopeit.engine** was adopted by the following non-profit organizations:
+
+<img align="left" width="64" height="64" src="docs/source/readme/cnbvra.png">
+
+#### Consejo Nacional de Bomberos Voluntarios de la República Argentina
+
+National Council of Volunteer Firefighters adopted hopeit.engine to create new applications, including APIs for data integration, nation-wide real-time resources monitoring, Firefighters Academy, COVID-19 dashboards, to mention a few examples. hopeit.engine leverages for this organization the ability to ease development of new features at fast speed and allows them to integrate onto existing software and decouple compoenents using Microservices architecture. 
+
+<img align="left" width="56" height="56" src="docs/source/readme/capsfe.png">
+
+#### Caja de Seguridad Social de Abogados y Procuradores de Santa Fe
+
+Social Security Fund for Lawyers and Attorneys of Santa Fe, uses hopeit.engine to automate analysis of texts using Natural Language Processing techniques, integrating relevant information into a workflow management system.
+
+> If you want to mention your organization let us know at: \
+> ![_@_](docs/source/readme/contact.png)
 
 ## Features
 
@@ -105,7 +120,7 @@ If an external request triggers a process that requires background tasks to run,
 
 ## Current status and roadmap
 
-- **MARCH 2021**: hopeit.engine version 0.2.0rc1 released with multipart uploads support.
+- **APRIL 2021**: hopeit.engine version 0.2.0 released with multipart uploads support, fixes and improvements over existing functionality.
 
 - **FEBRUARY 2021**: hopeit.engine version 0.1.5 is released on PyPI, enjoy!
 
@@ -122,6 +137,8 @@ If an external request triggers a process that requires background tasks to run,
 
 Please check the [docs](https://hopeitengine.readthedocs.io/en/latest/index.html).
 
-If you are interested to become an early adopter, to learn microservices using *hopeit.engine* or to contribute and collaborate, contact the authors at ![_@_](docs/source/readme/contact.png)
+> If you are interested to become an early adopter, to learn microservices using *hopeit.engine* \
+> or to contribute and collaborate, contact the authors at: \
+> ![_@_](docs/source/readme/contact.png)
 
 Thank you!
