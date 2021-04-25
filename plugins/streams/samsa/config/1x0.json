@@ -1,0 +1,34 @@
+{
+  "app" : {
+    "name": "samsa",
+    "version": "1.0"
+  },
+  "engine" : {
+    "import_modules": ["hopeit.samsa"]
+  },
+  "env" : {
+    "samsa": {
+      "_push_nodes": "http://localhost:9020,http://localhost:9021,http://localhost:9022",
+      "push_nodes": "${SAMSA_PUSH_NODES}",
+      "consume_nodes": "${SAMSA_CONSUME_NODES}"
+    }
+  },
+  "events": {
+    "push" : {
+      "type": "POST",
+      "plug_mode": "Standalone"
+    },
+    "consume" : {
+      "type": "GET",
+      "plug_mode": "Standalone"
+    },
+    "stats" : {
+      "type": "GET",
+      "plug_mode": "Standalone"
+    },
+    "cluster-stats" : {
+      "type": "GET",
+      "plug_mode": "Standalone"
+    }
+  }
+}

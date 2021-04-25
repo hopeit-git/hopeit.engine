@@ -2,16 +2,27 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "simple-example",
+            "name": "samsa",
             "type": "python",
             "request": "launch",
             "module": "hopeit.server.web",
+            "cwd": "${workspaceFolder}",
             "args": [
                 "--port=8020",
                 "--start-streams",
                 "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
                 "--api-file=apps/examples/simple-example/api/openapi.json"
             ],
+            "env": {
+                "SAMSA_PUSH_NODES": "http://localhost:9020",
+                "SAMSA_CONSUME_NODES": "http://localhost:9020"
+            }
+        },
+        {
+            "name": "simple-example-samsa",
+            "type": "python",
+            "request": "launch",
+            "module": "hopeit.server.web",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },

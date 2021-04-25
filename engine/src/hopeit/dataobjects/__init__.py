@@ -67,7 +67,7 @@ class StreamEventMixin:
 
     def event_id(self) -> str:
         if self.__stream_event__.event_id_expr:
-            return self.__stream_event__.extract_attr(self, self.__stream_event__.event_id_expr)
+            return str(self.__stream_event__.extract_attr(self, self.__stream_event__.event_id_expr))
         return str(uuid.uuid4())
 
     def event_ts(self) -> Optional[datetime]:

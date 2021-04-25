@@ -35,6 +35,16 @@ code+=$?
 python3 -m pylint plugins/streams/redis/src/hopeit/redis_streams/
 code+=$?
 
+echo "streams/samsa"
+export MYPYPATH=engine/src/:plugins/streams/samsa/src/ && python3 -m mypy --namespace-packages -p hopeit.samsa
+code+=$?
+export MYPYPATH=engine/src/:plugins/streams/samsa/src/ && python3 -m mypy --namespace-packages plugins/streams/samsa/test/unit/
+code+=$?
+python3 -m flake8 --max-line-length=120 plugins/streams/samsa/src/hopeit/ plugins/streams/samsa/test/unit/
+code+=$?
+python3 -m pylint plugins/streams/samsa/src/hopeit/samsa/
+code+=$?
+
 echo "storage/redis"
 export MYPYPATH=engine/src/:plugins/storage/redis/src/ && python3 -m mypy --namespace-packages -p hopeit.redis_storage
 code+=$?
