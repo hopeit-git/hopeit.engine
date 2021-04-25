@@ -1,0 +1,20 @@
+{
+  "streams": {
+    "stream_manager": "hopeit.samsa.streams.SamsaStreamManager",
+    "connection_str": "push_nodes=${SAMSA_PUSH_NODES};consume_nodes=${SAMSA_CONSUME_NODES}"
+  },
+  "logging": {
+    "log_level": "DEBUG",
+    "log_path": "work/logs/apps/"
+  },
+  "auth": {
+    "auth_passphrase": "",
+    "secrets_location": "/tmp",
+    "enabled": false,
+    "create_keys": false,
+    "default_auth_methods": ["Unsecured"]
+  },
+  "api": {
+    "docs_path": "/api/docs"
+  }
+}

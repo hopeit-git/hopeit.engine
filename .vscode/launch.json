@@ -2,18 +2,47 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "simple-example",
+            "name": "samsa",
             "type": "python",
             "request": "launch",
             "module": "hopeit.server.web",
-            "args": [
-                "--port=8020",
-                "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
-                "--api-file=apps/examples/simple-example/api/openapi.json"
-            ],
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
+            "args": [
+                "--port=9020",
+                "--config-files=plugins/streams/samsa/config/server-dev.json,plugins/streams/samsa/config/1x0.json"
+            ],
+            "env": {
+                "SAMSA_PUSH_NODES": "http://localhost:9020",
+                "SAMSA_CONSUME_NODES": "http://localhost:9020"
+            }
+        },
+        {
+            "name": "simple-example-samsa",
+            "type": "python",
+            "request": "launch",
+            "module": "hopeit.server.web",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--port=8020", "--start-streams",
+                "--config-files=engine/config/dev-noauth-samsa.json,plugins/auth/basic-auth/config/1x0.json,plugins/streams/samsa/config/1x0.json,apps/examples/simple-example/config/1x0.json"
+            ],
+            "env": {
+                "SAMSA_PUSH_NODES": "http://localhost:8020",
+                "_SAMSA_CONSUME_NODES": "http://localhost:8020",
+                "_SAMSA_PUSH_NODES": "in-process",
+                "SAMSA_CONSUME_NODES": "in-process"
+            }
+        },
+        {
+            "name": "simple-example-redis",
+            "type": "python",
+            "request": "launch",
+            "module": "hopeit.server.web",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--port=8020", "--start-streams",
+                "--config-files=engine/config/dev-noauth-redis.json,plugins/auth/basic-auth/config/1x0.json,apps/examples/simple-example/config/1x0.json"
+            ]
         }
     ]
 }
