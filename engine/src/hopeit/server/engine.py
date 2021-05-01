@@ -16,7 +16,8 @@ from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import ServerConfig
 from hopeit.server.events import EventHandler
-from hopeit.server.streams import StreamManager, stream_auth_info, StreamEvent, StreamOSError
+from hopeit.streams import stream_auth_info, StreamEvent, StreamOSError, StreamManager
+from hopeit.streams.redis import RedisStreamManager
 from hopeit.server.logger import engine_logger, extra_logger, combined
 from hopeit.server.metrics import metrics, stream_metrics, StreamStats
 
@@ -64,7 +65,7 @@ class AppEngine:
             if (event_info.type == EventType.STREAM) or (event_info.write_stream is not None)
         )
         if streams_present and self.streams_enabled:
-            self.stream_manager = await StreamManager(
+            self.stream_manager = await RedisStreamManager(
                 address=streams_connection_str).connect()
         return self
 

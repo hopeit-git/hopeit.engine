@@ -4,7 +4,8 @@ from typing import Dict, Optional
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.server.config import AuthType
 from hopeit.server.events import EventHandler
-from hopeit.server.streams import StreamManager, StreamOSError
+from hopeit.streams import StreamOSError
+from hopeit.streams.redis import RedisStreamManager
 
 from hopeit.dataobjects import DataObject
 from hopeit.app.config import AppConfig
@@ -60,14 +61,14 @@ def setup_mocks(monkeypatch):
     monkeypatch.setattr(EventHandler, '__init__', MockEventHandler.__init__)
     monkeypatch.setattr(EventHandler, 'handle_async_event', MockEventHandler.handle_async_event)
     monkeypatch.setattr(EventHandler, 'postprocess', MockEventHandler.postprocess)
-    monkeypatch.setattr(StreamManager, '__init__', MockStreamManager.__init__)
-    monkeypatch.setattr(StreamManager, 'connect', MockStreamManager.connect)
-    monkeypatch.setattr(StreamManager, 'write_stream', MockStreamManager.write_stream)
-    monkeypatch.setattr(StreamManager,
+    monkeypatch.setattr(RedisStreamManager, '__init__', MockStreamManager.__init__)
+    monkeypatch.setattr(RedisStreamManager, 'connect', MockStreamManager.connect)
+    monkeypatch.setattr(RedisStreamManager, 'write_stream', MockStreamManager.write_stream)
+    monkeypatch.setattr(RedisStreamManager,
                         'ensure_consumer_group', MockStreamManager.ensure_consumer_group)
-    monkeypatch.setattr(StreamManager, 'read_stream', MockStreamManager.read_stream)
-    monkeypatch.setattr(StreamManager, 'ack_read_stream', MockStreamManager.ack_read_stream)
-    monkeypatch.setattr(StreamManager, 'close', MockStreamManager.close)
+    monkeypatch.setattr(RedisStreamManager, 'read_stream', MockStreamManager.read_stream)
+    monkeypatch.setattr(RedisStreamManager, 'ack_read_stream', MockStreamManager.ack_read_stream)
+    monkeypatch.setattr(RedisStreamManager, 'close', MockStreamManager.close)
 
 
 @pytest.mark.asyncio
