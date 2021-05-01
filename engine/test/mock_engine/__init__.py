@@ -6,7 +6,7 @@ from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.dataobjects import DataObject, EventPayload
 from hopeit.server.events import EventHandler
 from hopeit.server.engine import Server
-from hopeit.server.streams import StreamManager, StreamEvent, StreamOSError
+from hopeit.streams import StreamManager, StreamEvent, StreamOSError
 from hopeit.app.config import AppConfig, EventDescriptor, Serialization, Compression
 from hopeit.server.engine import AppEngine
 

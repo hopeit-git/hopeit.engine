@@ -11,5 +11,6 @@ Subpackages
    hopeit.cli
    hopeit.dataobjects
    hopeit.server
+   hopeit.streams
    hopeit.testing
    hopeit.toolkit

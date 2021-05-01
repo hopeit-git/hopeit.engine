@@ -2,22 +2,18 @@
 Streams module. Handles reading and writing to streams.
 Backed by Redis Streams
 """
-import asyncio
+from abc import ABC
 import os
 import socket
 import json
 import base64
-import uuid
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Union
 from dataclasses import dataclass
 
-import aioredis  # type: ignore
-from aioredis import RedisError
-
 from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import EventPayload
-from hopeit.server.serialization import serialize, deserialize
+from hopeit.server.serialization import serialize
 from hopeit.server.config import AuthType
 from hopeit.server.logger import engine_logger, extra_logger
 
@@ -49,50 +45,22 @@ def stream_auth_info(stream_event: StreamEvent):
     }
 
 
-class StreamManager:
+class StreamManager(ABC):
     """
-    Manages streams of a Hopeit App
+    Base class to imeplement stream management of a Hopeit App
     """
-
-    def __init__(self, *, address: str):
-        """
-        Creates an StreamManager instance backed by redis connection
-        specified in `address`.
-
-        After creation, `connect()` must be called to create connection pools.
-        """
-        self.address = address
-        self.consumer_id = self._consumer_id()
-        self._write_pool: aioredis.Redis = None
-        self._read_pool: aioredis.Redis = None
-
     async def connect(self):
         """
         Connects to Redis using two connection pools, one to handle
         writing to stream and one for reading.
         """
-        logger.info(__name__, f"Connecting address={self.address}...")
-        try:
-            self._write_pool = await aioredis.create_redis_pool(self.address)
-            self._read_pool = await aioredis.create_redis_pool(self.address)
-            return self
-        except (OSError, RedisError) as e:
-            logger.error(__name__, e)
-            raise StreamOSError(e) from e
+        raise NotImplementedError()
 
     async def close(self):
         """
         Close connections to Redis
         """
-
-        async def _close(pool) -> None:
-            if pool:
-                pool.close()
-                await pool.wait_closed()
-            return None
-
-        self._read_pool = await _close(self._read_pool)
-        self._write_pool = await _close(self._write_pool)
+        raise NotImplementedError()
 
     async def write_stream(self, *,
                            stream_name: str,
@@ -114,12 +82,7 @@ class StreamManager:
             default 0 will not send max_len to Redis.
         :return: number of successful written messages
         """
-        event_fields = self._fields(payload, track_ids, auth_info, compression, serialization)
-        ok = await self._write_pool.xadd(
-            stream=stream_name, fields=event_fields,
-            max_len=target_max_len if target_max_len > 0 else None,
-            exact_len=False)
-        return ok
+        raise NotImplementedError()
 
     async def ensure_consumer_group(self, *,
                                     stream_name: str,
@@ -134,45 +97,7 @@ class StreamManager:
         :param stream_name: str, stream name or key used by Redis
         :param consumer_group: str, consumer group passed to Redis
         """
-        try:
-            await self._read_pool.xgroup_create(
-                stream_name,
-                consumer_group,
-                latest_id='0',
-                mkstream=True
-            )
-        except aioredis.errors.BusyGroupError:
-            logger.info(__name__,
-                        "Consumer_group already exists " +
-                        f"read_stream={stream_name} consumer_group={consumer_group}")
-
-    def _decode_message(self, msg: List[Union[bytes, Dict[bytes, bytes]]],
-                        datatype: type, consumer_group: str,
-                        track_headers: List[str], read_ts: str):
-        assert isinstance(msg[0], bytes) and isinstance(msg[1], bytes) and isinstance(msg[2], dict), \
-            "Invalid message format. Expected `[bytes, bytes, Dict[bytes, bytes]]`"
-        compression = Compression(msg[2][b'comp'].decode())
-        serialization = Serialization(msg[2][b'ser'].decode())
-        return StreamEvent(
-            msg_internal_id=msg[1],
-            payload=deserialize(
-                msg[2][b'payload'], serialization, compression, datatype),  # type: ignore
-            track_ids={
-                'stream.name': msg[0].decode(),
-                'stream.msg_id': msg[1].decode(),
-                'stream.consumer_group': consumer_group,
-                'stream.submit_ts': msg[2][b'submit_ts'].decode(),
-                'stream.event_ts': msg[2][b'event_ts'].decode(),
-                'stream.event_id': msg[2][b'id'].decode(),
-                'stream.read_ts': read_ts,
-                **{
-                    k: (msg[2].get(k.encode()) or b'').decode()
-                    for k in track_headers
-                },
-                'track.operation_id': str(uuid.uuid4()),
-            },
-            auth_info=json.loads(base64.b64decode(msg[2].get(b'auth_info', b'{}')))
-        )
+        raise NotImplementedError()
 
     async def read_stream(self, *,
                           stream_name: str,
@@ -205,41 +130,7 @@ class StreamManager:
         :param compression: Compression, supported compression algorithm from enum
         :return: yields Tuples of message id (bytes) and deserialized DataObject
         """
-        try:
-            batch = await self._read_pool.xread_group(
-                consumer_group,
-                self.consumer_id,
-                streams=[stream_name],
-                latest_ids=[offset],
-                count=batch_size,
-                timeout=timeout
-            )
-
-            msg_count = len(batch)
-
-            if msg_count != 0:
-                logger.debug(__name__, "Received batch",
-                             extra=extra(prefix='stream.', name=stream_name, consumer_group=consumer_group,
-                                         batch_size=msg_count, head=batch[0][1], tail=batch[-1][1]))
-                stream_events: List[Union[StreamEvent, Exception]] = []
-                for msg in batch:
-                    read_ts = datetime.now().astimezone(tz=timezone.utc).isoformat()
-                    msg_type = msg[2][b'type'].decode()
-                    datatype = datatypes.get(msg_type)
-                    if datatype is None:
-                        err_msg = \
-                            f"Cannot read msg_id={msg[1].decode()}: msg_type={msg_type} is not any of {datatypes}"
-                        stream_events.append(TypeError(err_msg))
-                    else:
-                        stream_events.append(
-                            self._decode_message(msg, datatype, consumer_group, track_headers, read_ts))
-                return stream_events
-
-            #  Wait some time if no messages to prevent race condition in connection pool
-            await asyncio.sleep(batch_interval / 1000.0)
-            return []
-        except (OSError, RedisError) as e:
-            raise StreamOSError(e) from e
+        raise NotImplementedError()
 
     async def ack_read_stream(self, *,
                               stream_name: str,
@@ -256,9 +147,7 @@ class StreamManager:
         :param consumer_group: str, consumer group registered with Redis
         :param stream_event: StreamEvent, as provided by `read_stream(...)` method
         """
-        ack = await self._read_pool.xack(stream_name, consumer_group, stream_event.msg_internal_id)
-        assert ack == 1
-        return ack
+        raise NotImplementedError()
 
     @staticmethod
     def as_data_event(payload: EventPayload) -> EventPayload:
@@ -311,7 +200,7 @@ class StreamManager:
 
     def _consumer_id(self) -> str:
         """
-        Constructs a consumer if for this instance
+        Constructs a consumer id for this instance
 
         :return: str, concatenating current UTC ISO datetime, host name, process id
             and this StreamManager instance id

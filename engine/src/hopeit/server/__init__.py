@@ -26,6 +26,5 @@ __all__ = ['config',
            'metrics',
            'names',
            'steps',
-           'streams',
            'web',
            'api']

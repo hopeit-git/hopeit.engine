@@ -88,12 +88,6 @@ Submodules
    :show-inheritance:
 
 
-.. automodule:: hopeit.server.streams
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 .. automodule:: hopeit.server.version
    :members:
    :undoc-members:

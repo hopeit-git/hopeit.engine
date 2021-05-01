@@ -12,7 +12,7 @@ from pytest_aiohttp import aiohttp_server, aiohttp_client  # type: ignore  # noq
 import hopeit.server.web
 from hopeit.server import api
 from hopeit.server.web import start_server, stop_server, start_app
-from hopeit.server.streams import StreamManager
+from hopeit.streams.redis import RedisStreamManager
 
 from mock_engine import MockStreamManager, MockEventHandler
 from mock_app import MockResult, mock_app_config  # type: ignore  # noqa: F401
@@ -488,14 +488,14 @@ def _setup(monkeypatch,
            aiohttp_client,  # noqa: F811
            streams=None):
     stream_event = MockResult("ok: ok")
-    monkeypatch.setattr(StreamManager, '__init__', MockStreamManager.__init__)
-    monkeypatch.setattr(StreamManager, 'connect', MockStreamManager.connect)
-    monkeypatch.setattr(StreamManager,
+    monkeypatch.setattr(RedisStreamManager, '__init__', MockStreamManager.__init__)
+    monkeypatch.setattr(RedisStreamManager, 'connect', MockStreamManager.connect)
+    monkeypatch.setattr(RedisStreamManager,
                         'ensure_consumer_group', MockStreamManager.ensure_consumer_group)
-    monkeypatch.setattr(StreamManager, 'write_stream', MockStreamManager.write_stream)
-    monkeypatch.setattr(StreamManager, 'read_stream', MockStreamManager.read_stream)
-    monkeypatch.setattr(StreamManager, 'ack_read_stream', MockStreamManager.ack_read_stream)
-    monkeypatch.setattr(StreamManager, 'close', MockStreamManager.close)
+    monkeypatch.setattr(RedisStreamManager, 'write_stream', MockStreamManager.write_stream)
+    monkeypatch.setattr(RedisStreamManager, 'read_stream', MockStreamManager.read_stream)
+    monkeypatch.setattr(RedisStreamManager, 'ack_read_stream', MockStreamManager.ack_read_stream)
+    monkeypatch.setattr(RedisStreamManager, 'close', MockStreamManager.close)
     monkeypatch.setattr(MockStreamManager, 'test_payload', stream_event)
     monkeypatch.setattr(MockEventHandler, 'test_track_ids', None)
 

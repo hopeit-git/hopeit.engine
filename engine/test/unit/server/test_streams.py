@@ -9,7 +9,8 @@ from mock_engine import MockStreamManager, MockEventHandler
 from hopeit.dataobjects import dataobject
 from hopeit.server.config import AuthType
 
-from hopeit.server.streams import StreamManager, StreamEvent
+from hopeit.streams import StreamManager, StreamEvent
+from hopeit.streams.redis import RedisStreamManager
 
 
 @dataobject(event_id='value', event_ts='ts')
@@ -25,7 +26,7 @@ class MockInvalidDataEvent:
 
 
 async def create_stream_manager():
-    return await StreamManager(address=MockRedisPool.test_url).connect()
+    return await RedisStreamManager(address=MockRedisPool.test_url).connect()
 
 
 async def write_stream():
