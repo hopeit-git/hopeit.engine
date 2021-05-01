@@ -508,10 +508,10 @@ async def _request_process_payload(
     Returns payload if parsing succeeded. Raises BadRequest if payload fails to parse
     """
     try:
-        payload_str = (await request.read()).decode()
-        if (payload_str is None) or (payload_str == ''):
+        payload_raw = await request.read()
+        if (payload_raw is None) or (payload_raw == b''):
             return None
-        payload = Json.from_json(payload_str, datatype) if datatype else payload_str
+        payload = Json.from_json(payload_raw, datatype) if datatype else payload_raw.decode()
         return payload  # type: ignore
     except ValueError as e:
         logger.error(context, e)

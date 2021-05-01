@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+
+Version 0.2.1
+_____________
+- Remove unnecesary decode when parsing payload on web module 
+
+
 Version 0.2.0
 _____________
 - MULTIPART uploads http endpoints support: post form-data with file attachments in request (with Json response)

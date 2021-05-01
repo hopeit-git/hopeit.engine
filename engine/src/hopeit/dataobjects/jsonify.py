@@ -15,7 +15,7 @@ class Json(Generic[EventPayloadType]):
     Json convenience ser/deser functions for @dataobject decorated object (@see DataObject)
     """
     @staticmethod
-    def from_json(json_str: str,
+    def from_json(json_str: Union[str, bytes],
                   datatype: Type[EventPayloadType],
                   key: str = 'value') -> EventPayloadType:
         """
