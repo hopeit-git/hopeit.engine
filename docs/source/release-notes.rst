@@ -4,7 +4,7 @@ Release Notes
 
 Version 0.2.1
 _____________
-- Remove unnecesary decode when parsing payload on web module 
+- Remove unnecessary decode when parsing payload on web module 
 
 
 Version 0.2.0
