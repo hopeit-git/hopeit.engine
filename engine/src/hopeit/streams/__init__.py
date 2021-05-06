@@ -191,8 +191,8 @@ class NoStreamManager(StreamManager):
     """
     def __init__(self, *, address: str):
         raise StreamConfigError(
-            "Cannot start engine StreamManager. Server configuration file."
-            "A valid `stream_manager` implementation needs to be setup:"
+            "Cannot start engine StreamManager, "
+            "a valid `stream_manager` implementation needs to be specified."
             "\n You need to install a proper Stream Manager."
             "\n i.e. to use Redis Streams: "
             "\n 1) Install `hopeit.engine` with redis-streams plugin: `pip install hopeit.engine[redis-streams]`"
