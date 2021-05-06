@@ -8,8 +8,8 @@
   ],
   "engine" : {
     "import_modules": ["simple_example"],
-    "read_stream_timeout": 10,
-    "read_stream_interval": 60,
+    "read_stream_timeout": 1000,
+    "read_stream_interval": 1000,
     "track_headers": ["caller", "session_id"],
     "cors_origin": "*"
   },
@@ -47,8 +47,14 @@
       "type": "SERVICE",
       "write_stream": {
         "name": "{events.streams.something_event.write_stream.name}"
+      },
+      "config": {
+        "stream": {
+          "target_max_len": 1000,
+          "throttle_ms": 10
+        }
       }
-    },
+  },
     "streams.something_event" : {
       "type": "POST",
       "write_stream": {
@@ -59,7 +65,7 @@
           "extra_fields": ["something_id"]
         },
         "stream": {
-          "target_max_len": 100
+          "target_max_len": 1000
         }
       }
     },
@@ -76,7 +82,7 @@
           "extra_fields": ["something_id"]
         },
         "stream": {
-          "target_max_len": 100
+          "target_max_len": 1000
         }
       }
     },
@@ -87,6 +93,9 @@
         "consumer_group": "{auto}"
       },
       "config": {
+        "stream": {
+          "batch_size": 5
+        },
         "logging": {
           "stream_fields": ["name", "msg_id", "consumer_group", "event_id", "event_ts", "submit_ts", "read_ts"],
           "extra_fields": ["something_id"]
@@ -103,7 +112,7 @@
           "extra_fields": ["something_id"]
         },
         "stream": {
-          "target_max_len": 100
+          "target_max_len": 1000
         }
       }
     },
@@ -117,7 +126,7 @@
           "extra_fields": ["something_id"]
         },
         "stream": {
-          "target_max_len": 100
+          "target_max_len": 1000
         }
       }
     }

@@ -31,8 +31,9 @@ class StreamsConfig:
     """
     :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379
     """
+    stream_manager: str = "hopeit.streams.NoStreamManager"
     connection_str: str = '<<DEFAULT>>'
-    delay_auto_start_seconds: int = 0
+    delay_auto_start_seconds: int = 3
 
 
 @dataobject

@@ -14,7 +14,7 @@ from aioredis import RedisError
 
 from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import EventPayload
-from hopeit.server.serialization import deserialize
+from hopeit.server.serialization import deserialize, serialize
 from hopeit.server.logger import engine_logger, extra_logger
 from hopeit.streams import StreamManager, StreamEvent, StreamOSError
 
@@ -31,7 +31,6 @@ class RedisStreamManager(StreamManager):
         """
         Creates an StreamManager instance backed by redis connection
         specified in `address`.
-
         After creation, `connect()` must be called to create connection pools.
         """
         self.address = address
@@ -77,7 +76,6 @@ class RedisStreamManager(StreamManager):
                            target_max_len: int = 0) -> int:
         """
         Writes event to a Redis stream using XADD
-
         :param stream_name: stream name or key used by Redis
         :param payload: EventPayload, a special type of dataclass object decorated with `@dataobject`
         :param track_ids: dict with key and id values to track in stream event
@@ -87,7 +85,7 @@ class RedisStreamManager(StreamManager):
             default 0 will not send max_len to Redis.
         :return: number of successful written messages
         """
-        event_fields = self._fields(payload, track_ids, auth_info, compression, serialization)
+        event_fields = self._encode_message(payload, track_ids, auth_info, compression, serialization)
         ok = await self._write_pool.xadd(
             stream=stream_name, fields=event_fields,
             max_len=target_max_len if target_max_len > 0 else None,
@@ -103,7 +101,6 @@ class RedisStreamManager(StreamManager):
         created to consume event from beginning of stream (from id=0)
         If group already exists a message will be logged and no action performed.
         If stream does not exists and empty stream will be created.
-
         :param stream_name: str, stream name or key used by Redis
         :param consumer_group: str, consumer group passed to Redis
         """
@@ -118,34 +115,6 @@ class RedisStreamManager(StreamManager):
             logger.info(__name__,
                         "Consumer_group already exists " +
                         f"read_stream={stream_name} consumer_group={consumer_group}")
-
-    def _decode_message(self, msg: List[Union[bytes, Dict[bytes, bytes]]],
-                        datatype: type, consumer_group: str,
-                        track_headers: List[str], read_ts: str):
-        assert isinstance(msg[0], bytes) and isinstance(msg[1], bytes) and isinstance(msg[2], dict), \
-            "Invalid message format. Expected `[bytes, bytes, Dict[bytes, bytes]]`"
-        compression = Compression(msg[2][b'comp'].decode())
-        serialization = Serialization(msg[2][b'ser'].decode())
-        return StreamEvent(
-            msg_internal_id=msg[1],
-            payload=deserialize(
-                msg[2][b'payload'], serialization, compression, datatype),  # type: ignore
-            track_ids={
-                'stream.name': msg[0].decode(),
-                'stream.msg_id': msg[1].decode(),
-                'stream.consumer_group': consumer_group,
-                'stream.submit_ts': msg[2][b'submit_ts'].decode(),
-                'stream.event_ts': msg[2][b'event_ts'].decode(),
-                'stream.event_id': msg[2][b'id'].decode(),
-                'stream.read_ts': read_ts,
-                **{
-                    k: (msg[2].get(k.encode()) or b'').decode()
-                    for k in track_headers
-                },
-                'track.operation_id': str(uuid.uuid4()),
-            },
-            auth_info=json.loads(base64.b64decode(msg[2].get(b'auth_info', b'{}')))
-        )
 
     async def read_stream(self, *,
                           stream_name: str,
@@ -163,7 +132,6 @@ class RedisStreamManager(StreamManager):
         In case timeout is reached, nothing is yielded
         and read_stream must be called again,
         usually in an infinite loop while app is running.
-
         :param stream_name: str, stream name or key used by Redis
         :param consumer_group: str, consumer group registered in Redis
         :param datatypes: Dict[str, type] supported datatypes name: type to be extracted from stream.
@@ -224,7 +192,6 @@ class RedisStreamManager(StreamManager):
         This method should be called for every message that is properly
         received and processed with no errors.
         With this mechanism, messages not acknowledged can be retried.
-
         :param stream_name: str, stream name or key used by Redis
         :param consumer_group: str, consumer group registered with Redis
         :param stream_event: StreamEvent, as provided by `read_stream(...)` method
@@ -232,3 +199,65 @@ class RedisStreamManager(StreamManager):
         ack = await self._read_pool.xack(stream_name, consumer_group, stream_event.msg_internal_id)
         assert ack == 1
         return ack
+
+    def _encode_message(self, payload: EventPayload,
+                        track_ids: Dict[str, str],
+                        auth_info: Dict[str, Any],
+                        compression: Compression,
+                        serialization: Serialization) -> dict:
+        """
+        Extract dictionary of fields to be sent to Redis from a DataEvent
+        :param payload, DataEvent
+        :return: dict of str containing:
+            :id: extracted from payload.event_id() method
+            :type: datatype name
+            :submit_ts: datetime at the moment of this call, in UTC ISO format
+            :event_ts: extracted from payload.event_ts() if defined, if not empty string
+            :payload: json serialized payload
+        """
+        event_fields = {
+            'id': payload.event_id(),  # type: ignore
+            'type': type(payload).__name__,
+            'submit_ts': datetime.now().astimezone(tz=timezone.utc).isoformat(),
+            'event_ts': '',
+            **{k: v or '' for k, v in track_ids.items()},
+            'auth_info': base64.b64encode(json.dumps(auth_info).encode()),
+            'ser': serialization.value,
+            'comp': compression.value,
+            'payload': serialize(payload, serialization, compression)
+        }
+        event_ts = payload.event_ts()  # type: ignore
+        if isinstance(event_ts, datetime):
+            event_fields['event_ts'] = \
+                event_ts.astimezone(tz=timezone.utc).isoformat()
+        elif isinstance(event_ts, str):
+            event_fields['event_ts'] = event_ts
+        return event_fields
+
+    def _decode_message(self, msg: List[Union[bytes, Dict[bytes, bytes]]],
+                        datatype: type, consumer_group: str,
+                        track_headers: List[str], read_ts: str):
+        assert isinstance(msg[0], bytes) and isinstance(msg[1], bytes) and isinstance(msg[2], dict), \
+            "Invalid message format. Expected `[bytes, bytes, Dict[bytes, bytes]]`"
+        compression = Compression(msg[2][b'comp'].decode())
+        serialization = Serialization(msg[2][b'ser'].decode())
+        return StreamEvent(
+            msg_internal_id=msg[1],
+            payload=deserialize(
+                msg[2][b'payload'], serialization, compression, datatype),  # type: ignore
+            track_ids={
+                'stream.name': msg[0].decode(),
+                'stream.msg_id': msg[1].decode(),
+                'stream.consumer_group': consumer_group,
+                'stream.submit_ts': msg[2][b'submit_ts'].decode(),
+                'stream.event_ts': msg[2][b'event_ts'].decode(),
+                'stream.event_id': msg[2][b'id'].decode(),
+                'stream.read_ts': read_ts,
+                **{
+                    k: (msg[2].get(k.encode()) or b'').decode()
+                    for k in track_headers
+                },
+                'track.operation_id': str(uuid.uuid4()),
+            },
+            auth_info=json.loads(base64.b64decode(msg[2].get(b'auth_info', b'{}')))
+        )

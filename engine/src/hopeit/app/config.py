@@ -225,8 +225,8 @@ class AppEngineConfig:
     :cors_origin: allowed CORS origin for web server
     """
     import_modules: Optional[List[str]] = None
-    read_stream_timeout: int = 60
-    read_stream_interval: int = 600
+    read_stream_timeout: int = 1000
+    read_stream_interval: int = 1000
     default_stream_compression: Compression = Compression.LZ4
     default_stream_serialization: Serialization = Serialization.JSON_BASE64
     track_headers: List[str] = field(default_factory=list)

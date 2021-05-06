@@ -17,7 +17,6 @@ from hopeit.dataobjects import EventPayload
 from hopeit.server.config import ServerConfig
 from hopeit.server.events import EventHandler
 from hopeit.streams import stream_auth_info, StreamEvent, StreamOSError, StreamManager
-from hopeit.streams.redis import RedisStreamManager
 from hopeit.server.logger import engine_logger, extra_logger, combined
 from hopeit.server.metrics import metrics, stream_metrics, StreamStats
 
@@ -56,7 +55,6 @@ class AppEngine:
         """
         Starts handlers, services and pools for this application
         """
-        streams_connection_str = self.app_config.server.streams.connection_str
         self.event_handler = EventHandler(
             app_config=self.app_config, plugins=self.plugins,
             effective_events=self.effective_events)
@@ -65,8 +63,8 @@ class AppEngine:
             if (event_info.type == EventType.STREAM) or (event_info.write_stream is not None)
         )
         if streams_present and self.streams_enabled:
-            self.stream_manager = await RedisStreamManager(
-                address=streams_connection_str).connect()
+            mgr = StreamManager.create(self.app_config.server.streams)
+            self.stream_manager = await mgr.connect()
         return self
 
     async def stop(self):
@@ -249,8 +247,8 @@ class AppEngine:
                 logger.warning(__name__, f"Recovered read stream for event={event_name}.")
                 last_err = None
         except StreamOSError as e:
-            retry_in = self.app_config.engine.read_stream_interval
-            retry_in += random.randint(0, min(30, retry_in))
+            retry_in = self.app_config.engine.read_stream_interval // 1000
+            retry_in += random.randint(1, max(3, min(30, retry_in)))
             if type(e) != type(last_err):  # pylint: disable=unidiomatic-typecheck
                 logger.error(__name__, e)
             logger.error(__name__, f"Cannot read stream for event={event_name}. Waiting seconds={int(retry_in)}...")
