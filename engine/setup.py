@@ -64,7 +64,7 @@ setuptools.setup(
     ],
     include_package_data=True,
     python_requires=">=3.7",
-    install_requires=[ f"{lib}=={libversion(lib)}" for lib in [
+    install_requires=[ f"{lib}>={libversion(lib)}" for lib in [
         "aiojobs",
         "aiofiles",
         "aioredis",
@@ -76,17 +76,20 @@ setuptools.setup(
         "typing-inspect"
     ]],
     extras_require={
-        "web": [ f"{lib}=={libversion(lib)}" for lib in [
+        "web": [ f"{lib}>={libversion(lib)}" for lib in [
             "aiohttp",
             "aiohttp-cors",
             "aiohttp-swagger3",
             "dataclasses-jsonschema[fast-validation]",
             "fastjsonschema"
         ]],
-        "cli": [ f"{lib}=={libversion(lib)}" for lib in [
+        "cli": [ f"{lib}>={libversion(lib)}" for lib in [
             "dataclasses-jsonschema[fast-validation]",
             "fastjsonschema"
-        ]]
+        ]],
+        "redis-streams": [
+            f"hopeit.plugins.redis-streams=={version['ENGINE_VERSION']}"
+        ]
     },
     entry_points={
         "console_scripts": [

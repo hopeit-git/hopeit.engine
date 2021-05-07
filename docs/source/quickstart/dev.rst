@@ -7,6 +7,7 @@ Run example application
 
  make install
  make PLUGINFOLDER=plugins/auth/basic-auth/ install-plugin
+ make PLUGINFOLDER=plugins/streams/redis/ install-plugin
  make APPFOLDER=apps/examples/simple-example/ install-app
 
  cd docker

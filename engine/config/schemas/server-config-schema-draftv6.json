@@ -4,8 +4,9 @@
     "streams": {
       "$ref": "#/definitions/StreamsConfig",
       "default": {
-        "connection_str": "<<DEFAULT>>",
-        "delay_auto_start_seconds": 0
+        "stream_manager": "hopeit.streams.NoStreamManager",
+        "connection_str": "<<NoStreamManager>>",
+        "delay_auto_start_seconds": 3
       }
     },
     "logging": {
@@ -42,13 +43,17 @@
     "StreamsConfig": {
       "type": "object",
       "properties": {
+        "stream_manager": {
+          "type": "string",
+          "default": "hopeit.streams.NoStreamManager"
+        },
         "connection_str": {
           "type": "string",
-          "default": "<<DEFAULT>>"
+          "default": "<<NoStreamManager>>"
         },
         "delay_auto_start_seconds": {
           "type": "integer",
-          "default": 0
+          "default": 3
         }
       },
       "description": "\n    :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    "

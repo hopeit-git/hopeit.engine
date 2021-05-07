@@ -5,12 +5,13 @@ from datetime import datetime, timezone
 from dataclasses import dataclass
 
 from hopeit.app.config import Compression, Serialization
-from mock_engine import MockStreamManager, MockEventHandler
 from hopeit.dataobjects import dataobject
 from hopeit.server.config import AuthType
 
 from hopeit.streams import StreamManager, StreamEvent
-from hopeit.streams.redis import RedisStreamManager
+from hopeit.redis_streams import RedisStreamManager
+
+from . import MockEventHandler, TestStreamData
 
 
 @dataobject(event_id='value', event_ts='ts')
@@ -98,7 +99,7 @@ async def read_stream():
             timeout=1)):
         assert stream_event.msg_internal_id == b'0000000000-0'
         assert stream_event.payload == MockData('test_value', stream_event.payload.ts)
-        for k, v in MockStreamManager.test_track_ids.items():
+        for k, v in TestStreamData.test_track_ids.items():
             assert k in stream_event.track_ids
             if k != 'stream.read_ts':
                 assert v == stream_event.track_ids[k]
@@ -113,7 +114,7 @@ async def read_stream_empty_batch():
             stream_name='test_stream',
             consumer_group='empty_batch',
             datatypes={'MockData': MockData},
-            track_headers=MockStreamManager.test_track_ids.keys(),
+            track_headers=TestStreamData.test_track_ids.keys(),
             offset='>',
             batch_size=1,
             batch_interval=1000,
@@ -125,8 +126,8 @@ async def read_stream_empty_batch():
 async def ack_read_stream():
     stream_event = StreamEvent(
         msg_internal_id=b'0000000000-0',
-        payload=MockStreamManager.test_payload,
-        track_ids=MockStreamManager.test_track_ids,
+        payload=TestStreamData.test_payload,
+        track_ids=TestStreamData.test_track_ids,
         auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'}
     )
     msg_id = b'0000000000-0'
