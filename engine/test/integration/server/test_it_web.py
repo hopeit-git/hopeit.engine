@@ -476,6 +476,7 @@ async def start_test_server(
     await start_app(mock_app_config, scheduler, start_streams=streams)
     test_server = await aiohttp_server(hopeit.server.web.web_server)
     print('Test engine started:', test_server)
+    await asyncio.sleep(5)
     return test_server
 
 
@@ -551,7 +552,7 @@ def test_all(monkeypatch,
 
 
 @pytest.mark.order2
-def test_start_streams(monkeypatch,
+def test_start_streams_on_startup(monkeypatch,
                        loop,
                        mock_app_config,  # noqa: F811
                        mock_plugin_config,  # noqa: F811
@@ -560,4 +561,5 @@ def test_start_streams(monkeypatch,
     test_client = _setup(monkeypatch, loop, mock_app_config, mock_plugin_config,
                          aiohttp_server, aiohttp_client, streams=True)
     loop.run_until_complete(call_stop_stream(test_client))
+    loop.run_until_complete(call_stop_service(test_client))
     loop.run_until_complete(stop_server())
