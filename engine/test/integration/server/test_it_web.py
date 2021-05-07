@@ -553,11 +553,11 @@ def test_all(monkeypatch,
 
 @pytest.mark.order2
 def test_start_streams_on_startup(monkeypatch,
-                       loop,
-                       mock_app_config,  # noqa: F811
-                       mock_plugin_config,  # noqa: F811
-                       aiohttp_server,  # noqa: F811
-                       aiohttp_client):  # noqa: F811
+                                  loop,
+                                  mock_app_config,  # noqa: F811
+                                  mock_plugin_config,  # noqa: F811
+                                  aiohttp_server,  # noqa: F811
+                                  aiohttp_client):  # noqa: F811
     test_client = _setup(monkeypatch, loop, mock_app_config, mock_plugin_config,
                          aiohttp_server, aiohttp_client, streams=True)
     loop.run_until_complete(call_stop_stream(test_client))
