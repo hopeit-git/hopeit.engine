@@ -1,5 +1,6 @@
 {
   "streams": {
+    "stream_manager": "hopeit.streams.redis.RedisStreamManager",
     "connection_str": "redis://localhost:6379",
     "delay_auto_start_seconds": 10
   },

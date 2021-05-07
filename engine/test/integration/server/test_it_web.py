@@ -12,7 +12,6 @@ from pytest_aiohttp import aiohttp_server, aiohttp_client  # type: ignore  # noq
 import hopeit.server.web
 from hopeit.server import api
 from hopeit.server.web import start_server, stop_server, start_app
-from hopeit.streams.redis import RedisStreamManager
 
 from mock_engine import MockStreamManager, MockEventHandler
 from mock_app import MockResult, mock_app_config  # type: ignore  # noqa: F401
@@ -477,6 +476,7 @@ async def start_test_server(
     await start_app(mock_app_config, scheduler, start_streams=streams)
     test_server = await aiohttp_server(hopeit.server.web.web_server)
     print('Test engine started:', test_server)
+    await asyncio.sleep(5)
     return test_server
 
 
@@ -488,14 +488,6 @@ def _setup(monkeypatch,
            aiohttp_client,  # noqa: F811
            streams=None):
     stream_event = MockResult("ok: ok")
-    monkeypatch.setattr(RedisStreamManager, '__init__', MockStreamManager.__init__)
-    monkeypatch.setattr(RedisStreamManager, 'connect', MockStreamManager.connect)
-    monkeypatch.setattr(RedisStreamManager,
-                        'ensure_consumer_group', MockStreamManager.ensure_consumer_group)
-    monkeypatch.setattr(RedisStreamManager, 'write_stream', MockStreamManager.write_stream)
-    monkeypatch.setattr(RedisStreamManager, 'read_stream', MockStreamManager.read_stream)
-    monkeypatch.setattr(RedisStreamManager, 'ack_read_stream', MockStreamManager.ack_read_stream)
-    monkeypatch.setattr(RedisStreamManager, 'close', MockStreamManager.close)
     monkeypatch.setattr(MockStreamManager, 'test_payload', stream_event)
     monkeypatch.setattr(MockEventHandler, 'test_track_ids', None)
 
@@ -560,13 +552,14 @@ def test_all(monkeypatch,
 
 
 @pytest.mark.order2
-def test_start_streams(monkeypatch,
-                       loop,
-                       mock_app_config,  # noqa: F811
-                       mock_plugin_config,  # noqa: F811
-                       aiohttp_server,  # noqa: F811
-                       aiohttp_client):  # noqa: F811
+def test_start_streams_on_startup(monkeypatch,
+                                  loop,
+                                  mock_app_config,  # noqa: F811
+                                  mock_plugin_config,  # noqa: F811
+                                  aiohttp_server,  # noqa: F811
+                                  aiohttp_client):  # noqa: F811
     test_client = _setup(monkeypatch, loop, mock_app_config, mock_plugin_config,
                          aiohttp_server, aiohttp_client, streams=True)
     loop.run_until_complete(call_stop_stream(test_client))
+    loop.run_until_complete(call_stop_service(test_client))
     loop.run_until_complete(stop_server())

@@ -5,16 +5,14 @@ Backed by Redis Streams
 from abc import ABC
 import os
 import socket
-import json
-import base64
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Union
 from dataclasses import dataclass
+from importlib import import_module
 
 from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import EventPayload
-from hopeit.server.serialization import serialize
-from hopeit.server.config import AuthType
+from hopeit.server.config import AuthType, StreamsConfig
 from hopeit.server.logger import engine_logger, extra_logger
 
 logger = engine_logger()
@@ -38,6 +36,10 @@ class StreamOSError(Exception):
     pass
 
 
+class StreamConfigError(Exception):
+    pass
+
+
 def stream_auth_info(stream_event: StreamEvent):
     return {
         **stream_event.auth_info,
@@ -49,6 +51,16 @@ class StreamManager(ABC):
     """
     Base class to imeplement stream management of a Hopeit App
     """
+    @staticmethod
+    def create(config: StreamsConfig):
+        sm_comps = config.stream_manager.split('.')
+        module_name, impl_name = '.'.join(sm_comps[:-1]), sm_comps[-1]
+        logger.info(__name__, f"Importing StreamManager module: {module_name} implementation: {impl_name}...")
+        module = import_module(module_name)
+        impl = getattr(module, impl_name)
+        logger.info(__name__, f"Creating {impl_name} with connection_str: {config.connection_str}...")
+        return impl(address=config.connection_str)
+
     async def connect(self):
         """
         Connects to Redis using two connection pools, one to handle
@@ -72,7 +84,6 @@ class StreamManager(ABC):
                            target_max_len: int = 0) -> int:
         """
         Writes event to a Redis stream using XADD
-
         :param stream_name: stream name or key used by Redis
         :param payload: EventPayload, a special type of dataclass object decorated with `@dataobject`
         :param track_ids: dict with key and id values to track in stream event
@@ -93,7 +104,6 @@ class StreamManager(ABC):
         created to consume event from beginning of stream (from id=0)
         If group already exists a message will be logged and no action performed.
         If stream does not exists and empty stream will be created.
-
         :param stream_name: str, stream name or key used by Redis
         :param consumer_group: str, consumer group passed to Redis
         """
@@ -115,7 +125,6 @@ class StreamManager(ABC):
         In case timeout is reached, nothing is yielded
         and read_stream must be called again,
         usually in an infinite loop while app is running.
-
         :param stream_name: str, stream name or key used by Redis
         :param consumer_group: str, consumer group registered in Redis
         :param datatypes: Dict[str, type] supported datatypes name: type to be extracted from stream.
@@ -142,7 +151,6 @@ class StreamManager(ABC):
         This method should be called for every message that is properly
         received and processed with no errors.
         With this mechanism, messages not acknowledged can be retried.
-
         :param stream_name: str, stream name or key used by Redis
         :param consumer_group: str, consumer group registered with Redis
         :param stream_event: StreamEvent, as provided by `read_stream(...)` method
@@ -154,7 +162,6 @@ class StreamManager(ABC):
         """
         Checks payload for implementing `@dataobject` decorator.
         Raises NotImplementedError if payload does not implement `@dataobject`
-
         :param payload: dataclass object decorated with `@dataobject`
         :return: same payload as received
         """
@@ -163,45 +170,9 @@ class StreamManager(ABC):
                 f"{type(payload)} must be decorated with `@dataobject` to be used in streams")
         return payload
 
-    def _fields(self, payload: EventPayload,
-                track_ids: Dict[str, str],
-                auth_info: Dict[str, Any],
-                compression: Compression,
-                serialization: Serialization) -> dict:
-        """
-        Extract dictionary of fields to be sent to Redis from a DataEvent
-
-        :param payload, DataEvent
-        :return: dict of str containing:
-            :id: extracted from payload.event_id() method
-            :type: datatype name
-            :submit_ts: datetime at the moment of this call, in UTC ISO format
-            :event_ts: extracted from payload.event_ts() if defined, if not empty string
-            :payload: json serialized payload
-        """
-        event_fields = {
-            'id': payload.event_id(),  # type: ignore
-            'type': type(payload).__name__,
-            'submit_ts': datetime.now().astimezone(tz=timezone.utc).isoformat(),
-            'event_ts': '',
-            **{k: v or '' for k, v in track_ids.items()},
-            'auth_info': base64.b64encode(json.dumps(auth_info).encode()),
-            'ser': serialization.value,
-            'comp': compression.value,
-            'payload': serialize(payload, serialization, compression)
-        }
-        event_ts = payload.event_ts()  # type: ignore
-        if isinstance(event_ts, datetime):
-            event_fields['event_ts'] = \
-                event_ts.astimezone(tz=timezone.utc).isoformat()
-        elif isinstance(event_ts, str):
-            event_fields['event_ts'] = event_ts
-        return event_fields
-
     def _consumer_id(self) -> str:
         """
         Constructs a consumer id for this instance
-
         :return: str, concatenating current UTC ISO datetime, host name, process id
             and this StreamManager instance id
         """
@@ -210,3 +181,22 @@ class StreamManager(ABC):
         pid = os.getpid()
         mgr = id(self)
         return f"{ts}.{host}.{pid}.{mgr}"
+
+
+class NoStreamManager(StreamManager):
+    """
+    Default noop implementation for StreamManager that will fail if no Stream Manager is specified in
+    server config file. Applications using streams will fail to start a server if
+    `stream_manager` is not properly specified in configuration file.
+    """
+    def __init__(self, *, address: str):
+        raise StreamConfigError(
+            "Cannot start engine StreamManager, "
+            "a valid `stream_manager` implementation needs to be specified."
+            "\n You need to install a proper Stream Manager."
+            "\n i.e. to use Redis Streams: "
+            "\n 1) Install `hopeit.engine` with redis-streams plugin: `pip install hopeit.engine[redis-streams]`"
+            "\n 2) Add the following entry to server config json file under `streams` section:"
+            "`stream_manager=hopeit.streams.redis.RedisStreamManager`"
+            "\nCheck Plugins/ -> Streams docs section for available additional options."
+        )

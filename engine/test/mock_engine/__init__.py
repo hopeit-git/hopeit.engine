@@ -24,11 +24,12 @@ class MockAppEngine(AppEngine):
         self.plugins = plugins
 
     async def start(self):
-        MockStreamManager.closed = False
+        self.stream_manager = MockStreamManager(address="mock")
+        self.stream_manager.connect()
         return self
 
     async def stop(self):
-        MockStreamManager.closed = True
+        self.stream_manager.close()
 
 
 class MockEventHandler(EventHandler):
@@ -110,7 +111,6 @@ class MockStreamManager(StreamManager):
 
     async def close(self):
         MockStreamManager.closed = True
-        return None
 
     async def write_stream(self, *,
                            stream_name: str,

@@ -12,6 +12,8 @@ dev-deps: deps
 
 locked-deps:
 	cd engine && \
+	pip install -U pip && \
+	pip install -U wheel && \
 	pip install --force-reinstall -r requirements.lock && \
 	pip install -U -r requirements-dev.txt
 

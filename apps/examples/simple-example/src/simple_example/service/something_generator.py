@@ -5,6 +5,7 @@ Creates and publish Something object every 10 seconds
 """
 import asyncio
 from typing import Optional
+import random
 
 from hopeit.app.events import Spawn
 from hopeit.app.logger import app_extra_logger
@@ -31,7 +32,7 @@ async def __service__(context: EventContext) -> Spawn[SomethingParams]:  # pylin
         logger.info(context, f"Generating something event {i}...")
         yield SomethingParams(f"id{i}", f"user{i}")
         i += 1
-        await asyncio.sleep(10)
+        await asyncio.sleep(random.random() * 10.0)
 
 
 async def create_something(payload: SomethingParams, context: EventContext) -> Something:

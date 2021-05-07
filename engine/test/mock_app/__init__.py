@@ -6,7 +6,7 @@ from hopeit.app.config import AppConfig, AppDescriptor, \
     EventDescriptor, EventType, StreamDescriptor, \
     EventConfig, EventLoggingConfig, AppEngineConfig, EventStreamConfig
 from hopeit.dataobjects import dataobject
-from hopeit.server.config import ServerConfig, LoggingConfig, AuthType, AuthConfig, APIConfig
+from hopeit.server.config import APIConfig, AuthConfig, AuthType, LoggingConfig, ServerConfig, StreamsConfig
 
 
 @dataobject(event_id='value')
@@ -185,6 +185,9 @@ def mock_app_config():
             )
         },
         server=ServerConfig(
+            streams=StreamsConfig(
+                stream_manager='mock_engine.MockStreamManager'
+            ),
             logging=LoggingConfig(
                 log_level="DEBUG", log_path="work/logs/test/")
         )
