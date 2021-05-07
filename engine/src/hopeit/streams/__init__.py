@@ -197,6 +197,6 @@ class NoStreamManager(StreamManager):
             "\n i.e. to use Redis Streams: "
             "\n 1) Install `hopeit.engine` with redis-streams plugin: `pip install hopeit.engine[redis-streams]`"
             "\n 2) Add the following entry to server config json file under `streams` section:"
-            "`stream_manager=hopeit.redis_streams.RedisStreamManager`"
+            "`stream_manager=hopeit.streams.redis.RedisStreamManager`"
             "\nCheck Plugins/ -> Streams docs section for available additional options."
         )
