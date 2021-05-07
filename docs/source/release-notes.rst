@@ -2,10 +2,11 @@ Release Notes
 =============
 
 
-Version 0.2.2
+Version 0.2.3
 _____________
 - Remove unnecessary decode when parsing payload on web module 
-- Split generic Stream Manager from Redis specifics
+- Split generic Stream Manager from Redis specifics, on preparation to support different stream managers
+- Made `stream-manager` a configuration option (defaults to same RedisStreamManager used before)
 
 
 Version 0.2.0
