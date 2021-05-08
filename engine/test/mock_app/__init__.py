@@ -186,7 +186,8 @@ def mock_app_config():
         },
         server=ServerConfig(
             streams=StreamsConfig(
-                stream_manager='mock_engine.MockStreamManager'
+                stream_manager='mock_engine.MockStreamManager',
+                delay_auto_start_seconds=0
             ),
             logging=LoggingConfig(
                 log_level="DEBUG", log_path="work/logs/test/")
