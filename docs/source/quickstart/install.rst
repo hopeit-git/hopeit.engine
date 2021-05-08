@@ -18,7 +18,14 @@ hopeit.engine requires:
  pip install "hopeit.engine[web]"
  pip install "hopeit.engine[cli]"
 
-2 - To install in development mode (linked to source):
+2 - Optionally to enable Redis Streams, a plugin needs to be installed:
+
+.. code-block:: bash
+
+ pip install "hopeit.engine[redis-streams]"
+
+
+3 - To install in development mode (linked to source):
 
 .. code-block:: bash
 

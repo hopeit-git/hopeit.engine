@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 0.2.4
+_____________
+- Moved RedisStreamManager to its own plugin. 
+- [Breaking/Config] By default `stream-manager` is not configured. To enable Redis Streams in server:
+    - Install using `pip install hopeit.engine[redis-streams]`
+    - Add `stream_manager=hopeit.redis_streams.RedisStreamManager` to streams section in server config file.
+
 
 Version 0.2.3
 _____________

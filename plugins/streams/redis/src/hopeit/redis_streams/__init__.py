@@ -48,7 +48,7 @@ class RedisStreamManager(StreamManager):
             self._write_pool = await aioredis.create_redis_pool(self.address)
             self._read_pool = await aioredis.create_redis_pool(self.address)
             return self
-        except (OSError, RedisError) as e:
+        except (OSError, RedisError) as e:  # pragma: no cover
             logger.error(__name__, e)
             raise StreamOSError(e) from e
 
@@ -179,7 +179,7 @@ class RedisStreamManager(StreamManager):
             #  Wait some time if no messages to prevent race condition in connection pool
             await asyncio.sleep(batch_interval / 1000.0)
             return []
-        except (OSError, RedisError) as e:
+        except (OSError, RedisError) as e:  # pragma: no cover
             raise StreamOSError(e) from e
 
     async def ack_read_stream(self, *,

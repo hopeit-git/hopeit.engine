@@ -1,6 +1,6 @@
 {
   "streams": {
-    "stream_manager": "hopeit.streams.redis.RedisStreamManager",
+    "stream_manager": "hopeit.redis_streams.RedisStreamManager",
     "connection_str": "redis://localhost:6379"
   },
   "logging": {

@@ -31,6 +31,13 @@ https://redis.io/topics/quickstart
 We assume in this tutorial that redis will be accessible under
 ``redis://localhost:6379``
 
+We also need to install hopeit.engine using [redis-streams] extra plugin:
+
+.. code-block:: bash
+
+ pip install "hopeit.engine[redis-streams]"
+
+
 Step 3: Create App configuration json file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -86,6 +93,7 @@ everything to the console. We also specify a connection string to Redis.
            "log_level": "DEBUG"
        },
        "streams": {
+           "stream_manager": "hopeit.redis_streams.RedisStreamManager",
            "connection_str": "redis://localhost:6379"
        },
        "api": {

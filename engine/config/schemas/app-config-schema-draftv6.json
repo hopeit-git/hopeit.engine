@@ -11,8 +11,8 @@
       "$ref": "#/definitions/AppEngineConfig",
       "default": {
         "import_modules": null,
-        "read_stream_timeout": 60,
-        "read_stream_interval": 600,
+        "read_stream_timeout": 1000,
+        "read_stream_interval": 1000,
         "default_stream_compression": "lz4",
         "default_stream_serialization": "json+base64",
         "track_headers": [
@@ -90,11 +90,11 @@
         },
         "read_stream_timeout": {
           "type": "integer",
-          "default": 60
+          "default": 1000
         },
         "read_stream_interval": {
           "type": "integer",
-          "default": 600
+          "default": 1000
         },
         "default_stream_compression": {
           "type": "string",
@@ -341,8 +341,9 @@
         "streams": {
           "$ref": "#/definitions/StreamsConfig",
           "default": {
-            "connection_str": "<<DEFAULT>>",
-            "delay_auto_start_seconds": 0
+            "stream_manager": "hopeit.streams.NoStreamManager",
+            "connection_str": "<<NoStreamManager>>",
+            "delay_auto_start_seconds": 3
           }
         },
         "logging": {
@@ -378,13 +379,17 @@
     "StreamsConfig": {
       "type": "object",
       "properties": {
+        "stream_manager": {
+          "type": "string",
+          "default": "hopeit.streams.NoStreamManager"
+        },
         "connection_str": {
           "type": "string",
-          "default": "<<DEFAULT>>"
+          "default": "<<NoStreamManager>>"
         },
         "delay_auto_start_seconds": {
           "type": "integer",
-          "default": 0
+          "default": 3
         }
       },
       "description": "\n    :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    "
