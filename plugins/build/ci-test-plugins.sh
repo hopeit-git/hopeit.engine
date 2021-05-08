@@ -10,6 +10,10 @@ code+=$?
 export PYTHONPATH=engine/src/:plugins/streams/redis/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/streams/redis/src/ plugins/streams/redis/test/unit/
 code+=$?
 
+# storage/redis
+export PYTHONPATH=engine/src/:plugins/storage/redis/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/storage/redis/src plugins/storage/redis/test/unit/
+code+=$?
+
 if [ $code -gt 0 ]
 then
   echo "[FAILED] CI TEST: PLUGINS"

@@ -24,6 +24,20 @@ code+=$?
 python3 -m pylint plugins/streams/redis/src/hopeit/redis_streams/
 code+=$?
 
+
+# storage/redis
+export MYPYPATH=engine/src/:plugins/storage/redis/src/ && python3 -m mypy --namespace-packages -p hopeit.redis_storage
+code+=$?
+export MYPYPATH=engine/src/:plugins/storage/redis/src/ && python3 -m mypy --namespace-packages plugins/storage/redis/test/unit/
+code+=$?
+python3 -m flake8 --max-line-length=120 plugins/storage/redis/src/hopeit/ plugins/storage/redis/test/unit/
+code+=$?
+python3 -m pylint plugins/storage/redis/src/hopeit/redis_storage/
+code+=$?
+
+
+
+
 if [ $code -gt 0 ]
 then
   echo "[FAILED] CI STATIC ANALYSIS: PLUGINS"
