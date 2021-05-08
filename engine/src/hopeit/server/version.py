@@ -3,4 +3,4 @@ Engine version constants.
 Increment on release
 """
 ENGINE_NAME = "hopeit.engine"
-ENGINE_VERSION = "0.2.4dev1"
+ENGINE_VERSION = "0.2.4rc1"

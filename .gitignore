@@ -142,3 +142,4 @@ engine/dist/
 engine/build/
 *.egg-info/
 work/**
+.secrets/**
