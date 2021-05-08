@@ -8,7 +8,7 @@ from typing import Optional
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
-from hopeit.toolkit.storage.redis import RedisStorage
+from hopeit.redis_storage import RedisStorage
 
 from model import Something, User, SomethingParams
 
