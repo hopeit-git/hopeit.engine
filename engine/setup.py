@@ -88,7 +88,7 @@ setuptools.setup(
             "fastjsonschema"
         ]],
         "redis-streams": [
-            f"hopeit.plugins.redis-streams=={version['ENGINE_VERSION']}"
+            f"hopeit.redis-streams=={version['ENGINE_VERSION']}"
         ]
     },
     entry_points={

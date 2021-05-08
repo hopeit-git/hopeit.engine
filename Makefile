@@ -66,6 +66,11 @@ dist: clean check test
 	cd engine && \
 	python setup.py sdist bdist_wheel
 
+dist-plugin: clean check test
+	pip install wheel && \
+	cd $(PLUGINFOLDER) && \
+	python setup.py sdist bdist_wheel
+
 dist-only: clean
 	pip install wheel && \
 	cd engine && \
@@ -83,6 +88,14 @@ pypi:
 	pip install twine && \
 	python -m twine upload -u=__token__ -p=$(PYPI_API_TOKEN) --repository pypi engine/dist/*
 
+pypi-plugin:
+	pip install twine && \
+	python -m twine upload -u=__token__ -p=$(PYPI_API_TOKEN) --repository pypi $(PLUGINFOLDER)/dist/*
+
 pypi_test:
 	pip install twine && \
 	python -m twine upload -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --repository testpypi engine/dist/*
+
+pypi-test-plugin:
+	pip install twine && \
+	python -m twine upload -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --repository testpypi $(PLUGINFOLDER)/dist/*
