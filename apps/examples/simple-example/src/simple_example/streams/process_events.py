@@ -10,7 +10,7 @@ from typing import Optional
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import dataobject
-from hopeit.toolkit.storage.fs import FileStorage
+from hopeit.fs_storage import FileStorage
 from model import Something, Status, StatusType
 
 __steps__ = ['update_status', 'save']

@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="simple_example",
-    version="0.2.0",
+    version="0.3.0",
     description="Hopeit.py Example App",
     package_dir={
         "": "src"
@@ -14,7 +14,8 @@ setuptools.setup(
     include_package_data=True,
     python_requires=">=3.7",
     install_requires=[
-        "hopeit.engine"
+        "hopeit.engine",
+        "hopeit.fs-storage"
     ],
     extras_require={
     },

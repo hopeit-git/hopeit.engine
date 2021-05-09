@@ -36,14 +36,18 @@ jobs:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make pypi
-    - name: Publish plugin redis_streams on PyPI
+    - name: Publish plugin redis-streams on PyPI
       env: 
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make PLUGINFOLDER=plugins/streams/redis pypi-plugin
-    - name: Publish plugin redis_storage on PyPI
+    - name: Publish plugin redis-storage on PyPI
       env: 
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
-        make PLUGINFOLDER=plugins/storage/redis pypi-plugin
-        
+        make PLUGINFOLDER=plugins/storage/redis pypi-plugin        
+    - name: Publish plugin fs-storage on PyPI
+      env: 
+        PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        make PLUGINFOLDER=plugins/storage/fs pypi-plugin

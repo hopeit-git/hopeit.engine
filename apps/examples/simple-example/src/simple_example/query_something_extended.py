@@ -10,7 +10,7 @@ from common.validation import validate
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.logger import app_extra_logger
-from hopeit.toolkit.storage.fs import FileStorage
+from hopeit.fs_storage import FileStorage
 from model import Something, Status, SomethingNotFound
 
 __steps__ = ['load', 'save_with_updated_status']

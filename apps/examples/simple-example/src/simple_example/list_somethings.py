@@ -8,7 +8,7 @@ from typing import Optional, List
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-from hopeit.toolkit.storage.fs import FileStorage
+from hopeit.fs_storage import FileStorage
 from model import Something
 
 __steps__ = ['load_all']

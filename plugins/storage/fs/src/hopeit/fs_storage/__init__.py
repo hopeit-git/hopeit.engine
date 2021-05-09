@@ -1,5 +1,6 @@
 """
-Helpers to load an save from local filesystem
+Storage/persistence asynchronous stores and gets dataobjects from filesystem.
+
 """
 import os
 from glob import glob

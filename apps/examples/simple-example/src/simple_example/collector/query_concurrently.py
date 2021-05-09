@@ -14,7 +14,7 @@ from hopeit.app.events import collector_step
 from hopeit.app.logger import app_extra_logger
 from hopeit.dataobjects import dataobject
 from hopeit.server.collector import Collector
-from hopeit.toolkit.storage.fs import FileStorage
+from hopeit.fs_storage import FileStorage
 from model import Something, SomethingNotFound
 
 
