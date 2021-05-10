@@ -14,9 +14,3 @@ Submodules
    :members:
    :undoc-members:
    :show-inheritance:
-
-
-.. automodule:: hopeit.toolkit.storage.redis
-   :members:
-   :undoc-members:
-   :show-inheritance:

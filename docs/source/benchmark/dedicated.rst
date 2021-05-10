@@ -47,16 +47,13 @@ Retrieve the hopeit.engine from the git repository, make the dist package, and i
 
 .. code-block:: bash
 
-    python -m venv venv
-    source venv/bin/activate
     git clone https://github.com/hopeit-git/hopeit.engine.git
-    cd hopeit.py
-    make dist-only
-    cd engine/dist
-    pip install "hopeit.engine-0.1.0-py3-none-any.whl"
-    pip install "hopeit.engine-0.1.0-py3-none-any.whl[web]"
-    pip install "hopeit.engine-0.1.0-py3-none-any.whl[cli]"
-    cd ../../apps/benchmark/simple-benchmark/test
+    cd hopeit.engine
+    python -m venv venv
+    source venv/bin/activate    
+    make install
+    make PLUGINFOLDER=plugins/storage/redis install-plugin
+    cd apps/benchmark/simple-benchmark/test
 
 Now we are ready to start the simple-benchmark app to run the tests
 

@@ -67,7 +67,6 @@ setuptools.setup(
     install_requires=[ f"{lib}>={libversion(lib)}" for lib in [
         "aiojobs",
         "aiofiles",
-        "aioredis",
         "lz4",
         "stringcase",
         "PyJWT[crypto]",

@@ -28,6 +28,9 @@ jobs:
     - name: make plugin redis_streams
       run: |
         make PLUGINFOLDER=plugins/streams/redis/ dist-plugin
+    - name: make plugin redis_storage
+      run: |
+        make PLUGINFOLDER=plugins/storage/redis/ dist-plugin
     - name: Publish hopeit.engine on Test PyPI
       env: 
         TEST_PYPI_API_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN_ALL }}

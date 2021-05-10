@@ -1,14 +1,15 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "1.0.1",
-    "title": "Simple benchmark",
-    "description": "Simple benchmark app"
+    "version": "0.3.0",
+    "title": "Simple Benchmark",
+    "description": "Simple Benchmark App"
   },
   "paths": {
     "/api/simple-benchmark/1x0/give-me-something": {
       "get": {
-        "description": "Simple Benchamrck: Give me Something\n--------------------------------------------------------------------\nLoads Something from disk",
+        "summary": "Simple Benchamrck: Give me Something",
+        "description": "Loads Something from disk",
         "parameters": [
           {
             "name": "item_id",
@@ -58,7 +59,8 @@
     },
     "/api/simple-benchmark/1x0/query-something-fs": {
       "get": {
-        "description": "Simple Benchamrck: Query Something\n--------------------------------------------------------------------\nLoads Something from disk",
+        "summary": "Simple Benchamrck: Query Something",
+        "description": "Loads Something from disk",
         "parameters": [
           {
             "name": "item_id",
@@ -118,7 +120,8 @@
     },
     "/api/simple-benchmark/1x0/save-something-fs": {
       "post": {
-        "description": "Simple Benchmark: Save Something\n--------------------------------------------------------------------\nCreates and saves Something",
+        "summary": "Simple Benchmark: Save Something",
+        "description": "Creates and saves Something",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -179,7 +182,8 @@
     },
     "/api/simple-benchmark/1x0/query-something-redis": {
       "get": {
-        "description": "Simple Benchamrck: Query Something\n--------------------------------------------------------------------\nLoads Something from disk",
+        "summary": "Simple Benchamrck: Query Something",
+        "description": "Loads Something from disk",
         "parameters": [
           {
             "name": "item_id",
@@ -239,7 +243,8 @@
     },
     "/api/simple-benchmark/1x0/save-something-redis": {
       "post": {
-        "description": "Simple Benchmark: Save Something\n--------------------------------------------------------------------\nCreates and saves Something",
+        "summary": "Simple Benchmark: Save Something",
+        "description": "Creates and saves Something",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -315,6 +320,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "model",
         "description": "User information"
       },
       "Status": {
@@ -336,9 +342,11 @@
               "SUBMITTED",
               "PROCESSED"
             ],
-            "x-enum-name": "StatusType"
+            "x-enum-name": "StatusType",
+            "x-module-name": "model"
           }
         },
+        "x-module-name": "model",
         "description": "Status change"
       },
       "Something": {
@@ -365,6 +373,7 @@
             "default": []
           }
         },
+        "x-module-name": "model",
         "description": "Example Something event"
       },
       "SomethingNotFound": {
@@ -381,6 +390,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "model",
         "description": "Item not found in datastore"
       },
       "SomethingParams": {
@@ -397,6 +407,7 @@
             "type": "string"
           }
         },
+        "x-module-name": "model",
         "description": "Params to create and save Something"
       }
     },

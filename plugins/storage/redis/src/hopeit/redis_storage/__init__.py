@@ -1,5 +1,6 @@
 """
-Helpers to load an save to redis
+Storage/persistence asynchronous get/set key-values.
+Backed by Redis
 """
 from typing import Optional, Type, Generic, Any
 

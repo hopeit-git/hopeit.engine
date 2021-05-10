@@ -1,12 +1,12 @@
-import pytest  # type: ignore
 import uuid
+from dataclasses import dataclass
 
+import pytest  # type: ignore
 import aioredis  # type: ignore
-
 from hopeit.dataobjects import dataobject
 from hopeit.dataobjects.jsonify import Json
-from hopeit.toolkit.storage.redis import RedisStorage
-from dataclasses import dataclass
+
+from hopeit.redis_storage import RedisStorage
 
 
 @dataobject

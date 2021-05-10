@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.logger import app_extra_logger
-from hopeit.toolkit.storage.redis import RedisStorage
+from hopeit.redis_storage import RedisStorage
 from model import Something, StatusType, Status, SomethingNotFound
 
 __steps__ = ['load', 'update_status_history']
