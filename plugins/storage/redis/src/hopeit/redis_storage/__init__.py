@@ -10,6 +10,9 @@ from hopeit.dataobjects import DataObject
 from hopeit.dataobjects.jsonify import Json
 
 
+__all__ = ['RedisStorage']
+
+
 class RedisStorage(Generic[DataObject]):
     """
        Stores and retrieves dataobjects from Redis
