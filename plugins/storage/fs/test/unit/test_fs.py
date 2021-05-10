@@ -1,13 +1,14 @@
 from typing import List
-import pytest  # type: ignore
+
 import os
 from dataclasses import dataclass
 
 import aiofiles  # type: ignore
 
-from hopeit.toolkit.storage import fs as fs_module
+import hopeit.fs_storage as fs_module
 from hopeit.dataobjects import dataobject
-from hopeit.toolkit.storage.fs import FileStorage
+from hopeit.fs_storage import FileStorage
+import pytest  # type: ignore
 
 
 @dataobject

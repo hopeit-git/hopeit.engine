@@ -59,14 +59,12 @@ setuptools.setup(
         "hopeit.server",
         "hopeit.streams",
         "hopeit.testing",
-        "hopeit.toolkit", 
-        "hopeit.toolkit.storage"
+        "hopeit.toolkit"
     ],
     include_package_data=True,
     python_requires=">=3.7",
     install_requires=[ f"{lib}>={libversion(lib)}" for lib in [
         "aiojobs",
-        "aiofiles",
         "lz4",
         "stringcase",
         "PyJWT[crypto]",

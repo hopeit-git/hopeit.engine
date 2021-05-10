@@ -14,7 +14,7 @@ from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.dataobjects import dataobject
 from hopeit.app.events import Spawn, SHUFFLE
 from hopeit.app.logger import app_extra_logger
-from hopeit.toolkit.storage.fs import FileStorage
+from hopeit.fs_storage import FileStorage
 from model import Something, Status, StatusType
 
 logger, extra = app_extra_logger()
