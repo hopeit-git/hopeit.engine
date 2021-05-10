@@ -1,4 +1,4 @@
-# hopeit.engine fs-storage plugins
+# hopeit.engine fs-storage plugin
 
 
 This library is part of hopeit.engine:

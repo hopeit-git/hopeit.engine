@@ -6,14 +6,6 @@ hopeit.toolkit package
    :undoc-members:
    :show-inheritance:
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 6
-
-   hopeit.toolkit.storage
-
 Submodules
 ----------
 

@@ -3,15 +3,14 @@ Release Notes
 
 Version 0.3.0
 _____________
-- Moved `hopeit.toolkit.storage.redis` to `hopeit.redis-storage` plugin that needs to be installed separately from `hopeit.engine`
+- [Breaking] Moved `hopeit.toolkit.storage.redis` to `hopeit.redis-storage` plugin.
     - Install using `pip install hopeit.redis-storage`
-
-Version 0.2.4
-_____________
-- Moved RedisStreamManager to its own plugin. 
-- [Breaking/Config] By default `stream-manager` is not configured. To enable Redis Streams in server:
-    - Install using `pip install hopeit.engine[redis-streams]`
-    - Add `stream_manager=hopeit.redis_streams.RedisStreamManager` to streams section in server config file.
+- [Breaking] Moved `hopeit.toolkit.storage.fs` to `hopeit.fs-storage` plugin.
+    - Install using `pip install hopeit.fs-storage`
+- [Breaking] Moved RedisStreamManager to its own plugin. 
+    - By default `stream-manager` is not configured. To enable Redis Streams in server:
+        - Install using `pip install hopeit.engine[redis-streams]`
+        - Add `stream_manager=hopeit.redis_streams.RedisStreamManager` to streams section in server config file.
 
 
 Version 0.2.3
