@@ -25,6 +25,8 @@ RUN mkdir -p  /opt/hopeit.py/engine
 COPY ./engine /opt/hopeit.py/engine/
 RUN mkdir -p  /opt/hopeit.py/apps
 COPY ./apps /opt/hopeit.py/apps/
+RUN mkdir -p  /opt/hopeit.py/plugins
+COPY ./apps /opt/hopeit.py/plugins/
 COPY ./Makefile /opt/hopeit.py/
 WORKDIR /opt/hopeit.py
 RUN ls -l /opt/hopeit.py
