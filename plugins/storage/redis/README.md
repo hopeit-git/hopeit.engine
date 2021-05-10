@@ -1,4 +1,4 @@
-# hopeit.engine redis-storage plugins
+# hopeit.engine redis-storage plugin
 
 
 This library is part of hopeit.engine:

@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+Version 0.3.0
+_____________
+- Moved `hopeit.toolkit.storage.redis` to `hopeit.redis-storage` plugin that needs to be installed separately from `hopeit.engine`
+    - Install using `pip install hopeit.redis-storage`
+
 Version 0.2.4
 _____________
 - Moved RedisStreamManager to its own plugin. 
