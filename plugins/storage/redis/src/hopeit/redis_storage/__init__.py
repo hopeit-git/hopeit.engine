@@ -9,7 +9,6 @@ import aioredis  # type: ignore
 from hopeit.dataobjects import DataObject
 from hopeit.dataobjects.jsonify import Json
 
-
 __all__ = ['RedisStorage']
 
 
