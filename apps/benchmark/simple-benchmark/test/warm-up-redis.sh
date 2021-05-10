@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+echo Starting redis image...
+cd ../docker && docker-compose up -d redis
+cd ..
 echo Warming up simple-benchmark redis data...
 if [ -n "$1" ]
 then
