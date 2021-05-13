@@ -65,6 +65,14 @@ class EventType(Enum):
     MULTIPART = 'MULTIPART'
 
 
+class StreamQueue:
+    DEFAULT = "DEFAULT"
+
+    @classmethod
+    def default_queue_only(cls):
+        return [cls.DEFAULT]
+
+
 @dataobject
 @dataclass
 class ReadStreamDescriptor:
@@ -75,20 +83,20 @@ class ReadStreamDescriptor:
     :consumer_group: str, consumer group to send to stream processing engine to keep track of
         next messag to consume
     :queues: List[str], list of queue names to poll from. Each queue act as separate stream
-        with queue name used as stream name suffix, allowing to consume message with different
-        priorities without waiting for them to arrive in the default queue.
-        Additional queues specified in this entry will also be consumed by this event
-        on each poll cycle, on the order specified. If not present or empty
-        only default queue will be consumed. Take into account that in applications using multiple
+        with queue name used as stream name suffix, where `DEFAULT` queue name means to consume
+        events when no queue where specified at publish time, allowing to consume message with different
+        priorities without waiting for all events in the stream to be consumed.
+        Queues specified in this entry will be consumed by this event
+        on each poll cycle, on the order specified. If not present
+        only DEFAULT queue will be consumed. Take into account that in applications using multiple
         queue names, in order to ensure all messages are consumed, all queue names should be listed
-        here, except that the app is intentionally designed for certain events to consume specific
-        queues. This configuration is manual to allow consuming messages produced by external apps.
-        Default queue (when output queue is not specified on `write_stream` consiguration) will always
-        be consumed after specified queue names or in case queues are empty or not specified.
+        here including DEFAULT, except that the app is intentionally designed for certain events to
+        consume only from specific queues. This configuration is manual to allow consuming messages
+        produced by external apps.
     """
     name: str
     consumer_group: str
-    queues: List[str] = field(default_factory=list)
+    queues: List[str] = field(default_factory=StreamQueue.default_queue_only)
 
 
 class StreamQueueStrategy(Enum):
@@ -121,11 +129,13 @@ class WriteStreamDescriptor:
         (where queue is not specified at intial message creation). Messages consumed
         from other queues will be published using same queue name as they have when consumed.
     :field queue_stategory: strategy to be used when consuming messages from a stream
-        with a queue name and publishing to another stream. Default is `StreamQueueStrategy.PROPAGATE`.
+        with a queue name and publishing to another stream. Default is `StreamQueueStrategy.DROP`,
+        so in case of complex stream propagating queue names are configured,
+        `StreamQueueStrategy.PROPAGATE` must be explicitly specified.
     """
     name: str
-    queues: List[str] = field(default_factory=list)
-    queue_stategy: StreamQueueStrategy = StreamQueueStrategy.PROPAGATE
+    queues: List[str] = field(default_factory=StreamQueue.default_queue_only)
+    queue_strategy: StreamQueueStrategy = StreamQueueStrategy.DROP
 
 
 @dataobject

@@ -54,12 +54,12 @@
           "throttle_ms": 10
         }
       }
-  },
+    },
     "streams.something_event" : {
       "type": "POST",
       "write_stream": {
         "name": "{auto}",
-        "queue": "high-prio"
+        "queues": ["high-prio"]
       },
       "config": {
         "logging": {
@@ -75,7 +75,7 @@
       "read_stream": {
         "name": "{events.streams.something_event.write_stream.name}",
         "consumer_group": "{auto}",
-        "queues": ["high-prio"]
+        "queues": ["high-prio", "DEFAULT"]
       },
       "config": {
         "stream": {

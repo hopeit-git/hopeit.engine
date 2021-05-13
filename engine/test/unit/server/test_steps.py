@@ -4,7 +4,7 @@ import pytest  # type: ignore
 import importlib
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventType, \
-    ReadStreamDescriptor, WriteStreamDescriptor
+    ReadStreamDescriptor, StreamQueueStrategy, WriteStreamDescriptor
 from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn, SHUFFLE
 from hopeit.server.imports import find_event_handler
@@ -244,7 +244,9 @@ def test_split_event_stages(mock_app_config):  # noqa: F811
             type=EventType.GET,
             read_stream=None,
             write_stream=WriteStreamDescriptor(
-                name='mock_app.test.mock_shuffle_event.produce_messages'
+                name='mock_app.test.mock_shuffle_event.produce_messages',
+                queues=['DEFAULT'],
+                queue_strategy=StreamQueueStrategy.PROPAGATE
             ),
             config=event_config,
             auth=[]
@@ -253,7 +255,8 @@ def test_split_event_stages(mock_app_config):  # noqa: F811
             type=EventType.STREAM,
             read_stream=ReadStreamDescriptor(
                 name='mock_app.test.mock_shuffle_event.produce_messages',
-                consumer_group='mock_app.test.mock_shuffle_event.consume_stream'
+                consumer_group='mock_app.test.mock_shuffle_event.consume_stream',
+                queues=['DEFAULT']
             ),
             write_stream=WriteStreamDescriptor(
                 name='mock_write_stream_event'
