@@ -6,7 +6,7 @@ import pytest  # type: ignore
 
 from hopeit.server.version import ENGINE_VERSION
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, AppEngineConfig, \
-    EventType, StreamDescriptor, EventConfig, EventLoggingConfig
+    EventType, ReadStreamDescriptor, WriteStreamDescriptor, EventConfig, EventLoggingConfig
 from hopeit.app.config import parse_app_config_json
 
 APP_VERSION = ENGINE_VERSION.replace('.', "x")

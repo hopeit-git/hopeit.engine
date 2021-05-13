@@ -15,7 +15,8 @@ __all__ = ['AppDescriptor',
            'EventPlugMode',
            'EventDescriptor',
            'EventConfig',
-           'StreamDescriptor',
+           'ReadStreamDescriptor',
+           'WriteStreamDescriptor',
            'EventLoggingConfig',
            'EventStreamConfig',
            'Compression',
@@ -66,9 +67,65 @@ class EventType(Enum):
 
 @dataobject
 @dataclass
-class StreamDescriptor:
+class ReadStreamDescriptor:
+    """
+    Configuration to read streams
+
+    :field stream_name: str, base stream name to read
+    :consumer_group: str, consumer group to send to stream processing engine to keep track of
+        next messag to consume
+    :queues: List[str], list of queue names to poll from. Each queue act as separate stream
+        with queue name used as stream name suffix, allowing to consume message with different
+        priorities without waiting for them to arrive in the default queue.
+        Additional queues specified in this entry will also be consumed by this event
+        on each poll cycle, on the order specified. If not present or empty
+        only default queue will be consumed. Take into account that in applications using multiple
+        queue names, in order to ensure all messages are consumed, all queue names should be listed
+        here, except that the app is intentionally designed for certain events to consume specific
+        queues. This configuration is manual to allow consuming messages produced by external apps.
+        Default queue (when output queue is not specified on `write_stream` consiguration) will always
+        be consumed after specified queue names or in case queues are empty or not specified.
+    """
     name: str
-    consumer_group: Optional[str] = None
+    consumer_group: str
+    queues: List[str] = field(default_factory=list)
+
+
+class StreamQueueStrategy(Enum):
+    """
+    Different strategies to be used when reading streams from a queue and writing to another stream.
+
+    :field PROPAGATE: original queue name will be preserved, so messages consumed from a queue will
+        maintain that queue name when published
+    :field DROP: queue name will be dropped, so messages will be published only to queue specified in
+        `write_stream` configuration, or default queue if not specified.
+    """
+    PROPAGATE = "PROPAGATE"
+    DROP = "DROP"
+
+
+@dataobject
+@dataclass
+class WriteStreamDescriptor:
+    """
+    Configuration to publish messages to a stream
+
+    :field: name, str: stream name
+    :field: queue, List[str], queue names to be used to publish to stream.
+        Each queue act as separate stream with queue name used as stream name suffix,
+        allowing to publish messages to i.e. a queue that will be consumed with priority,
+        or to multiple queues that will be consumed by different readers.
+        Queue suffix will be propagated through events, allowing an event in a defined queue
+        and successive events in following steps to be consumed using same queue name.
+        Notice that queue will be applied only to messages coming from default queue
+        (where queue is not specified at intial message creation). Messages consumed
+        from other queues will be published using same queue name as they have when consumed.
+    :field queue_stategory: strategy to be used when consuming messages from a stream
+        with a queue name and publishing to another stream. Default is `StreamQueueStrategy.PROPAGATE`.
+    """
+    name: str
+    queues: List[str] = field(default_factory=list)
+    queue_stategy: StreamQueueStrategy = StreamQueueStrategy.PROPAGATE
 
 
 @dataobject
@@ -199,8 +256,8 @@ class EventDescriptor:
     type: EventType
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE
     route: Optional[str] = None
-    read_stream: Optional[StreamDescriptor] = None
-    write_stream: Optional[StreamDescriptor] = None
+    read_stream: Optional[ReadStreamDescriptor] = None
+    write_stream: Optional[WriteStreamDescriptor] = None
     config: EventConfig = field(default_factory=EventConfig)
     auth: List[AuthType] = field(default_factory=list)
 
@@ -275,7 +332,7 @@ def parse_app_config_json(config_json: str) -> AppConfig:
     app_config = AppConfig.from_json(effective_config_json)  # type: ignore
     replace_config_args(
         parsed_config=app_config,
-        config_classes=(AppDescriptor, EventDescriptor, StreamDescriptor),
+        config_classes=(AppDescriptor, EventDescriptor, ReadStreamDescriptor, WriteStreamDescriptor),
         auto_prefix=app_config.app.app_key()
     )
     return app_config

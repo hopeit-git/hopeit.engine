@@ -11,7 +11,7 @@ from typing import Optional, Dict, List, Union, Tuple, Any
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import split_event_stages, event_and_step, extract_module_steps, effective_steps
 from hopeit.toolkit import auth
-from hopeit.app.config import AppConfig, EventType, StreamDescriptor, EventDescriptor
+from hopeit.app.config import AppConfig, EventType, ReadStreamDescriptor, EventDescriptor
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import ServerConfig
@@ -170,7 +170,7 @@ class AppEngine:
         return await self.event_handler.postprocess(context=context, payload=payload, response=response)
 
     async def _process_stream_event_with_timeout(
-            self, stream_event: StreamEvent, stream_info: StreamDescriptor,
+            self, stream_event: StreamEvent, stream_info: ReadStreamDescriptor,
             context: EventContext, stats: StreamStats,
             log_info: Dict[str, str]) -> Union[EventPayload, Exception]:
         """
@@ -194,7 +194,7 @@ class AppEngine:
             self,
             event_name: str,
             event_config: EventDescriptor,
-            stream_info: StreamDescriptor,
+            stream_info: ReadStreamDescriptor,
             datatypes: Dict[str, type],
             offset: str,
             stats: StreamStats,
@@ -292,7 +292,6 @@ class AppEngine:
             event_config = self.effective_events[event_name]
             stream_info = event_config.read_stream
             assert stream_info, f"No read_stream section in config for event={event_name}"
-            assert stream_info.consumer_group, f"Missing consumer_group in read_stream section for event={event_name}"
             await self.stream_manager.ensure_consumer_group(
                 stream_name=stream_info.name,
                 consumer_group=stream_info.consumer_group
@@ -319,7 +318,7 @@ class AppEngine:
             return e
 
     async def _process_stream_event(self, *, stream_event: StreamEvent,
-                                    stream_info: StreamDescriptor,
+                                    stream_info: ReadStreamDescriptor,
                                     context: EventContext,
                                     stats: StreamStats,
                                     log_info: Dict[str, str]) -> Optional[Union[EventPayload, Exception]]:
@@ -331,7 +330,6 @@ class AppEngine:
         try:
             assert self.event_handler
             assert self.stream_manager
-            assert stream_info.consumer_group
 
             result = await self._execute_event(context, None, stream_event.payload)
             await self.stream_manager.ack_read_stream(
