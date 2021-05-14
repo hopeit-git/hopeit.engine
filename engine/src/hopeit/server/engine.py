@@ -6,12 +6,13 @@ import random
 import uuid
 from asyncio import CancelledError
 from datetime import datetime, timezone
-from typing import Optional, Dict, List, Union, Tuple, Any
+from typing import Awaitable, Optional, Dict, List, Union, Tuple, Any
 
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import split_event_stages, event_and_step, extract_module_steps, effective_steps
 from hopeit.toolkit import auth
-from hopeit.app.config import AppConfig, EventType, ReadStreamDescriptor, EventDescriptor
+from hopeit.app.config import AppConfig, EventType, ReadStreamDescriptor, EventDescriptor, \
+    StreamQueue, StreamQueueStrategy
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import ServerConfig
@@ -104,7 +105,8 @@ class AppEngine:
             raise TimeoutError(f"Response timeout exceeded seconds={timeout}") from e
 
     async def _execute_event(self, context: EventContext, query_args: Optional[dict],
-                             payload: Optional[EventPayload]) -> Optional[EventPayload]:
+                             payload: Optional[EventPayload],
+                             queue: str = StreamQueue.DEFAULT) -> Optional[EventPayload]:
         """
         Process results of executing event specified in context for a given input payload.
         In case event yield multiple results (i.e. Spawn[...]) they are collected in batches
@@ -125,33 +127,62 @@ class AppEngine:
             if result is not None:
                 batch.append(result)
             if (len(batch) >= batch_size) and (event_info.write_stream is not None):
-                await self._write_stream_batch(batch=batch, context=context, event_info=event_info)
+                await self._write_stream_batch(
+                    batch=batch, context=context, event_info=event_info, queue=queue)
                 batch.clear()
         if (len(batch) > 0) and (event_info.write_stream is not None):
-            await self._write_stream_batch(batch=batch, context=context, event_info=event_info)
+            await self._write_stream_batch(
+                batch=batch, context=context, event_info=event_info, queue=queue)
         return result
 
     async def _write_stream_batch(self, *, batch: List[EventPayload],
-                                  context: EventContext, event_info: EventDescriptor):
+                                  context: EventContext,
+                                  event_info: EventDescriptor,
+                                  queue: str):
         await asyncio.gather(
-            *[self._write_stream(payload=item, context=context, event_info=event_info) for item in batch]
+            *[
+                self._write_stream(
+                    payload=item,
+                    context=context,
+                    event_info=event_info,
+                    upstream_queue=queue
+                ) for item in batch
+            ]
         )
 
-    async def _write_stream(self, *, payload: Optional[EventPayload],
-                            context: EventContext, event_info: EventDescriptor):
+    async def _write_stream(self, *, payload: EventPayload,
+                            context: EventContext, event_info: EventDescriptor,
+                            upstream_queue: str):
+        """
+        Publish payload in configured one or more queues for a given configured stream
+        """
         assert self.stream_manager is not None, "stream_manager not created. Call `start()`."
         assert event_info.write_stream is not None, "write_stream name not configured"
         assert event_info.config.stream.compression, "stream compression not configured"
         assert event_info.config.stream.serialization, "stream serialization not configured"
-        await self.stream_manager.write_stream(
-            stream_name=event_info.write_stream.name,
-            payload=StreamManager.as_data_event(payload),
-            track_ids=context.track_ids,
-            auth_info=context.auth_info,
-            compression=event_info.config.stream.compression,
-            serialization=event_info.config.stream.serialization,
-            target_max_len=event_info.config.stream.target_max_len
-        )
+
+        for configured_queue in event_info.write_stream.queues:
+
+            stream_name = event_info.write_stream.name
+            if configured_queue != StreamQueue.DEFAULT:
+                stream_name += f".{configured_queue}"
+
+            queue_name = (
+                configured_queue
+                if event_info.write_stream.queue_strategy == StreamQueueStrategy.DROP
+                else upstream_queue
+            )
+
+            await self.stream_manager.write_stream(
+                stream_name=stream_name,
+                queue=queue_name,
+                payload=StreamManager.as_data_event(payload),
+                track_ids=context.track_ids,
+                auth_info=context.auth_info,
+                compression=event_info.config.stream.compression,
+                serialization=event_info.config.stream.serialization,
+                target_max_len=event_info.config.stream.target_max_len
+            )
 
     async def preprocess(self, *,
                          context: EventContext,
@@ -171,6 +202,7 @@ class AppEngine:
 
     async def _process_stream_event_with_timeout(
             self, stream_event: StreamEvent, stream_info: ReadStreamDescriptor,
+            stream_name: str, queue: str,
             context: EventContext, stats: StreamStats,
             log_info: Dict[str, str]) -> Union[EventPayload, Exception]:
         """
@@ -182,6 +214,7 @@ class AppEngine:
         try:
             return await asyncio.wait_for(
                 self._process_stream_event(stream_event=stream_event, stream_info=stream_info,
+                                           stream_name=stream_name, queue=queue,
                                            context=context, stats=stats, log_info=log_info),
                 timeout=timeout
             )
@@ -204,38 +237,58 @@ class AppEngine:
     ) -> Tuple[Optional[Union[EventPayload, Exception]], Optional[EventContext], Optional[StreamOSError]]:
         """
         Single read_stream cycle used from read_stream while loop to allow wait and retry/recover on failures
+        Will read from multiple queues if configured, always starting from the first queue and stopping
+        when batch_size is reached
         """
         assert self.stream_manager is not None
         assert stream_info.consumer_group is not None
+
         last_res, last_context = None, None
+
         try:
-            batch = []
-            for stream_event in await self.stream_manager.read_stream(
-                    stream_name=stream_info.name,
-                    consumer_group=stream_info.consumer_group,
-                    datatypes=datatypes,
-                    track_headers=self.app_config.engine.track_headers,
-                    offset=offset,
-                    batch_size=event_config.config.stream.batch_size,
-                    timeout=self.app_config.engine.read_stream_timeout,
-                    batch_interval=self.app_config.engine.read_stream_interval):
-                stats.ensure_start()
-                if isinstance(stream_event, Exception):
-                    logger.error(__name__, stream_event)
-                    stats.inc(error=True)
-                else:
-                    context = EventContext(
-                        app_config=self.app_config,
-                        plugin_config=self.app_config,
-                        event_name=event_name,
-                        track_ids=stream_event.track_ids,
-                        auth_info=stream_auth_info(stream_event)
-                    )
-                    last_context = context
-                    logger.start(context, extra=extra(prefix='stream.', **log_info))
-                    batch.append(self._process_stream_event_with_timeout(
-                        stream_event=stream_event, stream_info=stream_info, context=context,
-                        stats=stats, log_info=log_info))
+            batch: List[Awaitable[Union[EventPayload, Exception]]] = []
+            for queue in stream_info.queues:
+
+                if len(batch) >= event_config.config.stream.batch_size:
+                    break
+
+                stream_name = stream_info.name
+                if queue != StreamQueue.DEFAULT:
+                    stream_name += f".{queue}"
+
+                for stream_event in await self.stream_manager.read_stream(
+                        stream_name=stream_name,
+                        consumer_group=stream_info.consumer_group,
+                        datatypes=datatypes,
+                        track_headers=self.app_config.engine.track_headers,
+                        offset=offset,
+                        batch_size=event_config.config.stream.batch_size - len(batch),
+                        timeout=self.app_config.engine.read_stream_timeout,
+                        batch_interval=self.app_config.engine.read_stream_interval):
+
+                    stats.ensure_start()
+
+                    if isinstance(stream_event, Exception):
+                        logger.error(__name__, stream_event)
+                        stats.inc(error=True)
+                    else:
+                        context = EventContext(
+                            app_config=self.app_config,
+                            plugin_config=self.app_config,
+                            event_name=event_name,
+                            track_ids=stream_event.track_ids,
+                            auth_info=stream_auth_info(stream_event)
+                        )
+                        last_context = context
+                        logger.start(context, extra=extra(prefix='stream.', **log_info))
+                        batch.append(self._process_stream_event_with_timeout(
+                            stream_event=stream_event,
+                            stream_info=stream_info,
+                            stream_name=stream_name,
+                            queue=stream_event.queue,
+                            context=context,
+                            stats=stats, log_info=log_info))
+
             if len(batch) != 0:
                 for result in await asyncio.gather(*batch):
                     last_res = result
@@ -246,6 +299,7 @@ class AppEngine:
             if last_err is not None:
                 logger.warning(__name__, f"Recovered read stream for event={event_name}.")
                 last_err = None
+
         except StreamOSError as e:
             retry_in = self.app_config.engine.read_stream_interval // 1000
             retry_in += random.randint(1, max(3, min(30, retry_in)))
@@ -254,6 +308,7 @@ class AppEngine:
             logger.error(__name__, f"Cannot read stream for event={event_name}. Waiting seconds={int(retry_in)}...")
             last_err = e
             await asyncio.sleep(retry_in)  # TODO: Replace with circuit breaker
+
         return last_res, last_context, last_err
 
     async def read_stream(self, *,
@@ -292,10 +347,15 @@ class AppEngine:
             event_config = self.effective_events[event_name]
             stream_info = event_config.read_stream
             assert stream_info, f"No read_stream section in config for event={event_name}"
-            await self.stream_manager.ensure_consumer_group(
-                stream_name=stream_info.name,
-                consumer_group=stream_info.consumer_group
-            )
+            for queue in stream_info.queues:
+                await self.stream_manager.ensure_consumer_group(
+                    stream_name=(
+                        f"{stream_info.name}.{queue}"
+                        if queue != StreamQueue.DEFAULT
+                        else stream_info.name
+                    ),
+                    consumer_group=stream_info.consumer_group
+                )
 
             datatypes = self._find_stream_datatype_handlers(event_name)
             log_info['name'] = stream_info.name
@@ -319,6 +379,8 @@ class AppEngine:
 
     async def _process_stream_event(self, *, stream_event: StreamEvent,
                                     stream_info: ReadStreamDescriptor,
+                                    stream_name: str,
+                                    queue: str,
                                     context: EventContext,
                                     stats: StreamStats,
                                     log_info: Dict[str, str]) -> Optional[Union[EventPayload, Exception]]:
@@ -333,7 +395,7 @@ class AppEngine:
 
             result = await self._execute_event(context, None, stream_event.payload)
             await self.stream_manager.ack_read_stream(
-                stream_name=stream_info.name,
+                stream_name=stream_name,
                 consumer_group=stream_info.consumer_group,
                 stream_event=stream_event
             )

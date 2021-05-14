@@ -7,7 +7,7 @@ from hopeit.dataobjects import DataObject, EventPayload
 from hopeit.server.events import EventHandler
 from hopeit.server.engine import Server
 from hopeit.streams import StreamManager, StreamEvent, StreamOSError
-from hopeit.app.config import AppConfig, EventDescriptor, Serialization, Compression
+from hopeit.app.config import AppConfig, EventDescriptor, Serialization, Compression, StreamQueue
 from hopeit.server.engine import AppEngine
 
 from mock_app import MockData, MockResult  # type: ignore
@@ -75,6 +75,7 @@ class MockEventHandler(EventHandler):
 
 
 class MockStreamManager(StreamManager):
+    test_queue = StreamQueue.DEFAULT
     test_payload = MockResult("ok: ok", processed=True)
     test_track_ids = {
         'track.request_id': 'test_request_id',
@@ -99,6 +100,7 @@ class MockStreamManager(StreamManager):
     def __init__(self, address: str):
         self.address = address
         self.write_stream_name: Optional[str] = None
+        self.write_stream_queue: Optional[str] = None
         self.write_stream_payload: Optional[DataObject] = None  # type: ignore
         self.write_track_ids: Optional[Dict[str, str]] = None
         self.write_auth_info: Optional[Dict[str, Any]] = None
@@ -114,6 +116,7 @@ class MockStreamManager(StreamManager):
 
     async def write_stream(self, *,
                            stream_name: str,
+                           queue: str,
                            payload: EventPayload,
                            track_ids: Dict[str, str],
                            auth_info: Dict[str, Any],
@@ -125,6 +128,7 @@ class MockStreamManager(StreamManager):
             track_ids['track.request_ts'] = MockEventHandler.test_track_ids['track.request_ts']
             assert track_ids == MockEventHandler.test_track_ids
         self.write_stream_name = stream_name
+        self.write_stream_queue = queue
         self.write_stream_payload = payload
         self.write_track_ids = track_ids
         self.write_auth_info = auth_info
@@ -152,6 +156,7 @@ class MockStreamManager(StreamManager):
         if not MockStreamManager.closed:
             MockStreamManager.last_read_message = StreamEvent(
                 msg_internal_id=b'0000000000-0',
+                queue=MockStreamManager.test_queue,
                 payload=MockStreamManager.test_payload,
                 track_ids=MockStreamManager.test_track_ids,
                 auth_info=MockStreamManager.test_auth_info

@@ -4,7 +4,7 @@ import pytest
 from datetime import datetime, timezone
 from dataclasses import dataclass
 
-from hopeit.app.config import Compression, Serialization
+from hopeit.app.config import Compression, Serialization, StreamQueue
 from hopeit.dataobjects import dataobject
 from hopeit.server.config import AuthType
 
@@ -34,7 +34,9 @@ async def write_stream():
     mgr = await create_stream_manager()
     payload = MockData('test_value', datetime.fromtimestamp(0, tz=timezone.utc))
     res = await mgr.write_stream(
-        stream_name='test_stream', payload=payload,
+        stream_name='test_stream',
+        queue=StreamQueue.DEFAULT,
+        payload=payload,
         track_ids=MockEventHandler.test_track_ids,
         auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'},
         target_max_len=10,
@@ -57,10 +59,13 @@ async def write_stream():
         'comp': 'none',
         'ser': 'json',
         'auth_info': b'eyJhdXRoX3R5cGUiOiAiVW5zZWN1cmVkIiwgImFsbG93ZWQiOiAidHJ1ZSJ9',
-        'payload': '{"value": "test_value", "ts": "1970-01-01T00:00:00+00:00"}'.encode()
+        'payload': '{"value": "test_value", "ts": "1970-01-01T00:00:00+00:00"}'.encode(),
+        'queue': b'DEFAULT'
     }
     res = await mgr.write_stream(
-        stream_name='test_stream_no_max_len', payload=payload,
+        stream_name='test_stream_no_max_len',
+        queue=StreamQueue.DEFAULT,
+        payload=payload,
         track_ids=MockEventHandler.test_track_ids,
         auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'},
         compression=Compression.NONE,
@@ -126,6 +131,7 @@ async def read_stream_empty_batch():
 async def ack_read_stream():
     stream_event = StreamEvent(
         msg_internal_id=b'0000000000-0',
+        queue=TestStreamData.test_queue,
         payload=TestStreamData.test_payload,
         track_ids=TestStreamData.test_track_ids,
         auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'}

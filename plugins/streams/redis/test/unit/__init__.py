@@ -64,6 +64,7 @@ class MockEventHandler(EventHandler):
 
 
 class TestStreamData:
+    test_queue = 'DEFAULT'
     test_payload = MockResult("ok: ok", processed=True)
     test_track_ids = {
         'track.request_id': 'test_request_id',
