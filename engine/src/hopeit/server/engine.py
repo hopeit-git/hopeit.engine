@@ -220,7 +220,9 @@ class AppEngine:
             )
         except asyncio.TimeoutError:
             terr = TimeoutError(f'Stream processing timeout exceeded seconds={timeout}')
-            logger.error(context, str(terr), extra=extra(prefix='stream.', **log_info))
+            logger.error(context, str(terr), extra=extra(
+                prefix='stream.', **{**log_info, 'name': stream_name, 'queue': queue}
+            ))
             return terr
 
     async def _read_stream_cycle(
@@ -280,7 +282,9 @@ class AppEngine:
                             auth_info=stream_auth_info(stream_event)
                         )
                         last_context = context
-                        logger.start(context, extra=extra(prefix='stream.', **log_info))
+                        logger.start(context, extra=extra(
+                            prefix='stream.', **{**log_info, 'name': stream_name, 'queue': queue}
+                        ))
                         batch.append(self._process_stream_event_with_timeout(
                             stream_event=stream_event,
                             stream_info=stream_info,
@@ -367,7 +371,9 @@ class AppEngine:
             last_res, last_context, last_err = None, None, None
             while self._running[event_name].locked():
                 last_res, last_context, last_err = await self._read_stream_cycle(
-                    event_name, event_config, stream_info, datatypes, offset, stats, log_info, test_mode, last_err)
+                    event_name, event_config, stream_info, datatypes, offset, stats,
+                    log_info, test_mode, last_err
+                )
             logger.info(__name__, 'Stopped read_stream.', extra=extra(prefix='stream.', **log_info))
             if last_context is None:
                 logger.warning(__name__, f"No stream events consumed in {event_name}")
@@ -400,20 +406,22 @@ class AppEngine:
                 stream_event=stream_event
             )
             logger.done(context, extra=combined(
-                extra(prefix='stream.', **log_info),
+                extra(prefix='stream.', **{**log_info, 'name': stream_name, 'queue': queue}),
                 metrics(context),
                 stream_metrics(context)
             ))
             stats.inc()
             return result
         except CancelledError as e:
-            logger.error(context, 'Cancelled', extra=extra(prefix='stream.', **log_info))
-            logger.failed(context, extra=extra(prefix='stream.', **log_info))
+            extra_info = {**log_info, 'name': stream_name, 'queue': queue}
+            logger.error(context, 'Cancelled', extra=extra(prefix='stream.', **extra_info))
+            logger.failed(context, extra=extra(prefix='stream.', **extra_info))
             stats.inc(error=True)
             return e
         except Exception as e:  # pylint: disable=broad-except
-            logger.error(context, e, extra=extra(prefix='stream.', **log_info))
-            logger.failed(context, extra=extra(prefix='stream.', **log_info))
+            extra_info = {**log_info, 'name': stream_name, 'queue': queue}
+            logger.error(context, e, extra=extra(prefix='stream.', **extra_info))
+            logger.failed(context, extra=extra(prefix='stream.', **extra_info))
             stats.inc(error=True)
             return e
 
