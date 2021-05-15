@@ -12,6 +12,7 @@ from hopeit.streams import StreamManager, StreamEvent
 from hopeit.redis_streams import RedisStreamManager
 
 from . import MockEventHandler, TestStreamData
+from copy import deepcopy
 
 
 @dataobject(event_id='value', event_ts='ts')
@@ -35,7 +36,7 @@ async def write_stream():
     payload = MockData('test_value', datetime.fromtimestamp(0, tz=timezone.utc))
     res = await mgr.write_stream(
         stream_name='test_stream',
-        queue=StreamQueue.DEFAULT,
+        queue=TestStreamData.test_queue,
         payload=payload,
         track_ids=MockEventHandler.test_track_ids,
         auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'},
@@ -60,11 +61,11 @@ async def write_stream():
         'ser': 'json',
         'auth_info': b'eyJhdXRoX3R5cGUiOiAiVW5zZWN1cmVkIiwgImFsbG93ZWQiOiAidHJ1ZSJ9',
         'payload': '{"value": "test_value", "ts": "1970-01-01T00:00:00+00:00"}'.encode(),
-        'queue': b'DEFAULT'
+        'queue': TestStreamData.test_queue.encode()
     }
     res = await mgr.write_stream(
         stream_name='test_stream_no_max_len',
-        queue=StreamQueue.DEFAULT,
+        queue=TestStreamData.test_queue,
         payload=payload,
         track_ids=MockEventHandler.test_track_ids,
         auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'},
@@ -103,6 +104,7 @@ async def read_stream():
             batch_interval=1000,
             timeout=1)):
         assert stream_event.msg_internal_id == b'0000000000-0'
+        assert stream_event.queue == TestStreamData.test_queue
         assert stream_event.payload == MockData('test_value', stream_event.payload.ts)
         for k, v in TestStreamData.test_track_ids.items():
             assert k in stream_event.track_ids
@@ -166,6 +168,25 @@ async def test_read_stream(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_read_stream_queue_name(monkeypatch):
+    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(TestStreamData, 'test_queue', 'custom')
+    test_msg = deepcopy(MockRedisPool.test_msg)
+    test_msg[2][b'queue'] = b'custom'
+    monkeypatch.setattr(MockRedisPool, 'test_msg', test_msg)
+    await read_stream()
+
+
+@pytest.mark.asyncio
+async def test_read_stream_default_queue_name_when_missing(monkeypatch):
+    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    test_msg = deepcopy(MockRedisPool.test_msg)
+    del test_msg[2][b'queue']
+    monkeypatch.setattr(MockRedisPool, 'test_msg', test_msg)
+    await read_stream()
+
+
+@pytest.mark.asyncio
 async def test_read_stream_empty_batch(monkeypatch):
     monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
     await read_stream_empty_batch()
@@ -175,13 +196,6 @@ async def test_read_stream_empty_batch(monkeypatch):
 async def test_ack_read_stream(monkeypatch):
     monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
     await ack_read_stream()
-
-
-def test_as_data_event():  # noqa: F811
-    test_data = MockData("ok", datetime.now())
-    assert StreamManager.as_data_event(test_data) == test_data
-    with pytest.raises(NotImplementedError):
-        StreamManager.as_data_event(MockInvalidDataEvent("ok"))
 
 
 class MockRedisPool(aioredis.Redis):
@@ -198,7 +212,8 @@ class MockRedisPool(aioredis.Redis):
         b'comp': b'none',
         b'ser': b'json',
         b'auth_info': b'eyJhdXRoX3R5cGUiOiAiVW5zZWN1cmVkIiwgImFsbG93ZWQiOiAidHJ1ZSJ9',
-        b'payload': b'{"value": "test_value", "ts": "1970-01-01T00:00:00+00:00"}'
+        b'payload': b'{"value": "test_value", "ts": "1970-01-01T00:00:00+00:00"}',
+        b'queue': TestStreamData.test_queue.encode()
     }]
 
     def __init__(self):
