@@ -182,6 +182,16 @@ def mock_app_config():
             'mock_timeout': EventDescriptor(
                 type=EventType.GET,
                 config=EventConfig(response_timeout=2.0)
+            ),
+            'mock_read_write_stream': EventDescriptor(
+                type=EventType.STREAM,
+                read_stream=ReadStreamDescriptor(
+                    name='mock_read_write_stream.read',
+                    consumer_group='mock_read_write_stream'
+                ),
+                write_stream=WriteStreamDescriptor(
+                    name='mock_read_write_stream.write'
+                )
             )
         },
         server=ServerConfig(

@@ -2,7 +2,8 @@ echo "==========================="
 echo "CI STATIC ANALYSIS: PLUGINS"
 echo "==========================="
 code=0
-# auth/basic-auth
+
+echo "auth/basic-auth"
 export MYPYPATH=engine/src/:plugins/auth/basic-auth/src/ && python3 -m mypy --namespace-packages -p hopeit.basic_auth
 code+=$?
 export MYPYPATH=engine/src/:plugins/auth/basic-auth/src/ && python3 -m mypy --namespace-packages plugins/auth/basic-auth/test/unit/
@@ -14,7 +15,7 @@ code+=$?
 python3 -m pylint plugins/auth/basic-auth/src/hopeit/basic_auth/
 code+=$?
 
-# streams/redis
+echo "streams/redis"
 export MYPYPATH=engine/src/:plugins/streams/redis/src/ && python3 -m mypy --namespace-packages -p hopeit.redis_streams
 code+=$?
 export MYPYPATH=engine/src/:plugins/streams/redis/src/ && python3 -m mypy --namespace-packages plugins/streams/redis/test/unit/
@@ -24,7 +25,7 @@ code+=$?
 python3 -m pylint plugins/streams/redis/src/hopeit/redis_streams/
 code+=$?
 
-# storage/redis
+echo "storage/redis"
 export MYPYPATH=engine/src/:plugins/storage/redis/src/ && python3 -m mypy --namespace-packages -p hopeit.redis_storage
 code+=$?
 export MYPYPATH=engine/src/:plugins/storage/redis/src/ && python3 -m mypy --namespace-packages plugins/storage/redis/test/unit/
@@ -34,7 +35,7 @@ code+=$?
 python3 -m pylint plugins/storage/redis/src/hopeit/redis_storage/
 code+=$?
 
-# storage/fs
+echo "storage/fs"
 export MYPYPATH=engine/src/:plugins/storage/fs/src/ && python3 -m mypy --namespace-packages -p hopeit.fs_storage
 code+=$?
 export MYPYPATH=engine/src/:plugins/storage/fs/src/ && python3 -m mypy --namespace-packages plugins/storage/fs/test/unit/

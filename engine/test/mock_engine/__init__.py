@@ -97,6 +97,12 @@ class MockStreamManager(StreamManager):
     last_read_message = None
     error_pattern = [None]
 
+    last_write_stream_names: List[str] = []
+    last_write_queue_names: List[str] = []
+
+    last_read_stream_names: List[str] = []
+    last_read_queue_names: List[str] = []
+
     def __init__(self, address: str):
         self.address = address
         self.write_stream_name: Optional[str] = None
@@ -134,6 +140,8 @@ class MockStreamManager(StreamManager):
         self.write_auth_info = auth_info
         self.write_target_max_len = target_max_len
         self.write_count += 1
+        self.last_write_stream_names.append(stream_name)
+        self.last_write_queue_names.append(queue)
         return 1
 
     async def ensure_consumer_group(self, *,
@@ -156,7 +164,7 @@ class MockStreamManager(StreamManager):
         if not MockStreamManager.closed:
             MockStreamManager.last_read_message = StreamEvent(
                 msg_internal_id=b'0000000000-0',
-                queue=MockStreamManager.test_queue,
+                queue=MockStreamManager.test_queue or stream_name.split('.')[-1],
                 payload=MockStreamManager.test_payload,
                 track_ids=MockStreamManager.test_track_ids,
                 auth_info=MockStreamManager.test_auth_info
@@ -165,6 +173,8 @@ class MockStreamManager(StreamManager):
             for i, err_mode in enumerate(copy(MockStreamManager.error_pattern)):
                 if err_mode is None:
                     results.append(MockStreamManager.last_read_message)
+                    self.last_read_stream_names.append(stream_name)
+                    self.last_read_queue_names.append(MockStreamManager.last_read_message.queue)
                     await asyncio.sleep(timeout)
                 elif isinstance(err_mode, StreamOSError):
                     MockStreamManager.error_pattern = MockStreamManager.error_pattern[i+1:]

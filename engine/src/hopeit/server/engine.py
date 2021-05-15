@@ -164,7 +164,13 @@ class AppEngine:
         for configured_queue in event_info.write_stream.queues:
 
             stream_name = event_info.write_stream.name
-            if configured_queue != StreamQueue.DEFAULT:
+            if (
+                upstream_queue != StreamQueue.DEFAULT and
+                configured_queue == StreamQueue.DEFAULT and
+                event_info.write_stream.queue_strategy == StreamQueueStrategy.PROPAGATE
+            ):
+                stream_name += f".{upstream_queue}"
+            elif configured_queue != StreamQueue.DEFAULT:
                 stream_name += f".{configured_queue}"
 
             queue_name = (
@@ -269,6 +275,9 @@ class AppEngine:
                         batch_interval=self.app_config.engine.read_stream_interval):
 
                     stats.ensure_start()
+
+                    print('============================')
+                    print(stream_event)
 
                     if isinstance(stream_event, Exception):
                         logger.error(__name__, stream_event)
@@ -399,7 +408,7 @@ class AppEngine:
             assert self.event_handler
             assert self.stream_manager
 
-            result = await self._execute_event(context, None, stream_event.payload)
+            result = await self._execute_event(context, None, stream_event.payload, stream_event.queue)
             await self.stream_manager.ack_read_stream(
                 stream_name=stream_name,
                 consumer_group=stream_info.consumer_group,

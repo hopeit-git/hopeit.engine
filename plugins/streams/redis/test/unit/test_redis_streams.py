@@ -4,11 +4,11 @@ import pytest
 from datetime import datetime, timezone
 from dataclasses import dataclass
 
-from hopeit.app.config import Compression, Serialization, StreamQueue
+from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import dataobject
 from hopeit.server.config import AuthType
 
-from hopeit.streams import StreamManager, StreamEvent
+from hopeit.streams import StreamEvent
 from hopeit.redis_streams import RedisStreamManager
 
 from . import MockEventHandler, TestStreamData
@@ -213,7 +213,7 @@ class MockRedisPool(aioredis.Redis):
         b'ser': b'json',
         b'auth_info': b'eyJhdXRoX3R5cGUiOiAiVW5zZWN1cmVkIiwgImFsbG93ZWQiOiAidHJ1ZSJ9',
         b'payload': b'{"value": "test_value", "ts": "1970-01-01T00:00:00+00:00"}',
-        b'queue': TestStreamData.test_queue.encode()
+        b'queue': b'DEFAULT'
     }]
 
     def __init__(self):
