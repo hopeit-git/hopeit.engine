@@ -28,5 +28,5 @@ def mock_app_config():
 
 @pytest.fixture
 def plugin_config():
-    with open('plugins/auth/basic-auth/config/1x0.json', 'r') as f:
+    with open('plugins/auth/basic-auth/config/plugin-config.json', 'r') as f:
         return parse_app_config_json(f.read())

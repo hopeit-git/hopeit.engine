@@ -4,9 +4,12 @@ import os
 import dataclasses_jsonschema
 import pytest  # type: ignore
 
+from hopeit.server.version import ENGINE_VERSION
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, AppEngineConfig, \
     EventType, StreamDescriptor, EventConfig, EventLoggingConfig
 from hopeit.app.config import parse_app_config_json
+
+APP_VERSION = ENGINE_VERSION.replace('.', "x")
 
 
 @pytest.fixture
@@ -15,7 +18,7 @@ def valid_config_json() -> str:
 {
   "app" : {
     "name": "simple_example",
-    "version": "1x0"
+    "version": "${HOPEIT_ENGINE_VERSION}"
   },
   "engine": {
     "import_modules": ["model"],
@@ -64,7 +67,7 @@ def valid_result_app_config() -> AppConfig:
     return AppConfig(
         app=AppDescriptor(
             name="simple_example",
-            version="1x0"
+            version=ENGINE_VERSION
         ),
         engine=AppEngineConfig(
             import_modules=["model"],
@@ -73,11 +76,11 @@ def valid_result_app_config() -> AppConfig:
         ),
         env={
             "fs": {
-                "data_path": "/tmp/simple_example.1x0.fs.data_path/",
-                "app_description": "This is simple_example version 1x0",
+                "data_path": f"/tmp/simple_example.{APP_VERSION}.fs.data_path/",
+                "app_description": f"This is simple_example version {ENGINE_VERSION}",
                 "recursive_replacement":
-                    "Data is in /tmp/simple_example.1x0.fs.data_path/. " +
-                    "This is simple_example version 1x0"
+                    f"Data is in /tmp/simple_example.{APP_VERSION}.fs.data_path/. " +
+                    f"This is simple_example version {ENGINE_VERSION}"
             }
         },
         events={
@@ -90,14 +93,14 @@ def valid_result_app_config() -> AppConfig:
             "streams.something_event": EventDescriptor(
                 type=EventType.POST,
                 write_stream=StreamDescriptor(
-                    name='simple_example.1x0.streams.something_event'
+                    name=f'simple_example.{APP_VERSION}.streams.something_event'
                 )
             ),
             "streams.process_events": EventDescriptor(
                 type=EventType.STREAM,
                 read_stream=StreamDescriptor(
-                    name='simple_example.1x0.streams.something_event',
-                    consumer_group='simple_example.1x0.streams.process_events'
+                    name=f'simple_example.{APP_VERSION}.streams.something_event',
+                    consumer_group=f'simple_example.{APP_VERSION}.streams.process_events'
                 ),
                 config=EventConfig(
                     logging=EventLoggingConfig(
@@ -110,9 +113,12 @@ def valid_result_app_config() -> AppConfig:
 
 
 def _get_env_mock(var_name):
-    assert var_name == 'TEST_TMP_FOLDER'
-    return "/tmp"
-
+    if var_name == 'TEST_TMP_FOLDER':
+        return "/tmp"
+    elif var_name == "HOPEIT_ENGINE_VERSION":
+        return ENGINE_VERSION
+    raise RuntimeError(f"Missing mocked env {var_name}")
+ 
 
 def test_parse_app_config_json(monkeypatch,
                                valid_config_json: str,
