@@ -87,6 +87,9 @@ class APIConfig:
 @dataobject
 @dataclass
 class ServerConfig:
+    """
+    Server configuration
+    """
     streams: StreamsConfig = field(default_factory=StreamsConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
     auth: AuthConfig = field(default_factory=AuthConfig.no_auth)
