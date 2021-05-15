@@ -106,7 +106,7 @@ class AppEngine:
 
     async def _execute_event(self, context: EventContext, query_args: Optional[dict],
                              payload: Optional[EventPayload],
-                             queue: str = StreamQueue.DEFAULT) -> Optional[EventPayload]:
+                             queue: str = StreamQueue.AUTO) -> Optional[EventPayload]:
         """
         Process results of executing event specified in context for a given input payload.
         In case event yield multiple results (i.e. Spawn[...]) they are collected in batches
@@ -165,12 +165,12 @@ class AppEngine:
 
             stream_name = event_info.write_stream.name
             if (
-                upstream_queue != StreamQueue.DEFAULT and
-                configured_queue == StreamQueue.DEFAULT and
+                upstream_queue != StreamQueue.AUTO and
+                configured_queue == StreamQueue.AUTO and
                 event_info.write_stream.queue_strategy == StreamQueueStrategy.PROPAGATE
             ):
                 stream_name += f".{upstream_queue}"
-            elif configured_queue != StreamQueue.DEFAULT:
+            elif configured_queue != StreamQueue.AUTO:
                 stream_name += f".{configured_queue}"
 
             queue_name = (
@@ -255,13 +255,11 @@ class AppEngine:
 
         try:
             batch: List[Awaitable[Union[EventPayload, Exception]]] = []
+
             for queue in stream_info.queues:
 
-                if len(batch) >= event_config.config.stream.batch_size:
-                    break
-
                 stream_name = stream_info.name
-                if queue != StreamQueue.DEFAULT:
+                if queue != StreamQueue.AUTO:
                     stream_name += f".{queue}"
 
                 for stream_event in await self.stream_manager.read_stream(
@@ -270,14 +268,11 @@ class AppEngine:
                         datatypes=datatypes,
                         track_headers=self.app_config.engine.track_headers,
                         offset=offset,
-                        batch_size=event_config.config.stream.batch_size - len(batch),
+                        batch_size=event_config.config.stream.batch_size,
                         timeout=self.app_config.engine.read_stream_timeout,
                         batch_interval=self.app_config.engine.read_stream_interval):
 
                     stats.ensure_start()
-
-                    print('============================')
-                    print(stream_event)
 
                     if isinstance(stream_event, Exception):
                         logger.error(__name__, stream_event)
@@ -364,7 +359,7 @@ class AppEngine:
                 await self.stream_manager.ensure_consumer_group(
                     stream_name=(
                         f"{stream_info.name}.{queue}"
-                        if queue != StreamQueue.DEFAULT
+                        if queue != StreamQueue.AUTO
                         else stream_info.name
                     ),
                     consumer_group=stream_info.consumer_group

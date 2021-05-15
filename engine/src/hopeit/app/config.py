@@ -66,11 +66,11 @@ class EventType(Enum):
 
 
 class StreamQueue:
-    DEFAULT = "DEFAULT"
+    AUTO = "AUTO"
 
     @classmethod
-    def default_queue_only(cls):
-        return [cls.DEFAULT]
+    def default_queues(cls):
+        return [cls.AUTO]
 
 
 @dataobject
@@ -83,20 +83,20 @@ class ReadStreamDescriptor:
     :consumer_group: str, consumer group to send to stream processing engine to keep track of
         next messag to consume
     :queues: List[str], list of queue names to poll from. Each queue act as separate stream
-        with queue name used as stream name suffix, where `DEFAULT` queue name means to consume
+        with queue name used as stream name suffix, where `AUTO` queue name means to consume
         events when no queue where specified at publish time, allowing to consume message with different
         priorities without waiting for all events in the stream to be consumed.
         Queues specified in this entry will be consumed by this event
         on each poll cycle, on the order specified. If not present
-        only DEFAULT queue will be consumed. Take into account that in applications using multiple
+        only AUTO queue will be consumed. Take into account that in applications using multiple
         queue names, in order to ensure all messages are consumed, all queue names should be listed
-        here including DEFAULT, except that the app is intentionally designed for certain events to
+        here including AUTO, except that the app is intentionally designed for certain events to
         consume only from specific queues. This configuration is manual to allow consuming messages
         produced by external apps.
     """
     name: str
     consumer_group: str
-    queues: List[str] = field(default_factory=StreamQueue.default_queue_only)
+    queues: List[str] = field(default_factory=StreamQueue.default_queues)
 
 
 class StreamQueueStrategy(Enum):
@@ -134,7 +134,7 @@ class WriteStreamDescriptor:
         `StreamQueueStrategy.PROPAGATE` must be explicitly specified.
     """
     name: str
-    queues: List[str] = field(default_factory=StreamQueue.default_queue_only)
+    queues: List[str] = field(default_factory=StreamQueue.default_queues)
     queue_strategy: StreamQueueStrategy = StreamQueueStrategy.DROP
 
 

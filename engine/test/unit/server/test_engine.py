@@ -150,7 +150,7 @@ async def test_read_stream(monkeypatch, mock_app_config, mock_plugin_config):  #
 
 
 @pytest.mark.asyncio
-async def test_read_write_stream_default_queue(
+async def test_read_write_stream_auto_queue(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
     payload = MockData("ok")
@@ -170,7 +170,7 @@ async def test_read_write_stream_default_queue(
     res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
     assert res == expected
     assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write'
-    assert engine.stream_manager.write_stream_queue == 'DEFAULT'
+    assert engine.stream_manager.write_stream_queue == 'AUTO'
     assert engine.stream_manager.write_stream_payload == expected
     await engine.stop()
 
@@ -228,7 +228,7 @@ async def test_read_write_stream_drop_queue(
     res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
     assert res == expected
     assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write'
-    assert engine.stream_manager.write_stream_queue == 'DEFAULT'
+    assert engine.stream_manager.write_stream_queue == 'AUTO'
     assert engine.stream_manager.write_stream_payload == expected
     await engine.stop()
 
@@ -262,7 +262,7 @@ async def test_read_write_stream_new_queue(
 
 
 @pytest.mark.asyncio
-async def test_read_write_stream_new_queue_propagate_default(
+async def test_read_write_stream_new_queue_propagate_auto(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
     payload = MockData("ok")
@@ -286,7 +286,7 @@ async def test_read_write_stream_new_queue_propagate_default(
     res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
     assert res == expected
     assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write.custom'
-    assert engine.stream_manager.write_stream_queue == 'DEFAULT'
+    assert engine.stream_manager.write_stream_queue == 'AUTO'
     assert engine.stream_manager.write_stream_payload == expected
     await engine.stop()
 
@@ -438,7 +438,7 @@ async def test_read_write_stream_multiple_queues_propagate(
 
 
 @pytest.mark.asyncio
-async def test_read_write_stream_multiple_queues_propagate_default(
+async def test_read_write_stream_multiple_queues_propagate_AUTO(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
     payload = MockData("ok")
@@ -455,9 +455,9 @@ async def test_read_write_stream_multiple_queues_propagate_default(
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     monkeypatch.setattr(MockStreamManager, 'test_queue', 'custom')
     mock_app_config.events['mock_read_write_stream'].read_stream.queues = \
-        ['q1', 'DEFAULT']
+        ['q1', 'AUTO']
     mock_app_config.events['mock_read_write_stream'].write_stream.queues = \
-        ['q3', 'DEFAULT']
+        ['q3', 'AUTO']
     mock_app_config.events['mock_read_write_stream'].write_stream.queue_strategy = \
         StreamQueueStrategy.PROPAGATE
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)

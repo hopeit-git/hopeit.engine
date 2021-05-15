@@ -21,7 +21,7 @@ from hopeit.streams import StreamManager, StreamEvent, StreamOSError
 logger = engine_logger()
 extra = extra_logger()
 
-DEFAULT_QUEUE = StreamQueue.DEFAULT.encode()
+DEFAULT_QUEUE = StreamQueue.AUTO.encode()
 
 
 class RedisStreamManager(StreamManager):

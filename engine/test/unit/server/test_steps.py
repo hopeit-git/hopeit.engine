@@ -12,6 +12,7 @@ from hopeit.server.steps import extract_module_steps, extract_postprocess_handle
     extract_input_type, execute_steps, invoke_single_step, effective_steps, split_event_stages, CollectorStepsDescriptor
 from mock_app import MockData, MockResult, mock_collector  # type: ignore
 from mock_app import mock_app_config  # type: ignore  # noqa: F401
+from copy import deepcopy
 
 
 def test_extract_event_steps():
@@ -235,17 +236,19 @@ async def test_invoke_single_spawn_step_not_supported():
 
 def test_split_event_stages(mock_app_config):  # noqa: F811
     impl = find_event_handler(app_config=mock_app_config, event_name='mock_shuffle_event')
-    stages = split_event_stages(mock_app_config.app, event_name='mock_shuffle_event',
-                                event_info=mock_app_config.events['mock_shuffle_event'],
+    event_info = mock_app_config.events['mock_shuffle_event']
+    event_config = event_info.config
+    stages = split_event_stages(mock_app_config.app,
+                                event_name='mock_shuffle_event',
+                                event_info=event_info,
                                 impl=impl)
-    event_config = mock_app_config.events['mock_shuffle_event'].config
     assert stages == {
         'mock_shuffle_event': EventDescriptor(
             type=EventType.GET,
-            read_stream=None,
+            read_stream=event_info.read_stream,
             write_stream=WriteStreamDescriptor(
                 name='mock_app.test.mock_shuffle_event.produce_messages',
-                queues=['DEFAULT'],
+                queues=['AUTO'],
                 queue_strategy=StreamQueueStrategy.PROPAGATE
             ),
             config=event_config,
@@ -256,11 +259,49 @@ def test_split_event_stages(mock_app_config):  # noqa: F811
             read_stream=ReadStreamDescriptor(
                 name='mock_app.test.mock_shuffle_event.produce_messages',
                 consumer_group='mock_app.test.mock_shuffle_event.consume_stream',
-                queues=['DEFAULT']
+                queues=['AUTO']
             ),
+            write_stream=event_info.write_stream,
+            config=event_config,
+            auth=[]
+        )
+    }
+
+
+def test_split_event_stages_queues(mock_app_config):  # noqa: F811
+    impl = find_event_handler(app_config=mock_app_config, event_name='mock_shuffle_event')
+    event_info = deepcopy(mock_app_config.events['mock_shuffle_event'])
+    event_info.read_stream = ReadStreamDescriptor(
+        name="test_read_stream", consumer_group="test_group", queues=["q1", "q2"]
+    )
+    event_info.write_stream = WriteStreamDescriptor(
+        name="test_write_stream", queues=["q1", "q2"], queue_strategy=StreamQueueStrategy.PROPAGATE
+    )
+    event_config = event_info.config
+    stages = split_event_stages(mock_app_config.app,
+                                event_name='mock_shuffle_event',
+                                event_info=event_info,
+                                impl=impl)
+    assert stages == {
+        'mock_shuffle_event': EventDescriptor(
+            type=EventType.GET,
+            read_stream=event_info.read_stream,
             write_stream=WriteStreamDescriptor(
-                name='mock_write_stream_event'
+                name='mock_app.test.mock_shuffle_event.produce_messages',
+                queues=['AUTO'],
+                queue_strategy=StreamQueueStrategy.PROPAGATE
             ),
+            config=event_config,
+            auth=[]
+        ),
+        'mock_shuffle_event$consume_stream': EventDescriptor(
+            type=EventType.STREAM,
+            read_stream=ReadStreamDescriptor(
+                name='mock_app.test.mock_shuffle_event.produce_messages',
+                consumer_group='mock_app.test.mock_shuffle_event.consume_stream',
+                queues=['AUTO']
+            ),
+            write_stream=event_info.write_stream,
             config=event_config,
             auth=[]
         )
