@@ -12,7 +12,7 @@ from typing import Dict, List, Any, Union
 import aioredis  # type: ignore
 from aioredis import RedisError
 
-from hopeit.app.config import Compression, Serialization
+from hopeit.app.config import Compression, Serialization, StreamQueue
 from hopeit.dataobjects import EventPayload
 from hopeit.server.serialization import deserialize, serialize
 from hopeit.server.logger import engine_logger, extra_logger
@@ -20,6 +20,8 @@ from hopeit.streams import StreamManager, StreamEvent, StreamOSError
 
 logger = engine_logger()
 extra = extra_logger()
+
+DEFAULT_QUEUE = StreamQueue.AUTO.encode()
 
 
 class RedisStreamManager(StreamManager):
@@ -68,6 +70,7 @@ class RedisStreamManager(StreamManager):
 
     async def write_stream(self, *,
                            stream_name: str,
+                           queue: str,
                            payload: EventPayload,
                            track_ids: Dict[str, str],
                            auth_info: Dict[str, Any],
@@ -77,6 +80,7 @@ class RedisStreamManager(StreamManager):
         """
         Writes event to a Redis stream using XADD
         :param stream_name: stream name or key used by Redis
+        :param queue: queue name to be saved into the message. Will not affect provided stream_name.
         :param payload: EventPayload, a special type of dataclass object decorated with `@dataobject`
         :param track_ids: dict with key and id values to track in stream event
         :param auth_info: dict with auth info to be tracked as part of stream event
@@ -85,7 +89,7 @@ class RedisStreamManager(StreamManager):
             default 0 will not send max_len to Redis.
         :return: number of successful written messages
         """
-        event_fields = self._encode_message(payload, track_ids, auth_info, compression, serialization)
+        event_fields = self._encode_message(payload, queue, track_ids, auth_info, compression, serialization)
         ok = await self._write_pool.xadd(
             stream=stream_name, fields=event_fields,
             max_len=target_max_len if target_max_len > 0 else None,
@@ -132,7 +136,7 @@ class RedisStreamManager(StreamManager):
         In case timeout is reached, nothing is yielded
         and read_stream must be called again,
         usually in an infinite loop while app is running.
-        :param stream_name: str, stream name or key used by Redis
+        :param stream_name: str, stream name or key used by Redis, including queue suffix if necessary.
         :param consumer_group: str, consumer group registered in Redis
         :param datatypes: Dict[str, type] supported datatypes name: type to be extracted from stream.
             Types need to support json deserialization using `@dataobject` annotation
@@ -201,6 +205,7 @@ class RedisStreamManager(StreamManager):
         return ack
 
     def _encode_message(self, payload: EventPayload,
+                        queue: str,
                         track_ids: Dict[str, str],
                         auth_info: Dict[str, Any],
                         compression: Compression,
@@ -224,7 +229,8 @@ class RedisStreamManager(StreamManager):
             'auth_info': base64.b64encode(json.dumps(auth_info).encode()),
             'ser': serialization.value,
             'comp': compression.value,
-            'payload': serialize(payload, serialization, compression)
+            'payload': serialize(payload, serialization, compression),
+            'queue': queue.encode()
         }
         event_ts = payload.event_ts()  # type: ignore
         if isinstance(event_ts, datetime):
@@ -245,6 +251,7 @@ class RedisStreamManager(StreamManager):
             msg_internal_id=msg[1],
             payload=deserialize(
                 msg[2][b'payload'], serialization, compression, datatype),  # type: ignore
+            queue=msg[2].get(b'queue', DEFAULT_QUEUE).decode(),  # Default ensures backwards compat
             track_ids={
                 'stream.name': msg[0].decode(),
                 'stream.msg_id': msg[1].decode(),

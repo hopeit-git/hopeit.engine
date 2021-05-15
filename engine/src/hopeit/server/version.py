@@ -1,15 +1,14 @@
 """
 Engine version constants.
 Increment on release
-
 To ensure configuration files from example apps and plugins have same version as engine,
-an environment variable `HOPEIT_ENGINE_VERSION`
+environment variables `HOPEIT_ENGINE_VERSION` and `HOPEIT_APPS_API_VERSION` are set.
 """
 import os
 import sys
 
 ENGINE_NAME = "hopeit.engine"
-ENGINE_VERSION = "0.3.0rc8"
+ENGINE_VERSION = "0.4.0"
 
 # Major.Minor version to be used in App versions and Api endpoints for Apps/Plugins
 APPS_API_VERSION = '.'.join(ENGINE_VERSION.split('.')[0:2])

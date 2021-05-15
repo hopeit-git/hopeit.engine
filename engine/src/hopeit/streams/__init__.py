@@ -27,6 +27,7 @@ __all__ = ['StreamEvent',
 @dataclass
 class StreamEvent:
     msg_internal_id: bytes
+    queue: str
     payload: EventPayload
     track_ids: Dict[str, str]
     auth_info: Dict[str, Any]
@@ -76,6 +77,7 @@ class StreamManager(ABC):
 
     async def write_stream(self, *,
                            stream_name: str,
+                           queue: str,
                            payload: EventPayload,
                            track_ids: Dict[str, str],
                            auth_info: Dict[str, Any],
