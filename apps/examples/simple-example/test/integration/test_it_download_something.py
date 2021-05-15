@@ -1,6 +1,9 @@
 import pytest  # type: ignore
 
 from hopeit.testing.apps import execute_event
+from hopeit.server.version import ENGINE_VERSION
+
+APP_VERSION = ENGINE_VERSION.replace('.', "x")
 
 
 @pytest.mark.asyncio
@@ -18,7 +21,7 @@ async def test_it_download_something(app_config, something_params_example,
     )
 
     ret_header = {'Content-Disposition': f'attachment; filename={file_name}', 'Content-Type': 'image/png'}
-    ret_file_response = f"/tmp/simple_example.2x0.fs.data_path/{file_name}"
+    ret_file_response = f"/tmp/simple_example.{APP_VERSION}.fs.data_path/{file_name}"
     ret__ = f"File {file_name}"
 
     assert response.headers == ret_header

@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "simple-benchmark",
-    "version": "1.0"
+    "version": "${HOPEIT_ENGINE_VERSION}"
   },
   "engine" : {
     "import_modules": ["simple_benchmark"]
@@ -11,11 +11,11 @@
       "data_path": "/tmp/{auto}/"
     },
     "redis": {
-      "address": "redis://localhost:6379"
+      "address": "redis://redis:6379"
     }
   },
   "events": {
-    "give_me_something": {
+   "give_me_something": {
       "type": "GET"
     },
     "query_something_fs": {

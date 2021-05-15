@@ -78,4 +78,4 @@ def something_with_status_processed_example():
 
 @pytest.fixture
 def app_config():
-    return config('apps/examples/simple-example/config/1x0.json')
+    return config('apps/examples/simple-example/config/app-config.json')
