@@ -1,10 +1,10 @@
 {
   "app": {
     "name": "simple-example",
-    "version": "2.0"
+    "version": "${HOPEIT_ENGINE_VERSION}"
   },
   "plugins": [
-    {"name": "basic-auth", "version": "2.0"}
+    {"name": "basic-auth", "version": "${HOPEIT_ENGINE_VERSION}"}
   ],
   "engine" : {
     "import_modules": ["simple_example"],
