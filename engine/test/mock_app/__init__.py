@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import pytest  # type: ignore
 
 from hopeit.app.config import AppConfig, AppDescriptor, \
-    EventDescriptor, EventType, StreamDescriptor, \
+    EventDescriptor, EventType, ReadStreamDescriptor, WriteStreamDescriptor, \
     EventConfig, EventLoggingConfig, AppEngineConfig, EventStreamConfig
 from hopeit.dataobjects import dataobject
 from hopeit.server.config import APIConfig, AuthConfig, AuthType, LoggingConfig, ServerConfig, StreamsConfig
@@ -74,7 +74,7 @@ def mock_app_config():
             ),
             "mock_stream_event": EventDescriptor(
                 type=EventType.STREAM,
-                read_stream=StreamDescriptor(
+                read_stream=ReadStreamDescriptor(
                     name='mock_stream',
                     consumer_group='mock_consumer_group'
                 ),
@@ -87,7 +87,7 @@ def mock_app_config():
             ),
             "mock_stream_timeout": EventDescriptor(
                 type=EventType.STREAM,
-                read_stream=StreamDescriptor(
+                read_stream=ReadStreamDescriptor(
                     name='mock_stream',
                     consumer_group='mock_consumer_group'
                 ),
@@ -103,7 +103,7 @@ def mock_app_config():
             ),
             "mock_write_stream_event": EventDescriptor(
                 type=EventType.GET,
-                write_stream=StreamDescriptor(
+                write_stream=WriteStreamDescriptor(
                     name='mock_write_stream_event'
                 ),
                 config=EventConfig(
@@ -114,7 +114,7 @@ def mock_app_config():
             ),
             "mock_service_event": EventDescriptor(
                 type=EventType.SERVICE,
-                write_stream=StreamDescriptor(
+                write_stream=WriteStreamDescriptor(
                     name='mock_write_stream_event'
                 ),
                 config=EventConfig(
@@ -127,7 +127,7 @@ def mock_app_config():
             ),
             "mock_service_timeout": EventDescriptor(
                 type=EventType.SERVICE,
-                write_stream=StreamDescriptor(
+                write_stream=WriteStreamDescriptor(
                     name='mock_write_stream_event'
                 ),
                 config=EventConfig(
@@ -136,7 +136,7 @@ def mock_app_config():
             ),
             "mock_spawn_event": EventDescriptor(
                 type=EventType.GET,
-                write_stream=StreamDescriptor(
+                write_stream=WriteStreamDescriptor(
                     name='mock_write_stream_event'
                 ),
                 config=EventConfig(
@@ -149,7 +149,7 @@ def mock_app_config():
             ),
             "mock_shuffle_event": EventDescriptor(
                 type=EventType.GET,
-                write_stream=StreamDescriptor(
+                write_stream=WriteStreamDescriptor(
                     name='mock_write_stream_event'
                 ),
                 config=EventConfig(
@@ -182,6 +182,16 @@ def mock_app_config():
             'mock_timeout': EventDescriptor(
                 type=EventType.GET,
                 config=EventConfig(response_timeout=2.0)
+            ),
+            'mock_read_write_stream': EventDescriptor(
+                type=EventType.STREAM,
+                read_stream=ReadStreamDescriptor(
+                    name='mock_read_write_stream.read',
+                    consumer_group='mock_read_write_stream'
+                ),
+                write_stream=WriteStreamDescriptor(
+                    name='mock_read_write_stream.write'
+                )
             )
         },
         server=ServerConfig(

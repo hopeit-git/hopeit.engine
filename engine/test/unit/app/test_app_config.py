@@ -6,7 +6,7 @@ import pytest  # type: ignore
 
 from hopeit.server.version import ENGINE_VERSION
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, AppEngineConfig, \
-    EventType, StreamDescriptor, EventConfig, EventLoggingConfig
+    EventType, ReadStreamDescriptor, WriteStreamDescriptor, EventConfig, EventLoggingConfig
 from hopeit.app.config import parse_app_config_json
 
 APP_VERSION = ENGINE_VERSION.replace('.', "x")
@@ -92,13 +92,13 @@ def valid_result_app_config() -> AppConfig:
             ),
             "streams.something_event": EventDescriptor(
                 type=EventType.POST,
-                write_stream=StreamDescriptor(
+                write_stream=WriteStreamDescriptor(
                     name=f'simple_example.{APP_VERSION}.streams.something_event'
                 )
             ),
             "streams.process_events": EventDescriptor(
                 type=EventType.STREAM,
-                read_stream=StreamDescriptor(
+                read_stream=ReadStreamDescriptor(
                     name=f'simple_example.{APP_VERSION}.streams.something_event',
                     consumer_group=f'simple_example.{APP_VERSION}.streams.process_events'
                 ),

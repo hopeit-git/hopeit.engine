@@ -54,11 +54,12 @@
           "throttle_ms": 10
         }
       }
-  },
+    },
     "streams.something_event" : {
       "type": "POST",
       "write_stream": {
-        "name": "{auto}"
+        "name": "{auto}",
+        "queues": ["high-prio"]
       },
       "config": {
         "logging": {
@@ -66,6 +67,23 @@
         },
         "stream": {
           "target_max_len": 1000
+        }
+      }
+    },
+    "streams.process_events": {
+      "type": "STREAM",
+      "read_stream": {
+        "name": "{events.streams.something_event.write_stream.name}",
+        "consumer_group": "{auto}",
+        "queues": ["high-prio", "AUTO"]
+      },
+      "config": {
+        "stream": {
+          "batch_size": 5
+        },
+        "logging": {
+          "stream_fields": ["name", "msg_id", "consumer_group", "event_id", "event_ts", "submit_ts", "read_ts"],
+          "extra_fields": ["something_id"]
         }
       }
     },
@@ -83,22 +101,6 @@
         },
         "stream": {
           "target_max_len": 1000
-        }
-      }
-    },
-    "streams.process_events": {
-      "type": "STREAM",
-      "read_stream": {
-        "name": "{events.streams.something_event.write_stream.name}",
-        "consumer_group": "{auto}"
-      },
-      "config": {
-        "stream": {
-          "batch_size": 5
-        },
-        "logging": {
-          "stream_fields": ["name", "msg_id", "consumer_group", "event_id", "event_ts", "submit_ts", "read_ts"],
-          "extra_fields": ["something_id"]
         }
       }
     },

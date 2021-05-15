@@ -7,7 +7,7 @@ from hopeit.server.events import EventHandler
 from hopeit.streams import StreamOSError
 
 from hopeit.dataobjects import DataObject
-from hopeit.app.config import AppConfig
+from hopeit.app.config import AppConfig, StreamQueueStrategy
 from hopeit.server.engine import AppEngine
 from mock_engine import MockEventHandler, MockStreamManager
 from mock_app import MockData, MockResult  # type: ignore
@@ -146,6 +146,337 @@ async def test_read_stream(monkeypatch, mock_app_config, mock_plugin_config):  #
     monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
     res = await engine.read_stream(event_name='mock_stream_event', test_mode=True)
     assert res == expected
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_write_stream_auto_queue(
+    monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
+):
+    payload = MockData("ok")
+    expected = MockResult("ok: ok")
+    setup_mocks(monkeypatch)
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockEventHandler, 'test_track_ids', {
+        'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
+        'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
+        'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
+        'stream.consumer_group': 'test_group'
+    })
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
+    assert res == expected
+    assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write'
+    assert engine.stream_manager.write_stream_queue == 'AUTO'
+    assert engine.stream_manager.write_stream_payload == expected
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_write_stream_propagate_queue(
+    monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
+):
+    payload = MockData("ok")
+    expected = MockResult("ok: ok")
+    setup_mocks(monkeypatch)
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockEventHandler, 'test_track_ids', {
+        'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
+        'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
+        'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
+        'stream.consumer_group': 'test_group'
+    })
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    monkeypatch.setattr(MockStreamManager, 'test_queue', 'custom')
+    mock_app_config.events['mock_read_write_stream'].write_stream.queue_strategy = \
+        StreamQueueStrategy.PROPAGATE
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
+    assert res == expected
+    assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write.custom'
+    assert engine.stream_manager.write_stream_queue == 'custom'
+    assert engine.stream_manager.write_stream_payload == expected
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_write_stream_drop_queue(
+    monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
+):
+    payload = MockData("ok")
+    expected = MockResult("ok: ok")
+    setup_mocks(monkeypatch)
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockEventHandler, 'test_track_ids', {
+        'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
+        'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
+        'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
+        'stream.consumer_group': 'test_group'
+    })
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    monkeypatch.setattr(MockStreamManager, 'test_queue', 'custom')
+    mock_app_config.events['mock_read_write_stream'].write_stream.queue_strategy = \
+        StreamQueueStrategy.DROP
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
+    assert res == expected
+    assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write'
+    assert engine.stream_manager.write_stream_queue == 'AUTO'
+    assert engine.stream_manager.write_stream_payload == expected
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_write_stream_new_queue(
+    monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
+):
+    payload = MockData("ok")
+    expected = MockResult("ok: ok")
+    setup_mocks(monkeypatch)
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockEventHandler, 'test_track_ids', {
+        'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
+        'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
+        'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
+        'stream.consumer_group': 'test_group'
+    })
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    mock_app_config.events['mock_read_write_stream'].write_stream.queues = \
+        ['custom']
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
+    assert res == expected
+    assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write.custom'
+    assert engine.stream_manager.write_stream_queue == 'custom'
+    assert engine.stream_manager.write_stream_payload == expected
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_write_stream_new_queue_propagate_auto(
+    monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
+):
+    payload = MockData("ok")
+    expected = MockResult("ok: ok")
+    setup_mocks(monkeypatch)
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockEventHandler, 'test_track_ids', {
+        'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
+        'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
+        'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
+        'stream.consumer_group': 'test_group'
+    })
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    mock_app_config.events['mock_read_write_stream'].write_stream.queues = \
+        ['custom']
+    mock_app_config.events['mock_read_write_stream'].write_stream.queue_strategy = \
+        StreamQueueStrategy.PROPAGATE
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
+    assert res == expected
+    assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write.custom'
+    assert engine.stream_manager.write_stream_queue == 'AUTO'
+    assert engine.stream_manager.write_stream_payload == expected
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_write_stream_new_queue_propagate(
+    monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
+):
+    payload = MockData("ok")
+    expected = MockResult("ok: ok")
+    setup_mocks(monkeypatch)
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockEventHandler, 'test_track_ids', {
+        'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
+        'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
+        'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
+        'stream.consumer_group': 'test_group'
+    })
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    monkeypatch.setattr(MockStreamManager, 'test_queue', 'original')
+    mock_app_config.events['mock_read_write_stream'].write_stream.queues = \
+        ['custom']
+    mock_app_config.events['mock_read_write_stream'].write_stream.queue_strategy = \
+        StreamQueueStrategy.PROPAGATE
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
+    assert res == expected
+    assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write.custom'
+    assert engine.stream_manager.write_stream_queue == 'original'
+    assert engine.stream_manager.write_stream_payload == expected
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_write_stream_new_queue_drop(
+    monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
+):
+    payload = MockData("ok")
+    expected = MockResult("ok: ok")
+    setup_mocks(monkeypatch)
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockEventHandler, 'test_track_ids', {
+        'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
+        'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
+        'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
+        'stream.consumer_group': 'test_group'
+    })
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    monkeypatch.setattr(MockStreamManager, 'test_queue', 'original')
+    mock_app_config.events['mock_read_write_stream'].write_stream.queues = \
+        ['custom']
+    mock_app_config.events['mock_read_write_stream'].write_stream.queue_strategy = \
+        StreamQueueStrategy.DROP
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
+    assert res == expected
+    assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write.custom'
+    assert engine.stream_manager.write_stream_queue == 'custom'
+    assert engine.stream_manager.write_stream_payload == expected
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_write_stream_multiple_queues(
+    monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
+):
+    payload = MockData("ok")
+    expected = MockResult("ok: ok")
+    setup_mocks(monkeypatch)
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockEventHandler, 'test_track_ids', {
+        'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
+        'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
+        'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
+        'stream.consumer_group': 'test_group'
+    })
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    monkeypatch.setattr(MockStreamManager, 'test_queue', 'original')
+    mock_app_config.events['mock_read_write_stream'].read_stream.queues = \
+        ['q1', 'q2']
+    mock_app_config.events['mock_read_write_stream'].write_stream.queues = \
+        ['q3', 'q4']
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
+    assert res == expected
+    assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write.q4'
+    assert engine.stream_manager.write_stream_queue == 'q4'
+    assert engine.stream_manager.write_stream_payload == expected
+    assert MockStreamManager.last_read_stream_names[-2:] == \
+        ['mock_read_write_stream.read.q1', 'mock_read_write_stream.read.q2']
+    assert MockStreamManager.last_read_queue_names[-2:] == \
+        ['original', 'original']
+    assert MockStreamManager.last_write_stream_names[-4:] == [
+        'mock_read_write_stream.write.q3', 'mock_read_write_stream.write.q4',
+        'mock_read_write_stream.write.q3', 'mock_read_write_stream.write.q4'
+    ]
+    assert MockStreamManager.last_write_queue_names[-4:] == \
+        ['q3', 'q4', 'q3', 'q4']
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_write_stream_multiple_queues_propagate(
+    monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
+):
+    payload = MockData("ok")
+    expected = MockResult("ok: ok")
+    setup_mocks(monkeypatch)
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockEventHandler, 'test_track_ids', {
+        'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
+        'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
+        'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
+        'stream.consumer_group': 'test_group'
+    })
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    monkeypatch.setattr(MockStreamManager, 'test_queue', None)  # Will use last part of stream name
+    mock_app_config.events['mock_read_write_stream'].read_stream.queues = \
+        ['q1', 'q2']
+    mock_app_config.events['mock_read_write_stream'].write_stream.queues = \
+        ['q3', 'q4']
+    mock_app_config.events['mock_read_write_stream'].write_stream.queue_strategy = \
+        StreamQueueStrategy.PROPAGATE
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
+    assert res == expected
+    assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write.q4'
+    assert engine.stream_manager.write_stream_queue == 'q2'
+    assert engine.stream_manager.write_stream_payload == expected
+    assert MockStreamManager.last_read_stream_names[-2:] == \
+        ['mock_read_write_stream.read.q1', 'mock_read_write_stream.read.q2']
+    assert MockStreamManager.last_read_queue_names[-2:] == \
+        ['q1', 'q2']
+    assert MockStreamManager.last_write_stream_names[-4:] == [
+        'mock_read_write_stream.write.q3', 'mock_read_write_stream.write.q4',
+        'mock_read_write_stream.write.q3', 'mock_read_write_stream.write.q4'
+    ]
+    assert MockStreamManager.last_write_queue_names[-4:] == \
+        ['q1', 'q1', 'q2', 'q2']
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_write_stream_multiple_queues_propagate_AUTO(
+    monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
+):
+    payload = MockData("ok")
+    expected = MockResult("ok: ok")
+    setup_mocks(monkeypatch)
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockEventHandler, 'test_track_ids', {
+        'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
+        'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
+        'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
+        'stream.consumer_group': 'test_group'
+    })
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    monkeypatch.setattr(MockStreamManager, 'test_queue', 'custom')
+    mock_app_config.events['mock_read_write_stream'].read_stream.queues = \
+        ['q1', 'AUTO']
+    mock_app_config.events['mock_read_write_stream'].write_stream.queues = \
+        ['q3', 'AUTO']
+    mock_app_config.events['mock_read_write_stream'].write_stream.queue_strategy = \
+        StreamQueueStrategy.PROPAGATE
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_read_write_stream', test_mode=True)
+    assert res == expected
+    assert engine.stream_manager.write_stream_name == 'mock_read_write_stream.write.custom'
+    assert engine.stream_manager.write_stream_queue == 'custom'
+    assert engine.stream_manager.write_stream_payload == expected
+    assert MockStreamManager.last_read_stream_names[-2:] == \
+        ['mock_read_write_stream.read.q1', 'mock_read_write_stream.read']
+    assert MockStreamManager.last_read_queue_names[-2:] == \
+        ['custom', 'custom']
+    assert MockStreamManager.last_write_stream_names[-4:] == [
+        'mock_read_write_stream.write.q3', 'mock_read_write_stream.write.custom',
+        'mock_read_write_stream.write.q3', 'mock_read_write_stream.write.custom'
+    ]
+    assert MockStreamManager.last_write_queue_names[-4:] == \
+        ['custom', 'custom', 'custom', 'custom']
     await engine.stop()
 
 
