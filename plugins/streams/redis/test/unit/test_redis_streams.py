@@ -213,7 +213,7 @@ class MockRedisPool(aioredis.Redis):
         b'ser': b'json',
         b'auth_info': b'eyJhdXRoX3R5cGUiOiAiVW5zZWN1cmVkIiwgImFsbG93ZWQiOiAidHJ1ZSJ9',
         b'payload': b'{"value": "test_value", "ts": "1970-01-01T00:00:00+00:00"}',
-        b'queue': b'DEFAULT'
+        b'queue': b'AUTO'
     }]
 
     def __init__(self):

@@ -10,6 +10,8 @@ from dataclasses import dataclass, field
 
 from hopeit.dataobjects import dataobject
 from hopeit.server.names import auto_path_prefixed
+from hopeit.server.version import ENGINE_VERSION
+
 
 __all__ = ['StreamsConfig',
            'LoggingConfig',
@@ -89,6 +91,10 @@ class ServerConfig:
     logging: LoggingConfig = field(default_factory=LoggingConfig)
     auth: AuthConfig = field(default_factory=AuthConfig.no_auth)
     api: APIConfig = field(default_factory=APIConfig)
+    engine_version: str = field(default=ENGINE_VERSION)
+
+    def __post_init__(self):
+        self.engine_version = ENGINE_VERSION
 
 
 def parse_server_config_json(config_json: str) -> ServerConfig:
