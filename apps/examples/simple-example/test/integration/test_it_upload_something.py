@@ -1,6 +1,9 @@
 import pytest  # type: ignore
 
 from hopeit.testing.apps import execute_event
+from hopeit.server.version import ENGINE_VERSION
+
+APP_VERSION = ENGINE_VERSION.replace('.', "x")
 
 
 @pytest.mark.asyncio
@@ -26,7 +29,10 @@ async def test_it_save_something(app_config, something_params_example, something
 
     assert result == [something_upload_example]
 
-    with open('/tmp/simple_example.2x0.upload_something.save_path/attachment-test_file_name.bytes', 'rb') as f:
+    with open(
+        f'/tmp/simple_example.{APP_VERSION}.upload_something.save_path/attachment-test_file_name.bytes',
+        'rb'
+    ) as f:
         data = f.read()
 
     assert data == upload['attachment']

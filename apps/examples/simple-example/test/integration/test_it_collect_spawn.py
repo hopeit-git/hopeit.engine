@@ -4,8 +4,12 @@ import uuid
 import pytest  # type: ignore
 
 from hopeit.testing.apps import execute_event
+from hopeit.server.version import ENGINE_VERSION
+
 from model import Something
 from simple_example.collector.collect_spawn import ItemsInfo, ItemsCollected
+
+APP_VERSION = ENGINE_VERSION.replace('.', "x")
 
 
 @pytest.fixture
@@ -14,8 +18,8 @@ def sample_file_ids():
     for test_id in ids:
         json_str = '{"id": "' + test_id + '", "user": {"id": "u1", "name": "test_user"}, ' \
                    + '"status": {"ts": "2020-05-01T00:00:00Z", "type": "NEW"}, "history": []}'
-        os.makedirs('/tmp/simple_example.2x0.fs.data_path/', exist_ok=True)
-        with open(f'/tmp/simple_example.2x0.fs.data_path/{test_id}.json', 'w') as f:
+        os.makedirs(f'/tmp/simple_example.{APP_VERSION}.fs.data_path/', exist_ok=True)
+        with open(f'/tmp/simple_example.{APP_VERSION}.fs.data_path/{test_id}.json', 'w') as f:
             f.write(json_str)
             f.flush()
     return ids

@@ -3,8 +3,7 @@ Engine version constants.
 Increment on release
 
 To ensure configuration files from example apps and plugins have same version as engine,
-an environment variable `HOPEIT_ENGINE_VERSION` 
-
+an environment variable `HOPEIT_ENGINE_VERSION`
 """
 import os
 
