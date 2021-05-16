@@ -7,8 +7,6 @@ from enum import Enum
 from dataclasses import dataclass, field
 
 from hopeit.dataobjects import dataobject
-from hopeit.dataobjects.validation import validate
-from hopeit.toolkit.validators import pattern, non_empty_str
 
 
 class StatusType(Enum):
@@ -28,10 +26,6 @@ class Status:
 
 @dataobject
 @dataclass
-@validate(
-    id=non_empty_str(),
-    name=pattern('.+')
-)
 class User:
     """User information"""
     id: str
@@ -40,9 +34,6 @@ class User:
 
 @dataobject(event_id='id', event_ts='status.ts')
 @dataclass
-@validate(
-    id=non_empty_str()
-)
 class Something:
     """Example Something event"""
     id: str
