@@ -1505,7 +1505,7 @@
             "type": "string"
           }
         },
-        "x-module-name": "simple_example.collector.query_concurrently",
+        "x-module-name": "model",
         "description": "\n    Items to read concurrently\n    "
       }
     },

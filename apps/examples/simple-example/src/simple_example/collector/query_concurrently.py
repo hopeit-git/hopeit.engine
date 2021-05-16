@@ -5,27 +5,15 @@ Loads 2 Something objects concurrently from disk and combine the results
 using `collector` steps constructor (instantiating an `AsyncCollector`)
 """
 import asyncio
-from dataclasses import dataclass
 from typing import Union, Optional, List
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.events import collector_step
 from hopeit.app.logger import app_extra_logger
-from hopeit.dataobjects import dataobject
 from hopeit.server.collector import Collector
 from hopeit.fs_storage import FileStorage
-from model import Something, SomethingNotFound
-
-
-@dataobject
-@dataclass
-class ItemsInfo:
-    """
-    Items to read concurrently
-    """
-    item1_id: str
-    item2_id: str
+from model import ItemsInfo, Something, SomethingNotFound
 
 
 __steps__ = [collector_step(payload=ItemsInfo).gather('load_first', 'load_second', 'combine'), 'result']
