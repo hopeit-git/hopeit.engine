@@ -1,12 +1,13 @@
 """
 Context information and handling
 """
-from typing import AsyncGenerator, Callable, Dict, Optional, Any, Tuple, Union, List
+from typing import AsyncGenerator, AsyncIterator, Callable, Generic, TypeVar, \
+    Dict, Optional, Any, Tuple, Union, List
+from abc import ABC
 from pathlib import Path
 from datetime import datetime, timezone
 
-import aiohttp
-from multidict import CIMultiDict, CIMultiDictProxy
+from multidict import CIMultiDict, CIMultiDictProxy, istr
 
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventType
@@ -14,7 +15,8 @@ from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, Ev
 
 __all__ = ['EventContext',
            'PostprocessHook',
-           'PreprocessHook']
+           'PreprocessHook',
+           'NoopMultiparReader']
 
 
 class EventContext:
@@ -55,7 +57,7 @@ class EventContext:
         self.track_ids = {k: track_ids.get(k) or '' for k in track_fields}
 
 
-class PostprocessHook:
+class PostprocessHook():
     """
     Post process hook that keeps additional changes to add to response on
     `__postprocess__(...)` event methods.
@@ -85,11 +87,63 @@ class PostprocessHook:
         self.file_response = path
 
 
-class PreprocessFileHook:
+class BodyPartReaderProtocol(ABC):
+    """
+    Required functionallity for BodyPartReader implementation
+    to be used in PreprocessHook
+    """
+    async def read_chunk(self, size: Optional[int] = None) -> bytes:
+        ...
+
+    async def text(self, *, encoding: Optional[str] = None) -> str:
+        ...
+
+    async def json(self, *, encoding: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        ...
+
+    @property
+    def name(self) -> Optional[str]:
+        ...
+
+    @property
+    def filename(self) -> Optional[str]:
+        ...
+
+    @property
+    def headers(self) -> CIMultiDictProxy[str]:
+        ...
+
+
+class MultipartReaderProtocol(ABC):
+    """
+    Required functionality for Mutipartreader implementation
+    to be used in PreprocessHook
+    """
+
+    def __aiter__(
+        self,
+    ) -> AsyncIterator["BodyPartReaderProtocol"]:
+        ...
+
+    async def __anext__(
+        self,
+    ) -> Optional[Union["MultipartReaderProtocol", BodyPartReaderProtocol]]:
+        ...
+
+
+class NoopMultiparReader(MultipartReaderProtocol):
+    pass
+
+
+_MultipartReader = TypeVar('_MultipartReader', bound=MultipartReaderProtocol)
+_BodyPartReader = TypeVar('_BodyPartReader', bound=BodyPartReaderProtocol)
+
+
+class PreprocessFileHook(Generic[_BodyPartReader]):
     """
     Hook to read files from multipart requests
     """
-    def __init__(self, *, name: str, file_name: str, data: aiohttp.multipart.BodyPartReader):
+    def __init__(self, *, name: str, file_name: str, data: _BodyPartReader):
         self.name = name
         self.file_name = file_name
         self.data = data
@@ -124,15 +178,13 @@ class PreprocessHeaders:
         return cls(CIMultiDictProxy(CIMultiDict(data)))
 
 
-class PreprocessHook:
+class PreprocessHook(Generic[_MultipartReader]):
     """
     Preprocess hook that handles information available in the request to be accessed
     from `__preprocess__(...)` event method when defined.
     """
     def __init__(self, *, headers: CIMultiDictProxy[str],
-                 multipart_reader: Union[
-                    aiohttp.MultipartReader, aiohttp.multipart.BodyPartReader, None
-                 ] = None,
+                 multipart_reader: Optional[_MultipartReader] = None,
                  file_hook_factory: Callable = PreprocessFileHook):
         self.headers = PreprocessHeaders(headers)
         self._multipart_reader = multipart_reader
@@ -162,7 +214,7 @@ class PreprocessHook:
                     if field.filename:
                         self._args[field.name] = field.filename
                         yield self.file_hook_factory(name=field.name, file_name=field.filename, data=field)
-                    elif field.headers.get(aiohttp.hdrs.CONTENT_TYPE) == 'application/json':
+                    elif field.headers.get(istr("Content-Type")) == 'application/json':
                         self._args[field.name] = await field.json()
                     else:
                         self._args[field.name] = await field.text()
