@@ -14,8 +14,8 @@ try:
     from hopeit.server.logger import engine_logger
 except ModuleNotFoundError:
     print("ERROR: Missing dependencies."
-            "\n       To use hopeit_server command line tool"
-            "\n       install using `pip install hopeit.engine[web,cli]`")
+          "\n       To use hopeit_server command line tool"
+          "\n       install using `pip install hopeit.engine[web,cli]`")
     sys.exit(1)
 
 logger = engine_logger().init_cli('openapi')

@@ -587,7 +587,7 @@ async def _handle_multipart_invocation(
         context = _request_start(app_engine, impl, event_name, request)
         query_args = dict(request.query)
         _validate_authorization(app_engine.app_config, context, auth_types, request)
-        hook = PreprocessHook(
+        hook = PreprocessHook(                                                   # type: ignore
             headers=request.headers, multipart_reader=await request.multipart()  # type: ignore
         )
         return await _request_execute(impl, event_name, context, query_args, payload=None,

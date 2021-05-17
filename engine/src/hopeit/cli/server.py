@@ -8,9 +8,10 @@ try:
     from hopeit.server import web
 except ModuleNotFoundError:
     print("ERROR: Missing dependencies."
-            "\n       To use hopeit_server command line tool"
-            "\n       install using `pip install hopeit.engine[web,cli]`")
+          "\n       To use hopeit_server command line tool"
+          "\n       install using `pip install hopeit.engine[web,cli]`")
     sys.exit(1)
+
 
 @click.group()
 def server():
@@ -35,4 +36,4 @@ def run(config_files: str, api_file: str, host: str, port: int, path: str, start
 cli = click.CommandCollection(sources=[server])
 
 if __name__ == '__main__':
-        cli()
+    cli()
