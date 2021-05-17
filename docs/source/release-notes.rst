@@ -12,6 +12,10 @@ _____________
         - Install using `pip install hopeit.engine[redis-streams]`
         - Add `stream_manager=hopeit.redis_streams.RedisStreamManager` to streams section in server config file.
 - [Breaking] removed `hopeit.dataobjects.validation` and `hopeit.toolkit.validators` modules
+- [Breaking] make simple-example app to match Major.Minor version number from engine. This is only breaking changes for users of this app config file.
+- [Breaking] make simple-benchmark app to match Major.Minor version number from engine. This is only breaking changes for users of this app config file.
+- [Breaking] make basic-auth plugin to match Major.Minor version number from engine. This is only breaking changes for users of this plugin config file.
+- Added test build for Python 3.9
 
 
 Version 0.2.3

@@ -4,11 +4,11 @@ import uuid
 import pytest  # type: ignore
 
 from hopeit.testing.apps import execute_event
-from hopeit.server.version import ENGINE_VERSION
+from hopeit.server.version import APPS_API_VERSION
 
 from simple_example.collector.query_concurrently import ItemsInfo
 
-APP_VERSION = ENGINE_VERSION.replace('.', "x")
+APP_VERSION = APPS_API_VERSION.replace('.', "x")
 
 
 @pytest.fixture
