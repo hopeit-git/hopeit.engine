@@ -1,15 +1,22 @@
 """
 CLI openapi commands
 """
+import sys
 import re
 
-import click
-from deepdiff import DeepDiff  # type: ignore
+try:
+    import click
+    from deepdiff import DeepDiff  # type: ignore
 
-from hopeit.app.config import parse_app_config_json
-from hopeit.server import api
-from hopeit.server.config import parse_server_config_json
-from hopeit.server.logger import engine_logger
+    from hopeit.app.config import parse_app_config_json
+    from hopeit.server import api
+    from hopeit.server.config import parse_server_config_json
+    from hopeit.server.logger import engine_logger
+except ModuleNotFoundError:
+    print("ERROR: Missing dependencies."
+            "\n       To use hopeit_server command line tool"
+            "\n       install using `pip install hopeit.engine[web,cli]`")
+    sys.exit(1)
 
 logger = engine_logger().init_cli('openapi')
 setattr(api, 'logger', logger)
