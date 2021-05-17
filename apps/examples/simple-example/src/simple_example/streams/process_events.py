@@ -3,24 +3,15 @@ Simple Example: Process Events
 --------------------------------------------------------------------
 Process events submitted by something_event app event
 """
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional
 
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
-from hopeit.dataobjects import dataobject
 from hopeit.fs_storage import FileStorage
-from model import Something, Status, StatusType
+from model import Something, SomethingStored, Status, StatusType
 
 __steps__ = ['update_status', 'save']
-
-
-@dataobject
-@dataclass
-class SomethingStored:
-    path: str
-    payload: Something
 
 
 logger, extra = app_extra_logger()

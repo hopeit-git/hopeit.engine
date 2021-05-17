@@ -17,17 +17,7 @@ from hopeit.dataobjects import dataobject
 from hopeit.server.collector import Collector
 from hopeit.server.steps import SHUFFLE
 from hopeit.fs_storage import FileStorage
-from model import Something, SomethingNotFound
-
-
-@dataobject
-@dataclass
-class ItemsInfo:
-    """
-    Items to read concurrently
-    """
-    item1_id: str
-    item2_id: str
+from model import ItemsInfo, Something, SomethingNotFound
 
 
 @dataobject
