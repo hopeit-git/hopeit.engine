@@ -8,7 +8,7 @@ an environment variable `HOPEIT_ENGINE_VERSION`
 import os
 
 ENGINE_NAME = "hopeit.engine"
-ENGINE_VERSION = "0.3.0rc5"
+ENGINE_VERSION = "0.3.0rc6"
 
 os.environ['HOPEIT_ENGINE_VERSION'] = ENGINE_VERSION
 

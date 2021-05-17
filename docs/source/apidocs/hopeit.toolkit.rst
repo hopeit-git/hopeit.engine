@@ -16,12 +16,6 @@ Submodules
    :show-inheritance:
 
 
-.. automodule:: hopeit.toolkit.validators
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 .. automodule:: hopeit.toolkit.web
    :members:
    :undoc-members:
