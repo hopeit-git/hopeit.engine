@@ -6,7 +6,7 @@ Docs: https://hopeitengine.readthedocs.io/en/latest/
 ### Engine development README
 
 #### Install locally for apps or plugins development:
-- Install python 3.8 recommended (you can use 3.7 to 3.9)
+- Install Python 3.8, recommended (you can use 3.7 to 3.9)
 - Create and activate a virtual environment (recommended)
 - Run from hopeit.engine project root
 ```
@@ -17,7 +17,7 @@ Docs: https://hopeitengine.readthedocs.io/en/latest/
 
 #### Install from Python Package Index
 
-- Install python 3.8 recommended (you can use 3.7 to 3.9)
+- Install Python 3.8, recommended (you can use 3.7 to 3.9)
 - Create and activate a virtual environment (recommended)
 - Install hopeit.engine
 
