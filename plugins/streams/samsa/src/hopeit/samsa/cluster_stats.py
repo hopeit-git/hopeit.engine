@@ -20,9 +20,11 @@ class ClusterStats:
 
 async def stats(payload: None, context: EventContext,
                 *, nodes: str, stream_prefix: Optional[str] = None) -> ClusterStats:
+    print("***************", context.app.name, context.app.version)
     client = SamsaClient(
         push_nodes=[], 
-        consume_nodes=nodes.split(','), 
+        consume_nodes=nodes.split(','),
+        api_version=context.app.version,
         consumer_id=f"{context.app_key}.{context.event_name}"
     )
     return ClusterStats(nodes=await client.stats(stream_prefix))
