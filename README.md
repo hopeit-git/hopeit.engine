@@ -1,6 +1,6 @@
 ![hopeit.engine QA](https://github.com/hopeit-git/hopeit.engine/workflows/hopeit.engine%20QA/badge.svg)
 
-> - Tested on Python 3.7 and 3.8
+> - Tested on Python 3.7 and 3.8 and 3.9
 > - Types and code style checks with [*mypy*](https://pypi.org/project/mypy/), [*flake*](https://pypi.org/project/flake8/) and [*pylint*](https://pypi.org/project/pylint/)
 > - *hopeit.engine* unit tested using [*pytest*](https://pypi.org/project/pytest/), required coverage > 90%
 > - HTTP server integration tests using [*pytest_aiohttp*](https://pypi.org/project/pytest-aiohttp/)
@@ -119,6 +119,10 @@ If an external request triggers a process that requires background tasks to run,
 *hopeit.engine* enforces your Apps implementation to be scalable. We mentioned that events are served concurrently using asyncio, but to achieve real parallelism, many instances of an App can run in the same or different server instances. Putting a load balancer (i.e: [NGINX](https://nginx.org/en/) or [HAProxy](http://www.haproxy.org/), in front of your API Server app instances, will ensure serving a high load of requests in parallel. The same scalability/load-balancing pattern applies to stream events processing. You can run many instances of Apps consuming Redis Streams. Using consumer groups, Redis will act as a load-balancer and each App instance will consume events from the stream in parallel. Apps created with *hopeit.engine* are also easy to deploy in containers, like [Docker](https://www.docker.com/). Only a Python runtime and a load-balancer is needed.
 
 ## Current status and roadmap
+
+- **UPCOMMING FEATURES:**: In 0.3.0 we introduced the ability for hopeit.engine to use different Stream Manager implementations by configuration. We are planning to create plugins to provide a hopeit.engine base Stream Processing engine to replace Redis Streams to simplify operations in some Scenarios. This can also support Kafka integration in the future.
+
+- **MAY 2021**: hopeit.engine version 0.3.0 released we moved some modules redis-storage, readis-streams, and fs-storage to independent plugins, Python 3.9 is supported. Please check [release-notes](docs/source/release-notes.rst) for minor breaking changes we made to configuration files.
 
 - **APRIL 2021**: hopeit.engine version 0.2.0 released with multipart uploads support, fixes and improvements over existing functionality.
 
