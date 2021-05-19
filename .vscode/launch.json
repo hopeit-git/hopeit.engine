@@ -9,7 +9,7 @@
             "cwd": "${workspaceFolder}",
             "args": [
                 "--port=9020",
-                "--config-files=plugins/streams/samsa/config/server-dev.json,plugins/streams/samsa/config/1x0.json"
+                "--config-files=plugins/streams/samsa/config/server-dev.json,plugins/streams/samsa/config/plugin-config.json"
             ],
             "env": {
                 "SAMSA_PUSH_NODES": "http://localhost:9020",
@@ -24,7 +24,7 @@
             "cwd": "${workspaceFolder}",
             "args": [
                 "--port=8020", "--start-streams",
-                "--config-files=engine/config/dev-noauth-samsa.json,plugins/auth/basic-auth/config/1x0.json,plugins/streams/samsa/config/1x0.json,apps/examples/simple-example/config/1x0.json"
+                "--config-files=engine/config/dev-noauth-samsa.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/streams/samsa/config/plugin-config.json,apps/examples/simple-example/config/app-config.json"
             ],
             "env": {
                 "SAMSA_PUSH_NODES": "http://localhost:8020",
@@ -41,7 +41,7 @@
             "cwd": "${workspaceFolder}",
             "args": [
                 "--port=8020", "--start-streams",
-                "--config-files=engine/config/dev-noauth-redis.json,plugins/auth/basic-auth/config/1x0.json,apps/examples/simple-example/config/1x0.json"
+                "--config-files=engine/config/dev-noauth-redis.json,plugins/auth/basic-auth/config/plugin-config.json,apps/examples/simple-example/config/app-config.json"
             ]
         }
     ]

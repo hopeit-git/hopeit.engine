@@ -9,7 +9,7 @@ import os
 import aiohttp
 
 from hopeit.app.context import EventContext
-from hopeit.dataobjects import dataobject
+from hopeit.server.names import route_name
 from hopeit.dataobjects.jsonify import Json
 from hopeit.samsa import Batch, Message, Stats, consume_in_process, get_all_streams, push_in_process
 from hopeit.server.serialization import deserialize, serialize
@@ -20,11 +20,16 @@ class SamsaClient:
     def __init__(self, *, 
                  push_nodes: List[str], 
                  consume_nodes: List[str],
+                 api_version: str,
                  consumer_id: str):
         self.push_nodes = [*push_nodes]
         self.consume_nodes = [*consume_nodes]
         self.all_nodes = sorted(list(set([*push_nodes, *consume_nodes])))
+        self.api_version = api_version
         self.consumer_id = consumer_id
+        self.push_path = route_name('api', 'samsa', self.api_version, 'push')
+        self.consume_path = route_name('api', 'samsa', self.api_version, 'consume')
+        self.stas_path = route_name('api', 'samsa', self.api_version, 'stats')
         random.seed(os.getpid())
         random.shuffle(self.consume_nodes)
 
@@ -72,8 +77,7 @@ class SamsaClient:
         }
         return all_stats
 
-    @staticmethod
-    async def _invoke_push(url: str, stream_name: str, batch: Batch, 
+    async def _invoke_push(self, url: str, stream_name: str, batch: Batch, 
                            producer_id: str, maxlen: int) -> Dict[str, int]:
 
         if url == "in-process":
@@ -86,7 +90,7 @@ class SamsaClient:
 
         async with aiohttp.ClientSession() as client:
             async with client.post(
-                f"{url}/api/samsa/1x0/push",
+                url + self.push_path,
                 data=Json.to_json(batch),
                 params={
                     "stream_name": stream_name,
@@ -96,8 +100,7 @@ class SamsaClient:
             ) as res:
                 return await res.json()
 
-    @staticmethod
-    async def _invoke_consume(url: str, stream_name: str, 
+    async def _invoke_consume(self, url: str, stream_name: str, 
                               consumer_group: str, consumer_id: str,
                               batch_size: int, timeout_ms: int) -> Batch:
 
@@ -112,7 +115,7 @@ class SamsaClient:
 
         async with aiohttp.ClientSession() as client:
             async with client.get(
-                f"{url}/api/samsa/1x0/consume", 
+                url + self.consume_path,
                 params={
                     "stream_name": stream_name,
                     "consumer_group": consumer_group,
@@ -123,9 +126,8 @@ class SamsaClient:
             ) as res:
                 return Batch.from_dict(await res.json())  # type: ignore
 
-    @staticmethod
-    async def _invoke_stats(url: str, stream_prefix: Optional[str]) -> Stats:
-        path = f"{url}/api/samsa/1x0/stats"
+    async def _invoke_stats(self, url: str, stream_prefix: Optional[str]) -> Stats:
+        path = url + self.stas_path
         if stream_prefix:
             path += f"?stream_prefix={stream_prefix}"
         async with aiohttp.ClientSession() as client:

@@ -59,7 +59,7 @@
       "type": "POST",
       "write_stream": {
         "name": "{auto}",
-        "queues": ["high-prio"]
+        "queues": ["priority"]
       },
       "config": {
         "logging": {
@@ -75,7 +75,7 @@
       "read_stream": {
         "name": "{events.streams.something_event.write_stream.name}",
         "consumer_group": "{auto}",
-        "queues": ["high-prio", "AUTO"]
+        "queues": ["priority", "AUTO"]
       },
       "config": {
         "stream": {
