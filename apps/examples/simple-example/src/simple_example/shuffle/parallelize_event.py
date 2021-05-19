@@ -15,7 +15,7 @@ from hopeit.dataobjects import dataobject
 from hopeit.app.events import Spawn, SHUFFLE
 from hopeit.app.logger import app_extra_logger
 from hopeit.fs_storage import FileStorage
-from model import Something, Status, StatusType
+from model import Something, SomethingStored, Status, StatusType
 
 logger, extra = app_extra_logger()
 
@@ -40,13 +40,6 @@ class FirstPart:
 @dataclass
 class SecondPart:
     data: Something
-
-
-@dataobject(event_id='payload.id', event_ts='payload.status.ts')
-@dataclass
-class SomethingStored:
-    path: str
-    payload: Something
 
 
 fs: Optional[FileStorage] = None

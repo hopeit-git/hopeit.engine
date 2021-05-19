@@ -4,12 +4,12 @@ import os
 import dataclasses_jsonschema
 import pytest  # type: ignore
 
-from hopeit.server.version import ENGINE_VERSION
+from hopeit.server.version import APPS_API_VERSION, ENGINE_VERSION
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, AppEngineConfig, \
     EventType, ReadStreamDescriptor, WriteStreamDescriptor, EventConfig, EventLoggingConfig
 from hopeit.app.config import parse_app_config_json
 
-APP_VERSION = ENGINE_VERSION.replace('.', "x")
+APP_VERSION = APPS_API_VERSION.replace('.', "x")
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def valid_config_json() -> str:
 {
   "app" : {
     "name": "simple_example",
-    "version": "${HOPEIT_ENGINE_VERSION}"
+    "version": "${HOPEIT_APPS_API_VERSION}"
   },
   "engine": {
     "import_modules": ["model"],
@@ -67,7 +67,7 @@ def valid_result_app_config() -> AppConfig:
     return AppConfig(
         app=AppDescriptor(
             name="simple_example",
-            version=ENGINE_VERSION
+            version=APPS_API_VERSION
         ),
         engine=AppEngineConfig(
             import_modules=["model"],
@@ -77,10 +77,10 @@ def valid_result_app_config() -> AppConfig:
         env={
             "fs": {
                 "data_path": f"/tmp/simple_example.{APP_VERSION}.fs.data_path/",
-                "app_description": f"This is simple_example version {ENGINE_VERSION}",
+                "app_description": f"This is simple_example version {APPS_API_VERSION}",
                 "recursive_replacement":
                     f"Data is in /tmp/simple_example.{APP_VERSION}.fs.data_path/. " +
-                    f"This is simple_example version {ENGINE_VERSION}"
+                    f"This is simple_example version {APPS_API_VERSION}"
             }
         },
         events={
@@ -117,6 +117,8 @@ def _get_env_mock(var_name):
         return "/tmp"
     elif var_name == "HOPEIT_ENGINE_VERSION":
         return ENGINE_VERSION
+    elif var_name == "HOPEIT_APPS_API_VERSION":
+        return APPS_API_VERSION
     raise RuntimeError(f"Missing mocked env {var_name}")
 
 

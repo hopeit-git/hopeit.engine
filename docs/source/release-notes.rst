@@ -11,6 +11,12 @@ _____________
     - By default `stream-manager` is not configured. To enable Redis Streams in server:
         - Install using `pip install hopeit.engine[redis-streams]`
         - Add `stream_manager=hopeit.redis_streams.RedisStreamManager` to streams section in server config file.
+- [Breaking] removed `hopeit.dataobjects.validation` and `hopeit.toolkit.validators` modules
+- [Breaking] make simple-example app to match Major. Minor version number from engine. This is only breaking changes for users of this app config file.
+- [Breaking] make simple-benchmark app to match Major. Minor version number from engine. This is only breaking changes for users of this app config file.
+- [Breaking] make basic-auth plugin to match Major. Minor version number from engine. This is only breaking changes for users of this plugin config file.
+- Added test build for Python 3.9
+- Fix: removed aiohttp dependency for hopeit.app.context module, in order to allow engine usage on applications that do not require web server module.
 
 
 Version 0.2.3

@@ -4,17 +4,15 @@ Simple Example: Spawn Event
 This example will spawn 3 data events, those are going to be send to a stream using SHUFFLE
 and processed in asynchronously / in parallel if multiple nodes are available
 """
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.dataobjects import dataobject
 from hopeit.app.events import Spawn, SHUFFLE
 from hopeit.app.logger import app_extra_logger
 from hopeit.fs_storage import FileStorage
-from model import Something, Status, StatusType
+from model import Something, SomethingStored, Status, StatusType
 
 logger, extra = app_extra_logger()
 
@@ -27,13 +25,6 @@ __api__ = event_api(
         200: (str, 'events submitted successfully message')
     }
 )
-
-
-@dataobject(event_id='payload.id', event_ts='payload.status.ts')
-@dataclass
-class SomethingStored:
-    path: str
-    payload: Something
 
 
 fs: Optional[FileStorage] = None

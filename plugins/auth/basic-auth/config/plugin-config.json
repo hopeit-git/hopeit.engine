@@ -1,7 +1,7 @@
 {
   "app" : {
     "name": "basic-auth",
-    "version": "${HOPEIT_ENGINE_VERSION}"
+    "version": "${HOPEIT_APPS_API_VERSION}"
   },
   "engine" : {
     "import_modules": ["hopeit.basic_auth"],

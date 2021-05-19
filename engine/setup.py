@@ -35,6 +35,7 @@ setuptools.setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Development Status :: 4 - Beta",
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X",
@@ -68,21 +69,20 @@ setuptools.setup(
         "lz4",
         "stringcase",
         "PyJWT[crypto]",
-        "click",
         "deepdiff",
-        "typing-inspect"
+        "typing-inspect",
+        "multidict",
+        "dataclasses-jsonschema[fast-validation]",
+        "fastjsonschema"
     ]],
     extras_require={
         "web": [ f"{lib}>={libversion(lib)}" for lib in [
             "aiohttp",
             "aiohttp-cors",
-            "aiohttp-swagger3",
-            "dataclasses-jsonschema[fast-validation]",
-            "fastjsonschema"
+            "aiohttp-swagger3"
         ]],
         "cli": [ f"{lib}>={libversion(lib)}" for lib in [
-            "dataclasses-jsonschema[fast-validation]",
-            "fastjsonschema"
+            "click"
         ]],
         "redis-streams": [
             f"hopeit.redis-streams=={version['ENGINE_VERSION']}"
