@@ -120,7 +120,7 @@ If an external request triggers a process that requires background tasks to run,
 
 ## Current status and roadmap
 
-- **UPCOMMING FEATURES:**: In 0.3.0 we introduced the ability for hopeit.engine to use different Stream Manager implementations by configuration. We are planning to create plugins to provide a hopeit.engine base Stream Processing engine to replace Redis Streams to simplify operations in some Scenarios. This can also support Kafka integration in the future.
+- **UPCOMING FEATURES:**: In 0.3.0 we introduced the ability for hopeit.engine to use different Stream Manager implementations by configuration. We are planning to create plugins to provide a hopeit.engine base Stream Processing engine to replace Redis Streams to simplify operations in some Scenarios. This can also support Kafka integration in the future.
 
 - **MAY 2021**: hopeit.engine version 0.3.0 released we moved some modules redis-storage, readis-streams, and fs-storage to independent plugins, Python 3.9 is supported. Please check [release-notes](docs/source/release-notes.rst) for minor breaking changes we made to configuration files.
 
