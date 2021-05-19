@@ -7,7 +7,7 @@ import json
 import base64
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Union, Tuple, Optional
+from typing import Dict, List, Any, Union, Tuple, Optional, NamedTuple
 
 from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import EventPayload
@@ -26,7 +26,11 @@ class SamsaStreamManager(StreamManager):
     """
     Manages streams of a Hopeit App using Samsa hopeit plugin
     """
-
+    class ConnectionStr(NamedTuple):
+        api_version: str
+        push_nodes: str
+        consume_nodes: str
+    
     def __init__(self, *, address: str):
         """
         Creates an StreamManager instance backed by redis connection
@@ -35,20 +39,19 @@ class SamsaStreamManager(StreamManager):
         After creation, `connect()` must be called to create connection pools.
         """
         self.address = address
-        self.push_nodes, self.consume_nodes = self._parse_connection_str(address)
+        self.api_version, push_nodes_str, consume_nodes_str = \
+            self._parse_connection_str(address)
+        self.push_nodes = push_nodes_str.split(',')
+        self.consume_nodes = consume_nodes_str.split(',')
         self.consumer_id = self._consumer_id()
         self._client: Optional[SamsaClient] = None
 
-    @staticmethod
-    def _parse_connection_str(address: str) -> Tuple[List[str], List[str]]:
-        push, cons = [
-            x.strip("; ") for x in (
-                address.strip()
-                .split("push_nodes=")[1]
-                .split("consume_nodes=")
-            )
-        ]
-        return push.split(','), cons.split(',')
+    def _parse_connection_str(self, address: str) -> ConnectionStr:
+        values = dict([
+            tuple(x.split('=')) for x in address.split(';') if x
+        ])
+        print("************** address", values)
+        return self.ConnectionStr(**values)
 
     async def connect(self):
         """
@@ -60,6 +63,7 @@ class SamsaStreamManager(StreamManager):
             self._client = SamsaClient(
                 push_nodes=self.push_nodes, 
                 consume_nodes=self.consume_nodes,
+                api_version=self.api_version,
                 consumer_id=self.consumer_id
             )
             return self
@@ -79,6 +83,7 @@ class SamsaStreamManager(StreamManager):
 
     async def write_stream(self, *,
                            stream_name: str,
+                           queue: str,
                            payload: EventPayload,
                            track_ids: Dict[str, str],
                            auth_info: Dict[str, Any],
@@ -89,6 +94,7 @@ class SamsaStreamManager(StreamManager):
         Writes event (push) to a Samsa stream using SamsaClient
 
         :param stream_name: stream name or key used by Redis
+        :param queue tag to be added to the message (it does not affect stream_name at this point)
         :param payload: EventPayload, a special type of dataclass object decorated with `@dataobject`
         :param track_ids: dict with key and id values to track in stream event
         :param auth_info: dict with auth info to be tracked as part of stream event
@@ -97,9 +103,13 @@ class SamsaStreamManager(StreamManager):
             default 0 will not send max_len to Redis.
         :return: number of successful written messages
         """
-        message = self._encode_message(payload, track_ids, auth_info, compression, serialization)
+        message = self._encode_message(
+            payload, track_ids, auth_info, compression, serialization, queue
+        )
         batch = Batch(items=[message])
-        res = await self._get_client().push(batch, stream_name=stream_name, maxlen=target_max_len)
+        res = await self._get_client().push(
+            batch, stream_name=stream_name, maxlen=target_max_len
+        )
         return len(res)
 
     async def ensure_consumer_group(self, *,
@@ -211,7 +221,8 @@ class SamsaStreamManager(StreamManager):
                         track_ids: Dict[str, str],
                         auth_info: Dict[str, Any],
                         compression: Compression,
-                        serialization: Serialization) -> Message:
+                        serialization: Serialization,
+                        queue: str) -> Message:
         return Message(
             key=payload.event_id(),  # type: ignore
             datatype=type(payload).__name__,
@@ -220,7 +231,8 @@ class SamsaStreamManager(StreamManager):
             track_ids=track_ids,
             auth_info=base64.b64encode(json.dumps(auth_info).encode()).decode(),
             ser=serialization,
-            comp=compression
+            comp=compression,
+            queue=queue
         ).encode(
             payload=serialize(payload, serialization, compression)
         )
@@ -238,10 +250,12 @@ class SamsaStreamManager(StreamManager):
                         track_headers: List[str], read_ts: str):
         return StreamEvent(
             msg_internal_id=msg.key.encode(),
+            queue=msg.queue,
             payload=deserialize(
                 msg.payload, msg.ser, msg.comp, datatype),  # type: ignore
             track_ids={
                 'stream.name': stream_name,
+                'stream.queue': msg.queue,
                 'stream.msg_id': msg.key,
                 'stream.consumer_group': consumer_group,
                 'stream.submit_ts': msg.submit_ts,

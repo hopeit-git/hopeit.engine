@@ -20,6 +20,7 @@ class Message:
     auth_info: str
     ser: Serialization
     comp: Compression
+    queue: str
     b64value: Optional[str] = None
 
     def encode(self, payload: bytes) -> "Message":
