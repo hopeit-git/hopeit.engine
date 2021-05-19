@@ -6,11 +6,11 @@ Objects is saved with updated status and history.
 """
 from typing import Union, Optional
 
-from common.validation import validate
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.logger import app_extra_logger
 from hopeit.fs_storage import FileStorage
+from common.validation import validate
 from model import Something, Status, SomethingNotFound
 
 __steps__ = ['load', 'save_with_updated_status']
