@@ -3,7 +3,6 @@ import sys
 from typing import Dict, Iterable, List, Optional, Set, Tuple, Deque
 from collections import defaultdict, deque
 from base64 import b64decode, b64encode
-from functools import partial
 
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.app.config import Compression, Serialization

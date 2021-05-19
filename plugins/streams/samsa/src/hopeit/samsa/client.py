@@ -15,6 +15,10 @@ from hopeit.samsa import Batch, Message, Stats, consume_in_process, get_all_stre
 from hopeit.server.serialization import deserialize, serialize
 
 
+class SamsaClientError(Exception):
+    pass
+
+
 class SamsaClient:
 
     def __init__(self, *, 
@@ -29,7 +33,7 @@ class SamsaClient:
         self.consumer_id = consumer_id
         self.push_path = route_name('api', 'samsa', self.api_version, 'push')
         self.consume_path = route_name('api', 'samsa', self.api_version, 'consume')
-        self.stas_path = route_name('api', 'samsa', self.api_version, 'stats')
+        self.stats_path = route_name('api', 'samsa', self.api_version, 'stats')
         random.seed(os.getpid())
         random.shuffle(self.consume_nodes)
 
@@ -98,7 +102,13 @@ class SamsaClient:
                     "maxlen": maxlen
                 }
             ) as res:
-                return await res.json()
+                if res.status == 200:
+                    return await res.json()
+                elif res.status == 404:
+                    raise SamsaClientError(f"404: Not Found: {url}{self.push_path}")
+                else:
+                    raise SamsaClientError(await res.text())
+
 
     async def _invoke_consume(self, url: str, stream_name: str, 
                               consumer_group: str, consumer_id: str,
@@ -124,12 +134,22 @@ class SamsaClient:
                     "timeout_ms": timeout_ms
                 }
             ) as res:
-                return Batch.from_dict(await res.json())  # type: ignore
+                if res.status == 200:
+                    return Batch.from_dict(await res.json())  # type: ignore
+                elif res.status == 404:
+                    raise SamsaClientError(f"404: Not Found: {url}{self.push_path}")
+                else:
+                    raise SamsaClientError(await res.text())
 
     async def _invoke_stats(self, url: str, stream_prefix: Optional[str]) -> Stats:
-        path = url + self.stas_path
+        path = url + self.stats_path
         if stream_prefix:
             path += f"?stream_prefix={stream_prefix}"
         async with aiohttp.ClientSession() as client:
             async with client.get(path) as res:
-                return Stats.from_dict(await res.json())  # type: ignore
+                if res.status == 200:
+                    return Stats.from_dict(await res.json())  # type: ignore
+                elif res.status == 404:
+                    raise SamsaClientError(f"404: Not Found: {url}{self.push_path}")
+                else:
+                    raise SamsaClientError(await res.text())
