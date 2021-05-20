@@ -120,7 +120,7 @@ If an external request triggers a process that requires background tasks to run,
 
 ## Current status and roadmap
 
-- **UPCOMING FEATURES:**: `hopeit.engine` 0.3.0 introduced the ability to use different Stream Managers in order and enable custom integrations. We are planning to create plugins to provide a `hopeit.engine` based Stream Processing engine to optionally use instead Redis Streams, simplifying operations in some scenarios. Thanks to this modularization, also Kafka integration can be supported in the future.
+- **UPCOMING FEATURES:**: `hopeit.engine` 0.3.0 introduced the ability to use different Stream Managers and enable custom integrations. We are planning to create plugins to provide a `hopeit.engine` based Stream Processing engine to optionally use instead of Redis Streams, simplifying operations in some scenarios. Thanks to this modularization, also Kafka integration can be supported in the future.
 
 - **MAY 2021**: `hopeit.engine` version 0.3.0 released: we moved the modules redis-storage, readis-streams and fs-storage to independent plugins; Python 3.9 is now supported. Please check [release-notes](docs/source/release-notes.rst) for minor breaking changes made to configuration files.
 
