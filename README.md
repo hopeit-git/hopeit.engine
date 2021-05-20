@@ -1,6 +1,6 @@
 ![hopeit.engine QA](https://github.com/hopeit-git/hopeit.engine/workflows/hopeit.engine%20QA/badge.svg)
 
-> - Tested on Python 3.7, 3.8, and 3.9
+> - Tested on Python 3.7, 3.8 and 3.9
 > - Types and code style checks with [*mypy*](https://pypi.org/project/mypy/), [*flake*](https://pypi.org/project/flake8/) and [*pylint*](https://pypi.org/project/pylint/)
 > - *hopeit.engine* unit tested using [*pytest*](https://pypi.org/project/pytest/), required coverage > 90%
 > - HTTP server integration tests using [*pytest_aiohttp*](https://pypi.org/project/pytest-aiohttp/)
@@ -120,15 +120,15 @@ If an external request triggers a process that requires background tasks to run,
 
 ## Current status and roadmap
 
-- **UPCOMING FEATURES:**: In hopeit.engine 0.3.0 we introduced the ability for hopeit.engine to use different Stream Manager in order to simplify implementations by configuration. We are planning to create plugins to provide a hopeit.engine base Stream Processing engine to replace Redis Streams to simplify operations in some scenarios. Thanks to this, Kafka integration can be supported in the future.
+- **UPCOMING FEATURES:**: `hopeit.engine` 0.3.0 introduced the ability to use different Stream Managers in order and enable custom integrations. We are planning to create plugins to provide a `hopeit.engine` based Stream Processing engine to optionally use instead Redis Streams, simplifying operations in some scenarios. Thanks to this modularization, also Kafka integration can be supported in the future.
 
-- **MAY 2021**: hopeit.engine version 0.3.0 released: we moved some modules redis-storage, readis-streams, and fs-storage to independent plugins, Python 3.9 is mow supported. Please check [release-notes](docs/source/release-notes.rst) for minor breaking changes made to configuration files.
+- **MAY 2021**: `hopeit.engine` version 0.3.0 released: we moved the modules redis-storage, readis-streams and fs-storage to independent plugins; Python 3.9 is now supported. Please check [release-notes](docs/source/release-notes.rst) for minor breaking changes made to configuration files.
 
-- **APRIL 2021**: hopeit.engine version 0.2.0 released with multipart uploads support, fixes and improvements over existing functionality.
+- **APRIL 2021**: `hopeit.engine` version 0.2.0 released with multipart uploads support, fixes and improvements over existing functionality.
 
-- **FEBRUARY 2021**: hopeit.engine version 0.1.5 is released on PyPI, enjoy!
+- **FEBRUARY 2021**: `hopeit.engine` version 0.1.5 is released on PyPI, enjoy!
 
-- **JULY 2020**: hopeit.engine version 0.1.0 is released as Open Source in github!
+- **JULY 2020**: `hopeit.engine` version 0.1.0 is released as Open Source in github!
     
 - We are still working on improving documentation and tutorials.
 
