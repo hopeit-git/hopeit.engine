@@ -267,6 +267,7 @@ def split_event_stages(app: AppDescriptor,
     effective_events: Dict[str, EventDescriptor] = {}
     event_type = event_info.type
     read_stream = event_info.read_stream
+    queues = ["AUTO"] if read_stream is None else read_stream.queues
     sub_event_name: Optional[str] = event_name
     sub_event_info = event_info
     intermediate_stream = None
@@ -276,6 +277,7 @@ def split_event_stages(app: AppDescriptor,
         if read_stream is None and intermediate_stream is not None:
             read_stream = ReadStreamDescriptor(
                 name=intermediate_stream,
+                queues=queues,
                 consumer_group=auto_path(app.name, app.version, *event_name.split('.'), stage)
             )
         intermediate_stream = auto_path(app.name, app.version, *event_name.split('.'), stage)
