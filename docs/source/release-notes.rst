@@ -9,8 +9,8 @@ produce and consumer events in parallel from different sources. Engine automatic
 independent streams for each queue and ensures a message read from a queue are propagated
 dowstream using same queue.
 - Web: 
-    - Support for custom response `content-type` in `PostProcessHook`, i.e. to return `text/plan` or
-    `text/html` for specific applications.
+    - Support for custom response `content-type` in `PostProcessHook`, i.e. to return `text/plain` or
+    `text/html` for specific applications, instead of default `application/json`.
 - Open API:
     - Fixed "Authorization required" with openapi generated entry when endpoint is marked as "Unsecured"
 - Plugins: 
