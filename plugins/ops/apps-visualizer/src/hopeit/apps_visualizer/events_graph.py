@@ -64,7 +64,7 @@ async def build_cytoscape_data(graph: Graph, context: EventContext) -> str:
     """
     def _edge_label(edge: Edge) -> str:
         label = edge.label.split('.')[-1]
-        if label in (edge.source.split('.')[-1], "AUTO"):
+        if label in ("AUTO", "POST", "GET", "MULTIPART"):
             return ""
         return label
 
