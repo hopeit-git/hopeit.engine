@@ -31,14 +31,17 @@ __api__ = event_api(
 _dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 
 
-async def generate_config_graph(payload: None, context: EventContext, *,
-                               app_prefix: Optional[str] = '',
-                               expand_queues: Optional[bool] = False) -> Graph:
+async def generate_config_graph(payload: None, context: EventContext,
+                                *, app_prefix: str = '',
+                                expand_queues: bool = False) -> Graph:
+    """
+    Generates Graph object with nodes and edges from server runtime active configuration
+    """
     app_prefix = app_prefix.replace('-', '_')
     server = getattr(sys.modules.get("hopeit.server.runtime"), "server")
     events = {}
     for app_key, app in server.app_engines.items():
-        if app_prefix and not (app_key[0:len(app_prefix)] == app_prefix):
+        if app_prefix and app_key[0:len(app_prefix)] != app_prefix:
             continue
 
         app_config = app.app_config
@@ -49,14 +52,16 @@ async def generate_config_graph(payload: None, context: EventContext, *,
                 events[f"{app_key}.{name}"] = info
 
     nodes = get_nodes(
-        events, expand_queues=(expand_queues == 'true')
+        events, expand_queues=(expand_queues is True or expand_queues == 'true')
     )
     edges = get_edges(nodes)
     return Graph(nodes=nodes, edges=edges)
 
 
-def build_cytoscape_data(graph: Graph, context: EventContext) -> str:
-
+async def build_cytoscape_data(graph: Graph, context: EventContext) -> str:
+    """
+    Converts Graph to cytoscape json format
+    """
     def _edge_label(edge: Edge) -> str:
         label = edge.label.split('.')[-1]
         if label in (edge.source.split('.')[-1], "AUTO"):
@@ -86,7 +91,10 @@ def build_cytoscape_data(graph: Graph, context: EventContext) -> str:
 
 
 async def __postprocess__(data: str, context: EventContext, response: PostprocessHook) -> str:
+    """
+    Renders html from template, using cytospace data json
+    """
     with open(_dir_path / 'events_graph_template.html') as f:
         template = f.read()
         response.set_content_type("text/html")
-        return template.replace("{ data }", data)
+        return template.replace("{{data}}", data)

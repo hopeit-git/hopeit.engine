@@ -1,9 +1,12 @@
+"""
+Apps Visualizer: graph elements model
+"""
 from typing import List, Dict
 from dataclasses import dataclass, field
 from enum import Enum
 
 from hopeit.dataobjects import dataobject
-from hopeit.app.config import EventType, EventConfig, StreamQueueStrategy
+from hopeit.app.config import EventDescriptor, EventType, StreamQueueStrategy
 
 
 class NodeType(Enum):
@@ -40,8 +43,15 @@ class Graph:
     edges: List[Edge]
 
 
-def get_nodes(events: Dict[str, EventConfig],
-              *, expand_queues: bool = False) -> Dict[str, Node]:
+def get_nodes(events: Dict[str, EventDescriptor],
+              *, expand_queues: bool = False) -> List[Node]:
+    """
+    Create Node metadata from EventDescriptors from app_config,
+    expanding effective events using engine functionallity.
+
+    :param expand_queues: bool, if True, stream queues are shown as separate streams,
+        otherwise they are shown in a single node with multiple input/outputs.
+    """
     nodes = {}
     for event_name, event_info in events.items():
         inputs, outputs = [], []
@@ -50,9 +60,9 @@ def get_nodes(events: Dict[str, EventConfig],
             inputs.append(port_name)
             request_node = Node(
                 id=port_name, label=event_info.type.value, type=NodeType.REQUEST, outputs=[port_name]
-            ) 
+            )
             nodes[port_name] = request_node
-            
+
         if event_info.read_stream:
             queues = event_info.read_stream.queues
             for qid, queue in zip(queues, queues) if expand_queues else [("*", "|".join(queues))]:
@@ -63,9 +73,9 @@ def get_nodes(events: Dict[str, EventConfig],
                 ))
                 stream_node.slots = sorted(set([*stream_node.slots, *queue.split("|")]))
                 nodes[stream_id] = stream_node
-            
-                for queue in [queue] if expand_queues else queues:
-                    port_name = f"{event_name}.{stream_name}.{queue}"
+
+                for q in [queue] if expand_queues else queues:
+                    port_name = f"{event_name}.{stream_name}.{q}"
                     inputs.append(port_name)
                     stream_node.outputs.append(port_name)
 
@@ -80,15 +90,14 @@ def get_nodes(events: Dict[str, EventConfig],
             for qid, queue in zip(queues, queues) if expand_queues else [("*", "|".join(queues))]:
                 stream_id = f"{event_info.write_stream.name}.{qid}"
                 stream_name = f"{event_info.write_stream.name}"
-                
                 stream_node = nodes.get(stream_id, Node(
                     id=stream_id, label=stream_name, type=NodeType.STREAM
                 ))
                 stream_node.slots = sorted(set([*stream_node.slots, *queue.split("|")]))
                 nodes[stream_id] = stream_node
-                
-                for queue in [queue] if expand_queues else queues:
-                    port_name = f"{event_name}.{stream_name}.{queue}"
+
+                for q in [queue] if expand_queues else queues:
+                    port_name = f"{event_name}.{stream_name}.{q}"
                     stream_node.inputs.append(port_name)
                     outputs.append(port_name)
 
@@ -100,6 +109,9 @@ def get_nodes(events: Dict[str, EventConfig],
 
 
 def get_edges(nodes: List[Node]):
+    """
+    Builds Edge list from list of Nodes
+    """
     inputs = {
         port: node for node in nodes for port in node.inputs
     }
@@ -117,5 +129,5 @@ def get_edges(nodes: List[Node]):
                 source=source.id,
                 target=target.id
             ))
-            
+
     return edges
