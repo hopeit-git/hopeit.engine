@@ -40,12 +40,11 @@ def build_cytoscape_data(graph: Graph, context: EventContext) -> str:
             "group": node.type.value,
             "id": node.id,
             "content": '\n'.join(node.label.split('.'))
-        }}
+        }, "classes": node.type.value}
         for node in graph.nodes
     ]
     edges = [
         {"data": {
-            "group": "edges",
             "id": f"edge_{edge.id}",
             "source": edge.source,
             "target": edge.target,
@@ -62,4 +61,4 @@ async def __postprocess__(data: str, context: EventContext, response: Postproces
     with open(_dir_path / 'events_graph_template.html') as f:
         template = f.read()
         response.set_content_type("text/html")
-        return template.replace("{data}", data)
+        return template.replace("{ data }", data)
