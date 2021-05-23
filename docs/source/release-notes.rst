@@ -11,6 +11,8 @@ dowstream using same queue.
 - Web: 
     - Support for custom response `content-type` in `PostProcessHook`, i.e. to return `text/plan` or
     `text/html` for specific applications.
+- Open API:
+    - Fixed "Authorization required" with openapi generated entry when endpoint is marked as "Unsecured"
 - Plugins: 
     - New plugin for visualizing running configuration (events & streams): `ops/apps-visualizer` plugin.
 
