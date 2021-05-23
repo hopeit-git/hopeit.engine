@@ -576,7 +576,7 @@ def _set_path_security(event_api_spec: dict, app_config: AppConfig, event_info: 
         elif auth != AuthType.UNSECURED:
             auth_str = f"auth.{auth.value.lower()}"
             security.append({auth_str: []})
-    if len(security) == 0 and not (AuthType.UNSECURED in event_info.auth):
+    if len(security) == 0 and not AuthType.UNSECURED in event_info.auth:
         security = spec['security']
     if len(security) > 0:
         event_api_spec['security'] = security

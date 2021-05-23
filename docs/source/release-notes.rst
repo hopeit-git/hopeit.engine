@@ -1,6 +1,20 @@
 Release Notes
 =============
 
+Version 0.4.0
+_____________
+- Streams: 
+    - Added support for multiple `queues` in `read_stream` and `write_stream` configuration, allowing to
+produce and consumer events in parallel from different sources. Engine automatically manages
+independent streams for each queue and ensures a message read from a queue are propagated
+dowstream using same queue.
+- Web: 
+    - Support for custom response `content-type` in `PostProcessHook`, i.e. to return `text/plan` or
+    `text/html` for specific applications.
+- Plugins: 
+    - New plugin for visualizing running configuration (events & streams): `ops/apps-visualizer` plugin.
+
+
 Version 0.3.0
 _____________
 - [Breaking] Moved `hopeit.toolkit.storage.redis` to `hopeit.redis-storage` plugin.

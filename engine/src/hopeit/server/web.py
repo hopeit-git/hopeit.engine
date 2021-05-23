@@ -11,7 +11,7 @@ import re
 import argparse
 import uuid
 import gc
-from typing import Optional, Type, List, Dict, Tuple, Any, Union, Coroutine
+from typing import Callable, Optional, Type, List, Dict, Tuple, Any, Union, Coroutine
 from functools import partial
 from datetime import datetime, timezone
 import logging
@@ -94,10 +94,6 @@ def main(host: Optional[str], port: Optional[int], path: Optional[str], start_st
 def init_logger():
     global logger
     logger = engine_logger()
-
-
-def get_running_server() -> Server:
-    return server
 
 
 async def start_server(config: ServerConfig):
@@ -345,7 +341,9 @@ def _response(*, track_ids: Dict[str, str], key: str,
             headers=headers
         )
     else:
-        serializer = CONTENT_TYPE_BODY_SER.get(hook.content_type, _application_json_response)
+        serializer: Callable[..., str] = CONTENT_TYPE_BODY_SER.get(
+            hook.content_type, _application_json_response
+        )
         body = serializer(payload, key=key)
         response = web.Response(
             body=body,
@@ -487,7 +485,7 @@ def _text_response(result: str, *args, **kwargs) -> str:
     return str(result)
 
 
-CONTENT_TYPE_BODY_SER = {
+CONTENT_TYPE_BODY_SER: Dict[str, Callable[..., str]] = {
     'application/json': _application_json_response,
     'text/html': _text_response,
     'text/plain': _text_response
