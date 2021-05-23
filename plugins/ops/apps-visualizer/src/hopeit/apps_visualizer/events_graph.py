@@ -44,7 +44,7 @@ def build_cytoscape_data(graph: Graph, context: EventContext) -> str:
         for node in graph.nodes
     ]
     edges = [
-        {   "data": {
+        {"data": {
             "id": f"edge_{edge.id}",
             "source": edge.source,
             "target": edge.target,
