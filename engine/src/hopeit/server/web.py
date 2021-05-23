@@ -11,7 +11,7 @@ import re
 import argparse
 import uuid
 import gc
-from typing import Optional, Type, List, Dict, Tuple, Any, Union, Coroutine
+from typing import Callable, Optional, Type, List, Dict, Tuple, Any, Union, Coroutine
 from functools import partial
 from datetime import datetime, timezone
 import logging
@@ -31,7 +31,7 @@ from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
 from hopeit.dataobjects.jsonify import Json
 from hopeit.app.context import EventContext, NoopMultiparReader, PostprocessHook, PreprocessHook
-from hopeit.dataobjects import DataObject, EventPayloadType
+from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType
 from hopeit.app.errors import Unauthorized, BadRequest
 from hopeit.server.engine import Server, AppEngine
 from hopeit.server.config import parse_server_config_json, ServerConfig, AuthType
@@ -41,6 +41,7 @@ from hopeit.server.errors import ErrorInfo
 from hopeit.server.names import route_name
 from hopeit.server.api import app_route_name
 from hopeit.app.config import AppConfig, EventType, EventDescriptor, parse_app_config_json, EventPlugMode
+import hopeit.server.runtime as runtime
 
 __all__ = ['parse_args',
            'main',
@@ -53,7 +54,7 @@ extra = extra_logger()
 
 ResponseType = Union[web.Response, web.FileResponse]
 
-server = Server()
+# server = Server()
 web_server = web.Application()
 aiojobs_http.setup(web_server)
 auth_info_default = {}
@@ -99,16 +100,15 @@ async def start_server(config: ServerConfig):
     """
     Start engine engine
     """
-    global server
-    server = await Server().start(config=config)
+    await runtime.server.start(config=config)
     init_logger()
 
 
 async def stop_server():
-    global server, web_server
-    await server.stop()
-    server = Server()
+    global web_server
+    await runtime.server.stop()
     await web_server.shutdown()
+    runtime.server = Server()
     web_server = web.Application()
 
 
@@ -119,7 +119,7 @@ async def start_app(config: AppConfig, scheduler: Scheduler, start_streams: bool
     :param config: AppConfig, configuration for the app to start
     :param start_streams: if True all stream events in app will start consuming
     """
-    app_engine = await server.start_app(app_config=config)
+    app_engine = await runtime.server.start_app(app_config=config)
     cors_origin = aiohttp_cors.setup(web_server, defaults={
         config.engine.cors_origin: aiohttp_cors.ResourceOptions(
             allow_credentials=True,
@@ -130,7 +130,7 @@ async def start_app(config: AppConfig, scheduler: Scheduler, start_streams: bool
 
     _setup_app_event_routes(app_engine)
     for plugin in config.plugins:
-        plugin_engine = server.app_engine(app_key=plugin.app_key())
+        plugin_engine = runtime.server.app_engine(app_key=plugin.app_key())
         _setup_app_event_routes(app_engine, plugin_engine)
     if cors_origin:
         app = app_engine.app_config.app
@@ -324,7 +324,8 @@ def _create_event_management_routes(
     ]
 
 
-def _response(*, track_ids: Dict[str, str], body: str, hook: PostprocessHook) -> ResponseType:
+def _response(*, track_ids: Dict[str, str], key: str,
+              payload: EventPayload, hook: PostprocessHook) -> ResponseType:
     """
     Creates a web response object from a given payload (body), header track ids
     and applies a postprocess hook
@@ -337,13 +338,17 @@ def _response(*, track_ids: Dict[str, str], body: str, hook: PostprocessHook) ->
     if hook.file_response is not None:
         response = web.FileResponse(
             path=hook.file_response,
-            headers=headers
+            headers={'Content-Type': hook.content_type, **headers}
         )
     else:
+        serializer: Callable[..., str] = CONTENT_TYPE_BODY_SER.get(
+            hook.content_type, _text_response
+        )
+        body = serializer(payload, key=key)
         response = web.Response(
             body=body,
             headers=headers,
-            content_type='application/json'
+            content_type=hook.content_type
         )
         for name, cookie in hook.cookies.items():
             value, args, kwargs = cookie
@@ -472,6 +477,21 @@ def _validate_authorization(app_config: AppConfig,
     raise Unauthorized(method)
 
 
+def _application_json_response(result: DataObject, key: str, *args, **kwargs) -> str:
+    return Json.to_json(result, key=key)
+
+
+def _text_response(result: str, *args, **kwargs) -> str:
+    return str(result)
+
+
+CONTENT_TYPE_BODY_SER: Dict[str, Callable[..., str]] = {
+    'application/json': _application_json_response,
+    'text/html': _text_response,
+    'text/plain': _text_response
+}
+
+
 async def _request_execute(
         app_engine: AppEngine,
         event_name: str,
@@ -491,8 +511,13 @@ async def _request_execute(
         result = await app_engine.postprocess(context=context, payload=result, response=response_hook)
     else:
         response_hook.set_status(preprocess_hook.status)
-    body = Json.to_json(result, key=event_name)
-    response = _response(track_ids=context.track_ids, body=body, hook=response_hook)
+    # body = Json.to_json(result, key=event_name)
+    response = _response(
+        track_ids=context.track_ids,
+        key=event_name,
+        payload=result,
+        hook=response_hook
+    )
     logger.done(context, extra=combined(
         _response_info(response), metrics(context)
     ))

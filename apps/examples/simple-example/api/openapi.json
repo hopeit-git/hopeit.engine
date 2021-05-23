@@ -53,6 +53,75 @@
         ]
       }
     },
+    "/ops/apps-visualizer/events-graph": {
+      "get": {
+        "summary": "App Visualizer: Events Graph",
+        "description": "[Click here to open Events Graph](/ops/apps-visualizer/events-graph)",
+        "parameters": [
+          {
+            "name": "app_prefix",
+            "in": "query",
+            "required": false,
+            "description": "app_key prefix to filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expand_queues",
+            "in": "query",
+            "required": false,
+            "description": "if `true` shows each stream queue as a separated stream",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML page with Events Graph",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "events-graph"
+                  ],
+                  "properties": {
+                    "events-graph": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "events-graph string payload"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "apps_visualizer.0x4"
+        ]
+      }
+    },
     "/api/simple-example/0x4/list-somethings": {
       "get": {
         "summary": "Simple Example: List Objects",
