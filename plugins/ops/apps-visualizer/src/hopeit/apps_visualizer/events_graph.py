@@ -9,7 +9,7 @@ from pathlib import Path
 
 from hopeit.app.context import EventContext, PostprocessHook
 
-from hopeit.apps_visualizer.graphs import Edge, Graph, get_edges, get_nodes
+from hopeit.apps_visualizer.graphs import Edge, Graph, Node, NodeType, get_edges, get_nodes
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import split_event_stages
 from hopeit.app.api import event_api
@@ -68,12 +68,18 @@ async def build_cytoscape_data(graph: Graph, context: EventContext) -> str:
             return ""
         return label
 
-    # node_index = {node.id: node for node in graph.nodes}
+    def _node_label(node: Node) -> str:
+        comps = node.label.split(".")
+        if len(comps) > 2:
+            return '\n'.join(['.'.join(comps[0:2]), '.'.join(comps[2:])])
+        return node.label
+
+    # node_index = {node.1id: node for node in graph.nodes}
     nodes = [
         {"data": {
             "group": node.type.value,
             "id": node.id,
-            "content": '\n'.join(node.label.split('.'))
+            "content": _node_label(node),
         }, "classes": node.type.value}
         for node in graph.nodes
     ]

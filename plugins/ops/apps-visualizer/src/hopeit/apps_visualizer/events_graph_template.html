@@ -99,23 +99,28 @@
         {
           selector: "edge",
           style: {
-            "width": "0.4px",
-            "target-arrow-shape": "triangle",
-            "arrow-scale": "0.4",
-            "font-size": "4px",            
             "content": "data(label)",
+            "width": "0.4px",
+            "line-color": "black",
+            "font-family": "mono",
+            "font-size": "4px",            
             "curve-style": "bezier",
-            
+            "target-arrow-shape": "triangle",
+            "target-arrow-color": "black",
+            "arrow-scale": "0.4",
           },
         },
         {
           selector: "node",
           style: {
-            content: "data(content)",
+            "content": "data(content)",
+            "font-family": "mono",
             "font-size": "4px",
             "text-wrap": "wrap",
             "text-valign": "center",
             "text-halign": "center",
+            "border-width": "0.2px",
+            "border-opacity" : 0.3,
           },
         },
         {
@@ -124,7 +129,9 @@
             "shape": "rectangle",
             "background-color": "#AACCAA",
             "width": "label",
-            "padding": "2px"
+            "height": "label",
+            "padding-left": "2px",
+            "padding-right": "2px"
           },
         },
         {
@@ -132,14 +139,20 @@
           style: {
             "shape": "barrel",
             "background-color": "#AAAAFF", 
-            "transform":"rotate(140deg)",        
+            "width": "label",
+            "height": "label",
+            "padding-left": "2px",
+            "padding-right": "2px",
           },
         },
         {
           selector: "node.REQUEST",
           style: {
             "shape": "ellipse",
-            "background-color": "#DDDD55"
+            "font-size": "3px",
+            "text-valign": "top",
+            "width": "6",
+            "height": "6",
           },
         }        
       ]);
