@@ -37,9 +37,15 @@ async def test_simple_example_events_diagram_expand_queues(monkeypatch, events_g
         app_config=plugin_config, event_name="events-graph", payload=None, expand_queues="true"
     )
     data = json.loads(result)
-    streams = {x['data']['id'] for x in data if x['data'].get('group') == "STREAM"}
-    assert 'simple_example.0x4.streams.something_event.AUTO' in streams
-    assert 'simple_example.0x4.streams.something_event.high-prio' in streams
+    streams = {x['data']['id']: x['data'] for x in data if x['data'].get('group') == "STREAM"}
+
+    s1 = streams['simple_example.0x4.streams.something_event.AUTO']
+    assert s1['id'] == 'simple_example.0x4.streams.something_event.AUTO'
+    assert s1['content'] == 'simple_example.0x4\nstreams.something_event'
+
+    s2 = streams['simple_example.0x4.streams.something_event.high-prio']
+    assert s2['id'] == 'simple_example.0x4.streams.something_event.high-prio'
+    assert s2['content'] == 'simple_example.0x4\nstreams.something_event.high-prio'
 
 
 @pytest.mark.asyncio
