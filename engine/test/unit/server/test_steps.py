@@ -299,7 +299,7 @@ def test_split_event_stages_queues(mock_app_config):  # noqa: F811
             read_stream=ReadStreamDescriptor(
                 name='mock_app.test.mock_shuffle_event.produce_messages',
                 consumer_group='mock_app.test.mock_shuffle_event.consume_stream',
-                queues=['AUTO']
+                queues=["q1", "q2"]
             ),
             write_stream=event_info.write_stream,
             config=event_config,
