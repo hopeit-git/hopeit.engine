@@ -40,7 +40,8 @@ class Graph:
     edges: List[Edge]
 
 
-def get_nodes(events: Dict[str, EventConfig], expand_queues: bool = True) -> Dict[str, Node]:
+def get_nodes(events: Dict[str, EventConfig],
+              *, expand_queues: bool = False) -> Dict[str, Node]:
     nodes = {}
     for event_name, event_info in events.items():
         inputs, outputs = [], []

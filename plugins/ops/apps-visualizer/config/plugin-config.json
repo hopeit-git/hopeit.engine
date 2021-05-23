@@ -10,7 +10,8 @@
     "events": {
         "events-graph": {
             "type": "GET",
-            "auth": ["Unsecured"]
+            "auth": ["Unsecured"],
+            "route": "/ops/apps-visualizer/events-graph"
         }
 
     }
