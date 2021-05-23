@@ -41,6 +41,7 @@ from hopeit.server.errors import ErrorInfo
 from hopeit.server.names import route_name
 from hopeit.server.api import app_route_name
 from hopeit.app.config import AppConfig, EventType, EventDescriptor, parse_app_config_json, EventPlugMode
+import hopeit.server.runtime as runtime
 
 __all__ = ['parse_args',
            'main',
@@ -53,7 +54,7 @@ extra = extra_logger()
 
 ResponseType = Union[web.Response, web.FileResponse]
 
-server = Server()
+# server = Server()
 web_server = web.Application()
 aiojobs_http.setup(web_server)
 auth_info_default = {}
@@ -95,20 +96,23 @@ def init_logger():
     logger = engine_logger()
 
 
+def get_running_server() -> Server:
+    return server
+
+
 async def start_server(config: ServerConfig):
     """
     Start engine engine
     """
-    global server
-    server = await Server().start(config=config)
+    await runtime.server.start(config=config)
     init_logger()
 
 
 async def stop_server():
-    global server, web_server
-    await server.stop()
-    server = Server()
+    global web_server
+    await runtime.server.stop()
     await web_server.shutdown()
+    runtime.server = Server()
     web_server = web.Application()
 
 
@@ -119,7 +123,7 @@ async def start_app(config: AppConfig, scheduler: Scheduler, start_streams: bool
     :param config: AppConfig, configuration for the app to start
     :param start_streams: if True all stream events in app will start consuming
     """
-    app_engine = await server.start_app(app_config=config)
+    app_engine = await runtime.server.start_app(app_config=config)
     cors_origin = aiohttp_cors.setup(web_server, defaults={
         config.engine.cors_origin: aiohttp_cors.ResourceOptions(
             allow_credentials=True,
@@ -130,7 +134,7 @@ async def start_app(config: AppConfig, scheduler: Scheduler, start_streams: bool
 
     _setup_app_event_routes(app_engine)
     for plugin in config.plugins:
-        plugin_engine = server.app_engine(app_key=plugin.app_key())
+        plugin_engine = runtime.server.app_engine(app_key=plugin.app_key())
         _setup_app_event_routes(app_engine, plugin_engine)
     if cors_origin:
         app = app_engine.app_config.app

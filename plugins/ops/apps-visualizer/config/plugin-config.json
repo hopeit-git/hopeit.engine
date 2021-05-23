@@ -1,0 +1,17 @@
+{
+    "app": {
+        "name": "apps-visualizer",
+        "version": "${HOPEIT_APPS_API_VERSION}"
+    },
+    "engine" : {
+        "import_modules": ["hopeit.apps_visualizer"],
+        "cors_origin": "http://localhost:8020"
+    },    
+    "events": {
+        "events-graph": {
+            "type": "GET",
+            "auth": ["Unsecured"]
+        }
+
+    }
+}
