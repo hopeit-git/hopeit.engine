@@ -99,11 +99,14 @@
         {
           selector: "edge",
           style: {
-            "content": "data(label)",
+            "label": "data(label)",
             "width": "0.4px",
             "line-color": "black",
             "font-family": "mono",
-            "font-size": "4px",            
+            "font-size": "4px",
+            "text-rotation": "autorotate",
+            "text-margin-x": "3px",
+            "text-margin-y": "-3px",
             "curve-style": "bezier",
             "target-arrow-shape": "triangle",
             "target-arrow-color": "black",
@@ -131,14 +134,17 @@
             "width": "label",
             "height": "label",
             "padding-left": "2px",
-            "padding-right": "2px"
+            "padding-right": "2px",
+            "border-width": "0.3px",
+            "border-opacity" : 0.9,
           },
         },
         {
           selector: "node.STREAM",
           style: {
-            "shape": "barrel",
-            "background-color": "#AAAAFF", 
+            "shape": "round-rectangle",
+            "background-color": "#AAAAFF",
+            "background-opacity": "0.5",
             "width": "label",
             "height": "label",
             "padding-left": "2px",
