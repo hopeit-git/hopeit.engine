@@ -95,21 +95,35 @@
         elements: {{data}},
       });
 
+      function hashCode(s) {
+          var h = 0;
+          for(let i = 0; i < s.length; i++)
+              h = Math.imul(31, h) + s.charCodeAt(i) | 0;
+          return h;
+      }
+
+      const line_colors = ["blue", "orange", "green"]
+      const getLineColor = (node) => {
+        label = node.data("label")
+        return label ? line_colors[Math.abs(hashCode(label)) % line_colors.length] : "black"
+      };
+
       cy.style([
         {
           selector: "edge",
           style: {
             "label": "data(label)",
             "width": "0.4px",
-            "line-color": "black",
-            "font-family": "mono",
+            "line-color": getLineColor,
+            "font-family": "monospace",
             "font-size": "4px",
+            "color": getLineColor,
             "text-rotation": "autorotate",
             "text-margin-x": "3px",
             "text-margin-y": "-3px",
             "curve-style": "bezier",
             "target-arrow-shape": "triangle",
-            "target-arrow-color": "black",
+            "target-arrow-color": getLineColor,
             "arrow-scale": "0.4",
           },
         },
@@ -117,7 +131,7 @@
           selector: "node",
           style: {
             "content": "data(content)",
-            "font-family": "mono",
+            "font-family": "monospace",
             "font-size": "4px",
             "text-wrap": "wrap",
             "text-valign": "center",
