@@ -484,7 +484,7 @@ def _application_json_response(result: DataObject, key: str, *args, **kwargs) ->
 
 
 def _text_response(result: str, *args, **kwargs) -> str:
-    return result
+    return str(result)
 
 
 CONTENT_TYPE_BODY_SER = {
