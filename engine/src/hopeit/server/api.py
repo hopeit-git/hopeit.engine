@@ -352,7 +352,8 @@ def app_route_name(app: AppDescriptor, *, event_name: str,
     :param event_name: event name as defined in AppConfig
     :param plugin: optional plugin if the event comes from a plugin and EventPlugMode=='OnApp'
     :param prefix: route prefix, defaults to 'api'
-    :param override_route_name: Optional[str], provided route to be used instead app and event name
+    :param override_route_name: Optional[str], provided route to be used instead app and event name,
+        if starts with '/', prefix will be ignored, otherwised appended to prefix
     :return: str, full route name. i.e.:
         /api/app-name/1x0/event-name or /api/app-name/1x0/plugin-name/1x0/event-name
     """
@@ -361,6 +362,8 @@ def app_route_name(app: AppDescriptor, *, event_name: str,
         *([plugin.name, plugin.version] if plugin else []),
         *event_name.split('.')
     ] if override_route_name is None else [
+        override_route_name[1:]
+    ] if override_route_name[0] == '/' else [
         prefix, override_route_name
     ]
     return route_name(*components)
@@ -573,7 +576,7 @@ def _set_path_security(event_api_spec: dict, app_config: AppConfig, event_info: 
         elif auth != AuthType.UNSECURED:
             auth_str = f"auth.{auth.value.lower()}"
             security.append({auth_str: []})
-    if len(security) == 0:
+    if len(security) == 0 and AuthType.UNSECURED not in event_info.auth:
         security = spec['security']
     if len(security) > 0:
         event_api_spec['security'] = security
