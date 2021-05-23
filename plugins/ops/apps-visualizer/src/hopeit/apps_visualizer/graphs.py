@@ -10,6 +10,7 @@ class NodeType(Enum):
     REQUEST = "REQUEST"
     EVENT = "EVENT"
     STREAM = "STREAM"
+    MULTIPART = "MULTIPART"
 
 
 @dataobject
@@ -43,7 +44,7 @@ def get_nodes(events: Dict[str, EventConfig], expand_queues: bool = True) -> Dic
     nodes = {}
     for event_name, event_info in events.items():
         inputs, outputs = [], []
-        if event_info.type in (EventType.GET, EventType.POST):
+        if event_info.type in (EventType.GET, EventType.POST, EventType.MULTIPART):
             port_name = f"{event_name}.{event_info.type.value}"
             inputs.append(port_name)
             request_node = Node(
