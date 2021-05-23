@@ -338,11 +338,11 @@ def _response(*, track_ids: Dict[str, str], key: str,
     if hook.file_response is not None:
         response = web.FileResponse(
             path=hook.file_response,
-            headers=headers
+            headers={'Content-Type': hook.content_type, **headers}
         )
     else:
         serializer: Callable[..., str] = CONTENT_TYPE_BODY_SER.get(
-            hook.content_type, _application_json_response
+            hook.content_type, _text_response
         )
         body = serializer(payload, key=key)
         response = web.Response(
