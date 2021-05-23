@@ -21,7 +21,7 @@ class Node:
     type: NodeType
     inputs: List[str] = field(default_factory=list)
     outputs: List[str] = field(default_factory=list)
-    slots: List[str] = field(default_factory=list)
+    slots: List[str] = field(default_factory=list)    
 
 
 @dataobject
