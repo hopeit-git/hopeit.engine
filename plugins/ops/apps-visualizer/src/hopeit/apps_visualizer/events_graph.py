@@ -9,7 +9,7 @@ from pathlib import Path
 
 from hopeit.app.context import EventContext, PostprocessHook
 
-from hopeit.apps_visualizer.graphs import Edge, Graph, Node, NodeType, get_edges, get_nodes
+from hopeit.apps_visualizer.graphs import Edge, Graph, Node, get_edges, get_nodes
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import split_event_stages
 from hopeit.app.api import event_api
