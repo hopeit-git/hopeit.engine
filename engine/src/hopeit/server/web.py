@@ -31,7 +31,7 @@ from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
 from hopeit.dataobjects.jsonify import Json
 from hopeit.app.context import EventContext, NoopMultiparReader, PostprocessHook, PreprocessHook
-from hopeit.dataobjects import DataObject, EventPayloadType
+from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType
 from hopeit.app.errors import Unauthorized, BadRequest
 from hopeit.server.engine import Server, AppEngine
 from hopeit.server.config import parse_server_config_json, ServerConfig, AuthType
@@ -328,7 +328,8 @@ def _create_event_management_routes(
     ]
 
 
-def _response(*, track_ids: Dict[str, str], body: str, hook: PostprocessHook) -> ResponseType:
+def _response(*, track_ids: Dict[str, str], key: str,
+              payload: EventPayload, hook: PostprocessHook) -> ResponseType:
     """
     Creates a web response object from a given payload (body), header track ids
     and applies a postprocess hook
@@ -344,10 +345,12 @@ def _response(*, track_ids: Dict[str, str], body: str, hook: PostprocessHook) ->
             headers=headers
         )
     else:
+        serializer = CONTENT_TYPE_BODY_SER.get(hook.content_type, _application_json_response)
+        body = serializer(payload, key=key)
         response = web.Response(
             body=body,
             headers=headers,
-            content_type='application/json'
+            content_type=hook.content_type
         )
         for name, cookie in hook.cookies.items():
             value, args, kwargs = cookie
@@ -476,6 +479,21 @@ def _validate_authorization(app_config: AppConfig,
     raise Unauthorized(method)
 
 
+def _application_json_response(result: DataObject, key: str, *args, **kwargs) -> str:
+    return Json.to_json(result, key=key)
+
+
+def _text_response(result: str, *args, **kwargs) -> str:
+    return result
+
+
+CONTENT_TYPE_BODY_SER = {
+    'application/json': _application_json_response,
+    'text/html': _text_response,
+    'text/plain': _text_response
+}
+
+
 async def _request_execute(
         app_engine: AppEngine,
         event_name: str,
@@ -495,8 +513,13 @@ async def _request_execute(
         result = await app_engine.postprocess(context=context, payload=result, response=response_hook)
     else:
         response_hook.set_status(preprocess_hook.status)
-    body = Json.to_json(result, key=event_name)
-    response = _response(track_ids=context.track_ids, body=body, hook=response_hook)
+    # body = Json.to_json(result, key=event_name)
+    response = _response(
+        track_ids=context.track_ids,
+        key=event_name,
+        payload=result,
+        hook=response_hook
+    )
     logger.done(context, extra=combined(
         _response_info(response), metrics(context)
     ))

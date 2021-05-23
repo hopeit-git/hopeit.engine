@@ -70,9 +70,13 @@ class PostprocessHook():
         self.del_cookies: List[Tuple[str, tuple, dict]] = []
         self.status: Optional[int] = None
         self.file_response: Optional[Union[str, Path]] = None
+        self.content_type = "application/json"
 
     def set_header(self, name: str, value: Any):
         self.headers[name] = value
+
+    def set_content_type(self, content_type: str):
+        self.content_type = content_type
 
     def set_cookie(self, name: str, value: str, *args, **kwargs):
         self.cookies[name] = (value, args, kwargs)

@@ -30,7 +30,7 @@ async def generate_config_graph(payload: None, context: EventContext) -> Graph:
 
 async def __postprocess__(graph: Graph, context: EventContext, response: PostprocessHook) -> str:
     # TODO: Read template, build graph data and return text/html response
-    # TODO: Support change content-type: response.set_header("content-type", "text/html")
+    response.set_content_type("text/html")
     return """
     <html>
     <h1> Apps! </h1>
