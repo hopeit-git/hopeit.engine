@@ -27,8 +27,8 @@ __steps__ = [
 ]
 
 __api__ = event_api(
-    summary="App Visualizer: Events Diagram",
-    description="Shows events, stream and data flow based on running configuration",
+    summary="App Visualizer: Events Graph",
+    description="[Click here to open Events Graph](/ops/apps-visualizer/events-graph)",
     query_args=[
         ("app_prefix", Optional[str], "app_key prefix to filter"),
         ("expand_queues", Optional[bool], "if `true` shows each stream queue as a separated stream")
@@ -131,11 +131,15 @@ async def __postprocess__(result: EventsGraphResult, context: EventContext, resp
     """
     response.set_content_type("text/html")
 
-    expand_queues = f"events-graph{'' if result.options.expand_queues else '?expand_queues=true'}"
-    expand_queues_label = f"{'Standard view' if result.options.expand_queues else 'Expanded view'}"
+    switch_link = f"events-graph?app_prefix={result.options.app_prefix}"
+    switch_link += f"&expand_queues={str(not result.options.expand_queues).lower()}"
+
+    app_prefix = result.options.app_prefix or 'All running apps'
+    view_type = "Expanded queues view" if result.options.expand_queues else "Standard view"
 
     with open(_dir_path / 'events_graph_template.html') as f:
         template = f.read()
-        template = template.replace("{{expand_queues}}", expand_queues)
-        template = template.replace("{{expand_queues_label}}", expand_queues_label)
-        return template.replace("{{data}}", json.dumps(result.graph.data))
+        template = template.replace("{{ app_prefix }}", app_prefix)
+        template = template.replace("{{ switch_link }}", switch_link)
+        template = template.replace("{{ view_type }}", view_type)
+        return template.replace("{{ graph_data }}", json.dumps(result.graph.data))

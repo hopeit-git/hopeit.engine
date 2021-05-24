@@ -55,8 +55,8 @@
     },
     "/ops/apps-visualizer/events-graph": {
       "get": {
-        "summary": "App Visualizer: Events Diagram",
-        "description": "Shows events, stream and data flow based on running configuration",
+        "summary": "App Visualizer: Events Graph",
+        "description": "[Click here to open Events Graph](/ops/apps-visualizer/events-graph)",
         "parameters": [
           {
             "name": "app_prefix",

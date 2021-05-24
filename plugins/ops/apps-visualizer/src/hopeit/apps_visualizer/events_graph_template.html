@@ -29,25 +29,17 @@
   <body>
     <nav class="navbar sticky-top navbar-dark bg-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="https://github.com/hopeit-git/hopeit.engine"><small class="text-muted">hopeit.engine</small> Apps Visualizer</h1></a>
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{expand_queues}}">{{expand_queues_label}}</a>
-            </li>
-          </ul>
-          
+          <a class="navbar-brand" href="https://github.com/hopeit-git/hopeit.engine"><small class="text-muted">hopeit.engine</small> Apps Visualizer</h1></a>          
         </div>
     </nav>
     <div class="container-fluid">
         <div class="row">
-          <p class="lead">
-            Events Graph
-          </p>        
+          <div class="col-8"><small class="lead">Apps: {{ app_prefix }}</small></div>
+          <div class="col-4 text-end"><small>{{ view_type }} <a href="{{ switch_link }}">[Switch]</a></small></div>
         </div>
         <div class="row">
           <figure class="col-12 figure ">
-          <div class="border figure-img img-fluid rounded" id="cy"></div>
-          <figcaption class="figure-caption text-end">App: simple-example</figcaption>
+            <div class="border figure-img img-fluid rounded" id="cy"></div>
           </figure>
         </div>
     </div>
@@ -125,7 +117,7 @@
 
       var cy = cytoscape({
         container: document.getElementById("cy"),
-        elements: {{data}},
+        elements: {{ graph_data }},
       });
 
       function hashCode(s) {
