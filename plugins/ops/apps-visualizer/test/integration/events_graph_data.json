@@ -1,7 +1,6 @@
 [
   {
     "data": {
-      "group": "REQUEST",
       "id": "simple_example.0x4.list_somethings.GET",
       "content": "GET"
     },
@@ -9,7 +8,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.list_somethings",
       "content": "simple_example.0x4\nlist_somethings"
     },
@@ -17,7 +15,6 @@
   },
   {
     "data": {
-      "group": "REQUEST",
       "id": "simple_example.0x4.query_something.GET",
       "content": "GET"
     },
@@ -25,7 +22,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.query_something",
       "content": "simple_example.0x4\nquery_something"
     },
@@ -33,7 +29,6 @@
   },
   {
     "data": {
-      "group": "REQUEST",
       "id": "simple_example.0x4.query_something_extended.POST",
       "content": "POST"
     },
@@ -41,7 +36,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.query_something_extended",
       "content": "simple_example.0x4\nquery_something_extended"
     },
@@ -49,7 +43,6 @@
   },
   {
     "data": {
-      "group": "REQUEST",
       "id": "simple_example.0x4.save_something.POST",
       "content": "POST"
     },
@@ -57,7 +50,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.save_something",
       "content": "simple_example.0x4\nsave_something"
     },
@@ -65,7 +57,6 @@
   },
   {
     "data": {
-      "group": "REQUEST",
       "id": "simple_example.0x4.download_something.GET",
       "content": "GET"
     },
@@ -73,7 +64,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.download_something",
       "content": "simple_example.0x4\ndownload_something"
     },
@@ -81,7 +71,6 @@
   },
   {
     "data": {
-      "group": "REQUEST",
       "id": "simple_example.0x4.upload_something.MULTIPART",
       "content": "MULTIPART"
     },
@@ -89,7 +78,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.upload_something",
       "content": "simple_example.0x4\nupload_something"
     },
@@ -97,7 +85,6 @@
   },
   {
     "data": {
-      "group": "STREAM",
       "id": "simple_example.0x4.streams.something_event.*",
       "content": "simple_example.0x4\nstreams.something_event"
     },
@@ -105,7 +92,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.service.something_generator",
       "content": "simple_example.0x4\nservice.something_generator"
     },
@@ -113,7 +99,6 @@
   },
   {
     "data": {
-      "group": "REQUEST",
       "id": "simple_example.0x4.streams.something_event.POST",
       "content": "POST"
     },
@@ -121,7 +106,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.streams.something_event",
       "content": "simple_example.0x4\nstreams.something_event"
     },
@@ -129,7 +113,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.streams.process_events",
       "content": "simple_example.0x4\nstreams.process_events"
     },
@@ -137,7 +120,6 @@
   },
   {
     "data": {
-      "group": "REQUEST",
       "id": "simple_example.0x4.collector.query_concurrently.POST",
       "content": "POST"
     },
@@ -145,7 +127,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.collector.query_concurrently",
       "content": "simple_example.0x4\ncollector.query_concurrently"
     },
@@ -153,7 +134,6 @@
   },
   {
     "data": {
-      "group": "REQUEST",
       "id": "simple_example.0x4.collector.collect_spawn.POST",
       "content": "POST"
     },
@@ -161,7 +141,6 @@
   },
   {
     "data": {
-      "group": "STREAM",
       "id": "simple_example.0x4.collector.collect_spawn.collector@load_first.*",
       "content": "simple_example.0x4\ncollector.collect_spawn.collector@load_first"
     },
@@ -169,7 +148,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.collector.collect_spawn",
       "content": "simple_example.0x4\ncollector.collect_spawn"
     },
@@ -177,7 +155,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.collector.collect_spawn$spawn",
       "content": "simple_example.0x4\ncollector.collect_spawn$spawn"
     },
@@ -185,7 +162,6 @@
   },
   {
     "data": {
-      "group": "REQUEST",
       "id": "simple_example.0x4.shuffle.spawn_event.POST",
       "content": "POST"
     },
@@ -193,7 +169,6 @@
   },
   {
     "data": {
-      "group": "STREAM",
       "id": "simple_example.0x4.shuffle.spawn_event.spawn_many_events.*",
       "content": "simple_example.0x4\nshuffle.spawn_event.spawn_many_events"
     },
@@ -201,7 +176,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.shuffle.spawn_event",
       "content": "simple_example.0x4\nshuffle.spawn_event"
     },
@@ -209,7 +183,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.shuffle.spawn_event$update_status",
       "content": "simple_example.0x4\nshuffle.spawn_event$update_status"
     },
@@ -217,7 +190,6 @@
   },
   {
     "data": {
-      "group": "REQUEST",
       "id": "simple_example.0x4.shuffle.parallelize_event.POST",
       "content": "POST"
     },
@@ -225,7 +197,6 @@
   },
   {
     "data": {
-      "group": "STREAM",
       "id": "simple_example.0x4.shuffle.parallelize_event.fork_something.*",
       "content": "simple_example.0x4\nshuffle.parallelize_event.fork_something"
     },
@@ -233,7 +204,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.shuffle.parallelize_event",
       "content": "simple_example.0x4\nshuffle.parallelize_event"
     },
@@ -241,7 +211,6 @@
   },
   {
     "data": {
-      "group": "STREAM",
       "id": "simple_example.0x4.shuffle.parallelize_event.process_first_part.*",
       "content": "simple_example.0x4\nshuffle.parallelize_event.process_first_part"
     },
@@ -249,7 +218,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.shuffle.parallelize_event$process_first_part",
       "content": "simple_example.0x4\nshuffle.parallelize_event$process_first_part"
     },
@@ -257,7 +225,6 @@
   },
   {
     "data": {
-      "group": "EVENT",
       "id": "simple_example.0x4.shuffle.parallelize_event$update_status",
       "content": "simple_example.0x4\nshuffle.parallelize_event$update_status"
     },
