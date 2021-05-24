@@ -9,12 +9,22 @@ from pathlib import Path
 
 from hopeit.app.context import EventContext, PostprocessHook
 
-from hopeit.apps_visualizer.graphs import Edge, Node, GraphDocument, get_edges, get_nodes
+from hopeit.apps_visualizer.graphs import Edge, Node, Graph, get_edges, get_nodes
+from hopeit.apps_visualizer.visualization import VisualizationOptions, CytoscapeGraph
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import split_event_stages
 from hopeit.app.api import event_api
+from hopeit.dataobjects import dataclass, dataobject
+from hopeit.app.events import collector_step, Collector
 
-__steps__ = ['generate_config_graph', 'build_cytoscape_data']
+__steps__ = [
+    'visualization_options',
+    collector_step(payload=VisualizationOptions).gather(
+        'config_graph',
+        'cytoscape_data'
+    ),
+    'build_visualization'
+]
 
 __api__ = event_api(
     summary="App Visualizer: Events Diagram",
@@ -31,13 +41,28 @@ __api__ = event_api(
 _dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 
 
-async def generate_config_graph(payload: None, context: EventContext,
+@dataobject
+@dataclass
+class EventsGraphResult:
+    graph: CytoscapeGraph
+    options: VisualizationOptions
+
+
+async def visualization_options(payload: None, context: EventContext,
                                 *, app_prefix: str = '',
-                                expand_queues: bool = False) -> GraphDocument:
+                                expand_queues: bool = False) -> VisualizationOptions:
+    return VisualizationOptions(
+        app_prefix=app_prefix,
+        expand_queues=expand_queues is True or expand_queues == 'true'
+    )
+
+
+async def config_graph(collector: Collector, context: EventContext) -> Graph:
     """
     Generates Graph object with nodes and edges from server runtime active configuration
     """
-    app_prefix = app_prefix.replace('-', '_')
+    options: VisualizationOptions = await collector['payload']
+    app_prefix = options.app_prefix.replace('-', '_')
     server = getattr(sys.modules.get("hopeit.server.runtime"), "server")
     events = {}
     for app_key, app in server.app_engines.items():
@@ -51,14 +76,12 @@ async def generate_config_graph(payload: None, context: EventContext,
             for name, info in splits.items():
                 events[f"{app_key}.{name}"] = info
 
-    nodes = get_nodes(
-        events, expand_queues=(expand_queues is True or expand_queues == 'true')
-    )
+    nodes = get_nodes(events, expand_queues=options.expand_queues)
     edges = get_edges(nodes)
-    return GraphDocument(nodes=nodes, edges=edges, expanded_queues=(expand_queues is True or expand_queues == 'true'))
+    return Graph(nodes=nodes, edges=edges)
 
 
-async def build_cytoscape_data(graph: GraphDocument, context: EventContext) -> GraphDocument:
+async def cytoscape_data(collector: Collector, context: EventContext) -> CytoscapeGraph:
     """
     Converts Graph to cytoscape json format
     """
@@ -74,10 +97,10 @@ async def build_cytoscape_data(graph: GraphDocument, context: EventContext) -> G
             return '\n'.join(['.'.join(comps[0:2]), '.'.join(comps[2:])])
         return node.label
 
-    # node_index = {node.1id: node for node in graph.nodes}
+    graph: Graph = await collector['config_graph']
+
     nodes = [
         {"data": {
-            "group": node.type.value,
             "id": node.id,
             "content": _node_label(node),
         }, "classes": node.type.value}
@@ -92,21 +115,27 @@ async def build_cytoscape_data(graph: GraphDocument, context: EventContext) -> G
         }}
         for edge in graph.edges
     ]
-    graph.data = [*nodes, *edges]
-    return graph
+    return CytoscapeGraph(data=[*nodes, *edges])
 
 
-async def __postprocess__(graph: GraphDocument, context: EventContext, response: PostprocessHook) -> str:
+async def build_visualization(collector: Collector, context: EventContext) -> EventsGraphResult:
+    return EventsGraphResult(
+        graph=await collector['cytoscape_data'],
+        options=await collector['payload']
+    )
+
+
+async def __postprocess__(result: EventsGraphResult, context: EventContext, response: PostprocessHook) -> str:
     """
     Renders html from template, using cytospace data json
     """
     response.set_content_type("text/html")
 
-    expand_queues = f"events-graph{'' if graph.expanded_queues else '?expand_queues=true'}"
-    expand_queues_label = f"{'Standard view' if graph.expanded_queues else 'Expanded view'}"
+    expand_queues = f"events-graph{'' if result.options.expand_queues else '?expand_queues=true'}"
+    expand_queues_label = f"{'Standard view' if result.options.expand_queues else 'Expanded view'}"
 
     with open(_dir_path / 'events_graph_template.html') as f:
         template = f.read()
         template = template.replace("{{expand_queues}}", expand_queues)
         template = template.replace("{{expand_queues_label}}", expand_queues_label)
-        return template.replace("{{data}}", json.dumps(graph.data))
+        return template.replace("{{data}}", json.dumps(result.graph.data))

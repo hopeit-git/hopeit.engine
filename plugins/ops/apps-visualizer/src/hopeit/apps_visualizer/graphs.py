@@ -1,7 +1,7 @@
 """
 Apps Visualizer: graph elements model
 """
-from typing import Any, List, Dict
+from typing import List, Dict
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -41,13 +41,6 @@ class Edge:
 class Graph:
     nodes: List[Node]
     edges: List[Edge]
-
-
-@dataobject
-@dataclass
-class GraphDocument(Graph):
-    data: List[Dict[str, Any]] = field(default_factory=list)
-    expanded_queues: bool = False
 
 
 def get_nodes(events: Dict[str, EventDescriptor],
