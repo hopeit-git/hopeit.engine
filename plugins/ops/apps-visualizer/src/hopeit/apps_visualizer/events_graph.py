@@ -164,7 +164,7 @@ async def __postprocess__(result: EventsGraphResult, context: EventContext, resp
     app_items = '\n'.join(
         [
             f'<li><a class="dropdown-item'
-            f'{" active" if name[0:len(app_prefix)] == app_prefix else ""}"'
+            f'{" active" if app_prefix and name[0:len(app_prefix)] == app_prefix else ""}"'
             f' href="events-graph?app_prefix={prefix}'
             f"&expand_queues={str(result.options.expand_queues).lower()}"
             f'">{name}</a></li>'
