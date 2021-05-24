@@ -1,29 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>hopeit.engine apps_visualizer: events_graph</title>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.18.2/cytoscape.min.js"
-      integrity="sha512-CBGCXtszkG5rYlQSTNUzk54/731Kz28WPk2uT1GCPCqgfVRJ2v514vzzf16HuGX9WVtE7JLqRuAERNAzFZ9Hpw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
     <script src="https://unpkg.com/klayjs@0.4.1/klay.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/cytoscape-klay@3.1.4/cytoscape-klay.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-klay/cytoscape-klay.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+      crossorigin="anonymous"
+    />
+
+    <title>hopeit.engine apps_visualizer: events_graph</title>
   </head>
 
   <style>
     #cy {
       width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0px;
-      left: 0px;
+      height: 800px;      
+      
     }
   </style>
 
   <body>
-    <div id="cy"></div>
+    <nav class="navbar sticky-top navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="https://github.com/hopeit-git/hopeit.engine"><small class="text-muted">hopeit.engine</small> Apps Visualizer</h1></a>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{{expand_queues}}">{{expand_queues_label}}</a>
+            </li>
+          </ul>
+          
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+          <p class="lead">
+            Events Graph
+          </p>        
+        </div>
+        <div class="row">
+          <figure class="col-12 figure ">
+          <div class="border figure-img img-fluid rounded" id="cy"></div>
+          <figcaption class="figure-caption text-end">App: simple-example</figcaption>
+          </figure>
+        </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+      crossorigin="anonymous"
+    ></script>
     <script>
       var options = {
         nodeDimensionsIncludeLabels: true, // Boolean which changes whether label dimensions are included when calculating node dimensions
@@ -96,28 +129,30 @@
       });
 
       function hashCode(s) {
-          var h = 0;
-          for(let i = 0; i < s.length; i++)
-              h = Math.imul(31, h) + s.charCodeAt(i) | 0;
-          return h;
+        var h = 0;
+        for (let i = 0; i < s.length; i++)
+          h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+        return h;
       }
 
-      const line_colors = ["blue", "orange", "green"]
+      const line_colors = ["blue", "orange", "green"];
       const getLineColor = (node) => {
-        label = node.data("label")
-        return label ? line_colors[Math.abs(hashCode(label)) % line_colors.length] : "black"
+        label = node.data("label");
+        return label
+          ? line_colors[Math.abs(hashCode(label)) % line_colors.length]
+          : "black";
       };
 
       cy.style([
         {
           selector: "edge",
           style: {
-            "label": "data(label)",
-            "width": "0.4px",
+            label: "data(label)",
+            width: "0.4px",
             "line-color": getLineColor,
             "font-family": "monospace",
             "font-size": "4px",
-            "color": getLineColor,
+            color: getLineColor,
             "text-rotation": "autorotate",
             "text-margin-x": "3px",
             "text-margin-y": "-3px",
@@ -130,37 +165,37 @@
         {
           selector: "node",
           style: {
-            "content": "data(content)",
+            content: "data(content)",
             "font-family": "monospace",
             "font-size": "4px",
             "text-wrap": "wrap",
             "text-valign": "center",
             "text-halign": "center",
             "border-width": "0.2px",
-            "border-opacity" : 0.3,
+            "border-opacity": 0.3,
           },
         },
         {
           selector: "node.EVENT",
           style: {
-            "shape": "rectangle",
+            shape: "rectangle",
             "background-color": "#AACCAA",
-            "width": "label",
-            "height": "label",
+            width: "label",
+            height: "label",
             "padding-left": "2px",
             "padding-right": "2px",
             "border-width": "0.3px",
-            "border-opacity" : 0.9,
+            "border-opacity": 0.9,
           },
         },
         {
           selector: "node.STREAM",
           style: {
-            "shape": "round-rectangle",
+            shape: "round-rectangle",
             "background-color": "#AAAAFF",
             "background-opacity": "0.5",
-            "width": "label",
-            "height": "label",
+            width: "label",
+            height: "label",
             "padding-left": "2px",
             "padding-right": "2px",
           },
@@ -168,17 +203,16 @@
         {
           selector: "node.REQUEST",
           style: {
-            "shape": "ellipse",
+            shape: "ellipse",
             "font-size": "3px",
             "text-valign": "top",
-            "width": "6",
-            "height": "6",
+            width: "6",
+            height: "6",
           },
-        }        
+        },
       ]);
-      
-      cy.layout(options).run();
 
+      cy.layout(options).run();
     </script>
   </body>
 </html>

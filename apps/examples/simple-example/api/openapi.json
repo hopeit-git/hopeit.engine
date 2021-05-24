@@ -68,7 +68,7 @@
             }
           },
           {
-            "name": "expand_queus",
+            "name": "expand_queues",
             "in": "query",
             "required": false,
             "description": "if `true` shows each stream queue as a separated stream",

@@ -43,6 +43,13 @@ class Graph:
     edges: List[Edge]
 
 
+@dataobject
+@dataclass
+class GraphDocument(Graph):
+    data = dict = {}
+    expand_queues: bool = False
+
+
 def get_nodes(events: Dict[str, EventDescriptor],
               *, expand_queues: bool = False) -> List[Node]:
     """
