@@ -21,8 +21,7 @@
   <style>
     #cy {
       width: 100%;
-      height: 800px;      
-      
+      height: 640px;
     }
   </style>
 
@@ -33,8 +32,15 @@
         </div>
     </nav>
     <div class="container-fluid">
-        <div class="row">
-          <div class="col-8"><small class="lead">Apps: {{ app_prefix }}</small></div>
+        <div class="row my-2">
+          <div class="col-8 dropdown">
+            <a class="btn btn-sm btn-outline btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+              App: {{ app_prefix }}
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              {{ app_items }}
+            </ul>
+          </div>
           <div class="col-4 text-end"><small>{{ view_type }} <a href="{{ switch_link }}">[Switch]</a></small></div>
         </div>
         <div class="row">
