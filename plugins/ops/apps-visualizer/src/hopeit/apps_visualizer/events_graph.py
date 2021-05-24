@@ -9,7 +9,7 @@ from pathlib import Path
 
 from hopeit.app.context import EventContext, PostprocessHook
 
-from hopeit.apps_visualizer.graphs import Edge, Graph, Node, GraphDocument, get_edges, get_nodes
+from hopeit.apps_visualizer.graphs import Edge, Node, GraphDocument, get_edges, get_nodes
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import split_event_stages
 from hopeit.app.api import event_api
@@ -33,7 +33,7 @@ _dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 
 async def generate_config_graph(payload: None, context: EventContext,
                                 *, app_prefix: str = '',
-                                expand_queues: bool = False) -> Graph:
+                                expand_queues: bool = False) -> GraphDocument:
     """
     Generates Graph object with nodes and edges from server runtime active configuration
     """
@@ -55,10 +55,10 @@ async def generate_config_graph(payload: None, context: EventContext,
         events, expand_queues=(expand_queues is True or expand_queues == 'true')
     )
     edges = get_edges(nodes)
-    return GraphDocument(nodes=nodes, edges=edges, expand_queues=(expand_queues is True or expand_queues == 'true'))
+    return GraphDocument(nodes=nodes, edges=edges, expanded_queues=(expand_queues is True or expand_queues == 'true'))
 
 
-async def build_cytoscape_data(graph: Graph, context: EventContext) -> GraphDocument:
+async def build_cytoscape_data(graph: GraphDocument, context: EventContext) -> GraphDocument:
     """
     Converts Graph to cytoscape json format
     """
@@ -101,14 +101,12 @@ async def __postprocess__(graph: GraphDocument, context: EventContext, response:
     Renders html from template, using cytospace data json
     """
     response.set_content_type("text/html")
-    
-    data = json.dumps(graph.data)
-    expand_queues = f"events-graph{'' if graph.expand_queues else '?expand_queues=true'}"
-    expand_queues_label =  f"{'Standard view' if graph.expand_queues else 'Expanded view'}"
-        
+
+    expand_queues = f"events-graph{'' if graph.expanded_queues else '?expand_queues=true'}"
+    expand_queues_label = f"{'Standard view' if graph.expanded_queues else 'Expanded view'}"
+
     with open(_dir_path / 'events_graph_template.html') as f:
         template = f.read()
-        template = template.replace("{{expand_queues}}", expand_queues)        
+        template = template.replace("{{expand_queues}}", expand_queues)
         template = template.replace("{{expand_queues_label}}", expand_queues_label)
-        template = template.replace("{{data}}", data)
-        return template
+        return template.replace("{{data}}", json.dumps(graph.data))
