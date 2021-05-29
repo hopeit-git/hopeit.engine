@@ -5,7 +5,7 @@
   },
   "engine" : {
     "import_modules": ["hopeit.basic_auth"],
-    "cors_origin": "http://localhost:8080"
+    "cors_origin": "http://localhost:8020"
   },
   "env" : {
     "auth": {

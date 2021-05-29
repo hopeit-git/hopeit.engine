@@ -1,23 +1,42 @@
 Release Notes
 =============
 
+Version 0.4.0
+_____________
+- Streams: 
+  - Added support for multiple `queues` in `read_stream` and `write_stream` configuration, allowing to produce and consume events in parallel from different sources. Engine automatically manages independent streams for each queue and ensures a message read from a queue are propagated dowstream using same queue.
+
+- Web: 
+  - Support for custom response `content-type` in `PostProcessHook`, i.e. to return `text/plain` or `text/html` for specific applications, instead of default `application/json`.
+
+- Open API:
+  - Fixed "Authorization required" with openapi generated entry when endpoint is marked as "Unsecured"
+
+- Plugins: 
+  - New plugin for visualizing running configuration (events & streams): `ops/apps-visualizer` plugin.
+
+-BREAKING CHANGES:
+  - When an app events is configured with a custom `route` entry to be used instead app and event name, if starts with slash ('/'), route namespace prefix `/api` will be ignored. This can be used to map events to the root endpoint `/` namespace. To ensure default namespace is used, remove starting slash (`/`) from route names.
+
+
 Version 0.3.0
 _____________
-- [Breaking] Moved `hopeit.toolkit.storage.redis` to `hopeit.redis-storage` plugin.
-    - Install using `pip install hopeit.redis-storage`
-- [Breaking] Moved `hopeit.toolkit.storage.fs` to `hopeit.fs-storage` plugin.
-    - Install using `pip install hopeit.fs-storage`
-- [Breaking] Moved RedisStreamManager to its own plugin. 
-    - By default `stream-manager` is not configured. To enable Redis Streams in server:
-        - Install using `pip install hopeit.engine[redis-streams]`
-        - Add `stream_manager=hopeit.redis_streams.RedisStreamManager` to streams section in server config file.
-- [Breaking] removed `hopeit.dataobjects.validation` and `hopeit.toolkit.validators` modules
-- [Breaking] make simple-example app to match Major. Minor version number from engine. This is only breaking changes for users of this app config file.
-- [Breaking] make simple-benchmark app to match Major. Minor version number from engine. This is only breaking changes for users of this app config file.
-- [Breaking] make basic-auth plugin to match Major. Minor version number from engine. This is only breaking changes for users of this plugin config file.
+- Moved `hopeit.toolkit.storage.redis` to `hopeit.redis-storage` plugin.
+- Moved RedisStreamManager to its own plugin. 
+- Moved `hopeit.toolkit.storage.fs` to `hopeit.fs-storage` plugin.
 - Added test build for Python 3.9
-- Fix: removed aiohttp dependency for hopeit.app.context module, in order to allow engine usage on applications that do not require web server module.
 
+- FIXES: 
+  - Removed aiohttp dependency for hopeit.app.context module, in order to allow engine usage on applications that do not require web server module.
+
+- BREAKING CHANGES:
+  - By default `stream-manager` is not configured. To enable Redis Streams in server: 1) Install using `pip install hopeit.engine[redis-streams]`, 2) Add `stream_manager=hopeit.redis_streams.RedisStreamManager` to streams section in server config file.
+  - Redis Storage toolkit (now a plugin) needs to be installed using `pip install hopeit.redis-storage`
+  - Removed `hopeit.dataobjects.validation` and `hopeit.toolkit.validators` modules
+  - make simple-example app to match Major. Minor version number from engine. This is only breaking changes for users of this app config file.
+  - make simple-benchmark app to match Major. Minor version number from engine. This is only breaking changes for users of this app config file.
+  - make basic-auth plugin to match Major. Minor version number from engine. This is only breaking changes for users of this plugin config file.
+  
 
 Version 0.2.3
 _____________

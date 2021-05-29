@@ -37,6 +37,6 @@ async def __postprocess__(img_file: ImagePng,
                           context: EventContext, *,
                           response: PostprocessHook) -> str:
     response.set_header("Content-Disposition", f"attachment; filename={img_file.file_name}")
-    response.set_header("Content-Type", img_file.content_type)
+    response.set_content_type(img_file.content_type)
     response.set_file_response(path=img_file.file_path)
     return img_file.file_name
