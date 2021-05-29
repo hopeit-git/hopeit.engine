@@ -7,6 +7,7 @@ from copy import deepcopy
 from functools import partial
 from pathlib import Path
 from typing import Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
+from datetime import date, datetime
 
 from aiohttp import web
 from aiohttp_swagger3 import RapiDocUiSettings  # type: ignore
@@ -680,8 +681,10 @@ TYPE_MAPPERS = {
 }
 
 BUILTIN_TYPES = {
-    str: 'string',
-    int: 'integer',
-    float: 'number',
-    bool: 'boolean'
+    str: ('string', None),
+    int: ('integer', None),
+    float: ('number', None),
+    bool: ('boolean', None),
+    date: ('string', 'date'),
+    datetime: ('string', 'date-time')
 }
