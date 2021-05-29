@@ -34,6 +34,9 @@ jobs:
     - name: make plugin fs-storage
       run: |
         make PLUGINFOLDER=plugins/storage/fs/ dist-plugin
+    - name: make plugin apps-visualizer
+      run: |
+        make PLUGINFOLDER=plugins/ops/apps-visualizer/ dist-plugin
     - name: Publish hopeit.engine on PyPI
       env: 
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
@@ -54,3 +57,8 @@ jobs:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make PLUGINFOLDER=plugins/storage/fs pypi-plugin
+    - name: Publish plugin apps-visualizer on PyPI
+      env: 
+        PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        make PLUGINFOLDER=plugins/ops/apps-visualizer pypi-plugin

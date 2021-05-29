@@ -11,9 +11,10 @@
 
 **"Microservices with Data Streams"**
 
-*hopeit.engine* is a library that allows development and deployment of reactive, data driven microservices in Python. It provides a way to create APIs, implement business and data driven applications in Python, communicate between services using data streams, test, deploy and scale services.
+*hopeit.engine* is a library that allows development and deployment of reactive, data driven microservices in Python. It provides a way to create APIs, implement business and data driven applications in Python, communicate between services using data streams, test, deploy and scale services. It also provides a flexible way to design, understand, run and visualize your apps, events and data dependencies.
 
-[Click here to watch an intro video](https://www.youtube.com/watch?v=wG5NQqUsYgg)
+![Apps Visualizer](docs/source/readme/apps-visualizer.png)
+
 
 ### Motivation
 
@@ -25,7 +26,7 @@
 
 **Streams**: *hopeit.engine* provides the main necessary features for your system to accomplish the objectives of modern, reactive systems: responsiveness, resiliency, scalability and message-driven. The architecture enforced by *hopeit.engine* will lead you to develop small stateless services, primarily running asynchronous operations, that can recover from failure, can scale up quickly and handle more load, and communicate asynchronously with other services and process data using streams.
 
-**Ready for production**: Even if *hopeit.engine* is in an early stage of development and many things can be improved, we aim to ease the steps needed to put microservices in production. *hopeit.engine* provides out of the box logging of app events with extra information that allows monitor, track, and measure requests. It's easily configurable to run in containers and allows extensibility using plugins to add the pieces you need to integrate new microservices in your organization: i.e. plugins are available to integrate authentication and monitoring into your existing infrastructure.
+**For production**: Even if *hopeit.engine* is in an early stage of development and many things can be improved, we aim to ease the steps needed to put microservices in production. *hopeit.engine* provides out of the box logging of app events with extra information that allows monitor, track, and measure requests. It's easily configurable to run in containers and allows extensibility using plugins to add the pieces you need to integrate new microservices in your organization: i.e. plugins are available to integrate authentication and monitoring into your existing infrastructure.
 
 Microservices architecture is proven to be an efficient way that allows systems to grow and adapt, being adopted since years now by mainstream internet and e-commerce companies. If you are small organization and want to start modernizing and scaling, *hopeit.engine* can help you start quickly. If you are already running microservices or you are running a bigger infrastructure, *hopeit.engine* can help you create new features that will be easily integrated with your current services. If you want to learn microservices or how to build production-grade applications in Python, check our [*docs and tutorials*](https://hopeitengine.readthedocs.io/en/latest/index.html). 
 
