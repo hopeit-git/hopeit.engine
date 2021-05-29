@@ -231,11 +231,11 @@
             "type": "string"
           },
           "default": [
-            "DEFAULT"
+            "AUTO"
           ]
         }
       },
-      "description": "\n    Configuration to read streams\n\n    :field stream_name: str, base stream name to read\n    :consumer_group: str, consumer group to send to stream processing engine to keep track of\n        next messag to consume\n    :queues: List[str], list of queue names to poll from. Each queue act as separate stream\n        with queue name used as stream name suffix, where `DEFAULT` queue name means to consume\n        events when no queue where specified at publish time, allowing to consume message with different\n        priorities without waiting for all events in the stream to be consumed.\n        Queues specified in this entry will be consumed by this event\n        on each poll cycle, on the order specified. If not present\n        only DEFAULT queue will be consumed. Take into account that in applications using multiple\n        queue names, in order to ensure all messages are consumed, all queue names should be listed\n        here including DEFAULT, except that the app is intentionally designed for certain events to\n        consume only from specific queues. This configuration is manual to allow consuming messages\n        produced by external apps.\n    "
+      "description": "\n    Configuration to read streams\n\n    :field stream_name: str, base stream name to read\n    :consumer_group: str, consumer group to send to stream processing engine to keep track of\n        next messag to consume\n    :queues: List[str], list of queue names to poll from. Each queue act as separate stream\n        with queue name used as stream name suffix, where `AUTO` queue name means to consume\n        events when no queue where specified at publish time, allowing to consume message with different\n        priorities without waiting for all events in the stream to be consumed.\n        Queues specified in this entry will be consumed by this event\n        on each poll cycle, on the order specified. If not present\n        only AUTO queue will be consumed. Take into account that in applications using multiple\n        queue names, in order to ensure all messages are consumed, all queue names should be listed\n        here including AUTO, except that the app is intentionally designed for certain events to\n        consume only from specific queues. This configuration is manual to allow consuming messages\n        produced by external apps.\n    "
     },
     "WriteStreamDescriptor": {
       "type": "object",
@@ -252,7 +252,7 @@
             "type": "string"
           },
           "default": [
-            "DEFAULT"
+            "AUTO"
           ]
         },
         "queue_strategy": {
@@ -411,9 +411,13 @@
           "default": {
             "docs_path": null
           }
+        },
+        "engine_version": {
+          "type": "string",
+          "default": "0.4.0"
         }
       },
-      "description": "ServerConfig(streams: hopeit.server.config.StreamsConfig = <factory>, logging: hopeit.server.config.LoggingConfig = <factory>, auth: hopeit.server.config.AuthConfig = <factory>, api: hopeit.server.config.APIConfig = <factory>)"
+      "description": "\n    Server configuration\n    "
     },
     "StreamsConfig": {
       "type": "object",

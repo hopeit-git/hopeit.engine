@@ -35,9 +35,13 @@
       "default": {
         "docs_path": null
       }
+    },
+    "engine_version": {
+      "type": "string",
+      "default": "0.4.0"
     }
   },
-  "description": "ServerConfig(streams: hopeit.server.config.StreamsConfig = <factory>, logging: hopeit.server.config.LoggingConfig = <factory>, auth: hopeit.server.config.AuthConfig = <factory>, api: hopeit.server.config.APIConfig = <factory>)",
+  "description": "\n    Server configuration\n    ",
   "$schema": "http://json-schema.org/draft-06/schema#",
   "definitions": {
     "StreamsConfig": {

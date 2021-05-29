@@ -4,13 +4,19 @@ Release Notes
 Version 0.4.0
 _____________
 - Streams: 
-    - Added support for multiple `queues` in `read_stream` and `write_stream` configuration, allowing to produce and consumer events in parallel from different sources. Engine automatically manages independent streams for each queue and ensures a message read from a queue are propagated dowstream using same queue.
+  - Added support for multiple `queues` in `read_stream` and `write_stream` configuration, allowing to produce and consume events in parallel from different sources. Engine automatically manages independent streams for each queue and ensures a message read from a queue are propagated dowstream using same queue.
+
 - Web: 
-    - Support for custom response `content-type` in `PostProcessHook`, i.e. to return `text/plain` or `text/html` for specific applications, instead of default `application/json`.
+  - Support for custom response `content-type` in `PostProcessHook`, i.e. to return `text/plain` or `text/html` for specific applications, instead of default `application/json`.
+
 - Open API:
-    - Fixed "Authorization required" with openapi generated entry when endpoint is marked as "Unsecured"
+  - Fixed "Authorization required" with openapi generated entry when endpoint is marked as "Unsecured"
+
 - Plugins: 
-    - New plugin for visualizing running configuration (events & streams): `ops/apps-visualizer` plugin.
+  - New plugin for visualizing running configuration (events & streams): `ops/apps-visualizer` plugin.
+
+-BREAKING CHANGES:
+  - When an app events is configured with a custom `route` entry to be used instead app and event name, if starts with slash ('/'), route namespace prefix `/api` will be ignored. This can be used to map events to the root endpoint `/` namespace. To ensure default namespace is used, remove starting slash (`/`) from route names.
 
 
 Version 0.3.0
