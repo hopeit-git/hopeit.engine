@@ -168,10 +168,10 @@
           "type": "string"
         },
         "read_stream": {
-          "$ref": "#/definitions/StreamDescriptor"
+          "$ref": "#/definitions/ReadStreamDescriptor"
         },
         "write_stream": {
-          "$ref": "#/definitions/StreamDescriptor"
+          "$ref": "#/definitions/WriteStreamDescriptor"
         },
         "config": {
           "$ref": "#/definitions/EventConfig",
@@ -212,7 +212,32 @@
       },
       "description": "\n    Event descriptor\n    "
     },
-    "StreamDescriptor": {
+    "ReadStreamDescriptor": {
+      "type": "object",
+      "required": [
+        "name",
+        "consumer_group"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "consumer_group": {
+          "type": "string"
+        },
+        "queues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "AUTO"
+          ]
+        }
+      },
+      "description": "\n    Configuration to read streams\n\n    :field stream_name: str, base stream name to read\n    :consumer_group: str, consumer group to send to stream processing engine to keep track of\n        next messag to consume\n    :queues: List[str], list of queue names to poll from. Each queue act as separate stream\n        with queue name used as stream name suffix, where `AUTO` queue name means to consume\n        events when no queue where specified at publish time, allowing to consume message with different\n        priorities without waiting for all events in the stream to be consumed.\n        Queues specified in this entry will be consumed by this event\n        on each poll cycle, on the order specified. If not present\n        only AUTO queue will be consumed. Take into account that in applications using multiple\n        queue names, in order to ensure all messages are consumed, all queue names should be listed\n        here including AUTO, except that the app is intentionally designed for certain events to\n        consume only from specific queues. This configuration is manual to allow consuming messages\n        produced by external apps.\n    "
+    },
+    "WriteStreamDescriptor": {
       "type": "object",
       "required": [
         "name"
@@ -221,11 +246,25 @@
         "name": {
           "type": "string"
         },
-        "consumer_group": {
-          "type": "string"
+        "queues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "AUTO"
+          ]
+        },
+        "queue_strategy": {
+          "type": "string",
+          "enum": [
+            "PROPAGATE",
+            "DROP"
+          ],
+          "default": "DROP"
         }
       },
-      "description": "StreamDescriptor(name: str, consumer_group: Union[str, NoneType] = None)"
+      "description": "\n    Configuration to publish messages to a stream\n\n    :field: name, str: stream name\n    :field: queue, List[str], queue names to be used to publish to stream.\n        Each queue act as separate stream with queue name used as stream name suffix,\n        allowing to publish messages to i.e. a queue that will be consumed with priority,\n        or to multiple queues that will be consumed by different readers.\n        Queue suffix will be propagated through events, allowing an event in a defined queue\n        and successive events in following steps to be consumed using same queue name.\n        Notice that queue will be applied only to messages coming from default queue\n        (where queue is not specified at intial message creation). Messages consumed\n        from other queues will be published using same queue name as they have when consumed.\n    :field queue_stategory: strategy to be used when consuming messages from a stream\n        with a queue name and publishing to another stream. Default is `StreamQueueStrategy.DROP`,\n        so in case of complex stream propagating queue names are configured,\n        `StreamQueueStrategy.PROPAGATE` must be explicitly specified.\n    "
     },
     "EventConfig": {
       "type": "object",
@@ -372,9 +411,13 @@
           "default": {
             "docs_path": null
           }
+        },
+        "engine_version": {
+          "type": "string",
+          "default": "0.4.0"
         }
       },
-      "description": "ServerConfig(streams: hopeit.server.config.StreamsConfig = <factory>, logging: hopeit.server.config.LoggingConfig = <factory>, auth: hopeit.server.config.AuthConfig = <factory>, api: hopeit.server.config.APIConfig = <factory>)"
+      "description": "\n    Server configuration\n    "
     },
     "StreamsConfig": {
       "type": "object",

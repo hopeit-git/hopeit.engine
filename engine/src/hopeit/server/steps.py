@@ -9,7 +9,8 @@ from typing import Type, Dict, Any, Optional, Callable, Tuple, AsyncGenerator, L
 import inspect
 from copy import copy
 
-from hopeit.app.config import EventDescriptor, StreamDescriptor, AppDescriptor, EventType, AppConfig
+from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventType, \
+    ReadStreamDescriptor, StreamQueueStrategy, WriteStreamDescriptor
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import EventPayload, copy_payload, EventPayloadType
 from hopeit.server.imports import find_event_handler
@@ -266,6 +267,7 @@ def split_event_stages(app: AppDescriptor,
     effective_events: Dict[str, EventDescriptor] = {}
     event_type = event_info.type
     read_stream = event_info.read_stream
+    queues = ["AUTO"] if read_stream is None else read_stream.queues
     sub_event_name: Optional[str] = event_name
     sub_event_info = event_info
     intermediate_stream = None
@@ -273,15 +275,19 @@ def split_event_stages(app: AppDescriptor,
         if sub_event_name is None:
             sub_event_name = f"{event_name}${stage}"
         if read_stream is None and intermediate_stream is not None:
-            read_stream = StreamDescriptor(
+            read_stream = ReadStreamDescriptor(
                 name=intermediate_stream,
-                consumer_group=auto_path(app.name, app.version, *event_name.split('.'), stage)
+                consumer_group=auto_path(app.name, app.version, *event_name.split('.'), stage),
+                queues=queues
             )
         intermediate_stream = auto_path(app.name, app.version, *event_name.split('.'), stage)
         sub_event_info = EventDescriptor(
             type=event_type,
             read_stream=read_stream,
-            write_stream=StreamDescriptor(name=intermediate_stream),
+            write_stream=WriteStreamDescriptor(
+                name=intermediate_stream,
+                queue_strategy=StreamQueueStrategy.PROPAGATE
+            ),
             config=event_info.config
         )
         effective_events[sub_event_name] = sub_event_info

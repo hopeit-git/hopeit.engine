@@ -2,7 +2,8 @@ echo "==========================="
 echo "CI STATIC ANALYSIS: PLUGINS"
 echo "==========================="
 code=0
-# auth/basic-auth
+
+echo "auth/basic-auth"
 export MYPYPATH=engine/src/:plugins/auth/basic-auth/src/ && python3 -m mypy --namespace-packages -p hopeit.basic_auth
 code+=$?
 export MYPYPATH=engine/src/:plugins/auth/basic-auth/src/ && python3 -m mypy --namespace-packages plugins/auth/basic-auth/test/unit/
@@ -14,7 +15,7 @@ code+=$?
 python3 -m pylint plugins/auth/basic-auth/src/hopeit/basic_auth/
 code+=$?
 
-# streams/redis
+echo "streams/redis"
 export MYPYPATH=engine/src/:plugins/streams/redis/src/ && python3 -m mypy --namespace-packages -p hopeit.redis_streams
 code+=$?
 export MYPYPATH=engine/src/:plugins/streams/redis/src/ && python3 -m mypy --namespace-packages plugins/streams/redis/test/unit/
@@ -24,7 +25,7 @@ code+=$?
 python3 -m pylint plugins/streams/redis/src/hopeit/redis_streams/
 code+=$?
 
-# storage/redis
+echo "storage/redis"
 export MYPYPATH=engine/src/:plugins/storage/redis/src/ && python3 -m mypy --namespace-packages -p hopeit.redis_storage
 code+=$?
 export MYPYPATH=engine/src/:plugins/storage/redis/src/ && python3 -m mypy --namespace-packages plugins/storage/redis/test/unit/
@@ -34,7 +35,7 @@ code+=$?
 python3 -m pylint plugins/storage/redis/src/hopeit/redis_storage/
 code+=$?
 
-# storage/fs
+echo "storage/fs"
 export MYPYPATH=engine/src/:plugins/storage/fs/src/ && python3 -m mypy --namespace-packages -p hopeit.fs_storage
 code+=$?
 export MYPYPATH=engine/src/:plugins/storage/fs/src/ && python3 -m mypy --namespace-packages plugins/storage/fs/test/unit/
@@ -43,6 +44,17 @@ python3 -m flake8 --max-line-length=120 plugins/storage/fs/src/hopeit/ plugins/s
 code+=$?
 python3 -m pylint plugins/storage/fs/src/hopeit/fs_storage/
 code+=$?
+
+echo "ops/apps-visualizer"
+export MYPYPATH=engine/src/:plugins/ops/apps-visualizer/src/ && python3 -m mypy --namespace-packages -p hopeit.apps_visualizer
+code+=$?
+export MYPYPATH=engine/src/:plugins/ops/apps-visualizer/src/ && python3 -m mypy --namespace-packages plugins/ops/apps-visualizer/test/integration/
+code+=$?
+python3 -m flake8 --max-line-length=120 plugins/ops/apps-visualizer/src/hopeit/ plugins/ops/apps-visualizer/test/integration/
+code+=$?
+python3 -m pylint plugins/ops/apps-visualizer/src/hopeit/apps_visualizer/
+code+=$?
+
 
 if [ $code -gt 0 ]
 then

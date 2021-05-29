@@ -18,6 +18,11 @@ code+=$?
 export PYTHONPATH=engine/src/:plugins/storage/fs/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/storage/fs/src/ plugins/storage/fs/test/unit/
 code+=$?
 
+# ops/apps-visualizer
+export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src:plugins/storage/fs/src/:apps/examples/simple-example/src/:plugins/ops/apps-visualizer/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/ops/apps-visualizer/src/ plugins/ops/apps-visualizer/test/integration/
+code+=$?
+
+
 if [ $code -gt 0 ]
 then
   echo "[FAILED] CI TEST: PLUGINS"

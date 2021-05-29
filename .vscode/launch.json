@@ -9,7 +9,7 @@
             "args": [
                 "--port=8020",
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
                 "--api-file=apps/examples/simple-example/api/openapi.json"
             ],
             "cwd": "${workspaceFolder}",

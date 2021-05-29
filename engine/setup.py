@@ -86,6 +86,15 @@ setuptools.setup(
         ]],
         "redis-streams": [
             f"hopeit.redis-streams=={version['ENGINE_VERSION']}"
+        ],
+        "redis-storage": [
+            f"hopeit.redis-storage=={version['ENGINE_VERSION']}"
+        ],
+        "fs-storage": [
+            f"hopeit.fs-storage=={version['ENGINE_VERSION']}"
+        ],
+        "apps-visualizer": [
+            f"hopeit.apps-visualizer=={version['ENGINE_VERSION']}"
         ]
     },
     entry_points={
