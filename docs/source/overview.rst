@@ -3,11 +3,16 @@ hopeit engine
 
 **“Microservices with Data Streams”**
 
-*hopeit.engine* is a library that allows development and deployment of
-reactive, data driven microservices in Python. It provides a way to
-create APIs, implement business and data driven applications in Python,
-communicate between services using data streams, test, deploy and scale
-services.
+*hopeit.engine* is a library that allows development and deployment of 
+reactive,data driven microservices in Python. It provides a way to create 
+APIs, implement business and data driven applications in Python, 
+communicate between services using data streams, test, deploy and 
+scale services. It also provides a flexible way to design, understand, 
+run and visualize your apps, events and data dependencies.
+
+.. figure:: readme/apps-visualizer.png
+   :alt: Apps Visualizer
+
 
 Motivation
 ~~~~~~~~~~
@@ -193,7 +198,7 @@ services using streams. In this example App 1 is receiving the request
 and can quickly respond to the client while submitting a message to a
 *stream*. This is easily configurable just adding a *write_stream*
 section on the App configuration file. Then a second microservice (App
-2) consumes the messages in the stream and performs extra processing, in
+1) consumes the messages in the stream and performs extra processing, in
 this example, finally saving the result to a database. This is a
 powerful tool for reactive systems to use. Streams are not only fast,
 but they allow to design the systems in a modular way, keep every piece
