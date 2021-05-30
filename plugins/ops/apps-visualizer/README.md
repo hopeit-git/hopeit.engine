@@ -21,5 +21,5 @@ hopeit_server ... --config-files=...,plugins/ops/apps-visualizer/config/plugin-c
 ### Visualize App events diagram using url:
 
 ```
-http://host:port/ops/apps-visualizer/events-graph
+http://host:port/ops/apps-visualizer
 ```

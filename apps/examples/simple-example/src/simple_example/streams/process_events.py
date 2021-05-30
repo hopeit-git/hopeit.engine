@@ -5,6 +5,8 @@ Process events submitted by something_event app event
 """
 from datetime import datetime, timezone
 from typing import Optional
+import random
+import asyncio
 
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
@@ -52,6 +54,10 @@ async def save(payload: Something, context: EventContext) -> SomethingStored:
     assert fs
     logger.info(context, "save", extra=extra(something_id=payload.id, path=fs.path))
     path = await fs.store(payload.id, payload)
+    delay = random.random() * 1.0
+    if delay > 0.8:
+        raise RuntimeError("SIMULATING FAILURE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+    await asyncio.sleep(delay)
     return SomethingStored(
         path=path,
         payload=payload

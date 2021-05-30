@@ -43,4 +43,5 @@ async def create_something(payload: SomethingParams, context: EventContext) -> S
         id=payload.id,
         user=User(id=payload.user, name=payload.user)
     )
+    await asyncio.sleep(random.random() * 5.0)
     return result
