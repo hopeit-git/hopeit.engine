@@ -3,11 +3,14 @@ import pytest
 from hopeit.testing.apps import config, execute_event
 import hopeit.server.runtime as runtime
 
-from . import MockServer
+from . import MockServer, APP_VERSION
 
 
 @pytest.mark.asyncio
 async def test_simple_example_events_diagram(monkeypatch, events_graph_data):
+    print()
+    print(events_graph_data)
+    print()
     app_config = config('apps/examples/simple-example/config/app-config.json')
     monkeypatch.setattr(
         runtime,
@@ -41,13 +44,13 @@ async def test_simple_example_events_diagram_expand_queues(monkeypatch, events_g
         if "STREAM" in x.get('classes', '')
     }
 
-    s1 = streams['simple_example.0x4.streams.something_event.AUTO']
-    assert s1['id'] == 'simple_example.0x4.streams.something_event.AUTO'
-    assert s1['content'] == 'simple_example.0x4\nstreams.something_event'
+    s1 = streams[f'simple_example.{APP_VERSION}.streams.something_event.AUTO']
+    assert s1['id'] == f'simple_example.{APP_VERSION}.streams.something_event.AUTO'
+    assert s1['content'] == f'simple_example.{APP_VERSION}\nstreams.something_event'
 
-    s2 = streams['simple_example.0x4.streams.something_event.high-prio']
-    assert s2['id'] == 'simple_example.0x4.streams.something_event.high-prio'
-    assert s2['content'] == 'simple_example.0x4\nstreams.something_event.high-prio'
+    s2 = streams[f'simple_example.{APP_VERSION}.streams.something_event.high-prio']
+    assert s2['id'] == f'simple_example.{APP_VERSION}.streams.something_event.high-prio'
+    assert s2['content'] == f'simple_example.{APP_VERSION}\nstreams.something_event.high-prio'
 
     assert result.options.expand_queues is True
 
