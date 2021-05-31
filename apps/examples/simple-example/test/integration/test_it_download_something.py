@@ -9,7 +9,7 @@ APP_VERSION = APPS_API_VERSION.replace('.', "x")
 @pytest.mark.asyncio
 async def test_it_download_something(app_config):
 
-    file_name = "hopeit.png"
+    file_name = "hopeit-iso.png"
 
     result, pp_result, response = await execute_event(
         app_config=app_config,

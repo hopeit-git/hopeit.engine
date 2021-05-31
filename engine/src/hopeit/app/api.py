@@ -65,16 +65,16 @@ def _arg_name(arg: ArgDef) -> str:
     return arg[0]
 
 
-def _arg_type(arg: ArgDef) -> Tuple[str, bool]:
+def _arg_type(arg: ArgDef) -> Tuple[str, Optional[str], bool]:
     if isinstance(arg, str):
-        return BUILTIN_TYPES[str], True
+        return (*BUILTIN_TYPES[str], True)
     datatype, required = arg[1], True
     origin = typing_inspect.get_origin(datatype)
     if origin is Union:
         type_args = typing_inspect.get_args(datatype)
         datatype = type_args[0]
         required = type_args[-1] is None
-    return BUILTIN_TYPES.get(datatype, BUILTIN_TYPES[str]), required
+    return (*BUILTIN_TYPES.get(datatype, BUILTIN_TYPES[str]), required)
 
 
 def _arg_description(arg: ArgDef) -> str:
@@ -123,9 +123,9 @@ def _parse_args_schema(query_args: Optional[List[ArgDef]]):
     parameters = []
     for query_arg in (query_args or []):
         arg_name = _arg_name(query_arg)
-        arg_type, arg_req = _arg_type(query_arg)
+        arg_type, arg_format, arg_req = _arg_type(query_arg)
         arg_desc = _arg_description(query_arg)
-        parameters.append({
+        arg_spec: dict = {
             "name": arg_name,
             "in": "query",
             "required": arg_req,
@@ -133,7 +133,10 @@ def _parse_args_schema(query_args: Optional[List[ArgDef]]):
             "schema": {
                 "type": arg_type
             }
-        })
+        }
+        if arg_format is not None:
+            arg_spec["schema"]["format"] = arg_format
+        parameters.append(arg_spec)
     return parameters
 
 
