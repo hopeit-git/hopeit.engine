@@ -2,6 +2,11 @@ Release Notes
 =============
 
 
+Version 0.4.1
+_____________
+- FIX: Missing template on app-visualizer
+
+
 Version 0.4.0
 _____________
 - Streams: 
