@@ -1,14 +1,14 @@
 Release Notes
 =============
 
+Version 0.4.3
+_____________
+- FIX: Missing template on app-visualizer wheel
+
+
 Version 0.4.2
 _____________
 - FIX: `date` and `datetime` types are handled according to OpenAPI specs in query string parameters. This is not a breaking change but consider checking that for existing date/datetime query args value format will be validated at request time starting this version.
-
-
-Version 0.4.1
-_____________
-- FIX: Missing template on app-visualizer
 
 
 Version 0.4.1

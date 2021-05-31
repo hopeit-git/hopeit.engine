@@ -41,6 +41,9 @@ setuptools.setup(
     packages=[
         "hopeit.apps_visualizer"
     ],
+    package_data={
+        "hopeit.apps_visualizer": ["*.html"]
+    },
     include_package_data=True,
     python_requires=">=3.7",
     install_requires=[
