@@ -246,6 +246,10 @@ def mock_api_app_config():
                 type=EventType.GET,
                 auth=[AuthType.REFRESH]
             ),
+            "mock-app-api-query-args": EventDescriptor(
+                type=EventType.GET,
+                auth=[AuthType.REFRESH]
+            ),
             "mock-app-noapi": EventDescriptor(
                 type=EventType.GET
             ),
@@ -532,6 +536,75 @@ def mock_api_spec():
                         'name': 'arg1',
                         'required': False,
                         'schema': {'type': 'integer'}
+                    }, {
+                        'description': 'Track information: Request-Id',
+                        'in': 'header',
+                        'name': 'X-Track-Request-Id',
+                        'required': False,
+                        'schema': {'type': 'string'}
+                    }, {'description': 'Track information: Request-Ts',
+                        'in': 'header',
+                        'name': 'X-Track-Request-Ts',
+                        'required': False,
+                        'schema': {
+                            'format': 'date-time',
+                            'type': 'string'}
+                        }, {
+                        'description': 'Track information: track.session_id',
+                        'in': 'header',
+                        'name': 'X-Track-Session-Id',
+                        'required': True,
+                        'schema': {
+                            'default': 'test.session_id',
+                            'type': 'string'}
+                    }], 'responses': {
+                        '200': {
+                            'content': {
+                                'application/json': {
+                                    'schema': {
+                                        'items': {'$ref': '#/components/schemas/MockData'},
+                                        'type': 'array'}}
+                            }, 'description': 'MockData result'
+                        }
+                    },
+                    'security': [{'mock_app_api.test.refresh': []}],
+                    'tags': ['mock_app_api.test']
+                }
+            },
+            '/api/mock-app-api/test/mock-app-api-query-args': {
+                'get': {
+                    'summary': 'Test app api query args',
+                    'description': 'Description of Test app queryargs',
+                    'parameters': [{
+                        'description': 'str argument',
+                        'in': 'query',
+                        'name': 'arg_str',
+                        'required': False,
+                        'schema': {'type': 'string'}
+                    }, {
+                        'name': 'arg_int',
+                        'in': 'query',
+                        'required': False,
+                        'description': 'int argument',
+                        'schema': {'type': 'integer'}
+                    }, {
+                        'name': 'arg_float',
+                        'in': 'query',
+                        'required': False,
+                        'description': 'float argument',
+                        'schema': {'type': 'number'}
+                    }, {
+                        'name': 'arg_date',
+                        'in': 'query',
+                        'required': False,
+                        'description': 'date argument',
+                        'schema': {'type': 'string', 'format': 'date'}
+                    }, {
+                        'name': 'arg_datetime',
+                        'in': 'query',
+                        'required': False,
+                        'description': 'datetime argument',
+                        'schema': {'type': 'string', 'format': 'date-time'}
                     }, {
                         'description': 'Track information: Request-Id',
                         'in': 'header',
