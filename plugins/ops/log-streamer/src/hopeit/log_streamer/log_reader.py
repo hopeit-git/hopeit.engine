@@ -97,7 +97,7 @@ async def process_log_data(payload: LogRawBatch, context: EventContext) -> Optio
         entries: List[LogEntry] = []
         for entry in payload.data:
             processed_entry = await _process_log_entry(entry, context)
-            if entry is not None:
+            if processed_entry is not None:
                 entries.append(processed_entry)  # type: ignore
         if len(entries) > 0:
             return LogBatch(entries=entries)
