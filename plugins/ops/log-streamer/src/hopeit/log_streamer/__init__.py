@@ -204,11 +204,8 @@ class LogFileHandler(FileSystemEventHandler):
         return self.open_files[src_path].readline()
 
     async def _emit(self, lines: List[str]):
-        try:
-            await self.lock.acquire()
+        async with self.lock:
             self.batch.extend(lines)
-        finally:
-            self.lock.release()
 
     async def get_and_reset_batch(self):
         """
