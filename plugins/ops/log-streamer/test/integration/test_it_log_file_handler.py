@@ -3,6 +3,7 @@ import pytest
 import asyncio
 import uuid
 import os
+import platform
 from pathlib import Path
 from hopeit.testing.apps import config, create_test_context
 
@@ -10,6 +11,10 @@ from hopeit.log_streamer import LogFileHandler, LogReaderConfig, start_observer
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    platform.system().lower() != "linux",
+    reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
+)
 async def test_read_single_line(raw_log_entries):
     app_config = config('plugins/ops/log-streamer/config/plugin-config.json')
     file_name = f"{uuid.uuid4()}.log"
@@ -30,7 +35,6 @@ async def test_read_single_line(raw_log_entries):
     with open(path, 'w') as f:
         for line in raw_log_entries.data:
             f.write(line + '\n')
-    path.touch()
     await asyncio.sleep(2)
 
     lines = await handler.get_and_reset_batch()
