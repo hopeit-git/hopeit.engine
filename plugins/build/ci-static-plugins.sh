@@ -56,9 +56,9 @@ python3 -m pylint plugins/ops/apps-visualizer/src/hopeit/apps_visualizer/
 code+=$?
 
 echo "ops/log-streamer"
-export MYPYPATH=engine/src/:plugins/ops/log-streamer/src/ && python3 -m mypy --namespace-packages -p hopeit.log_streamer
+export MYPYPATH=engine/src/:plugins/storage/fs/src/:plugins/ops/log-streamer/src/ && python3 -m mypy --namespace-packages -p hopeit.log_streamer
 code+=$?
-export MYPYPATH=engine/src/:plugins/ops/log-streamer/src/ && python3 -m mypy --namespace-packages plugins/ops/log-streamer/test/integration/
+export MYPYPATH=engine/src/:plugins/storage/fs/src/:plugins/ops/log-streamer/src/ && python3 -m mypy --namespace-packages plugins/ops/log-streamer/test/integration/
 code+=$?
 python3 -m flake8 --max-line-length=120 plugins/ops/log-streamer/src/hopeit/ plugins/ops/log-streamer/test/integration/
 code+=$?

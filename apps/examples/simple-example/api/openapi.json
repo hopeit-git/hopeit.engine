@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.4",
+    "version": "0.5",
     "title": "Simple Example",
     "description": "Simple Example"
   },
@@ -193,11 +193,6 @@
         },
         "tags": [
           "simple_example.0x5"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -279,11 +274,6 @@
         },
         "tags": [
           "simple_example.0x5"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       },
       "post": {
@@ -374,11 +364,6 @@
         },
         "tags": [
           "simple_example.0x5"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -480,11 +465,6 @@
         },
         "tags": [
           "simple_example.0x5"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -576,11 +556,6 @@
         },
         "tags": [
           "simple_example.0x5"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -723,11 +698,6 @@
         },
         "tags": [
           "simple_example.0x5"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -801,11 +771,6 @@
         },
         "tags": [
           "simple_example.0x5"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -882,11 +847,6 @@
         },
         "tags": [
           "simple_example.0x5"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -969,11 +929,6 @@
         },
         "tags": [
           "simple_example.0x5"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -1056,11 +1011,6 @@
         },
         "tags": [
           "simple_example.0x5"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -1143,11 +1093,6 @@
         },
         "tags": [
           "simple_example.0x5"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -1594,9 +1539,5 @@
       }
     }
   },
-  "security": [
-    {
-      "auth.bearer": []
-    }
-  ]
+  "security": []
 }

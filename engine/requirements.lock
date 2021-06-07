@@ -30,4 +30,5 @@ strict-rfc3339==0.7
 stringcase==1.2.0
 typing-extensions==3.7.4.3
 typing-inspect==0.6.0
+watchdog==2.1.2
 yarl==1.6.3
