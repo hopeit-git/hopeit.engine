@@ -15,23 +15,11 @@ from hopeit.log_streamer import LogFileHandler, LogReaderConfig, start_observer
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
 )
-async def test_read_single_line(raw_log_entries):
-    app_config = config('plugins/ops/log-streamer/config/plugin-config.json')
-    file_name = f"{uuid.uuid4()}.log"
-    log_config = LogReaderConfig(
-        logs_path="/tmp/test_it_log_file_handler/",
-        prefix=file_name,
-        checkpoint_path='/tmp/test_it_log_file_handler/log_streamer/checkpoints/',
-        file_open_timeout_secs=600,
-        file_checkpoint_expire_secs=86400,
-        batch_size=100,
-        batch_wait_interval_secs=1
-    )
-    os.makedirs(log_config.logs_path, exist_ok=True)
-    context = create_test_context(app_config, "log_reader")    
+async def test_read_single_line(raw_log_entries, log_config, context):
     handler = LogFileHandler(log_config, context)
+    os.makedirs(log_config.logs_path, exist_ok=True)
     observer = start_observer(handler, log_config.logs_path)
-    path = Path(f"{log_config.logs_path}{file_name}")
+    path = Path(f"{log_config.logs_path}{log_config.prefix}")
     with open(path, 'w') as f:
         for line in raw_log_entries.data:
             f.write(line + '\n')
@@ -39,6 +27,51 @@ async def test_read_single_line(raw_log_entries):
 
     lines = await handler.get_and_reset_batch()
 
+    assert len(lines) == 2
     assert lines[0] == raw_log_entries.data[0] + '\n'
     assert lines[1] == raw_log_entries.data[-1] + '\n'
+    
+    observer.stop()
+    observer.join()
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    platform.system().lower() != "linux",
+    reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
+)
+async def test_read_checkpoint(raw_log_entries, raw_log_entries2, log_config, context):
+    handler = LogFileHandler(log_config, context)
+    os.makedirs(log_config.logs_path, exist_ok=True)
+    observer = start_observer(handler, log_config.logs_path)
+    path = Path(f"{log_config.logs_path}{log_config.prefix}")
+    
+    with open(path, 'w') as f:
+        for line in raw_log_entries.data:
+            f.write(line + '\n')
+
+    await asyncio.sleep(2)
+    lines = await handler.get_and_reset_batch()
     assert len(lines) == 2
+    assert lines[0] == raw_log_entries.data[0] + '\n'
+    assert lines[1] == raw_log_entries.data[-1] + '\n'
+
+    observer.stop()
+    observer.join()
+
+    handler = LogFileHandler(log_config, context)
+    observer = start_observer(handler, log_config.logs_path)
+
+    with open(path, 'w') as f:
+        for line in raw_log_entries2.data:
+            f.write(line + '\n')
+    
+    await asyncio.sleep(2)
+    lines = await handler.get_and_reset_batch()
+    assert len(lines) == 2
+    assert lines[0] == raw_log_entries2.data[0] + '\n'
+    assert lines[1] == raw_log_entries2.data[-1] + '\n'
+
+    await asyncio.sleep(1)
+    observer.stop()
+    observer.join()

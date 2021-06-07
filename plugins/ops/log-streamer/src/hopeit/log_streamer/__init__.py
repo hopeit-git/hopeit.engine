@@ -131,12 +131,13 @@ class LogFileHandler(FileSystemEventHandler):
             logger.error(self.context, e)
 
     async def _save_checkpoint(self, src_path: str, line: str):
-        key = f'{self.context.app_key}.{src_path}.checkpoint'.replace('/', 'x')
-        cp = Checkpoint(
-            line=line,
-            expire=int(datetime.now().timestamp()) + self.file_checkpoint_expire
-        )
-        await self.checkpoint_storage.store(key, cp)
+        async with self.lock:
+            key = f'{self.context.app_key}.{src_path}.checkpoint'.replace('/', 'x')
+            cp = Checkpoint(
+                line=line,
+                expire=int(datetime.now().timestamp()) + self.file_checkpoint_expire
+            )
+            await self.checkpoint_storage.store(key, cp)
 
     async def _load_checkpoint(self, src_path: str) -> str:
         key = f'{self.context.app_key}.{src_path}.checkpoint'.replace('/', 'x')
