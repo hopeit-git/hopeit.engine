@@ -144,7 +144,7 @@ class LogFileHandler(FileSystemEventHandler):
         cp = await self.checkpoint_storage.get(key, datatype=Checkpoint)
         if cp is None:
             return ''
-        if int(cp.expire) > int(datetime.now().timestamp()):
+        if int(cp.expire) < int(datetime.now().timestamp()):
             return ''
         return cp.line
 
