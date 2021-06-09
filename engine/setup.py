@@ -93,6 +93,9 @@ setuptools.setup(
         "fs-storage": [
             f"hopeit.fs-storage=={version['ENGINE_VERSION']}"
         ],
+        "log-streamer": [
+            f"hopeit.log-streamer=={version['ENGINE_VERSION']}"
+        ],
         "apps-visualizer": [
             f"hopeit.apps-visualizer=={version['ENGINE_VERSION']}"
         ]
