@@ -38,9 +38,13 @@ async def __service__(context: EventContext) -> Spawn[LogRawBatch]:  # pylint: d
                     yield LogRawBatch(data=batch[i: i + config.batch_size + 1])
                     await asyncio.sleep(config.batch_wait_interval_secs)
             event_handler.close_inactive_files()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt:  # pragma: no cover
+        pass
+    except Exception as e:  # pytlint: disable=broad-except  # pragma: no cover
+        logger.error(context, e)
+    finally:
         observer.stop()
-    observer.join()
+        observer.join()
 
 
 def _parse_extras(extras: List[str]) -> Dict[str, str]:
@@ -81,7 +85,7 @@ async def _process_log_entry(entry: str, context: EventContext) -> Optional[LogE
                     extra=extra_items
                 )
         return None
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
         logger.error(context, e)
         return None
 
@@ -103,7 +107,7 @@ async def process_log_data(payload: LogRawBatch, context: EventContext) -> Optio
             return LogBatch(entries=entries)
         logger.info("Filtered out all entries in batch.")
         return None
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
         logger.error(context, e)
         return None
     finally:

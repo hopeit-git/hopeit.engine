@@ -75,7 +75,7 @@ def expected_log_entries() -> LogBatch:
 def log_config():
     return LogReaderConfig(
         logs_path="/tmp/test_it_log_file_handler/",
-        prefix=f"{uuid.uuid4()}.log",
+        prefix=f"{str(uuid.uuid4())}.log",
         checkpoint_path='/tmp/test_it_log_file_handler/log_streamer/checkpoints/',
         file_open_timeout_secs=600,
         file_checkpoint_expire_secs=86400,

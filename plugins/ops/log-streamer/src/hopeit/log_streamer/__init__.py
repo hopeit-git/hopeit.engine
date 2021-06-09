@@ -69,6 +69,7 @@ class LogFileHandler(FileSystemEventHandler):
     It also keeps track of open files and ensures they are closed when inactive or deleted,
     allowing to work combined with `logrotate`.
     """
+    EVENTS_SORT_ORDER =  ['START', '', 'DONE', 'FAILED']
 
     def __init__(self, config: LogReaderConfig, context: EventContext):
         self.path = config.logs_path
@@ -88,7 +89,7 @@ class LogFileHandler(FileSystemEventHandler):
             if event.src_path in self.open_files:
                 self.last_access[event.src_path] = 0
                 self.close_inactive_files()
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
             logger.error(self.context, e)
 
     def on_deleted(self, event):
@@ -96,14 +97,14 @@ class LogFileHandler(FileSystemEventHandler):
             if event.src_path in self.open_files:
                 self.last_access[event.src_path] = 0
                 self.close_inactive_files()
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
             logger.error(self.context, e)
 
     def on_modified(self, event):
         try:
             if event.src_path.find(self.prefix) >= 0:
                 asyncio.run_coroutine_threadsafe(self._on_event(event), self.loop)
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
             logger.error(self.context, e)
 
     def _add_line(self, lines: List[str], line: str):
@@ -127,7 +128,7 @@ class LogFileHandler(FileSystemEventHandler):
                     if len(lines) > 0:
                         await self._emit(lines)
                         await self._save_checkpoint(src_path, lines[-1])
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
             logger.error(self.context, e)
 
     async def _save_checkpoint(self, src_path: str, line: str):
@@ -170,18 +171,18 @@ class LogFileHandler(FileSystemEventHandler):
                             ))
                             while line and (line[:24] < checkpoint[:24]):
                                 line = self.open_files[src_path].readline()
-                            pos = self.open_files[src_path].tell()
+                            # pos = self.open_files[src_path].tell()
                             while line and (line[:24] <= checkpoint[:24]) and (line != checkpoint):
                                 line = self.open_files[src_path].readline()
-                            if line != checkpoint:
-                                self.open_files[src_path].seek(pos)
+                            # if line != checkpoint:
+                            #     self.open_files[src_path].seek(pos)
                             logger.info(self.context, "Skip to checkpoint done.", extra=extra(
                                 src_path=src_path, checkpoint=checkpoint
                             ))
                         else:
                             self.open_files[src_path].seek(0)
                 return True
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
             logger.error(self.context, e)
             return False
 
@@ -197,7 +198,7 @@ class LogFileHandler(FileSystemEventHandler):
                     if key in self.open_files:
                         self.open_files[key].close()
                         del self.open_files[key]
-                except Exception as e:  # pylint: disable=broad-except
+                except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
                     logger.error(self.context, e)
                 del self.last_access[key]
 
@@ -215,9 +216,9 @@ class LogFileHandler(FileSystemEventHandler):
         def _sort_batch(x):
             xs = x.split(' | ')[:5]
             try:
-                xs[4] = ['START', '', 'DONE', 'FAILED'].index(xs[4])
+                xs[3] = self.EVENTS_SORT_ORDER.index(xs[3])
             except ValueError:
-                xs[4] = 1
+                xs[3] = 1
             except IndexError:
                 pass
             return tuple(xs)
