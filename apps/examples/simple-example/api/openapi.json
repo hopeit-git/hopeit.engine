@@ -193,6 +193,11 @@
         },
         "tags": [
           "simple_example.0x5"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -274,6 +279,11 @@
         },
         "tags": [
           "simple_example.0x5"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       },
       "post": {
@@ -364,6 +374,11 @@
         },
         "tags": [
           "simple_example.0x5"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -465,6 +480,11 @@
         },
         "tags": [
           "simple_example.0x5"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -556,6 +576,11 @@
         },
         "tags": [
           "simple_example.0x5"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -698,6 +723,11 @@
         },
         "tags": [
           "simple_example.0x5"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -771,6 +801,11 @@
         },
         "tags": [
           "simple_example.0x5"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -847,6 +882,11 @@
         },
         "tags": [
           "simple_example.0x5"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -929,6 +969,11 @@
         },
         "tags": [
           "simple_example.0x5"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -1011,6 +1056,11 @@
         },
         "tags": [
           "simple_example.0x5"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -1093,6 +1143,11 @@
         },
         "tags": [
           "simple_example.0x5"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -1539,5 +1594,9 @@
       }
     }
   },
-  "security": []
+  "security": [
+    {
+      "auth.bearer": []
+    }
+  ]
 }
