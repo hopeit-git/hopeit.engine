@@ -69,12 +69,12 @@ class LogFileHandler(FileSystemEventHandler):
     It also keeps track of open files and ensures they are closed when inactive or deleted,
     allowing to work combined with `logrotate`.
     """
-    EVENTS_SORT_ORDER =  ['START', '', 'DONE', 'FAILED']
+    EVENTS_SORT_ORDER = ['START', '', 'DONE', 'FAILED']
 
     def __init__(self, config: LogReaderConfig, context: EventContext):
         self.path = config.logs_path
         self.prefix = config.logs_path + config.prefix
-        self.checkpoint_storage = FileStorage(path=config.checkpoint_path)
+        self.checkpoint_storage = FileStorage(path=config.checkpoint_path)  # type: ignore
         self.context = context
         self.batch: List[str] = []
         self.open_files: Dict[str, TextIO] = {}
@@ -171,11 +171,8 @@ class LogFileHandler(FileSystemEventHandler):
                             ))
                             while line and (line[:24] < checkpoint[:24]):
                                 line = self.open_files[src_path].readline()
-                            # pos = self.open_files[src_path].tell()
                             while line and (line[:24] <= checkpoint[:24]) and (line != checkpoint):
                                 line = self.open_files[src_path].readline()
-                            # if line != checkpoint:
-                            #     self.open_files[src_path].seek(pos)
                             logger.info(self.context, "Skip to checkpoint done.", extra=extra(
                                 src_path=src_path, checkpoint=checkpoint
                             ))

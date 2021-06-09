@@ -40,7 +40,7 @@ async def __service__(context: EventContext) -> Spawn[LogRawBatch]:  # pylint: d
             event_handler.close_inactive_files()
     except KeyboardInterrupt:  # pragma: no cover
         pass
-    except Exception as e:  # pytlint: disable=broad-except  # pragma: no cover
+    except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
         logger.error(context, e)
     finally:
         observer.stop()

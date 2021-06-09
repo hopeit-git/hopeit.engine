@@ -1,14 +1,12 @@
 import pytest
 
 import asyncio
-import json
 import os
 import platform
 from pathlib import Path
 
-from hopeit.testing.apps import config, create_test_context, execute_event
+from hopeit.testing.apps import config, execute_event
 
-from hopeit.log_streamer import LogEntry, LogBatch, LogRawBatch
 from hopeit.log_streamer import log_reader
 
 
@@ -27,6 +25,7 @@ async def write_logs(log_config, raw_log_entries):
         for line in raw_log_entries.data:
             f.write(line + '\n')
         f.flush()
+
 
 @pytest.mark.asyncio
 @pytest.mark.skipif(
