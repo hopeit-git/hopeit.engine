@@ -1,9 +1,13 @@
 import setuptools
 
 
+version = {}
+with open("../../../engine/src/hopeit/server/version.py") as fp:
+    exec(fp.read(), version)
+
 setuptools.setup(
     name="hopeit.plugins.basic_auth",
-    version="0.2.0",
+    version=version['ENGINE_VERSION'],
     description="Hopeit.py Basic Auth Plugin",
     package_dir={
         "": "src"
