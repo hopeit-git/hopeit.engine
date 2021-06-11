@@ -11,3 +11,5 @@ mypy
 wheel
 docker-compose
 aiofiles
+types-cryptography
+types-jwt

@@ -14,6 +14,19 @@
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "log-streamer",
+            "type": "python",
+            "request": "launch",
+            "module": "hopeit.server.web",
+            "args": [
+                "--port=8099",
+                "--start-streams",
+                "--config-files=engine/config/dev-local.json,plugins/ops/log-streamer/config/plugin-config.json"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
         }
     ]
 }

@@ -1,0 +1,35 @@
+{
+  "app" : {
+    "name": "log-streamer",
+    "version": "${HOPEIT_APPS_API_VERSION}"
+  },
+  "engine": {
+    "import_modules": ["hopeit.log_streamer"]
+  },
+  "env" : {
+    "log_reader": {
+        "logs_path": "work/logs/apps/",
+        "prefix": "simple_example",
+        "checkpoint_path": "work/logs/checkpoint/",
+        "file_open_timeout_secs": 600,
+        "file_checkpoint_expire_secs": 86400,
+        "batch_size": 10000,
+        "batch_wait_interval_secs": 1
+    }
+  },
+  "events": {
+    "log_reader" : {
+      "type": "SERVICE",
+      "plug_mode": "Standalone",
+      "write_stream": {
+        "name": "hopeit.log-streamer.logs"
+      },
+      "config": {
+        "stream": {
+          "target_max_len": 1000,
+          "throttle_ms": 10
+        }
+      }
+    }
+  }
+}
