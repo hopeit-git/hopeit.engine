@@ -1,9 +1,13 @@
 import setuptools
 
 
+version = {}
+with open("../../../engine/src/hopeit/server/version.py") as fp:
+    exec(fp.read(), version)
+
 setuptools.setup(
     name="simple_example",
-    version="0.3.0",
+    version=version['ENGINE_VERSION'],
     description="Hopeit.py Example App",
     package_dir={
         "": "src"
