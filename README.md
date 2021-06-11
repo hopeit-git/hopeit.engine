@@ -121,7 +121,9 @@ If an external request triggers a process that requires background tasks to run,
 
 ## Current status and roadmap
 
-- **UPCOMING FEATURES:**: `hopeit.engine` 0.3.0 introduced the ability to use different Stream Managers and enable custom integrations. We are planning to create plugins to provide a `hopeit.engine` based Stream Processing engine to optionally use instead of Redis Streams, simplifying operations in some scenarios. Thanks to this modularization, also Kafka integration can be supported in the future.
+- **UPCOMING FEATURES:**: we are planning to create plugins to provide a `hopeit.engine` based Stream Processing engine to optionally use instead of Redis Streams, simplifying operations in some scenarios. Thanks to this modularization, also Kafka integration can be supported in the future. Also, we'll add live-monitoring capabilities to `apps-visualizer` plugin.-
+
+- **JUN 2021**: `hopeit.engine` version 0.4.0 introduced app-visualizer plugin, that allows viewing in a web browser the current running configuration and dependencies between apps and events of a deployment. Also, enhanced stream processing by adding support for multiple queues for the same stream. In version 0.5.0 we started adding more DevOps tools: the first one is `log-streamer` plugin, which allows to parse app logs and send data to a stream. This will be used to monitor applications and dump logs to persistent storage.
 
 - **MAY 2021**: `hopeit.engine` version 0.3.0 released: we moved the modules redis-storage, readis-streams and fs-storage to independent plugins; Python 3.9 is now supported. Please check [release-notes](docs/source/release-notes.rst) for minor breaking changes made to configuration files.
 
