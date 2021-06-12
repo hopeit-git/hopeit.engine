@@ -46,9 +46,9 @@ python3 -m pylint plugins/storage/fs/src/hopeit/fs_storage/
 code+=$?
 
 echo "ops/apps-visualizer"
-export MYPYPATH=engine/src/:plugins/ops/apps-visualizer/src/ && python3 -m mypy --namespace-packages -p hopeit.apps_visualizer
+export MYPYPATH=engine/src/:plugins/storage/fs/src/:plugins/ops/log-streamer/src/:plugins/ops/apps-visualizer/src/ && python3 -m mypy --namespace-packages -p hopeit.apps_visualizer
 code+=$?
-export MYPYPATH=engine/src/:plugins/ops/apps-visualizer/src/ && python3 -m mypy --namespace-packages plugins/ops/apps-visualizer/test/integration/
+export MYPYPATH=engine/src/:plugins/storage/fs/src/:plugins/ops/log-streamer/src/:plugins/ops/apps-visualizer/src/ && python3 -m mypy --namespace-packages plugins/ops/apps-visualizer/test/integration/
 code+=$?
 python3 -m flake8 --max-line-length=120 plugins/ops/apps-visualizer/src/hopeit/ plugins/ops/apps-visualizer/test/integration/
 code+=$?

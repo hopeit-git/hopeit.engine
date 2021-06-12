@@ -1,17 +1,14 @@
 """
 Events graph showing events, stream and dependecies for specified apps
 """
-import os
 import sys
 from typing import List, Optional
-import json
-from pathlib import Path
 
-from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.context import EventContext
 
 from hopeit.apps_visualizer.graphs import Edge, Node, Graph, get_edges, get_nodes
 from hopeit.apps_visualizer.site.visualization import VisualizationOptions, CytoscapeGraph, \
-    visualization_options
+    visualization_options  # noqa: F401
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import split_event_stages
 from hopeit.app.api import event_api

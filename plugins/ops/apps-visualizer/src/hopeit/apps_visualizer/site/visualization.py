@@ -22,7 +22,6 @@ class VisualizationOptions:
     live: bool = False
 
 
-
 async def visualization_options(payload: None, context: EventContext,
                                 *, app_prefix: str = '',
                                 expand_queues: bool = False,

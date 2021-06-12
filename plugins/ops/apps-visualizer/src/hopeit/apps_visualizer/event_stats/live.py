@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from hopeit.apps_visualizer.site.visualization import VisualizationOptions
 from hopeit.app.api import event_api
@@ -6,9 +6,9 @@ from hopeit.app.events import collector_step, Collector
 from hopeit.app.context import EventContext
 
 from hopeit.apps_visualizer.event_stats.collect import get_stats
-from hopeit.apps_visualizer.site.visualization import visualization_options
+from hopeit.apps_visualizer.site.visualization import visualization_options  # noqa: F401
 from hopeit.apps_visualizer.apps.events_graph import EventsGraphResult, \
-    config_graph, cytoscape_data, runtime_apps
+    config_graph, cytoscape_data, runtime_apps  # noqa: F401
 
 __steps__ = [
     'visualization_options',
@@ -62,14 +62,14 @@ async def live_stats(collector: Collector, context: EventContext) -> Collector:
                     classes.append('RECENT')
                 if s.failed:
                     classes.append('FAILED')
-                item['classes'] = f"{item.get('classes', '')} {' '.join(classes)}"
+                item['classes'] = f"{item.get('classes', '')} {' '.join(classes)}".lstrip(' ')
                 target = item['data'].get('target', ' ')
                 if target[0] == '>':
                     target_item = graph.data[target]
-                    target_item['classes'] = f"{target_item['classes']} {' '.join(classes)}"
+                    target_item['classes'] = f"{target_item['classes']} {' '.join(classes)}".lstrip(' ')
                 if len(source) > 5 and (source[-5:] == ".POST" or source[-4:] == ".GET"):
                     source_item = graph.data[source]
-                    source_item['classes'] = f"{source_item['classes']} {' '.join(classes)}"
+                    source_item['classes'] = f"{source_item['classes']} {' '.join(classes)}".lstrip(' ')
     return graph
 
 

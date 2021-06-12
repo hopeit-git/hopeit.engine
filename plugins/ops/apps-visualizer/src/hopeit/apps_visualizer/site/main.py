@@ -4,20 +4,14 @@ Events graph showing events, stream and dependecies for specified apps
 import os
 import sys
 from typing import List, Optional
-import json
 from pathlib import Path
 
 from hopeit.app.context import EventContext, PostprocessHook
 
-from hopeit.apps_visualizer.graphs import Edge, Node, Graph, get_edges, get_nodes
-from hopeit.apps_visualizer.site.visualization import VisualizationOptions, CytoscapeGraph, \
-    visualization_options
-from hopeit.server.imports import find_event_handler
+from hopeit.apps_visualizer.site.visualization import VisualizationOptions
 from hopeit.server.names import route_name
-from hopeit.server.steps import split_event_stages
 from hopeit.app.api import event_api
 from hopeit.dataobjects import dataclass, dataobject
-from hopeit.app.events import collector_step, Collector
 from hopeit.app.config import AppConfig
 
 __steps__ = [
@@ -120,7 +114,6 @@ async def __postprocess__(result: EventsGraphResult, context: EventContext, resp
         template = template.replace("{{ switch_link }}", switch_link)
         template = template.replace("{{ live_link }}", live_link)
         template = template.replace("{{ refresh_endpoint }}", refresh_endpoint)
-            
         template = template.replace("{{ view_type }}", view_type)
         template = template.replace("{{ live_type }}", live_type)
         return template

@@ -54,10 +54,7 @@ async def save(payload: Something, context: EventContext) -> SomethingStored:
     assert fs
     logger.info(context, "save", extra=extra(something_id=payload.id, path=fs.path))
     path = await fs.store(payload.id, payload)
-    delay = random.random() * 1.0
-    if delay > 0.8:
-        raise RuntimeError("SIMULATING FAILURE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
-    await asyncio.sleep(delay)
+    await asyncio.sleep(random.random() * 1.0)
     return SomethingStored(
         path=path,
         payload=payload
