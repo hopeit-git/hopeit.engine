@@ -8,7 +8,8 @@ from pathlib import Path
 
 from hopeit.app.context import EventContext, PostprocessHook
 
-from hopeit.apps_visualizer.site.visualization import VisualizationOptions
+from hopeit.apps_visualizer.site.visualization import VisualizationOptions, \
+    visualization_options  # noqa: F401
 from hopeit.server.names import route_name
 from hopeit.app.api import event_api
 from hopeit.dataobjects import dataclass, dataobject

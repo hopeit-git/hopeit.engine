@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from hopeit.apps_visualizer.site.visualization import VisualizationOptions
 from hopeit.app.api import event_api
@@ -34,6 +34,12 @@ __api__ = event_api(
 )
 
 
+def _classes(item: dict, new_classes: List[str]) -> str:
+    return ' '.join(sorted(
+        {*item.get('classes', '').split(' '), *new_classes}
+    )).lstrip(' ')
+
+
 async def live_stats(collector: Collector, context: EventContext) -> Collector:
     event_stats = get_stats(time_window_secs=30, recent_secs=5)
     graph = await collector['cytoscape_data']
@@ -62,14 +68,16 @@ async def live_stats(collector: Collector, context: EventContext) -> Collector:
                     classes.append('RECENT')
                 if s.failed:
                     classes.append('FAILED')
-                item['classes'] = f"{item.get('classes', '')} {' '.join(classes)}".lstrip(' ')
+                item['classes'] = _classes(item, classes)
                 target = item['data'].get('target', ' ')
                 if target[0] == '>':
                     target_item = graph.data[target]
-                    target_item['classes'] = f"{target_item['classes']} {' '.join(classes)}".lstrip(' ')
-                if len(source) > 5 and (source[-5:] == ".POST" or source[-4:] == ".GET"):
+                    target_item['classes'] = _classes(target_item, classes)
+                if len(source) > 5 and (
+                    source[-5:] == ".POST" or source[-4:] == ".GET" or source[-8:] == "MULTIPART"
+                ):
                     source_item = graph.data[source]
-                    source_item['classes'] = f"{source_item['classes']} {' '.join(classes)}".lstrip(' ')
+                    source_item['classes'] = _classes(source_item, classes)
     return graph
 
 
