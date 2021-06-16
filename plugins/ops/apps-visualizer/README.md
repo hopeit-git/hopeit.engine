@@ -23,3 +23,15 @@ hopeit_server ... --config-files=...,plugins/ops/apps-visualizer/config/plugin-c
 ```
 http://host:port/ops/apps-visualizer
 ```
+
+### To enable Live! events activity visualization, configure and start an instance of `log-streamer`:
+ 
+#### Copy `config/plugin-config.json` and customize parameters to match your runtime environment. 
+
+
+#### Run a `hopeit_server` instance with log_streamer, in each node where you run your appplications:
+```
+hopeit_server --port=8099 --start-streams --config-files=server-config.json,customized-plugin-config.json
+```
+
+> Now when you can switch from `Static` to `Live` view clicking on the label at the top right of the Apps Visualizer page

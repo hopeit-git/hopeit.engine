@@ -9,7 +9,7 @@
             "args": [
                 "--port=8020",
                 "--start-streams",
-                "--config-files=engine/config/dev-noauth.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
                 "--api-file=apps/examples/simple-example/api/openapi.json"
             ],
             "cwd": "${workspaceFolder}",
@@ -23,7 +23,7 @@
             "args": [
                 "--port=8099",
                 "--start-streams",
-                "--config-files=engine/config/dev-noauth.json,plugins/ops/log-streamer/config/plugin-config.json"
+                "--config-files=engine/config/dev-local.json,plugins/ops/log-streamer/config/plugin-config.json"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"

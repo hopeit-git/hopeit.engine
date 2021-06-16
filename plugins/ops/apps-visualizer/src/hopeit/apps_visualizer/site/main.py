@@ -89,9 +89,9 @@ async def __postprocess__(result: EventsGraphResult, context: EventContext, resp
         ]
     )
 
-    switch_link = f"apps-visualizer?app_prefix={result.options.app_prefix}"
-    switch_link += f"&expand_queues={str(not result.options.expand_queues).lower()}"
-    switch_link += f"&live={str(result.options.live).lower()}"
+    view_link = f"apps-visualizer?app_prefix={result.options.app_prefix}"
+    view_link += f"&expand_queues={str(not result.options.expand_queues).lower()}"
+    view_link += f"&live={str(result.options.live).lower()}"
 
     live_link = f"apps-visualizer?app_prefix={result.options.app_prefix}"
     live_link += f"&expand_queues={str(result.options.expand_queues).lower()}"
@@ -112,7 +112,7 @@ async def __postprocess__(result: EventsGraphResult, context: EventContext, resp
         template = f.read()
         template = template.replace("{{ app_items }}", app_items)
         template = template.replace("{{ app_prefix }}", app_prefix)
-        template = template.replace("{{ switch_link }}", switch_link)
+        template = template.replace("{{ view_link }}", view_link)
         template = template.replace("{{ live_link }}", live_link)
         template = template.replace("{{ refresh_endpoint }}", refresh_endpoint)
         template = template.replace("{{ view_type }}", view_type)
