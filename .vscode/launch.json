@@ -2,14 +2,27 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "simple-example",
+            "name": "simple-example-8020",
             "type": "python",
             "request": "launch",
             "module": "hopeit.server.web",
             "args": [
                 "--port=8020",
+                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--api-file=apps/examples/simple-example/api/openapi.json"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "simple-example-8021",
+            "type": "python",
+            "request": "launch",
+            "module": "hopeit.server.web",
+            "args": [
+                "--port=8021",
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
                 "--api-file=apps/examples/simple-example/api/openapi.json"
             ],
             "cwd": "${workspaceFolder}",

@@ -53,6 +53,108 @@
         ]
       }
     },
+    "/api/config-manager/0x6/runtime-apps-config": {
+      "get": {
+        "summary": "Config Manager: Runtime Apps Config",
+        "description": "Config Manager: Runtime Apps Config",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": false,
+            "description": "URL used to reach this server",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Config info about running apps in current process",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApps"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "config_manager.0x6"
+        ]
+      }
+    },
+    "/api/config-manager/0x6/cluster-apps-config": {
+      "get": {
+        "summary": "Config Manager: Cluster Apps Config",
+        "description": "Config Manager: Cluster Apps Config",
+        "parameters": [
+          {
+            "name": "hosts",
+            "in": "query",
+            "required": true,
+            "description": "Comma-separated list of http://host:port strings",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Combined config info about running apps in provided list of hosts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApps"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "config_manager.0x6"
+        ]
+      }
+    },
     "/ops/apps-visualizer": {
       "get": {
         "summary": "App Visualizer: Site",
@@ -1585,40 +1687,46 @@
         "x-module-name": "hopeit.basic_auth",
         "description": "\n    Minimal auth info that should be returned outside this app\n    "
       },
-      "VisualizationOptions": {
-        "type": "object",
-        "properties": {
-          "app_prefix": {
-            "type": "string",
-            "default": ""
-          },
-          "expand_queues": {
-            "type": "boolean",
-            "default": false
-          },
-          "live": {
-            "type": "boolean",
-            "default": false
-          }
-        },
-        "x-module-name": "hopeit.apps_visualizer.site.visualization",
-        "description": "VisualizationOptions(app_prefix: str = '', expand_queues: bool = False, live: bool = False)"
-      },
-      "RuntimeApps": {
+      "RuntimeAppInfo": {
         "type": "object",
         "required": [
-          "apps"
+          "servers",
+          "app_config"
         ],
         "properties": {
-          "apps": {
+          "servers": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AppConfig"
+              "$ref": "#/components/schemas/ServerInfo"
             }
+          },
+          "app_config": {
+            "$ref": "#/components/schemas/AppConfig"
           }
         },
-        "x-module-name": "hopeit.apps_visualizer.site.main",
-        "description": "RuntimeApps(apps: List[hopeit.app.config.AppConfig])"
+        "x-module-name": "hopeit.config_manager",
+        "description": "RuntimeAppInfo(servers: List[hopeit.config_manager.ServerInfo], app_config: hopeit.app.config.AppConfig)"
+      },
+      "ServerInfo": {
+        "type": "object",
+        "required": [
+          "host_name",
+          "pid"
+        ],
+        "properties": {
+          "host_name": {
+            "type": "string"
+          },
+          "pid": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "default": "in-process"
+          }
+        },
+        "x-module-name": "hopeit.config_manager",
+        "description": "ServerInfo(host_name: str, pid: str, url: str = 'in-process')"
       },
       "AppConfig": {
         "type": "object",
@@ -2156,6 +2264,41 @@
         },
         "x-module-name": "hopeit.server.config",
         "description": "\n    Config for Open API docs page\n    "
+      },
+      "RuntimeApps": {
+        "type": "object",
+        "required": [
+          "apps"
+        ],
+        "properties": {
+          "apps": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/RuntimeAppInfo"
+            }
+          }
+        },
+        "x-module-name": "hopeit.config_manager",
+        "description": "RuntimeApps(apps: Dict[str, hopeit.config_manager.RuntimeAppInfo])"
+      },
+      "VisualizationOptions": {
+        "type": "object",
+        "properties": {
+          "app_prefix": {
+            "type": "string",
+            "default": ""
+          },
+          "expand_queues": {
+            "type": "boolean",
+            "default": false
+          },
+          "live": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "x-module-name": "hopeit.apps_visualizer.site.visualization",
+        "description": "VisualizationOptions(app_prefix: str = '', expand_queues: bool = False, live: bool = False)"
       },
       "EventsGraphResult": {
         "type": "object",
