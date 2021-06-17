@@ -65,10 +65,10 @@ def get_nodes(events: Dict[str, EventDescriptor],
 
         if event_info.read_stream:
             queues = event_info.read_stream.queues
-            for qid, queue in zip(queues, queues) if expand_queues else [("*", "|".join(queues))]:
-                stream_id = f"{event_info.read_stream.name}.{qid}"
+            for qid, queue in zip(queues, queues) if expand_queues else [("", "|".join(queues))]:
+                stream_id = f">{event_info.read_stream.name}.{qid}".strip('.')
                 stream_name = f"{event_info.read_stream.name}"
-                if qid not in ("*", "AUTO"):
+                if qid not in ("", "AUTO"):
                     stream_name += f".{qid}"
                 stream_node = nodes.get(stream_id, Node(
                     id=stream_id, label=stream_name, type=NodeType.STREAM
@@ -89,10 +89,10 @@ def get_nodes(events: Dict[str, EventDescriptor],
                     for qx in event_info.read_stream.queues
                     for qy in queues
                 ]
-            for qid, queue in zip(queues, queues) if expand_queues else [("*", "|".join(queues))]:
-                stream_id = f"{event_info.write_stream.name}.{qid}"
+            for qid, queue in zip(queues, queues) if expand_queues else [("", "|".join(queues))]:
+                stream_id = f">{event_info.write_stream.name}.{qid}".strip('.')
                 stream_name = f"{event_info.write_stream.name}"
-                if qid not in ("*", "AUTO"):
+                if qid not in ("", "AUTO"):
                     stream_name += f".{qid}"
                 stream_node = nodes.get(stream_id, Node(
                     id=stream_id, label=stream_name, type=NodeType.STREAM

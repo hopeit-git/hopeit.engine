@@ -8,11 +8,25 @@
         "cors_origin": "http://localhost:8020"
     },    
     "events": {
-        "events-graph": {
+        "site.main": {
             "type": "GET",
             "auth": ["Unsecured"],
-            "route": "/ops/apps-visualizer/events-graph"
+            "route": "/ops/apps-visualizer"
+        },
+        "apps.events-graph": {
+            "type": "GET",
+            "auth": ["Unsecured"]
+        },
+        "event-stats.collect": {
+            "type": "STREAM",
+            "read_stream": {
+                "name": "hopeit.log-streamer.logs",
+                "consumer_group": "{auto}"
+            }
+        },
+        "event-stats.live": {
+            "type": "GET",
+            "auth": ["Unsecured"]
         }
-
     }
 }

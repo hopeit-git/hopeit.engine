@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
     <script src="https://unpkg.com/klayjs@0.4.1/klay.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cytoscape-klay/cytoscape-klay.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -21,7 +22,7 @@
   <style>
     #cy {
       width: 100%;
-      height: 640px;
+      height: 720px;
     }
   </style>
 
@@ -42,7 +43,10 @@
               {{ app_items }}
             </ul>
           </div>
-          <div class="col-4 text-end"><small>{{ view_type }} <a href="{{ switch_link }}">[Switch]</a></small></div>
+          <div class="col-4 text-end">
+            <small><a class="badge bg-secondary" href="{{ view_link }}">{{ view_type }}</a></small>
+            <small><a class="badge bg-danger" href="{{ live_link }}">{{ live_type }}</a></small>
+          </div>
         </div>
         <div class="row">
           <figure class="col-12 figure ">
@@ -124,8 +128,24 @@
 
       var cy = cytoscape({
         container: document.getElementById("cy"),
-        elements: {{ graph_data }},
+        elements: [],
       });
+
+      var need_layout = true;
+
+      const refresh = () => {
+        $.getJSON("{{ refresh_endpoint }}", 
+          function(result) {
+            cy.json({elements: Object.values(result.graph.data)})
+            if (need_layout) {
+              cy.layout(options).run();
+              need_layout = false;
+            }
+          }
+        );
+      }
+
+      window.setInterval(refresh, 1000)
 
       function hashCode(s) {
         var h = 0;
@@ -162,6 +182,17 @@
           },
         },
         {
+          selector: "edge.RECENT",
+          style: {
+            "width": "1.0px",
+          },
+        },
+        {
+          selector: "edge.PENDING",
+          style: {
+            "width": "1.0px",
+          },
+        },        {
           selector: "node",
           style: {
             "content": "data(content)",
@@ -203,12 +234,77 @@
           selector: "node.REQUEST",
           style: {
             "shape": "ellipse",
+            "background-color": "#AAAAFF",
+            "background-opacity": "0.5",
             "font-size": "3px",
             "text-valign": "top",
             "width": "6",
             "height": "6",
           },
         },
+        {
+          selector: "node.EVENT.STARTED",
+          style: {
+            "border-width": "1px",
+            "border-opacity": 1.0,
+          },
+        },
+        {
+          selector: "node.EVENT.RECENT",
+          style: {
+            "background-color": "#AAFFAA",
+          },
+        },
+        {
+          selector: "node.EVENT.FAILED",
+          style: {
+            "background-color": "#FFAAAA",
+          },
+        },
+        {
+          selector: "node.EVENT.PENDING",
+          style: {
+            "background-color": "#AAFFFF",
+          },
+        },      
+        {
+          selector: "node.STREAM.STARTED",
+          style: {
+            "border-width": "1px",
+            "border-opacity": 1.0,
+          },
+        },
+        {
+          selector: "node.STREAM.RECENT",
+          style: {
+            "background-color": "#AAFFFF",
+          },
+        },   
+        {
+          selector: "node.STREAM.PENDING",
+          style: {
+            "background-color": "#AAFFFF",
+          },
+        },
+        {
+          selector: "node.REQUEST.STARTED",
+          style: {
+            "border-width": "1px",
+            "border-opacity": 1.0,
+          },
+        },
+        {
+          selector: "node.REQUEST.RECENT",
+          style: {
+            "background-color": "#AAFFAA",
+          },
+        },
+        {
+          selector: "node.REQUEST.PENDING",
+          style: {
+            "background-color": "#AAFFFF",
+          },
+        }, 
       ]);
 
       cy.layout(options).run();

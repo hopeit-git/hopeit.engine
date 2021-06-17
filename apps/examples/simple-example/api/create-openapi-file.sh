@@ -1,4 +1,5 @@
 #!/bin/bash
+export PYTHONPATH=./apps/examples/simple-example/src && \
 hopeit_openapi create \
 --title="Simple Example" \
 --description="Simple Example" \
