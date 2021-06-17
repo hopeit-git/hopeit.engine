@@ -81,6 +81,9 @@ class AuthConfig:
 @dataobject
 @dataclass
 class APIConfig:
+    """
+    Config for Open API docs page
+    """
     docs_path: Optional[str] = None
 
 

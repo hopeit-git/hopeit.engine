@@ -414,7 +414,7 @@
         },
         "engine_version": {
           "type": "string",
-          "default": "0.4.0"
+          "default": "0.6.0"
         }
       },
       "description": "\n    Server configuration\n    "
@@ -502,7 +502,7 @@
           "type": "string"
         }
       },
-      "description": "APIConfig(docs_path: Union[str, NoneType] = None)"
+      "description": "\n    Config for Open API docs page\n    "
     }
   }
 }

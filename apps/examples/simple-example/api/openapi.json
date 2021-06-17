@@ -2155,7 +2155,7 @@
           }
         },
         "x-module-name": "hopeit.server.config",
-        "description": "APIConfig(docs_path: Union[str, NoneType] = None)"
+        "description": "\n    Config for Open API docs page\n    "
       },
       "EventsGraphResult": {
         "type": "object",
