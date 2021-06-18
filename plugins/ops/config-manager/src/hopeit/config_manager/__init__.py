@@ -1,3 +1,6 @@
+"""
+Config Manager dataclasses
+"""
 from typing import Dict, List
 
 from hopeit.dataobjects import dataclass, dataobject

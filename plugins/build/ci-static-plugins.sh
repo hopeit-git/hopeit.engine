@@ -55,6 +55,16 @@ code+=$?
 python3 -m pylint plugins/ops/apps-visualizer/src/hopeit/apps_visualizer/
 code+=$?
 
+echo "ops/config-manager"
+export MYPYPATH=engine/src/:plugins/ops/config-manager/src/ && python3 -m mypy --namespace-packages -p hopeit.config_manager
+code+=$?
+export MYPYPATH=engine/src/:plugins/ops/config-manager/src/ && python3 -m mypy --namespace-packages plugins/ops/config-manager/test/integration/
+code+=$?
+python3 -m flake8 --max-line-length=120 plugins/ops/config-manager/src/hopeit/ plugins/ops/config-manager/test/integration/
+code+=$?
+python3 -m pylint plugins/ops/config-manager/src/hopeit/config_manager/
+code+=$?
+
 echo "ops/log-streamer"
 export MYPYPATH=engine/src/:plugins/storage/fs/src/:plugins/ops/log-streamer/src/ && python3 -m mypy --namespace-packages -p hopeit.log_streamer
 code+=$?
