@@ -42,6 +42,9 @@ setuptools.setup(
         "hopeit.config_manager"
     ],
     include_package_data=True,
+    package_data={
+        "hopeit.config_manager": ["py.typed"]
+    },
     python_requires=">=3.7",
     install_requires=[
         f"hopeit.engine[web]=={version['ENGINE_VERSION']}"
