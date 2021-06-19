@@ -2168,7 +2168,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.7.0"
+            "default": "0.7.1"
           }
         },
         "x-module-name": "hopeit.server.config",
@@ -2276,10 +2276,23 @@
             "additionalProperties": {
               "$ref": "#/components/schemas/RuntimeAppInfo"
             }
+          },
+          "server_status": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "ALIVE",
+                "ERROR"
+              ],
+              "x-enum-name": "ServerStatus",
+              "x-module-name": "hopeit.config_manager"
+            },
+            "default": {}
           }
         },
         "x-module-name": "hopeit.config_manager",
-        "description": "RuntimeApps(apps: Dict[str, hopeit.config_manager.RuntimeAppInfo])"
+        "description": "RuntimeApps(apps: Dict[str, hopeit.config_manager.RuntimeAppInfo], server_status: Dict[str, hopeit.config_manager.ServerStatus] = <factory>)"
       },
       "VisualizationOptions": {
         "type": "object",

@@ -2,8 +2,10 @@
 Config Manager dataclasses
 """
 from typing import Dict, List
+from enum import Enum
+from dataclasses import dataclass, field
 
-from hopeit.dataobjects import dataclass, dataobject
+from hopeit.dataobjects import dataobject
 from hopeit.app.config import AppConfig
 
 
@@ -13,6 +15,11 @@ class ServerInfo:
     host_name: str
     pid: str
     url: str = "in-process"
+
+
+class ServerStatus(Enum):
+    ALIVE = "ALIVE"
+    ERROR = "ERROR"
 
 
 @dataobject
@@ -26,3 +33,4 @@ class RuntimeAppInfo:
 @dataclass
 class RuntimeApps:
     apps: Dict[str, RuntimeAppInfo]
+    server_status: Dict[str, ServerStatus] = field(default_factory=dict)

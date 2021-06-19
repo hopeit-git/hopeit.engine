@@ -83,6 +83,14 @@ def _get_engine_logger(monkeypatch, mock_app_config):  # noqa: F811
     return logger
 
 
+def _get_engine_extra_logger(monkeypatch, mock_app_config):  # noqa: F811
+    _patch_logger(monkeypatch)
+    logger, extra = server_logging.engine_extra_logger()
+    logger.init_server(mock_app_config.server)
+    logger.init_app(mock_app_config, plugins=[])
+    return logger, extra
+
+
 def _get_cli_logger(monkeypatch):  # noqa: F811
     _patch_logger(monkeypatch, '_console_handler')
     return server_logging.engine_logger().init_cli("test_cli_logger")
@@ -340,6 +348,94 @@ def test_engine_logger_traceback(monkeypatch, mock_app_config):  # noqa: F811
            "| [test_it_logging] Test for error " \
            "| extra.field1=value1 | extra.field2=42 " \
            "| trace=%5B%22AssertionError%3A%20Test%20for%20error%5Cn%22%5D"
+
+
+def test_engine_extra_logger(monkeypatch, mock_app_config):  # noqa: F811
+    logger, extra = _get_engine_extra_logger(monkeypatch, mock_app_config)
+    context = _event_context(mock_app_config)
+
+    logger.info(
+        context, "Log message",
+        extra=extra(field1='value1', field2=42)
+    )
+    assert MockHandler.formatter.format(MockHandler.record)[24:] \
+        == "| INFO | mock_app test mock_event_logging test_host test_pid | Log message " \
+           "| extra.field1=value1 | extra.field2=42 " \
+           "| track.operation_id=test_operation_id " \
+           "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
+           "| track.session_id=test_session_id"
+
+    logger.warning(
+        context, "Log message",
+        extra=extra(field1='value1', field2=42)
+    )
+    assert MockHandler.formatter.format(MockHandler.record)[24:] \
+        == "| WARNING | mock_app test mock_event_logging test_host test_pid | Log message " \
+           "| extra.field1=value1 | extra.field2=42 " \
+           "| track.operation_id=test_operation_id " \
+           "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
+           "| track.session_id=test_session_id"
+
+    logger.error(
+        context, "Log message",
+        extra=extra(field1='value1', field2=42)
+    )
+    assert MockHandler.formatter.format(MockHandler.record)[24:] \
+        == "| ERROR | mock_app test mock_event_logging test_host test_pid | Log message " \
+           "| extra.field1=value1 | extra.field2=42 " \
+           "| track.operation_id=test_operation_id " \
+           "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
+           "| track.session_id=test_session_id"
+
+    logger.start(
+        context,
+        extra=extra(field1='value1', field2=42)
+    )
+    assert MockHandler.formatter.format(MockHandler.record)[24:] \
+        == "| INFO | mock_app test mock_event_logging test_host test_pid | START " \
+           "| extra.field1=value1 | extra.field2=42 " \
+           "| track.operation_id=test_operation_id " \
+           "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
+           "| track.session_id=test_session_id"
+
+    logger.done(
+        context,
+        extra=server_logging.combined(
+            extra(field1='value1', field2=42)
+        )
+    )
+    assert MockHandler.formatter.format(MockHandler.record)[24:] \
+        == "| INFO | mock_app test mock_event_logging test_host test_pid | DONE " \
+           "| extra.field1=value1 | extra.field2=42 " \
+           "| track.operation_id=test_operation_id " \
+           "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
+           "| track.session_id=test_session_id"
+
+    logger.ignored(
+        context,
+        extra=server_logging.combined(
+            extra(field1='value1', field2=42)
+        )
+    )
+    assert MockHandler.formatter.format(MockHandler.record)[24:] \
+        == "| WARNING | mock_app test mock_event_logging test_host test_pid | IGNORED " \
+           "| extra.field1=value1 | extra.field2=42 " \
+           "| track.operation_id=test_operation_id " \
+           "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
+           "| track.session_id=test_session_id"
+
+    logger.failed(
+        context,
+        extra=server_logging.combined(
+            server_logging.extra_values([], field1='value1', field2=42)
+        )
+    )
+    assert MockHandler.formatter.format(MockHandler.record)[24:] \
+        == "| ERROR | mock_app test mock_event_logging test_host test_pid | FAILED " \
+           "| extra.field1=value1 | extra.field2=42 " \
+           "| track.operation_id=test_operation_id " \
+           "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
+           "| track.session_id=test_session_id"
 
 
 def test_cli_logger(monkeypatch):  # noqa: F811

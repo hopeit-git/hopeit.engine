@@ -53,7 +53,9 @@ class MockClientSession():
         return None
 
     def get(self, url: str) -> MockResponse:
-        return MockResponse(self.responses[url])
+        if url in self.responses:
+            return MockResponse(self.responses[url])
+        raise IOError("Test error")
 
 
 def mock_client(module, monkeypatch, server1_apps_response, server2_apps_response):

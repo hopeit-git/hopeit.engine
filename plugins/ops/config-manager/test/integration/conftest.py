@@ -1,7 +1,7 @@
 import pytest
 
 from hopeit.dataobjects.jsonify import Json
-from hopeit.config_manager import RuntimeApps
+from hopeit.config_manager import RuntimeApps, ServerStatus
 import socket
 import os
 
@@ -466,6 +466,9 @@ RUNTIME_SIMPLE_EXAMPLE = """
         ]
       }
     }
+  },
+  "server_status": {
+    "${URL}": "ALIVE"
   }
 }
 """
@@ -506,5 +509,6 @@ def cluster_apps_response():
     server1.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers.extend(
         server2.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers
     )
+    server1.server_status["http://test-server2"] = ServerStatus.ALIVE
 
     return server1

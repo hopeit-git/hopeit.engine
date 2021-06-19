@@ -12,7 +12,7 @@ from hopeit.server.runtime import server
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 
-from hopeit.config_manager import RuntimeApps, RuntimeAppInfo, ServerInfo
+from hopeit.config_manager import RuntimeAppInfo, RuntimeApps, ServerInfo, ServerStatus
 from hopeit.app.api import event_api
 
 logger, extra = app_extra_logger()
@@ -41,5 +41,8 @@ async def get_apps_config(payload: None, context: EventContext, *, url: str = "i
                 app_config=app_engine.app_config
             )
             for app_key, app_engine in server.app_engines.items()
+        },
+        server_status={
+            url: ServerStatus.ALIVE
         }
     )
