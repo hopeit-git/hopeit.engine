@@ -84,6 +84,15 @@ setuptools.setup(
         "hopeit.toolkit"
     ],
     include_package_data=True,
+    package_data={
+        "hopeit.app": ["py.typed"],
+        "hopeit.cli": ["py.typed"],
+        "hopeit.dataobjects": ["py.typed"],
+        "hopeit.server": ["py.typed"],
+        "hopeit.streams": ["py.typed"],
+        "hopeit.testing": ["py.typed"],
+        "hopeit.toolkit": ["py.typed"]
+    },
     python_requires=">=3.7",
     install_requires=[ f"{lib}>={libversion(lib)}" for lib in [
         "aiojobs",

@@ -42,6 +42,9 @@ setuptools.setup(
         "hopeit.fs_storage"
     ],
     include_package_data=True,
+    package_data={
+        "hopeit.fs_storage": ["py.typed"]
+    },
     python_requires=">=3.7",
     install_requires=[
         f"hopeit.engine=={version['ENGINE_VERSION']}",

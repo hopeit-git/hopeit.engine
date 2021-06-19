@@ -42,6 +42,9 @@ setuptools.setup(
         "hopeit.redis_streams"
     ],
     include_package_data=True,
+    package_data={
+        "hopeit.redis_streams": ["py.typed"]
+    },
     python_requires=">=3.7",
     install_requires=[
         f"hopeit.engine=={version['ENGINE_VERSION']}",
