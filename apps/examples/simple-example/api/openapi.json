@@ -1705,7 +1705,7 @@
           }
         },
         "x-module-name": "hopeit.config_manager",
-        "description": "RuntimeAppInfo(servers: List[hopeit.config_manager.ServerInfo], app_config: hopeit.app.config.AppConfig)"
+        "description": "\n    Application config information associated to servers at runtime\n    "
       },
       "ServerInfo": {
         "type": "object",
@@ -1726,7 +1726,7 @@
           }
         },
         "x-module-name": "hopeit.config_manager",
-        "description": "ServerInfo(host_name: str, pid: str, url: str = 'in-process')"
+        "description": "\n    Server info associated with runtime apps\n    "
       },
       "AppConfig": {
         "type": "object",
@@ -2168,7 +2168,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.7.0"
+            "default": "0.7.1"
           }
         },
         "x-module-name": "hopeit.server.config",
@@ -2276,10 +2276,23 @@
             "additionalProperties": {
               "$ref": "#/components/schemas/RuntimeAppInfo"
             }
+          },
+          "server_status": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "ALIVE",
+                "ERROR"
+              ],
+              "x-enum-name": "ServerStatus",
+              "x-module-name": "hopeit.config_manager"
+            },
+            "default": {}
           }
         },
         "x-module-name": "hopeit.config_manager",
-        "description": "RuntimeApps(apps: Dict[str, hopeit.config_manager.RuntimeAppInfo])"
+        "description": "\n    Combined App Config and Server Sttus information for running apps\n    "
       },
       "VisualizationOptions": {
         "type": "object",

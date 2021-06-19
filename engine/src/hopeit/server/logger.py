@@ -8,7 +8,7 @@ import time
 from datetime import datetime
 from functools import partial
 from logging.handlers import WatchedFileHandler
-from typing import Dict, Iterable, Union, List, Any
+from typing import Dict, Iterable, Union, List, Tuple, Callable, Any
 from stringcase import snakecase  # type: ignore
 
 import hopeit.server.version as version
@@ -267,13 +267,33 @@ def setup_app_logger(module, *, app_config: AppConfig, name: str, event_info: Ev
 def engine_logger() -> EngineLoggerWrapper:
     """
     Returns logger wrapper for engine modules
-    Allows to reference `logger` as a module variable.
+    Allows to reference `logger` at module scope.
 
     Use at module level in events implementation::
-
+    ```
         from hopeit.logger import engine_logger()
 
         logger = engine_logger()
-
+    ```
     """
     return EngineLoggerWrapper()
+
+
+def engine_extra_logger() -> Tuple[EngineLoggerWrapper, Callable]:
+    """
+    Returns logger wrapper for engine modules
+    and a convenience function to submit extra values when logging.
+    Allows to reference `logger` and `extra` at module scope.
+
+    Use at module level in events implementation::
+    ```
+        from hopeit.logger import engine_logger()
+
+        logger, extra = engine_extra_logger()
+
+        ...
+
+        logger.info(context, "message" extra=extra(value1="extra_value", ...))
+    ```
+    """
+    return EngineLoggerWrapper(), partial(extra_values, [])

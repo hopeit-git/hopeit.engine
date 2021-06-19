@@ -2,6 +2,11 @@ Release Notes
 =============
 
 
+Version 0.7.1
+_____________
+- Config Manager Plugin: Moved cluster_apps_config logic to client that can be used from other apps or plugins.
+
+
 Version 0.7.0
 _____________
 - Config Manager Plugin: allows remote access to runtime configuration for `hopeit.engine` servers and clusters
