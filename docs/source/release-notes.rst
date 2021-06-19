@@ -4,7 +4,7 @@ Release Notes
 
 Version 0.7.3
 _____________
-- Distribute packaging type information for `hopeit.engine` and plugins.
+- Including type information in PIP packages for `hopeit.engine` and plugins.
 
 
 Version 0.7.2
