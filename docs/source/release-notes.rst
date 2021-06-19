@@ -2,6 +2,12 @@ Release Notes
 =============
 
 
+Version 0.7.2
+_____________
+- Engine setup: pinned dependencies version when specified in requirements.txt, fallback to requirements.lock when not pinned in txt.
+- Apps Visualizer plugin setup: added py.typed marker
+
+
 Version 0.7.1
 _____________
 - Config Manager Plugin: Moved cluster_apps_config logic to client that can be used from other apps or plugins.
