@@ -72,7 +72,7 @@ async def _process_log_entry(entry: str, context: EventContext) -> Optional[LogE
             ts, app_info, msg, extras = xs[0], xs[2], xs[3], xs[4:]
             app_info_components = app_info.split(' ')
             if msg in {'START', 'DONE', 'FAILED'} and (len(app_info_components) >= 3):
-                app_name, app_version, event_name = app_info_components[:3]
+                app_name, app_version, event_name, host, pid = app_info_components[:5]
                 event = f"{auto_path(app_name, app_version)}.{event_name}"
                 extra_items = _parse_extras(extras)
                 return LogEntry(
@@ -82,7 +82,9 @@ async def _process_log_entry(entry: str, context: EventContext) -> Optional[LogE
                     app_version=app_version,
                     event_name=event_name,
                     event=event,
-                    extra=extra_items
+                    extra=extra_items,
+                    host=host,
+                    pid=pid
                 )
         return None
     except Exception as e:  # pylint: disable=broad-except  # pragma: no cover

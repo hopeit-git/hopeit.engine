@@ -45,6 +45,8 @@ class LogEntry:
     event_name: str
     event: str
     extra: Dict[str, str]
+    host: str = ''
+    pid: str = ''
 
 
 @dataobject

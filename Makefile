@@ -120,5 +120,19 @@ run-simple-example:
 	hopeit_server run \
 		--port=$(PORT) \
 		--start-streams \
-		--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json,apps/examples/simple-example/config/app-config.json \
+		--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json \
 		--api-file=apps/examples/simple-example/api/openapi.json
+
+run-apps-visualizer:
+	export HOPEIT_APPS_VISUALIZER_HOSTS=$(HOSTS) && \
+	hopeit_server run \
+		--port=$(PORT) \
+		--start-streams \
+		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json \
+		--api-file=plugins/ops/apps-visualizer/api/openapi.json
+
+run-log-streamer:
+	hopeit_server run \
+		--port=$(PORT) \
+		--start-streams \
+		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/log-streamer/config/plugin-config.json

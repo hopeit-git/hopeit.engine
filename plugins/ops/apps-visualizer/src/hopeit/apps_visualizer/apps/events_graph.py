@@ -2,19 +2,28 @@
 Events graph showing events, stream and dependecies for specified apps
 """
 import sys
+import asyncio
 from typing import List, Optional
+from datetime import datetime, timezone
 
 from hopeit.app.context import EventContext
 
-from hopeit.apps_visualizer.graphs import Edge, Node, Graph, get_edges, get_nodes
-from hopeit.apps_visualizer.site.visualization import VisualizationOptions, CytoscapeGraph, \
-    visualization_options  # noqa: F401
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import split_event_stages
 from hopeit.app.api import event_api
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.app.events import collector_step, Collector
 from hopeit.app.config import AppConfig
+from hopeit.app.logger import app_extra_logger
+
+from hopeit.config_manager import RuntimeApps
+from hopeit.config_manager.client import get_apps_config
+
+from hopeit.apps_visualizer.apps import get_runtime_apps
+from hopeit.apps_visualizer.graphs import Edge, Node, Graph, get_edges, get_nodes
+from hopeit.apps_visualizer.site.visualization import CytoscapeGraph, VisualizationOptions, visualization_options, visualization_options_api_args  # noqa: F401
+
+logger, extra = app_extra_logger()
 
 __steps__ = [
     'visualization_options',
@@ -27,10 +36,10 @@ __steps__ = [
 ]
 
 
-@dataobject
-@dataclass
-class RuntimeApps:
-    apps: List[AppConfig]
+# @dataobject
+# @dataclass
+# class RuntimeApps:
+#     apps: List[AppConfig]
 
 
 @dataobject
@@ -44,10 +53,7 @@ class EventsGraphResult:
 __api__ = event_api(
     summary="App Visualizer: Events Graph Data",
     description="App Visualizer: Events Graph Data",
-    query_args=[
-        ("app_prefix", Optional[str], "app_key prefix to filter"),
-        ("expand_queues", Optional[bool], "if `true` shows each stream queue as a separated stream")
-    ],
+    query_args=visualization_options_api_args(),
     responses={
         200: (EventsGraphResult, "Graph Data with applied Live Stats")
     }
@@ -58,25 +64,21 @@ async def runtime_apps(collector: Collector, context: EventContext) -> RuntimeAp
     """
     Extract current runtime app_config objects
     """
-    server = getattr(sys.modules.get("hopeit.server.runtime"), "server")
-    return RuntimeApps(
-        apps=sorted(
-            (app.app_config for app in server.app_engines.values()),
-            key=lambda x: x.app_key()
-        )
-    )
+    return await get_runtime_apps(context)
 
 
-async def config_graph(collector: Collector, context: EventContext) -> Graph:
+async def config_graph(collector: Collector, context: EventContext) -> Optional[Graph]:
     """
     Generates Graph object with nodes and edges from server runtime active configuration
     """
     options: VisualizationOptions = await collector['payload']
     all_apps: RuntimeApps = await collector['runtime_apps']
     filterd_apps = (
-        app_config for app_config in all_apps.apps
-        if options.app_prefix == '' or (
-            app_config.app.name[0:len(options.app_prefix)] == options.app_prefix
+        runtime_info.app_config for app_key, runtime_info in all_apps.apps.items()
+        if (options.app_prefix == '' or (
+            runtime_info.app_config.app.name[0:len(options.app_prefix)] == options.app_prefix
+        )) and (options.host_filter == '' or
+            any(options.host_filter in server.url for server in runtime_info.servers)
         )
     )
 

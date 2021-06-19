@@ -6,9 +6,10 @@ from hopeit.app.events import collector_step, Collector
 from hopeit.app.context import EventContext
 
 from hopeit.apps_visualizer.event_stats.collect import get_stats
-from hopeit.apps_visualizer.site.visualization import visualization_options  # noqa: F401
+from hopeit.apps_visualizer.site.visualization import visualization_options, visualization_options_api_args  # noqa: F401
 from hopeit.apps_visualizer.apps.events_graph import EventsGraphResult, \
     config_graph, cytoscape_data, runtime_apps  # noqa: F401
+from hopeit.apps_visualizer import AppsVisualizerEnv
 
 __steps__ = [
     'visualization_options',
@@ -24,10 +25,7 @@ __steps__ = [
 __api__ = event_api(
     summary="App Visualizer: Live Stats",
     description="App Visualizer: Live Stats",
-    query_args=[
-        ("app_prefix", Optional[str], "app_key prefix to filter"),
-        ("expand_queues", Optional[bool], "if `true` shows each stream queue as a separated stream")
-    ],
+    query_args=visualization_options_api_args(),
     responses={
         200: (EventsGraphResult, "Graph Data with applied Live Stats")
     }
@@ -41,7 +39,20 @@ def _classes(item: dict, new_classes: List[str]) -> str:
 
 
 async def live_stats(collector: Collector, context: EventContext) -> Collector:
-    event_stats = get_stats(time_window_secs=30, recent_secs=5)
+    env = AppsVisualizerEnv.from_context(context)
+    apps = await collector['runtime_apps']
+    options = await collector['payload']
+    host_pids = set(
+        (server.host_name, server.pid)
+        for _, runtime_info in apps.apps.items()
+        for server in runtime_info.servers
+        if options.host_filter in server.url
+    )
+    event_stats = get_stats(
+        host_pids=host_pids,
+        time_window_secs=env.live_active_treshold_seconds,
+        recent_secs=env.live_recent_treshold_seconds
+    )
     graph = await collector['cytoscape_data']
     if len(event_stats) == 0:
         return graph
