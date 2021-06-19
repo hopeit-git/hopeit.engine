@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+
+Version 0.7.0
+_____________
+- Config Manager Plugin: allows remote access to runtime configuration for `hopeit.engine` servers and clusters
+
+
 Version 0.6.0
 _____________
 - Apps Visualizer plugin: supports now live apps activity visualization when used in combination with `log-streamer`

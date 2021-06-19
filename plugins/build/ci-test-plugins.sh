@@ -22,10 +22,13 @@ code+=$?
 export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src:plugins/storage/fs/src/:plugins/ops/log-streamer/src/:apps/examples/simple-example/src/:plugins/ops/apps-visualizer/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/ops/apps-visualizer/src/ plugins/ops/apps-visualizer/test/integration/
 code+=$?
 
+# ops/config-manager
+export PYTHONPATH=engine/src/:plugins/ops/config-manager/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/ops/config-manager/src/ plugins/ops/config-manager/test/integration/
+code+=$?
+
 # ops/log-streamer
 export PYTHONPATH=engine/src/:plugins/storage/fs/src/:plugins/ops/log-streamer/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/ops/log-streamer/src/ plugins/ops/log-streamer/test/integration/
 code+=$?
-
 
 if [ $code -gt 0 ]
 then

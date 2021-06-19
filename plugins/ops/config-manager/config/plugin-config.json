@@ -1,0 +1,22 @@
+{
+    "app" : {
+      "name": "config-manager",
+      "version": "${HOPEIT_APPS_API_VERSION}"
+    },
+    "engine": {
+      "import_modules": ["hopeit.config_manager"]
+    },
+    "events": {
+      "runtime-apps-config" : {
+        "type": "GET",
+        "plug_mode": "Standalone",
+        "auth": ["Unsecured"]
+      },
+      "cluster-apps-config" : {
+        "type": "GET",
+        "plug_mode": "Standalone",
+        "auth": ["Unsecured"]
+      }
+    }
+  }
+  

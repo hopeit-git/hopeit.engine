@@ -103,3 +103,21 @@ pypi-test:
 pypi-test-plugin:
 	pip install twine && \
 	python -m twine upload -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --repository testpypi $(PLUGINFOLDER)/dist/*
+
+install-simple-example:
+	make install && \
+	make PLUGINFOLDER=plugins/streams/redis install-plugin && \
+	make PLUGINFOLDER=plugins/storage/fs install-plugin && \
+	make PLUGINFOLDER=plugins/ops/config-manager install-plugin && \
+	make PLUGINFOLDER=plugins/ops/log-streamer install-plugin && \
+	make PLUGINFOLDER=plugins/ops/apps-visualizer install-plugin && \
+	make PLUGINFOLDER=plugins/auth/basic-auth install-plugin && \
+	make APPFOLDER=apps/examples/simple-example install-app
+
+run-simple-example:
+	export PYTHONPATH=apps/examples/simple-example/src && \
+	hopeit_server run \
+		--port=$(PORT) \
+		--start-streams \
+		--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json,apps/examples/simple-example/config/app-config.json \
+		--api-file=apps/examples/simple-example/api/openapi.json
