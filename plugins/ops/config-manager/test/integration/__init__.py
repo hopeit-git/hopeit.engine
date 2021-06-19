@@ -1,11 +1,10 @@
 from typing import Dict
 
 from hopeit.app.config import AppConfig
-from hopeit.server.version import APPS_API_VERSION, ENGINE_VERSION  # noqa: F401
 
 from hopeit.config_manager import RuntimeApps
 
-APP_VERSION = APPS_API_VERSION.replace('.', 'x')
+from hopeit.server.version import APPS_ROUTE_VERSION
 
 
 class MockAppEngine:
@@ -55,3 +54,15 @@ class MockClientSession():
 
     def get(self, url: str) -> MockResponse:
         return MockResponse(self.responses[url])
+
+
+def mock_client(module, monkeypatch, server1_apps_response, server2_apps_response):
+    url_pattern = "{}/api/config-manager/{}/runtime-apps-config?url={}"
+    url1 = url_pattern.format("http://test-server1", APPS_ROUTE_VERSION, "http://test-server1")
+    url2 = url_pattern.format("http://test-server2", APPS_ROUTE_VERSION, "http://test-server2")
+    monkeypatch.setattr(module.aiohttp, 'ClientSession', MockClientSession.setup(
+        responses={
+            url1: server1_apps_response,
+            url2: server2_apps_response
+        }
+    ))

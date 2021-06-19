@@ -5,13 +5,13 @@ from hopeit.config_manager import RuntimeApps
 import socket
 import os
 
-from . import ENGINE_VERSION, APPS_API_VERSION, APP_VERSION
+from hopeit.server.version import APPS_API_VERSION, ENGINE_VERSION, APPS_ROUTE_VERSION
 
 
 RUNTIME_SIMPLE_EXAMPLE = """
 {
   "apps": {
-    "simple_example.${APP_VERSION}": {
+    "simple_example.${APPS_ROUTE_VERSION}": {
       "servers": [
         {
           "host_name": "${HOST_NAME}",
@@ -42,10 +42,10 @@ RUNTIME_SIMPLE_EXAMPLE = """
         },
         "env": {
           "fs": {
-            "data_path": "/tmp/simple_example.${APP_VERSION}.fs.data_path/"
+            "data_path": "/tmp/simple_example.${APPS_ROUTE_VERSION}.fs.data_path/"
           },
           "upload_something": {
-            "save_path": "/tmp/simple_example.${APP_VERSION}.upload_something.save_path/",
+            "save_path": "/tmp/simple_example.${APPS_ROUTE_VERSION}.upload_something.save_path/",
             "chunk_size": 16384
           }
         },
@@ -206,7 +206,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "SERVICE",
             "plug_mode": "Standalone",
             "write_stream": {
-              "name": "simple_example.${APP_VERSION}.streams.something_event",
+              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
               "queues": [
                 "AUTO"
               ],
@@ -238,7 +238,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "POST",
             "plug_mode": "Standalone",
             "write_stream": {
-              "name": "simple_example.${APP_VERSION}.streams.something_event",
+              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
               "queues": [
                 "high-prio"
               ],
@@ -272,8 +272,8 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "STREAM",
             "plug_mode": "Standalone",
             "read_stream": {
-              "name": "simple_example.${APP_VERSION}.streams.something_event",
-              "consumer_group": "simple_example.${APP_VERSION}.streams.process_events",
+              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+              "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
               "queues": [
                 "high-prio",
                 "AUTO"
@@ -336,7 +336,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "POST",
             "plug_mode": "Standalone",
             "write_stream": {
-              "name": "simple_example.${APP_VERSION}.streams.something_event",
+              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
               "queues": [
                 "AUTO"
               ],
@@ -370,7 +370,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "POST",
             "plug_mode": "Standalone",
             "write_stream": {
-              "name": "simple_example.${APP_VERSION}.streams.something_event",
+              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
               "queues": [
                 "AUTO"
               ],
@@ -404,7 +404,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "POST",
             "plug_mode": "Standalone",
             "write_stream": {
-              "name": "simple_example.${APP_VERSION}.streams.something_event",
+              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
               "queues": [
                 "AUTO"
               ],
@@ -478,7 +478,7 @@ def _get_runtime_simple_example(url: str):
     res = res.replace("${URL}", url)
     res = res.replace("${ENGINE_VERSION}", ENGINE_VERSION)
     res = res.replace("${APPS_API_VERSION}", APPS_API_VERSION)
-    res = res.replace("${APP_VERSION}", APP_VERSION)
+    res = res.replace("${APPS_ROUTE_VERSION}", APPS_ROUTE_VERSION)
 
     return Json.from_json(res, RuntimeApps)
 
@@ -503,8 +503,8 @@ def cluster_apps_response():
     server1 = _get_runtime_simple_example("http://test-server1")
     server2 = _get_runtime_simple_example("http://test-server2")
 
-    server1.apps[f"simple_example.{APP_VERSION}"].servers.extend(
-        server2.apps[f"simple_example.{APP_VERSION}"].servers
+    server1.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers.extend(
+        server2.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers
     )
 
     return server1
