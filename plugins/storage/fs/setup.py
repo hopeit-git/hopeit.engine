@@ -43,6 +43,9 @@ setuptools.setup(
     ],
     include_package_data=True,
     python_requires=">=3.7",
+    package_data={
+        "hopeit.fs_storage": ["py.typed"]
+    },
     install_requires=[
         f"hopeit.engine=={version['ENGINE_VERSION']}",
         "aiofiles"

@@ -42,6 +42,9 @@ setuptools.setup(
         "hopeit.log_streamer"
     ],
     include_package_data=True,
+    package_data={
+        "hopeit.log_streamer": ["py.typed"]
+    },
     python_requires=">=3.7",
     install_requires=[
         f"hopeit.engine[web,fs-storage]=={version['ENGINE_VERSION']}",

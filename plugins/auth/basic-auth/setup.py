@@ -16,6 +16,9 @@ setuptools.setup(
         "hopeit.basic_auth"
     ],
     include_package_data=True,
+    package_data={
+        "hopeit.basic_auth": ["py.typed"]
+    },
     python_requires=">=3.7",
     install_requires=[
         "hopeit.engine",
