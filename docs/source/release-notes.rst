@@ -2,6 +2,11 @@ Release Notes
 =============
 
 
+Version 0.7.3
+_____________
+- Distribute packaging type information for `hopeit.engine` and plugins.
+
+
 Version 0.7.2
 _____________
 - Engine setup: pinned dependencies version when specified in requirements.txt, fallback to requirements.lock when not pinned in txt.
