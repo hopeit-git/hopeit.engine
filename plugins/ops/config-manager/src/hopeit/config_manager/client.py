@@ -39,7 +39,7 @@ async def get_apps_config(hosts: str, context: Optional[EventContext] = None) ->
     for host, runtime_apps_response in responses:
         if isinstance(runtime_apps_response, RuntimeApps):
             _combine_apps(apps, runtime_apps_response)
-            server_status[host] = ServerStatus.ALIVE
+            server_status[host] = runtime_apps_response.server_status.get(host, ServerStatus.ALIVE)
         elif isinstance(runtime_apps_response, ServerStatus):
             server_status[host] = runtime_apps_response
 

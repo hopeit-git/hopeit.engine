@@ -292,7 +292,7 @@ def engine_extra_logger() -> Tuple[EngineLoggerWrapper, Callable]:
         logger, extra = engine_extra_logger()
 
         ...
-        
+
         logger.info(context, "message" extra=extra(value1="extra_value", ...))
     ```
     """
