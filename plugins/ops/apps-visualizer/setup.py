@@ -42,12 +42,12 @@ setuptools.setup(
         "hopeit.apps_visualizer"
     ],
     package_data={
-        "hopeit.apps_visualizer": ["*.html"]
+        "hopeit.apps_visualizer": ["*.html", "py.typed"]
     },
     include_package_data=True,
     python_requires=">=3.7",
     install_requires=[
-        f"hopeit.engine[web,log-streamer]=={version['ENGINE_VERSION']}"
+        f"hopeit.engine[web,log-streamer,config-manager]=={version['ENGINE_VERSION']}"
     ],
     extras_require={
     },

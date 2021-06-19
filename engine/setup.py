@@ -4,6 +4,19 @@ version = {}
 with open("src/hopeit/server/version.py") as fp:
     exec(fp.read(), version)
 
+
+def read_requirements_txt():
+    with open("requirements.txt") as fb:
+        libs = {}
+        for line in fb.readlines():
+            for op in (">=", "=="):
+                try:
+                    idx = line.index(op)
+                    libs[line[0:idx]] = line[idx+2:]
+                except ValueError:
+                    pass
+    return libs
+
 def read_requirements_lock():
     with open("requirements.lock") as fb:
         libs = {}
@@ -13,10 +26,18 @@ def read_requirements_lock():
                 libs[lv[0]] = lv[1].strip('\n')
     return libs
 
-versions = read_requirements_lock()
+req_versions = read_requirements_txt()
+locked_versions = read_requirements_lock()
+
 
 def libversion(lib):
-    return versions[lib.split('[')[0]]
+    lib_source = "requirements.txt"
+    lib_version = req_versions.get(lib)
+    if lib_version is None:
+        lib_source = "requirements.lock"
+        lib_version = locked_versions[lib.split('[')[0]]
+    print(lib_source, f"{lib}>={lib_version}")
+    return lib_version
 
 
 setuptools.setup(

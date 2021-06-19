@@ -46,17 +46,17 @@ test: test-engine test-plugins test-apps
 install:
 	cd engine && \
 	pip install --force-reinstall -r requirements.txt && \
-	pip install -e . --no-deps && \
-	pip install -e ".[web]" --no-deps && \
-	pip install -e ".[cli]" --no-deps
+	pip install -U -e . --no-deps && \
+	pip install -U -e ".[web]" --no-deps && \
+	pip install -U -e ".[cli]" --no-deps
 
 install-app:
 	cd $(APPFOLDER) && \
-	pip install -e .
+	pip install -U -e .
 
 install-plugin:
 	cd $(PLUGINFOLDER) && \
-	pip install -e .
+	pip install -U -e .
 
 qa: test check
 	echo "DONE."
@@ -108,6 +108,7 @@ install-simple-example:
 	make install && \
 	make PLUGINFOLDER=plugins/streams/redis install-plugin && \
 	make PLUGINFOLDER=plugins/storage/fs install-plugin && \
+	make PLUGINFOLDER=plugins/storage/redis install-plugin && \
 	make PLUGINFOLDER=plugins/ops/config-manager install-plugin && \
 	make PLUGINFOLDER=plugins/ops/log-streamer install-plugin && \
 	make PLUGINFOLDER=plugins/ops/apps-visualizer install-plugin && \
