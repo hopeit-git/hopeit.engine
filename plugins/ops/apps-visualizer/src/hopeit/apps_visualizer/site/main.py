@@ -2,21 +2,19 @@
 Events graph showing events, stream and dependecies for specified apps
 """
 import os
-import sys
-from typing import List, Optional
 from pathlib import Path
 
 from hopeit.app.context import EventContext, PostprocessHook
 
-from hopeit.apps_visualizer.apps import get_runtime_apps
-from hopeit.apps_visualizer.site.visualization import VisualizationOptions, visualization_options, visualization_options_api_args  # noqa: F401
-from hopeit.apps_visualizer.apps.events_graph import runtime_apps
 from hopeit.server.names import route_name
 from hopeit.app.api import event_api
 from hopeit.dataobjects import dataclass, dataobject
-from hopeit.app.config import AppConfig
 
 from hopeit.config_manager import RuntimeApps
+
+from hopeit.apps_visualizer.apps import get_runtime_apps
+from hopeit.apps_visualizer.site.visualization import VisualizationOptions, \
+    visualization_options, visualization_options_api_args  # noqa: F401
 
 __steps__ = [
     'visualization_options',

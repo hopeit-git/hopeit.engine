@@ -1,10 +1,7 @@
 """
 Events graph showing events, stream and dependecies for specified apps
 """
-import sys
-import asyncio
-from typing import List, Optional
-from datetime import datetime, timezone
+from typing import Optional
 
 from hopeit.app.context import EventContext
 
@@ -13,15 +10,14 @@ from hopeit.server.steps import split_event_stages
 from hopeit.app.api import event_api
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.app.events import collector_step, Collector
-from hopeit.app.config import AppConfig
 from hopeit.app.logger import app_extra_logger
 
-from hopeit.config_manager import RuntimeApps
-from hopeit.config_manager.client import get_apps_config
+from hopeit.config_manager import RuntimeApps, RuntimeAppInfo
 
 from hopeit.apps_visualizer.apps import get_runtime_apps
 from hopeit.apps_visualizer.graphs import Edge, Node, Graph, get_edges, get_nodes
-from hopeit.apps_visualizer.site.visualization import CytoscapeGraph, VisualizationOptions, visualization_options, visualization_options_api_args  # noqa: F401
+from hopeit.apps_visualizer.site.visualization import CytoscapeGraph, VisualizationOptions, \
+    visualization_options, visualization_options_api_args  # noqa: F401  # pylint: disable=unused-import
 
 logger, extra = app_extra_logger()
 
@@ -34,12 +30,6 @@ __steps__ = [
     ),
     'build_visualization'
 ]
-
-
-# @dataobject
-# @dataclass
-# class RuntimeApps:
-#     apps: List[AppConfig]
 
 
 @dataobject
@@ -67,6 +57,22 @@ async def runtime_apps(collector: Collector, context: EventContext) -> RuntimeAp
     return await get_runtime_apps(context)
 
 
+def _filter_apps(runtime_info: RuntimeAppInfo, options: VisualizationOptions) -> bool:
+    return (
+        options.app_prefix == '' or (
+            runtime_info.app_config.app.name[0:len(options.app_prefix)] == options.app_prefix
+        )
+    )
+
+
+def _filter_hosts(runtime_info: RuntimeAppInfo, options: VisualizationOptions) -> bool:
+    return (
+        options.host_filter == '' or any(
+            options.host_filter in server.url for server in runtime_info.servers
+        )
+    )
+
+
 async def config_graph(collector: Collector, context: EventContext) -> Optional[Graph]:
     """
     Generates Graph object with nodes and edges from server runtime active configuration
@@ -74,12 +80,9 @@ async def config_graph(collector: Collector, context: EventContext) -> Optional[
     options: VisualizationOptions = await collector['payload']
     all_apps: RuntimeApps = await collector['runtime_apps']
     filterd_apps = (
-        runtime_info.app_config for app_key, runtime_info in all_apps.apps.items()
-        if (options.app_prefix == '' or (
-            runtime_info.app_config.app.name[0:len(options.app_prefix)] == options.app_prefix
-        )) and (options.host_filter == '' or
-            any(options.host_filter in server.url for server in runtime_info.servers)
-        )
+        runtime_info.app_config
+        for app_key, runtime_info in all_apps.apps.items()
+        if _filter_apps(runtime_info, options) and _filter_hosts(runtime_info, options)
     )
 
     events = {}

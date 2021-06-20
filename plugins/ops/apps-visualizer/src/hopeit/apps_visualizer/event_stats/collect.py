@@ -41,7 +41,7 @@ def get_stats(host_pids: Set[Tuple[str, str]], time_window_secs: int, recent_sec
 
     :param: host_pids, str tuple, set of host-pid pairs to filter log entries
     :param: time_window_secs: int, consider events not older than this
-    :param: recent_secs: int, events on the last seconds will be counted as recent 
+    :param: recent_secs: int, events on the last seconds will be counted as recent
     """
     stats: Dict[str, EventStats] = defaultdict(EventStats)
     now_ts = datetime.now(tz=timezone.utc)

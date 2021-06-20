@@ -1,3 +1,6 @@
+"""
+Apps Visualizer plugin module
+"""
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.app.context import EventContext
 
@@ -19,10 +22,10 @@ class AppsVisualizerEnv:
         has been activated (border will be highlighted)
     """
     hosts: str
-    refresh_hosts_seconds: int = 60,
-    live_recent_treshold_seconds: int = 10,
+    refresh_hosts_seconds: int = 60
+    live_recent_treshold_seconds: int = 10
     live_active_treshold_seconds: int = 60
 
     @classmethod
     def from_context(cls, context: EventContext) -> "AppsVisualizerEnv":
-        return cls.from_dict(context.env['apps-visualizer'])
+        return cls.from_dict(context.env['apps-visualizer'])  # type: ignore

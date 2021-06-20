@@ -22,6 +22,7 @@ class VisualizationOptions:
     expand_queues: bool = False
     live: bool = False
 
+
 def visualization_options_api_args():
     return [
         ("app_prefix", Optional[str], "app name prefix to filter"),

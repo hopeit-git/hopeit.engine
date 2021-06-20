@@ -49,7 +49,9 @@ def expected_log_entries() -> LogBatch:
         "track.request_ts": "2021-06-02T18:01:44.289394+00:00",
         "track.caller": "test",
         "track.session_id": "test"
-      }
+      },
+      "host": "host",
+      "pid": "17031"
     },
     {
       "ts": "2021-06-02 18:01:44,303",
@@ -66,7 +68,9 @@ def expected_log_entries() -> LogBatch:
         "track.request_ts": "2021-06-02T18:01:44.289394+00:00",
         "track.caller": "test",
         "track.session_id": "test"
-      }
+      },
+      "host": "host",
+      "pid": "17031"
     }
   ]
 }

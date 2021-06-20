@@ -1,3 +1,6 @@
+"""
+Apps Visualizer apps state
+"""
 from typing import Optional
 import asyncio
 from datetime import datetime, timezone
@@ -15,6 +18,7 @@ logger, extra = engine_extra_logger()
 _lock = asyncio.Lock()
 _apps: Optional[RuntimeApps] = None
 _expire: float = 0.0
+
 
 async def get_runtime_apps(context: EventContext, refresh: bool = False) -> RuntimeApps:
     """
