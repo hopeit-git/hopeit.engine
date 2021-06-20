@@ -11,7 +11,8 @@ from hopeit.server.version import APPS_ROUTE_VERSION
 from hopeit.app.context import EventContext
 from hopeit.server.logger import engine_extra_logger
 
-from hopeit.config_manager import RuntimeApps, RuntimeAppInfo, ServerStatus
+from hopeit.config_manager import RuntimeAppInfo, RuntimeApps, ServerStatus
+from hopeit.config_manager.runtime import get_in_process_config
 
 logger, extra = engine_extra_logger()
 
@@ -52,6 +53,9 @@ async def _get_host_config(host: str,
     """
     Invokes config-manager runtime-apps-config endpoint in a given host
     """
+    if host == "in-process":
+        return host, get_in_process_config(host)
+
     # Random <1 sec pause to prevent network overload
     await asyncio.sleep(random.random())
 
@@ -63,12 +67,12 @@ async def _get_host_config(host: str,
     try:
         async with aiohttp.ClientSession() as client:
             async with client.get(url) as response:
-                return (host, RuntimeApps.from_dict(await response.json()))  # type: ignore
+                return host, RuntimeApps.from_dict(await response.json())  # type: ignore
     except Exception as e:  # pylint: disable=broad-except
         logger.error(context or __name__, "Error contacting host: %s", host, extra=extra(
             host=host, url=url, error=str(e)
         ))
-        return (host, ServerStatus.ERROR)
+        return host, ServerStatus.ERROR
 
 
 def _combine_apps(apps: Dict[str, RuntimeAppInfo], runtime_apps: RuntimeApps):

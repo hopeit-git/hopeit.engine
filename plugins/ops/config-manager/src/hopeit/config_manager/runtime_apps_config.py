@@ -4,16 +4,13 @@ Config Manager: Runtime Apps Config
 Returns runtime configuration of running server
 """
 from typing import Optional
-import socket
-import os
-
-from hopeit.server.runtime import server
 
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 
-from hopeit.config_manager import RuntimeAppInfo, RuntimeApps, ServerInfo, ServerStatus
+from hopeit.config_manager import RuntimeApps
 from hopeit.app.api import event_api
+from hopeit.config_manager.runtime import get_in_process_config
 
 logger, extra = app_extra_logger()
 
@@ -30,19 +27,4 @@ __api__ = event_api(
 
 
 async def get_apps_config(payload: None, context: EventContext, *, url: str = "in-process") -> RuntimeApps:
-    return RuntimeApps(
-        apps={
-            app_key: RuntimeAppInfo(
-                servers=[ServerInfo(
-                    host_name=socket.gethostname(),
-                    pid=str(os.getpid()),
-                    url=url
-                )],
-                app_config=app_engine.app_config
-            )
-            for app_key, app_engine in server.app_engines.items()
-        },
-        server_status={
-            url: ServerStatus.ALIVE
-        }
-    )
+    return get_in_process_config(url)
