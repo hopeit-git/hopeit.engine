@@ -50,9 +50,9 @@ def plugin_config(monkeypatch):
     def getenv(var_name):
         if var_name == "HOPEIT_APPS_VISUALIZER_HOSTS":
             return "in-process"
-        elif var_name == "APPS_API_VERSION":
+        elif var_name == "HOPEIT_APPS_API_VERSION":
             return APPS_API_VERSION
-        elif var_name == "APPS_ROUTE_VERSION":
+        elif var_name == "HOPEIT_APPS_ROUTE_VERSION":
             return APPS_ROUTE_VERSION
         raise NotImplementedError(var_name)
 

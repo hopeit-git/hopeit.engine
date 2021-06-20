@@ -39,7 +39,7 @@ class RuntimeAppInfo:
 @dataclass
 class RuntimeApps:
     """
-    Combined App Config and Server Sttus information for running apps
+    Combined App Config and Server Status information for running apps
     """
     apps: Dict[str, RuntimeAppInfo]
     server_status: Dict[str, ServerStatus] = field(default_factory=dict)
