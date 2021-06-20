@@ -2,6 +2,19 @@ Release Notes
 =============
 
 
+Version 0.8.0
+_____________
+- Config Manager Plugin: added support to access current process configuration with special hostname "in-process"
+- Apps Visualizer plugin:
+  - Now can (and should) run separately from the apps/servers that is monitoring
+  - Supports connection to remote hosts running config-manager plugin
+  - Added list of hosts and status (ALIVE if reachable, ERROR if not)
+  - Filter config and live activity by host/group of hosts by name
+  - Automatic refresh servers/hosts status
+  - Automatic refresh list of active apps
+  - Automatic refresh graph on configuration or hosts availability changes
+
+
 Version 0.7.3
 _____________
 - Including type information in PIP packages for `hopeit.engine` and plugins.

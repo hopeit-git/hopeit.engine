@@ -20,6 +20,9 @@ logger, extra = app_extra_logger()
 @dataobject
 @dataclass
 class LogReaderConfig:
+    """
+    Log reader config env section
+    """
     logs_path: str
     prefix: str = ''
     checkpoint_path: str = 'log_streamer/checkpoints/'
@@ -32,12 +35,18 @@ class LogReaderConfig:
 @dataobject
 @dataclass
 class LogRawBatch:
+    """
+    Batch of raw lines read from logs
+    """
     data: List[str]
 
 
 @dataobject
 @dataclass
 class LogEntry:
+    """
+    Parsed log line
+    """
     ts: str
     msg: str
     app_name: str
@@ -45,11 +54,16 @@ class LogEntry:
     event_name: str
     event: str
     extra: Dict[str, str]
+    host: str = ''
+    pid: str = ''
 
 
 @dataobject
 @dataclass
 class LogBatch:
+    """
+    Batch of parsed log entries
+    """
     entries: List[LogEntry]
 
 

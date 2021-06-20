@@ -9,8 +9,25 @@
             "args": [
                 "--port=8020",
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
                 "--api-file=apps/examples/simple-example/api/openapi.json"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "apps-visualizer",
+            "type": "python",
+            "request": "launch",
+            "module": "hopeit.server.web",
+            "env": {
+                "HOPEIT_APPS_VISUALIZER_HOSTS": "http://localhost:8020,http://localhost:8021,http://localhost:8098,http://localhost:8099"
+            },
+            "args": [
+                "--port=8098",
+                "--start-streams",
+                "--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json",
+                "--api-file=plugins/ops/apps-visualizer/api/openapi.json"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"

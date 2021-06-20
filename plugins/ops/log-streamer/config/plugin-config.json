@@ -9,7 +9,7 @@
   "env" : {
     "log_reader": {
         "logs_path": "work/logs/apps/",
-        "prefix": "simple_example",
+        "prefix": "",
         "checkpoint_path": "work/logs/checkpoint/",
         "file_open_timeout_secs": 600,
         "file_checkpoint_expire_secs": 86400,

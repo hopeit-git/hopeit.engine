@@ -6,7 +6,15 @@
     "engine" : {
         "import_modules": ["hopeit.apps_visualizer"],
         "cors_origin": "http://localhost:8020"
-    },    
+    },
+    "env": {
+        "apps-visualizer": {
+            "hosts": "${HOPEIT_APPS_VISUALIZER_HOSTS}",
+            "refresh_hosts_seconds": 60,
+            "live_recent_treshold_seconds": 10,
+            "live_active_treshold_seconds": 60
+        }
+    },
     "events": {
         "site.main": {
             "type": "GET",
