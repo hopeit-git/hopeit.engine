@@ -48,6 +48,9 @@ def create_test_context(app_config: AppConfig, event_name: str) -> EventContext:
         plugin_config=app_config,
         event_name=event_name,
         track_ids={
+            **{
+                k: '' for k in app_config.engine.track_headers
+            },
             'track.operation_id': 'test_operation_id',
             'track.request_id': 'test_request_id',
             'track.request_ts': datetime.now(tz=timezone.utc).isoformat()

@@ -14,6 +14,7 @@ from hopeit.toolkit import auth
 from hopeit.app.config import AppConfig, EventType, ReadStreamDescriptor, EventDescriptor, \
     StreamQueue, StreamQueueStrategy
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
+from hopeit.app.client import register_apps_client
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import ServerConfig
 from hopeit.server.events import EventHandler
@@ -66,6 +67,8 @@ class AppEngine:
         if streams_present and self.streams_enabled:
             mgr = StreamManager.create(self.app_config.server.streams)
             self.stream_manager = await mgr.connect()
+        auth.init(self.app_config.app_key(), self.app_config.server.auth)
+        await register_apps_client(self.app_config)
         return self
 
     async def stop(self):
@@ -561,7 +564,6 @@ class Server:
         global logger
         logger = engine_logger().init_server(config)
         logger.info(__name__, 'Starting engine...')
-        auth.init(config.auth)
         return self
 
     async def stop(self):

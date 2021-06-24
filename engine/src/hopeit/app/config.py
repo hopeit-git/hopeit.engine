@@ -257,6 +257,14 @@ class EventPlugMode(Enum):
     ON_APP = 'OnApp'
 
 
+class EventConnectionType(Enum):
+    """
+    Event connection type
+    """
+    GET = "GET"
+    POST = "POST"
+
+
 @dataobject
 @dataclass
 class EventConnection:
@@ -267,10 +275,12 @@ class EventConnection:
 
     :field: app_connection, str: key of app entry used in app_connections sections
     :field: event, str: target event_name to be called
+    :filed: type, EventConnectionType: a valid event connection type, i.e. GET or POST
     :field: route, optional str: custom route in case event is not attached to default `app/version/event`
     """
     app_connection: str
     event: str
+    type: EventConnectionType
     route: Optional[str] = None
 
 
@@ -377,7 +387,10 @@ def parse_app_config_json(config_json: str) -> AppConfig:
     app_config = AppConfig.from_json(effective_config_json)  # type: ignore
     replace_config_args(
         parsed_config=app_config,
-        config_classes=(AppDescriptor, EventDescriptor, ReadStreamDescriptor, WriteStreamDescriptor),
+        config_classes=(
+            AppDescriptor, EventDescriptor, ReadStreamDescriptor, WriteStreamDescriptor,
+            AppConnection, EventConnection
+        ),
         auto_prefix=app_config.app.app_key()
     )
     return app_config

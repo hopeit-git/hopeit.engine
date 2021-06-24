@@ -78,7 +78,11 @@ async def test_execute(monkeypatch, mock_app_config, mock_plugin_config):  # noq
                          query_args={"query_arg1": "ok"},
                          payload=payload,
                          expected=expected,
-                         track_ids={"track.session_id": "test_session_id"})
+                         track_ids={
+                            "track.request_id": "test_request_id",
+                            "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
+                            "track.session_id": "test_session_id"
+                         })
     await engine.stop()
 
 
@@ -103,7 +107,11 @@ async def test_execute_plugin(monkeypatch, mock_app_config, mock_plugin_config):
                          query_args={},
                          payload=None,
                          expected=expected,
-                         track_ids={"track.session_id": "test_session_id"},
+                         track_ids={
+                            "track.request_id": "test_request_id",
+                            "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
+                            "track.session_id": "test_session_id"
+                         },
                          postprocess_expected=expected_response)
     await plugin_engine.stop()
 
@@ -590,7 +598,11 @@ async def test_write_stream(monkeypatch, mock_app_config, mock_plugin_config):  
                          query_args={},
                          payload=payload,
                          expected=expected,
-                         track_ids={"track.session_id": "test_session_id"})
+                         track_ids={
+                            "track.request_id": "test_request_id",
+                            "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
+                            "track.session_id": "test_session_id"
+                         })
     assert stream_manager.write_stream_name == event_info.write_stream.name
     assert stream_manager.write_stream_payload == expected
     assert stream_manager.write_target_max_len == 10
@@ -615,7 +627,11 @@ async def test_write_stream_batch(monkeypatch, mock_app_config, mock_plugin_conf
                          query_args={},
                          payload=payload,
                          expected=expected,
-                         track_ids={"track.session_id": "test_session_id"})
+                         track_ids={
+                            "track.request_id": "test_request_id",
+                            "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
+                            "track.session_id": "test_session_id"
+                         })
     assert stream_manager.write_stream_name == event_info.write_stream.name
     assert stream_manager.write_stream_payload == expected
     assert stream_manager.write_target_max_len == 10
@@ -638,5 +654,9 @@ async def test_execute_collector(monkeypatch, mock_app_config, mock_plugin_confi
                          query_args={},
                          payload=payload,
                          expected=expected,
-                         track_ids={"track.session_id": "test_session_id"})
+                         track_ids={
+                            "track.request_id": "test_request_id",
+                            "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
+                            "track.session_id": "test_session_id"
+                         })
     await engine.stop()

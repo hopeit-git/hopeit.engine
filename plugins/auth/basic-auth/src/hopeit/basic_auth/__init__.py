@@ -123,12 +123,11 @@ def _new_access_token(info: dict, context: EventContext, now: datetime, timeout:
     """
     auth_payload = {
         **info,
-        "app": context.app_key,
         "iat": now,
         "exp": now + timedelta(seconds=timeout),
         "renew": renew
     }
-    return auth.new_token(auth_payload)
+    return auth.new_token(context.app_key, auth_payload)
 
 
 def _new_refresh_token(info: dict,
@@ -140,8 +139,7 @@ def _new_refresh_token(info: dict,
     """
     auth_payload = {
         **info,
-        "app": context.app_key,
         "iat": now,
         "exp": now + timedelta(seconds=timeout)
     }
-    return auth.new_token(auth_payload)
+    return auth.new_token(context.app_key, auth_payload)

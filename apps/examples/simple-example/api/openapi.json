@@ -1554,6 +1554,13 @@
               "cors_origin": null
             }
           },
+          "app_connections": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AppConnection"
+            },
+            "default": {}
+          },
           "env": {
             "type": "object",
             "additionalProperties": {
@@ -1678,6 +1685,27 @@
         "x-module-name": "hopeit.app.config",
         "description": "\n    Engine specific parameters shared among events\n\n    :field import_modules: list of string with the python module names to import to find\n        events and datatype implementations\n    :field read_stream_timeout: timeout in milliseconds to block connection pool when waiting for stream events\n    :field read_stream_interval: delay in milliseconds to wait before attempting a new batch. Use to prevent\n        connection pool to be blocked constantly.\n    :track_headers: list of required X-Track-* headers\n    :cors_origin: allowed CORS origin for web server\n    "
       },
+      "AppConnection": {
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "hosts"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "hosts": {
+            "type": "string"
+          }
+        },
+        "x-module-name": "hopeit.app.config",
+        "description": "\n    AppConnections: metadata to intialize app client in able to connect\n    to other running apps\n\n    :field: name, str: target app name to connect to\n    :field: version, str: target app version\n    :field: hosts, str: comma-separated list in the form `http://host:port` running target app\n    "
+      },
       "EventDescriptor": {
         "type": "object",
         "required": [
@@ -1708,6 +1736,13 @@
           },
           "route": {
             "type": "string"
+          },
+          "connections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventConnection"
+            },
+            "default": []
           },
           "read_stream": {
             "$ref": "#/components/schemas/ReadStreamDescriptor"
@@ -1756,6 +1791,36 @@
         },
         "x-module-name": "hopeit.app.config",
         "description": "\n    Event descriptor\n    "
+      },
+      "EventConnection": {
+        "type": "object",
+        "required": [
+          "app_connection",
+          "event",
+          "type"
+        ],
+        "properties": {
+          "app_connection": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "POST"
+            ],
+            "x-enum-name": "EventConnectionType",
+            "x-module-name": "hopeit.app.config"
+          },
+          "route": {
+            "type": "string"
+          }
+        },
+        "x-module-name": "hopeit.app.config",
+        "description": "\n    EventConnection: describes depedendecies on this event when calling\n    event on apps configured in `app_connections` sections. Only events\n    specified are allowed to be invoked using `hopeit.client`\n\n    :field: app_connection, str: key of app entry used in app_connections sections\n    :field: event, str: target event_name to be called\n    :filed: type, EventConnectionType: a valid event connection type, i.e. GET or POST\n    :field: route, optional str: custom route in case event is not attached to default `app/version/event`\n    "
       },
       "ReadStreamDescriptor": {
         "type": "object",
@@ -1951,7 +2016,7 @@
           "auth": {
             "$ref": "#/components/schemas/AuthConfig",
             "default": {
-              "secrets_location": "",
+              "secrets_location": ".secrets/",
               "auth_passphrase": "",
               "enabled": false,
               "create_keys": false,
