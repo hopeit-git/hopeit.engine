@@ -1,0 +1,26 @@
+{
+    "app": {
+      "name": "client-example",
+      "version": "${HOPEIT_APPS_API_VERSION}"
+    },
+    "app_connections": {
+        "simple_example": {
+            "name": "simple-example",
+            "version": "${HOPEIT_APPS_API_VERSION}",
+            "hosts": "${HOPEIT_SIMPLE_EXAMPLE_HOSTS}"
+        }
+    },
+    "events": {
+        "count-somethings": {
+            "type": "GET",
+            "connections": [
+                {
+                    "app_connection": "simple-example",
+                    "event": "list-somethings",
+                    "route": "{app_connections.simple_example.name}/{app_connections.simple_example.version}/list-somethings"
+                }
+            ],
+            "auth": ["Unsecured"]
+        }
+    }
+}

@@ -259,6 +259,23 @@ class EventPlugMode(Enum):
 
 @dataobject
 @dataclass
+class EventConnection:
+    """
+    EventConnection: describes depedendecies on this event when calling
+    event on apps configured in `app_connections` sections. Only events
+    specified are allowed to be invoked using `hopeit.client`
+
+    :field: app_connection, str: key of app entry used in app_connections sections
+    :field: event, str: target event_name to be called
+    :field: route, optional str: custom route in case event is not attached to default `app/version/event`
+    """
+    app_connection: str
+    event: str
+    route: Optional[str] = None
+
+
+@dataobject
+@dataclass
 class EventDescriptor:
     """
     Event descriptor
@@ -266,6 +283,7 @@ class EventDescriptor:
     type: EventType
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE
     route: Optional[str] = None
+    connections: List[EventConnection] = field(default_factory=list)
     read_stream: Optional[ReadStreamDescriptor] = None
     write_stream: Optional[WriteStreamDescriptor] = None
     config: EventConfig = field(default_factory=EventConfig)
@@ -309,12 +327,29 @@ class AppEngineConfig:
 
 @dataobject
 @dataclass
+class AppConnection:
+    """
+    AppConnections: metadata to intialize app client in able to connect
+    to other running apps
+
+    :field: name, str: target app name to connect to
+    :field: version, str: target app version
+    :field: hosts, str: comma-separated list in the form `http://host:port` running target app
+    """
+    name: str
+    version: str
+    hosts: str
+
+
+@dataobject
+@dataclass
 class AppConfig:
     """
     App Configuration container
     """
     app: AppDescriptor
     engine: AppEngineConfig = field(default_factory=AppEngineConfig)
+    app_connections: Dict[str, AppConnection] = field(default_factory=dict)
     env: Env = field(default_factory=dict)
     events: Dict[str, EventDescriptor] = field(default_factory=dict)
     server: Optional[ServerConfig] = None
