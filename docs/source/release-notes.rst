@@ -2,6 +2,11 @@ Release Notes
 =============
 
 
+Version 0.8.1
+_____________
+- `hopeit.dataobjects.jsonify` module: added utility functions to convert dictionaries and list to dataobjects and back
+
+
 Version 0.8.0
 _____________
 - Config Manager Plugin: added support to access current process configuration with special hostname "in-process"
