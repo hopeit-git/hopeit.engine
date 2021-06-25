@@ -62,15 +62,15 @@ class Json(Generic[EventPayloadType]):
             return datatype(data.get(key))  # type: ignore
         if datatype in _MAPPING_TYPES:
             if item_datatype and isinstance(data, _MAPPING_TYPES):
-                return {
+                return {  # type: ignore
                     k: Json.from_obj(v, item_datatype, key) for k, v in data.items()
-                }  # type: ignore
+                }
             return datatype(data)  # type: ignore
         if datatype in _LIST_TYPES:
             if item_datatype and isinstance(data, _LIST_TYPES):
-                return datatype([
+                return datatype([  # type: ignore
                     Json.from_obj(v, item_datatype, key) for v in data
-                ])  # type: ignore
+                ])
             return datatype(data)  # type: ignore
         assert getattr(datatype, 'from_dict'), \
             f"{datatype} should be annotated with @dataobject"
