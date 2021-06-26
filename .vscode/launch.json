@@ -21,7 +21,7 @@
             "request": "launch",
             "module": "hopeit.server.web",
             "env": {
-                "HOPEIT_SIMPLE_EXAMPLE_HOSTS": "http://localhost:8020,http://localhost:8021"
+                "HOPEIT_SIMPLE_EXAMPLE_HOSTS": "http://localhost:8020,http://localhost:8021,http://localhost:8022"
             },
             "args": [
                 "--port=8030",

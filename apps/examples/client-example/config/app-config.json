@@ -1,4 +1,5 @@
 {
+    "$schema": "/home/hopeit/dev/leosmerling/hopeit.engine/engine/config/schemas/app-config-schema-draftv6.json",
     "app": {
       "name": "client-example",
       "version": "${HOPEIT_APPS_API_VERSION}"
@@ -15,6 +16,19 @@
             "name": "simple-example",
             "version": "${HOPEIT_APPS_API_VERSION}",
             "hosts": "${HOPEIT_SIMPLE_EXAMPLE_HOSTS}"
+        }
+    },
+    "env": {
+        "apps_client": {
+            "circuit_breaker_open_failures": 10,
+            "circuit_breaker_failure_reset_seconds": 70,
+            "circuit_breaker_open_seconds": 60,
+            "retries": 2,
+            "retry_backoff_ms": 10,
+            "ssl": true,
+            "max_connections": 100,
+            "max_connections_per_host": 0,
+            "dns_cache_ttl": 10
         }
     },
     "events": {

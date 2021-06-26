@@ -6,7 +6,8 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import partial
-from typing import Any, Dict, List, Optional, Type
+import random
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import aiohttp
 from stringcase import spinalcase  # type: ignore
@@ -14,7 +15,7 @@ from stringcase import spinalcase  # type: ignore
 from hopeit.app.context import EventContext
 from hopeit.app.config import AppConfig, EventConnection, EventConnectionType
 from hopeit.app.errors import Unauthorized
-from hopeit.dataobjects import EventPayload
+from hopeit.dataobjects import EventPayload, dataobject
 from hopeit.dataobjects.jsonify import Json
 from hopeit.toolkit import auth
 from hopeit.server.logger import engine_extra_logger
@@ -24,34 +25,73 @@ logger, extra = engine_extra_logger()
 _registered_clients = {}
 
 
+@dataobject
+@dataclass
+class AppsClientEnv:
+    circuit_breaker_open_failures: int = 10
+    circuit_breaker_failure_reset_seconds: int = 120
+    circuit_breaker_open_seconds: int = 60
+    retries: int = 1
+    retry_backoff_ms: int = 10
+    ssl: bool = True
+    max_connections: int = 100
+    max_connections_per_host: int = 0
+    dns_cache_ttl: int = 10
+
+
 @dataclass
 class CircuitBreakLoadBalancer:
     hosts: List[str]
     host_index: int = 0
-    cb_open: List[int] = field(default_factory=list)
+    cb_failures: List[int] = field(default_factory=list)
+    cb_failure_reset_ttl: List[int] = field(default_factory=list)
+    cb_open_ttl: List[int] = field(default_factory=list)
 
     def __post_init__(self):
-        self.cb_open = [0] * len(self.hosts)
+        self.cb_failures = [0] * len(self.hosts)
+        self.cb_reset_ttl = [0] * len(self.hosts)
+        self.cb_open_ttl = [0] * len(self.hosts)
 
     def host(self, i: int) -> str:
         return self.hosts[i]
 
-    def next_host(self, now_ts: int) -> int:
+    def next_host(self, now_ts: int) -> Tuple[int, bool]:
         i = self.host_index
         self.host_index = (self.host_index + 1) % len(self.hosts)
-        if self.cb_open[i] < now_ts:
-            return i
-        return -1
+        return i, self.cb_open_ttl[i] < now_ts
+
+    def randomize_next_host(self):
+        self.host_index = random.randint(0, len(self.hosts) - 1)
 
     def success(self, host_index: int):
-        self.cb_open[host_index] = 0
+        self.cb_open_ttl[host_index] = 0
+        self.cb_failures[host_index] = 0
 
-    def failure(self, host_index: int, now_ts: int):
-        self.cb_open[host_index] = now_ts + 10
+    def failure(self, host_index: int, now_ts: int,
+                circuit_breaker_open_failures: int,
+                circuit_breaker_failure_reset_seconds: int, 
+                circuit_breaker_open_seconds: int):
+        if circuit_breaker_open_failures == 0:  # Circuit breaker disabled
+            return
+        failures = (
+            self.cb_failures[host_index]
+            if now_ts < self.cb_reset_ttl[host_index]
+            else 0
+        )
+        self.cb_failures[host_index] = min(
+            circuit_breaker_open_failures, failures + 1
+        )
+        self.cb_reset_ttl[host_index] = now_ts + circuit_breaker_failure_reset_seconds
+        if self.cb_failures[host_index] >= circuit_breaker_open_failures:
+            self.cb_open_ttl[host_index] = now_ts + circuit_breaker_open_seconds
 
 
-class LoadBalancerException(Exception):
+class ClientLoadBalancerException(Exception):
     """Client load balancer errors"""
+
+
+class AppsClientException(Exception):
+    """AppsClient error wrapper"""
 
 
 class ServerException(Exception):
@@ -71,6 +111,7 @@ class AppsClient:
     """
     def __init__(self, app_config: AppConfig):
         self.app_key = app_config.app_key()
+        self.env = Json.from_obj(app_config.env.get('apps_client', {}), AppsClientEnv)
         self.app_connections = app_config.app_connections
         self.event_connections = {
             event_name: event_info.connections
@@ -123,39 +164,61 @@ class AppsClient:
         conn = self.conn_info[app_connection]
         event_info = conn.events[context.event_name][event_name]
         token = self._ensure_token(now_ts)
-        host_index = self._next_available_host(conn, now_ts, context)
-        host = conn.load_balancer.host(host_index)
-        route = f"{host}/{event_info.route.lstrip('/')}"
         headers = self._request_headers(context, token)
 
-        logger.info(context, "Calling external app...", extra=extra(
-            app_connection=app_connection, event=event_name, route=route
-        ))
+        for retry_count in range(self.env.retries + 1):
+            host_index = self._next_available_host(conn, now_ts, context)
+            host = conn.load_balancer.host(host_index)
+            route = f"{host}/{event_info.route.lstrip('/')}"
+            result = None
+            logger.info(
+                context, f"{'Calling' if retry_count == 0 else 'Retrying call to'} external app...",
+                extra=extra(
+                    app_connection=app_connection, event=event_name, route=route, retry_count=retry_count
+                )
+            )
 
-        result = None
-        try:
-            if event_info.type == EventConnectionType.GET:
-                async with self.session.get(route, headers=headers, **kwargs) as response:
-                    result = await self._parse_response(response, context, datatype)
+            try:
+                if event_info.type == EventConnectionType.GET:
+                    async with self.session.get(route, headers=headers, **kwargs) as response:
+                        result = await self._parse_response(response, context, datatype)
 
-            if event_info.type == EventConnectionType.POST:
-                async with self.session.post(route, headers=headers, 
-                                            body=Json.to_obj(payload), **kwargs) as response:
-                    result = await self._parse_response(response, context, datatype)
+                if event_info.type == EventConnectionType.POST:
+                    async with self.session.post(route, headers=headers, 
+                                                body=Json.to_obj(payload), **kwargs) as response:
+                        result = await self._parse_response(response, context, datatype)
 
-        except (ServerException, IOError) as e:  # aiohttp.client_exceptions.ClientConnectorError) as e:
-            conn.load_balancer.failure(host_index, now_ts)
-            raise e
+            except (ServerException, IOError) as e:
+                conn.load_balancer.failure(
+                    host_index, now_ts, 
+                    self.env.circuit_breaker_open_failures,
+                    self.env.circuit_breaker_failure_reset_seconds,
+                    self.env.circuit_breaker_open_seconds
+                )
+                if retry_count == self.env.retries:
+                    raise AppsClientException(f"Server or IO Error: " + str(e) + 
+                        f" ({retry_count} retries)" if retry_count else ""
+                    ) from e
+                logger.error(context, e)
+                await asyncio.sleep(0.001 * self.env.retry_backoff_ms)
+                continue
 
-        conn.load_balancer.success(host_index)
-        return result
+            conn.load_balancer.success(host_index)
+            return result
 
     def _now_ts(self) -> int:
         return int(datetime.now(tz=timezone.utc).timestamp())
 
     def _create_session(self):
         logger.info(__name__, "Creating client session...", extra=extra(app=self.app_key))
-        self.session = aiohttp.ClientSession()
+        connector = aiohttp.TCPConnector(
+            ssl=self.env.ssl,
+            limit=self.env.max_connections,
+            limit_per_host=self.env.max_connections_per_host,
+            use_dns_cache=self.env.dns_cache_ttl > 0,
+            ttl_dns_cache=self.env.dns_cache_ttl
+        )
+        self.session = aiohttp.ClientSession(connector=connector)
 
     def _ensure_token(self, now_ts: int):
         if now_ts >= self.token_expire:
@@ -221,12 +284,15 @@ class AppsClient:
 
     def _next_available_host(self, conn: AppConnectionState, now_ts: int, context: EventContext) -> int:
         for _ in range(len(conn.load_balancer.hosts)):
-            i = conn.load_balancer.next_host(now_ts)
-            if i < 0:
-                logger.warning(context, "Circuit breaker open for host", extra=extra(host=conn.load_balancer.host(i)))
+            host_index, ok = conn.load_balancer.next_host(now_ts)
+            if not ok:
+                logger.warning(context, "Circuit breaker open for host", extra=extra(
+                    host=conn.load_balancer.host(host_index)
+                ))
             else:
-                return i
-        raise LoadBalancerException("No hosts available.")
+                return host_index
+        conn.load_balancer.randomize_next_host()
+        raise ClientLoadBalancerException("No hosts available.")
 
 
 async def register_apps_client(app_config: AppConfig):

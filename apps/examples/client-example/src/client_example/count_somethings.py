@@ -33,5 +33,4 @@ async def load_all(payload: None, context: EventContext, wildcard: str = '*') ->
         "simple_example", "list_somethings",
         datatype=Something, payload=None, context=context
     )
-    print(response)
     return len(response)
