@@ -40,7 +40,7 @@
             "args": [
                 "--port=8099",
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/ops/log-streamer/config/plugin-config.json"
+                "--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/log-streamer/config/plugin-config.json"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
