@@ -11,7 +11,7 @@ from logging.handlers import WatchedFileHandler
 from typing import Dict, Iterable, Union, List, Tuple, Callable, Any
 from stringcase import snakecase  # type: ignore
 
-import hopeit.server.version as version
+from hopeit.server import version
 from hopeit.app.config import EventDescriptor, AppDescriptor, AppConfig
 from hopeit.app.context import EventContext
 from hopeit.server.errors import json_exc

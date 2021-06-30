@@ -47,12 +47,14 @@ def init(auth_config: AuthConfig):
         public_key_path = pathlib.Path(auth_config.secrets_location) / 'key_pub.pem'
         passphrase = auth_config.auth_passphrase.encode()
         try:
-            private_key = load_pem_private_key(
-                open(private_key_path, 'rb').read(),
-                passphrase, default_backend())
-            public_key = load_pem_public_key(
-                open(public_key_path, 'rb').read(),
-                default_backend())
+            with open(private_key_path, 'rb') as f:
+                private_key = load_pem_private_key(
+                    f.read(), passphrase, default_backend()
+                )
+            with open(public_key_path, 'rb') as f:
+                public_key = load_pem_public_key(
+                    f.read(), default_backend()
+                )
             logger.info(__name__, f"Found keys in {auth_config.secrets_location}")
         except FileNotFoundError as e:
             if auth_config.create_keys:

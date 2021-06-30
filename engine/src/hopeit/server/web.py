@@ -41,7 +41,7 @@ from hopeit.server.errors import ErrorInfo
 from hopeit.server.names import route_name
 from hopeit.server.api import app_route_name
 from hopeit.app.config import AppConfig, EventType, EventDescriptor, parse_app_config_json, EventPlugMode
-import hopeit.server.runtime as runtime
+from hopeit.server import runtime
 
 __all__ = ['parse_args',
            'main',
