@@ -113,7 +113,8 @@ install-simple-example:
 	make PLUGINFOLDER=plugins/ops/log-streamer install-plugin && \
 	make PLUGINFOLDER=plugins/ops/apps-visualizer install-plugin && \
 	make PLUGINFOLDER=plugins/auth/basic-auth install-plugin && \
-	make APPFOLDER=apps/examples/simple-example install-app
+	make PLUGINFOLDER=plugins/clients/apps-client install-plugin && \
+	make APPFOLDER=apps/examples/simple-example install-app && \
 	make APPFOLDER=apps/examples/client-example install-app
 
 run-simple-example:

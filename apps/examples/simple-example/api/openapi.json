@@ -1597,6 +1597,13 @@
               "$ref": "#/components/schemas/AppDescriptor"
             },
             "default": []
+          },
+          "settings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            },
+            "default": {}
           }
         },
         "x-module-name": "hopeit.app.config",
@@ -1689,8 +1696,7 @@
         "type": "object",
         "required": [
           "name",
-          "version",
-          "hosts"
+          "version"
         ],
         "properties": {
           "name": {
@@ -1699,12 +1705,16 @@
           "version": {
             "type": "string"
           },
-          "hosts": {
+          "client": {
+            "type": "string",
+            "default": "<<NO CLIENT CONFIGURED>>"
+          },
+          "settings": {
             "type": "string"
           }
         },
         "x-module-name": "hopeit.app.config",
-        "description": "\n    AppConnections: metadata to intialize app client in able to connect\n    to other running apps\n\n    :field: name, str: target app name to connect to\n    :field: version, str: target app version\n    :field: hosts, str: comma-separated list in the form `http://host:port` running target app\n    "
+        "description": "\n    AppConnections: metadata to intialize app client in order to connect\n    and issue requests to other running apps\n\n    :field: name, str: target app name to connect to\n    :field: version, str: target app version\n    :field: client, str: hopeit.app.client.Client class implementation, from available client plugins\n    :field: settings, optional str: key under `settings` section of app config containing connection configuration,\n        if not specifiec, plugin will lookup its default section usually the plugin name. But in case multiple\n        clients need to be confiigured this value can be overriden.\n    "
       },
       "EventDescriptor": {
         "type": "object",
@@ -1814,9 +1824,6 @@
             ],
             "x-enum-name": "EventConnectionType",
             "x-module-name": "hopeit.app.config"
-          },
-          "route": {
-            "type": "string"
           }
         },
         "x-module-name": "hopeit.app.config",

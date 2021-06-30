@@ -1,5 +1,4 @@
 {
-    "$schema": "/home/hopeit/dev/leosmerling/hopeit.engine/engine/config/schemas/app-config-schema-draftv6.json",
     "app": {
       "name": "client-example",
       "version": "${HOPEIT_APPS_API_VERSION}"
@@ -12,23 +11,28 @@
         "cors_origin": "*"
     }, 
     "app_connections": {
-        "simple_example": {
+        "simple-example-conn": {
             "name": "simple-example",
             "version": "${HOPEIT_APPS_API_VERSION}",
-            "hosts": "${HOPEIT_SIMPLE_EXAMPLE_HOSTS}"
+            "client": "hopeit.apps_client.AppsClient",
+            "settings": "simple-example-conn"
         }
     },
-    "env": {
-        "apps_client": {
+    "settings": {
+        "simple-example-conn": {
+            "connection_str": "${HOPEIT_SIMPLE_EXAMPLE_HOSTS}",
             "circuit_breaker_open_failures": 10,
-            "circuit_breaker_failure_reset_seconds": 70,
+            "circuit_breaker_failure_reset_seconds": 90,
             "circuit_breaker_open_seconds": 60,
             "retries": 2,
             "retry_backoff_ms": 10,
             "ssl": true,
             "max_connections": 100,
             "max_connections_per_host": 0,
-            "dns_cache_ttl": 10
+            "dns_cache_ttl": 10,
+            "routes_override": {
+                "__list-somethings": "simple-example/${HOPEIT_APPS_ROUTE_VERSION}/list-somethings"
+            }
         }
     },
     "events": {
@@ -36,10 +40,9 @@
             "type": "GET",
             "connections": [
                 {
-                    "app_connection": "simple_example",
-                    "event": "list_somethings",
-                    "type": "GET",
-                    "route": "/api/{app_connections.simple_example.name}/0x8/list-somethings"
+                    "app_connection": "simple-example-conn",
+                    "event": "list-somethings",
+                    "type": "GET"
                 }
             ],
             "auth": ["Bearer", "Basic"]

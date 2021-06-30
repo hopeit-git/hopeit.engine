@@ -126,7 +126,6 @@ def app_public_key(app_key: str) -> RSAPublicKey:
             raise PublicKeyNotFoundError(app_key) from e
 
     key = public_keys.get(app_key)
-    print("loaded", app_key, key)
     if key is None:
         return _load_app_public_key()
     return key

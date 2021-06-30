@@ -3,7 +3,7 @@ Config module: apps config data model and json loader
 """
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Optional, Union, List
+from typing import Any, Dict, Optional, Union, List
 
 from hopeit.dataobjects import dataobject
 from hopeit.server.config import replace_config_args, replace_env_vars, ServerConfig, AuthType
@@ -46,6 +46,7 @@ class AppDescriptor:
 
 
 Env = Dict[str, Dict[str, Union[str, float, bool]]]
+AppSettings = Dict[str, Dict[str, Any]]
 
 
 class EventType(Enum):
@@ -281,7 +282,6 @@ class EventConnection:
     app_connection: str
     event: str
     type: EventConnectionType
-    route: Optional[str] = None
 
 
 @dataobject
@@ -339,16 +339,20 @@ class AppEngineConfig:
 @dataclass
 class AppConnection:
     """
-    AppConnections: metadata to intialize app client in able to connect
-    to other running apps
+    AppConnections: metadata to intialize app client in order to connect
+    and issue requests to other running apps
 
     :field: name, str: target app name to connect to
     :field: version, str: target app version
-    :field: hosts, str: comma-separated list in the form `http://host:port` running target app
+    :field: client, str: hopeit.app.client.Client class implementation, from available client plugins
+    :field: settings, optional str: key under `settings` section of app config containing connection configuration,
+        if not specifiec, plugin will lookup its default section usually the plugin name. But in case multiple
+        clients need to be confiigured this value can be overriden.
     """
     name: str
     version: str
-    hosts: str
+    client: str = "<<NO CLIENT CONFIGURED>>"
+    settings: Optional[str] = None
 
 
 @dataobject
@@ -364,6 +368,7 @@ class AppConfig:
     events: Dict[str, EventDescriptor] = field(default_factory=dict)
     server: Optional[ServerConfig] = None
     plugins: List[AppDescriptor] = field(default_factory=list)
+    settings: AppSettings = field(default_factory=dict)
 
     def app_key(self):
         return self.app.app_key()

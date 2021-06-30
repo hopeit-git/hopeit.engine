@@ -8,8 +8,7 @@ from typing import Optional, List
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-from hopeit.app.client import AppsClient, app_client
-from hopeit.fs_storage import FileStorage
+from hopeit.app.client import app_client
 
 from model import Something
 
@@ -28,9 +27,8 @@ __api__ = event_api(
 logger, extra = app_extra_logger()
 
 async def load_all(payload: None, context: EventContext, wildcard: str = '*') -> int:
-    client = app_client(context)
+    client = app_client("simple-example-conn", context)
     response = await client.call(
-        "simple_example", "list_somethings",
-        datatype=Something, payload=None, context=context
+        "list-somethings", datatype=Something, payload=None, context=context
     )
     return len(response)
