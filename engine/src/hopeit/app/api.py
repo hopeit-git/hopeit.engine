@@ -103,7 +103,7 @@ def _method_summary(module: str, summary: Optional[str] = None) -> str:
         return summary
     doc_str = inspect.getdoc(module)
     if doc_str is not None:
-        return doc_str.split("\n")[0]
+        return doc_str.split("\n", maxsplit=1)[0]
     return ""
 
 

@@ -2,6 +2,11 @@ Release Notes
 =============
 
 
+Version 0.8.2
+_____________
+- Fix: some management routes to start/stop streams were not working: normalized $ sign to / in route names.
+
+
 Version 0.8.1
 _____________
 - `hopeit.dataobjects.jsonify` module: added utility functions to convert dictionaries and list to dataobjects and back

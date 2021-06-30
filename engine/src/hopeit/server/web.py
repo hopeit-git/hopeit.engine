@@ -41,7 +41,7 @@ from hopeit.server.errors import ErrorInfo
 from hopeit.server.names import route_name
 from hopeit.server.api import app_route_name
 from hopeit.app.config import AppConfig, EventType, EventDescriptor, parse_app_config_json, EventPlugMode
-import hopeit.server.runtime as runtime
+from hopeit.server import runtime
 
 __all__ = ['parse_args',
            'main',
@@ -304,8 +304,8 @@ def _create_event_management_routes(
     """
     Create routes to start and stop processing of STREAM events
     """
-    app = app_engine.app_config.app
-    base_route = app_route_name(app_engine.app_config.app, event_name=event_name,
+    evt = event_name.replace('.', '/').replace('$', '/')
+    base_route = app_route_name(app_engine.app_config.app, event_name=evt,
                                 prefix='mgmt', override_route_name=event_info.route)
     logger.info(__name__, f"{event_info.type.value.upper()} path={base_route}/[start|stop]")
 
@@ -316,9 +316,9 @@ def _create_event_management_routes(
         handler = partial(_handle_service_start_invocation, app_engine, event_name)
     assert handler is not None, f"No handler for event={event_name} type={event_info.type}"
     return [
-        web.get(route_name('mgmt', app.name, app.version, event_name.replace('.', '/'), 'start'), handler),
+        web.get(base_route + '/start', handler),
         web.get(
-            route_name('mgmt', app.name, app.version, event_name.replace('.', '/'), 'stop'),
+            base_route + '/stop',
             partial(_handle_event_stop_invocation, app_engine, event_name)
         )
     ]

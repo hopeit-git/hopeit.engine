@@ -5,12 +5,12 @@ from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
 import random
 
-import hopeit.toolkit.auth as auth
 from hopeit.app.api import app_base_route_name
 from hopeit.app.config import AppDescriptor
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.dataobjects import dataobject
 from hopeit.server.config import AuthType
+from hopeit.toolkit import auth
 
 __all__ = [
     'ContextUserInfo',
