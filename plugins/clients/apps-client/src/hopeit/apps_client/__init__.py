@@ -218,13 +218,13 @@ class AppsClient(Client):
 
             try:
                 if event_info.type == EventConnectionType.GET:
-                    async with self.session.get(url, headers=headers, **kwargs) as response:
-                        result = await self._parse_response(response, context, datatype)
+                    async with self.session.get(url, headers=headers, params=kwargs) as response:
+                        result = await self._parse_response(response, context, datatype, event_name)
 
                 if event_info.type == EventConnectionType.POST:
                     async with self.session.post(url, headers=headers, 
-                                                body=Json.to_obj(payload), **kwargs) as response:
-                        result = await self._parse_response(response, context, datatype)
+                                                 data=Json.to_json(payload), params=kwargs) as response:
+                        result = await self._parse_response(response, context, datatype, event_name)
 
             except (ServerException, IOError) as e:
                 self.conn_state.load_balancer.failure(
@@ -299,11 +299,13 @@ class AppsClient(Client):
             },
             "x-track-client-app-key": context.app_key,
             "x-track-client-event-name": context.event_name,
-            "authorization": f"Bearer {token}"
+            "authorization": f"Bearer {token}",
+            "content-type": "application/json"
         }
 
     async def _parse_response(self, response, context: EventContext,
-                              datatype: Type[EventPayload]) -> EventPayload:
+                              datatype: Type[EventPayload],
+                              target_event_name: str) -> EventPayload:
         """
         Parses http response from external App, catching Unathorized errors
         and converting the result to the desired datatype
@@ -312,9 +314,7 @@ class AppsClient(Client):
             data = await response.json()
             if isinstance(data, list):
                 return Json.from_obj(data, list, item_datatype=datatype)  # type: ignore
-            if isinstance(data, dict):
-                return Json.from_obj(data, dict, item_datatype=datatype)  # type: ignore
-            return Json.from_obj(data, datatype)
+            return Json.from_obj(data, datatype, key=target_event_name)
         if response.status == 401:
             raise Unauthorized(context.app_key)
         if response.status >= 500:

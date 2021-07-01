@@ -3,23 +3,19 @@
       "name": "client-example",
       "version": "${HOPEIT_APPS_API_VERSION}"
     },
-    "plugins": [
-        {"name": "basic-auth", "version": "${HOPEIT_APPS_API_VERSION}"}
-    ],
     "engine" : {
         "track_headers": ["caller", "session_id"],
         "cors_origin": "*"
     }, 
     "app_connections": {
-        "simple-example-conn": {
+        "simple_example_conn": {
             "name": "simple-example",
             "version": "${HOPEIT_APPS_API_VERSION}",
-            "client": "hopeit.apps_client.AppsClient",
-            "settings": "simple-example-conn"
+            "client": "hopeit.apps_client.AppsClient"
         }
     },
     "settings": {
-        "simple-example-conn": {
+        "simple_example_conn": {
             "connection_str": "${HOPEIT_SIMPLE_EXAMPLE_HOSTS}",
             "circuit_breaker_open_failures": 10,
             "circuit_breaker_failure_reset_seconds": 90,
@@ -36,16 +32,21 @@
         }
     },
     "events": {
-        "count-somethings": {
+        "count_and_save": {
             "type": "GET",
             "connections": [
                 {
-                    "app_connection": "simple-example-conn",
-                    "event": "list-somethings",
+                    "app_connection": "simple_example_conn",
+                    "event": "list_somethings",
                     "type": "GET"
+                },
+                {
+                    "app_connection": "simple_example_conn",
+                    "event": "save_something",
+                    "type": "POST"
                 }
             ],
-            "auth": ["Bearer", "Basic"]
+            "auth": ["Basic"]
         }
     }
 }
