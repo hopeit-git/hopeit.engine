@@ -35,7 +35,7 @@ def test_init():
     auth.init("test_app", config)
     assert "test_app" in auth.private_keys
     assert "test_app" in auth.public_keys
-    assert os.path.exists(pathlib.Path(config.secrets_location) / 'private' / 'test_app.pem')
+    assert os.path.exists(pathlib.Path(config.secrets_location) / '.private' / 'test_app.pem')
     assert os.path.exists(pathlib.Path(config.secrets_location) / 'public' / 'test_app_pub.pem')
 
     config.create_keys = False

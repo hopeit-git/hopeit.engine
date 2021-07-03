@@ -18,7 +18,8 @@ setuptools.setup(
     include_package_data=True,
     python_requires=">=3.7",
     install_requires=[
-        "hopeit.engine[web]"
+        "hopeit.engine[web]",
+        f"simple-example=={version['ENGINE_VERSION']}"
     ],
     extras_require={
     },

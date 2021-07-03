@@ -54,7 +54,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "GET",
             "plug_mode": "Standalone",
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [],
                 "stream_fields": [
@@ -64,7 +64,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 0,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -80,7 +80,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "plug_mode": "Standalone",
             "route": "simple-example/${APPS_API_VERSION}/query_something",
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [],
                 "stream_fields": [
@@ -90,7 +90,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 0,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -106,7 +106,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "plug_mode": "Standalone",
             "route": "simple-example/${APPS_API_VERSION}/query_something",
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [],
                 "stream_fields": [
@@ -116,7 +116,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 0,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -131,7 +131,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "POST",
             "plug_mode": "Standalone",
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [],
                 "stream_fields": [
@@ -141,7 +141,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 0,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -156,7 +156,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "GET",
             "plug_mode": "Standalone",
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [],
                 "stream_fields": [
@@ -166,7 +166,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 0,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -181,7 +181,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "MULTIPART",
             "plug_mode": "Standalone",
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [],
                 "stream_fields": [
@@ -191,7 +191,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 0,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -213,7 +213,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
               "queue_strategy": "DROP"
             },
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [],
                 "stream_fields": [
@@ -223,7 +223,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 1000,
                 "throttle_ms": 10,
                 "step_delay": 0,
@@ -245,7 +245,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
               "queue_strategy": "DROP"
             },
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [
                   "something_id"
@@ -257,7 +257,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 1000,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -280,7 +280,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
               ]
             },
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [
                   "something_id"
@@ -296,7 +296,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 0,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -311,7 +311,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "POST",
             "plug_mode": "Standalone",
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [],
                 "stream_fields": [
@@ -321,7 +321,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 0,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -343,7 +343,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
               "queue_strategy": "DROP"
             },
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [
                   "something_id"
@@ -355,7 +355,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 1000,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -377,7 +377,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
               "queue_strategy": "DROP"
             },
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [
                   "something_id"
@@ -389,7 +389,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 1000,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -411,7 +411,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
               "queue_strategy": "DROP"
             },
             "config": {
-              "response_timeout": 60,
+              "response_timeout": 60.0,
               "logging": {
                 "extra_fields": [
                   "something_id"
@@ -423,7 +423,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
                 ]
               },
               "stream": {
-                "timeout": 60,
+                "timeout": 60.0,
                 "target_max_len": 1000,
                 "throttle_ms": 0,
                 "step_delay": 0,
@@ -446,7 +446,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "log_path": "logs/"
           },
           "auth": {
-            "secrets_location": "",
+            "secrets_location": ".secrets/",
             "auth_passphrase": "",
             "enabled": false,
             "create_keys": false,

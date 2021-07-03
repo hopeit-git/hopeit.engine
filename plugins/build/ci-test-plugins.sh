@@ -6,6 +6,10 @@ code=0
 export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/auth/basic-auth/src/ plugins/auth/basic-auth/test/unit/ plugins/auth/basic-auth/test/integration/
 code+=$?
 
+# clients/apps-client
+export PYTHONPATH=engine/src/:plugins/clients/apps-client/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/clients/apps-client/src/ plugins/clients/apps-client/test/unit/
+code+=$?
+
 # streams/redis
 export PYTHONPATH=engine/src/:plugins/streams/redis/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/streams/redis/src/ plugins/streams/redis/test/unit/
 code+=$?

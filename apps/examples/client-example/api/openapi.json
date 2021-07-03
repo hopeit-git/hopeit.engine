@@ -865,6 +865,23 @@
         },
         "x-module-name": "hopeit.config_manager",
         "description": "\n    Combined App Config and Server Status information for running apps\n    "
+      },
+      "CountAndSaveResult": {
+        "type": "object",
+        "required": [
+          "count",
+          "save_path"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "save_path": {
+            "type": "string"
+          }
+        },
+        "x-module-name": "client_example",
+        "description": "CountAndSaveResult(count: int, save_path: str)"
       }
     },
     "securitySchemes": {

@@ -14,7 +14,7 @@ from hopeit.toolkit import auth
 from hopeit.app.config import AppConfig, EventType, ReadStreamDescriptor, EventDescriptor, \
     StreamQueue, StreamQueueStrategy
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
-from hopeit.app.client import register_apps_client
+from hopeit.app.client import register_app_connections, stop_app_connections
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import ServerConfig
 from hopeit.server.events import EventHandler
@@ -41,6 +41,7 @@ class AppEngine:
         :param app_config: AppConfig, Hopeit application configuration as specified in config module
         """
         self.app_config = app_config
+        self.app_key = app_config.app_key()
         self.effective_events = self._config_effective_events(app_config)
         self.plugins = plugins
         self.event_handler: Optional[EventHandler] = None
@@ -67,21 +68,22 @@ class AppEngine:
         if streams_present and self.streams_enabled:
             mgr = StreamManager.create(self.app_config.server.streams)
             self.stream_manager = await mgr.connect()
-        auth.init(self.app_config.app_key(), self.app_config.server.auth)
-        await register_apps_client(self.app_config)
+        auth.init(self.app_key, self.app_config.server.auth)
+        await register_app_connections(self.app_config)
         return self
 
     async def stop(self):
         """
         Stops and clean handlers
         """
-        logger.info(__name__, f"Stopping app={self.app_config.app_key()}...")
+        logger.info(__name__, f"Stopping app={self.app_key}...")
         for event_name in self._running.keys():
             await self.stop_event(event_name)
         if self.stream_manager:
             await asyncio.sleep(self.app_config.engine.read_stream_timeout + 5)
             await self.stream_manager.close()
-        logger.info(__name__, f"Stopped app={self.app_config.app_key()}")
+        stop_app_connections(self.app_key)
+        logger.info(__name__, f"Stopped app={self.app_key}")
 
     async def execute(self, *,
                       context: EventContext,
@@ -340,7 +342,7 @@ class AppEngine:
         assert self.app_config.server is not None
         stats = StreamStats()
         log_info = {
-            'app_key': self.app_config.app_key(),
+            'app_key': self.app_key,
             'event_name': event_name
         }
         wait = self.app_config.server.streams.delay_auto_start_seconds
@@ -464,7 +466,7 @@ class AppEngine:
         """
         assert self.app_config.server is not None
         log_info = {
-            'app_key': self.app_config.app_key(),
+            'app_key': self.app_key,
             'event_name': event_name
         }
         assert not self._running[event_name].locked(), f"Cannot start service, event already running {event_name}"

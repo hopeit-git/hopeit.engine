@@ -1,11 +1,14 @@
-from typing import Any, Dict, List, Optional, Tuple, Type
-
+"""
+Base class and helper functions to defined and invoke external apps
+using clients plugins.
+"""
+from typing import Optional, Type, Union, List
 from abc import ABC
 from importlib import import_module
 
 from hopeit.app.context import EventContext
-from hopeit.app.config import AppConfig, AppConnection
-from hopeit.dataobjects import EventPayload
+from hopeit.app.config import AppConfig
+from hopeit.dataobjects import EventPayload, EventPayloadType
 from hopeit.server.logger import engine_logger, extra_logger
 
 logger = engine_logger()
@@ -35,18 +38,34 @@ class Client(ABC):
     async def stop(self):
         raise NotImplementedError()
 
-    async def call(self, app_connection: str, event_name: str,
-                   *, datatype: Type[EventPayload], payload: Optional[EventPayload],
-                   context: EventContext, **kwargs) -> EventPayload:
+    async def call(self, event_name: str,
+                   *, datatype: Type[EventPayloadType], payload: Optional[EventPayload],
+                   context: EventContext, **kwargs) -> Union[EventPayloadType, List[EventPayloadType]]:
         raise NotImplementedError()
 
 
-async def register_apps_client(app_config: AppConfig):
+async def register_app_connections(app_config: AppConfig):
     _registered_clients[app_config.app_key()] = {
         app_connection: await Client.create(app_config, app_connection).start()
         for app_connection in app_config.app_connections.keys()
     }
 
 
+async def stop_app_connections(app_key: str):
+    for _, client in _registered_clients[app_key].items():
+        await client.stop()
+    del _registered_clients[app_key]
+
+
 def app_client(app_connection: str, context: EventContext) -> Client:
     return _registered_clients[context.app_key][app_connection]
+
+
+async def app_call(app_connection: str,
+                   *, event: str, datatype: Type[EventPayloadType],
+                   payload: EventPayload, context: EventContext,
+                   **kwargs) -> Union[EventPayloadType, List[EventPayloadType]]:
+    client = app_client(app_connection, context)
+    return await client.call(
+        event, datatype=datatype, payload=payload, context=context, **kwargs
+    )
