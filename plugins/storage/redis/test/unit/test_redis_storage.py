@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import pytest  # type: ignore
 import aioredis  # type: ignore
 from hopeit.dataobjects import dataobject
-from hopeit.dataobjects.jsonify import Json
+from hopeit.dataobjects.payload import Payload
 
 from hopeit.redis_storage import RedisStorage
 
@@ -25,7 +25,7 @@ async def store_item():
     redis = await RedisStorage().connect(address=test_url)
     await redis.store(test_key, test_redis)
     assert redis._conn.last_key == test_key
-    assert redis._conn.last_payload == Json.to_json(test_redis)
+    assert redis._conn.last_payload == Payload.to_json(test_redis)
 
 
 async def get_item():

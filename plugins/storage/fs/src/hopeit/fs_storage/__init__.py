@@ -11,7 +11,7 @@ from typing import Optional, Type, Generic, List
 import aiofiles  # type: ignore
 
 from hopeit.dataobjects import DataObject
-from hopeit.dataobjects.jsonify import Json
+from hopeit.dataobjects.payload import Payload
 
 __all__ = ['FileStorage']
 
@@ -51,7 +51,7 @@ class FileStorage(Generic[DataObject]):
         """
         payload_str = await self._load_file(path=self.path, file_name=key + SUFFIX)
         if payload_str:
-            return Json.from_json(payload_str, datatype)
+            return Payload.from_json(payload_str, datatype)
         return None
 
     async def store(self, key: str, value: DataObject) -> str:
@@ -62,7 +62,7 @@ class FileStorage(Generic[DataObject]):
         :param value: DataObject, instance of dataclass annotated with @dataobject
         :return: str, path where the object was stored
         """
-        payload_str = Json.to_json(value)
+        payload_str = Payload.to_json(value)
         return await self._save_file(payload_str, path=self.path, file_name=key + SUFFIX)
 
     @staticmethod

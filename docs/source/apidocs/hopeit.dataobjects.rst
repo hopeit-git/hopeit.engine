@@ -10,7 +10,7 @@ Submodules
 ----------
 
 
-.. automodule:: hopeit.dataobjects.jsonify
+.. automodule:: hopeit.dataobjects.payload
    :members:
    :undoc-members:
    :show-inheritance:

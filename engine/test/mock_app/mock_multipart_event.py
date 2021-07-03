@@ -5,7 +5,7 @@ from typing import Union
 
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
-from hopeit.dataobjects.jsonify import Json
+from hopeit.dataobjects.payload import Payload
 
 __steps__ = ['entry_point']
 
@@ -20,7 +20,7 @@ async def __preprocess__(payload: None, context: EventContext, request: Preproce
     if any(x not in fields for x in ('field1', 'field2', 'attachment')):
         request.set_status(400)
         return "Missing required fields"
-    data = Json.parse_form_field(fields['field2'], MockData)
+    data = Payload.parse_form_field(fields['field2'], MockData)
     return MockData(value=f"field1={fields['field1']} field2={data.value} attachment={fields['attachment']}")
 
 

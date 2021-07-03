@@ -29,7 +29,7 @@ from stringcase import snakecase, titlecase  # type: ignore
 from hopeit.server import api
 from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
-from hopeit.dataobjects.jsonify import Json
+from hopeit.dataobjects.payload import Payload
 from hopeit.app.context import EventContext, NoopMultiparReader, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType
 from hopeit.app.errors import Unauthorized, BadRequest
@@ -386,7 +386,7 @@ def _failed_response(context: Optional[EventContext],
     info = ErrorInfo.from_exception(e)
     return web.Response(
         status=500,
-        body=Json.to_json(info)
+        body=Payload.to_json(info)
     )
 
 
@@ -401,7 +401,7 @@ def _ignored_response(context: Optional[EventContext],
     info = ErrorInfo.from_exception(e)
     return web.Response(
         status=status,
-        body=Json.to_json(info)
+        body=Payload.to_json(info)
     )
 
 
@@ -478,7 +478,7 @@ def _validate_authorization(app_config: AppConfig,
 
 
 def _application_json_response(result: DataObject, key: str, *args, **kwargs) -> str:
-    return Json.to_json(result, key=key)
+    return Payload.to_json(result, key=key)
 
 
 def _text_response(result: str, *args, **kwargs) -> str:
@@ -536,7 +536,7 @@ async def _request_process_payload(
         payload_raw = await request.read()
         if (payload_raw is None) or (payload_raw == b''):
             return None
-        payload = Json.from_json(payload_raw, datatype) if datatype else payload_raw.decode()
+        payload = Payload.from_json(payload_raw, datatype) if datatype else payload_raw.decode()
         return payload  # type: ignore
     except ValueError as e:
         logger.error(context, e)

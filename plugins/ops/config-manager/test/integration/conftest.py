@@ -1,6 +1,6 @@
 import pytest
 
-from hopeit.dataobjects.jsonify import Json
+from hopeit.dataobjects.payload import Payload
 from hopeit.config_manager import RuntimeApps, ServerStatus
 import socket
 import os
@@ -483,7 +483,7 @@ def _get_runtime_simple_example(url: str):
     res = res.replace("${APPS_API_VERSION}", APPS_API_VERSION)
     res = res.replace("${APPS_ROUTE_VERSION}", APPS_ROUTE_VERSION)
 
-    return Json.from_json(res, RuntimeApps)
+    return Payload.from_json(res, RuntimeApps)
 
 
 @pytest.fixture

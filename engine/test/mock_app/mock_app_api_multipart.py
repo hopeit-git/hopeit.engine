@@ -5,7 +5,7 @@ from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
 from hopeit.dataobjects import BinaryAttachment
-from hopeit.dataobjects.jsonify import Json
+from hopeit.dataobjects.payload import Payload
 
 __steps__ = ['entry_point']
 
@@ -29,7 +29,7 @@ __api__ = event_api(
 
 async def __preprocess__(payload: None, context: EventContext, request: PreprocessHook) -> MockData:
     args = await request.parsed_args()
-    data = Json.parse_form_field(args['field2'], MockData)
+    data = Payload.parse_form_field(args['field2'], MockData)
     return MockData(value=f"field1:{args['field1']} field2:{data.value} file:{args['file']}")
 
 
