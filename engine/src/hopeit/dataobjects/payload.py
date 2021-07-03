@@ -96,7 +96,9 @@ class Payload(Generic[EventPayloadType]):
         if isinstance(payload, _LIST_TYPES):
             return "[" + ', '.join(Payload.to_json(item, key=None) for item in payload) + "]"
         if isinstance(payload, _MAPPING_TYPES):
-            return "{" + ', '.join(f'"{str(k)}": {Payload.to_json(item, key=None)}' for k, item in payload.items()) + "}"
+            return "{" + ', '.join(
+                f'"{str(k)}": {Payload.to_json(item, key=None)}' for k, item in payload.items()
+            ) + "}"
         assert getattr(payload, 'to_json'), \
             f"{type(payload)} should be annotated with @dataobject"
         try:
