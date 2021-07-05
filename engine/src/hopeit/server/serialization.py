@@ -10,16 +10,16 @@ from hopeit.app.config import Serialization, Compression
 __all__ = ['serialize', 'deserialize']
 
 from hopeit.dataobjects import EventPayload, EventPayloadType
-from hopeit.dataobjects.jsonify import Json
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.compression import compress, decompress
 
 
 def _ser_json_utf8(data: EventPayload, level: int) -> bytes:
-    return Json.to_json(data).encode('utf-8')
+    return Payload.to_json(data).encode('utf-8')
 
 
 def _deser_json_utf8(data: bytes, datatype: Type[EventPayloadType]) -> EventPayload:
-    return Json.from_json(data.decode('utf-8'), datatype)
+    return Payload.from_json(data.decode('utf-8'), datatype)
 
 
 def _ser_pickle(data: EventPayload, level: int) -> bytes:

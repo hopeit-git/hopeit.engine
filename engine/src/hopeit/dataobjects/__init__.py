@@ -32,7 +32,7 @@ __all__ = ['EventPayload',
            'dataobject',
            'DataObject',
            'copy_payload',
-           'jsonify']
+           'payload']
 
 
 @dataclass

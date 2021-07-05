@@ -13,7 +13,7 @@ from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
 from hopeit.dataobjects import dataobject, BinaryAttachment
-from hopeit.dataobjects.jsonify import Json
+from hopeit.dataobjects.payload import Payload
 from hopeit.toolkit.web import save_multipart_attachment
 
 from model import Something
@@ -76,7 +76,7 @@ async def __preprocess__(payload: None, context: EventContext, request: Preproce
     if not all(x in args for x in ('id', 'user', 'attachment', 'object')):
         request.status = 400
         return "Missing required fields"
-    something_obj = Json.parse_form_field(args['object'], Something)
+    something_obj = Payload.parse_form_field(args['object'], Something)
     return FileUploadInfo(id=args['id'], user=args['user'], object=something_obj, uploaded_files=uploaded_files)
 
 

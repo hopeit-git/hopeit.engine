@@ -1,6 +1,6 @@
 import pytest
 
-from hopeit.dataobjects.jsonify import Json
+from hopeit.dataobjects.payload import Payload
 
 from hopeit.log_streamer import LogBatch, LogRawBatch, LogReaderConfig
 import uuid
@@ -33,7 +33,7 @@ def raw_log_entries2() -> LogRawBatch:
 
 @pytest.fixture
 def expected_log_entries() -> LogBatch:
-    return Json.from_json("""
+    return Payload.from_json("""
 {
   "entries": [
     {

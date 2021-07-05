@@ -7,7 +7,7 @@ from typing import Optional, Type, Generic, Any
 import aioredis  # type: ignore
 
 from hopeit.dataobjects import DataObject
-from hopeit.dataobjects.jsonify import Json
+from hopeit.dataobjects.payload import Payload
 
 __all__ = ['RedisStorage']
 
@@ -47,7 +47,7 @@ class RedisStorage(Generic[DataObject]):
         assert self._conn
         payload_str = await self._conn.get(key, encoding='utf-8')
         if payload_str:
-            return Json.from_json(payload_str, datatype)
+            return Payload.from_json(payload_str, datatype)
         return None
 
     async def store(self, key: str, value: DataObject):
@@ -58,5 +58,5 @@ class RedisStorage(Generic[DataObject]):
         :param value: DataObject, instance of dataclass annotated with @dataobject
         """
         assert self._conn
-        payload_str = str(Json.to_json(value))
+        payload_str = str(Payload.to_json(value))
         await self._conn.set(key, payload_str)

@@ -2,6 +2,13 @@ Release Notes
 =============
 
 
+Version 0.8.3
+_____________
+
+- BREAKING CHANGES:
+  - class `Json` from `hopeit.dataobjects.jsonify` renamed to `Payload` and moved to `hopeit.dataobjects.payload` for more intuitive usage of @dataobject decorated object. `Json` will be deprecated in a future version.
+
+
 Version 0.8.2
 _____________
 - Fix: some management routes to start/stop streams were not working: normalized $ sign to / in route names.
