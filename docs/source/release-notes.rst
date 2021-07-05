@@ -6,7 +6,7 @@ Version 0.8.3
 _____________
 
 - BREAKING CHANGES:
-  - class `Json` from `hopeit.dataobjects.jsonify` renamed to `Payload` and move to `hopeit.dataobjects.payload` for more intuitive usage of @dataobject decorated object. Deprecation warning starting version 0.8.2 till 0.9.0
+  - class `Json` from `hopeit.dataobjects.jsonify` renamed to `Payload` and moved to `hopeit.dataobjects.payload` for more intuitive usage of @dataobject decorated object. `Json` will be deprecated in a future version.
 
 
 Version 0.8.2

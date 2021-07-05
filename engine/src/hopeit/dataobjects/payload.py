@@ -1,5 +1,5 @@
 """
-Payload tools to serialized and deserialze data objects
+Payload tools to serialize and deserialze event payloads and responses, including dataobjects
 """
 
 import json

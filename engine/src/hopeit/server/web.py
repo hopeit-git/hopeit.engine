@@ -511,7 +511,6 @@ async def _request_execute(
         result = await app_engine.postprocess(context=context, payload=result, response=response_hook)
     else:
         response_hook.set_status(preprocess_hook.status)
-    # body = Json.to_json(result, key=event_name)
     response = _response(
         track_ids=context.track_ids,
         key=event_name,
