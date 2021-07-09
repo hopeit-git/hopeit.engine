@@ -97,7 +97,6 @@ async def config_graph(collector: Collector, context: EventContext) -> Optional[
         for app_conn_key, app_connection in app_config.app_connections.items():
             app_connections[f"{app_key}.{app_conn_key}"] = app_connection
 
-
     nodes = get_nodes(events, expand_queues=options.expand_queues)
     add_app_connections(nodes, app_connections=app_connections, events=events)
     edges = get_edges(nodes)

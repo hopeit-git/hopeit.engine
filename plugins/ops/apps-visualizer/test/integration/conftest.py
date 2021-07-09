@@ -17,13 +17,27 @@ from hopeit.config_manager import RuntimeAppInfo, RuntimeApps, ServerInfo, Serve
 import socket
 
 
+def mock_getenv(var_name):
+    if var_name == "HOPEIT_APPS_VISUALIZER_HOSTS":
+        return "in-process"
+    if var_name == "HOPEIT_SIMPLE_EXAMPLE_HOSTS":
+        return "test-host"
+    if var_name == "HOPEIT_APPS_API_VERSION":
+        return APPS_API_VERSION
+    if var_name == "HOPEIT_APPS_ROUTE_VERSION":
+        return APPS_ROUTE_VERSION
+    raise NotImplementedError(var_name)
+
+
 @pytest.fixture
 def runtime_apps(monkeypatch):
+    monkeypatch.setattr(server_config.os, 'getenv', mock_getenv)
     app_config = config('apps/examples/simple-example/config/app-config.json')
+    client_app_config = config('apps/examples/client-example/config/app-config.json')
     monkeypatch.setattr(
         runtime,
         "server",
-        MockServer(app_config)
+        MockServer(app_config, client_app_config)
     )
     return RuntimeApps(
         apps={
@@ -36,6 +50,16 @@ def runtime_apps(monkeypatch):
                     )
                 ],
                 app_config=app_config
+            ),
+            client_app_config.app_key(): RuntimeAppInfo(
+                servers=[
+                    ServerInfo(
+                        host_name=socket.gethostname(),
+                        pid=str(os.getpid()),
+                        url="in-process"
+                    )
+                ],
+                app_config=client_app_config
             )
         },
         server_status={
@@ -46,17 +70,7 @@ def runtime_apps(monkeypatch):
 
 @pytest.fixture
 def plugin_config(monkeypatch):
-
-    def getenv(var_name):
-        if var_name == "HOPEIT_APPS_VISUALIZER_HOSTS":
-            return "in-process"
-        elif var_name == "HOPEIT_APPS_API_VERSION":
-            return APPS_API_VERSION
-        elif var_name == "HOPEIT_APPS_ROUTE_VERSION":
-            return APPS_ROUTE_VERSION
-        raise NotImplementedError(var_name)
-
-    monkeypatch.setattr(server_config.os, 'getenv', getenv)
+    monkeypatch.setattr(server_config.os, 'getenv', mock_getenv)
     return config('plugins/ops/apps-visualizer/config/plugin-config.json')
 
 

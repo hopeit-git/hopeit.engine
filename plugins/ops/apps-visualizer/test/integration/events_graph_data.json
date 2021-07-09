@@ -230,6 +230,20 @@
     },
     "classes": "EVENT"
   },
+  "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET": {
+    "data": {
+      "id": "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
+      "content": "GET"
+    },
+    "classes": "REQUEST"
+  },
+  "client_example.${APPS_ROUTE_VERSION}.count_and_save": {
+    "data": {
+      "id": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
+      "content": "client_example.${APPS_ROUTE_VERSION}\ncount_and_save"
+    },
+    "classes": "EVENT"
+  },
   "edge_simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET": {
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
@@ -435,6 +449,30 @@
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
       "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status",
       "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "label": ""
+    }
+  },
+  "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.GET": {
+    "data": {
+      "id": "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
+      "source": "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
+      "target": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
+      "label": ""
+    }
+  },
+  "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.list_somethings.GET": {
+    "data": {
+      "id": "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.list_somethings.GET",
+      "source": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
+      "label": ""
+    }
+  },
+  "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.save_something.POST": {
+    "data": {
+      "id": "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.save_something.POST",
+      "source": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.save_something.POST",
       "label": ""
     }
   }

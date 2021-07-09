@@ -111,9 +111,14 @@ def get_nodes(events: Dict[str, EventDescriptor],
 
     return nodes
 
-def add_app_connections(nodes: Dict[str, Node], *, 
+
+def add_app_connections(nodes: Dict[str, Node], *,
                         app_connections: Dict[str, AppConnection],
                         events: Dict[str, EventDescriptor]):
+    """
+    Add to nodes map, input/output ports for app_connections in order to show call
+    dependencies between events.
+    """
     for event_name, event_info in events.items():
         app_key = '.'.join(event_name.split('.', maxsplit=2)[0:2])
         source_node = nodes[event_name]

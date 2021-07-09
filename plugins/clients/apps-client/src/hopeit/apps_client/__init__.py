@@ -13,7 +13,7 @@ import random
 import aiohttp
 from stringcase import spinalcase  # type: ignore
 
-from hopeit.app.client import Client
+from hopeit.app.client import AppConnectionNotFound, Client, ClientException
 from hopeit.app.context import EventContext
 from hopeit.app.config import AppConfig, AppDescriptor, EventConnection, EventConnectionType
 from hopeit.app.errors import Unauthorized
@@ -28,7 +28,7 @@ logger, extra = engine_extra_logger()
 
 @dataobject
 @dataclass
-class AppsClientEnv:
+class AppsClientSettings:
     """
     AppsClient configuration
 
@@ -113,16 +113,16 @@ class CircuitBreakLoadBalancer:
             self.cb_open_ttl[host_index] = now_ts + circuit_breaker_open_seconds
 
 
-class ClientLoadBalancerException(Exception):
+class ClientLoadBalancerException(ClientException):
     """Client load balancer errors"""
 
 
-class AppsClientException(Exception):
+class AppsClientException(ClientException):
     """AppsClient error wrapper"""
 
 
-class ServerException(Exception):
-    """Wrapper for 5xx responses"""
+class ServerException(ClientException):
+    """Wrapper for 5xx responses from services when invoked using client"""
 
 
 @dataclass
@@ -143,7 +143,7 @@ class AppsClient(Client):
         self.app_conn_key = app_connection
         self.app_connection = app_config.app_connections[app_connection]
         settings_key = self.app_connection.settings or app_connection
-        self.settings = Payload.from_obj(app_config.settings.get(settings_key, {}), AppsClientEnv)
+        self.settings = Payload.from_obj(app_config.settings.get(settings_key, {}), AppsClientSettings)
         self.event_connections = {
             event_name: {
                 conn.event: conn
@@ -221,7 +221,7 @@ class AppsClient(Client):
         if self.conn_state is None or self.session is None:
             raise RuntimeError("AppsClient not started: `client.start()` must be called from engine.")
         now_ts = self._now_ts()
-        event_info = self.event_connections[context.event_name][event_name]
+        event_info = self._get_event_connection(context, event_name)
         token = self._ensure_token(now_ts)
         headers = self._request_headers(context, token)
 
@@ -272,6 +272,14 @@ class AppsClient(Client):
 
     def _now_ts(self) -> int:
         return int(datetime.now(tz=timezone.utc).timestamp())
+
+    def _get_event_connection(self, context: EventContext, event_name: str):
+        try:
+            return self.event_connections[context.event_name][event_name]
+        except KeyError:
+            raise AppConnectionNotFound(  # pylint: disable=raise-missing-from
+                f"Event {event_name} not found in event connections for {context.event_name}"
+            )
 
     def _create_session(self):
         """

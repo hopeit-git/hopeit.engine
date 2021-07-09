@@ -42,7 +42,19 @@ def server_config():
     )
 
 
-def create_test_context(app_config: AppConfig, event_name: str) -> EventContext:
+def create_test_context(app_config: AppConfig, event_name: str,
+                        track_ids: Optional[dict] = None,
+                        auth_info: Optional[dict] = None) -> EventContext:
+    """
+    Creates an EventContext object to be used in tests
+
+    :param app_config: AppConfig, app confioguration
+    :param event_name: str, event_name to be called
+    :param track_ids: dict, optional: addictional key/values to add to track_ids section. By default
+        required track_ids will be generated with default test or empty values.
+    :param auth_info: dict, optional: additional auth_info to inject. By default Unsecured auth_info
+        will be generated.
+    """
     return EventContext(
         app_config=app_config,
         plugin_config=app_config,
@@ -53,9 +65,13 @@ def create_test_context(app_config: AppConfig, event_name: str) -> EventContext:
             },
             'track.operation_id': 'test_operation_id',
             'track.request_id': 'test_request_id',
-            'track.request_ts': datetime.now(tz=timezone.utc).isoformat()
+            'track.request_ts': datetime.now(tz=timezone.utc).isoformat(),
+            **({} if track_ids is None else track_ids)
         },
-        auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'}
+        auth_info={
+            'auth_type': AuthType.UNSECURED, 'allowed': 'true',
+            **({} if auth_info is None else auth_info)
+        }
     )
 
 
@@ -91,6 +107,7 @@ async def execute_event(app_config: AppConfig,
                         upload: Optional[Dict[str, bytes]] = None,
                         preprocess: bool = False,
                         postprocess: bool = False,
+                        context: Optional[EventContext] = None,
                         **kwargs) -> Union[
                             Optional[EventPayload],
                             List[EventPayload],
@@ -108,6 +125,8 @@ async def execute_event(app_config: AppConfig,
     :param mocks: lists of functions to execute in order to mock functionality
     :param postprocess: enables testing __postprocess__ called with last step result or
         result before a SHUFFLE step if present.
+    :param context: EventContext, optional EventContext to use when calling event. If not provided
+        a default context will be created.
     :param kwargs: that will be forwarded to the initial step of the event
     :return: the results of executing the event, for simple events it will be a single object,
         for events with initial Spawn[...] the results will be collected as a list.
@@ -116,14 +135,17 @@ async def execute_event(app_config: AppConfig,
         with response information used during call to __postprocess__
     """
     async def _postprocess(hook: PostprocessHook, results: List[EventPayload]) -> EventPayload:
+        assert context is not None
         pp_payload = results[-1] if len(results) > 0 else None
         return await handler.postprocess(context=context, payload=pp_payload, response=hook)
 
     async def _preprocess(hook: PreprocessHook, payload: EventPayload) -> EventPayload:
+        assert context is not None
         return await handler.preprocess(
             context=context, query_args=kwargs, payload=payload, request=hook)
 
-    context = create_test_context(app_config, event_name)
+    if context is None:
+        context = create_test_context(app_config, event_name)
     impl = find_event_handler(app_config=app_config, event_name=event_name)
 
     event_info = app_config.events[event_name]
@@ -156,7 +178,9 @@ async def execute_event(app_config: AppConfig,
 
     on_queue, pp_result, pp_called = [payload], None, False
     for effective_event_name, event_info in effective_events.items():
-        context = create_test_context(app_config, effective_event_name)
+        context = create_test_context(
+            app_config, effective_event_name, track_ids=context.track_ids, auth_info=context.auth_info
+        )
         stage_results = []
         for elem in on_queue:
             async for res in handler.handle_async_event(context=context, query_args=kwargs, payload=elem):

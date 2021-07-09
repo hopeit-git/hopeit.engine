@@ -7,7 +7,7 @@ export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src/ && python3 -m pytest 
 code+=$?
 
 # clients/apps-client
-export PYTHONPATH=engine/src/:plugins/clients/apps-client/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/clients/apps-client/src/ plugins/clients/apps-client/test/unit/
+export PYTHONPATH=engine/src/:plugins/clients/apps-client/src/:plugins/clients/apps-client/test/ && python3 -m pytest -v --cov-fail-under=70 --cov-report=term --cov=plugins/clients/apps-client/src/ plugins/clients/apps-client/test/unit/
 code+=$?
 
 # streams/redis

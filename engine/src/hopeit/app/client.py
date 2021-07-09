@@ -17,6 +17,14 @@ extra = extra_logger()
 _registered_clients = {}
 
 
+class ClientException(Exception):
+    """Base exception for Client errors"""
+
+
+class AppConnectionNotFound(ClientException):
+    """Invalid app_connection or not registered"""
+
+
 class Client(ABC):
     """
     Base class to imeplement stream management of a Hopeit App
@@ -58,7 +66,12 @@ async def stop_app_connections(app_key: str):
 
 
 def app_client(app_connection: str, context: EventContext) -> Client:
-    return _registered_clients[context.app_key][app_connection]
+    try:
+        return _registered_clients[context.app_key][app_connection]
+    except KeyError:
+        raise AppConnectionNotFound(  # pylint: disable=raise-missing-from
+            f"Not found app_connection: {app_connection} for app: {context.app_key}"
+        )
 
 
 async def app_call(app_connection: str,
