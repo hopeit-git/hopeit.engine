@@ -18,7 +18,7 @@ from hopeit.app.context import EventContext
 from hopeit.app.config import AppConfig, AppDescriptor, EventConnection, EventConnectionType
 from hopeit.app.errors import Unauthorized
 from hopeit.dataobjects import EventPayload, EventPayloadType, dataobject
-from hopeit.dataobjects.jsonify import Json
+from hopeit.dataobjects.payload import Payload
 from hopeit.toolkit import auth
 from hopeit.server.logger import engine_extra_logger
 from hopeit.server.api import app_route_name
@@ -143,7 +143,7 @@ class AppsClient(Client):
         self.app_conn_key = app_connection
         self.app_connection = app_config.app_connections[app_connection]
         settings_key = self.app_connection.settings or app_connection
-        self.settings = Json.from_obj(app_config.settings.get(settings_key, {}), AppsClientEnv)
+        self.settings = Payload.from_obj(app_config.settings.get(settings_key, {}), AppsClientEnv)
         self.event_connections = {
             event_name: {
                 conn.event: conn
@@ -246,7 +246,7 @@ class AppsClient(Client):
 
                 if event_info.type == EventConnectionType.POST:
                     request_func = self.session.post(
-                        url, headers=headers, data=Json.to_json(payload), params=kwargs
+                        url, headers=headers, data=Payload.to_json(payload), params=kwargs
                     )
                     return await self._request(
                         request_func, context, datatype, event_name, host_index
@@ -342,8 +342,8 @@ class AppsClient(Client):
         if response.status == 200:
             data = await response.json()
             if isinstance(data, list):
-                return Json.from_obj(data, list, item_datatype=datatype)  # type: ignore
-            return Json.from_obj(data, datatype, key=target_event_name)
+                return Payload.from_obj(data, list, item_datatype=datatype)  # type: ignore
+            return Payload.from_obj(data, datatype, key=target_event_name)
         if response.status == 401:
             raise Unauthorized(context.app_key)
         if response.status >= 500:

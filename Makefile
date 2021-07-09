@@ -104,6 +104,11 @@ pypi-test-plugin:
 	pip install twine && \
 	python -m twine upload -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --repository testpypi $(PLUGINFOLDER)/dist/*
 
+update-simple-example-api:
+	bash apps/examples/simple-example/api/create_openapi_file.sh && \
+	bash apps/examples/client-example/api/create_openapi_file.sh && \
+	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
+
 install-simple-example:
 	make install && \
 	make PLUGINFOLDER=plugins/streams/redis install-plugin && \

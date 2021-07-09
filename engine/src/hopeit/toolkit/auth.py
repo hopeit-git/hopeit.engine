@@ -116,9 +116,10 @@ def app_public_key(app_key: str) -> RSAPublicKey:
         try:
             logger.info(__name__, "Loading public app keys", extra=extra(app_key=app_key))
             public_key_path = pathlib.Path(auth_config.secrets_location) / 'public' / f'{app_key}_pub.pem'
-            public_keys[app_key] = load_pem_public_key(
-                open(public_key_path, 'rb').read(),
-                default_backend())
+            with open(public_key_path, 'rb') as f:
+                public_keys[app_key] = load_pem_public_key(
+                    f.read(), default_backend()
+                )
             return public_keys[app_key]
         except FileNotFoundError as e:
             logger.error(__name__, "Cannot find public key for app", extra=extra(app_key=app_key))
