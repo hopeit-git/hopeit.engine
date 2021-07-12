@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+Version 0.9.2
+_____________
+- Fix: added missing packages to `apps_visualizer` plugin dist
+
+
 Version 0.9.1
 _____________
 - Run single QA pipeline before publishing to PyPi

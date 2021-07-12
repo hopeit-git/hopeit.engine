@@ -39,10 +39,18 @@ setuptools.setup(
         "": "src"
     },
     packages=[
-        "hopeit.apps_visualizer"
+        "hopeit.apps_visualizer",
+        "hopeit.apps_visualizer.apps",
+        "hopeit.apps_visualizer.event_stats",
+        "hopeit.apps_visualizer.graphs",
+        "hopeit.apps_visualizer.site"
     ],
     package_data={
-        "hopeit.apps_visualizer": ["*.html", "py.typed"]
+        "hopeit.apps_visualizer": ["py.typed"],
+        "hopeit.apps_visualizer.apps": ["py.typed"],
+        "hopeit.apps_visualizer.event_stats": ["py.typed"],
+        "hopeit.apps_visualizer.graphs": ["py.typed"],
+        "hopeit.apps_visualizer.site": ["*.html", "py.typed"]
     },
     include_package_data=True,
     python_requires=">=3.7",
