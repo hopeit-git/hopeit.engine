@@ -339,15 +339,15 @@ class AppEngineConfig:
 @dataclass
 class AppConnection:
     """
-    AppConnections: metadata to intialize app client in order to connect
+    AppConnections: metadata to initialize app client in order to connect
     and issue requests to other running apps
 
     :field: name, str: target app name to connect to
     :field: version, str: target app version
     :field: client, str: hopeit.app.client.Client class implementation, from available client plugins
     :field: settings, optional str: key under `settings` section of app config containing connection configuration,
-        if not specifiec, plugin will lookup its default section usually the plugin name. But in case multiple
-        clients need to be confiigured this value can be overriden.
+        if not specified, plugin will lookup its default section usually the plugin name. But in case multiple
+        clients need to be configured, this value can be overridden.
     """
     name: str
     version: str

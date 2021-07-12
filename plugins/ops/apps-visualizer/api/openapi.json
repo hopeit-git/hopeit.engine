@@ -579,7 +579,7 @@
           }
         },
         "x-module-name": "hopeit.app.config",
-        "description": "\n    AppConnections: metadata to intialize app client in order to connect\n    and issue requests to other running apps\n\n    :field: name, str: target app name to connect to\n    :field: version, str: target app version\n    :field: client, str: hopeit.app.client.Client class implementation, from available client plugins\n    :field: settings, optional str: key under `settings` section of app config containing connection configuration,\n        if not specifiec, plugin will lookup its default section usually the plugin name. But in case multiple\n        clients need to be confiigured this value can be overriden.\n    "
+        "description": "\n    AppConnections: metadata to initialize app client in order to connect\n    and issue requests to other running apps\n\n    :field: name, str: target app name to connect to\n    :field: version, str: target app version\n    :field: client, str: hopeit.app.client.Client class implementation, from available client plugins\n    :field: settings, optional str: key under `settings` section of app config containing connection configuration,\n        if not specified, plugin will lookup its default section usually the plugin name. But in case multiple\n        clients need to be configured, this value can be overridden.\n    "
       },
       "EventDescriptor": {
         "type": "object",

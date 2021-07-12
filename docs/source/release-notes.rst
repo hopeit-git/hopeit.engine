@@ -6,15 +6,20 @@ Version 0.9.0
 _____________
 - Engine support to configure `AppConnections` and `EventConnections` to express App/Event dependencies.
 - Engine support for multiple client implementations via plugins
+- App config support for `settings` section in order to enable plugins to use custom schemas to parse configuration values.
 
 - Plugins:
-  - Apps Client (new plugin): `hopeit.apps_client` allows invokation of other running apps via http GET or POST requests.
+  - Apps Client (new plugin): `hopeit.apps_client` allows invocation of other running apps via http GET or POST requests.
   Enables in a single function call `app_call` to invoke remote app events. See `apps/examples/client-example` for usage scenarios.
   - Apps Visualizer plugin: support for showing connections between connected apps.
   - Basic Auth: tokens are generated using `app_key` from `context`. This means that in order for a token to be accepted
   by a given app, it must be called from the same app. `basic_auth` demo plugin enforces this by making `login` and `refresh`
   endpoints of type `EMBEDDED`, what makes `app_key` from app containing the plugin, to be used when creating the token
   (and not the plugin `app_key`)
+
+- BUG FIXES:
+  - Engine: fixed a bug preventing `{...}` expressions in config files pointing to dictionaries to be properly replaced by its value.
+  - Security: fixed a bug where sometimes authentication is allowed erroneously when multiple auth methods are configured for a single event.
 
 - BREAKING CHANGES:
   - Engine `auth` module now creates and stores one pair of private/public keys per each running app. Keys are stored

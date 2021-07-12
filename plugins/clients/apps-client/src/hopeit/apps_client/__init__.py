@@ -136,7 +136,7 @@ class AppConnectionState:
 
 class AppsClient(Client):
     """
-    AppsClient: Manages connections and invokations to external App events.
+    AppsClient: Manages connections and calls to external App events.
     """
     def __init__(self, app_config: AppConfig, app_connection: str):
         self.app_key = app_config.app_key()

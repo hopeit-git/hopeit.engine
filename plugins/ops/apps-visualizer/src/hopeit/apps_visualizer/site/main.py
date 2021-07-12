@@ -1,5 +1,5 @@
 """
-Events graph showing events, stream and dependecies for specified apps
+Events graph showing events, stream and dependencies for specified apps
 """
 import os
 from pathlib import Path

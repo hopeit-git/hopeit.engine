@@ -56,10 +56,10 @@ class Client(ABC):
                    *, datatype: Type[EventPayloadType], payload: Optional[EventPayload],
                    context: EventContext, **kwargs) -> List[EventPayloadType]:
         """
-        Implement invokation to external apps in the configured app_connection.
+        Implement invocation to external apps in the configured app_connection.
 
         Notice that this method must always returns a list. In case the target event returns a single
-        items, make this method to return a list of one element. This is to ensure type-checks.
+        item, make this method to return a list of one element. This is to ensure type-checks.
 
         This method is not usually called directly, use instead `app_call` and `app_call_list` functions.
 
