@@ -1,6 +1,6 @@
 aiohttp
 aiohttp-cors
-aiohttp-swagger3==0.5.4
+aiohttp-swagger3>=0.5.6,<0.6
 aiojobs
 dataclasses-jsonschema[fast-validation]
 stringcase

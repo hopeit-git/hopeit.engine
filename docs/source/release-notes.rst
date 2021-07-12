@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+Version 0.9.3
+_____________
+- Fix: pinned `aiohttp_swagger3` version to prevent failure on unsecured endpoints
+
+
 Version 0.9.2
 _____________
 - Fix: added missing packages to `apps_visualizer` plugin dist
