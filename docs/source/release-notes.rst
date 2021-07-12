@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+Version 0.9.1
+_____________
+- Run single QA pipeline before publishing to PyPi
+
 
 Version 0.9.0
 _____________
