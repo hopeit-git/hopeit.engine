@@ -24,7 +24,7 @@ _____________
 - BREAKING CHANGES:
   - Engine `auth` module now creates and stores one pair of private/public keys per each running app. Keys are stored
 to `.secrets/.private` and `.secrets/public` using `app_key` as a prefix for the file name.
-    - All auth tokens from now are validated using the public key of the app creating the token, extrating `app` field from the payload.
+    - All auth tokens from now are validated using the public key of the app creating the token, extracting `app` field from the payload.
     - `new_token` method requires an app_key as a parameter.
     - In order to validate tokens, payload must contain the generating `app_key` in the token payload `app` field.
     - To perform app-to-app authentication, in order to allow an App to be called using `hopeit.apps_client`, the public key of

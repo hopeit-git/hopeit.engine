@@ -692,7 +692,7 @@
           }
         },
         "x-module-name": "hopeit.app.config",
-        "description": "\n    EventConnection: describes depedendecies on this event when calling\n    event on apps configured in `app_connections` sections. Only events\n    specified are allowed to be invoked using `hopeit.client`\n\n    :field: app_connection, str: key of app entry used in app_connections sections\n    :field: event, str: target event_name to be called\n    :filed: type, EventConnectionType: a valid event connection type, i.e. GET or POST\n    :field: route, optional str: custom route in case event is not attached to default `app/version/event`\n    "
+        "description": "\n    EventConnection: describes dependencies on this event when calling\n    event on apps configured in `app_connections` sections. Only events\n    specified are allowed to be invoked using `hopeit.client`\n\n    :field: app_connection, str: key of app entry used in app_connections sections\n    :field: event, str: target event_name to be called\n    :filed: type, EventConnectionType: a valid event connection type, i.e. GET or POST\n    :field: route, optional str: custom route in case event is not attached to default `app/version/event`\n    "
       },
       "ReadStreamDescriptor": {
         "type": "object",

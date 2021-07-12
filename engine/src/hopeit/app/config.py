@@ -270,7 +270,7 @@ class EventConnectionType(Enum):
 @dataclass
 class EventConnection:
     """
-    EventConnection: describes depedendecies on this event when calling
+    EventConnection: describes dependencies on this event when calling
     event on apps configured in `app_connections` sections. Only events
     specified are allowed to be invoked using `hopeit.client`
 

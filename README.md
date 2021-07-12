@@ -208,7 +208,7 @@ If an external request triggers a process that requires background tasks to run,
 GET/POST endpoints on other hopeit Apps, supporting common microservices patterns as retrying and circuit breaking.
 `hopeit.apps_visualizer` plugin now allows live monitoring of services activity on multiple servers since `0.7.0`, it was enhanced with
 live monitoring and interactive filters of apps and hosts in `0.8.0` and from `0.9.0` it can be
-used to visualize app dependencies either trough streams or connections using configured `app_connections` used by `apps_client`.
+used to visualize app dependencies either through streams or configured `app_connections` used by `apps_client`.
 
 - **JUNE 2021**: `hopeit.engine` version 0.4.0 introduced app-visualizer plugin, that allows viewing in a web browser the current running configuration and dependencies between apps and events of a deployment. Also, enhanced stream processing by adding support for multiple queues for the same stream. In version 0.5.0 we started adding more DevOps tools: the first one is `log-streamer` plugin, which allows to parse app logs and send data to a stream. This will be used to monitor applications and dump logs to persistent storage. Combining `log-streamer` with `apps-visualizer` plugins, live activity visualization of events execution and stream processing is possible since version 0.6.0.
 
