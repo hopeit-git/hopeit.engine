@@ -16,12 +16,28 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "client-example",
+            "type": "python",
+            "request": "launch",
+            "module": "hopeit.server.web",
+            "env": {
+                "HOPEIT_SIMPLE_EXAMPLE_HOSTS": "http://localhost:8020,http://localhost:8021,http://localhost:8022"
+            },
+            "args": [
+                "--port=8030",
+                "--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/client-example/config/app-config.json",
+                "--api-file=apps/examples/client-example/api/openapi.json"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "apps-visualizer",
             "type": "python",
             "request": "launch",
             "module": "hopeit.server.web",
             "env": {
-                "HOPEIT_APPS_VISUALIZER_HOSTS": "http://localhost:8020,http://localhost:8021,http://localhost:8098,http://localhost:8099"
+                "HOPEIT_APPS_VISUALIZER_HOSTS": "http://localhost:8020,http://localhost:8021,http://localhost:8030,http://localhost:8098,http://localhost:8099"
             },
             "args": [
                 "--port=8098",

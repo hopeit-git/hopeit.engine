@@ -2,6 +2,37 @@ Release Notes
 =============
 
 
+Version 0.9.0
+_____________
+- Engine support to configure `AppConnections` and `EventConnections` to express App/Event dependencies.
+- Engine support for multiple client implementations via plugins
+- App config support for `settings` section in order to enable plugins to use custom schemas to parse configuration values.
+
+- Plugins:
+  - Apps Client (new plugin): `hopeit.apps_client` allows invocation of other running apps via http GET or POST requests.
+  Enables in a single function call `app_call` to invoke remote app events. See `apps/examples/client-example` for usage scenarios.
+  - Apps Visualizer plugin: support for showing connections between connected apps.
+  - Basic Auth: tokens are generated using `app_key` from `context`. This means that in order for a token to be accepted
+  by a given app, it must be called from the same app. `basic_auth` demo plugin enforces this by making `login` and `refresh`
+  endpoints of type `EMBEDDED`, what makes `app_key` from app containing the plugin, to be used when creating the token
+  (and not the plugin `app_key`)
+
+- BUG FIXES:
+  - Engine: fixed a bug preventing `{...}` expressions in config files pointing to dictionaries to be properly replaced by its value.
+  - Security: fixed a bug where sometimes authentication is allowed erroneously when multiple auth methods are configured for a single event.
+
+- BREAKING CHANGES:
+  - Engine `auth` module now creates and stores one pair of private/public keys per each running app. Keys are stored
+to `.secrets/.private` and `.secrets/public` using `app_key` as a prefix for the file name.
+    - All auth tokens from now are validated using the public key of the app creating the token, extracting `app` field from the payload.
+    - `new_token` method requires an app_key as a parameter.
+    - In order to validate tokens, payload must contain the generating `app_key` in the token payload `app` field.
+    - To perform app-to-app authentication, in order to allow an App to be called using `hopeit.apps_client`, the public key of
+    the caller app must be accessible in the `.secrets/public` folder of the called application.
+    - In production environments, this keys must be mounted/accessible before server starts. It is also recommended to disable automatic
+    key generation in server config file.
+
+
 Version 0.8.3
 _____________
 

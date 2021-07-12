@@ -75,7 +75,7 @@ class AuthConfig:
 
     @staticmethod
     def no_auth():
-        return AuthConfig('', '', enabled=False)
+        return AuthConfig('.secrets/', '', enabled=False)
 
 
 @dataobject
@@ -175,12 +175,22 @@ def replace_config_args(*, parsed_config: ConfigType,
             if isinstance(value, str):
                 if expr in value:
                     node[k] = value.replace(expr, replacement)
-            elif isinstance(value, (dict, *config_classes)):
+            elif isinstance(value, (dict, list, *config_classes)):
+                _replace_in_config(value, expr, replacement)
+
+    def _replace_in_list(node: list, expr: str, replacement: str):
+        for i, value in enumerate(node):
+            if isinstance(value, str):
+                if expr in value:
+                    node[i] = value.replace(expr, replacement)
+            elif isinstance(value, (dict, list, *config_classes)):
                 _replace_in_config(value, expr, replacement)
 
     def _replace_in_config(node, expr: str, replacement: str):
         if isinstance(node, dict):
             _replace_in_dict(node, expr, replacement)
+        if isinstance(node, list):
+            _replace_in_list(node, expr, replacement)
         else:
             for attr_name in dir(node):
                 if attr_name[0] != '_' and hasattr(node, attr_name):
@@ -189,7 +199,7 @@ def replace_config_args(*, parsed_config: ConfigType,
                         if expr in value:
                             value = value.replace(expr, replacement)
                             setattr(node, attr_name, value)
-                    elif isinstance(value, (dict, *config_classes)):
+                    elif isinstance(value, (dict, list, *config_classes)):
                         _replace_in_config(value, expr, replacement)
 
     def _replace_dict_items(*, node, prefix: str, this_path_prefix: str):
@@ -204,8 +214,19 @@ def replace_config_args(*, parsed_config: ConfigType,
                     _replace_in_config(parsed_config, expr, value)
             elif isinstance(value, dict):
                 _replace_dict_items(node=value, prefix=prefix_attr, this_path_prefix=this_path)
+            elif isinstance(value, list):
+                _replace_list_items(node=value, prefix=prefix_attr, this_path_prefix=this_path)
             elif isinstance(value, config_classes):
                 _replace_attrs(node=value, prefix=prefix_attr, this_path_prefix=this_path)
+
+    def _replace_list_items(*, node, prefix: str, this_path_prefix: str):
+        for value in node:
+            if isinstance(value, dict):
+                _replace_dict_items(node=value, prefix=prefix, this_path_prefix=this_path_prefix)
+            if isinstance(value, list):
+                _replace_list_items(node=value, prefix=prefix, this_path_prefix=this_path_prefix)
+            elif isinstance(value, config_classes):
+                _replace_attrs(node=value, prefix=prefix, this_path_prefix=this_path_prefix)
 
     def _replace_attrs(*, node, prefix: str, this_path_prefix: str):
         for attr_name in dir(node):
@@ -221,6 +242,8 @@ def replace_config_args(*, parsed_config: ConfigType,
                         _replace_in_config(parsed_config, expr, value)
                 elif isinstance(value, dict):
                     _replace_dict_items(node=value, prefix=prefix_attr, this_path_prefix=this_path)
+                elif isinstance(value, list):
+                    _replace_list_items(node=value, prefix=prefix_attr, this_path_prefix=this_path)
                 elif isinstance(value, config_classes):
                     _replace_attrs(node=value, prefix=prefix_attr, this_path_prefix=this_path)
 

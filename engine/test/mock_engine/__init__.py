@@ -57,7 +57,6 @@ class MockEventHandler(EventHandler):
                                  query_args: Optional[dict],
                                  payload: Optional[EventPayload]) -> AsyncGenerator[Optional[EventPayload], None]:
         assert payload == MockEventHandler.input_payload
-        assert all(x in context.track_ids.keys() for x in self.app_config.engine.track_headers)
         if isinstance(payload, MockData) and payload.value == 'fail':  # type: ignore
             raise ValueError("Test for error")
         if isinstance(payload, MockData) and payload.value == 'timeout':  # type: ignore
@@ -132,6 +131,7 @@ class MockStreamManager(StreamManager):
         if MockEventHandler.test_track_ids:
             track_ids['track.operation_id'] = MockEventHandler.test_track_ids['track.operation_id']
             track_ids['track.request_ts'] = MockEventHandler.test_track_ids['track.request_ts']
+            track_ids['track.session_id'] = MockEventHandler.test_track_ids['track.session_id']
             assert track_ids == MockEventHandler.test_track_ids
         self.write_stream_name = stream_name
         self.write_stream_queue = queue

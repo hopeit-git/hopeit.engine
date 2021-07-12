@@ -1,0 +1,52 @@
+{
+    "app": {
+      "name": "client-example",
+      "version": "${HOPEIT_APPS_API_VERSION}"
+    },
+    "engine" : {
+        "track_headers": ["caller", "session_id"],
+        "cors_origin": "*"
+    }, 
+    "app_connections": {
+        "simple_example_conn": {
+            "name": "simple-example",
+            "version": "${HOPEIT_APPS_API_VERSION}",
+            "client": "hopeit.apps_client.AppsClient"
+        }
+    },
+    "settings": {
+        "simple_example_conn": {
+            "connection_str": "${HOPEIT_SIMPLE_EXAMPLE_HOSTS}",
+            "circuit_breaker_open_failures": 10,
+            "circuit_breaker_failure_reset_seconds": 90,
+            "circuit_breaker_open_seconds": 60,
+            "retries": 2,
+            "retry_backoff_ms": 10,
+            "ssl": true,
+            "max_connections": 100,
+            "max_connections_per_host": 0,
+            "dns_cache_ttl": 10,
+            "routes_override": {
+                "__list-somethings": "simple-example/${HOPEIT_APPS_ROUTE_VERSION}/list-somethings"
+            }
+        }
+    },
+    "events": {
+        "count_and_save": {
+            "type": "GET",
+            "connections": [
+                {
+                    "app_connection": "simple_example_conn",
+                    "event": "list_somethings",
+                    "type": "GET"
+                },
+                {
+                    "app_connection": "simple_example_conn",
+                    "event": "save_something",
+                    "type": "POST"
+                }
+            ],
+            "auth": ["Basic"]
+        }
+    }
+}

@@ -1,5 +1,5 @@
 """
-Events graph showing events, stream and dependecies for specified apps
+Events graph showing events, stream and dependencies for specified apps
 """
 from typing import Optional
 
@@ -15,7 +15,7 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.config_manager import RuntimeApps, RuntimeAppInfo
 
 from hopeit.apps_visualizer.apps import get_runtime_apps
-from hopeit.apps_visualizer.graphs import Edge, Node, Graph, get_edges, get_nodes
+from hopeit.apps_visualizer.graphs import Edge, Node, Graph, add_app_connections, get_edges, get_nodes
 from hopeit.apps_visualizer.site.visualization import CytoscapeGraph, VisualizationOptions, \
     visualization_options, visualization_options_api_args  # noqa: F401  # pylint: disable=unused-import
 
@@ -86,16 +86,21 @@ async def config_graph(collector: Collector, context: EventContext) -> Optional[
     )
 
     events = {}
+    app_connections = {}
     for app_config in filterd_apps:
+        app_key = app_config.app_key()
         for event_name, event_info in app_config.events.items():
             impl = find_event_handler(app_config=app_config, event_name=event_name)
             splits = split_event_stages(app_config.app, event_name, event_info, impl)
             for name, info in splits.items():
-                events[f"{app_config.app_key()}.{name}"] = info
+                events[f"{app_key}.{name}"] = info
+        for app_conn_key, app_connection in app_config.app_connections.items():
+            app_connections[f"{app_key}.{app_conn_key}"] = app_connection
 
     nodes = get_nodes(events, expand_queues=options.expand_queues)
+    add_app_connections(nodes, app_connections=app_connections, events=events)
     edges = get_edges(nodes)
-    return Graph(nodes=nodes, edges=edges)
+    return Graph(nodes=list(nodes.values()), edges=edges)
 
 
 async def cytoscape_data(collector: Collector, context: EventContext) -> CytoscapeGraph:

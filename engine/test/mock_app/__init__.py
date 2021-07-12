@@ -205,6 +205,35 @@ def mock_app_config():
     )
 
 
+@pytest.fixture
+def mock_client_app_config():
+    return AppConfig(
+        app=AppDescriptor(
+            name='mock_client_app',
+            version='test'
+        ),
+        engine=AppEngineConfig(
+            import_modules=['mock_app'],
+            read_stream_timeout=1,
+            read_stream_interval=5
+        ),
+        events={
+            "mock_event": EventDescriptor(
+                type=EventType.GET,
+                route='mock-client-app/test/mock-event-test'
+            )
+        },
+        server=ServerConfig(
+            streams=StreamsConfig(
+                stream_manager='mock_engine.MockStreamManager',
+                delay_auto_start_seconds=0
+            ),
+            logging=LoggingConfig(
+                log_level="DEBUG", log_path="work/logs/test/")
+        )
+    )
+
+
 @dataobject
 @dataclass
 class TestAPIObj:

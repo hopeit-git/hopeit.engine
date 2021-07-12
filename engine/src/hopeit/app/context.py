@@ -49,12 +49,14 @@ class EventContext:
         self.auth_info = auth_info
         track_fields = [
             'track.operation_id',
+            'track.client_app_key',
+            'track.client_event_name',
             *app_config.engine.track_headers,
             *(self.event_info.config.logging.stream_fields
               if self.event_info.type == EventType.STREAM
               else [])
         ]
-        self.track_ids = {k: track_ids.get(k) or '' for k in track_fields}
+        self.track_ids = {k: track_ids[k] for k in track_fields if k in track_ids}
 
 
 class PostprocessHook():

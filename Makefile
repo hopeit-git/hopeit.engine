@@ -104,7 +104,12 @@ pypi-test-plugin:
 	pip install twine && \
 	python -m twine upload -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --repository testpypi $(PLUGINFOLDER)/dist/*
 
-install-simple-example:
+update-examples-api:
+	bash apps/examples/simple-example/api/create_openapi_file.sh && \
+	bash apps/examples/client-example/api/create_openapi_file.sh && \
+	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
+
+install-examples:
 	make install && \
 	make PLUGINFOLDER=plugins/streams/redis install-plugin && \
 	make PLUGINFOLDER=plugins/storage/fs install-plugin && \
@@ -113,7 +118,9 @@ install-simple-example:
 	make PLUGINFOLDER=plugins/ops/log-streamer install-plugin && \
 	make PLUGINFOLDER=plugins/ops/apps-visualizer install-plugin && \
 	make PLUGINFOLDER=plugins/auth/basic-auth install-plugin && \
-	make APPFOLDER=apps/examples/simple-example install-app
+	make PLUGINFOLDER=plugins/clients/apps-client install-plugin && \
+	make APPFOLDER=apps/examples/simple-example install-app && \
+	make APPFOLDER=apps/examples/client-example install-app
 
 run-simple-example:
 	export PYTHONPATH=apps/examples/simple-example/src && \
@@ -122,6 +129,14 @@ run-simple-example:
 		--start-streams \
 		--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json \
 		--api-file=apps/examples/simple-example/api/openapi.json
+
+run-client-example:
+	export PYTHONPATH=apps/examples/simple-example/src && \
+	export HOPEIT_SIMPLE_EXAMPLE_HOSTS=$(HOSTS) && \
+	hopeit_server run \
+		--port=$(PORT) \
+		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/client-example/config/app-config.json \
+		--api-file=apps/examples/client-example/api/openapi.json
 
 run-apps-visualizer:
 	export HOPEIT_APPS_VISUALIZER_HOSTS=$(HOSTS) && \

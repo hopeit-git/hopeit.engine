@@ -46,14 +46,14 @@ def _event_context(mock_app_config, plugin_config):  # noqa: F811
 
 @pytest.mark.asyncio
 async def test_logout(mock_app_config, plugin_config):  # noqa: F811
-    auth.init(mock_app_config.server.auth)
+    auth.init(mock_app_config.app_key(), mock_app_config.server.auth)
     context = _event_context(mock_app_config, plugin_config)
     await execute_flow(context)
 
 
 @pytest.mark.asyncio
 async def test_logout_unauthorized(mock_app_config, plugin_config):  # noqa: F811
-    auth.init(mock_app_config.server.auth)
+    auth.init(mock_app_config.app_key(), mock_app_config.server.auth)
     context = _event_context(mock_app_config, plugin_config)
     context.auth_info['auth_type'] = "UNKNOWN"
     with pytest.raises(Unauthorized):

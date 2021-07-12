@@ -15,6 +15,16 @@ code+=$?
 python3 -m pylint plugins/auth/basic-auth/src/hopeit/basic_auth/
 code+=$?
 
+echo "clients/app-client"
+export MYPYPATH=engine/src/:plugins/clients/apps-client/src/ && python3 -m mypy --namespace-packages -p hopeit.apps_client
+code+=$?
+export MYPYPATH=engine/src/:plugins/clients/apps-client/src/ && python3 -m mypy --namespace-packages plugins/clients/apps-client/test/unit/
+code+=$?
+python3 -m flake8 --max-line-length=120 plugins/clients/apps-client/src/hopeit/ plugins/clients/apps-client/test/unit/
+code+=$?
+python3 -m pylint plugins/clients/apps-client/src/hopeit/apps_client/
+code+=$?
+
 echo "streams/redis"
 export MYPYPATH=engine/src/:plugins/streams/redis/src/ && python3 -m mypy --namespace-packages -p hopeit.redis_streams
 code+=$?
@@ -75,10 +85,10 @@ code+=$?
 python3 -m pylint plugins/ops/log-streamer/src/hopeit/log_streamer/
 code+=$?
 
-
 if [ $code -gt 0 ]
 then
   echo "[FAILED] CI STATIC ANALYSIS: PLUGINS"
+  exit 1
 fi
 echo "========================================================================================================"
 exit $code

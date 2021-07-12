@@ -4,7 +4,8 @@ pytest
 pytest-cov
 pytest-aiohttp
 pytest-asyncio
-pytest-ordering
+pytest-order
+pytest-mock
 coverage
 coverage-badge
 mypy

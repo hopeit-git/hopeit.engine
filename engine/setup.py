@@ -131,6 +131,9 @@ setuptools.setup(
         ],
         "apps-visualizer": [
             f"hopeit.apps-visualizer=={version['ENGINE_VERSION']}"
+        ],
+        "apps-client": [
+            f"hopeit.apps-client=={version['ENGINE_VERSION']}"
         ]
     },
     entry_points={

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from hopeit.dataobjects import dataobject
-from hopeit.app.config import EventDescriptor, EventType, StreamQueueStrategy
+from hopeit.app.config import AppConnection, AppDescriptor, EventDescriptor, EventType, StreamQueueStrategy
 
 
 class NodeType(Enum):
@@ -44,7 +44,7 @@ class Graph:
 
 
 def get_nodes(events: Dict[str, EventDescriptor],
-              *, expand_queues: bool = False) -> List[Node]:
+              *, expand_queues: bool = False) -> Dict[str, Node]:
     """
     Create Node metadata from EventDescriptors from app_config,
     expanding effective events using engine functionallity.
@@ -109,18 +109,39 @@ def get_nodes(events: Dict[str, EventDescriptor],
             id=event_name, label=event_name, type=NodeType.EVENT, inputs=inputs, outputs=outputs
         )
 
-    return list(nodes.values())
+    return nodes
 
 
-def get_edges(nodes: List[Node]):
+def add_app_connections(nodes: Dict[str, Node], *,
+                        app_connections: Dict[str, AppConnection],
+                        events: Dict[str, EventDescriptor]):
+    """
+    Add to nodes map, input/output ports for app_connections in order to show call
+    dependencies between events.
+    """
+    for event_name, event_info in events.items():
+        app_key = '.'.join(event_name.split('.', maxsplit=2)[0:2])
+        source_node = nodes[event_name]
+        if source_node:
+            for conn in event_info.connections:
+                app_connection = app_connections[f"{app_key}.{conn.app_connection}"]
+                target_app_key = AppDescriptor(name=app_connection.name, version=app_connection.version).app_key()
+                dest_node = nodes.get(f"{target_app_key}.{conn.event}.{conn.type.value}")
+                if dest_node:
+                    port = f"{event_name}.{app_connection.name}.{conn.event}.{conn.type.value}"
+                    source_node.outputs.append(port)
+                    dest_node.inputs.append(port)
+
+
+def get_edges(nodes: Dict[str, Node]):
     """
     Builds Edge list from list of Nodes
     """
     inputs = {
-        port: node for node in nodes for port in node.inputs
+        port: node for node in nodes.values() for port in node.inputs
     }
     outputs = {
-        port: node for node in nodes for port in node.outputs
+        port: node for node in nodes.values() for port in node.outputs
     }
 
     edges = []

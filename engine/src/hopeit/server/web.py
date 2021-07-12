@@ -465,10 +465,13 @@ def _validate_authorization(app_config: AppConfig,
     if (len(auth_methods) == 0) and (app_config.server is not None):
         auth_methods = app_config.server.auth.default_auth_methods
     auth_header = _extract_authorization(auth_methods, request, context)
+
     try:
         method, data = auth_header.split(" ")
     except ValueError as e:
         raise BadRequest("Malformed Authorization") from e
+
+    context.auth_info['allowed'] = False
     for auth_type in auth_types:
         if method.upper() == auth_type.name.upper():
             auth.validate_auth_method(auth_type, data, context)

@@ -3,7 +3,7 @@ Config module: apps config data model and json loader
 """
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Optional, Union, List
+from typing import Any, Dict, Optional, Union, List
 
 from hopeit.dataobjects import dataobject
 from hopeit.server.config import replace_config_args, replace_env_vars, ServerConfig, AuthType
@@ -46,6 +46,7 @@ class AppDescriptor:
 
 
 Env = Dict[str, Dict[str, Union[str, float, bool]]]
+AppSettings = Dict[str, Dict[str, Any]]
 
 
 class EventType(Enum):
@@ -257,6 +258,32 @@ class EventPlugMode(Enum):
     ON_APP = 'OnApp'
 
 
+class EventConnectionType(Enum):
+    """
+    Event connection type
+    """
+    GET = "GET"
+    POST = "POST"
+
+
+@dataobject
+@dataclass
+class EventConnection:
+    """
+    EventConnection: describes dependencies on this event when calling
+    event on apps configured in `app_connections` sections. Only events
+    specified are allowed to be invoked using `hopeit.client`
+
+    :field: app_connection, str: key of app entry used in app_connections sections
+    :field: event, str: target event_name to be called
+    :filed: type, EventConnectionType: a valid event connection type, i.e. GET or POST
+    :field: route, optional str: custom route in case event is not attached to default `app/version/event`
+    """
+    app_connection: str
+    event: str
+    type: EventConnectionType
+
+
 @dataobject
 @dataclass
 class EventDescriptor:
@@ -266,6 +293,7 @@ class EventDescriptor:
     type: EventType
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE
     route: Optional[str] = None
+    connections: List[EventConnection] = field(default_factory=list)
     read_stream: Optional[ReadStreamDescriptor] = None
     write_stream: Optional[WriteStreamDescriptor] = None
     config: EventConfig = field(default_factory=EventConfig)
@@ -309,16 +337,38 @@ class AppEngineConfig:
 
 @dataobject
 @dataclass
+class AppConnection:
+    """
+    AppConnections: metadata to initialize app client in order to connect
+    and issue requests to other running apps
+
+    :field: name, str: target app name to connect to
+    :field: version, str: target app version
+    :field: client, str: hopeit.app.client.Client class implementation, from available client plugins
+    :field: settings, optional str: key under `settings` section of app config containing connection configuration,
+        if not specified, plugin will lookup its default section usually the plugin name. But in case multiple
+        clients need to be configured, this value can be overridden.
+    """
+    name: str
+    version: str
+    client: str = "<<NO CLIENT CONFIGURED>>"
+    settings: Optional[str] = None
+
+
+@dataobject
+@dataclass
 class AppConfig:
     """
     App Configuration container
     """
     app: AppDescriptor
     engine: AppEngineConfig = field(default_factory=AppEngineConfig)
+    app_connections: Dict[str, AppConnection] = field(default_factory=dict)
     env: Env = field(default_factory=dict)
     events: Dict[str, EventDescriptor] = field(default_factory=dict)
     server: Optional[ServerConfig] = None
     plugins: List[AppDescriptor] = field(default_factory=list)
+    settings: AppSettings = field(default_factory=dict)
 
     def app_key(self):
         return self.app.app_key()
@@ -342,7 +392,10 @@ def parse_app_config_json(config_json: str) -> AppConfig:
     app_config = AppConfig.from_json(effective_config_json)  # type: ignore
     replace_config_args(
         parsed_config=app_config,
-        config_classes=(AppDescriptor, EventDescriptor, ReadStreamDescriptor, WriteStreamDescriptor),
+        config_classes=(
+            AppDescriptor, EventDescriptor, ReadStreamDescriptor, WriteStreamDescriptor,
+            AppConnection, EventConnection
+        ),
         auto_prefix=app_config.app.app_key()
     )
     return app_config

@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.8",
+    "version": "0.9",
     "title": "Simple Example",
     "description": "Simple Example"
   },
   "paths": {
-    "/api/config-manager/0x8/runtime-apps-config": {
+    "/api/config-manager/0x9/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -53,11 +53,11 @@
           }
         },
         "tags": [
-          "config_manager.0x8"
+          "config_manager.0x9"
         ]
       }
     },
-    "/api/config-manager/0x8/cluster-apps-config": {
+    "/api/config-manager/0x9/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -104,7 +104,7 @@
           }
         },
         "tags": [
-          "config_manager.0x8"
+          "config_manager.0x9"
         ]
       }
     },
@@ -191,11 +191,11 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x8"
+          "apps_visualizer.0x9"
         ]
       }
     },
-    "/api/apps-visualizer/0x8/apps/events-graph": {
+    "/api/apps-visualizer/0x9/apps/events-graph": {
       "get": {
         "summary": "App Visualizer: Events Graph Data",
         "description": "App Visualizer: Events Graph Data",
@@ -269,11 +269,11 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x8"
+          "apps_visualizer.0x9"
         ]
       }
     },
-    "/api/apps-visualizer/0x8/event-stats/live": {
+    "/api/apps-visualizer/0x9/event-stats/live": {
       "get": {
         "summary": "App Visualizer: Live Stats",
         "description": "App Visualizer: Live Stats",
@@ -347,7 +347,7 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x8"
+          "apps_visualizer.0x9"
         ]
       }
     }
@@ -419,6 +419,13 @@
               "cors_origin": null
             }
           },
+          "app_connections": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AppConnection"
+            },
+            "default": {}
+          },
           "env": {
             "type": "object",
             "additionalProperties": {
@@ -455,6 +462,13 @@
               "$ref": "#/components/schemas/AppDescriptor"
             },
             "default": []
+          },
+          "settings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            },
+            "default": {}
           }
         },
         "x-module-name": "hopeit.app.config",
@@ -543,6 +557,30 @@
         "x-module-name": "hopeit.app.config",
         "description": "\n    Engine specific parameters shared among events\n\n    :field import_modules: list of string with the python module names to import to find\n        events and datatype implementations\n    :field read_stream_timeout: timeout in milliseconds to block connection pool when waiting for stream events\n    :field read_stream_interval: delay in milliseconds to wait before attempting a new batch. Use to prevent\n        connection pool to be blocked constantly.\n    :track_headers: list of required X-Track-* headers\n    :cors_origin: allowed CORS origin for web server\n    "
       },
+      "AppConnection": {
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "client": {
+            "type": "string",
+            "default": "<<NO CLIENT CONFIGURED>>"
+          },
+          "settings": {
+            "type": "string"
+          }
+        },
+        "x-module-name": "hopeit.app.config",
+        "description": "\n    AppConnections: metadata to initialize app client in order to connect\n    and issue requests to other running apps\n\n    :field: name, str: target app name to connect to\n    :field: version, str: target app version\n    :field: client, str: hopeit.app.client.Client class implementation, from available client plugins\n    :field: settings, optional str: key under `settings` section of app config containing connection configuration,\n        if not specified, plugin will lookup its default section usually the plugin name. But in case multiple\n        clients need to be configured, this value can be overridden.\n    "
+      },
       "EventDescriptor": {
         "type": "object",
         "required": [
@@ -573,6 +611,13 @@
           },
           "route": {
             "type": "string"
+          },
+          "connections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventConnection"
+            },
+            "default": []
           },
           "read_stream": {
             "$ref": "#/components/schemas/ReadStreamDescriptor"
@@ -621,6 +666,33 @@
         },
         "x-module-name": "hopeit.app.config",
         "description": "\n    Event descriptor\n    "
+      },
+      "EventConnection": {
+        "type": "object",
+        "required": [
+          "app_connection",
+          "event",
+          "type"
+        ],
+        "properties": {
+          "app_connection": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "POST"
+            ],
+            "x-enum-name": "EventConnectionType",
+            "x-module-name": "hopeit.app.config"
+          }
+        },
+        "x-module-name": "hopeit.app.config",
+        "description": "\n    EventConnection: describes dependencies on this event when calling\n    event on apps configured in `app_connections` sections. Only events\n    specified are allowed to be invoked using `hopeit.client`\n\n    :field: app_connection, str: key of app entry used in app_connections sections\n    :field: event, str: target event_name to be called\n    :filed: type, EventConnectionType: a valid event connection type, i.e. GET or POST\n    :field: route, optional str: custom route in case event is not attached to default `app/version/event`\n    "
       },
       "ReadStreamDescriptor": {
         "type": "object",
@@ -816,7 +888,7 @@
           "auth": {
             "$ref": "#/components/schemas/AuthConfig",
             "default": {
-              "secrets_location": "",
+              "secrets_location": ".secrets/",
               "auth_passphrase": "",
               "enabled": false,
               "create_keys": false,
@@ -835,7 +907,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.8.3"
+            "default": "0.9.0"
           }
         },
         "x-module-name": "hopeit.server.config",

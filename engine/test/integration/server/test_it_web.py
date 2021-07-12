@@ -510,7 +510,7 @@ def loop():
         return asyncio.new_event_loop()
 
 
-@pytest.mark.order1
+@pytest.mark.order(1)
 def test_all(monkeypatch,
              loop,
              mock_app_config,  # noqa: F811
@@ -551,7 +551,7 @@ def test_all(monkeypatch,
     loop.run_until_complete(stop_server())
 
 
-@pytest.mark.order2
+@pytest.mark.order(2)
 def test_start_streams_on_startup(monkeypatch,
                                   loop,
                                   mock_app_config,  # noqa: F811
