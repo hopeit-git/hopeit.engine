@@ -2,6 +2,22 @@ Release Notes
 =============
 
 
+Version 0.9.0
+_____________
+- Engine support to configure `AppConnections` and `EventConnections` to express App/Event dependencies.
+- Engine support for multiple client implementation via plugins
+
+- Plugins:
+  - New plugin: `hopeit.apps_client` allows invokation of other running apps via http.
+  - Apps Visualizer plugin: support for showing connections between connected Apps via AppConnections
+
+- BREAKING CHANGES:
+  - Engine `auth` module now create and store one pair of private/public keys per each running app. Keys are stored
+to `.secrets/.private` and `.secrets/public`. In order to allow an App to be called using `hopeit.apps_client`
+public key of the caller app must be accessible in the `.secrets/public` folder of the called application.
+Auth is done using a Bearer token.
+
+
 Version 0.8.3
 _____________
 

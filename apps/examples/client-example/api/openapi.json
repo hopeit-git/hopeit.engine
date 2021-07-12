@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.8",
+    "version": "0.9",
     "title": "Client Example",
     "description": "Client Example"
   },
   "paths": {
-    "/api/config-manager/0x8/runtime-apps-config": {
+    "/api/config-manager/0x9/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -53,11 +53,11 @@
           }
         },
         "tags": [
-          "config_manager.0x8"
+          "config_manager.0x9"
         ]
       }
     },
-    "/api/config-manager/0x8/cluster-apps-config": {
+    "/api/config-manager/0x9/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -104,11 +104,11 @@
           }
         },
         "tags": [
-          "config_manager.0x8"
+          "config_manager.0x9"
         ]
       }
     },
-    "/api/client-example/0x8/count-and-save": {
+    "/api/client-example/0x9/count-and-save": {
       "get": {
         "summary": "Client Example: Count Objects and Save new one",
         "description": "Count all available Something objects connecting to simple-example app",
@@ -175,7 +175,7 @@
           }
         },
         "tags": [
-          "client_example.0x8"
+          "client_example.0x9"
         ],
         "security": [
           {
@@ -740,7 +740,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.8.3"
+            "default": "0.9.0"
           }
         },
         "x-module-name": "hopeit.server.config",

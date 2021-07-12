@@ -22,6 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         make locked-deps
+
     - name: make hopeit.engine package
       run: |
         make dist
@@ -43,6 +44,10 @@ jobs:
     - name: make plugin apps-visualizer
       run: |
         make PLUGINFOLDER=plugins/ops/apps-visualizer/ dist-plugin
+    - name: make plugin apps-client
+      run: |
+        make PLUGINFOLDER=plugins/clients/apps-client/ dist-plugin
+
     - name: Publish hopeit.engine on PyPI
       env: 
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
@@ -78,3 +83,8 @@ jobs:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make PLUGINFOLDER=plugins/ops/apps-visualizer pypi-plugin
+    - name: Publish plugin apps-client on PyPI
+      env: 
+        PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        make PLUGINFOLDER=plugins/clients/apps-client pypi-plugin

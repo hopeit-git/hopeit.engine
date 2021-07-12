@@ -1,4 +1,4 @@
-# hopeit.engine log-streamer plugin
+# hopeit.engine apps-client plugin
 
 
 This library is part of hopeit.engine:
@@ -45,17 +45,17 @@ inside `event.connections` section:
 
 ### Usage
 
-Invoking simple-example event from your application code:
+Invoking target-app target-event from your application code:
 
 ```
-    from hopeit.app.client import app_client
+    from hopeit.app.client import app_call
 
     ...
 
     def my_event(payload: ..., context: EventContext) -> ...:
-        client = app_client("target-app-conn", context)
-        response = await client.call(
-            "target-event", datatype=ResposeDataType, payload=..., context=context
+        response = await app_call(
+            "target-app-conn", event="target-event",
+            datatype=ResposeDataType, payload=..., context=context
         )
     ...
 

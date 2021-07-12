@@ -174,6 +174,10 @@ class AppsClient(Client):
         )
 
     async def start(self):
+        """
+        Starts client instance and creates an aiohttp.ClientSession.
+        Initializes an auth token.
+        """
         logger.info(__name__, "Initializing client...", extra=extra(
             app=self.app_key, app_connection=self.app_conn_key
         ))
@@ -186,6 +190,9 @@ class AppsClient(Client):
         return self
 
     async def stop(self):
+        """
+        Release session connections
+        """
         logger.info(__name__, "Stopping client...", extra=extra(
             app=self.app_key, app_connection=self.app_conn_key
         ))
