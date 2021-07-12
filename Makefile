@@ -61,19 +61,14 @@ install-plugin:
 qa: test check
 	echo "DONE."
 
-dist: clean check test
+dist: clean
 	pip install wheel && \
 	cd engine && \
 	python setup.py sdist bdist_wheel
 
-dist-plugin: clean-plugins check-plugins test-plugins
+dist-plugin: clean-plugins
 	pip install wheel && \
 	cd $(PLUGINFOLDER) && \
-	python setup.py sdist bdist_wheel
-
-dist-only: clean
-	pip install wheel && \
-	cd engine && \
 	python setup.py sdist bdist_wheel
 
 clean:
