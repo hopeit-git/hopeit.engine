@@ -88,6 +88,7 @@ code+=$?
 if [ $code -gt 0 ]
 then
   echo "[FAILED] CI STATIC ANALYSIS: PLUGINS"
+  exit 1
 fi
 echo "========================================================================================================"
 exit $code

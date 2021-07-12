@@ -9,7 +9,7 @@ from base64 import b64decode
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-from hopeit.app.client import app_call
+from hopeit.app.client import app_call, app_call_list
 
 from model import Something, SomethingParams
 from client_example import CountAndSaveResult
@@ -30,7 +30,7 @@ logger, extra = app_extra_logger()
 
 
 async def count_objects(payload: None, context: EventContext, wildcard: str = '*') -> int:
-    response: List[Something] = await app_call(
+    response: List[Something] = await app_call_list(
         "simple_example_conn",
         event="list_somethings", datatype=Something,
         payload=None, context=context, wildcard=wildcard

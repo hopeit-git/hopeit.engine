@@ -2,7 +2,7 @@
 Client to invoke events in configured connected Apps
 """
 from contextlib import AbstractAsyncContextManager
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type
 import asyncio
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -204,7 +204,7 @@ class AppsClient(Client):
 
     async def call(self, event_name: str,
                    *, datatype: Type[EventPayloadType], payload: Optional[EventPayload],
-                   context: EventContext, **kwargs) -> Union[EventPayloadType, List[EventPayloadType]]:
+                   context: EventContext, **kwargs) -> List[EventPayloadType]:
         """
         Invokes event on external app linked in config `app_connections` section.
         Target event must also be configured in event `client` section
@@ -342,7 +342,7 @@ class AppsClient(Client):
 
     async def _parse_response(self, response, context: EventContext,
                               datatype: Type[EventPayloadType],
-                              target_event_name: str) -> Union[EventPayloadType, List[EventPayloadType]]:
+                              target_event_name: str) -> List[EventPayloadType]:
         """
         Parses http response from external App, catching Unathorized errors
         and converting the result to the desired datatype
@@ -351,7 +351,7 @@ class AppsClient(Client):
             data = await response.json()
             if isinstance(data, list):
                 return Payload.from_obj(data, list, item_datatype=datatype)  # type: ignore
-            return Payload.from_obj(data, datatype, key=target_event_name)
+            return [Payload.from_obj(data, datatype, key=target_event_name)]
         if response.status == 401:
             raise Unauthorized(context.app_key)
         if response.status >= 500:
@@ -361,7 +361,7 @@ class AppsClient(Client):
     async def _request(self, request_func: AbstractAsyncContextManager, context: EventContext,
                        datatype: Type[EventPayloadType],
                        target_event_name: str,
-                       host_index: int) -> Union[EventPayloadType, List[EventPayloadType]]:
+                       host_index: int) -> List[EventPayloadType]:
         async with request_func as response:
             result = await self._parse_response(
                 response, context, datatype, target_event_name

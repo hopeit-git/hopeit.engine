@@ -7,7 +7,7 @@ export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src/ && python3 -m pytest 
 code+=$?
 
 # clients/apps-client
-export PYTHONPATH=engine/src/:plugins/clients/apps-client/src/:plugins/clients/apps-client/test/ && python3 -m pytest -v --cov-fail-under=70 --cov-report=term --cov=plugins/clients/apps-client/src/ plugins/clients/apps-client/test/unit/
+export PYTHONPATH=engine/src/:plugins/clients/apps-client/src/:plugins/clients/apps-client/test/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/clients/apps-client/src/ plugins/clients/apps-client/test/unit/
 code+=$?
 
 # streams/redis
@@ -23,7 +23,7 @@ export PYTHONPATH=engine/src/:plugins/storage/fs/src/ && python3 -m pytest -v --
 code+=$?
 
 # ops/apps-visualizer
-export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src:plugins/storage/fs/src/:plugins/ops/log-streamer/src/:plugins/ops/config-manager/src/:apps/examples/simple-example/src/:plugins/ops/apps-visualizer/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/ops/apps-visualizer/src/ plugins/ops/apps-visualizer/test/integration/
+export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src:plugins/storage/fs/src/:plugins/ops/log-streamer/src/:plugins/ops/config-manager/src/:apps/examples/simple-example/src/:apps/examples/client-example/src/:plugins/ops/apps-visualizer/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/ops/apps-visualizer/src/ plugins/ops/apps-visualizer/test/integration/
 code+=$?
 
 # ops/config-manager
@@ -37,6 +37,7 @@ code+=$?
 if [ $code -gt 0 ]
 then
   echo "[FAILED] CI TEST: PLUGINS"
+  exit 1
 fi
 echo "========================================================================================================"
 exit $code

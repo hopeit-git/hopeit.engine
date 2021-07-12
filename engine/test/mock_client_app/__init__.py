@@ -1,4 +1,4 @@
-from typing import List, Optional, Type, Union
+from typing import List, Optional, Type
 import pytest
 
 from hopeit.app.config import AppConfig, AppConnection, AppDescriptor, AppEngineConfig, \
@@ -64,9 +64,9 @@ class MockClient(Client):
 
     async def call(self, event_name: str,
                    *, datatype: Type[EventPayloadType], payload: Optional[EventPayload],
-                   context: EventContext, **kwargs) -> Union[EventPayloadType, List[EventPayloadType]]:
-        return {  # type: ignore
+                   context: EventContext, **kwargs) -> List[EventPayloadType]:
+        return [{  # type: ignore
             "app_connection": self.app_connection,
             "event": event_name,
             "payload": payload
-        }
+        }]

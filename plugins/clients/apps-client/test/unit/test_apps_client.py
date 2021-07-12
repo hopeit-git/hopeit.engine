@@ -4,7 +4,7 @@ import pytest
 
 import hopeit.apps_client as apps_client_module
 from hopeit.apps_client import AppsClientException, ClientLoadBalancerException
-from hopeit.app.client import AppConnectionNotFound, app_call, app_client
+from hopeit.app.client import AppConnectionNotFound, app_call, app_call_list, app_client
 from hopeit.app.config import AppConfig
 from hopeit.app.errors import Unauthorized
 from hopeit.testing.apps import create_test_context
@@ -38,7 +38,7 @@ async def test_client_post(monkeypatch, mock_client_app_config, mock_auth):
             apps_client_module, monkeypatch, mock_auth, mock_client_app_config, "test-event-post", "ok"
         )
         context = create_test_context(mock_client_app_config, "mock_client_event")
-        result = await app_call(
+        result = await app_call_list(
             "test_app_connection", event="test_event_post",
             datatype=MockResponseData,
             payload=MockPayloadData("payload"), context=context,
@@ -227,10 +227,10 @@ async def test_load_balancer_cb_open(monkeypatch, mock_client_app_config, mock_a
                 "test_event_get", datatype=MockResponseData, payload=None, context=context,
                 test_param="test_param_value"
             )
-        assert result == MockResponseData(
+        assert result == [MockResponseData(
             value="ok", param="test_param_value", host="http://test-host2",
             log={"http://test-host1": 10, "http://test-host2": 20}
-        )
+        )]
 
 
 @pytest.mark.asyncio
@@ -293,10 +293,10 @@ async def test_load_balancer_cb_recover(monkeypatch, mock_client_app_config, moc
                 "test_event_get", datatype=MockResponseData, payload=None, context=context,
                 test_param="test_param_value"
             )
-        assert result == MockResponseData(
+        assert result == [MockResponseData(
             value="ok", param="test_param_value", host="http://test-host2",
             log={"http://test-host1": 10, "http://test-host2": 20}
-        )
+        )]
 
         await asyncio.sleep(3)
 
@@ -305,10 +305,10 @@ async def test_load_balancer_cb_recover(monkeypatch, mock_client_app_config, moc
                 "test_event_get", datatype=MockResponseData, payload=None, context=context,
                 test_param="test_param_value"
             )
-        assert result == MockResponseData(
+        assert result == [MockResponseData(
             value="ok", param="test_param_value", host="http://test-host2",
             log={"http://test-host1": 11, "http://test-host2": 40}
-        )
+        )]
 
         await asyncio.sleep(6)
 
@@ -317,10 +317,10 @@ async def test_load_balancer_cb_recover(monkeypatch, mock_client_app_config, moc
                 "test_event_get", datatype=MockResponseData, payload=None, context=context,
                 test_param="test_param_value"
             )
-        assert result == MockResponseData(
+        assert result == [MockResponseData(
             value="ok", param="test_param_value", host="http://test-host2",
             log={"http://test-host1": 21, "http://test-host2": 60}
-        )
+        )]
 
         MockClientSession.set_failure("http://test-host1", 0)
 
@@ -331,10 +331,10 @@ async def test_load_balancer_cb_recover(monkeypatch, mock_client_app_config, moc
                 "test_event_get", datatype=MockResponseData, payload=None, context=context,
                 test_param="test_param_value"
             )
-        assert result == MockResponseData(
+        assert result == [MockResponseData(
             value="ok", param="test_param_value", host="http://test-host2",
             log={"http://test-host1": 31, "http://test-host2": 70}
-        )
+        )]
 
 
 @pytest.mark.asyncio
