@@ -132,6 +132,7 @@ run-simple-example:
 
 run-client-example:
 	export PYTHONPATH=apps/examples/simple-example/src && \
+	export HOPEIT_SIMPLE_EXAMPLE_HOSTS=$(HOSTS) && \
 	hopeit_server run \
 		--port=$(PORT) \
 		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/client-example/config/app-config.json \

@@ -23,7 +23,7 @@ inside `event.connections` section:
         "target-app-conn": {
             "name": "target-app",
             "version": "1.0",
-            "client_impl": "hopeit.apps_client.AppsClient"
+            "client": "hopeit.apps_client.AppsClient"
         }
     },
     ...

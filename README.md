@@ -16,6 +16,87 @@
 ![Apps Visualizer](docs/source/readme/apps-visualizer.png)
 
 
+### Installation
+
+Typical installation to use `aiohttp` server and command line utilities.
+```
+pip install hopeit.engine[web,cli]
+```
+
+To enable stream processing via Redis:
+```
+pip install hopeit.engine[web,cli,redis-streams]
+```
+
+
+#### Supported plugins:
+
+
+**hopeit.redis_streams**
+
+Plugin implementing backend to use Redis for stream processing in `hopeit.engine`
+
+```
+pip install hopeit.engine[redis-streams]
+```
+
+
+**hopeit.apps_client**
+
+Plugin to invoke other hopeit app events using http GET and POST requests, with retrying and circuit breaker
+
+```
+pip install hopeit.engine[apps-client]
+```
+
+
+**hopeit.apps_visualizer**
+
+Plugin that display a web page with event dependencies and live monitoring capabilities for multiple apps
+running in multiple hosts.
+
+```
+pip install hopeit.engine[apps-visualizer]
+```
+
+
+**hopeit.config_manager**
+
+Plugin that exposes runtime configuration for servers. Enables hosts to be monitored with `apps-visualizer`.
+
+```
+pip install hopeit.engine[config-manager]
+```
+
+
+**hopeit.log_streamer**
+
+Plugin that can be run in a separate process and parses logs from running hopeit apps, publishing relevant
+entries to a stream allowing live monitoring of apps activity.
+
+```
+pip install hopeit.engine[log-streamer]
+```
+
+
+**hopeit.fs_storage**
+
+Python library that exposes helpers to persist data objects to local filesystem.
+
+```
+pip install hopeit.engine[fs-storage]
+```
+
+
+**hopeit.redis_storage**
+
+Python library that exposes helpers to persist data objects to Redis.
+
+```
+pip install hopeit.engine[redis-storage]
+```
+
+
 ### Motivation
 
 **Small organizations**: *hopeit.engine* is intended initially to enable small organizations and companies, which don't have a huge software development infrastructure, to create new systems with the benefits of microservices: quick to develop, simple and small, easy to maintain and operate. These characteristics allow also migration of existing systems piece by piece to microservices. But that's not all: *hopeit.engine* adds a few features and good practices that all production-grade microservices must have out-of-the-box: modularity, scalability, logging, tracking/tracing, stream processing, metrics and monitoring. 
@@ -54,11 +135,13 @@ Social Security Fund for Lawyers and Attorneys of Santa Fe, uses hopeit.engine t
 - Enables development of microservices in Python (3.7+).
 - Provides web server for API endpoints. *
 - Open API schema validation and docs. *
+- Inter-app connectivity via http client with retrying and circuit breaker. *
 - Modular and testable application design: each microservice is an app composed of independent events
-- Logging of event invocations and results.
 - Metrics: event durations, events starts, success, failures. Stream processing rates.
 - Tracking/tracing: keep track of request ids among applications and multiple events execution.
 - Event publishing and consuming to Redis Streams. *
+- Log processing.
+- Apps and events dependencies visualization and live monitoring.
 - Helps to create elegant and well structure code using your preferred IDE.
 - Data Science / Machine Learning friendly: applications can be developed and tested using Jupyter Notebooks. *
 - Testing: provides utilities to test from Notebooks or Python testing frameworks.
@@ -69,7 +152,7 @@ Social Security Fund for Lawyers and Attorneys of Santa Fe, uses hopeit.engine t
 *hopeit.engine* is Open Source, and we encourage people to adopt it, improve it, and contribute changes back. 
 Check [*LICENSE*](LICENSE) file. The library also takes advantage of other well-known python open source libraries to deliver the features described above:
 
-- HTTP endpoints are based on [*aiohttp*](https://pypi.org/project/aiohttp/)
+- HTTP endpoints and clients are based on [*aiohttp*](https://pypi.org/project/aiohttp/)
 - Open API / Swagger support is enabled by [*aiohttp_swagger3*](https://pypi.org/project/aiohttp-swagger3/)
 - Stream processing is supported using [*Redis*](https://redis.io/) and connected using [*aioredis*](https://pypi.org/project/aioredis/)
 - To develop in Jupyter Notebooks we recommend using [*nbdev*](https://pypi.org/project/nbdev/)
@@ -121,10 +204,13 @@ If an external request triggers a process that requires background tasks to run,
 
 ## Current status and roadmap
 
-- **UPCOMING FEATURES:**: we are planning to create plugins to provide a `hopeit.engine` based Stream Processing engine to optionally use instead of Redis Streams, simplifying operations in some scenarios. Thanks to this modularization, also Kafka integration can be supported in the future.
+- **JULY 2021:**: `hopeit.apps_client` plugin was created and `hopeit.engine` `0.9.0` released. This plugin allows invoking
+GET/POST endpoints on other hopeit Apps, supporting common microservices patterns as retrying and circuit breaking.
+`hopeit.apps_visualizer` plugin now allows live monitoring of services activity on multiple servers since `0.7.0`, it was enhanced with
+live monitoring and interactive filters of apps and hosts in `0.8.0` and from `0.9.0` it can be
+used to visualize app dependencies either trough streams or connections using configured `app_connections` used by `apps_client`.
 
-- **JUN 2021**: `hopeit.engine` version 0.4.0 introduced app-visualizer plugin, that allows viewing in a web browser the current running configuration and dependencies between apps and events of a deployment. Also, enhanced stream processing by adding support for multiple queues for the same stream. In version 0.5.0 we started adding more DevOps tools: the first one is `log-streamer` plugin, which allows to parse app logs and send data to a stream. This will be used to monitor applications and dump logs to persistent storage. Combining `log-streamer` with `apps-visualizer` plugins, live activity
-visualization of events execution and stream processing is possible since version 0.6.0.
+- **JUNE 2021**: `hopeit.engine` version 0.4.0 introduced app-visualizer plugin, that allows viewing in a web browser the current running configuration and dependencies between apps and events of a deployment. Also, enhanced stream processing by adding support for multiple queues for the same stream. In version 0.5.0 we started adding more DevOps tools: the first one is `log-streamer` plugin, which allows to parse app logs and send data to a stream. This will be used to monitor applications and dump logs to persistent storage. Combining `log-streamer` with `apps-visualizer` plugins, live activity visualization of events execution and stream processing is possible since version 0.6.0.
 
 - **MAY 2021**: `hopeit.engine` version 0.3.0 released: we moved the modules redis-storage, readis-streams and fs-storage to independent plugins; Python 3.9 is now supported. Please check [release-notes](docs/source/release-notes.rst) for minor breaking changes made to configuration files.
 
