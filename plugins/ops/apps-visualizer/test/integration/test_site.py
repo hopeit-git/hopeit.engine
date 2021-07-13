@@ -12,7 +12,7 @@ async def test_site_main(monkeypatch, events_graph_data, runtime_apps, plugin_co
     assert result.runtime_apps == runtime_apps
     assert result.options.app_prefix == ''
     assert result.options.host_filter == ''
-    assert result.options.expand_queues is False
+    assert result.options.expanded_view is False
     assert result.options.live is False
 
     assert '{{ app_prefix }}' not in page

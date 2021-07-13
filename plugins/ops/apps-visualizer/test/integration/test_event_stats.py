@@ -101,7 +101,7 @@ async def test_live_stats_expanded_view(log_entries: LogBatch, events_graph_data
 
     result: EventsGraphResult = await execute_event(  # type: ignore
         app_config=plugin_config, event_name="event-stats.live", payload=None,
-        expand_queues=True
+        expanded_view=True
     )
 
     assert result.graph.data[

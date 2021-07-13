@@ -132,7 +132,7 @@
             }
           },
           {
-            "name": "expand_queues",
+            "name": "expanded_view",
             "in": "query",
             "required": false,
             "description": "if `true` shows each stream queue as a separated stream",
@@ -219,7 +219,7 @@
             }
           },
           {
-            "name": "expand_queues",
+            "name": "expanded_view",
             "in": "query",
             "required": false,
             "description": "if `true` shows each stream queue as a separated stream",
@@ -297,7 +297,7 @@
             }
           },
           {
-            "name": "expand_queues",
+            "name": "expanded_view",
             "in": "query",
             "required": false,
             "description": "if `true` shows each stream queue as a separated stream",
@@ -1051,7 +1051,7 @@
             "type": "string",
             "default": ""
           },
-          "expand_queues": {
+          "expanded_view": {
             "type": "boolean",
             "default": false
           },
@@ -1061,7 +1061,7 @@
           }
         },
         "x-module-name": "hopeit.apps_visualizer.site.visualization",
-        "description": "VisualizationOptions(app_prefix: str = '', host_filter: str = '', expand_queues: bool = False, live: bool = False)"
+        "description": "VisualizationOptions(app_prefix: str = '', host_filter: str = '', expanded_view: bool = False, live: bool = False)"
       },
       "EventsGraphResult": {
         "type": "object",

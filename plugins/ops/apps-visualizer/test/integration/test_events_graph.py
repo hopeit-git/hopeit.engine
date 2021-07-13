@@ -9,14 +9,14 @@ async def test_simple_example_events_diagram(events_graph_data, runtime_apps, pl
     result = await execute_event(app_config=plugin_config, event_name="apps.events-graph", payload=None)
 
     assert result.graph.data == events_graph_data
-    assert result.options.expand_queues is False
+    assert result.options.expanded_view is False
 
 
 @pytest.mark.asyncio
-async def test_simple_example_events_diagram_expand_queues(events_graph_data,
+async def test_simple_example_events_diagram_expanded_view(events_graph_data,
                                                            runtime_apps, plugin_config):
     result = await execute_event(
-        app_config=plugin_config, event_name="apps.events-graph", payload=None, expand_queues="true"
+        app_config=plugin_config, event_name="apps.events-graph", payload=None, expanded_view="true"
     )
     streams = {
         k: v['data']
@@ -32,7 +32,7 @@ async def test_simple_example_events_diagram_expand_queues(events_graph_data,
     assert s2['id'] == f'>simple_example.{APPS_ROUTE_VERSION}.streams.something_event.high-prio'
     assert s2['content'] == f'simple_example.{APPS_ROUTE_VERSION}\nstreams.something_event.high-prio'
 
-    assert result.options.expand_queues is True
+    assert result.options.expanded_view is True
 
 
 @pytest.mark.asyncio
