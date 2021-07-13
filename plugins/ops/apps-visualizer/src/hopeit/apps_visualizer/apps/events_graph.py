@@ -79,23 +79,40 @@ async def config_graph(collector: Collector, context: EventContext) -> Optional[
     """
     options: VisualizationOptions = await collector['payload']
     all_apps: RuntimeApps = await collector['runtime_apps']
-    filterd_apps = (
-        runtime_info.app_config
+
+    filtered_apps = [
+        (app_key, runtime_info)
         for app_key, runtime_info in all_apps.apps.items()
         if _filter_apps(runtime_info, options) and _filter_hosts(runtime_info, options)
-    )
+    ]
 
-    events = {}
-    app_connections = {}
-    for app_config in filterd_apps:
-        app_key = app_config.app_key()
-        for event_name, event_info in app_config.events.items():
-            impl = find_event_handler(app_config=app_config, event_name=event_name)
-            splits = split_event_stages(app_config.app, event_name, event_info, impl)
-            for name, info in splits.items():
-                events[f"{app_key}.{name}"] = info
-        for app_conn_key, app_connection in app_config.app_connections.items():
-            app_connections[f"{app_key}.{app_conn_key}"] = app_connection
+    events = {
+        f"{app_key}.{event_name}": event_info
+        for app_key, app_info in filtered_apps
+        for event_name, event_info in (
+            app_info.effective_events.items()
+            if options.expand_queues
+            else app_info.app_config.events.items()
+        )
+    }
+
+    app_connections = {
+        f"{app_key}.{app_conn_key}": app_connection
+        for app_key, app_info in filtered_apps
+        for app_conn_key, app_connection in app_info.app_config.app_connections.items()
+    }
+    
+    # events = {}
+    # app_connections = {}
+    # for app_config in filterd_apps:
+    #     app_key = app_config.app_key()
+    #     for event_name, event_info in app_config.events.items():
+    #         impl = find_event_handler(app_config=app_config, event_name=event_name)
+    #         splits = split_event_stages(app_config.app, event_name, event_info, impl)
+    #         for name, info in splits.items():
+    #             events[f"{app_key}.{name}"] = info
+    #     for app_conn_key, app_connection in app_config.app_connections.items():
+    #         app_connections[f"{app_key}.{app_conn_key}"] = app_connection
 
     nodes = get_nodes(events, expand_queues=options.expand_queues)
     add_app_connections(nodes, app_connections=app_connections, events=events)

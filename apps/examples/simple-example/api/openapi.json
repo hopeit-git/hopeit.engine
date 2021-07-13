@@ -1493,7 +1493,8 @@
         "type": "object",
         "required": [
           "servers",
-          "app_config"
+          "app_config",
+          "effective_events"
         ],
         "properties": {
           "servers": {
@@ -1504,6 +1505,12 @@
           },
           "app_config": {
             "$ref": "#/components/schemas/AppConfig"
+          },
+          "effective_events": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EventDescriptor"
+            }
           }
         },
         "x-module-name": "hopeit.config_manager",
