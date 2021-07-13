@@ -22,8 +22,10 @@ async def test_cluster_apps_config(monkeypatch, cluster_apps_response,
 
 
 @pytest.mark.asyncio
-async def test_cluster_apps_config_expand_events(monkeypatch, cluster_apps_response_exp,
-                                                server1_apps_response_exp, server2_apps_response_exp):
+async def test_cluster_apps_config_expand_events(
+    monkeypatch, cluster_apps_response_exp,
+    server1_apps_response_exp, server2_apps_response_exp
+):
 
     def apply_mock_client(module, context):
         mock_client(

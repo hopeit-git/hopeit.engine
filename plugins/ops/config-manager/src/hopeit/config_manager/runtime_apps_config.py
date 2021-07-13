@@ -29,9 +29,10 @@ __api__ = event_api(
 )
 
 
-async def get_apps_config(payload: None, context: EventContext,
-                         *, url: str = "in-process",
-                         expand_events: bool = False) -> RuntimeApps:
+async def get_apps_config(
+    payload: None, context: EventContext,
+    *, url: str = "in-process", expand_events: bool = False
+) -> RuntimeApps:
     return get_in_process_config(
         url, expand_events=expand_events is True or expand_events == "true"
     )

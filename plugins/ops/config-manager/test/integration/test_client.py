@@ -16,7 +16,6 @@ async def test_client(monkeypatch, cluster_apps_response,
     assert result == cluster_apps_response
 
 
-
 @pytest.mark.asyncio
 async def test_client_expand_events(monkeypatch, cluster_apps_response_exp,
                                     server1_apps_response_exp, server2_apps_response_exp):

@@ -20,7 +20,7 @@ _apps: Optional[RuntimeApps] = None
 _expire: float = 0.0
 
 
-async def get_runtime_apps(context: EventContext, 
+async def get_runtime_apps(context: EventContext,
                            *, refresh: bool = False,
                            expand_events: bool = False) -> RuntimeApps:
     """

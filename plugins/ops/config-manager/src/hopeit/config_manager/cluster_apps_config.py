@@ -26,9 +26,11 @@ __api__ = event_api(
 )
 
 
-async def get_hosts_apps_config(payload: None, context: EventContext,
-                               *, hosts: str,
-                               expand_events: bool = False) -> RuntimeApps:
+async def get_hosts_apps_config(
+    payload: None, context: EventContext,
+    *, hosts: str, expand_events: bool = False
+) -> RuntimeApps:
+
     return await client.get_apps_config(
         hosts, context, expand_events=expand_events is True or expand_events == "true"
     )

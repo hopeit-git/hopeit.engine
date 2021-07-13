@@ -1,486 +1,486 @@
 {
-    "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
-        "content": "GET"
-      },
-      "classes": "REQUEST"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.list_somethings": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.list_somethings",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nlist_somethings"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.query_something.GET": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.query_something.GET",
-        "content": "GET"
-      },
-      "classes": "REQUEST"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.query_something": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.query_something",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nquery_something"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.query_something_extended.POST": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.query_something_extended.POST",
-        "content": "POST"
-      },
-      "classes": "REQUEST"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.query_something_extended": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.query_something_extended",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nquery_something_extended"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.save_something.POST": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.save_something.POST",
-        "content": "POST"
-      },
-      "classes": "REQUEST"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.save_something": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.save_something",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nsave_something"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.download_something.GET": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.download_something.GET",
-        "content": "GET"
-      },
-      "classes": "REQUEST"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.download_something": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.download_something",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\ndownload_something"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART",
-        "content": "MULTIPART"
-      },
-      "classes": "REQUEST"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.upload_something": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.upload_something",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nupload_something"
-      },
-      "classes": "EVENT"
-    },
-    ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
-      "data": {
-        "id": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nstreams.something_event"
-      },
-      "classes": "STREAM"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.service.something_generator": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.service.something_generator",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nservice.something_generator"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.streams.something_event.POST": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event.POST",
-        "content": "POST"
-      },
-      "classes": "REQUEST"
-    },
-    ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio": {
-      "data": {
-        "id": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nstreams.something_event.high-prio"
-      },
-      "classes": "STREAM"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.streams.something_event": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nstreams.something_event"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.streams.process_events": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nstreams.process_events"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST",
-        "content": "POST"
-      },
-      "classes": "REQUEST"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\ncollector.query_concurrently"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.POST": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.POST",
-        "content": "POST"
-      },
-      "classes": "REQUEST"
-    },
-    ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO": {
-      "data": {
-        "id": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\ncollector.collect_spawn.collector@load_first"
-      },
-      "classes": "STREAM"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\ncollector.collect_spawn"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\ncollector.collect_spawn$spawn"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.POST": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.POST",
-        "content": "POST"
-      },
-      "classes": "REQUEST"
-    },
-    ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO": {
-      "data": {
-        "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.spawn_event.spawn_many_events"
-      },
-      "classes": "STREAM"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.spawn_event"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.spawn_event$update_status"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.POST": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.POST",
-        "content": "POST"
-      },
-      "classes": "REQUEST"
-    },
-    ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO": {
-      "data": {
-        "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event.fork_something"
-      },
-      "classes": "STREAM"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event"
-      },
-      "classes": "EVENT"
-    },
-    ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO": {
-      "data": {
-        "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event.process_first_part"
-      },
-      "classes": "STREAM"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event$process_first_part"
-      },
-      "classes": "EVENT"
-    },
-    "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status": {
-      "data": {
-        "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status",
-        "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event$update_status"
-      },
-      "classes": "EVENT"
-    },
-    "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET": {
-      "data": {
-        "id": "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
-        "content": "GET"
-      },
-      "classes": "REQUEST"
-    },
-    "client_example.${APPS_ROUTE_VERSION}.count_and_save": {
-      "data": {
-        "id": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
-        "content": "client_example.${APPS_ROUTE_VERSION}\ncount_and_save"
-      },
-      "classes": "EVENT"
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.list_somethings",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.query_something.GET": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.query_something.GET",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.query_something.GET",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.query_something",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.query_something_extended.POST": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.query_something_extended.POST",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.query_something_extended.POST",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.query_something_extended",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.save_something.POST": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.save_something.POST",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.save_something.POST",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.save_something",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.download_something.GET": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.download_something.GET",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.download_something.GET",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.download_something",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.upload_something",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-        "source": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.service.something_generator.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.service.something_generator.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.service.something_generator",
-        "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.POST": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.POST",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event.POST",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio",
-        "source": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
-        "label": "high-prio"
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-        "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
-        "label": "high-prio"
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.POST": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.POST",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.POST",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn.simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn.simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
-        "source": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn",
-        "target": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn",
-        "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.POST": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.POST",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.POST",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
-        "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event",
-        "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status",
-        "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.POST": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.POST",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.POST",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
-        "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event",
-        "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
-        "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part",
-        "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
-        "label": ""
-      }
-    },
-    "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
-      "data": {
-        "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-        "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status",
-        "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-        "label": ""
-      }
-    },
-    "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.GET": {
-      "data": {
-        "id": "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
-        "source": "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
-        "target": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
-        "label": ""
-      }
-    },
-    "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.list_somethings.GET": {
-      "data": {
-        "id": "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.list_somethings.GET",
-        "source": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
-        "label": ""
-      }
-    },
-    "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.save_something.POST": {
-      "data": {
-        "id": "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.save_something.POST",
-        "source": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
-        "target": "simple_example.${APPS_ROUTE_VERSION}.save_something.POST",
-        "label": ""
-      }
+  "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
+      "content": "GET"
+    },
+    "classes": "REQUEST"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.list_somethings": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.list_somethings",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nlist_somethings"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.query_something.GET": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.query_something.GET",
+      "content": "GET"
+    },
+    "classes": "REQUEST"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.query_something": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.query_something",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nquery_something"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.query_something_extended.POST": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.query_something_extended.POST",
+      "content": "POST"
+    },
+    "classes": "REQUEST"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.query_something_extended": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.query_something_extended",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nquery_something_extended"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.save_something.POST": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.save_something.POST",
+      "content": "POST"
+    },
+    "classes": "REQUEST"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.save_something": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.save_something",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nsave_something"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.download_something.GET": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.download_something.GET",
+      "content": "GET"
+    },
+    "classes": "REQUEST"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.download_something": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.download_something",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\ndownload_something"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART",
+      "content": "MULTIPART"
+    },
+    "classes": "REQUEST"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.upload_something": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.upload_something",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nupload_something"
+    },
+    "classes": "EVENT"
+  },
+  ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
+    "data": {
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nstreams.something_event"
+    },
+    "classes": "STREAM"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.service.something_generator": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.service.something_generator",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nservice.something_generator"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.streams.something_event.POST": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event.POST",
+      "content": "POST"
+    },
+    "classes": "REQUEST"
+  },
+  ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio": {
+    "data": {
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nstreams.something_event.high-prio"
+    },
+    "classes": "STREAM"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.streams.something_event": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nstreams.something_event"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.streams.process_events": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nstreams.process_events"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST",
+      "content": "POST"
+    },
+    "classes": "REQUEST"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\ncollector.query_concurrently"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.POST": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.POST",
+      "content": "POST"
+    },
+    "classes": "REQUEST"
+  },
+  ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO": {
+    "data": {
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\ncollector.collect_spawn.collector@load_first"
+    },
+    "classes": "STREAM"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\ncollector.collect_spawn"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\ncollector.collect_spawn$spawn"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.POST": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.POST",
+      "content": "POST"
+    },
+    "classes": "REQUEST"
+  },
+  ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO": {
+    "data": {
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.spawn_event.spawn_many_events"
+    },
+    "classes": "STREAM"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.spawn_event"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.spawn_event$update_status"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.POST": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.POST",
+      "content": "POST"
+    },
+    "classes": "REQUEST"
+  },
+  ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO": {
+    "data": {
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event.fork_something"
+    },
+    "classes": "STREAM"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event"
+    },
+    "classes": "EVENT"
+  },
+  ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO": {
+    "data": {
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event.process_first_part"
+    },
+    "classes": "STREAM"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event$process_first_part"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event$update_status"
+    },
+    "classes": "EVENT"
+  },
+  "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET": {
+    "data": {
+      "id": "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
+      "content": "GET"
+    },
+    "classes": "REQUEST"
+  },
+  "client_example.${APPS_ROUTE_VERSION}.count_and_save": {
+    "data": {
+      "id": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
+      "content": "client_example.${APPS_ROUTE_VERSION}\ncount_and_save"
+    },
+    "classes": "EVENT"
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.list_somethings",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.query_something.GET": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.query_something.GET",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.query_something.GET",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.query_something",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.query_something_extended.POST": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.query_something_extended.POST",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.query_something_extended.POST",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.query_something_extended",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.save_something.POST": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.save_something.POST",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.save_something.POST",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.save_something",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.download_something.GET": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.download_something.GET",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.download_something.GET",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.download_something",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.upload_something",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.service.something_generator.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.service.something_generator.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.service.something_generator",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.POST": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.POST",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event.POST",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
+      "label": "high-prio"
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
+      "label": "high-prio"
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.POST": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.POST",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.POST",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn.simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn.simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.POST": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.POST",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.POST",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.POST": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.POST",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.POST",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "label": ""
+    }
+  },
+  "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.GET": {
+    "data": {
+      "id": "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
+      "source": "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
+      "target": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
+      "label": ""
+    }
+  },
+  "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.list_somethings.GET": {
+    "data": {
+      "id": "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.list_somethings.GET",
+      "source": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
+      "label": ""
+    }
+  },
+  "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.save_something.POST": {
+    "data": {
+      "id": "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.save_something.POST",
+      "source": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.save_something.POST",
+      "label": ""
     }
   }
+}

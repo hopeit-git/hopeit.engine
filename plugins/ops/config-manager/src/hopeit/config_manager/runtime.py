@@ -26,7 +26,7 @@ def _effective_events(app_config: AppConfig, expand_events: bool) -> Dict[str, E
     return app_config.events
 
 
-def get_in_process_config(url: str, expand_events:bool):
+def get_in_process_config(url: str, expand_events: bool):
     return RuntimeApps(
         apps={
             app_key: RuntimeAppInfo(
