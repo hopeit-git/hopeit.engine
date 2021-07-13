@@ -4,7 +4,7 @@ from hopeit.testing.apps import execute_event
 
 
 @pytest.mark.asyncio
-async def test_site_main(monkeypatch, events_graph_data, runtime_apps, plugin_config):
+async def test_site_main(monkeypatch, runtime_apps, plugin_config):
     result, page, _ = await execute_event(
         app_config=plugin_config, event_name="site.main", payload=None, postprocess=True
     )

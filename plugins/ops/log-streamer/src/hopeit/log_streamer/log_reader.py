@@ -17,7 +17,7 @@ logger, extra = app_extra_logger()
 __steps__ = ['process_log_data']
 
 
-async def __service__(context: EventContext) -> Spawn[LogRawBatch]:  # pylint: disable=invalid-name
+async def __service__(context: EventContext) -> Spawn[LogRawBatch]:
     config = LogReaderConfig.from_dict(context.env['log_reader'])  # type: ignore
     event_handler = LogFileHandler(config, context)
     logger.info(context, "Starting LogFileHandler...", extra=extra(

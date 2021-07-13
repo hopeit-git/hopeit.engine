@@ -464,6 +464,573 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "version": "${APPS_API_VERSION}"
           }
         ]
+      },
+      "effective_events": {
+        "list_somethings": {
+          "type": "GET",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "query_something": {
+          "type": "GET",
+          "plug_mode": "Standalone",
+          "route": "simple-example/${APPS_API_VERSION}/query_something",
+          "connections": [],
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "query_something_extended": {
+          "type": "POST",
+          "plug_mode": "Standalone",
+          "route": "simple-example/${APPS_API_VERSION}/query_something",
+          "connections": [],
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "save_something": {
+          "type": "POST",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "download_something": {
+          "type": "GET",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "upload_something": {
+          "type": "MULTIPART",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "service.something_generator": {
+          "type": "SERVICE",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "write_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+            "queues": [
+              "AUTO"
+            ],
+            "queue_strategy": "DROP"
+          },
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 1000,
+              "throttle_ms": 10,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "streams.something_event": {
+          "type": "POST",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "write_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+            "queues": [
+              "high-prio"
+            ],
+            "queue_strategy": "DROP"
+          },
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [
+                "something_id"
+              ],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 1000,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "streams.process_events": {
+          "type": "STREAM",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "read_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
+            "queues": [
+              "high-prio",
+              "AUTO"
+            ]
+          },
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [
+                "something_id"
+              ],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group",
+                "stream.event_id",
+                "stream.event_ts",
+                "stream.submit_ts",
+                "stream.read_ts"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 5,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "collector.query_concurrently": {
+          "type": "POST",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "collector.collect_spawn": {
+          "type": "POST",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "write_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first",
+            "queues": [
+              "AUTO"
+            ],
+            "queue_strategy": "PROPAGATE"
+          },
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [
+                "something_id"
+              ],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 1000,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "collector.collect_spawn$spawn": {
+          "type": "STREAM",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "read_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first",
+            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.spawn",
+            "queues": [
+              "AUTO"
+            ]
+          },
+          "write_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+            "queues": [
+              "AUTO"
+            ],
+            "queue_strategy": "DROP"
+          },
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [
+                "something_id"
+              ],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 1000,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "shuffle.spawn_event": {
+          "type": "POST",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "write_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events",
+            "queues": [
+              "AUTO"
+            ],
+            "queue_strategy": "PROPAGATE"
+          },
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [
+                "something_id"
+              ],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 1000,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "shuffle.spawn_event$update_status": {
+          "type": "STREAM",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "read_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events",
+            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.update_status",
+            "queues": [
+              "AUTO"
+            ]
+          },
+          "write_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+            "queues": [
+              "AUTO"
+            ],
+            "queue_strategy": "DROP"
+          },
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [
+                "something_id"
+              ],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 1000,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "shuffle.parallelize_event": {
+          "type": "POST",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "write_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something",
+            "queues": [
+              "AUTO"
+            ],
+            "queue_strategy": "PROPAGATE"
+          },
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [
+                "something_id"
+              ],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 1000,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "shuffle.parallelize_event$process_first_part": {
+          "type": "STREAM",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "read_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something",
+            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part",
+            "queues": [
+              "AUTO"
+            ]
+          },
+          "write_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part",
+            "queues": [
+              "AUTO"
+            ],
+            "queue_strategy": "PROPAGATE"
+          },
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [
+                "something_id"
+              ],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 1000,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        },
+        "shuffle.parallelize_event$update_status": {
+          "type": "STREAM",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "read_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part",
+            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.update_status",
+            "queues": [
+              "AUTO"
+            ]
+          },
+          "write_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+            "queues": [
+              "AUTO"
+            ],
+            "queue_strategy": "DROP"
+          },
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [
+                "something_id"
+              ],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 1000,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": []
+        }
       }
     }
   },

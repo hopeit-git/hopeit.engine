@@ -5,8 +5,6 @@ from typing import Optional
 
 from hopeit.app.context import EventContext
 
-from hopeit.server.imports import find_event_handler
-from hopeit.server.steps import split_event_stages
 from hopeit.app.api import event_api
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.app.events import collector_step, Collector
@@ -101,18 +99,6 @@ async def config_graph(collector: Collector, context: EventContext) -> Optional[
         for app_key, app_info in filtered_apps
         for app_conn_key, app_connection in app_info.app_config.app_connections.items()
     }
-    
-    # events = {}
-    # app_connections = {}
-    # for app_config in filterd_apps:
-    #     app_key = app_config.app_key()
-    #     for event_name, event_info in app_config.events.items():
-    #         impl = find_event_handler(app_config=app_config, event_name=event_name)
-    #         splits = split_event_stages(app_config.app, event_name, event_info, impl)
-    #         for name, info in splits.items():
-    #             events[f"{app_key}.{name}"] = info
-    #     for app_conn_key, app_connection in app_config.app_connections.items():
-    #         app_connections[f"{app_key}.{app_conn_key}"] = app_connection
 
     nodes = get_nodes(events, expanded_view=options.expanded_view)
     add_app_connections(nodes, app_connections=app_connections, events=events)
