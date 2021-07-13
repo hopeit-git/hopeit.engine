@@ -20,7 +20,9 @@ _apps: Optional[RuntimeApps] = None
 _expire: float = 0.0
 
 
-async def get_runtime_apps(context: EventContext, refresh: bool = False) -> RuntimeApps:
+async def get_runtime_apps(context: EventContext, 
+                           *, refresh: bool = False,
+                           expand_events: bool = False) -> RuntimeApps:
     """
     Extract current runtime app_config objects
     """
@@ -32,7 +34,7 @@ async def get_runtime_apps(context: EventContext, refresh: bool = False) -> Runt
     async with _lock:
         if _apps is None or refresh or now_ts > _expire:
             logger.info(context, "Contacting hosts config-manager...")
-            _apps = await get_apps_config(env.hosts, context)
+            _apps = await get_apps_config(env.hosts, context, expand_events=expand_events)
             _expire = now_ts + env.refresh_hosts_seconds
         else:
             logger.info(context, "Using cached runtime apps information.")

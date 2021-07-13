@@ -19,12 +19,19 @@ __steps__ = ['get_apps_config']
 __api__ = event_api(
     summary="Config Manager: Runtime Apps Config",
     description="Returns the runtime config for the Apps running on this server",
-    query_args=[("url", Optional[str], "URL used to reach this server, informative")],
+    query_args=[
+        ("url", Optional[str], "URL used to reach this server, informative"),
+        ("expand_events", Optional[bool], "Retrieve expanded effective events from event steps")
+    ],
     responses={
         200: (RuntimeApps, "Config info about running apps in current process"),
     }
 )
 
 
-async def get_apps_config(payload: None, context: EventContext, *, url: str = "in-process") -> RuntimeApps:
-    return get_in_process_config(url)
+async def get_apps_config(payload: None, context: EventContext,
+                         *, url: str = "in-process",
+                         expand_events: bool = False) -> RuntimeApps:
+    return get_in_process_config(
+        url, expand_events=expand_events is True or expand_events == "true"
+    )

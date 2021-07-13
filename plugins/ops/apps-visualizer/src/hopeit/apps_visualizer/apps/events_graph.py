@@ -52,7 +52,8 @@ async def runtime_apps(collector: Collector, context: EventContext) -> RuntimeAp
     """
     Extract current runtime app_config objects
     """
-    return await get_runtime_apps(context)
+    options: VisualizationOptions = await collector['payload']
+    return await get_runtime_apps(context, expand_events=options.expanded_view)
 
 
 def _filter_apps(runtime_info: RuntimeAppInfo, options: VisualizationOptions) -> bool:
@@ -87,11 +88,7 @@ async def config_graph(collector: Collector, context: EventContext) -> Optional[
     events = {
         f"{app_key}.{event_name}": event_info
         for app_key, app_info in filtered_apps
-        for event_name, event_info in (
-            app_info.effective_events.items()
-            if options.expanded_view
-            else app_info.app_config.events.items()
-        )
+        for event_name, event_info in app_info.effective_events.items()
     }
 
     app_connections = {

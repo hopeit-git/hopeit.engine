@@ -19,3 +19,21 @@ async def test_runtime_apps_config(monkeypatch, runtime_apps_response):
     result = await execute_event(app_config=plugin_config, event_name="runtime-apps-config", payload=None)
 
     assert result == runtime_apps_response
+
+
+@pytest.mark.asyncio
+async def test_runtime_apps_config_expand_events(monkeypatch, runtime_apps_response_exp):
+    app_config = config('apps/examples/simple-example/config/app-config.json')
+    monkeypatch.setattr(
+        runtime,
+        "server",
+        MockServer(app_config)
+    )
+
+    plugin_config = config('plugins/ops/config-manager/config/plugin-config.json')
+    result = await execute_event(
+        app_config=plugin_config, event_name="runtime-apps-config",
+        payload=None, expand_events=True
+    )
+
+    assert result == runtime_apps_response_exp

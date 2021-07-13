@@ -51,7 +51,7 @@ async def runtime_apps_config(options: VisualizationOptions, context: EventConte
     Extract current runtime app_config objects
     """
     return EventsGraphResult(
-        runtime_apps=await get_runtime_apps(context, refresh=True),
+        runtime_apps=await get_runtime_apps(context, refresh=True, expand_events=options.expanded_view),
         options=options
     )
 

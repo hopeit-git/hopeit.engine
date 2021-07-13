@@ -68,6 +68,15 @@
             }
           },
           {
+            "name": "expand_events",
+            "in": "query",
+            "required": false,
+            "description": "Retrieve expanded effective events from event steps",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "X-Track-Request-Id",
             "in": "header",
             "required": false,
@@ -116,6 +125,15 @@
             "description": "Comma-separated list of http://host:port strings",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "expand_events",
+            "in": "query",
+            "required": true,
+            "description": "Extract effective events from event steps",
+            "schema": {
+              "type": "boolean"
             }
           },
           {

@@ -1041,7 +1041,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
 """
 
 
-def _get_runtime_simple_example(url: str):
+def _get_runtime_simple_example(url: str, expand_events: bool):
     res = RUNTIME_SIMPLE_EXAMPLE
     res = res.replace("${HOST_NAME}", socket.gethostname())
     res = res.replace("${PID}", str(os.getpid()))
@@ -1050,28 +1050,62 @@ def _get_runtime_simple_example(url: str):
     res = res.replace("${APPS_API_VERSION}", APPS_API_VERSION)
     res = res.replace("${APPS_ROUTE_VERSION}", APPS_ROUTE_VERSION)
 
-    return Payload.from_json(res, RuntimeApps)
+    result = Payload.from_json(res, RuntimeApps)
+
+    if not expand_events:
+        for _, app_info in result.apps.items():
+            app_info.effective_events = app_info.app_config.events
+
+    return result
 
 
 @pytest.fixture
 def runtime_apps_response():
-    return _get_runtime_simple_example("in-process")
+    return _get_runtime_simple_example("in-process", expand_events=False)
 
 
 @pytest.fixture
 def server1_apps_response():
-    return _get_runtime_simple_example("http://test-server1")
+    return _get_runtime_simple_example("http://test-server1", expand_events=False)
 
 
 @pytest.fixture
 def server2_apps_response():
-    return _get_runtime_simple_example("http://test-server2")
+    return _get_runtime_simple_example("http://test-server2", expand_events=False)
+
+
+@pytest.fixture
+def runtime_apps_response_exp():
+    return _get_runtime_simple_example("in-process", expand_events=True)
+
+
+@pytest.fixture
+def server1_apps_response_exp():
+    return _get_runtime_simple_example("http://test-server1", expand_events=True)
+
+
+@pytest.fixture
+def server2_apps_response_exp():
+    return _get_runtime_simple_example("http://test-server2", expand_events=True)
 
 
 @pytest.fixture
 def cluster_apps_response():
-    server1 = _get_runtime_simple_example("http://test-server1")
-    server2 = _get_runtime_simple_example("http://test-server2")
+    server1 = _get_runtime_simple_example("http://test-server1", expand_events=False)
+    server2 = _get_runtime_simple_example("http://test-server2", expand_events=False)
+
+    server1.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers.extend(
+        server2.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers
+    )
+    server1.server_status["http://test-server2"] = ServerStatus.ALIVE
+
+    return server1
+
+
+@pytest.fixture
+def cluster_apps_response_exp():
+    server1 = _get_runtime_simple_example("http://test-server1", expand_events=True)
+    server2 = _get_runtime_simple_example("http://test-server2", expand_events=True)
 
     server1.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers.extend(
         server2.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers

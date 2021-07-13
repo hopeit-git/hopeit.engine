@@ -16,12 +16,19 @@ __steps__ = ['get_hosts_apps_config']
 __api__ = event_api(
     summary="Config Manager: Cluster Apps Config",
     description="Handle remote access to runtime configuration for a group of hosts",
-    query_args=[("hosts", str, "Comma-separated list of http://host:port strings")],
+    query_args=[
+        ("hosts", str, "Comma-separated list of http://host:port strings"),
+        ("expand_events", bool, "Extract effective events from event steps")
+    ],
     responses={
         200: (RuntimeApps, "Combined config info about running apps in provided list of hosts")
     }
 )
 
 
-async def get_hosts_apps_config(payload: None, context: EventContext, *, hosts: str) -> RuntimeApps:
-    return await client.get_apps_config(hosts, context)
+async def get_hosts_apps_config(payload: None, context: EventContext,
+                               *, hosts: str,
+                               expand_events: bool = False) -> RuntimeApps:
+    return await client.get_apps_config(
+        hosts, context, expand_events=expand_events is True or expand_events == "true"
+    )

@@ -17,7 +17,7 @@ from hopeit.config_manager.runtime import get_in_process_config
 logger, extra = engine_extra_logger()
 
 
-async def get_apps_config(hosts: str, context: Optional[EventContext] = None) -> RuntimeApps:
+async def get_apps_config(hosts: str, context: Optional[EventContext] = None, **kwargs) -> RuntimeApps:
     """
     Gathers RuntimeApps (runtime apps config) from a given list of hosts running
     `hopeit.config-manager` plugins and returns a combined RuntimeApps
@@ -30,7 +30,7 @@ async def get_apps_config(hosts: str, context: Optional[EventContext] = None) ->
     """
     responses = await asyncio.gather(
         *[
-            _get_host_config(host, context)
+            _get_host_config(host, context, **kwargs)
             for host in hosts.split(',')
         ]
     )
@@ -48,18 +48,21 @@ async def get_apps_config(hosts: str, context: Optional[EventContext] = None) ->
 
 
 async def _get_host_config(host: str,
-                           context: Optional[EventContext] = None
-                           ) -> Tuple[str, Union[RuntimeApps, ServerStatus]]:
+                           context: Optional[EventContext] = None,
+                           **kwargs) -> Tuple[str, Union[RuntimeApps, ServerStatus]]:
     """
     Invokes config-manager runtime-apps-config endpoint in a given host
     """
     if host == "in-process":
-        return host, get_in_process_config(host)
+        return host, get_in_process_config(host, **kwargs)
 
     # Random <1 sec pause to prevent network overload
     await asyncio.sleep(random.random())
 
     url = f"{host}/api/config-manager/{APPS_ROUTE_VERSION}/runtime-apps-config?url={host}"
+    for k, v in kwargs.items():
+        url += f"&{k}={v}".lower()
+
     logger.info(context or __name__, "Invoking config-manager on host: %s...", host, extra=extra(
         host=host, url=url
     ))
