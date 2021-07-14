@@ -44,12 +44,12 @@ class Graph:
 
 
 def get_nodes(events: Dict[str, EventDescriptor],
-              *, expand_queues: bool = False) -> Dict[str, Node]:
+              *, expanded_view: bool = False) -> Dict[str, Node]:
     """
     Create Node metadata from EventDescriptors from app_config,
     expanding effective events using engine functionallity.
 
-    :param expand_queues: bool, if True, stream queues are shown as separate streams,
+    :param expanded_view: bool, if True, stream queues are shown as separate streams,
         otherwise they are shown in a single node with multiple input/outputs.
     """
     nodes = {}
@@ -65,7 +65,7 @@ def get_nodes(events: Dict[str, EventDescriptor],
 
         if event_info.read_stream:
             queues = event_info.read_stream.queues
-            for qid, queue in zip(queues, queues) if expand_queues else [("", "|".join(queues))]:
+            for qid, queue in zip(queues, queues) if expanded_view else [("", "|".join(queues))]:
                 stream_id = f">{event_info.read_stream.name}.{qid}".strip('.')
                 stream_name = f"{event_info.read_stream.name}"
                 if qid not in ("", "AUTO"):
@@ -76,7 +76,7 @@ def get_nodes(events: Dict[str, EventDescriptor],
                 stream_node.slots = sorted(set([*stream_node.slots, *queue.split("|")]))
                 nodes[stream_id] = stream_node
 
-                for q in [queue] if expand_queues else queues:
+                for q in [queue] if expanded_view else queues:
                     port_name = f"{event_name}.{stream_name}.{q}"
                     inputs.append(port_name)
                     stream_node.outputs.append(port_name)
@@ -89,7 +89,7 @@ def get_nodes(events: Dict[str, EventDescriptor],
                     for qx in event_info.read_stream.queues
                     for qy in queues
                 ]
-            for qid, queue in zip(queues, queues) if expand_queues else [("", "|".join(queues))]:
+            for qid, queue in zip(queues, queues) if expanded_view else [("", "|".join(queues))]:
                 stream_id = f">{event_info.write_stream.name}.{qid}".strip('.')
                 stream_name = f"{event_info.write_stream.name}"
                 if qid not in ("", "AUTO"):
@@ -100,7 +100,7 @@ def get_nodes(events: Dict[str, EventDescriptor],
                 stream_node.slots = sorted(set([*stream_node.slots, *queue.split("|")]))
                 nodes[stream_id] = stream_node
 
-                for q in [queue] if expand_queues else queues:
+                for q in [queue] if expanded_view else queues:
                     port_name = f"{event_name}.{stream_name}.{q}"
                     stream_node.inputs.append(port_name)
                     outputs.append(port_name)

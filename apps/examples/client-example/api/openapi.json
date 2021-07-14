@@ -21,6 +21,15 @@
             }
           },
           {
+            "name": "expand_events",
+            "in": "query",
+            "required": false,
+            "description": "Retrieve expanded effective events from event steps",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "X-Track-Request-Id",
             "in": "header",
             "required": false,
@@ -69,6 +78,15 @@
             "description": "Comma-separated list of http://host:port strings",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "expand_events",
+            "in": "query",
+            "required": true,
+            "description": "Extract effective events from event steps",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -191,7 +209,8 @@
         "type": "object",
         "required": [
           "servers",
-          "app_config"
+          "app_config",
+          "effective_events"
         ],
         "properties": {
           "servers": {
@@ -202,6 +221,12 @@
           },
           "app_config": {
             "$ref": "#/components/schemas/AppConfig"
+          },
+          "effective_events": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EventDescriptor"
+            }
           }
         },
         "x-module-name": "hopeit.config_manager",
@@ -740,7 +765,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.9.3"
+            "default": "0.9.4"
           }
         },
         "x-module-name": "hopeit.server.config",

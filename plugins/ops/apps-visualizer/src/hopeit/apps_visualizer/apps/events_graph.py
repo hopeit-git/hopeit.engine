@@ -5,8 +5,6 @@ from typing import Optional
 
 from hopeit.app.context import EventContext
 
-from hopeit.server.imports import find_event_handler
-from hopeit.server.steps import split_event_stages
 from hopeit.app.api import event_api
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.app.events import collector_step, Collector
@@ -54,7 +52,8 @@ async def runtime_apps(collector: Collector, context: EventContext) -> RuntimeAp
     """
     Extract current runtime app_config objects
     """
-    return await get_runtime_apps(context)
+    options: VisualizationOptions = await collector['payload']
+    return await get_runtime_apps(context, expand_events=options.expanded_view)
 
 
 def _filter_apps(runtime_info: RuntimeAppInfo, options: VisualizationOptions) -> bool:
@@ -79,25 +78,26 @@ async def config_graph(collector: Collector, context: EventContext) -> Optional[
     """
     options: VisualizationOptions = await collector['payload']
     all_apps: RuntimeApps = await collector['runtime_apps']
-    filterd_apps = (
-        runtime_info.app_config
+
+    filtered_apps = [
+        (app_key, runtime_info)
         for app_key, runtime_info in all_apps.apps.items()
         if _filter_apps(runtime_info, options) and _filter_hosts(runtime_info, options)
-    )
+    ]
 
-    events = {}
-    app_connections = {}
-    for app_config in filterd_apps:
-        app_key = app_config.app_key()
-        for event_name, event_info in app_config.events.items():
-            impl = find_event_handler(app_config=app_config, event_name=event_name)
-            splits = split_event_stages(app_config.app, event_name, event_info, impl)
-            for name, info in splits.items():
-                events[f"{app_key}.{name}"] = info
-        for app_conn_key, app_connection in app_config.app_connections.items():
-            app_connections[f"{app_key}.{app_conn_key}"] = app_connection
+    events = {
+        f"{app_key}.{event_name}": event_info
+        for app_key, app_info in filtered_apps
+        for event_name, event_info in app_info.effective_events.items()
+    }
 
-    nodes = get_nodes(events, expand_queues=options.expand_queues)
+    app_connections = {
+        f"{app_key}.{app_conn_key}": app_connection
+        for app_key, app_info in filtered_apps
+        for app_conn_key, app_connection in app_info.app_config.app_connections.items()
+    }
+
+    nodes = get_nodes(events, expanded_view=options.expanded_view)
     add_app_connections(nodes, app_connections=app_connections, events=events)
     edges = get_edges(nodes)
     return Graph(nodes=list(nodes.values()), edges=edges)

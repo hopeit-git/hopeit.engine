@@ -26,7 +26,7 @@ async def __init_event__(context: EventContext):
         fs = FileStorage(path=str(context.env['fs']['data_path']))
 
 
-async def __service__(context: EventContext) -> Spawn[SomethingParams]:  # pylint: disable=invalid-name
+async def __service__(context: EventContext) -> Spawn[SomethingParams]:
     i = 1
     while True:
         logger.info(context, f"Generating something event {i}...")

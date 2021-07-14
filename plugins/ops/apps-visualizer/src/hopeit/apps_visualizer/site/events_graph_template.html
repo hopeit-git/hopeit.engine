@@ -163,7 +163,7 @@
           }
           a.setAttribute("href", `apps-visualizer?app_prefix=${options.app_prefix}` +
             `&host_filter=${host}` +
-            `&expand_queues=${options.expand_queues}` +
+            `&expanded_view=${options.expanded_view}` +
             `&live=${options.live}`);
           li.appendChild(a);
           return li
@@ -190,7 +190,7 @@
           }
           a.setAttribute("href", `apps-visualizer?app_prefix=${appName}` +
             `&host_filter=${options.host_filter}` +
-            `&expand_queues=${options.expand_queues}` +
+            `&expanded_view=${options.expanded_view}` +
             `&live=${options.live}`);
           li.appendChild(a);
           return li

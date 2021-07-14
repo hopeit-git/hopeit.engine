@@ -83,9 +83,9 @@
     },
     "classes": "EVENT"
   },
-  ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event": {
+  ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
     "data": {
-      "id": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
       "content": "simple_example.${APPS_ROUTE_VERSION}\nstreams.something_event"
     },
     "classes": "STREAM"
@@ -103,6 +103,13 @@
       "content": "POST"
     },
     "classes": "REQUEST"
+  },
+  ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio": {
+    "data": {
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nstreams.something_event.high-prio"
+    },
+    "classes": "STREAM"
   },
   "simple_example.${APPS_ROUTE_VERSION}.streams.something_event": {
     "data": {
@@ -139,9 +146,9 @@
     },
     "classes": "REQUEST"
   },
-  ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first": {
+  ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO": {
     "data": {
-      "id": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first",
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
       "content": "simple_example.${APPS_ROUTE_VERSION}\ncollector.collect_spawn.collector@load_first"
     },
     "classes": "STREAM"
@@ -167,9 +174,9 @@
     },
     "classes": "REQUEST"
   },
-  ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events": {
+  ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO": {
     "data": {
-      "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events",
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
       "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.spawn_event.spawn_many_events"
     },
     "classes": "STREAM"
@@ -195,9 +202,9 @@
     },
     "classes": "REQUEST"
   },
-  ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something": {
+  ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO": {
     "data": {
-      "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something",
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
       "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event.fork_something"
     },
     "classes": "STREAM"
@@ -209,9 +216,9 @@
     },
     "classes": "EVENT"
   },
-  ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part": {
+  ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO": {
     "data": {
-      "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part",
+      "id": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
       "content": "simple_example.${APPS_ROUTE_VERSION}\nshuffle.parallelize_event.process_first_part"
     },
     "classes": "STREAM"
@@ -292,18 +299,10 @@
       "label": ""
     }
   },
-  "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio": {
-    "data": {
-      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
-      "source": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-      "target": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
-      "label": "high-prio"
-    }
-  },
   "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
-      "source": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
       "target": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
       "label": ""
     }
@@ -312,7 +311,7 @@
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.service.something_generator.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
       "source": "simple_example.${APPS_ROUTE_VERSION}.service.something_generator",
-      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
       "label": ""
     }
   },
@@ -324,11 +323,19 @@
       "label": ""
     }
   },
-  "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio": {
+  "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio": {
     "data": {
-      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
+      "label": "high-prio"
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.something_event.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio",
       "source": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
       "label": "high-prio"
     }
   },
@@ -351,7 +358,7 @@
   "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn.simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO": {
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn.simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
-      "source": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
       "target": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn",
       "label": ""
     }
@@ -360,7 +367,7 @@
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
       "source": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn",
-      "target": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first.AUTO",
       "label": ""
     }
   },
@@ -368,7 +375,7 @@
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
       "source": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn$spawn",
-      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
       "label": ""
     }
   },
@@ -383,7 +390,7 @@
   "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO": {
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
-      "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
       "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status",
       "label": ""
     }
@@ -392,7 +399,7 @@
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
       "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event",
-      "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events.AUTO",
       "label": ""
     }
   },
@@ -400,7 +407,7 @@
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
       "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event$update_status",
-      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
       "label": ""
     }
   },
@@ -415,7 +422,7 @@
   "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO": {
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
-      "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
       "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part",
       "label": ""
     }
@@ -424,14 +431,14 @@
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
       "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event",
-      "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something.AUTO",
       "label": ""
     }
   },
   "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO": {
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
-      "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
       "target": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status",
       "label": ""
     }
@@ -440,7 +447,7 @@
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part.simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
       "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$process_first_part",
-      "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part.AUTO",
       "label": ""
     }
   },
@@ -448,7 +455,7 @@
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
       "source": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event$update_status",
-      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "target": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
       "label": ""
     }
   },

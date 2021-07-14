@@ -6,7 +6,7 @@ from enum import Enum
 from dataclasses import dataclass, field
 
 from hopeit.dataobjects import dataobject
-from hopeit.app.config import AppConfig
+from hopeit.app.config import AppConfig, EventDescriptor
 
 
 @dataobject
@@ -33,6 +33,7 @@ class RuntimeAppInfo:
     """
     servers: List[ServerInfo]
     app_config: AppConfig
+    effective_events: Dict[str, EventDescriptor]
 
 
 @dataobject

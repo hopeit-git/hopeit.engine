@@ -159,7 +159,7 @@ class-attribute-rgx=^(_?[A-Z][A-Z0-9_]*|__[a-z0-9_]+__|_?[a-z][a-z0-9_]*)$
 inlinevar-rgx=^[a-z][a-z0-9_]*$
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=main,_,__steps__,__init_event__,__postprocess__
+good-names=main,_,__steps__,__init_event__,__postprocess__,__service__,__preprocess__,__api__
 
 # Bad variable names which should always be refused, separated by a comma
 bad-names=

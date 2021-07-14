@@ -23,11 +23,11 @@ export PYTHONPATH=engine/src/:plugins/storage/fs/src/ && python3 -m pytest -v --
 code+=$?
 
 # ops/apps-visualizer
-export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src:plugins/storage/fs/src/:plugins/ops/log-streamer/src/:plugins/ops/config-manager/src/:apps/examples/simple-example/src/:apps/examples/client-example/src/:plugins/ops/apps-visualizer/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/ops/apps-visualizer/src/ plugins/ops/apps-visualizer/test/integration/
+export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src:plugins/storage/fs/src/:apps/examples/simple-example/src/:apps/examples/client-example/src/:plugins/ops/log-streamer/src/:plugins/ops/config-manager/src/:plugins/ops/apps-visualizer/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/ops/apps-visualizer/src/ plugins/ops/apps-visualizer/test/integration/
 code+=$?
 
 # ops/config-manager
-export PYTHONPATH=engine/src/:plugins/ops/config-manager/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/ops/config-manager/src/ plugins/ops/config-manager/test/integration/
+export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src:plugins/storage/fs/src/:apps/examples/simple-example/src/:apps/examples/client-example/src/:plugins/ops/config-manager/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/ops/config-manager/src/ plugins/ops/config-manager/test/integration/
 code+=$?
 
 # ops/log-streamer

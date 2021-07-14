@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 0.9.4
+_____________
+- Fix: `apps-visualizer` plugin load effective_events from `config-manager` to avoid need to install monitored apps in same
+  running environment as `app-visualizer`
+- `config-manager` plugins, exposes effective_events (events with intermediate streams) as part of runtime app info.
+
+
 Version 0.9.3
 _____________
 - Fix: pinned `aiohttp_swagger3` version to prevent failure on unsecured endpoints

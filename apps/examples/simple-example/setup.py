@@ -18,8 +18,8 @@ setuptools.setup(
     include_package_data=True,
     python_requires=">=3.7",
     install_requires=[
-        "hopeit.engine",
-        "hopeit.fs-storage"
+        f"hopeit.engine[web,cli,redis-streams,fs-storage]=={version['ENGINE_VERSION']}",
+        f"hopeit.fs-storage=={version['ENGINE_VERSION']}"
     ],
     extras_require={
     },

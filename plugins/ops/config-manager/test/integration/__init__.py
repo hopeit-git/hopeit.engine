@@ -58,10 +58,14 @@ class MockClientSession():
         raise IOError("Test error")
 
 
-def mock_client(module, monkeypatch, server1_apps_response, server2_apps_response):
-    url_pattern = "{}/api/config-manager/{}/runtime-apps-config?url={}"
-    url1 = url_pattern.format("http://test-server1", APPS_ROUTE_VERSION, "http://test-server1")
-    url2 = url_pattern.format("http://test-server2", APPS_ROUTE_VERSION, "http://test-server2")
+def mock_client(module, monkeypatch, server1_apps_response, server2_apps_response, expand_events=False):
+    url_pattern = "{}/api/config-manager/{}/runtime-apps-config?url={}&expand_events={}"
+    url1 = url_pattern.format(
+        "http://test-server1", APPS_ROUTE_VERSION, "http://test-server1", str(expand_events).lower()
+    )
+    url2 = url_pattern.format(
+        "http://test-server2", APPS_ROUTE_VERSION, "http://test-server2", str(expand_events).lower()
+    )
     monkeypatch.setattr(module.aiohttp, 'ClientSession', MockClientSession.setup(
         responses={
             url1: server1_apps_response,

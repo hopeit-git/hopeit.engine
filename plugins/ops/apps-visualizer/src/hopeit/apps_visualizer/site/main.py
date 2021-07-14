@@ -51,7 +51,7 @@ async def runtime_apps_config(options: VisualizationOptions, context: EventConte
     Extract current runtime app_config objects
     """
     return EventsGraphResult(
-        runtime_apps=await get_runtime_apps(context, refresh=True),
+        runtime_apps=await get_runtime_apps(context, refresh=True, expand_events=options.expanded_view),
         options=options
     )
 
@@ -66,17 +66,17 @@ async def __postprocess__(result: EventsGraphResult, context: EventContext, resp
 
     view_link = f"apps-visualizer?app_prefix={result.options.app_prefix}"
     view_link += f"&host_filter={result.options.host_filter}"
-    view_link += f"&expand_queues={str(not result.options.expand_queues).lower()}"
+    view_link += f"&expanded_view={str(not result.options.expanded_view).lower()}"
     view_link += f"&live={str(result.options.live).lower()}"
 
     live_link = f"apps-visualizer?app_prefix={result.options.app_prefix}"
     live_link += f"&host_filter={result.options.host_filter}"
-    live_link += f"&expand_queues={str(result.options.expand_queues).lower()}"
+    live_link += f"&expanded_view={str(result.options.expanded_view).lower()}"
     live_link += f"&live={str(not result.options.live).lower()}"
 
     app_prefix = f"{result.options.app_prefix}*" if result.options.app_prefix else 'All running apps'
     host_filter = f"*{result.options.host_filter}*" if result.options.host_filter else 'All servers'
-    view_type = "Expanded queues view" if result.options.expand_queues else "Standard view"
+    view_type = "Expanded view" if result.options.expanded_view else "Standard view"
     live_type = "Live!" if result.options.live else "Static"
 
     refresh_endpoint_comps = (
@@ -85,7 +85,7 @@ async def __postprocess__(result: EventsGraphResult, context: EventContext, resp
     refresh_endpoint = route_name("api", context.app.name, context.app.version, *refresh_endpoint_comps)
     refresh_endpoint += f"?app_prefix={result.options.app_prefix}"
     refresh_endpoint += f"&host_filter={result.options.host_filter}"
-    refresh_endpoint += f"&expand_queues={str(result.options.expand_queues).lower()}"
+    refresh_endpoint += f"&expanded_view={str(result.options.expanded_view).lower()}"
     refresh_endpoint += f"&live={str(result.options.live).lower()}"
 
     with open(_dir_path / 'events_graph_template.html') as f:
