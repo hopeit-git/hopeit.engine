@@ -1,9 +1,4 @@
 {
-  "streams": {
-    "stream_manager": "hopeit.redis_streams.RedisStreamManager",
-    "connection_str": "redis://localhost:6379",
-    "delay_auto_start_seconds": 10
-  },
   "logging": {
     "log_level": "DEBUG",
     "log_path": "work/logs/apps/"

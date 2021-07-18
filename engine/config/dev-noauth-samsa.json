@@ -1,7 +1,8 @@
 {
   "streams": {
     "stream_manager": "hopeit.samsa.streams.SamsaStreamManager",
-    "connection_str": "api_version=${HOPEIT_APPS_API_VERSION};push_nodes=${SAMSA_PUSH_NODES};consume_nodes=${SAMSA_CONSUME_NODES}"
+    "connection_str": "api_version=${HOPEIT_APPS_API_VERSION};push_nodes=${SAMSA_PUSH_NODES};consume_nodes=${SAMSA_CONSUME_NODES}",
+    "delay_auto_start_seconds": 10
   },
   "logging": {
     "log_level": "DEBUG",

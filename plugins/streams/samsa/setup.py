@@ -1,9 +1,12 @@
 import setuptools
 
+version = {}
+with open("../../../engine/src/hopeit/server/version.py") as fp:
+    exec(fp.read(), version)
 
 setuptools.setup(
     name="hopeit.plugins.samsa",
-    version="0.2.0",
+    version=version['ENGINE_VERSION'],
     description="Hopeit.py Streams Samsa Plugin",
     package_dir={
         "": "src"
@@ -14,7 +17,7 @@ setuptools.setup(
     include_package_data=True,
     python_requires=">=3.7",
     install_requires=[
-        "hopeit.engine"
+        f"hopeit.engine=={version['ENGINE_VERSION']}",
     ],
     extras_require={
     },

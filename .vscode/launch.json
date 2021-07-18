@@ -8,10 +8,8 @@
             "module": "hopeit.server.web",
             "cwd": "${workspaceFolder}",
             "args": [
-                "--port=8020",
-                "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
-                "--api-file=apps/examples/simple-example/api/openapi.json"
+                "--port=9020",
+                "--config-files=engine/config/dev-noauth-samsa.json,plugins/ops/config-manager/config/plugin-config.json,plugins/streams/samsa/config/plugin-config.json"
             ],
             "env": {
                 "SAMSA_PUSH_NODES": "http://localhost:9020",
@@ -19,12 +17,22 @@
             }
         },
         {
-            "name": "simple-example-samsa",
+            "name": "simple-example",
             "type": "python",
             "request": "launch",
             "module": "hopeit.server.web",
+            "args": [
+                "--port=8020",
+                "--start-streams",
+                "--config-files=engine/config/dev-noauth-samsa.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                //"--api-file=apps/examples/simple-example/api/openapi.json"
+            ],
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "env": {
+                "SAMSA_PUSH_NODES": "http://localhost:9020",
+                "SAMSA_CONSUME_NODES": "http://localhost:9020"
+            }
         },
         {
             "name": "client-example",
@@ -37,7 +45,7 @@
             "args": [
                 "--port=8030",
                 "--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/client-example/config/app-config.json",
-                "--api-file=apps/examples/client-example/api/openapi.json"
+                //"--api-file=apps/examples/client-example/api/openapi.json"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
@@ -47,17 +55,19 @@
             "type": "python",
             "request": "launch",
             "module": "hopeit.server.web",
-            "env": {
-                "HOPEIT_APPS_VISUALIZER_HOSTS": "http://localhost:8020,http://localhost:8021,http://localhost:8030,http://localhost:8098,http://localhost:8099"
-            },
             "args": [
                 "--port=8098",
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json",
+                "--config-files=engine/config/dev-noauth-samsa.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json",
                 "--api-file=plugins/ops/apps-visualizer/api/openapi.json"
             ],
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "env": {
+                "HOPEIT_APPS_VISUALIZER_HOSTS": "http://localhost:8020,http://localhost:8021,http://localhost:8030,http://localhost:8098,http://localhost:8099",
+                "SAMSA_PUSH_NODES": "http://localhost:9020",
+                "SAMSA_CONSUME_NODES": "http://localhost:9020"
+            }
         },
         {
             "name": "log-streamer",
@@ -67,10 +77,14 @@
             "args": [
                 "--port=8099",
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/log-streamer/config/plugin-config.json"
+                "--config-files=engine/config/dev-noauth-samsa.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/log-streamer/config/plugin-config.json"
             ],
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "env": {
+                "SAMSA_PUSH_NODES": "http://localhost:9020",
+                "SAMSA_CONSUME_NODES": "http://localhost:9020"
+            }
         }
     ]
 }

@@ -107,6 +107,7 @@ update-examples-api:
 install-examples:
 	make install && \
 	make PLUGINFOLDER=plugins/streams/redis install-plugin && \
+	make PLUGINFOLDER=plugins/streams/samsa install-plugin && \
 	make PLUGINFOLDER=plugins/storage/fs install-plugin && \
 	make PLUGINFOLDER=plugins/storage/redis install-plugin && \
 	make PLUGINFOLDER=plugins/ops/config-manager install-plugin && \
