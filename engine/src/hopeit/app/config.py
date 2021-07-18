@@ -353,6 +353,8 @@ class AppConnection:
     version: str
     client: str = "<<NO CLIENT CONFIGURED>>"
     settings: Optional[str] = None
+    plugin_name: Optional[str] = None
+    plugin_version: Optional[str] = None    
 
 
 @dataobject
