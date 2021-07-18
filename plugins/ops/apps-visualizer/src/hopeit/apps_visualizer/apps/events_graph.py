@@ -2,6 +2,7 @@
 Events graph showing events, stream and dependencies for specified apps
 """
 from typing import Optional
+from hopeit.app.config import EventDescriptor, EventPlugMode
 
 from hopeit.app.context import EventContext
 
@@ -71,6 +72,12 @@ def _filter_hosts(runtime_info: RuntimeAppInfo, options: VisualizationOptions) -
         )
     )
 
+def _event_name(app_key: str, app_info, event_name: str, event_info: EventDescriptor) -> str:
+    if event_info.plug_mode == EventPlugMode.ON_APP:
+        return f"{app_key}.{event_name}!!!!!"
+    return f"{app_key}.{event_name}"
+
+
 
 async def config_graph(collector: Collector, context: EventContext) -> Optional[Graph]:
     """
@@ -86,7 +93,7 @@ async def config_graph(collector: Collector, context: EventContext) -> Optional[
     ]
 
     events = {
-        f"{app_key}.{event_name}": event_info
+        _event_name(app_key, app_info, event_name, event_info): event_info
         for app_key, app_info in filtered_apps
         for event_name, event_info in app_info.effective_events.items()
     }

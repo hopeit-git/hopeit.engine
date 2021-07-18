@@ -4,7 +4,7 @@ Manage access to server runtime running applications
 import socket
 import os
 from typing import Dict
-from hopeit.app.config import AppConfig, EventDescriptor
+from hopeit.app.config import AppConfig, EventDescriptor, EventPlugMode
 
 from hopeit.server import runtime
 
@@ -15,15 +15,27 @@ from hopeit.server.steps import split_event_stages
 
 
 def _effective_events(app_config: AppConfig, expand_events: bool) -> Dict[str, EventDescriptor]:
+    active_events = {}
+    for plugin_info in app_config.plugins:
+        plugin_config = runtime.server.app_engines[plugin_info.app_key()].app_config
+        for event_name, event_info in plugin_config.events.items():
+            if event_info.plug_mode == EventPlugMode.ON_APP:
+                active_events[event_name] = event_info
+
+    for event_name, event_info in app_config.events.items():
+        if event_info.plug_mode != EventPlugMode.ON_APP:
+            active_events[event_name] = event_info
+
     if expand_events:
-        events = {}
-        for event_name, event_info in app_config.events.items():
+        expanded_events = {}
+        for event_name, event_info in active_events.items():
             impl = find_event_handler(app_config=app_config, event_name=event_name)
             splits = split_event_stages(app_config.app, event_name, event_info, impl)
             for name, info in splits.items():
-                events[name] = info
-        return events
-    return app_config.events
+                expanded_events[name] = info
+        return expanded_events
+
+    return active_events
 
 
 def get_in_process_config(url: str, expand_events: bool):
