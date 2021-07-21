@@ -109,19 +109,19 @@ def test_get_app_logger(monkeypatch, mock_app_config):  # noqa: F811
         == "| INFO | mock_app test test_get_app_logger test_host test_pid | Test message " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
     logger.warning(_event_context(mock_app_config), "Test message")
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
         == "| WARNING | mock_app test test_get_app_logger test_host test_pid | Test message " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
     logger.error(_event_context(mock_app_config), "Test message")
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
         == "| ERROR | mock_app test test_get_app_logger test_host test_pid | Test message " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
 
 def test_app_logger_traceback(monkeypatch, mock_app_config):  # noqa: F811
@@ -132,21 +132,21 @@ def test_app_logger_traceback(monkeypatch, mock_app_config):  # noqa: F811
         == "| INFO | mock_app test test_get_app_logger test_host test_pid | Test for error " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id " \
+           "| track.session_id=test_session_id | event.app=mock_app.test " \
            "| trace=%5B%22AssertionError%3A%20Test%20for%20error%5Cn%22%5D"
     logger.warning(_event_context(mock_app_config), exc)
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
         == "| WARNING | mock_app test test_get_app_logger test_host test_pid | Test for error " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id " \
+           "| track.session_id=test_session_id | event.app=mock_app.test " \
            "| trace=%5B%22AssertionError%3A%20Test%20for%20error%5Cn%22%5D"
     logger.error(_event_context(mock_app_config), exc)
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
         == "| ERROR | mock_app test test_get_app_logger test_host test_pid | Test for error " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id " \
+           "| track.session_id=test_session_id | event.app=mock_app.test " \
            "| trace=%5B%22AssertionError%3A%20Test%20for%20error%5Cn%22%5D"
 
 
@@ -163,7 +163,7 @@ def test_get_app_logger_extra(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 | extra.field3=optional " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.warning(
         context,
@@ -176,7 +176,7 @@ def test_get_app_logger_extra(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 | extra.field3=optional " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.error(
         context,
@@ -188,7 +188,7 @@ def test_get_app_logger_extra(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 | extra.field3=optional " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     with pytest.raises(KeyError):
         logger.info(context, "Missing required field", extra=extra(field3='optional'))
@@ -207,7 +207,7 @@ def test_engine_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.warning(
         context, "Log message",
@@ -218,7 +218,7 @@ def test_engine_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.error(
         context, "Log message",
@@ -229,7 +229,7 @@ def test_engine_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.start(
         context,
@@ -240,7 +240,7 @@ def test_engine_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.done(
         context,
@@ -253,7 +253,7 @@ def test_engine_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.ignored(
         context,
@@ -266,7 +266,7 @@ def test_engine_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.failed(
         context,
@@ -279,7 +279,7 @@ def test_engine_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
 
 def test_engine_logger_no_context(monkeypatch, mock_app_config):  # noqa: F811
@@ -363,7 +363,7 @@ def test_engine_extra_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.warning(
         context, "Log message",
@@ -374,7 +374,7 @@ def test_engine_extra_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.error(
         context, "Log message",
@@ -385,7 +385,7 @@ def test_engine_extra_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.start(
         context,
@@ -396,7 +396,7 @@ def test_engine_extra_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.done(
         context,
@@ -409,7 +409,7 @@ def test_engine_extra_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.ignored(
         context,
@@ -422,7 +422,7 @@ def test_engine_extra_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
     logger.failed(
         context,
@@ -435,7 +435,7 @@ def test_engine_extra_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| extra.field1=value1 | extra.field2=42 " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
-           "| track.session_id=test_session_id"
+           "| track.session_id=test_session_id | event.app=mock_app.test"
 
 
 def test_cli_logger(monkeypatch):  # noqa: F811

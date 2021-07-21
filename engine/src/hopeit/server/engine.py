@@ -82,7 +82,7 @@ class AppEngine:
         if self.stream_manager:
             await asyncio.sleep(self.app_config.engine.read_stream_timeout + 5)
             await self.stream_manager.close()
-        stop_app_connections(self.app_key)
+        await stop_app_connections(self.app_key)
         logger.info(__name__, f"Stopped app={self.app_key}")
 
     async def execute(self, *,

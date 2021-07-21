@@ -34,7 +34,8 @@ def test_create_test_context(mock_app_config):  # noqa: F811
             'track.operation_id': 'test_operation_id',
             'track.request_id': 'test_request_id',
             'track.request_ts': result.track_ids['track.request_ts'],
-            'track.session_id': ''
+            'track.session_id': '',
+            'event.app': 'mock_app.test'
     }
     assert result.auth_info == {'auth_type': AuthType.UNSECURED, 'allowed': 'true'}
 
