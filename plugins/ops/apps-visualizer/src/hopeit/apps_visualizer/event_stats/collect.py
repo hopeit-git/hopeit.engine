@@ -49,8 +49,11 @@ def get_stats(host_pids: Set[Tuple[str, str]], time_window_secs: int, recent_sec
     recent_ts = (now_ts - timedelta(seconds=recent_secs)).strftime("%Y-%m-%d %H:%M:%S")
     for entry in recent_entries:
         if entry.ts >= from_ts and (entry.host, entry.pid) in host_pids:
-            event_name = entry.extra.get("stream.event_name", entry.event_name)
-            event_name = f"{auto_path(entry.app_name, entry.app_version)}.{event_name}"
+            event_name = entry.extra.get("event.app", auto_path(entry.app_name, entry.app_version)) + '.'
+            plugin = entry.extra.get("event.plugin")
+            if plugin:
+                event_name += plugin + '.'
+            event_name += entry.extra.get("stream.event_name", entry.event_name)
             event_stats = stats[event_name]
             stream_key = ">" + entry.extra.get("stream.name", "NA")
             stream_queue = "." + entry.extra.get("stream.queue", "")

@@ -40,6 +40,7 @@ class EventContext:
                  track_ids: Dict[str, str],
                  auth_info: Dict[str, Any]):
         self.app_key: str = app_config.app_key()
+        self.plugin_key: str = plugin_config.app_key()
         self.app: AppDescriptor = app_config.app
         self.env: Env = {**plugin_config.env, **app_config.env}
         self.event_name = event_name
@@ -56,7 +57,12 @@ class EventContext:
               if self.event_info.type == EventType.STREAM
               else [])
         ]
-        self.track_ids = {k: track_ids[k] for k in track_fields if k in track_ids}
+        self.track_ids = {
+            k: track_ids[k] for k in track_fields if k in track_ids
+        }
+        self.track_ids['event.app'] = self.app_key
+        if self.plugin_key != self.app_key:
+            self.track_ids['event.plugin'] = self.plugin_key
 
 
 class PostprocessHook():
