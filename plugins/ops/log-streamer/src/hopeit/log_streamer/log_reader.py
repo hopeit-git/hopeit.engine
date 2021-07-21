@@ -63,7 +63,7 @@ async def _process_log_entry(entry: str, context: EventContext) -> Optional[LogE
     """
     Parses log line into a LogEntry
 
-    Only log entries with START/DONE/FAILED message are included.
+    Only log entries with START/DONE/FAILED/IGNORED message are included.
     (This behaviour can be changed if all lines should be processed)
     """
     try:
@@ -71,7 +71,7 @@ async def _process_log_entry(entry: str, context: EventContext) -> Optional[LogE
         if len(xs) >= 4:
             ts, app_info, msg, extras = xs[0], xs[2], xs[3], xs[4:]
             app_info_components = app_info.split(' ')
-            if msg in {'START', 'DONE', 'FAILED'} and (len(app_info_components) >= 3):
+            if msg in ('START', 'DONE', 'FAILED', 'IGNORED') and (len(app_info_components) >= 3):
                 app_name, app_version, event_name, host, pid = app_info_components[:5]
                 event = f"{auto_path(app_name, app_version)}.{event_name}"
                 extra_items = _parse_extras(extras)

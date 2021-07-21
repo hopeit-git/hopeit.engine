@@ -18,11 +18,12 @@ class EventStats:
     started: int = 0
     done: int = 0
     failed: int = 0
+    ignored: int = 0
     recent: int = 0
 
     @property
     def pending(self):
-        return max(0, self.started - self.done - self.failed)
+        return max(0, self.started - self.done - self.failed - self.ignored)
 
 
 recent_entries: Deque[LogEntry] = deque(maxlen=2000)
@@ -71,6 +72,9 @@ def get_stats(host_pids: Set[Tuple[str, str]], time_window_secs: int, recent_sec
             elif entry.msg == "FAILED":
                 event_stats.failed += 1
                 stream_stats.failed += 1
+            elif entry.msg == "IGNORED":
+                event_stats.ignored += 1
+                stream_stats.ignored += 1
             if entry.ts >= recent_ts:
                 event_stats.recent += 1
                 stream_stats.recent += 1
