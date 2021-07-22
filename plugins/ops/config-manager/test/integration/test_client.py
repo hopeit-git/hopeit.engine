@@ -13,11 +13,6 @@ async def test_client(monkeypatch, cluster_apps_response,
 
     result = await client.get_apps_config("http://test-server1,http://test-server2", expand_events=False)
 
-    with open("file1.json", 'w') as f:
-        f.write(result.to_json(indent=2))
-    with open("file2.json", 'w') as f:
-        f.write(cluster_apps_response.to_json(indent=2))
-
     assert result == cluster_apps_response
 
 

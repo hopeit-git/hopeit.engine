@@ -1,6 +1,26 @@
 Release Notes
 =============
 
+Version 0.10.0
+______________
+- Plugins:
+  - This release adds general support in several plugins to properly handle events that are plugged into app endpoints.
+
+  - Apps Client:
+    - Support for two authentication strategies: FORWARD_CONTEXT to propagate basic auth from client to server, and
+  CLIENT_APP_PUBLIC_KEY to create Bearer token to be validated by server.
+    - Added support to configure and call plugin events that are plugged into app endpoints (plug_mode=ON_APP)
+
+ - Config Manager:
+    - Returns effective_events section prefixing event names with app_key and plugin_key
+
+  - Apps Visualizer:
+    - Handles edges between client apps calling ON_APP plugged events
+
+- Engine:
+  - Added tracking in EventContext for app_key and plugin_key, allowing logging those details as extra fields. 
+
+
 Version 0.9.4
 _____________
 - Fix: `apps-visualizer` plugin load effective_events from `config-manager` to avoid need to install monitored apps in same
