@@ -179,6 +179,10 @@ class AppsClient(Client):
         self.token_expire: int = 0
 
     def _get_route(self, event_name: str):
+        """
+        Builds the route to an event endpoint based on app + plugin configs.
+        Overrides in case app_connection settins specifies so.
+        """
         app_descriptor = AppDescriptor(
             name=self.app_connection.name,
             version=self.app_connection.version
@@ -187,7 +191,7 @@ class AppsClient(Client):
         if self.app_connection.plugin_name:
             plugin_descriptor = AppDescriptor(
                 name=self.app_connection.plugin_name,
-                version=self.app_connection.plugin_version
+                version=self.app_connection.plugin_version or self.app_connection.version
             )
         return app_route_name(
             app_descriptor, event_name=event_name, plugin=plugin_descriptor,
@@ -255,7 +259,7 @@ class AppsClient(Client):
             **self._request_headers(context),
             **self._auth_headers(context, now_ts=now_ts)
         }
-        
+
         for retry_count in range(self.settings.retries + 1):
             host_index = self._next_available_host(self.conn_state, now_ts, context)
             host = self.conn_state.load_balancer.host(host_index)
@@ -371,19 +375,22 @@ class AppsClient(Client):
         }
 
     def _auth_headers(self, context: EventContext, now_ts: int):
+        """
+        Creates Authorization header for request based on ClientAuthStrategy
+        configured in app connection settings.
+        """
         if self.settings.auth_strategy == ClientAuthStrategy.CLIENT_APP_PUBLIC_KEY:
             token = self._ensure_token(now_ts)
             return {
                 "authorization": f"Bearer {token}"
             }
-        
+
         if self.settings.auth_strategy == ClientAuthStrategy.FORWARD_CONTEXT:
             return {
                 "authorization": f"{context.auth_info['auth_type'].value} {context.auth_info['payload']}"
             }
-        
-        return {}
 
+        return {}
 
     async def _parse_response(self, response, context: EventContext,
                               datatype: Type[EventPayloadType],

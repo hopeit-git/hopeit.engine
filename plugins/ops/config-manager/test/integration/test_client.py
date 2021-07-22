@@ -13,18 +13,26 @@ async def test_client(monkeypatch, cluster_apps_response,
 
     result = await client.get_apps_config("http://test-server1,http://test-server2", expand_events=False)
 
+    with open("file1.json", 'w') as f:
+        f.write(result.to_json(indent=2))
+    with open("file2.json", 'w') as f:
+        f.write(cluster_apps_response.to_json(indent=2))
+
     assert result == cluster_apps_response
 
 
 @pytest.mark.asyncio
-async def test_client_expand_events(monkeypatch, cluster_apps_response_exp,
-                                    server1_apps_response_exp, server2_apps_response_exp):
+async def test_client_expand_events(monkeypatch, effective_events_example,
+                                    server1_apps_response, server2_apps_response):
 
-    mock_client(client, monkeypatch, server1_apps_response_exp, server2_apps_response_exp, expand_events=True)
+    mock_client(
+        client, monkeypatch, server1_apps_response, server2_apps_response, effective_events_example
+    )
 
     result = await client.get_apps_config("http://test-server1,http://test-server2", expand_events=True)
 
-    assert result == cluster_apps_response_exp
+    for _, v in result.apps.items():
+        assert v.effective_events == effective_events_example
 
 
 @pytest.mark.asyncio

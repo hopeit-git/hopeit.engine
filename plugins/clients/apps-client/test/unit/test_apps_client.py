@@ -33,7 +33,6 @@ async def test_client_get(monkeypatch, mock_client_app_config, mock_auth):
         )
 
 
-
 @pytest.mark.asyncio
 async def test_client_app_plugin(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:

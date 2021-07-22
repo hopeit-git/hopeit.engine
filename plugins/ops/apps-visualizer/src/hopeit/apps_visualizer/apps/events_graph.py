@@ -2,10 +2,8 @@
 Events graph showing events, stream and dependencies for specified apps
 """
 from typing import Optional
-from hopeit.app.config import EventDescriptor, EventPlugMode
 
 from hopeit.app.context import EventContext
-
 from hopeit.app.api import event_api
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.app.events import collector_step, Collector

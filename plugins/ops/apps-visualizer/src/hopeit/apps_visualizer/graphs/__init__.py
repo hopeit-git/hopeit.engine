@@ -129,7 +129,10 @@ def add_app_connections(nodes: Dict[str, Node], *,
                 target_app_key = AppDescriptor(name=app_connection.name, version=app_connection.version).app_key()
                 dest_node_name = f"{target_app_key}."
                 if app_connection.plugin_name:
-                    dest_node_name += auto_path(app_connection.plugin_name, app_connection.plugin_version) + '.'
+                    dest_node_name += auto_path(
+                        app_connection.plugin_name,
+                        app_connection.plugin_version or app_connection.version
+                    ) + '.'
                 dest_node_name += f"{conn.event}.{conn.type.value}"
                 dest_node = nodes.get(dest_node_name)
                 if dest_node:

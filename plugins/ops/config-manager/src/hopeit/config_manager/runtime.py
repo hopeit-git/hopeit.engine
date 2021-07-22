@@ -4,18 +4,23 @@ Manage access to server runtime running applications
 import socket
 import os
 from typing import Dict
-from hopeit.app.config import AppConfig, EventDescriptor, EventPlugMode
+from hopeit.app.config import EventDescriptor, EventPlugMode
 
 from hopeit.server import runtime
 
 from hopeit.config_manager import RuntimeAppInfo, RuntimeApps, ServerInfo, ServerStatus
 from hopeit.server.engine import AppEngine
 
-from hopeit.server.imports import find_event_handler
-from hopeit.server.steps import split_event_stages
-
 
 def _effective_events(app_engine: AppEngine, expand_events: bool) -> Dict[str, EventDescriptor]:
+    """
+    Build effective events reponse section, which contains unique keys to indentify events from
+    multiple apps.
+
+    - Prefixes each event_name in dictionary key with the app_key of the event
+    - If expand_events is True, gathers event list from app_engine effective_events instead of original config
+    - Handles events with plug_mode=ON_APP prepending the plugin app_key
+    """
     active_events = {}
     app_config = app_engine.app_config
     app_key = app_config.app_key()
