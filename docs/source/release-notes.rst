@@ -16,6 +16,10 @@ ______________
 
   - Apps Visualizer:
     - Handles edges between client apps calling ON_APP plugged events
+    - Live stats considers IGNORED events as a warning status
+
+  - Log Streamer:
+    - Support to capture IGNORED (Unathorized) event calls
 
 - Engine:
   - Added tracking in EventContext for app_key and plugin_key, allowing logging those details as extra fields. 

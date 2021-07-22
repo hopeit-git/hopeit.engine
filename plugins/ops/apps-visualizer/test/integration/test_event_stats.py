@@ -20,9 +20,9 @@ def mock_recent_entries(module, context):
 
 @pytest.mark.asyncio
 async def test_live_stats(monkeypatch, log_entries: LogBatch,
-                          mock_lock, plugin_config):
+                          mock_lock, plugin_config, effective_events):
     async with mock_lock:
-        mock_runtime(monkeypatch)
+        mock_runtime(monkeypatch, effective_events)
 
         await execute_event(
             app_config=plugin_config, event_name="event-stats.collect", payload=log_entries,
@@ -30,7 +30,7 @@ async def test_live_stats(monkeypatch, log_entries: LogBatch,
         )
 
         result: EventsGraphResult = await execute_event(  # type: ignore
-            app_config=plugin_config, event_name="event-stats.live", payload=None
+            app_config=plugin_config, event_name="event-stats.live", payload=None,
         )
 
         assert result.graph.data[
@@ -39,6 +39,14 @@ async def test_live_stats(monkeypatch, log_entries: LogBatch,
 
         assert result.graph.data[
             f'simple_example.{APPS_ROUTE_VERSION}.query_something'
+        ]['classes'] == 'EVENT RECENT STARTED'
+
+        assert result.graph.data[
+            f'simple_example.{APPS_ROUTE_VERSION}.basic_auth.{APPS_ROUTE_VERSION}.login.GET'
+        ]['classes'] == 'RECENT REQUEST STARTED'
+
+        assert result.graph.data[
+            f'simple_example.{APPS_ROUTE_VERSION}.basic_auth.{APPS_ROUTE_VERSION}.login'
         ]['classes'] == 'EVENT RECENT STARTED'
 
         assert result.graph.data[
@@ -70,6 +78,10 @@ async def test_live_stats(monkeypatch, log_entries: LogBatch,
         ]['classes'] == 'EVENT FAILED RECENT STARTED'
 
         assert result.graph.data[
+            f'client_example.{APPS_ROUTE_VERSION}.count_and_save'
+        ]['classes'] == 'EVENT IGNORED RECENT STARTED'
+
+        assert result.graph.data[
             f'edge_simple_example.{APPS_ROUTE_VERSION}.query_something.GET'
         ]['classes'] == 'RECENT STARTED'
 
@@ -99,9 +111,9 @@ async def test_live_stats(monkeypatch, log_entries: LogBatch,
 
 @pytest.mark.asyncio
 async def test_live_stats_expanded_view(monkeypatch, log_entries: LogBatch,
-                                        mock_lock, plugin_config):
+                                        mock_lock, plugin_config, effective_events):
     async with mock_lock:
-        mock_runtime(monkeypatch)
+        mock_runtime(monkeypatch, effective_events)
 
         await execute_event(
             app_config=plugin_config, event_name="event-stats.collect", payload=log_entries,

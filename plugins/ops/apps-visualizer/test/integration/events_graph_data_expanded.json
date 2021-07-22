@@ -1,4 +1,60 @@
 {
+  "basic_auth.${APPS_ROUTE_VERSION}.decode.GET": {
+    "data": {
+      "id": "basic_auth.${APPS_ROUTE_VERSION}.decode.GET",
+      "content": "GET"
+    },
+    "classes": "REQUEST"
+  },
+  "basic_auth.${APPS_ROUTE_VERSION}.decode": {
+    "data": {
+      "id": "basic_auth.${APPS_ROUTE_VERSION}.decode",
+      "content": "basic_auth.${APPS_ROUTE_VERSION}\ndecode"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login.GET": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login.GET",
+      "content": "GET"
+    },
+    "classes": "REQUEST"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nbasic_auth.${APPS_ROUTE_VERSION}.login"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh.GET": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh.GET",
+      "content": "GET"
+    },
+    "classes": "REQUEST"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nbasic_auth.${APPS_ROUTE_VERSION}.refresh"
+    },
+    "classes": "EVENT"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout.GET": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout.GET",
+      "content": "GET"
+    },
+    "classes": "REQUEST"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nbasic_auth.${APPS_ROUTE_VERSION}.logout"
+    },
+    "classes": "EVENT"
+  },
   "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET": {
     "data": {
       "id": "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
@@ -251,6 +307,38 @@
     },
     "classes": "EVENT"
   },
+  "edge_basic_auth.${APPS_ROUTE_VERSION}.decode.GET": {
+    "data": {
+      "id": "edge_basic_auth.${APPS_ROUTE_VERSION}.decode.GET",
+      "source": "basic_auth.${APPS_ROUTE_VERSION}.decode.GET",
+      "target": "basic_auth.${APPS_ROUTE_VERSION}.decode",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login.GET": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login.GET",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login.GET",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh.GET": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh.GET",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh.GET",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout.GET": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout.GET",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout.GET",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout",
+      "label": ""
+    }
+  },
   "edge_simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET": {
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",
@@ -464,6 +552,14 @@
       "id": "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
       "source": "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
       "target": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
+      "label": ""
+    }
+  },
+  "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.login.GET": {
+    "data": {
+      "id": "edge_client_example.${APPS_ROUTE_VERSION}.count_and_save.simple-example.login.GET",
+      "source": "client_example.${APPS_ROUTE_VERSION}.count_and_save",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login.GET",
       "label": ""
     }
   },
