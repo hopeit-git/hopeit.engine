@@ -46,7 +46,7 @@ async def ensure_login(payload: None, context: EventContext, wildcard: str = '*'
     will execute using the client Bearer token.
 
     This example shows how to ensure both client and server apps can trust each other by having
-    installed their counterparts public keys on their running environments.
+    installed the counterpart's public key on their running environments.
     """
     auth_response = await app_call(
         "simple_example_auth_conn",
