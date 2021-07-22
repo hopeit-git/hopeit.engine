@@ -11,12 +11,13 @@ ______________
   CLIENT_APP_PUBLIC_KEY to create Bearer token to be validated by server.
     - Added support to configure and call plugin events that are plugged into app endpoints (plug_mode=ON_APP)
 
- - Config Manager:
+  - Config Manager:
     - Returns effective_events section prefixing event names with app_key and plugin_key
 
   - Apps Visualizer:
     - Handles edges between client apps calling ON_APP plugged events
     - Live stats considers IGNORED events as a warning status
+    - Fixed Open API warning for multiple schemas with same name
 
   - Log Streamer:
     - Support to capture IGNORED (Unathorized) event calls
@@ -27,8 +28,7 @@ ______________
 
 Version 0.9.4
 _____________
-- Fix: `apps-visualizer` plugin load effective_events from `config-manager` to avoid need to install monitored apps in same
-  running environment as `app-visualizer`
+- Fix: `apps-visualizer` plugin load effective_events from `config-manager` to avoid the need to install monitored apps in the same running environment as `apps-visualizer`
 - `config-manager` plugins, exposes effective_events (events with intermediate streams) as part of runtime app info.
 
 
