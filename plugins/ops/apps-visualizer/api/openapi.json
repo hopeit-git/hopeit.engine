@@ -1087,22 +1087,40 @@
         "x-module-name": "hopeit.apps_visualizer.site.visualization",
         "description": "VisualizationOptions(app_prefix: str = '', host_filter: str = '', expanded_view: bool = False, live: bool = False)"
       },
+      "CytoscapeGraph": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            },
+            "default": {}
+          }
+        },
+        "x-module-name": "hopeit.apps_visualizer.site.visualization",
+        "description": "CytoscapeGraph(data: Dict[str, Dict[str, Any]] = <factory>)"
+      },
       "EventsGraphResult": {
         "type": "object",
         "required": [
           "runtime_apps",
+          "graph",
           "options"
         ],
         "properties": {
           "runtime_apps": {
             "$ref": "#/components/schemas/RuntimeApps"
           },
+          "graph": {
+            "$ref": "#/components/schemas/CytoscapeGraph"
+          },
           "options": {
             "$ref": "#/components/schemas/VisualizationOptions"
           }
         },
-        "x-module-name": "hopeit.apps_visualizer.site.main",
-        "description": "EventsGraphResult(runtime_apps: hopeit.config_manager.RuntimeApps, options: hopeit.apps_visualizer.site.visualization.VisualizationOptions)"
+        "x-module-name": "hopeit.apps_visualizer.apps.events_graph",
+        "description": "EventsGraphResult(runtime_apps: hopeit.config_manager.RuntimeApps, graph: hopeit.apps_visualizer.site.visualization.CytoscapeGraph, options: hopeit.apps_visualizer.site.visualization.VisualizationOptions)"
       }
     },
     "securitySchemes": {
