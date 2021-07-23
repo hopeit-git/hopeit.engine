@@ -19,6 +19,7 @@ setuptools.setup(
     python_requires=">=3.7",
     install_requires=[
         f"hopeit.engine[web,cli,apps-client]=={version['ENGINE_VERSION']}",
+        f"hopeit.basic-auth=={version['ENGINE_VERSION']}",
         f"simple-example=={version['ENGINE_VERSION']}"
     ],
     extras_require={

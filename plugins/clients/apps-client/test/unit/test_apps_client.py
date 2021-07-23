@@ -7,9 +7,11 @@ from hopeit.apps_client import AppsClientException, ClientLoadBalancerException
 from hopeit.app.client import AppConnectionNotFound, app_call, app_call_list, app_client
 from hopeit.app.config import AppConfig
 from hopeit.app.errors import Unauthorized
+from hopeit.server.config import AuthType
 from hopeit.testing.apps import create_test_context
 
-from . import MockClientSession, MockPayloadData, MockResponseData, init_mock_client_app
+from . import MockClientSession, MockPayloadData, MockResponseData, \
+    init_mock_client_app, init_mock_client_app_plugin
 
 
 @pytest.mark.asyncio
@@ -21,6 +23,30 @@ async def test_client_get(monkeypatch, mock_client_app_config, mock_auth):
         context = create_test_context(mock_client_app_config, "mock_client_event")
         result = await app_call(
             "test_app_connection", event="test_event_get",
+            datatype=MockResponseData, payload=None, context=context,
+            test_param="test_param_value"
+        )
+        assert result == MockResponseData(
+            value="ok", param="test_param_value",
+            host="http://test-host1",
+            log={"http://test-host1": 1}
+        )
+
+
+@pytest.mark.asyncio
+async def test_client_app_plugin(monkeypatch, mock_client_app_config, mock_auth):
+    async with MockClientSession.lock:
+        await init_mock_client_app_plugin(
+            apps_client_module, monkeypatch, mock_auth, mock_client_app_config,
+            "test-plugin", "test-event-plugin", "ok"
+        )
+        context = create_test_context(mock_client_app_config, "mock_client_event")
+        context.auth_info = {
+            "auth_type": AuthType.BASIC,
+            "payload": "user:pass"
+        }
+        result = await app_call(
+            "test_app_plugin_connection", event="test_event_plugin",
             datatype=MockResponseData, payload=None, context=context,
             test_param="test_param_value"
         )

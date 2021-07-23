@@ -33,30 +33,24 @@ __api__ = event_api(
 _dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 
 
-# @dataobject
-# @dataclass
-# class RuntimeApps:
-#     apps: List[AppConfig]
-
-
 @dataobject
 @dataclass
-class EventsGraphResult:
+class RuntimeAppsConfig:
     runtime_apps: RuntimeApps
     options: VisualizationOptions
 
 
-async def runtime_apps_config(options: VisualizationOptions, context: EventContext) -> EventsGraphResult:
+async def runtime_apps_config(options: VisualizationOptions, context: EventContext) -> RuntimeAppsConfig:
     """
     Extract current runtime app_config objects
     """
-    return EventsGraphResult(
+    return RuntimeAppsConfig(
         runtime_apps=await get_runtime_apps(context, refresh=True, expand_events=options.expanded_view),
         options=options
     )
 
 
-async def __postprocess__(result: EventsGraphResult, context: EventContext, response: PostprocessHook) -> str:
+async def __postprocess__(result: RuntimeAppsConfig, context: EventContext, response: PostprocessHook) -> str:
     """
     Renders html from template, using cytospace data json
     """

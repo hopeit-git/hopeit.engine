@@ -83,7 +83,7 @@ class LogFileHandler(FileSystemEventHandler):
     It also keeps track of open files and ensures they are closed when inactive or deleted,
     allowing to work combined with `logrotate`.
     """
-    EVENTS_SORT_ORDER = ['START', '', 'DONE', 'FAILED']
+    EVENTS_SORT_ORDER = ['START', '', 'DONE', 'FAILED', 'IGNORED']
 
     def __init__(self, config: LogReaderConfig, context: EventContext):
         self.path = config.logs_path
@@ -122,7 +122,7 @@ class LogFileHandler(FileSystemEventHandler):
             logger.error(self.context, e)
 
     def _add_line(self, lines: List[str], line: str):
-        if ('| START |' in line) or ('| DONE |' in line) or ('| FAILED |' in line):
+        if ('| START |' in line) or ('| DONE |' in line) or ('| FAILED |' in line) or ('| IGNORED |') in line:
             lines.append(line)
 
     async def _on_event(self, event):

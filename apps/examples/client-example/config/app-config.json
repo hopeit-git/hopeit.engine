@@ -8,13 +8,27 @@
         "cors_origin": "*"
     }, 
     "app_connections": {
+        "simple_example_auth_conn": {
+            "name": "simple-example",
+            "version": "${HOPEIT_APPS_API_VERSION}",
+            "plugin_name": "basic-auth",
+            "plugin_version": "${HOPEIT_APPS_API_VERSION}",
+            "client": "hopeit.apps_client.AppsClient"
+        },
         "simple_example_conn": {
             "name": "simple-example",
             "version": "${HOPEIT_APPS_API_VERSION}",
             "client": "hopeit.apps_client.AppsClient"
         }
+
     },
     "settings": {
+        "simple_example_auth_conn": {
+            "connection_str": "${HOPEIT_SIMPLE_EXAMPLE_HOSTS}",
+            "auth_strategy": "FORWARD_CONTEXT",
+            "retries": 2,
+            "retry_backoff_ms": 10
+        },
         "simple_example_conn": {
             "connection_str": "${HOPEIT_SIMPLE_EXAMPLE_HOSTS}",
             "circuit_breaker_open_failures": 10,
@@ -26,6 +40,7 @@
             "max_connections": 100,
             "max_connections_per_host": 0,
             "dns_cache_ttl": 10,
+            "auth_strategy": "CLIENT_APP_PUBLIC_KEY",
             "routes_override": {
                 "__list-somethings": "simple-example/${HOPEIT_APPS_ROUTE_VERSION}/list-somethings"
             }
@@ -35,6 +50,11 @@
         "count_and_save": {
             "type": "GET",
             "connections": [
+                {
+                    "app_connection": "simple_example_auth_conn",
+                    "event": "login",
+                    "type": "GET"
+                },
                 {
                     "app_connection": "simple_example_conn",
                     "event": "list_somethings",

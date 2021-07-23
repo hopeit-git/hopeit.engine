@@ -2,6 +2,7 @@
 Client to invoke events in configured connected Apps
 """
 from contextlib import AbstractAsyncContextManager
+from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Type
 import asyncio
 from collections import defaultdict
@@ -26,6 +27,19 @@ from hopeit.server.api import app_route_name
 logger, extra = engine_extra_logger()
 
 
+class ClientAuthStrategy(str, Enum):
+    """
+    Supported clients auth strategy:
+
+    CLIENT_APP_PUBLIC_KEY: Creates a Bearer token using client app private key. To allow access on service
+        side, client app public key must be available for the called app.
+    FORWARDS_CONTEXT: Build Authorization header based on what's available in event context auth_info.
+        This strategy can be used to propagate Basic auth from client to called service.
+    """
+    CLIENT_APP_PUBLIC_KEY = "CLIENT_APP_PUBLIC_KEY"
+    FORWARD_CONTEXT = "FORWARD_CONTEXT"
+
+
 @dataobject
 @dataclass
 class AppsClientSettings:
@@ -45,6 +59,7 @@ class AppsClientSettings:
     max_connections: int = 100
     max_connections_per_host: int = 0
     dns_cache_ttl: int = 10
+    auth_strategy: ClientAuthStrategy = ClientAuthStrategy.CLIENT_APP_PUBLIC_KEY
     routes_override: Dict[str, str] = field(default_factory=dict)
 
 
@@ -164,12 +179,22 @@ class AppsClient(Client):
         self.token_expire: int = 0
 
     def _get_route(self, event_name: str):
+        """
+        Builds the route to an event endpoint based on app + plugin configs.
+        Overrides in case app_connection settins specifies so.
+        """
         app_descriptor = AppDescriptor(
             name=self.app_connection.name,
             version=self.app_connection.version
         )
+        plugin_descriptor = None
+        if self.app_connection.plugin_name:
+            plugin_descriptor = AppDescriptor(
+                name=self.app_connection.plugin_name,
+                version=self.app_connection.plugin_version or self.app_connection.version
+            )
         return app_route_name(
-            app_descriptor, event_name=event_name,
+            app_descriptor, event_name=event_name, plugin=plugin_descriptor,
             override_route_name=self.settings.routes_override.get(event_name)
         )
 
@@ -183,7 +208,8 @@ class AppsClient(Client):
         ))
         self._register_event_connections()
         self._create_session()
-        self._ensure_token(self._now_ts())
+        if self.settings.auth_strategy == ClientAuthStrategy.CLIENT_APP_PUBLIC_KEY:
+            self._ensure_token(self._now_ts())
         logger.info(__name__, "Client ready.", extra=extra(
             app=self.app_key, app_connection=self.app_conn_key
         ))
@@ -229,8 +255,10 @@ class AppsClient(Client):
             raise RuntimeError("AppsClient not started: `client.start()` must be called from engine.")
         now_ts = self._now_ts()
         event_info = self._get_event_connection(context, event_name)
-        token = self._ensure_token(now_ts)
-        headers = self._request_headers(context, token)
+        headers = {
+            **self._request_headers(context),
+            **self._auth_headers(context, now_ts=now_ts)
+        }
 
         for retry_count in range(self.settings.retries + 1):
             host_index = self._next_available_host(self.conn_state, now_ts, context)
@@ -335,7 +363,7 @@ class AppsClient(Client):
             load_balancer=lb
         )
 
-    def _request_headers(self, context: EventContext, token: str):
+    def _request_headers(self, context: EventContext):
         return {
             **{
                 f"x-{spinalcase(k)}": str(v)
@@ -343,9 +371,26 @@ class AppsClient(Client):
             },
             "x-track-client-app-key": context.app_key,
             "x-track-client-event-name": context.event_name,
-            "authorization": f"Bearer {token}",
             "content-type": "application/json"
         }
+
+    def _auth_headers(self, context: EventContext, now_ts: int):
+        """
+        Creates Authorization header for request based on ClientAuthStrategy
+        configured in app connection settings.
+        """
+        if self.settings.auth_strategy == ClientAuthStrategy.CLIENT_APP_PUBLIC_KEY:
+            token = self._ensure_token(now_ts)
+            return {
+                "authorization": f"Bearer {token}"
+            }
+
+        if self.settings.auth_strategy == ClientAuthStrategy.FORWARD_CONTEXT:
+            return {
+                "authorization": f"{context.auth_info['auth_type'].value} {context.auth_info['payload']}"
+            }
+
+        return {}
 
     async def _parse_response(self, response, context: EventContext,
                               datatype: Type[EventPayloadType],

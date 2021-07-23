@@ -25,11 +25,11 @@ class MockAppEngine(AppEngine):
 
     async def start(self):
         self.stream_manager = MockStreamManager(address="mock")
-        self.stream_manager.connect()
+        await self.stream_manager.connect()
         return self
 
     async def stop(self):
-        self.stream_manager.close()
+        await self.stream_manager.close()
 
 
 class MockEventHandler(EventHandler):

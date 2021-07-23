@@ -170,7 +170,7 @@ async def test_read_write_stream_auto_queue(
         'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
         'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
-        'stream.consumer_group': 'test_group'
+        'stream.consumer_group': 'test_group', 'event.app': 'mock_app.test'
     })
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
@@ -196,7 +196,7 @@ async def test_read_write_stream_propagate_queue(
         'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
         'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
-        'stream.consumer_group': 'test_group'
+        'stream.consumer_group': 'test_group', 'event.app': 'mock_app.test'
     })
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     monkeypatch.setattr(MockStreamManager, 'test_queue', 'custom')
@@ -225,7 +225,7 @@ async def test_read_write_stream_drop_queue(
         'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
         'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
-        'stream.consumer_group': 'test_group'
+        'stream.consumer_group': 'test_group', 'event.app': 'mock_app.test'
     })
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     monkeypatch.setattr(MockStreamManager, 'test_queue', 'custom')
@@ -254,7 +254,7 @@ async def test_read_write_stream_new_queue(
         'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
         'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
-        'stream.consumer_group': 'test_group'
+        'stream.consumer_group': 'test_group', 'event.app': 'mock_app.test'
     })
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     mock_app_config.events['mock_read_write_stream'].write_stream.queues = \
@@ -282,7 +282,7 @@ async def test_read_write_stream_new_queue_propagate_auto(
         'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
         'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
-        'stream.consumer_group': 'test_group'
+        'stream.consumer_group': 'test_group', 'event.app': 'mock_app.test'
     })
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     mock_app_config.events['mock_read_write_stream'].write_stream.queues = \
@@ -312,7 +312,7 @@ async def test_read_write_stream_new_queue_propagate(
         'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
         'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
-        'stream.consumer_group': 'test_group'
+        'stream.consumer_group': 'test_group', 'event.app': 'mock_app.test'
     })
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     monkeypatch.setattr(MockStreamManager, 'test_queue', 'original')
@@ -343,7 +343,7 @@ async def test_read_write_stream_new_queue_drop(
         'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
         'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
-        'stream.consumer_group': 'test_group'
+        'stream.consumer_group': 'test_group', 'event.app': 'mock_app.test'
     })
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     monkeypatch.setattr(MockStreamManager, 'test_queue', 'original')
@@ -374,7 +374,7 @@ async def test_read_write_stream_multiple_queues(
         'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
         'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
-        'stream.consumer_group': 'test_group'
+        'stream.consumer_group': 'test_group', 'event.app': 'mock_app.test'
     })
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     monkeypatch.setattr(MockStreamManager, 'test_queue', 'original')
@@ -415,7 +415,7 @@ async def test_read_write_stream_multiple_queues_propagate(
         'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
         'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
-        'stream.consumer_group': 'test_group'
+        'stream.consumer_group': 'test_group', 'event.app': 'mock_app.test'
     })
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     monkeypatch.setattr(MockStreamManager, 'test_queue', None)  # Will use last part of stream name
@@ -458,7 +458,7 @@ async def test_read_write_stream_multiple_queues_propagate_AUTO(
         'track.operation_id': 'test_operation_id', 'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00', 'track.session_id': 'test_session_id',
         'stream.name': 'test_stream', 'stream.msg_id': '0000000000-0',
-        'stream.consumer_group': 'test_group'
+        'stream.consumer_group': 'test_group', 'event.app': 'mock_app.test'
     })
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     monkeypatch.setattr(MockStreamManager, 'test_queue', 'custom')

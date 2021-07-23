@@ -16,11 +16,11 @@ python3 -m pylint apps/examples/simple-example/src/
 code+=$?
 
 echo "apps/client-example"
-export MYPYPATH=engine/src/:apps/examples/simple-example/src/:apps/examples/client-example/src/ && python3 -m mypy --namespace-packages -p client_example
+export MYPYPATH=engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/:apps/examples/client-example/src/ && python3 -m mypy --namespace-packages -p client_example
 code+=$?
-export MYPYPATH=engine/src/:apps/examples/simple-example/src/:apps/examples/client-example/src/ && python3 -m mypy --namespace-packages apps/examples/client-example/test/unit/
+export MYPYPATH=engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/:apps/examples/client-example/src/ && python3 -m mypy --namespace-packages apps/examples/client-example/test/unit/
 code+=$?
-export MYPYPATH=engine/src/:apps/examples/simple-example/src/:apps/examples/client-example/src/ && python3 -m mypy --namespace-packages apps/examples/client-example/test/integration/
+export MYPYPATH=engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/:apps/examples/client-example/src/ && python3 -m mypy --namespace-packages apps/examples/client-example/test/integration/
 code+=$?
 python3 -m flake8 --max-line-length=120 apps/examples/client-example/src/ apps/examples/client-example/test/unit/ apps/examples/client-example/test/integration/
 code+=$?

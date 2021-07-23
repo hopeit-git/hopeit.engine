@@ -77,12 +77,14 @@ class MockClientSession():
     lock = asyncio.Lock()
     session_open = False
     responses: Dict[str, str] = {}
+    headers: Dict[str, str] = {}
     failure: Dict[str, int] = {}
     call_log: Dict[str, int] = defaultdict(int)
 
     @classmethod
-    def setup(cls, responses: Dict[str, str]):
+    def setup(cls, responses: Dict[str, str], headers: Dict[str, str]):
         cls.responses = responses
+        cls.headers = headers
         cls.failure = {
             cls._host(url): 0 for url in responses.keys()
         }
@@ -113,7 +115,12 @@ class MockClientSession():
     def _host(url: str):
         return '/'.join(url.split('/')[0:3])
 
+    def _check_headers(self, headers: dict):
+        for k, v in self.headers.items():
+            assert headers[k] == v
+
     def get(self, url: str, headers: dict, params: dict) -> MockResponse:
+        self._check_headers(headers)
         host = self._host(url)
         self.call_log[host] += 1
         if self.failure.get(host):
@@ -131,6 +138,7 @@ class MockClientSession():
 
     def post(self, url: str, data: str, headers: dict,
              params: dict) -> Union[MockResponseList, MockResponse]:
+        self._check_headers(headers)
         host = self._host(url)
         self.call_log[host] += 1
         if self.failure.get(host):
@@ -158,6 +166,28 @@ async def init_mock_client_app(module, monkeypatch, mock_auth, app_config, event
         responses={
             url1: response,
             url2: response
+        },
+        headers={
+            "authorization": "Bearer test-token"
         }
+    ))
+    await engine.AppEngine(app_config=app_config, plugins=[], streams_enabled=False).start()
+
+
+async def init_mock_client_app_plugin(module, monkeypatch, mock_auth, app_config, plugin_name, event_name, response):
+    monkeypatch.setattr(engine, "auth", mock_auth)
+    monkeypatch.setattr(module, "auth", mock_auth)
+    url_pattern = "{}/api/test-app/{}/{}/{}/{}"
+    url1 = url_pattern.format("http://test-host1", APPS_ROUTE_VERSION, plugin_name, APPS_ROUTE_VERSION, event_name)
+    url2 = url_pattern.format("http://test-host2", APPS_ROUTE_VERSION, plugin_name, APPS_ROUTE_VERSION, event_name)
+    monkeypatch.setattr(module.aiohttp, 'ClientSession', MockClientSession.setup(
+        responses={
+            url1: response,
+            url2: response
+        },
+        headers={
+            "authorization": "Basic user:pass"
+        }
+
     ))
     await engine.AppEngine(app_config=app_config, plugins=[], streams_enabled=False).start()

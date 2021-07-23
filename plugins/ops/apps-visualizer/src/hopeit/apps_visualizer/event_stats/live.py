@@ -80,6 +80,8 @@ async def live_stats(collector: Collector, context: EventContext) -> Collector:
                     classes.append('RECENT')
                 if s.failed:
                     classes.append('FAILED')
+                if s.ignored:
+                    classes.append('IGNORED')
                 item['classes'] = _classes(item, classes)
                 target = item['data'].get('target', ' ')
                 if target[0] == '>':

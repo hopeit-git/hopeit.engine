@@ -8,7 +8,7 @@ export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src:plugins/storage/fs/src
 code+=$?
 
 echo "apps/client-example"
-export PYTHONPATH=engine/src/:apps/examples/simple-example/src/:apps/examples/client-example/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=apps/examples/client-example/src/ apps/examples/client-example/test/unit/ apps/examples/client-example/test/integration/
+export PYTHONPATH=engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/:apps/examples/client-example/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=apps/examples/client-example/src/ apps/examples/client-example/test/unit/ apps/examples/client-example/test/integration/
 code+=$?
 
 if [ $code -gt 0 ]

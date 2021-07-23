@@ -4,7 +4,6 @@ Events graph showing events, stream and dependencies for specified apps
 from typing import Optional
 
 from hopeit.app.context import EventContext
-
 from hopeit.app.api import event_api
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.app.events import collector_step, Collector
@@ -86,8 +85,8 @@ async def config_graph(collector: Collector, context: EventContext) -> Optional[
     ]
 
     events = {
-        f"{app_key}.{event_name}": event_info
-        for app_key, app_info in filtered_apps
+        event_name: event_info
+        for _, app_info in filtered_apps
         for event_name, event_info in app_info.effective_events.items()
     }
 

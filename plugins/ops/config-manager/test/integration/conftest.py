@@ -1,11 +1,12 @@
-import pytest
-
-from hopeit.dataobjects.payload import Payload
-from hopeit.config_manager import RuntimeApps, ServerStatus
 import socket
 import os
+import json
 
+import pytest
+from hopeit.app.config import EventDescriptor
 from hopeit.server.version import APPS_API_VERSION, ENGINE_VERSION, APPS_ROUTE_VERSION
+from hopeit.dataobjects.payload import Payload
+from hopeit.config_manager import RuntimeApps, ServerStatus
 
 
 RUNTIME_SIMPLE_EXAMPLE = """
@@ -40,6 +41,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           ],
           "cors_origin": "*"
         },
+        "app_connections": {},
         "env": {
           "fs": {
             "data_path": "/tmp/simple_example.${APPS_ROUTE_VERSION}.fs.data_path/"
@@ -53,6 +55,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "list_somethings": {
             "type": "GET",
             "plug_mode": "Standalone",
+            "connections": [],
             "config": {
               "response_timeout": 60.0,
               "logging": {
@@ -79,6 +82,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "GET",
             "plug_mode": "Standalone",
             "route": "simple-example/${APPS_API_VERSION}/query_something",
+            "connections": [],
             "config": {
               "response_timeout": 60.0,
               "logging": {
@@ -105,6 +109,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "type": "POST",
             "plug_mode": "Standalone",
             "route": "simple-example/${APPS_API_VERSION}/query_something",
+            "connections": [],
             "config": {
               "response_timeout": 60.0,
               "logging": {
@@ -130,6 +135,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "save_something": {
             "type": "POST",
             "plug_mode": "Standalone",
+            "connections": [],
             "config": {
               "response_timeout": 60.0,
               "logging": {
@@ -155,6 +161,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "download_something": {
             "type": "GET",
             "plug_mode": "Standalone",
+            "connections": [],
             "config": {
               "response_timeout": 60.0,
               "logging": {
@@ -180,6 +187,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "upload_something": {
             "type": "MULTIPART",
             "plug_mode": "Standalone",
+            "connections": [],
             "config": {
               "response_timeout": 60.0,
               "logging": {
@@ -205,6 +213,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "service.something_generator": {
             "type": "SERVICE",
             "plug_mode": "Standalone",
+            "connections": [],
             "write_stream": {
               "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
               "queues": [
@@ -237,6 +246,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "streams.something_event": {
             "type": "POST",
             "plug_mode": "Standalone",
+            "connections": [],
             "write_stream": {
               "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
               "queues": [
@@ -271,6 +281,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "streams.process_events": {
             "type": "STREAM",
             "plug_mode": "Standalone",
+            "connections": [],
             "read_stream": {
               "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
               "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
@@ -310,6 +321,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "collector.query_concurrently": {
             "type": "POST",
             "plug_mode": "Standalone",
+            "connections": [],
             "config": {
               "response_timeout": 60.0,
               "logging": {
@@ -335,6 +347,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "collector.collect_spawn": {
             "type": "POST",
             "plug_mode": "Standalone",
+            "connections": [],
             "write_stream": {
               "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
               "queues": [
@@ -369,6 +382,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "shuffle.spawn_event": {
             "type": "POST",
             "plug_mode": "Standalone",
+            "connections": [],
             "write_stream": {
               "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
               "queues": [
@@ -403,6 +417,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "shuffle.parallelize_event": {
             "type": "POST",
             "plug_mode": "Standalone",
+            "connections": [],
             "write_stream": {
               "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
               "queues": [
@@ -463,10 +478,95 @@ RUNTIME_SIMPLE_EXAMPLE = """
             "name": "basic-auth",
             "version": "${APPS_API_VERSION}"
           }
-        ]
+        ],
+        "settings": {}
       },
       "effective_events": {
-        "list_somethings": {
+        "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login": {
+          "type": "GET",
+          "plug_mode": "OnApp",
+          "connections": [],
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": [
+            "Basic"
+          ]
+        },
+        "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh": {
+          "type": "GET",
+          "plug_mode": "OnApp",
+          "connections": [],
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": [
+            "Refresh"
+          ]
+        },
+        "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout": {
+          "type": "GET",
+          "plug_mode": "OnApp",
+          "connections": [],
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": [
+            "Refresh"
+          ]
+        },
+        "simple_example.${APPS_ROUTE_VERSION}.list_somethings": {
           "type": "GET",
           "plug_mode": "Standalone",
           "connections": [],
@@ -492,7 +592,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "query_something": {
+        "simple_example.${APPS_ROUTE_VERSION}.query_something": {
           "type": "GET",
           "plug_mode": "Standalone",
           "route": "simple-example/${APPS_API_VERSION}/query_something",
@@ -519,7 +619,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "query_something_extended": {
+        "simple_example.${APPS_ROUTE_VERSION}.query_something_extended": {
           "type": "POST",
           "plug_mode": "Standalone",
           "route": "simple-example/${APPS_API_VERSION}/query_something",
@@ -546,7 +646,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "save_something": {
+        "simple_example.${APPS_ROUTE_VERSION}.save_something": {
           "type": "POST",
           "plug_mode": "Standalone",
           "connections": [],
@@ -572,7 +672,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "download_something": {
+        "simple_example.${APPS_ROUTE_VERSION}.download_something": {
           "type": "GET",
           "plug_mode": "Standalone",
           "connections": [],
@@ -598,7 +698,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "upload_something": {
+        "simple_example.${APPS_ROUTE_VERSION}.upload_something": {
           "type": "MULTIPART",
           "plug_mode": "Standalone",
           "connections": [],
@@ -624,7 +724,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "service.something_generator": {
+        "simple_example.${APPS_ROUTE_VERSION}.service.something_generator": {
           "type": "SERVICE",
           "plug_mode": "Standalone",
           "connections": [],
@@ -657,7 +757,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "streams.something_event": {
+        "simple_example.${APPS_ROUTE_VERSION}.streams.something_event": {
           "type": "POST",
           "plug_mode": "Standalone",
           "connections": [],
@@ -692,7 +792,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "streams.process_events": {
+        "simple_example.${APPS_ROUTE_VERSION}.streams.process_events": {
           "type": "STREAM",
           "plug_mode": "Standalone",
           "connections": [],
@@ -732,7 +832,7 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "collector.query_concurrently": {
+        "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently": {
           "type": "POST",
           "plug_mode": "Standalone",
           "connections": [],
@@ -758,52 +858,10 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "collector.collect_spawn": {
+        "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn": {
           "type": "POST",
           "plug_mode": "Standalone",
           "connections": [],
-          "write_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first",
-            "queues": [
-              "AUTO"
-            ],
-            "queue_strategy": "PROPAGATE"
-          },
-          "config": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 1000,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            }
-          },
-          "auth": []
-        },
-        "collector.collect_spawn$spawn": {
-          "type": "STREAM",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "read_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.collector@load_first",
-            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn.spawn",
-            "queues": [
-              "AUTO"
-            ]
-          },
           "write_stream": {
             "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
             "queues": [
@@ -835,52 +893,10 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "shuffle.spawn_event": {
+        "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event": {
           "type": "POST",
           "plug_mode": "Standalone",
           "connections": [],
-          "write_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events",
-            "queues": [
-              "AUTO"
-            ],
-            "queue_strategy": "PROPAGATE"
-          },
-          "config": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 1000,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            }
-          },
-          "auth": []
-        },
-        "shuffle.spawn_event$update_status": {
-          "type": "STREAM",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "read_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.spawn_many_events",
-            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event.update_status",
-            "queues": [
-              "AUTO"
-            ]
-          },
           "write_stream": {
             "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
             "queues": [
@@ -912,94 +928,10 @@ RUNTIME_SIMPLE_EXAMPLE = """
           },
           "auth": []
         },
-        "shuffle.parallelize_event": {
+        "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event": {
           "type": "POST",
           "plug_mode": "Standalone",
           "connections": [],
-          "write_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something",
-            "queues": [
-              "AUTO"
-            ],
-            "queue_strategy": "PROPAGATE"
-          },
-          "config": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 1000,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            }
-          },
-          "auth": []
-        },
-        "shuffle.parallelize_event$process_first_part": {
-          "type": "STREAM",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "read_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.fork_something",
-            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part",
-            "queues": [
-              "AUTO"
-            ]
-          },
-          "write_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part",
-            "queues": [
-              "AUTO"
-            ],
-            "queue_strategy": "PROPAGATE"
-          },
-          "config": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 1000,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            }
-          },
-          "auth": []
-        },
-        "shuffle.parallelize_event$update_status": {
-          "type": "STREAM",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "read_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.process_first_part",
-            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event.update_status",
-            "queues": [
-              "AUTO"
-            ]
-          },
           "write_stream": {
             "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
             "queues": [
@@ -1032,6 +964,212 @@ RUNTIME_SIMPLE_EXAMPLE = """
           "auth": []
         }
       }
+    },
+    "basic_auth.${APPS_ROUTE_VERSION}": {
+      "servers": [
+        {
+          "host_name": "${HOST_NAME}",
+          "pid": "${PID}",
+          "url": "${URL}"
+        }
+      ],
+      "app_config": {
+        "app": {
+          "name": "basic-auth",
+          "version": "${APPS_API_VERSION}"
+        },
+        "engine": {
+          "import_modules": [
+            "hopeit.basic_auth"
+          ],
+          "read_stream_timeout": 1000,
+          "read_stream_interval": 1000,
+          "default_stream_compression": "lz4",
+          "default_stream_serialization": "json+base64",
+          "track_headers": [
+            "track.request_id",
+            "track.request_ts"
+          ],
+          "cors_origin": "http://localhost:8020"
+        },
+        "app_connections": {},
+        "env": {
+          "auth": {
+            "access_token_expiration": 600,
+            "refresh_token_expiration": 3600,
+            "access_token_renew_window": 5
+          }
+        },
+        "events": {
+          "login": {
+            "type": "GET",
+            "plug_mode": "OnApp",
+            "connections": [],
+            "config": {
+              "response_timeout": 60.0,
+              "logging": {
+                "extra_fields": [],
+                "stream_fields": [
+                  "stream.name",
+                  "stream.msg_id",
+                  "stream.consumer_group"
+                ]
+              },
+              "stream": {
+                "timeout": 60.0,
+                "target_max_len": 0,
+                "throttle_ms": 0,
+                "step_delay": 0,
+                "batch_size": 100,
+                "compression": "lz4",
+                "serialization": "json+base64"
+              }
+            },
+            "auth": [
+              "Basic"
+            ]
+          },
+          "refresh": {
+            "type": "GET",
+            "plug_mode": "OnApp",
+            "connections": [],
+            "config": {
+              "response_timeout": 60.0,
+              "logging": {
+                "extra_fields": [],
+                "stream_fields": [
+                  "stream.name",
+                  "stream.msg_id",
+                  "stream.consumer_group"
+                ]
+              },
+              "stream": {
+                "timeout": 60.0,
+                "target_max_len": 0,
+                "throttle_ms": 0,
+                "step_delay": 0,
+                "batch_size": 100,
+                "compression": "lz4",
+                "serialization": "json+base64"
+              }
+            },
+            "auth": [
+              "Refresh"
+            ]
+          },
+          "logout": {
+            "type": "GET",
+            "plug_mode": "OnApp",
+            "connections": [],
+            "config": {
+              "response_timeout": 60.0,
+              "logging": {
+                "extra_fields": [],
+                "stream_fields": [
+                  "stream.name",
+                  "stream.msg_id",
+                  "stream.consumer_group"
+                ]
+              },
+              "stream": {
+                "timeout": 60.0,
+                "target_max_len": 0,
+                "throttle_ms": 0,
+                "step_delay": 0,
+                "batch_size": 100,
+                "compression": "lz4",
+                "serialization": "json+base64"
+              }
+            },
+            "auth": [
+              "Refresh"
+            ]
+          },
+          "decode": {
+            "type": "GET",
+            "plug_mode": "Standalone",
+            "connections": [],
+            "config": {
+              "response_timeout": 60.0,
+              "logging": {
+                "extra_fields": [],
+                "stream_fields": [
+                  "stream.name",
+                  "stream.msg_id",
+                  "stream.consumer_group"
+                ]
+              },
+              "stream": {
+                "timeout": 60.0,
+                "target_max_len": 0,
+                "throttle_ms": 0,
+                "step_delay": 0,
+                "batch_size": 100,
+                "compression": "lz4",
+                "serialization": "json+base64"
+              }
+            },
+            "auth": [
+              "Bearer"
+            ]
+          }
+        },
+        "server": {
+          "streams": {
+            "stream_manager": "hopeit.streams.NoStreamManager",
+            "connection_str": "<<NoStreamManager>>",
+            "delay_auto_start_seconds": 3
+          },
+          "logging": {
+            "log_level": "DEBUG",
+            "log_path": "logs/"
+          },
+          "auth": {
+            "secrets_location": ".secrets/",
+            "auth_passphrase": "",
+            "enabled": false,
+            "create_keys": false,
+            "encryption_algorithm": "RS256",
+            "default_auth_methods": [
+              "Unsecured"
+            ]
+          },
+          "api": {},
+          "engine_version": "${ENGINE_VERSION}"
+        },
+        "plugins": [],
+        "settings": {}
+      },
+      "effective_events": {
+        "basic_auth.${APPS_ROUTE_VERSION}.decode": {
+          "type": "GET",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "config": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            }
+          },
+          "auth": [
+            "Bearer"
+          ]
+        }
+      }
     }
   },
   "server_status": {
@@ -1040,9 +1178,77 @@ RUNTIME_SIMPLE_EXAMPLE = """
 }
 """
 
+EFFECTIVE_EVENTS_EXAMPLE = """
+{
+  "example_event$expanded": {
+    "type": "POST",
+    "plug_mode": "Standalone",
+    "connections": [],
+    "write_stream": {
+      "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+      "queues": [
+        "AUTO"
+      ],
+      "queue_strategy": "DROP"
+    },
+    "config": {
+      "response_timeout": 60.0,
+      "logging": {
+        "extra_fields": [
+          "something_id"
+        ],
+        "stream_fields": [
+          "stream.name",
+          "stream.msg_id",
+          "stream.consumer_group"
+        ]
+      },
+      "stream": {
+        "timeout": 60.0,
+        "target_max_len": 1000,
+        "throttle_ms": 0,
+        "step_delay": 0,
+        "batch_size": 100,
+        "compression": "lz4",
+        "serialization": "json+base64"
+      }
+    },
+    "auth": []
+  },
+  "login$expanded": {
+    "type": "GET",
+    "plug_mode": "OnApp",
+    "connections": [],
+    "config": {
+      "response_timeout": 60.0,
+      "logging": {
+        "extra_fields": [],
+        "stream_fields": [
+          "stream.name",
+          "stream.msg_id",
+          "stream.consumer_group"
+        ]
+      },
+      "stream": {
+        "timeout": 60.0,
+        "target_max_len": 0,
+        "throttle_ms": 0,
+        "step_delay": 0,
+        "batch_size": 100,
+        "compression": "lz4",
+        "serialization": "json+base64"
+      }
+    },
+    "auth": [
+      "Basic"
+    ]
+  }
+}
+"""
 
-def _get_runtime_simple_example(url: str, expand_events: bool):
-    res = RUNTIME_SIMPLE_EXAMPLE
+
+def _get_runtime_simple_example(url: str, source: str):
+    res = source
     res = res.replace("${HOST_NAME}", socket.gethostname())
     res = res.replace("${PID}", str(os.getpid()))
     res = res.replace("${URL}", url)
@@ -1052,63 +1258,47 @@ def _get_runtime_simple_example(url: str, expand_events: bool):
 
     result = Payload.from_json(res, RuntimeApps)
 
-    if not expand_events:
-        for _, app_info in result.apps.items():
-            app_info.effective_events = app_info.app_config.events
-
     return result
 
 
 @pytest.fixture
 def runtime_apps_response():
-    return _get_runtime_simple_example("in-process", expand_events=False)
+    return _get_runtime_simple_example("in-process", source=RUNTIME_SIMPLE_EXAMPLE)
 
 
 @pytest.fixture
 def server1_apps_response():
-    return _get_runtime_simple_example("http://test-server1", expand_events=False)
+    return _get_runtime_simple_example("http://test-server1", source=RUNTIME_SIMPLE_EXAMPLE)
 
 
 @pytest.fixture
 def server2_apps_response():
-    return _get_runtime_simple_example("http://test-server2", expand_events=False)
+    return _get_runtime_simple_example("http://test-server2", source=RUNTIME_SIMPLE_EXAMPLE)
 
 
 @pytest.fixture
-def runtime_apps_response_exp():
-    return _get_runtime_simple_example("in-process", expand_events=True)
+def effective_events_example():
+    res = EFFECTIVE_EVENTS_EXAMPLE
+    res = res.replace("${ENGINE_VERSION}", ENGINE_VERSION)
+    res = res.replace("${APPS_API_VERSION}", APPS_API_VERSION)
+    res = res.replace("${APPS_ROUTE_VERSION}", APPS_ROUTE_VERSION)
+    res = json.loads(res)
 
+    result = Payload.from_obj(res, datatype=dict, item_datatype=EventDescriptor)
 
-@pytest.fixture
-def server1_apps_response_exp():
-    return _get_runtime_simple_example("http://test-server1", expand_events=True)
-
-
-@pytest.fixture
-def server2_apps_response_exp():
-    return _get_runtime_simple_example("http://test-server2", expand_events=True)
+    return result
 
 
 @pytest.fixture
 def cluster_apps_response():
-    server1 = _get_runtime_simple_example("http://test-server1", expand_events=False)
-    server2 = _get_runtime_simple_example("http://test-server2", expand_events=False)
+    server1 = _get_runtime_simple_example("http://test-server1", source=RUNTIME_SIMPLE_EXAMPLE)
+    server2 = _get_runtime_simple_example("http://test-server2", source=RUNTIME_SIMPLE_EXAMPLE)
 
     server1.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers.extend(
         server2.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers
     )
-    server1.server_status["http://test-server2"] = ServerStatus.ALIVE
-
-    return server1
-
-
-@pytest.fixture
-def cluster_apps_response_exp():
-    server1 = _get_runtime_simple_example("http://test-server1", expand_events=True)
-    server2 = _get_runtime_simple_example("http://test-server2", expand_events=True)
-
-    server1.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers.extend(
-        server2.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers
+    server1.apps[f"basic_auth.{APPS_ROUTE_VERSION}"].servers.extend(
+        server2.apps[f"basic_auth.{APPS_ROUTE_VERSION}"].servers
     )
     server1.server_status["http://test-server2"] = ServerStatus.ALIVE
 

@@ -6,9 +6,9 @@ from . import mock_runtime
 
 
 @pytest.mark.asyncio
-async def test_site_main(monkeypatch, mock_lock, plugin_config):
+async def test_site_main(monkeypatch, mock_lock, plugin_config, effective_events):
     async with mock_lock:
-        mock_runtime(monkeypatch)
+        mock_runtime(monkeypatch, effective_events)
 
         result, page, _ = await execute_event(
             app_config=plugin_config, event_name="site.main", payload=None, postprocess=True

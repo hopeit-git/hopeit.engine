@@ -23,15 +23,15 @@ async def test_cluster_apps_config(monkeypatch, cluster_apps_response,
 
 @pytest.mark.asyncio
 async def test_cluster_apps_config_expand_events(
-    monkeypatch, cluster_apps_response_exp,
-    server1_apps_response_exp, server2_apps_response_exp
+    monkeypatch, effective_events_example,
+    server1_apps_response, server2_apps_response
 ):
 
     def apply_mock_client(module, context):
         mock_client(
             module.client, monkeypatch,
-            server1_apps_response_exp, server2_apps_response_exp,
-            expand_events=True
+            server1_apps_response, server2_apps_response,
+            effective_events_example
         )
 
     plugin_config = config('plugins/ops/config-manager/config/plugin-config.json')
@@ -41,4 +41,5 @@ async def test_cluster_apps_config_expand_events(
         expand_events=True
     )
 
-    assert result == cluster_apps_response_exp
+    for _, v in result.apps.items():
+        assert v.effective_events == effective_events_example

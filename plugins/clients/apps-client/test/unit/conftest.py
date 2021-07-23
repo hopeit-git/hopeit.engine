@@ -1,4 +1,4 @@
-from hopeit.apps_client import AppsClientSettings
+from hopeit.apps_client import AppsClientSettings, ClientAuthStrategy
 import pytest
 
 from hopeit.app.config import AppConfig, AppConnection, AppDescriptor, AppEngineConfig, \
@@ -23,11 +23,22 @@ def mock_client_app_config():
                 name="test_app",
                 version=APPS_API_VERSION,
                 client="hopeit.apps_client.AppsClient"
+            ),
+            "test_app_plugin_connection": AppConnection(
+                name="test_app",
+                version=APPS_API_VERSION,
+                client="hopeit.apps_client.AppsClient",
+                plugin_name="test_plugin",
+                plugin_version=APPS_API_VERSION
             )
         },
         settings={
             "test_app_connection": Payload.to_obj(AppsClientSettings(
                 connection_str="http://test-host1,http://test-host2"
+            )),
+            "test_app_plugin_connection": Payload.to_obj(AppsClientSettings(
+                connection_str="http://test-host1,http://test-host2",
+                auth_strategy=ClientAuthStrategy.FORWARD_CONTEXT
             ))
         },
         events={
@@ -43,6 +54,11 @@ def mock_client_app_config():
                         app_connection="test_app_connection",
                         event="test_event_post",
                         type=EventConnectionType.POST
+                    ),
+                    EventConnection(
+                        app_connection="test_app_plugin_connection",
+                        event="test_event_plugin",
+                        type=EventConnectionType.GET
                     )
                 ]
             )
@@ -58,5 +74,5 @@ def mock_client_app_config():
 def mock_auth(mocker):
     auth_mock = mocker.MagicMock()
     auth_mock.new_token = mocker.MagicMock()
-    auth_mock.new_token.return_value = "test_token"
+    auth_mock.new_token.return_value = "test-token"
     return auth_mock

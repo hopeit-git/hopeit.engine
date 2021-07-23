@@ -7,6 +7,7 @@ from enum import Enum
 
 from hopeit.dataobjects import dataobject
 from hopeit.app.config import AppConnection, AppDescriptor, EventDescriptor, EventType, StreamQueueStrategy
+from hopeit.server.names import auto_path
 
 
 class NodeType(Enum):
@@ -126,7 +127,14 @@ def add_app_connections(nodes: Dict[str, Node], *,
             for conn in event_info.connections:
                 app_connection = app_connections[f"{app_key}.{conn.app_connection}"]
                 target_app_key = AppDescriptor(name=app_connection.name, version=app_connection.version).app_key()
-                dest_node = nodes.get(f"{target_app_key}.{conn.event}.{conn.type.value}")
+                dest_node_name = f"{target_app_key}."
+                if app_connection.plugin_name:
+                    dest_node_name += auto_path(
+                        app_connection.plugin_name,
+                        app_connection.plugin_version or app_connection.version
+                    ) + '.'
+                dest_node_name += f"{conn.event}.{conn.type.value}"
+                dest_node = nodes.get(dest_node_name)
                 if dest_node:
                     port = f"{event_name}.{app_connection.name}.{conn.event}.{conn.type.value}"
                     source_node.outputs.append(port)
