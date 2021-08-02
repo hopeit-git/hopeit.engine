@@ -44,7 +44,7 @@ def mock_client_app_config():
             logging=LoggingConfig(
                 log_level="DEBUG", log_path="work/logs/test/")
         )
-    )
+    ).setup()
 
 
 class MockClient(Client):

@@ -6,7 +6,7 @@ import pytest  # type: ignore
 
 from hopeit.server.version import APPS_API_VERSION, ENGINE_VERSION
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, AppEngineConfig, \
-    EventType, ReadStreamDescriptor, WriteStreamDescriptor, EventConfig, EventLoggingConfig
+    EventType, ReadStreamDescriptor, WriteStreamDescriptor
 from hopeit.app.config import parse_app_config_json
 
 APP_VERSION = APPS_API_VERSION.replace('.', "x")
@@ -32,6 +32,13 @@ def valid_config_json() -> str:
       "recursive_replacement": "Data is in {env.fs.data_path}. {env.fs.app_description}"
     }
   },
+  "settings": {
+    "streams.process_events": {
+      "logging": {
+        "extra_fields": ["something_id", "path"]
+      }
+    }
+  },
   "events": {
     "query_something" : {
       "type": "GET"
@@ -50,11 +57,6 @@ def valid_config_json() -> str:
       "read_stream": {
         "name": "{events.streams.something_event.write_stream.name}",
         "consumer_group": "{auto}"
-      },
-      "config": {
-        "logging": {
-          "extra_fields": ["something_id", "path"]
-        }
       }
     }
   }
@@ -83,6 +85,13 @@ def valid_result_app_config() -> AppConfig:
                     f"This is simple_example version {APPS_API_VERSION}"
             }
         },
+        settings={
+          "streams.process_events": {
+              "logging": {
+                  "extra_fields": ['something_id', 'path']
+              }
+          }
+        },
         events={
             "query_something": EventDescriptor(
                 type=EventType.GET
@@ -101,15 +110,10 @@ def valid_result_app_config() -> AppConfig:
                 read_stream=ReadStreamDescriptor(
                     name=f'simple_example.{APP_VERSION}.streams.something_event',
                     consumer_group=f'simple_example.{APP_VERSION}.streams.process_events'
-                ),
-                config=EventConfig(
-                    logging=EventLoggingConfig(
-                        extra_fields=['something_id', 'path']
-                    )
                 )
             )
         }
-    )
+    ).setup()
 
 
 def _get_env_mock(var_name):

@@ -4,6 +4,7 @@ from hopeit.server import metrics
 import datetime
 
 from hopeit.server.config import AuthType
+from hopeit.server.events import get_event_settings
 from hopeit.server.metrics import StreamStats
 from mock_app import mock_app_config  # type: ignore  # noqa: F401
 
@@ -21,10 +22,12 @@ class MockDatetime(datetime.datetime):
 
 
 def test_metrics(mock_app_config):  # noqa: F811
+    settings = get_event_settings(mock_app_config.effective_settings, 'mock_event')
     context = EventContext(
         app_config=mock_app_config,
         plugin_config=mock_app_config,
         event_name='mock_event',
+        settings=settings,
         track_ids={},
         auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'}
     )
@@ -36,10 +39,12 @@ def test_metrics(mock_app_config):  # noqa: F811
 
 
 def test_stream_metrics(mock_app_config):  # noqa: F811
+    settings = get_event_settings(mock_app_config.effective_settings, 'mock_event')
     context = EventContext(
         app_config=mock_app_config,
         plugin_config=mock_app_config,
         event_name='mock_event',
+        settings=settings,
         track_ids={
             'track.request_ts': ZERO_TS.isoformat()
         },

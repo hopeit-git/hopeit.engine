@@ -7,8 +7,8 @@
         "import_modules": ["hopeit.apps_visualizer"],
         "cors_origin": "http://localhost:8020"
     },
-    "env": {
-        "apps-visualizer": {
+    "settings": {
+        "apps_visualizer": {
             "hosts": "${HOPEIT_APPS_VISUALIZER_HOSTS}",
             "refresh_hosts_seconds": 60,
             "live_recent_treshold_seconds": 10,
@@ -19,11 +19,13 @@
         "site.main": {
             "type": "GET",
             "auth": ["Unsecured"],
-            "route": "/ops/apps-visualizer"
+            "route": "/ops/apps-visualizer",
+            "setting_keys": ["apps_visualizer"]
         },
         "apps.events-graph": {
             "type": "GET",
-            "auth": ["Unsecured"]
+            "auth": ["Unsecured"],
+            "setting_keys": ["apps_visualizer"]
         },
         "event-stats.collect": {
             "type": "STREAM",
@@ -34,7 +36,8 @@
         },
         "event-stats.live": {
             "type": "GET",
-            "auth": ["Unsecured"]
+            "auth": ["Unsecured"],
+            "setting_keys": ["apps_visualizer"]
         }
     }
 }

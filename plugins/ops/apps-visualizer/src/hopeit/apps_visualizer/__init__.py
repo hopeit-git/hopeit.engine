@@ -7,9 +7,9 @@ from hopeit.app.context import EventContext
 
 @dataobject
 @dataclass
-class AppsVisualizerEnv:
+class AppsVisualizerSettings:
     """
-    Apps visualizer env options.
+    Apps visualizer settings.
 
     Helper dataclasses to load "apps-visualizer" env section from plugin config.
 
@@ -25,7 +25,3 @@ class AppsVisualizerEnv:
     refresh_hosts_seconds: int = 60
     live_recent_treshold_seconds: int = 10
     live_active_treshold_seconds: int = 60
-
-    @classmethod
-    def from_context(cls, context: EventContext) -> "AppsVisualizerEnv":
-        return cls.from_dict(context.env['apps-visualizer'])  # type: ignore

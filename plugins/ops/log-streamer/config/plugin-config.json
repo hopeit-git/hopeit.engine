@@ -7,14 +7,21 @@
     "import_modules": ["hopeit.log_streamer"]
   },
   "env" : {
+    
+  },
+  "settings": {
+    "hopeit.log-streamer.logs": {
+      "target_max_len": 1000,
+      "throttle_ms": 10
+    },
     "log_reader": {
-        "logs_path": "work/logs/apps/",
-        "prefix": "",
-        "checkpoint_path": "work/logs/checkpoint/",
-        "file_open_timeout_secs": 600,
-        "file_checkpoint_expire_secs": 86400,
-        "batch_size": 10000,
-        "batch_wait_interval_secs": 1
+      "logs_path": "work/logs/apps/",
+      "prefix": "",
+      "checkpoint_path": "work/logs/checkpoint/",
+      "file_open_timeout_secs": 600,
+      "file_checkpoint_expire_secs": 86400,
+      "batch_size": 10000,
+      "batch_wait_interval_secs": 1
     }
   },
   "events": {
@@ -23,12 +30,6 @@
       "plug_mode": "Standalone",
       "write_stream": {
         "name": "hopeit.log-streamer.logs"
-      },
-      "config": {
-        "stream": {
-          "target_max_len": 1000,
-          "throttle_ms": 10
-        }
       }
     }
   }

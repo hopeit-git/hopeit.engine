@@ -12,7 +12,7 @@ from typing import Dict, Iterable, Union, List, Tuple, Callable, Any
 from stringcase import snakecase  # type: ignore
 
 from hopeit.server import version
-from hopeit.app.config import EventDescriptor, AppDescriptor, AppConfig
+from hopeit.app.config import AppDescriptor, AppConfig, EventSettings
 from hopeit.app.context import EventContext
 from hopeit.server.errors import json_exc
 from hopeit.server.config import ServerConfig, LoggingConfig
@@ -107,12 +107,9 @@ def _enrich_extra(logger_kwargs, context: Union[str, EventContext], msg=None):
     logger_kwargs['extra']['extra'] = logger_kwargs['extra']['extra'].lstrip('| ')
 
 
-def setup_extra_fields_extractor(module, *, event_info: EventDescriptor = None):
-    if event_info and event_info.config and event_info.config.logging:
-        extra_fields = event_info.config.logging.extra_fields
-        module.extra = partial(extra_values, extra_fields)
-    else:
-        module.extra = partial(extra_values, [])
+def setup_extra_fields_extractor(module, *, event_settings: EventSettings):
+    extra_fields = event_settings.logging.extra_fields
+    module.extra = partial(extra_values, extra_fields)
 
 
 def _file_handler(logger_name: str, formatter: logging.Formatter, log_path: str):
@@ -246,7 +243,7 @@ class EngineLoggerWrapper:
             self._logger(context).error(msg, *args, **kwargs)  # type: ignore
 
 
-def setup_app_logger(module, *, app_config: AppConfig, name: str, event_info: EventDescriptor):
+def setup_app_logger(module, *, app_config: AppConfig, name: str, event_settings: EventSettings):
     """
     Returns wrapper over python logging Logger for a given app and name.
     Logger name is made combining {app.name} {app.version} {name} {host} {pid}
@@ -261,7 +258,7 @@ def setup_app_logger(module, *, app_config: AppConfig, name: str, event_info: Ev
             logger = _setup_standard_logger(logger_name, config=app_config.server.logging)
             EngineLoggerWrapper.loggers[logger_name] = logger
         module.logger = EventLoggerWrapper(logger)
-        setup_extra_fields_extractor(module, event_info=event_info)
+        setup_extra_fields_extractor(module, event_settings=event_settings)
 
 
 def engine_logger() -> EngineLoggerWrapper:

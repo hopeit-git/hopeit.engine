@@ -23,6 +23,14 @@ __all__ = [
 
 @dataobject
 @dataclass
+class AuthSettings:
+    access_token_expiration: int
+    refresh_token_expiration: int
+    access_token_renew_window: int
+
+
+@dataobject
+@dataclass
 class ContextUserInfo:
     """
     User info that will be available in context during events execution
@@ -80,21 +88,19 @@ def authorize(context: EventContext,
     :param now: current datetime, fixed as start of authorization process
     :return: AuthInfoExtended, containing new access and refresh tokens
     """
-    ate = int(context.env['auth']['access_token_expiration'])
-    rte = int(context.env['auth']['refresh_token_expiration'])
-    atr = int(context.env['auth']['access_token_renew_window'])
+    cfg: AuthSettings = context.settings.get(key="auth", datatype=AuthSettings)
     renew_in = int(1000.0 * max(
-        1.0 * ate - 1.0 * atr * (1.0 + 0.5 * random.random()),
-        0.5 * ate * (0.5 * random.random() + 0.5)))
-    token = _new_access_token(asdict(user_info), context, now, ate, renew_in)
-    refresh_token = _new_refresh_token(asdict(user_info), context, now, rte)
+        1.0 * cfg.access_token_expiration - 1.0 * cfg.access_token_renew_window * (1.0 + 0.5 * random.random()),
+        0.5 * cfg.access_token_expiration * (0.5 * random.random() + 0.5)))
+    token = _new_access_token(asdict(user_info), context, now, cfg.access_token_expiration, renew_in)
+    refresh_token = _new_refresh_token(asdict(user_info), context, now, cfg.refresh_token_expiration)
     result = AuthInfoExtended(
         app=context.app_key,
         access_token=token,
         refresh_token=refresh_token,
         token_type=AuthType.BEARER.name,
-        access_token_expiration=ate,
-        refresh_token_expiration=rte,
+        access_token_expiration=cfg.access_token_expiration,
+        refresh_token_expiration=cfg.refresh_token_expiration,
         renew=renew_in,
         user_info=user_info
     )

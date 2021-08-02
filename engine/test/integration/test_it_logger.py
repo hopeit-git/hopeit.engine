@@ -3,12 +3,12 @@ import os
 import socket
 import pytest  # type: ignore
 
-from hopeit.app.config import EventDescriptor, \
-    EventType, EventConfig, EventLoggingConfig
+from hopeit.app.config import EventSettings, EventLoggingConfig
 import hopeit.server.logger as server_logging
 import hopeit.server.version as version
 from hopeit.app.context import EventContext
 from hopeit.server.config import AuthType
+from hopeit.server.events import get_event_settings
 from hopeit.server.logger import setup_app_logger
 from hopeit.app.logger import app_logger, app_extra_logger
 
@@ -39,6 +39,7 @@ def _event_context(mock_app_config):  # noqa: F811
         app_config=mock_app_config,
         plugin_config=mock_app_config,
         event_name='mock_event_logging',
+        settings=get_event_settings(mock_app_config.effective_settings, 'mock_event_logging'),
         track_ids={
             'track.operation_id': 'test_operation_id',
             'track.request_id': 'test_request_id',
@@ -51,27 +52,27 @@ def _event_context(mock_app_config):  # noqa: F811
 
 def _get_app_logger(monkeypatch, mock_app_config):  # noqa: F811
     _patch_logger(monkeypatch)
-    event_info = EventDescriptor(type=EventType.GET)
     mock_event.logger = app_logger()
+    settings = get_event_settings(mock_app_config.effective_settings, 'mock_event')
     setup_app_logger(mock_event,
-                     app_config=mock_app_config, name='test_get_app_logger',
-                     event_info=event_info)
+                     app_config=mock_app_config,
+                     name='mock_event',
+                     event_settings=settings)
     return mock_event.logger
 
 
 def _get_app_extra_logger(monkeypatch, mock_app_config):  # noqa: F811
     _patch_logger(monkeypatch)
-    event_info = EventDescriptor(
-        type=EventType.GET,
-        config=EventConfig(
-            logging=EventLoggingConfig(
-                extra_fields=['field1', 'field2']
-            )
-        ))
+    event_settings = EventSettings(
+        logging=EventLoggingConfig(
+            extra_fields=['field1', 'field2']
+        )
+    )
     mock_event.logger, mock_event.extra = app_extra_logger()
     setup_app_logger(mock_event,
-                     app_config=mock_app_config, name='test_get_app_logger_extra',
-                     event_info=event_info)
+                     app_config=mock_app_config,
+                     name='mock_event',
+                     event_settings=event_settings)
     return mock_event.logger, mock_event.extra
 
 
@@ -106,19 +107,19 @@ def test_get_app_logger(monkeypatch, mock_app_config):  # noqa: F811
     logger = _get_app_logger(monkeypatch, mock_app_config)
     logger.info(_event_context(mock_app_config), "Test message")
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| INFO | mock_app test test_get_app_logger test_host test_pid | Test message " \
+        == "| INFO | mock_app test mock_event test_host test_pid | Test message " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
            "| track.session_id=test_session_id | event.app=mock_app.test"
     logger.warning(_event_context(mock_app_config), "Test message")
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| WARNING | mock_app test test_get_app_logger test_host test_pid | Test message " \
+        == "| WARNING | mock_app test mock_event test_host test_pid | Test message " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
            "| track.session_id=test_session_id | event.app=mock_app.test"
     logger.error(_event_context(mock_app_config), "Test message")
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| ERROR | mock_app test test_get_app_logger test_host test_pid | Test message " \
+        == "| ERROR | mock_app test mock_event test_host test_pid | Test message " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
            "| track.session_id=test_session_id | event.app=mock_app.test"
@@ -129,21 +130,21 @@ def test_app_logger_traceback(monkeypatch, mock_app_config):  # noqa: F811
     exc = AssertionError("Test for error")
     logger.info(_event_context(mock_app_config), exc)
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| INFO | mock_app test test_get_app_logger test_host test_pid | Test for error " \
+        == "| INFO | mock_app test mock_event test_host test_pid | Test for error " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
            "| track.session_id=test_session_id | event.app=mock_app.test " \
            "| trace=%5B%22AssertionError%3A%20Test%20for%20error%5Cn%22%5D"
     logger.warning(_event_context(mock_app_config), exc)
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| WARNING | mock_app test test_get_app_logger test_host test_pid | Test for error " \
+        == "| WARNING | mock_app test mock_event test_host test_pid | Test for error " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
            "| track.session_id=test_session_id | event.app=mock_app.test " \
            "| trace=%5B%22AssertionError%3A%20Test%20for%20error%5Cn%22%5D"
     logger.error(_event_context(mock_app_config), exc)
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| ERROR | mock_app test test_get_app_logger test_host test_pid | Test for error " \
+        == "| ERROR | mock_app test mock_event test_host test_pid | Test for error " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
            "| track.session_id=test_session_id | event.app=mock_app.test " \
@@ -159,7 +160,7 @@ def test_get_app_logger_extra(monkeypatch, mock_app_config):  # noqa: F811
         extra=extra(field1='value1', field2=42, field3='optional')
     )
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| INFO | mock_app test test_get_app_logger_extra test_host test_pid | Test message " \
+        == "| INFO | mock_app test mock_event test_host test_pid | Test message " \
            "| extra.field1=value1 | extra.field2=42 | extra.field3=optional " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
@@ -171,7 +172,7 @@ def test_get_app_logger_extra(monkeypatch, mock_app_config):  # noqa: F811
         extra=extra(field1='value1', field2=42, field3='optional')
     )
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| WARNING | mock_app test test_get_app_logger_extra test_host test_pid " \
+        == "| WARNING | mock_app test mock_event test_host test_pid " \
            "| Test message " \
            "| extra.field1=value1 | extra.field2=42 | extra.field3=optional " \
            "| track.operation_id=test_operation_id " \
@@ -184,7 +185,7 @@ def test_get_app_logger_extra(monkeypatch, mock_app_config):  # noqa: F811
         extra=extra(field1='value1', field2=42, field3='optional')
     )
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
-        == "| ERROR | mock_app test test_get_app_logger_extra test_host test_pid | Test message " \
+        == "| ERROR | mock_app test mock_event test_host test_pid | Test message " \
            "| extra.field1=value1 | extra.field2=42 | extra.field3=optional " \
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \

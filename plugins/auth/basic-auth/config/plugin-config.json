@@ -7,7 +7,7 @@
     "import_modules": ["hopeit.basic_auth"],
     "cors_origin": "http://localhost:8020"
   },
-  "env" : {
+  "settings" : {
     "auth": {
       "access_token_expiration": 600,
       "refresh_token_expiration": 3600,
@@ -18,17 +18,20 @@
     "login" : {
       "type": "GET",
       "plug_mode": "OnApp",
-      "auth": ["Basic"]
+      "auth": ["Basic"],
+      "setting_keys": ["auth"]
     },
     "refresh" : {
       "type": "GET",
       "plug_mode": "OnApp",
-      "auth": ["Refresh"]
+      "auth": ["Refresh"],
+      "setting_keys": ["auth"]
     },
     "logout" : {
       "type": "GET",
       "plug_mode": "OnApp",
-      "auth": ["Refresh"]
+      "auth": ["Refresh"],
+      "setting_keys": ["auth"]
     },
     "decode" : {
       "type": "GET",

@@ -4,7 +4,7 @@ import pytest  # type: ignore
 
 from hopeit.app.config import AppConfig, AppDescriptor, \
     EventDescriptor, EventType, ReadStreamDescriptor, WriteStreamDescriptor, \
-    EventConfig, EventLoggingConfig, AppEngineConfig, EventStreamConfig
+    AppEngineConfig
 from hopeit.dataobjects import dataobject
 from hopeit.server.config import APIConfig, AuthConfig, AuthType, LoggingConfig, ServerConfig, StreamsConfig
 
@@ -48,6 +48,66 @@ def mock_app_config():
                 'custom_value': 'test_custom_value_override'
             }
         },
+        settings={
+            "mock_stream_event": {
+                "logging": {
+                    "extra_fields": ['value'],
+                    "stream_fields": ['msg_id']
+                },
+                "custom_setting": {
+                    "custom": "value"
+                }
+            },
+            "mock_stream_timeout": {
+                "logging": {
+                    "extra_fields": ['value'],
+                    "stream_fields": ['msg_id']
+                },
+                "stream": {
+                    "timeout": 2
+                }
+            },
+            "mock_write_stream_event": {
+                "logging": {
+                    "extra_fields": ['value'],
+                    "stream_fields": ['msg_id']
+                },
+                "stream": {
+                    "target_max_len": 10
+                }
+            },
+            "mock_service_event": {
+                "stream": {
+                    "target_max_len": 10,
+                    "throttle_ms": 100,
+                    "batch_size": 2
+                }
+            },
+            "mock_service_timeout": {
+                "response_timeout": 2.0
+            },
+            "mock_spawn_event": {
+                "stream": {
+                    "target_max_len": 10,
+                    "throttle_ms": 100,
+                    "batch_size": 2
+                }
+            },
+            "mock_shuffle_event": {
+                "stream": {
+                    "target_max_len": 10,
+                    "throttle_ms": 100
+                }
+            },
+            "mock_timeout": {
+                "response_timeout": 2.0
+            },
+            "custom_extra_settings": {
+                "custom_setting": {
+                    "custom": "value"
+                }
+            }
+        },
         events={
             "mock_event": EventDescriptor(
                 type=EventType.GET,
@@ -78,85 +138,43 @@ def mock_app_config():
                     name='mock_stream',
                     consumer_group='mock_consumer_group'
                 ),
-                config=EventConfig(
-                    logging=EventLoggingConfig(
-                        extra_fields=['value'],
-                        stream_fields=['msg_id']
-                    )
-                )
+                setting_keys=["custom_extra_settings"]
             ),
             "mock_stream_timeout": EventDescriptor(
                 type=EventType.STREAM,
                 read_stream=ReadStreamDescriptor(
                     name='mock_stream',
                     consumer_group='mock_consumer_group'
-                ),
-                config=EventConfig(
-                    logging=EventLoggingConfig(
-                        extra_fields=['value'],
-                        stream_fields=['msg_id']
-                    ),
-                    stream=EventStreamConfig(
-                        timeout=2
-                    )
                 )
             ),
             "mock_write_stream_event": EventDescriptor(
                 type=EventType.GET,
                 write_stream=WriteStreamDescriptor(
                     name='mock_write_stream_event'
-                ),
-                config=EventConfig(
-                    stream=EventStreamConfig(
-                        target_max_len=10
-                    )
                 )
             ),
             "mock_service_event": EventDescriptor(
                 type=EventType.SERVICE,
                 write_stream=WriteStreamDescriptor(
                     name='mock_write_stream_event'
-                ),
-                config=EventConfig(
-                    stream=EventStreamConfig(
-                        target_max_len=10,
-                        throttle_ms=100,
-                        batch_size=2
-                    )
                 )
             ),
             "mock_service_timeout": EventDescriptor(
                 type=EventType.SERVICE,
                 write_stream=WriteStreamDescriptor(
                     name='mock_write_stream_event'
-                ),
-                config=EventConfig(
-                    response_timeout=2.0
                 )
             ),
             "mock_spawn_event": EventDescriptor(
                 type=EventType.GET,
                 write_stream=WriteStreamDescriptor(
                     name='mock_write_stream_event'
-                ),
-                config=EventConfig(
-                    stream=EventStreamConfig(
-                        target_max_len=10,
-                        throttle_ms=100,
-                        batch_size=2
-                    )
                 )
             ),
             "mock_shuffle_event": EventDescriptor(
                 type=EventType.GET,
                 write_stream=WriteStreamDescriptor(
                     name='mock_write_stream_event'
-                ),
-                config=EventConfig(
-                    stream=EventStreamConfig(
-                        target_max_len=10,
-                        throttle_ms=100
-                    )
                 )
             ),
             "mock_parallelize_event": EventDescriptor(
@@ -180,8 +198,7 @@ def mock_app_config():
                 type=EventType.POST
             ),
             'mock_timeout': EventDescriptor(
-                type=EventType.GET,
-                config=EventConfig(response_timeout=2.0)
+                type=EventType.GET
             ),
             'mock_read_write_stream': EventDescriptor(
                 type=EventType.STREAM,
@@ -202,7 +219,7 @@ def mock_app_config():
             logging=LoggingConfig(
                 log_level="DEBUG", log_path="work/logs/test/")
         )
-    )
+    ).setup()
 
 
 @pytest.fixture
@@ -231,7 +248,7 @@ def mock_client_app_config():
             logging=LoggingConfig(
                 log_level="DEBUG", log_path="work/logs/test/")
         )
-    )
+    ).setup()
 
 
 @dataobject
@@ -298,7 +315,7 @@ def mock_api_app_config():
                 docs_path='/api/docs'
             )
         )
-    )
+    ).setup()
 
 
 @pytest.fixture

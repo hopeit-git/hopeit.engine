@@ -1,20 +1,23 @@
 """
 Config module: apps config data model and json loader
 """
+from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Optional, Union, List
+from typing import Any, Dict, Optional, Type, Union, List, Generic
 
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import EventPayloadType, dataobject
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.config import replace_config_args, replace_env_vars, ServerConfig, AuthType
 from hopeit.server.names import auto_path
 
 __all__ = ['AppDescriptor',
+           'AppSettings',
            'Env',
            'EventType',
            'EventPlugMode',
            'EventDescriptor',
-           'EventConfig',
+           'EventSettings',
            'ReadStreamDescriptor',
            'WriteStreamDescriptor',
            'EventLoggingConfig',
@@ -49,7 +52,7 @@ Env = Dict[str, Dict[str, Union[str, float, bool]]]
 AppSettings = Dict[str, Dict[str, Any]]
 
 
-class EventType(Enum):
+class EventType(str, Enum):
     """
     Supported event types
 
@@ -100,7 +103,7 @@ class ReadStreamDescriptor:
     queues: List[str] = field(default_factory=StreamQueue.default_queues)
 
 
-class StreamQueueStrategy(Enum):
+class StreamQueueStrategy(str, Enum):
     """
     Different strategies to be used when reading streams from a queue and writing to another stream.
 
@@ -167,7 +170,7 @@ class EventLoggingConfig:
                               for k in self.stream_fields]
 
 
-class Compression(Enum):
+class Compression(str, Enum):
     """
     Available compression algorithms and levels for event payloads.
     """
@@ -187,7 +190,7 @@ class Compression(Enum):
     LZMA = 'lzma'
 
 
-class Serialization(Enum):
+class Serialization(str, Enum):
     """
     Available serialization methods for event payloads.
     """
@@ -231,9 +234,11 @@ class EventStreamConfig:
 
 @dataobject
 @dataclass
-class EventConfig:
+class EventSettings(Generic[EventPayloadType]):
     """
-    Event execution configuration
+    Event execution configuration, used to parse `settings` entries in app config file where the key
+    is the event name.
+
     :field response_timeout: float, default 60.0: seconds to timeout waiting for event execution
         when invoked externally .i.e. GET or POST events. If exceeded, Timed Out response will be returned.
         Notice that this timeout does not apply for stream processing events. Use EventStreamsConfig.timeout
@@ -244,9 +249,13 @@ class EventConfig:
     response_timeout: float = 60.0
     logging: EventLoggingConfig = field(default_factory=EventLoggingConfig)
     stream: EventStreamConfig = field(default_factory=EventStreamConfig)
+    extras: Dict[str, Any] = field(default_factory=dict)
+
+    def get(self, *, key: str = '_', datatype: Type[EventPayloadType]) -> EventPayloadType:
+        return Payload.from_obj(self.extras.get(key, {}), datatype=datatype)
 
 
-class EventPlugMode(Enum):
+class EventPlugMode(str, Enum):
     """
     Defines how an event route is plugged into apps when
     it is used as a plugin.
@@ -258,7 +267,7 @@ class EventPlugMode(Enum):
     ON_APP = 'OnApp'
 
 
-class EventConnectionType(Enum):
+class EventConnectionType(str, Enum):
     """
     Event connection type
     """
@@ -296,8 +305,8 @@ class EventDescriptor:
     connections: List[EventConnection] = field(default_factory=list)
     read_stream: Optional[ReadStreamDescriptor] = None
     write_stream: Optional[WriteStreamDescriptor] = None
-    config: EventConfig = field(default_factory=EventConfig)
     auth: List[AuthType] = field(default_factory=list)
+    setting_keys: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         if self.read_stream:
@@ -371,16 +380,56 @@ class AppConfig:
     server: Optional[ServerConfig] = None
     plugins: List[AppDescriptor] = field(default_factory=list)
     settings: AppSettings = field(default_factory=dict)
+    effective_settings: Optional[AppSettings] = None
 
     def app_key(self):
         return self.app.app_key()
 
-    def __post_init__(self):
-        for event in self.events.values():
-            if event.config.stream.compression is None:
-                event.config.stream.compression = self.engine.default_stream_compression
-            if event.config.stream.serialization is None:
-                event.config.stream.serialization = self.engine.default_stream_serialization
+    def setup(self):
+        self.effective_settings = {}
+        self._setup_streams_settings()
+        self._setup_event_extra_settings()
+        return self
+
+    def _setup_streams_settings(self):
+        """
+        Prepares missing or default values for events stream configuration:
+
+        1) Completes missing event streams settings using settings key
+            from write_stream or read_stream name
+        2) Sets default compression and serialization for streams based on server config
+        """
+        for event_name, event_info in self.events.items():
+            stream_settings = {}
+            if event_info.write_stream:
+                stream_settings.update(self.settings.get(event_info.write_stream.name, {}))
+            elif event_info.read_stream:
+                stream_settings.update(self.settings.get(event_info.read_stream.name, {}))
+            settings_data = deepcopy(self.settings.get(event_name, {"stream": {}}))
+            stream_settings.update(settings_data.get('stream', {}))
+            settings_data['stream'] = stream_settings
+            settings = EventSettings.from_dict(settings_data, validate=True)
+            if settings.stream.compression is None:
+                settings.stream.compression = self.engine.default_stream_compression
+            if settings.stream.serialization is None:
+                settings.stream.serialization = self.engine.default_stream_serialization
+            self.effective_settings[event_name] = settings.to_dict()
+
+    def _setup_event_extra_settings(self):
+        """
+        Add to event settings section extra keys references in `setting_keys` property
+        of EventDescriptor, so these are available in `EventContext` using
+        `context.settings.get(key, datatype)
+
+        For these extra keys, validation is not perform until accessed.
+        """
+        for event_name, event_info in self.events.items():
+            extras = {}
+            if event_name in self.settings:
+                extras['_'] = self.settings[event_name]
+            for key in event_info.setting_keys:
+                extras[key] = self.settings[key]
+            self.effective_settings[event_name]['extras'] = extras
 
 
 def parse_app_config_json(config_json: str) -> AppConfig:
@@ -396,8 +445,8 @@ def parse_app_config_json(config_json: str) -> AppConfig:
         parsed_config=app_config,
         config_classes=(
             AppDescriptor, EventDescriptor, ReadStreamDescriptor, WriteStreamDescriptor,
-            AppConnection, EventConnection
+            AppConnection, EventConnection, EventSettings
         ),
         auto_prefix=app_config.app.app_key()
     )
-    return app_config
+    return app_config.setup()

@@ -7,6 +7,7 @@ from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventTy
     ReadStreamDescriptor, StreamQueueStrategy, WriteStreamDescriptor
 from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn, SHUFFLE
+from hopeit.server.events import get_event_settings
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import extract_module_steps, extract_postprocess_handler, \
     extract_input_type, execute_steps, invoke_single_step, effective_steps, split_event_stages, CollectorStepsDescriptor
@@ -152,11 +153,12 @@ def test_context() -> EventContext:
     app_config = AppConfig(
         app=AppDescriptor(name='test_steps', version='test_version'),
         events={'test_steps': EventDescriptor(type=EventType.POST)}
-    )
+    ).setup()
     return EventContext(
         app_config=app_config,
         plugin_config=app_config,
         event_name='test_steps',
+        settings=get_event_settings(app_config.effective_settings, 'test_steps'),
         track_ids={},
         auth_info={}
     )
@@ -237,7 +239,6 @@ async def test_invoke_single_spawn_step_not_supported():
 def test_split_event_stages(mock_app_config):  # noqa: F811
     impl = find_event_handler(app_config=mock_app_config, event_name='mock_shuffle_event')
     event_info = mock_app_config.events['mock_shuffle_event']
-    event_config = event_info.config
     stages = split_event_stages(mock_app_config.app,
                                 event_name='mock_shuffle_event',
                                 event_info=event_info,
@@ -251,7 +252,6 @@ def test_split_event_stages(mock_app_config):  # noqa: F811
                 queues=['AUTO'],
                 queue_strategy=StreamQueueStrategy.PROPAGATE
             ),
-            config=event_config,
             auth=[]
         ),
         'mock_shuffle_event$consume_stream': EventDescriptor(
@@ -262,7 +262,6 @@ def test_split_event_stages(mock_app_config):  # noqa: F811
                 queues=['AUTO']
             ),
             write_stream=event_info.write_stream,
-            config=event_config,
             auth=[]
         )
     }
@@ -277,7 +276,6 @@ def test_split_event_stages_queues(mock_app_config):  # noqa: F811
     event_info.write_stream = WriteStreamDescriptor(
         name="test_write_stream", queues=["q1", "q2"], queue_strategy=StreamQueueStrategy.PROPAGATE
     )
-    event_config = event_info.config
     stages = split_event_stages(mock_app_config.app,
                                 event_name='mock_shuffle_event',
                                 event_info=event_info,
@@ -291,7 +289,6 @@ def test_split_event_stages_queues(mock_app_config):  # noqa: F811
                 queues=['AUTO'],
                 queue_strategy=StreamQueueStrategy.PROPAGATE
             ),
-            config=event_config,
             auth=[]
         ),
         'mock_shuffle_event$consume_stream': EventDescriptor(
@@ -302,7 +299,6 @@ def test_split_event_stages_queues(mock_app_config):  # noqa: F811
                 queues=["q1", "q2"]
             ),
             write_stream=event_info.write_stream,
-            config=event_config,
             auth=[]
         )
     }

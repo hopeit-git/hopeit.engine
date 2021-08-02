@@ -3,7 +3,7 @@ from typing import Dict, Optional
 
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.server.config import AuthType
-from hopeit.server.events import EventHandler
+from hopeit.server.events import EventHandler, get_event_settings
 from hopeit.streams import StreamOSError
 
 from hopeit.dataobjects import DataObject
@@ -35,10 +35,12 @@ async def invoke_execute(engine: AppEngine,
                          expected: DataObject,
                          track_ids: Dict[str, str],
                          postprocess_expected: Optional[dict] = None):
+    event_settings = get_event_settings(from_app.effective_settings, event_name)  # type: ignore
     context = EventContext(
         app_config=from_app,
         plugin_config=engine.app_config,
         event_name=event_name,
+        settings=event_settings,
         track_ids=track_ids,
         auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'}
     )

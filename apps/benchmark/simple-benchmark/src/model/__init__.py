@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from hopeit.dataobjects import dataobject
 
 
-class StatusType(Enum):
+class StatusType(str, Enum):
     NEW = 'NEW'
     LOADED = 'LOADED'
     SUBMITTED = 'SUBMITTED'

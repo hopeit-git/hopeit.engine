@@ -13,7 +13,7 @@ class MyData:
     text: str
 
 
-class Status(Enum):
+class Status(str, Enum):
     NEW = 'NEW'
     VALID = 'VALID'
     PROCESSED = 'PROCESSED'

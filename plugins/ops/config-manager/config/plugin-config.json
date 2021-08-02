@@ -7,12 +7,12 @@
       "import_modules": ["hopeit.config_manager"]
     },
     "events": {
-      "runtime-apps-config" : {
+      "runtime_apps_config" : {
         "type": "GET",
         "plug_mode": "Standalone",
         "auth": ["Unsecured"]
       },
-      "cluster-apps-config" : {
+      "cluster_apps_config" : {
         "type": "GET",
         "plug_mode": "Standalone",
         "auth": ["Unsecured"]

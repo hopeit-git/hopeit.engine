@@ -4,44 +4,55 @@ Webserver module based on aiohttp to handle web/api requests
 # flake8: noqa
 # pylint: disable=wrong-import-position, wrong-import-order
 import aiohttp
+
 setattr(aiohttp.http, 'SERVER_SOFTWARE', '')
 
-import sys
-import re
 import argparse
-import uuid
-import gc
-from typing import Callable, Optional, Type, List, Dict, Tuple, Any, Union, Coroutine
-from functools import partial
-from datetime import datetime, timezone
-import logging
 import asyncio
+import gc
+import logging
+import re
+import sys
+import uuid
+from datetime import datetime, timezone
+from functools import partial
+from typing import (
+    Any, Callable, Coroutine, Dict, List, Optional, Tuple, Type, Union
+)
 
-from aiohttp import web
-from aiohttp.web_response import Response
 import aiohttp_cors  # type: ignore
-from aiohttp_cors import CorsConfig
 import aiojobs  # type: ignore
 import aiojobs.aiohttp as aiojobs_http  # type: ignore
+from aiohttp import web
+from aiohttp.web_response import Response
+from aiohttp_cors import CorsConfig
 from aiojobs import Scheduler
 from stringcase import snakecase, titlecase  # type: ignore
 
-from hopeit.server import api
+from hopeit.app.config import (
+    AppConfig, EventDescriptor, EventPlugMode, EventSettings, EventType, parse_app_config_json
+)
+from hopeit.app.context import (
+    EventContext, NoopMultiparReader, PostprocessHook, PreprocessHook
+)
+from hopeit.app.errors import BadRequest, Unauthorized
+from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType
+from hopeit.dataobjects.payload import Payload
+from hopeit.server import api, runtime
+from hopeit.server.api import app_route_name
+from hopeit.server.config import (
+    AuthType, ServerConfig, parse_server_config_json
+)
+from hopeit.server.engine import AppEngine, Server
+from hopeit.server.errors import ErrorInfo
+from hopeit.server.events import get_event_settings
+from hopeit.server.logger import (
+    EngineLoggerWrapper, combined, engine_logger, extra_logger
+)
+from hopeit.server.metrics import metrics
+from hopeit.server.names import route_name
 from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
-from hopeit.dataobjects.payload import Payload
-from hopeit.app.context import EventContext, NoopMultiparReader, PostprocessHook, PreprocessHook
-from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType
-from hopeit.app.errors import Unauthorized, BadRequest
-from hopeit.server.engine import Server, AppEngine
-from hopeit.server.config import parse_server_config_json, ServerConfig, AuthType
-from hopeit.server.logger import engine_logger, extra_logger, combined, EngineLoggerWrapper
-from hopeit.server.metrics import metrics
-from hopeit.server.errors import ErrorInfo
-from hopeit.server.names import route_name
-from hopeit.server.api import app_route_name
-from hopeit.app.config import AppConfig, EventType, EventDescriptor, parse_app_config_json, EventPlugMode
-from hopeit.server import runtime
 
 __all__ = ['parse_args',
            'main',
@@ -159,7 +170,7 @@ def _load_engine_config(path: str):
         return parse_server_config_json(f.read())
 
 
-def _load_app_config(path: str):
+def _load_app_config(path: str) -> AppConfig:
     """
     Load app configuration from json file
     """
@@ -408,6 +419,7 @@ def _ignored_response(context: Optional[EventContext],
 def _request_start(app_engine: AppEngine,
                    plugin: AppEngine,
                    event_name: str,
+                   event_settings: EventSettings,
                    request: web.Request) -> EventContext:
     """
     Extracts context and track information from a request and logs start of event
@@ -416,6 +428,7 @@ def _request_start(app_engine: AppEngine,
         app_config=app_engine.app_config,
         plugin_config=plugin.app_config,
         event_name=event_name,
+        settings=event_settings,
         track_ids=_track_ids(request),
         auth_info=auth_info_default
     )
@@ -509,8 +522,7 @@ async def _request_execute(
     result = await app_engine.preprocess(
         context=context, query_args=query_args, payload=payload, request=preprocess_hook)
     if (preprocess_hook.status is None) or (preprocess_hook.status == 200):
-        result = await app_engine.execute(
-            context=context, query_args=query_args, payload=result)
+        result = await app_engine.execute(context=context, query_args=query_args, payload=result)
         result = await app_engine.postprocess(context=context, payload=result, response=response_hook)
     else:
         response_hook.set_status(preprocess_hook.status)
@@ -557,12 +569,15 @@ async def _handle_post_invocation(
     """
     context = None
     try:
-        context = _request_start(app_engine, impl, event_name, request)
+        event_settings = get_event_settings(app_engine.settings, event_name)
+        context = _request_start(app_engine, impl, event_name, event_settings, request)
         query_args = dict(request.query)
         _validate_authorization(app_engine.app_config, context, auth_types, request)
         payload = await _request_process_payload(context, datatype, request)
         hook: PreprocessHook[NoopMultiparReader] = PreprocessHook(headers=request.headers)
-        return await _request_execute(impl, event_name, context, query_args, payload, preprocess_hook=hook)
+        return await _request_execute(
+            impl, event_name, context, query_args, payload, preprocess_hook=hook
+        )
     except Unauthorized as e:
         return _ignored_response(context, 401, e)
     except BadRequest as e:
@@ -582,15 +597,19 @@ async def _handle_get_invocation(
     """
     context = None
     try:
-        context = _request_start(app_engine, impl, event_name, request)
+        event_settings = get_event_settings(app_engine.settings, event_name)
+        context = _request_start(app_engine, impl, event_name, event_settings, request)
         _validate_authorization(app_engine.app_config, context, auth_types, request)
         query_args = dict(request.query)
         payload = query_args.get('payload')
         if payload is not None:
             del query_args['payload']
         hook: PreprocessHook[NoopMultiparReader] = PreprocessHook(headers=request.headers)
-        return await _request_execute(impl, event_name, context, query_args, payload=payload,
-                                      preprocess_hook=hook)
+        return await _request_execute(
+            impl, event_name, context,
+            query_args, payload=payload,
+            preprocess_hook=hook
+        )
     except Unauthorized as e:
         return _ignored_response(context, 401, e)
     except BadRequest as e:
@@ -611,14 +630,18 @@ async def _handle_multipart_invocation(
     """
     context = None
     try:
-        context = _request_start(app_engine, impl, event_name, request)
+        event_settings = get_event_settings(app_engine.settings, event_name)
+        context = _request_start(app_engine, impl, event_name, event_settings, request)
         query_args = dict(request.query)
         _validate_authorization(app_engine.app_config, context, auth_types, request)
         hook = PreprocessHook(                                                   # type: ignore
             headers=request.headers, multipart_reader=await request.multipart()  # type: ignore
         )
-        return await _request_execute(impl, event_name, context, query_args, payload=None,
-                                      preprocess_hook=hook)
+        return await _request_execute(
+            impl, event_name, context,
+            query_args, payload=None,
+            preprocess_hook=hook
+        )
     except Unauthorized as e:
         return _ignored_response(context, 401, e)
     except BadRequest as e:

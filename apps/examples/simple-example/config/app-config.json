@@ -22,6 +22,39 @@
       "chunk_size": 16384
     }
   },
+  "settings": {
+    "{events.streams.something_event.write_stream.name}": {
+      "target_max_len": 1000,
+      "throttle_ms": 10,
+      "batch_size": 5
+    },
+    "streams.something_event": {
+      "logging": {
+        "extra_fields": ["something_id"]
+      }
+    },
+    "streams.process_events": {
+      "logging": {
+        "stream_fields": ["name", "msg_id", "consumer_group", "event_id", "event_ts", "submit_ts", "read_ts"],
+        "extra_fields": ["something_id"]
+      }
+    },
+    "collector.collect_spawn": {
+      "logging": {
+        "extra_fields": ["something_id"]
+      }
+    },
+    "shuffle.spawn_event": {
+      "logging": {
+        "extra_fields": ["something_id"]
+      }
+    },
+    "shuffle.parallelize_event": {
+      "logging": {
+        "extra_fields": ["something_id"]
+      }
+    }
+  },
   "events": {
     "list_somethings": {
       "type": "GET"
@@ -47,12 +80,6 @@
       "type": "SERVICE",
       "write_stream": {
         "name": "{events.streams.something_event.write_stream.name}"
-      },
-      "config": {
-        "stream": {
-          "target_max_len": 1000,
-          "throttle_ms": 10
-        }
       }
     },
     "streams.something_event" : {
@@ -60,14 +87,6 @@
       "write_stream": {
         "name": "{auto}",
         "queues": ["high-prio"]
-      },
-      "config": {
-        "logging": {
-          "extra_fields": ["something_id"]
-        },
-        "stream": {
-          "target_max_len": 1000
-        }
       }
     },
     "streams.process_events": {
@@ -76,15 +95,6 @@
         "name": "{events.streams.something_event.write_stream.name}",
         "consumer_group": "{auto}",
         "queues": ["high-prio", "AUTO"]
-      },
-      "config": {
-        "stream": {
-          "batch_size": 5
-        },
-        "logging": {
-          "stream_fields": ["name", "msg_id", "consumer_group", "event_id", "event_ts", "submit_ts", "read_ts"],
-          "extra_fields": ["something_id"]
-        }
       }
     },
     "collector.query_concurrently": {
@@ -94,42 +104,18 @@
       "type": "POST",
       "write_stream": {
         "name": "{events.streams.something_event.write_stream.name}"
-      },
-      "config": {
-        "logging": {
-          "extra_fields": ["something_id"]
-        },
-        "stream": {
-          "target_max_len": 1000
-        }
       }
     },
     "shuffle.spawn_event" : {
       "type": "POST",
       "write_stream": {
         "name": "{events.streams.something_event.write_stream.name}"
-      },
-      "config": {
-        "logging": {
-          "extra_fields": ["something_id"]
-        },
-        "stream": {
-          "target_max_len": 1000
-        }
       }
     },
     "shuffle.parallelize_event" : {
       "type": "POST",
       "write_stream": {
         "name": "{events.streams.something_event.write_stream.name}"
-      },
-      "config": {
-        "logging": {
-          "extra_fields": ["something_id"]
-        },
-        "stream": {
-          "target_max_len": 1000
-        }
       }
     }
   }

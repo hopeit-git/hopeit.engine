@@ -1,8 +1,11 @@
-import pytest  # type: ignore
+from dataclasses import dataclass
+import pytest
 
+from hopeit.app.config import Compression, EventLoggingConfig, EventStreamConfig, Serialization
 from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.dataobjects import dataobject
 from hopeit.server.config import AuthType
-from hopeit.server.events import EventHandler
+from hopeit.server.events import EventHandler, get_event_settings
 from mock_engine import MockStreamManager
 
 from mock_app import MockData, MockResult, mock_app_config  # type: ignore  # noqa: F401
@@ -10,11 +13,18 @@ from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401
 
 
 async def mock_handle_request_response_event(app_config, *, payload, expected):
-    handler = EventHandler(app_config=app_config, plugins=[], effective_events=app_config.events)
+    settings = get_event_settings(app_config.effective_settings, 'mock_post_event')
+    handler = EventHandler(
+        app_config=app_config,
+        plugins=[],
+        effective_events=app_config.events,
+        settings=app_config.effective_settings
+    )
     context = EventContext(
         app_config=app_config,
         plugin_config=app_config,
         event_name='mock_post_event',
+        settings=settings,
         track_ids=MockStreamManager.test_track_ids,
         auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'}
     )
@@ -24,11 +34,18 @@ async def mock_handle_request_response_event(app_config, *, payload, expected):
 
 
 async def mock_handle_postprocess(app_config, *, payload, expected, expected_response):
-    handler = EventHandler(app_config=app_config, plugins=[], effective_events=app_config.events)
+    settings = get_event_settings(app_config.effective_settings, 'plugin_event')
+    handler = EventHandler(
+        app_config=app_config,
+        plugins=[],
+        effective_events=app_config.events,
+        settings=app_config.effective_settings
+    )
     context = EventContext(
         app_config=app_config,
         plugin_config=app_config,
         event_name='plugin_event',
+        settings=settings,
         track_ids={},
         auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'}
     )
@@ -44,11 +61,18 @@ async def mock_handle_postprocess(app_config, *, payload, expected, expected_res
 
 
 async def mock_handle_spawn_event(app_config, *, payload, expected, stream_name):
-    handler = EventHandler(app_config=app_config, plugins=[], effective_events=app_config.events)
+    settings = get_event_settings(app_config.effective_settings, 'mock_spawn_event')
+    handler = EventHandler(
+        app_config=app_config,
+        plugins=[],
+        effective_events=app_config.events,
+        settings=app_config.effective_settings
+    )
     context = EventContext(
         app_config=app_config,
         plugin_config=app_config,
         event_name='mock_spawn_event',
+        settings=settings,
         track_ids=MockStreamManager.test_track_ids,
         auth_info={'auth_type': AuthType.UNSECURED, 'allowed': 'true'}
     )
@@ -94,4 +118,41 @@ async def test_postprocess(mock_plugin_config):  # noqa: F811
             'headers': {'PluginHeader': 'PluginHeaderValue'},
             'status': 999
         }
+    )
+
+
+@dataobject
+@dataclass
+class CustomSetting:
+    custom: str
+
+
+@dataobject
+@dataclass
+class CustomEventSettings:
+    custom_setting: CustomSetting
+
+
+def test_get_event_settings(mock_app_config):  # noqa: F811
+    event_name = "mock_stream_event"
+    settings = get_event_settings(mock_app_config.effective_settings, event_name)
+    assert settings.response_timeout == 60.0
+    assert settings.logging == EventLoggingConfig(extra_fields=['value'], stream_fields=['stream.msg_id'])
+    assert settings.stream == EventStreamConfig(
+        timeout=60.0, target_max_len=0, throttle_ms=0, step_delay=0, batch_size=100,
+        compression=Compression.LZ4, serialization=Serialization.JSON_BASE64
+    )
+    assert settings.get(datatype=CustomEventSettings) == CustomEventSettings(
+        custom_setting=CustomSetting(custom="value")
+    )
+    assert settings.get(key="custom_extra_settings", datatype=CustomEventSettings) == CustomEventSettings(
+        custom_setting=CustomSetting(custom="value")
+    )
+
+
+def test_get_event_settings_split_event(mock_app_config):  # noqa: F811
+    event_name = "mock_shuffle_event"
+    settings = get_event_settings(mock_app_config.effective_settings, event_name)
+    assert settings == get_event_settings(
+        mock_app_config.effective_settings, "mock_shuffle_event$consume_stream"
     )

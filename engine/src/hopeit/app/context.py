@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from multidict import CIMultiDict, CIMultiDictProxy, istr
 
 
-from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventType
+from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventSettings, EventType
 
 
 __all__ = ['EventContext',
@@ -37,6 +37,7 @@ class EventContext:
                  app_config: AppConfig,
                  plugin_config: AppConfig,
                  event_name: str,
+                 settings: EventSettings,
                  track_ids: Dict[str, str],
                  auth_info: Dict[str, Any]):
         self.app_key: str = app_config.app_key()
@@ -44,6 +45,7 @@ class EventContext:
         self.app: AppDescriptor = app_config.app
         self.env: Env = {**plugin_config.env, **app_config.env}
         self.event_name = event_name
+        self.settings = settings
         base_event = event_name.split('$')[0]
         self.event_info: EventDescriptor = plugin_config.events[base_event]
         self.creation_ts: datetime = datetime.now().astimezone(tz=timezone.utc)
@@ -53,7 +55,7 @@ class EventContext:
             'track.client_app_key',
             'track.client_event_name',
             *app_config.engine.track_headers,
-            *(self.event_info.config.logging.stream_fields
+            *(settings.logging.stream_fields
               if self.event_info.type == EventType.STREAM
               else [])
         ]

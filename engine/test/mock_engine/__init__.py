@@ -47,10 +47,12 @@ class MockEventHandler(EventHandler):
     def __init__(self, *,
                  app_config: AppConfig,
                  plugins: List[AppConfig],
-                 effective_events: Dict[str, EventDescriptor]):
+                 effective_events: Dict[str, EventDescriptor],
+                 settings: Dict[str, Any]):
         self.app_config = app_config
         self.plugins = plugins
         self.effective_events = effective_events
+        self.settings = settings
 
     async def handle_async_event(self, *,
                                  context: EventContext,
