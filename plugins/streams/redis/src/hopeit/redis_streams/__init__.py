@@ -37,8 +37,8 @@ class RedisStreamManager(StreamManager):
         """
         self.address = address
         self.consumer_id = self._consumer_id()
-        self._write_pool: aioredis.Redis = None
-        self._read_pool: aioredis.Redis = None
+        self._write_pool: aioredis.Redis
+        self._read_pool: aioredis.Redis
 
     async def connect(self):
         """
@@ -47,8 +47,8 @@ class RedisStreamManager(StreamManager):
         """
         logger.info(__name__, f"Connecting address={self.address}...")
         try:
-            self._write_pool = await aioredis.create_redis_pool(self.address)
-            self._read_pool = await aioredis.create_redis_pool(self.address)
+            self._write_pool = aioredis.from_url(self.address)
+            self._read_pool = aioredis.from_url(self.address)
             return self
         except (OSError, RedisError) as e:  # pragma: no cover
             logger.error(__name__, e)
@@ -91,9 +91,9 @@ class RedisStreamManager(StreamManager):
         """
         event_fields = self._encode_message(payload, queue, track_ids, auth_info, compression, serialization)
         ok = await self._write_pool.xadd(
-            stream=stream_name, fields=event_fields,
-            max_len=target_max_len if target_max_len > 0 else None,
-            exact_len=False)
+            name=stream_name, fields=event_fields,
+            maxlen=target_max_len if target_max_len > 0 else None,
+            approximate=False)
         return ok
 
     async def ensure_consumer_group(self, *,
@@ -110,12 +110,12 @@ class RedisStreamManager(StreamManager):
         """
         try:
             await self._read_pool.xgroup_create(
-                stream_name,
-                consumer_group,
-                latest_id='0',
+                name=stream_name,
+                groupname=consumer_group,
+                id='0',
                 mkstream=True
             )
-        except aioredis.errors.BusyGroupError:
+        except aioredis.exceptions.ResponseError:
             logger.info(__name__,
                         "Consumer_group already exists " +
                         f"read_stream={stream_name} consumer_group={consumer_group}")
@@ -151,33 +151,32 @@ class RedisStreamManager(StreamManager):
         :return: yields Tuples of message id (bytes) and deserialized DataObject
         """
         try:
-            batch = await self._read_pool.xread_group(
-                consumer_group,
-                self.consumer_id,
-                streams=[stream_name],
-                latest_ids=[offset],
+            batch = await self._read_pool.xreadgroup(
+                groupname=consumer_group,
+                consumername=self.consumer_id,
+                streams={stream_name: offset},
                 count=batch_size,
-                timeout=timeout
+                block=timeout
             )
 
-            msg_count = len(batch)
-
-            if msg_count != 0:
+            if len(batch) != 0:
+                items = batch[0][1]
+                msg_count = len(items)
                 logger.debug(__name__, "Received batch",
                              extra=extra(prefix='stream.', name=stream_name, consumer_group=consumer_group,
-                                         batch_size=msg_count, head=batch[0][1], tail=batch[-1][1]))
+                                         batch_size=msg_count, head=items[0][0], tail=items[-1][0]))
                 stream_events: List[Union[StreamEvent, Exception]] = []
-                for msg in batch:
+                for msg in items:
                     read_ts = datetime.now().astimezone(tz=timezone.utc).isoformat()
-                    msg_type = msg[2][b'type'].decode()
+                    msg_type = msg[1][b'type'].decode()
                     datatype = datatypes.get(msg_type)
                     if datatype is None:
                         err_msg = \
-                            f"Cannot read msg_id={msg[1].decode()}: msg_type={msg_type} is not any of {datatypes}"
+                            f"Cannot read msg_id={msg[0].decode()}: msg_type={msg_type} is not any of {datatypes}"
                         stream_events.append(TypeError(err_msg))
                     else:
                         stream_events.append(
-                            self._decode_message(msg, datatype, consumer_group, track_headers, read_ts))
+                            self._decode_message(stream_name, msg, datatype, consumer_group, track_headers, read_ts))
                 return stream_events
 
             #  Wait some time if no messages to prevent race condition in connection pool
@@ -240,31 +239,31 @@ class RedisStreamManager(StreamManager):
             event_fields['event_ts'] = event_ts
         return event_fields
 
-    def _decode_message(self, msg: List[Union[bytes, Dict[bytes, bytes]]],
+    def _decode_message(self, stream_name: str, msg: List[Union[bytes, Dict[bytes, bytes]]],
                         datatype: type, consumer_group: str,
                         track_headers: List[str], read_ts: str):
-        assert isinstance(msg[0], bytes) and isinstance(msg[1], bytes) and isinstance(msg[2], dict), \
+        assert isinstance(msg[0], bytes) and isinstance(msg[1], dict), \
             "Invalid message format. Expected `[bytes, bytes, Dict[bytes, bytes]]`"
-        compression = Compression(msg[2][b'comp'].decode())
-        serialization = Serialization(msg[2][b'ser'].decode())
+        compression = Compression(msg[1][b'comp'].decode())
+        serialization = Serialization(msg[1][b'ser'].decode())
         return StreamEvent(
-            msg_internal_id=msg[1],
+            msg_internal_id=msg[0],
             payload=deserialize(
-                msg[2][b'payload'], serialization, compression, datatype),  # type: ignore
-            queue=msg[2].get(b'queue', DEFAULT_QUEUE).decode(),  # Default ensures backwards compat
+                msg[1][b'payload'], serialization, compression, datatype),  # type: ignore
+            queue=msg[1].get(b'queue', DEFAULT_QUEUE).decode(),  # Default ensures backwards compat
             track_ids={
-                'stream.name': msg[0].decode(),
-                'stream.msg_id': msg[1].decode(),
+                'stream.name': stream_name,
+                'stream.msg_id': msg[0].decode(),
                 'stream.consumer_group': consumer_group,
-                'stream.submit_ts': msg[2][b'submit_ts'].decode(),
-                'stream.event_ts': msg[2][b'event_ts'].decode(),
-                'stream.event_id': msg[2][b'id'].decode(),
+                'stream.submit_ts': msg[1][b'submit_ts'].decode(),
+                'stream.event_ts': msg[1][b'event_ts'].decode(),
+                'stream.event_id': msg[1][b'id'].decode(),
                 'stream.read_ts': read_ts,
                 **{
-                    k: (msg[2].get(k.encode()) or b'').decode()
+                    k: (msg[1].get(k.encode()) or b'').decode()
                     for k in track_headers
                 },
                 'track.operation_id': str(uuid.uuid4()),
             },
-            auth_info=json.loads(base64.b64decode(msg[2].get(b'auth_info', b'{}')))
+            auth_info=json.loads(base64.b64decode(msg[1].get(b'auth_info', b'{}')))
         )
