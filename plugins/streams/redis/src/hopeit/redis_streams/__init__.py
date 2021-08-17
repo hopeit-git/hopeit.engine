@@ -93,7 +93,7 @@ class RedisStreamManager(StreamManager):
         ok = await self._write_pool.xadd(
             name=stream_name, fields=event_fields,
             maxlen=target_max_len if target_max_len > 0 else None,
-            approximate=False)
+            approximate=True)
         return ok
 
     async def ensure_consumer_group(self, *,
@@ -151,7 +151,7 @@ class RedisStreamManager(StreamManager):
         :return: yields Tuples of message id (bytes) and deserialized DataObject
         """
         try:
-            batch = await self._read_pool.xreadgroup(
+            response = await self._read_pool.xreadgroup(
                 groupname=consumer_group,
                 consumername=self.consumer_id,
                 streams={stream_name: offset},
@@ -159,14 +159,13 @@ class RedisStreamManager(StreamManager):
                 block=timeout
             )
 
-            if len(batch) != 0:
-                items = batch[0][1]
-                msg_count = len(items)
+            if len(response) != 0:
+                batch = response[0][1]
                 logger.debug(__name__, "Received batch",
                              extra=extra(prefix='stream.', name=stream_name, consumer_group=consumer_group,
-                                         batch_size=msg_count, head=items[0][0], tail=items[-1][0]))
+                                         batch_size=len(batch), head=batch[0][0], tail=batch[-1][0]))
                 stream_events: List[Union[StreamEvent, Exception]] = []
-                for msg in items:
+                for msg in batch:
                     read_ts = datetime.now().astimezone(tz=timezone.utc).isoformat()
                     msg_type = msg[1][b'type'].decode()
                     datatype = datatypes.get(msg_type)

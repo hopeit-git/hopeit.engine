@@ -234,10 +234,11 @@ class MockRedisPool():
         assert url == MockRedisPool.test_url
         return MockRedisPool()
 
-    async def xadd(self, name, fields, id=b'*', maxlen=None, approximate=False):
+    async def xadd(self, name, fields, id=b'*', maxlen=None, approximate=True):
         self.xadd_name = name
         self.xadd_fields = fields
         self.xadd_maxlen = maxlen
+        self.xadd_approximate = approximate
         return 1
 
     async def xgroup_create(self, name, groupname, id='$', mkstream=False):

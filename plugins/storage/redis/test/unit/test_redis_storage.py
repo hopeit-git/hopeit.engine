@@ -62,7 +62,6 @@ class MockRedisPool:
         self.last_payload = payload
         assert key == test_key
         assert payload == payload_str
-        pass
 
     @staticmethod
     def from_url(url):
