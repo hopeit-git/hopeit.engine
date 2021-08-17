@@ -22,27 +22,27 @@ test_redis = RedisMockData(test='test_redis')
 
 
 async def store_item():
-    redis = await RedisStorage().connect(address=test_url)
+    redis = RedisStorage().connect(address=test_url)
     await redis.store(test_key, test_redis)
     assert redis._conn.last_key == test_key
     assert redis._conn.last_payload == Payload.to_json(test_redis)
 
 
 async def get_item():
-    redis = await RedisStorage().connect(address=test_url)
+    redis = RedisStorage().connect(address=test_url)
     get_str = await redis.get(test_key, datatype=RedisMockData)
     assert get_str == test_redis
     assert type(get_str) is RedisMockData
 
 
 async def get_item_not_found():
-    redis = await RedisStorage().connect(address=test_url)
+    redis = RedisStorage().connect(address=test_url)
     get_str = await redis.get(test_key + "_other", datatype=RedisMockData)
     assert get_str is None
 
 
 async def connect():
-    redis = await RedisStorage().connect(address=test_url)
+    redis = RedisStorage().connect(address=test_url)
     assert type(redis._conn) is MockRedisPool
     assert type(redis) is RedisStorage
 
@@ -52,8 +52,7 @@ class MockRedisPool:
         self.last_key = None
         self.last_payload = None
 
-    async def get(self, key: str, encoding: str):
-        assert encoding == 'utf-8'
+    async def get(self, key: str):
         if key == test_key:
             return payload_str
         return None
@@ -66,30 +65,30 @@ class MockRedisPool:
         pass
 
     @staticmethod
-    async def create_redis_pool(url):
+    def from_url(url):
         assert url == test_url
         return MockRedisPool()
 
 
 @pytest.mark.asyncio
 async def test_set(monkeypatch):
-    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
     await store_item()
 
 
 @pytest.mark.asyncio
 async def test_get(monkeypatch):
-    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
     await get_item()
 
 
 @pytest.mark.asyncio
 async def test_get_item_not_found(monkeypatch):
-    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
     await get_item_not_found()
 
 
 @pytest.mark.asyncio
 async def test_connect(monkeypatch):
-    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
     await connect()

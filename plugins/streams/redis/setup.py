@@ -48,7 +48,7 @@ setuptools.setup(
     python_requires=">=3.7",
     install_requires=[
         f"hopeit.engine=={version['ENGINE_VERSION']}",
-        "aioredis>=1.3.1"
+        "aioredis>=2.0.0,<3"
     ],
     extras_require={
     },
