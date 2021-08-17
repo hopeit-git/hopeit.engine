@@ -1,4 +1,4 @@
-import aioredis  # type: ignore
+import aioredis
 
 import pytest
 from datetime import datetime, timezone

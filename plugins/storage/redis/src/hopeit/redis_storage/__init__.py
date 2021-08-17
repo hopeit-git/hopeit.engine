@@ -4,7 +4,7 @@ Backed by Redis
 """
 from typing import Optional, Type, Generic, Any
 
-import aioredis  # type: ignore
+import aioredis
 
 from hopeit.dataobjects import DataObject
 from hopeit.dataobjects.payload import Payload

@@ -2,7 +2,7 @@ import uuid
 from dataclasses import dataclass
 
 import pytest  # type: ignore
-import aioredis  # type: ignore
+import aioredis
 from hopeit.dataobjects import dataobject
 from hopeit.dataobjects.payload import Payload
 

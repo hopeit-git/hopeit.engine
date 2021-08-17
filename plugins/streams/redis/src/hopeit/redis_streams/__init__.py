@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Union
 
-import aioredis  # type: ignore
+import aioredis
 from aioredis import RedisError
 
 from hopeit.app.config import Compression, Serialization, StreamQueue
