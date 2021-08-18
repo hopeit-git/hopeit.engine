@@ -1,4 +1,4 @@
-import aioredis  # type: ignore
+import aioredis
 
 import pytest
 from datetime import datetime, timezone
@@ -45,8 +45,8 @@ async def write_stream():
         serialization=Serialization.JSON_UTF8
     )
     assert res == 1
-    assert mgr._write_pool.xadd_stream_name == 'test_stream'
-    assert mgr._write_pool.xadd_max_len == 10
+    assert mgr._write_pool.xadd_name == 'test_stream'
+    assert mgr._write_pool.xadd_maxlen == 10
     written_fields = mgr._write_pool.xadd_fields
     assert written_fields == {
         'id': 'test_value',
@@ -64,7 +64,7 @@ async def write_stream():
         'queue': TestStreamData.test_queue.encode()
     }
     res = await mgr.write_stream(
-        stream_name='test_stream_no_max_len',
+        stream_name='test_stream_no_maxlen',
         queue=TestStreamData.test_queue,
         payload=payload,
         track_ids=MockEventHandler.test_track_ids,
@@ -73,16 +73,16 @@ async def write_stream():
         serialization=Serialization.JSON_UTF8
     )
     assert res == 1
-    assert mgr._write_pool.xadd_stream_name == 'test_stream_no_max_len'
-    assert mgr._write_pool.xadd_max_len is None
+    assert mgr._write_pool.xadd_name == 'test_stream_no_maxlen'
+    assert mgr._write_pool.xadd_maxlen is None
     await mgr.close()
 
 
 async def ensure_consumer_group():
     mgr = await create_stream_manager()
     await mgr.ensure_consumer_group(stream_name='test_stream', consumer_group='test_group')
-    assert mgr._read_pool.xgroup_stream == 'test_stream'
-    assert mgr._read_pool.xgroup_group_name == 'test_group'
+    assert mgr._read_pool.xgroup_name == 'test_stream'
+    assert mgr._read_pool.xgroup_groupname == 'test_group'
     assert mgr._read_pool.xgroup_latest_id == '0'
     assert mgr._read_pool.xgroup_mkstream is True
     await mgr.ensure_consumer_group(stream_name='test_stream', consumer_group='test_group')
@@ -151,57 +151,57 @@ async def ack_read_stream():
 
 @pytest.mark.asyncio
 async def test_write_stream(monkeypatch):
-    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
     await write_stream()
 
 
 @pytest.mark.asyncio
 async def test_ensure_consume_group(monkeypatch):
-    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
     await ensure_consumer_group()
 
 
 @pytest.mark.asyncio
 async def test_read_stream(monkeypatch):
-    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
     await read_stream()
 
 
 @pytest.mark.asyncio
 async def test_read_stream_queue_name(monkeypatch):
-    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
     monkeypatch.setattr(TestStreamData, 'test_queue', 'custom')
     test_msg = deepcopy(MockRedisPool.test_msg)
-    test_msg[2][b'queue'] = b'custom'
+    test_msg[1][b'queue'] = b'custom'
     monkeypatch.setattr(MockRedisPool, 'test_msg', test_msg)
     await read_stream()
 
 
 @pytest.mark.asyncio
 async def test_read_stream_default_queue_name_when_missing(monkeypatch):
-    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
     test_msg = deepcopy(MockRedisPool.test_msg)
-    del test_msg[2][b'queue']
+    del test_msg[1][b'queue']
     monkeypatch.setattr(MockRedisPool, 'test_msg', test_msg)
     await read_stream()
 
 
 @pytest.mark.asyncio
 async def test_read_stream_empty_batch(monkeypatch):
-    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
     await read_stream_empty_batch()
 
 
 @pytest.mark.asyncio
 async def test_ack_read_stream(monkeypatch):
-    monkeypatch.setattr(aioredis, 'create_redis_pool', MockRedisPool.create_redis_pool)
+    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
     await ack_read_stream()
 
 
-class MockRedisPool(aioredis.Redis):
+class MockRedisPool():
     test_url: str = 'redis://test_url'
     message_count = 10
-    test_msg = [b'test_stream', b'0000000000-0', {
+    test_msg = [b'0000000000-0', {
         b'type': b'MockData',
         b'track.request_id': b'test_request_id',
         b'track.request_ts': b'2020-02-05T17:07:37.771396+00:00',
@@ -217,51 +217,54 @@ class MockRedisPool(aioredis.Redis):
     }]
 
     def __init__(self):
-        self.xadd_stream_name = None
+        self.xadd_name = None
         self.xadd_fields = None
-        self.xadd_max_len = None
-        self.xgroup_stream = None
-        self.xgroup_group_name = None
+        self.xadd_maxlen = None
+        self.xgroup_name = None
+        self.xgroup_groupname = None
         self.xgroup_latest_id = None
         self.xgroup_mkstream = None
         self.xgroup_exists = False
-        self.xread_consumer_name = None
+        self.xread_consumername = None
         self.xack_msg_id = None
         self.closing = False
 
     @staticmethod
-    async def create_redis_pool(url):
+    def from_url(url):
         assert url == MockRedisPool.test_url
         return MockRedisPool()
 
-    async def xadd(self, stream, fields, message_id=b'*', max_len=None,
-                   exact_len=False):
-        self.xadd_stream_name = stream
+    async def xadd(self, name, fields, id=b'*', maxlen=None, approximate=True):
+        self.xadd_name = name
         self.xadd_fields = fields
-        self.xadd_max_len = max_len
+        self.xadd_maxlen = maxlen
+        self.xadd_approximate = approximate
         return 1
 
-    async def xgroup_create(self, stream, group_name, latest_id='$', mkstream=False):
-        if self.xgroup_stream == stream and self.xgroup_group_name == group_name:
+    async def xgroup_create(self, name, groupname, id='$', mkstream=False):
+        if self.xgroup_name == name and self.xgroup_groupname == groupname:
             self.xgroup_exists = True
-            raise aioredis.errors.BusyGroupError('xgroup_exists')
-        self.xgroup_stream = stream
-        self.xgroup_group_name = group_name
-        self.xgroup_latest_id = latest_id
+            raise aioredis.exceptions.ResponseError
+        self.xgroup_name = name
+        self.xgroup_groupname = groupname
+        self.xgroup_latest_id = id
         self.xgroup_mkstream = mkstream
 
-    async def xread_group(self, group_name, consumer_name, streams, timeout=0,
-                          count=None, latest_ids=None, no_ack=False):
-        if group_name == 'empty_batch':
+    async def xreadgroup(self, groupname, consumername, streams, count=None, block=None):
+        if groupname == 'empty_batch':
             return []
-        assert [self.xgroup_stream] == streams
-        assert self.xgroup_group_name == group_name
-        self.xread_consumer_name = consumer_name
-        return [MockRedisPool.test_msg for _ in range(MockRedisPool.message_count)]
+        assert self.xgroup_groupname == groupname
+        assert {self.xgroup_name: ">"} == streams
+        self.xread_consumername = consumername
+        return [[
+            self.xgroup_name, [
+                MockRedisPool.test_msg for _ in range(count)
+            ]
+        ]]
 
-    async def xack(self, stream, group_name, id, *ids):
-        assert self.xgroup_group_name == group_name
-        assert self.xgroup_stream == stream
+    async def xack(self, name, groupname, id, *ids):
+        assert self.xgroup_groupname == groupname
+        assert self.xgroup_name == name
         self.xack_msg_id = id
         return 1
 

@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+
+Version 0.10.1
+______________
+- Plugins:
+  - redis-streams: updates for aioredis 2.0.0 compatiblility.
+  - redis-storage: updates for aioredis 2.0.0 compatiblility.
+
+
 Version 0.10.0
 ______________
 - Plugins:

@@ -4,7 +4,7 @@ Backed by Redis
 """
 from typing import Optional, Type, Generic, Any
 
-import aioredis  # type: ignore
+import aioredis
 
 from hopeit.dataobjects import DataObject
 from hopeit.dataobjects.payload import Payload
@@ -27,13 +27,13 @@ class RedisStorage(Generic[DataObject]):
         """
         self._conn: Optional[aioredis.Redis] = None
 
-    async def connect(self, *, address: str) -> Any:
+    def connect(self, *, address: str) -> Any:
         """
         Creates a Redis connection pool
 
         :param address: str, address = "redis://hostname:6379/0?encoding=utf-8"
         """
-        self._conn = await aioredis.create_redis_pool(address)
+        self._conn = aioredis.from_url(address)
         return self
 
     async def get(self, key: str, *, datatype: Type[DataObject]) -> Optional[DataObject]:
@@ -45,7 +45,7 @@ class RedisStorage(Generic[DataObject]):
         :return: instance of datatype or None if not found
         """
         assert self._conn
-        payload_str = await self._conn.get(key, encoding='utf-8')
+        payload_str = await self._conn.get(key)
         if payload_str:
             return Payload.from_json(payload_str, datatype)
         return None
