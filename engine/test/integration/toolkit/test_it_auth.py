@@ -5,7 +5,7 @@ import time
 import pathlib
 from datetime import datetime, timedelta, timezone
 
-from jwt.exceptions import ExpiredSignatureError, DecodeError, InvalidSignatureError  # type: ignore
+from jwt import ExpiredSignatureError, DecodeError, InvalidSignatureError
 
 import hopeit.server.logger as server_logging
 from hopeit.app.config import AppConfig

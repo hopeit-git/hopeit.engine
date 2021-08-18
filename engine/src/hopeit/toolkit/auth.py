@@ -141,14 +141,14 @@ def app_private_key(app_key: str) -> RSAPrivateKey:
 
 def new_token(app_key: str, payload: dict) -> str:
     private_key = app_private_key(app_key)
-    token = jwt.encode(
+    token = str(jwt.encode(
         {**payload, "app": app_key}, private_key, algorithm='RS256'
-    )
-    return token.decode()
+    ))
+    return token
 
 
 def decode_token(token: str) -> dict:
-    info = jwt.decode(token, verify=False)
+    info = jwt.decode(token, algorithms=['RS256'], options={"verify_signature": False})
     app_key = info['app']
     public_key = app_public_key(app_key)
     return jwt.decode(token, public_key, algorithms=['RS256'])
