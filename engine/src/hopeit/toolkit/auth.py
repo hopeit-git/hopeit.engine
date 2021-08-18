@@ -141,10 +141,8 @@ def app_private_key(app_key: str) -> RSAPrivateKey:
 
 def new_token(app_key: str, payload: dict) -> str:
     private_key = app_private_key(app_key)
-    token = str(jwt.encode(
-        {**payload, "app": app_key}, private_key, algorithm='RS256'
-    ))
-    return token
+    token = jwt.encode({**payload, "app": app_key}, private_key, algorithm='RS256')
+    return token  # type: ignore
 
 
 def decode_token(token: str) -> dict:

@@ -7,7 +7,7 @@ stringcase
 aioredis>=2.0.0,<3
 lz4
 cryptography<4,>=3.4.7
-PyJWT[crypto]<3,>=2.1.0
+PyJWT[crypto]>=2.1.0,<3
 click
 deepdiff
 multidict
