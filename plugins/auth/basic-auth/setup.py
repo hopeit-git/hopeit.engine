@@ -22,7 +22,7 @@ setuptools.setup(
     python_requires=">=3.7",
     install_requires=[
         f"hopeit.engine=={version['ENGINE_VERSION']}",
-        "PyJWT[crypto]>=1.7.1,<2"
+        "PyJWT[crypto]<3,>=2.1.0"
     ],
     extras_require={
     },

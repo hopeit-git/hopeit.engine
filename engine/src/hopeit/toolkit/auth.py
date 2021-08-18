@@ -16,7 +16,7 @@ from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 import jwt
-from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError, DecodeError  # type: ignore
+from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
 
 from hopeit.app.context import EventContext
 from hopeit.server.config import AuthConfig, AuthType
@@ -55,11 +55,11 @@ def init(app_key: str, app_auth_config: AuthConfig):
             with open(private_key_path, 'rb') as f:
                 private_keys[app_key] = load_pem_private_key(
                     f.read(), passphrase, default_backend()
-                )
+                )  # type: ignore
             with open(public_key_path, 'rb') as f:
                 public_keys[app_key] = load_pem_public_key(
                     f.read(), default_backend()
-                )
+                )  # type: ignore
             logger.info(__name__, f"Found keys in {auth_config.secrets_location}", extra=extra(app_key=app_key))
         except FileNotFoundError as e:
             if auth_config.create_keys:
