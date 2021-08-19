@@ -16,7 +16,7 @@ from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 import jwt
-from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError, DecodeError  # type: ignore
+from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
 
 from hopeit.app.context import EventContext
 from hopeit.server.config import AuthConfig, AuthType
@@ -53,13 +53,9 @@ def init(app_key: str, app_auth_config: AuthConfig):
         passphrase = auth_config.auth_passphrase.encode()
         try:
             with open(private_key_path, 'rb') as f:
-                private_keys[app_key] = load_pem_private_key(
-                    f.read(), passphrase, default_backend()
-                )
+                private_keys[app_key] = load_pem_private_key(f.read(), passphrase, default_backend())  # type: ignore
             with open(public_key_path, 'rb') as f:
-                public_keys[app_key] = load_pem_public_key(
-                    f.read(), default_backend()
-                )
+                public_keys[app_key] = load_pem_public_key(f.read(), default_backend())  # type: ignore
             logger.info(__name__, f"Found keys in {auth_config.secrets_location}", extra=extra(app_key=app_key))
         except FileNotFoundError as e:
             if auth_config.create_keys:
@@ -141,17 +137,14 @@ def app_private_key(app_key: str) -> RSAPrivateKey:
 
 def new_token(app_key: str, payload: dict) -> str:
     private_key = app_private_key(app_key)
-    token = jwt.encode(
-        {**payload, "app": app_key}, private_key, algorithm='RS256'
-    )
-    return token.decode()
+    return jwt.encode({**payload, "app": app_key}, private_key, algorithm='RS256')  # type: ignore
 
 
 def decode_token(token: str) -> dict:
-    info = jwt.decode(token, verify=False)
+    info = jwt.decode(token, algorithms=['RS256'], options={"verify_signature": False})
     app_key = info['app']
     public_key = app_public_key(app_key)
-    return jwt.decode(token, public_key, algorithms=['RS256'])
+    return jwt.decode(token, public_key, algorithms=['RS256'])  # type: ignore
 
 
 def validate_token(token: str, context: EventContext) -> Optional[dict]:

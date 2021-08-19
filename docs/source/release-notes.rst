@@ -2,6 +2,11 @@ Release Notes
 =============
 
 
+Version 0.10.2
+______________
+- engine: updates for PyJWT 2.1.0 compatiblility.
+
+
 Version 0.10.1
 ______________
 - Plugins:
