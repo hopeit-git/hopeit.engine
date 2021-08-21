@@ -88,7 +88,7 @@ def authorize(context: EventContext,
     :param now: current datetime, fixed as start of authorization process
     :return: AuthInfoExtended, containing new access and refresh tokens
     """
-    cfg: AuthSettings = context.settings.get(key="auth", datatype=AuthSettings)
+    cfg: AuthSettings = context.settings(key="auth", datatype=AuthSettings)
     renew_in = int(1000.0 * max(
         1.0 * cfg.access_token_expiration - 1.0 * cfg.access_token_renew_window * (1.0 + 0.5 * random.random()),
         0.5 * cfg.access_token_expiration * (0.5 * random.random() + 0.5)))

@@ -15,7 +15,7 @@ from . import mock_app_config, plugin_config  # noqa: F401
 
 async def invoke_login(context: EventContext):
     auth_info = await login.login(None, context)
-    cfg = context.settings.get(key='auth', datatype=AuthSettings)
+    cfg = context.settings(key='auth', datatype=AuthSettings)
     assert auth_info.token_type == 'BEARER'
     access_token_info = auth.decode_token(auth_info.access_token)
     assert access_token_info['app'] == 'test_app.test'

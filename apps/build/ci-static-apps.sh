@@ -1,6 +1,8 @@
 echo "========================"
 echo "CI STATIC ANALYSIS: APPS"
 echo "========================"
+
+mypy --install-types
 code=0
 
 echo "apps/simple-example"

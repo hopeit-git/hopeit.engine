@@ -31,7 +31,7 @@ async def execute_flow(context):
 
 def _event_context(mock_app_config, plugin_config):  # noqa: F811
     settings = get_event_settings(plugin_config.effective_settings, "logout")
-    cfg = settings.get(key='auth', datatype=AuthSettings)
+    cfg = settings(key='auth', datatype=AuthSettings)
     iat = datetime.now()
     timeout = cfg.access_token_expiration
     return EventContext(

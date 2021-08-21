@@ -142,10 +142,10 @@ def test_get_event_settings(mock_app_config):  # noqa: F811
         timeout=60.0, target_max_len=0, throttle_ms=0, step_delay=0, batch_size=100,
         compression=Compression.LZ4, serialization=Serialization.JSON_BASE64
     )
-    assert settings.get(datatype=CustomEventSettings) == CustomEventSettings(
+    assert settings(datatype=CustomEventSettings) == CustomEventSettings(
         custom_setting=CustomSetting(custom="value")
     )
-    assert settings.get(key="custom_extra_settings", datatype=CustomEventSettings) == CustomEventSettings(
+    assert settings(key="custom_extra_settings", datatype=CustomEventSettings) == CustomEventSettings(
         custom_setting=CustomSetting(custom="value")
     )
 

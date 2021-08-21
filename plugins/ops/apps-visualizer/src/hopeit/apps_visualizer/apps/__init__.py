@@ -29,7 +29,7 @@ async def get_runtime_apps(context: EventContext,
     global _apps, _expire
     if not refresh and _lock.locked():
         raise RuntimeError("Events graph request in process. Ignoring")
-    settings = context.settings.get(key="apps_visualizer", datatype=AppsVisualizerSettings)
+    settings = context.settings(key="apps_visualizer", datatype=AppsVisualizerSettings)
     now_ts = datetime.now(tz=timezone.utc).timestamp()
     async with _lock:
         if _apps is None or refresh or now_ts > _expire:

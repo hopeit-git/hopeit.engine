@@ -18,7 +18,7 @@ __steps__ = ['process_log_data']
 
 
 async def __service__(context: EventContext) -> Spawn[LogRawBatch]:
-    config = context.settings.get(datatype=LogReaderConfig)
+    config = context.settings(datatype=LogReaderConfig)
     event_handler = LogFileHandler(config, context)
     logger.info(context, "Starting LogFileHandler...", extra=extra(
         logs_path=config.logs_path,
@@ -97,7 +97,7 @@ async def process_log_data(payload: LogRawBatch, context: EventContext) -> Optio
     Receives emitted batch of raw log lines from service handler, process and filter in order
     to emit processed batch to a stream.
     """
-    config = context.settings.get(datatype=LogReaderConfig)
+    config = context.settings(datatype=LogReaderConfig)
     logger.info(context, "Processing batch of log entries...", extra=extra(batch_size=len(payload.data)))
     try:
         entries: List[LogEntry] = []

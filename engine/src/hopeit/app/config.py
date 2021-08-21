@@ -251,7 +251,7 @@ class EventSettings(Generic[EventPayloadType]):
     stream: EventStreamConfig = field(default_factory=EventStreamConfig)
     extras: Dict[str, Any] = field(default_factory=dict)
 
-    def get(self, *, key: str = '_', datatype: Type[EventPayloadType]) -> EventPayloadType:
+    def __call__(self, *, key: str = '_', datatype: Type[EventPayloadType]) -> EventPayloadType:
         return Payload.from_obj(self.extras.get(key, {}), datatype=datatype)
 
 
@@ -419,7 +419,7 @@ class AppConfig:
         """
         Add to event settings section extra keys references in `setting_keys` property
         of EventDescriptor, so these are available in `EventContext` using
-        `context.settings.get(key, datatype)
+        `context.settings(key, datatype)
 
         For these extra keys, validation is not perform until accessed.
         """

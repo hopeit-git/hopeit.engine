@@ -40,7 +40,7 @@ def _classes(item: dict, new_classes: List[str]) -> str:
 
 
 async def live_stats(collector: Collector, context: EventContext) -> Collector:
-    settings = context.settings.get(key='apps_visualizer', datatype=AppsVisualizerSettings)
+    settings = context.settings(key='apps_visualizer', datatype=AppsVisualizerSettings)
     apps = await collector['runtime_apps']
     options = await collector['payload']
     host_pids = set(
