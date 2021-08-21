@@ -2,7 +2,6 @@
 Apps Visualizer plugin module
 """
 from hopeit.dataobjects import dataclass, dataobject
-from hopeit.app.context import EventContext
 
 
 @dataobject

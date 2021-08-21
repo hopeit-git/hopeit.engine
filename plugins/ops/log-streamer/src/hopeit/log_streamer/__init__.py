@@ -21,7 +21,7 @@ logger, extra = app_extra_logger()
 @dataclass
 class LogReaderConfig:
     """
-    Log reader config env section
+    Log reader config settings section
     """
     logs_path: str
     prefix: str = ''
@@ -86,6 +86,7 @@ class LogFileHandler(FileSystemEventHandler):
     EVENTS_SORT_ORDER = ['START', '', 'DONE', 'FAILED', 'IGNORED']
 
     def __init__(self, config: LogReaderConfig, context: EventContext):
+        super().__init__()
         self.path = config.logs_path
         self.prefix = config.logs_path + config.prefix
         self.checkpoint_storage = FileStorage(path=config.checkpoint_path)  # type: ignore
@@ -176,7 +177,9 @@ class LogFileHandler(FileSystemEventHandler):
                     logger.info(self.context, "Opening log file...", extra=extra(
                         src_path=src_path, checkpoint=checkpoint
                     ))
-                    self.open_files[src_path] = open(src_path, 'r')  # pylint: disable=consider-using-with
+                    self.open_files[src_path] = open(  # pylint: disable=consider-using-with
+                        src_path, 'r', encoding="utf-8"
+                    )
                     if checkpoint:
                         line = self.open_files[src_path].readline()
                         if line and (line <= checkpoint):

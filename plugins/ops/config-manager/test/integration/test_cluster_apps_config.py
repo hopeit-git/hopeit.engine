@@ -14,7 +14,7 @@ async def test_cluster_apps_config(monkeypatch, cluster_apps_response,
 
     plugin_config = config('plugins/ops/config-manager/config/plugin-config.json')
     result = await execute_event(
-        app_config=plugin_config, event_name="cluster-apps-config", payload=None,
+        app_config=plugin_config, event_name="cluster_apps_config", payload=None,
         mocks=[apply_mock_client], hosts="http://test-server1,http://test-server2"
     )
 
@@ -36,7 +36,7 @@ async def test_cluster_apps_config_expand_events(
 
     plugin_config = config('plugins/ops/config-manager/config/plugin-config.json')
     result = await execute_event(
-        app_config=plugin_config, event_name="cluster-apps-config", payload=None,
+        app_config=plugin_config, event_name="cluster_apps_config", payload=None,
         mocks=[apply_mock_client], hosts="http://test-server1,http://test-server2",
         expand_events=True
     )

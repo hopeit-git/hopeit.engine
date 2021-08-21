@@ -166,7 +166,7 @@ def _load_engine_config(path: str):
     """
     Load engine configuration from json file
     """
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         return parse_server_config_json(f.read())
 
 
@@ -174,7 +174,7 @@ def _load_app_config(path: str) -> AppConfig:
     """
     Load app configuration from json file
     """
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         return parse_app_config_json(f.read())
 
 

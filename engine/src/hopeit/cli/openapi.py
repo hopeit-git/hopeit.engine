@@ -108,11 +108,11 @@ def _update_api_spec(config_files: str):
     """
     apps_config = []
     config_files_list = config_files.split(',')
-    with open(config_files_list[0], 'r') as sf:
+    with open(config_files_list[0], 'r', encoding="utf-8") as sf:
         server_config = parse_server_config_json(sf.read())
         api.register_server_config(server_config)
     for path in config_files_list[1:]:
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding="utf-8") as f:
             app_config = parse_app_config_json(f.read())
             apps_config.append(app_config)
     api.register_apps(apps_config)

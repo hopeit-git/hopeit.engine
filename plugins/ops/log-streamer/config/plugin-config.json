@@ -6,9 +6,6 @@
   "engine": {
     "import_modules": ["hopeit.log_streamer"]
   },
-  "env" : {
-    
-  },
   "settings": {
     "hopeit.log-streamer.logs": {
       "target_max_len": 1000,

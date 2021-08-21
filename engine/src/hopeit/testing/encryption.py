@@ -23,10 +23,10 @@ def setup_encryption(path_to_key_file: Union[str, Path]):
 
 
 def encrypt(text):
-    with open(key_file) as f:
+    with open(key_file, encoding="utf-8") as f:
         return Fernet(f.read()).encrypt(text.encode()).decode()
 
 
 def decrypt(text):
-    with open(key_file) as f:
+    with open(key_file, encoding="utf-8") as f:
         return Fernet(f.read()).decrypt(text.encode()).decode()

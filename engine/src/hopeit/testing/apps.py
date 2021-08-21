@@ -30,7 +30,7 @@ logger = engine_logger()
 def config(path: Union[str, Path]) -> AppConfig:
     if isinstance(path, str):
         path = Path(path)
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding="utf-8") as f:
         app_config = parse_app_config_json(f.read())
         app_config.server = server_config()
         return app_config
