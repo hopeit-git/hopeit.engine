@@ -10,7 +10,7 @@ from hopeit.app.config import AppConfig, parse_app_config_json, EventDescriptor
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import AuthType, ServerConfig, LoggingConfig
-from hopeit.server.events import EventHandler
+from hopeit.server.events import EventHandler, get_event_settings
 from hopeit.server.steps import split_event_stages, find_datatype_handler
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger
@@ -30,7 +30,7 @@ logger = engine_logger()
 def config(path: Union[str, Path]) -> AppConfig:
     if isinstance(path, str):
         path = Path(path)
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding="utf-8") as f:
         app_config = parse_app_config_json(f.read())
         app_config.server = server_config()
         return app_config
@@ -59,6 +59,7 @@ def create_test_context(app_config: AppConfig, event_name: str,
         app_config=app_config,
         plugin_config=app_config,
         event_name=event_name,
+        settings=get_event_settings(app_config.effective_settings, event_name),  # type: ignore
         track_ids={
             **{
                 k: '' for k in app_config.engine.track_headers
@@ -150,8 +151,11 @@ async def execute_event(app_config: AppConfig,
 
     event_info = app_config.events[event_name]
     effective_events = {**split_event_stages(app_config.app, event_name, event_info, impl)}
-    handler = EventHandler(app_config=app_config, plugins=[],
-                           effective_events=effective_events)
+    handler = EventHandler(
+        app_config=app_config, plugins=[],
+        effective_events=effective_events,
+        settings=app_config.effective_settings  # type: ignore
+    )
 
     preprocess_hook, postprocess_hook = None, None
     if preprocess:

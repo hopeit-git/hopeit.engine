@@ -10,7 +10,7 @@ from hopeit.apps_visualizer.site.visualization import \
     visualization_options, visualization_options_api_args  # noqa: F401
 from hopeit.apps_visualizer.apps.events_graph import EventsGraphResult, \
     config_graph, cytoscape_data, runtime_apps  # noqa: F401
-from hopeit.apps_visualizer import AppsVisualizerEnv
+from hopeit.apps_visualizer import AppsVisualizerSettings
 
 __steps__ = [
     'visualization_options',
@@ -40,7 +40,7 @@ def _classes(item: dict, new_classes: List[str]) -> str:
 
 
 async def live_stats(collector: Collector, context: EventContext) -> Collector:
-    env = AppsVisualizerEnv.from_context(context)
+    settings = context.settings(key='apps_visualizer', datatype=AppsVisualizerSettings)
     apps = await collector['runtime_apps']
     options = await collector['payload']
     host_pids = set(
@@ -51,8 +51,8 @@ async def live_stats(collector: Collector, context: EventContext) -> Collector:
     )
     event_stats = get_stats(
         host_pids=host_pids,
-        time_window_secs=env.live_active_treshold_seconds,
-        recent_secs=env.live_recent_treshold_seconds
+        time_window_secs=settings.live_active_treshold_seconds,
+        recent_secs=settings.live_recent_treshold_seconds
     )
     graph = await collector['cytoscape_data']
     if len(event_stats) == 0:

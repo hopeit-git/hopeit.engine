@@ -171,12 +171,18 @@ def replace_config_args(*, parsed_config: ConfigType,
     """
 
     def _replace_in_dict(node: dict, expr: str, replacement: str):
+        key_replacements = {}
         for k, value in node.items():
+            if expr in k:
+                key_replacements[k] = k.replace(expr, replacement)
             if isinstance(value, str):
                 if expr in value:
                     node[k] = value.replace(expr, replacement)
             elif isinstance(value, (dict, list, *config_classes)):
                 _replace_in_config(value, expr, replacement)
+        for k, r in key_replacements.items():
+            node[r] = node[k]
+            del node[k]
 
     def _replace_in_list(node: list, expr: str, replacement: str):
         for i, value in enumerate(node):

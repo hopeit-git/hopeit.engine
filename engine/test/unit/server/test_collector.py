@@ -3,13 +3,16 @@ import asyncio
 
 from hopeit.app.context import EventContext
 from hopeit.server.collector import Collector, AsyncCollector
+from hopeit.server.events import get_event_settings
 
 from mock_app import mock_app_config  # type: ignore  # noqa: F401
 
 
 @pytest.mark.asyncio
 async def test_async_collector(mock_app_config):  # noqa: F811
-    context = EventContext(app_config=mock_app_config, plugin_config=mock_app_config, event_name='mock_event',
+    settings = get_event_settings(mock_app_config.effective_settings, 'mock_event')
+    context = EventContext(app_config=mock_app_config, plugin_config=mock_app_config,
+                           event_name='mock_event', settings=settings,
                            track_ids={}, auth_info={})
 
     collector = await AsyncCollector()\

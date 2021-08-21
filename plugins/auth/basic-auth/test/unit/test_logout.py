@@ -3,10 +3,12 @@ from datetime import datetime, timedelta
 
 import hopeit.toolkit.auth as auth
 from hopeit.app.context import EventContext, PostprocessHook
-
-from hopeit.basic_auth import logout  # type: ignore
+from hopeit.server.events import get_event_settings
 from hopeit.app.errors import Unauthorized
 from hopeit.server.config import AuthType
+
+from hopeit.basic_auth import logout, AuthSettings  # type: ignore
+
 from . import mock_app_config, plugin_config  # noqa: F401
 
 
@@ -28,12 +30,15 @@ async def execute_flow(context):
 
 
 def _event_context(mock_app_config, plugin_config):  # noqa: F811
+    settings = get_event_settings(plugin_config.effective_settings, "logout")
+    cfg = settings(key='auth', datatype=AuthSettings)
     iat = datetime.now()
-    timeout = plugin_config.env['auth']['access_token_expiration']
+    timeout = cfg.access_token_expiration
     return EventContext(
         app_config=mock_app_config,
         plugin_config=plugin_config,
-        event_name='login',
+        event_name='logout',
+        settings=settings,
         track_ids={},
         auth_info={
             'allowed': True,

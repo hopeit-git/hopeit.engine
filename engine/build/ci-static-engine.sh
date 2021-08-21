@@ -1,6 +1,7 @@
 echo "=========================="
 echo "CI STATIC ANALYSIS: ENGINE"
 echo "=========================="
+mypy --install-types
 code=0
 export MYPYPATH=engine/src/ && python3 -m mypy --namespace-packages -p hopeit
 code+=$?

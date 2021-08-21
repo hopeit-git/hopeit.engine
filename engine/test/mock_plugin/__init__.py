@@ -24,4 +24,4 @@ def mock_plugin_config():
         server=ServerConfig(
             logging=LoggingConfig(log_level="DEBUG", log_path="work/logs/test/")
         )
-    )
+    ).setup()

@@ -10,7 +10,7 @@ from hopeit.server.steps import extract_postprocess_handler, extract_preprocess_
     invoke_single_step, extract_module_steps, effective_steps, event_and_step, StepInfo
 from hopeit.server.logger import setup_app_logger, engine_logger, extra_logger
 from hopeit.server.imports import find_event_handler
-from hopeit.app.config import AppConfig, EventDescriptor
+from hopeit.app.config import AppConfig, EventDescriptor, EventSettings
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 
 __all__ = ['EventHandler']
@@ -27,7 +27,8 @@ class EventHandler:
     def __init__(self, *,
                  app_config: AppConfig,
                  plugins: List[AppConfig],
-                 effective_events: Dict[str, EventDescriptor]):
+                 effective_events: Dict[str, EventDescriptor],
+                 settings: Dict[str, Any]):
         """
         Creates an EventHandler for a Hopeit App
 
@@ -38,18 +39,25 @@ class EventHandler:
         self.steps: Dict[str, Dict[str, StepInfo]] = {}
         self.preprocess_handlers: Dict[str, Optional[StepInfo]] = {}
         self.postprocess_handlers: Dict[str, Optional[StepInfo]] = {}
+        self.settings = settings
         logger.init_app(app_config, plugins)
         self.load_modules(effective_events)
 
     def load_modules(self, effective_events: Dict[str, EventDescriptor]):
-        for event_name, event_info in effective_events.items():
+        """
+        Load and setup event implementation modules. Set logger and load settings.
+        """
+        for event_name in effective_events.keys():
             base_event, _ = event_and_step(event_name)
             module = find_event_handler(app_config=self.app_config, event_name=base_event)
             steps = extract_module_steps(module)
             self.modules[base_event] = (module, False, steps)
             self.preprocess_handlers[base_event] = extract_preprocess_handler(module)
             self.postprocess_handlers[base_event] = extract_postprocess_handler(module)
-            setup_app_logger(module, app_config=self.app_config, name=base_event, event_info=event_info)
+            event_settings = get_event_settings(self.settings, event_name)
+            setup_app_logger(
+                module, app_config=self.app_config, name=base_event, event_settings=event_settings
+            )
             self.steps[event_name] = effective_steps(event_name, steps)
 
     async def _ensure_initialized(self, context: EventContext):
@@ -81,7 +89,10 @@ class EventHandler:
         """
         await self._ensure_initialized(context)
         steps = self.steps[context.event_name]
-        async for result in execute_steps(steps, context=context, payload=payload, **(query_args or {})):
+        async for result in execute_steps(
+            steps, context=context,
+            payload=payload, **(query_args or {})
+        ):
             yield result
 
     async def postprocess(self, *,
@@ -123,3 +134,18 @@ class EventHandler:
             coro_or_res = init_f(context)
             if iscoroutine(coro_or_res):
                 await coro_or_res
+
+
+def get_runtime_settings(app_config: AppConfig, plugins: List[AppConfig]) -> Dict[str, Any]:
+    settings: Dict[str, Any] = {}
+    for plugin in plugins:
+        assert plugin.effective_settings is not None
+        settings.update(plugin.effective_settings)
+    assert app_config.effective_settings is not None
+    settings.update(app_config.effective_settings)
+    return settings
+
+
+def get_event_settings(settings: Dict[str, Any], event_name: str) -> EventSettings:
+    data = settings[event_name.split('$')[0]]  # Removes auto-generated event suffixes
+    return EventSettings.from_dict(data, validate=False)  # type: ignore

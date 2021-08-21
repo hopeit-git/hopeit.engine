@@ -121,7 +121,7 @@ def load_api_file(path: Union[str, Path]):
     """
     global spec, static_spec
     logger.info(__name__, f"Loading api spec from api_file={path}...")
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding="utf-8") as f:
         spec = json.loads(f.read())
         assert spec is not None
         logger.info(__name__, f"API: openapi={spec['openapi']}, API version={spec['info']['version']}")
@@ -144,7 +144,7 @@ def save_api_file(path: Union[str, Path], api_version: str):
     logger.info(__name__, f"Set API version={api_version}...")
     spec['info']['version'] = api_version
     logger.info(__name__, f"Saving api spec to api_file={path}...")
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding="utf-8") as f:
         f.write(json.dumps(spec, indent=2))
         f.flush()
 

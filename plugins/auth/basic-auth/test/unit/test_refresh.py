@@ -2,18 +2,21 @@ import pytest  # type: ignore
 from datetime import datetime, timedelta
 
 import hopeit.toolkit.auth as auth
-from hopeit.basic_auth import ContextUserInfo, AuthInfoExtended, AuthInfo  # type: ignore
 from hopeit.app.context import EventContext, PostprocessHook
 
-from hopeit.basic_auth import refresh  # type: ignore
 from hopeit.app.errors import Unauthorized
 from hopeit.server.config import AuthType
+from hopeit.server.events import get_event_settings
+
+from hopeit.basic_auth import AuthSettings, refresh  # type: ignore
+from hopeit.basic_auth import ContextUserInfo, AuthInfoExtended, AuthInfo  # type: ignore
+
 from . import mock_app_config, plugin_config  # noqa: F401
 
 
 async def invoke_refresh(context: EventContext):
     auth_info = await refresh.refresh(None, context)
-
+    cfg = context.settings(key='auth', datatype=AuthSettings)
     assert auth_info.token_type == 'BEARER'
 
     access_token_info = auth.decode_token(auth_info.access_token)
@@ -22,11 +25,11 @@ async def invoke_refresh(context: EventContext):
     assert access_token_info['email'] == 'test@email'
     assert access_token_info['user'] == 'test'
     iat = access_token_info['iat']
-    assert access_token_info['exp'] == iat + context.env['auth']['access_token_expiration']
+    assert access_token_info['exp'] == iat + cfg.access_token_expiration
     assert access_token_info['renew'] > 0
     assert access_token_info['renew'] < 1000.0 * (
-        int(context.env['auth']['access_token_expiration']) -
-        int(context.env['auth']['access_token_renew_window']))
+        cfg.access_token_expiration - cfg.access_token_renew_window
+    )
 
     refresh_token_info = auth.decode_token(auth_info.refresh_token)
     assert refresh_token_info['app'] == 'test_app.test'
@@ -34,11 +37,11 @@ async def invoke_refresh(context: EventContext):
     assert refresh_token_info['email'] == 'test@email'
     assert refresh_token_info['user'] == 'test'
     iat = refresh_token_info['iat']
-    assert refresh_token_info['exp'] == iat + context.env['auth']['refresh_token_expiration']
+    assert refresh_token_info['exp'] == iat + cfg.refresh_token_expiration
 
     assert auth_info.user_info == ContextUserInfo(id='id', user='test', email='test@email')
-    assert auth_info.access_token_expiration == context.env['auth']['access_token_expiration']
-    assert auth_info.refresh_token_expiration == context.env['auth']['refresh_token_expiration']
+    assert auth_info.access_token_expiration == cfg.access_token_expiration
+    assert auth_info.refresh_token_expiration == cfg.refresh_token_expiration
     assert auth_info.renew == access_token_info['renew']
     return auth_info
 
@@ -64,12 +67,15 @@ async def execute_flow(context):
 
 
 def _event_context(mock_app_config, plugin_config):  # noqa: F811
+    settings = get_event_settings(plugin_config.effective_settings, "refresh")
+    cfg = settings(key='auth', datatype=AuthSettings)
     iat = datetime.now()
-    timeout = plugin_config.env['auth']['access_token_expiration']
+    timeout = cfg.access_token_expiration
     return EventContext(
         app_config=mock_app_config,
         plugin_config=plugin_config,
-        event_name='login',
+        event_name='refresh',
+        settings=settings,
         track_ids={},
         auth_info={
             'allowed': True,

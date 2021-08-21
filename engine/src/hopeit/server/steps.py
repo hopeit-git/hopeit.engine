@@ -150,7 +150,9 @@ async def execute_steps(steps: Dict[str, StepInfo], *,
             invoke_result = copy_payload(invoke_result)
             sub_steps = copy(steps)
             del sub_steps[step_name]
-            yield await _execute_sub_steps(sub_steps, start_ts=start_ts, context=context, payload=invoke_result)
+            yield await _execute_sub_steps(
+                sub_steps, start_ts=start_ts, context=context, payload=invoke_result
+            )
             start_ts = datetime.now()
 
 
@@ -164,7 +166,7 @@ async def _execute_sub_steps(steps: Dict[str, StepInfo], *,
     and will updated the payload and invoke next valid step.
     """
     curr_obj = payload
-    step_delay = context.event_info.config.stream.step_delay / 1000.0
+    step_delay = context.settings.stream.step_delay / 1000.0
     steps = copy(steps)
     step_name, func = _find_next_step(curr_obj, pending_steps=steps)
     while step_name:
@@ -237,7 +239,7 @@ async def _throttle(context: EventContext, start_ts: datetime):
     """
     Performs an async sleep in order to achieve duration specified by throttle configuration
     """
-    throttle_ms = context.event_info.config.stream.throttle_ms
+    throttle_ms = context.settings.stream.throttle_ms
     delay = 0.0
     if throttle_ms:
         elapsed_td = datetime.now() - start_ts
@@ -287,8 +289,7 @@ def split_event_stages(app: AppDescriptor,
             write_stream=WriteStreamDescriptor(
                 name=intermediate_stream,
                 queue_strategy=StreamQueueStrategy.PROPAGATE
-            ),
-            config=event_info.config
+            )
         )
         effective_events[sub_event_name] = sub_event_info
         event_type = EventType.STREAM

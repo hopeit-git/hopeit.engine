@@ -146,3 +146,13 @@ run-log-streamer:
 		--port=$(PORT) \
 		--start-streams \
 		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/log-streamer/config/plugin-config.json
+
+start-redis:
+	cd docker && \
+	docker-compose up -d redis && \
+	cd ..
+
+stop-redis:
+	cd docker && \
+	docker-compose stop redis && \
+	cd ..

@@ -11,13 +11,13 @@ from typing import Awaitable, Optional, Dict, List, Union, Tuple, Any
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import split_event_stages, event_and_step, extract_module_steps, effective_steps
 from hopeit.toolkit import auth
-from hopeit.app.config import AppConfig, EventType, ReadStreamDescriptor, EventDescriptor, \
+from hopeit.app.config import AppConfig, EventSettings, EventType, ReadStreamDescriptor, EventDescriptor, \
     StreamQueue, StreamQueueStrategy
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.app.client import register_app_connections, stop_app_connections
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import ServerConfig
-from hopeit.server.events import EventHandler
+from hopeit.server.events import EventHandler, get_event_settings, get_runtime_settings
 from hopeit.streams import stream_auth_info, StreamEvent, StreamOSError, StreamManager
 from hopeit.server.logger import engine_logger, extra_logger, combined
 from hopeit.server.metrics import metrics, stream_metrics, StreamStats
@@ -44,6 +44,7 @@ class AppEngine:
         self.app_key = app_config.app_key()
         self.effective_events = self._config_effective_events(app_config)
         self.plugins = plugins
+        self.settings = get_runtime_settings(app_config, plugins)
         self.event_handler: Optional[EventHandler] = None
         self.streams_enabled = streams_enabled
         self.stream_manager: Optional[StreamManager] = None
@@ -60,7 +61,8 @@ class AppEngine:
         """
         self.event_handler = EventHandler(
             app_config=self.app_config, plugins=self.plugins,
-            effective_events=self.effective_events)
+            effective_events=self.effective_events,
+            settings=self.settings)
         streams_present = any(
             True for _, event_info in self.effective_events.items()
             if (event_info.type == EventType.STREAM) or (event_info.write_stream is not None)
@@ -100,7 +102,7 @@ class AppEngine:
         :raise: TimeoutException in case configured timeout is exceeded before getting the result
         """
         assert self.event_handler is not None, "event_handler not created. Call `start()`."
-        timeout = context.event_info.config.response_timeout
+        timeout = context.settings.response_timeout
         try:
             return await asyncio.wait_for(
                 self._execute_event(context, query_args, payload),
@@ -109,7 +111,8 @@ class AppEngine:
         except asyncio.TimeoutError as e:
             raise TimeoutError(f"Response timeout exceeded seconds={timeout}") from e
 
-    async def _execute_event(self, context: EventContext, query_args: Optional[dict],
+    async def _execute_event(self, context: EventContext,
+                             query_args: Optional[dict],
                              payload: Optional[EventPayload],
                              queue: str = StreamQueue.AUTO) -> Optional[EventPayload]:
         """
@@ -124,7 +127,7 @@ class AppEngine:
         if self.streams_enabled and (context.event_info.write_stream is not None):
             assert self.stream_manager, "stream_manager not initialized. Call `start()`."
         event_info = self.effective_events[context.event_name]
-        batch_size = event_info.config.stream.batch_size
+        batch_size = context.settings.stream.batch_size
         batch = []
         result = None
         async for result in self.event_handler.handle_async_event(
@@ -133,11 +136,13 @@ class AppEngine:
                 batch.append(result)
             if (len(batch) >= batch_size) and (event_info.write_stream is not None):
                 await self._write_stream_batch(
-                    batch=batch, context=context, event_info=event_info, queue=queue)
+                    batch=batch, context=context, event_info=event_info, queue=queue
+                )
                 batch.clear()
         if (len(batch) > 0) and (event_info.write_stream is not None):
             await self._write_stream_batch(
-                batch=batch, context=context, event_info=event_info, queue=queue)
+                batch=batch, context=context, event_info=event_info, queue=queue
+            )
         return result
 
     async def _write_stream_batch(self, *, batch: List[EventPayload],
@@ -156,18 +161,18 @@ class AppEngine:
         )
 
     async def _write_stream(self, *, payload: EventPayload,
-                            context: EventContext, event_info: EventDescriptor,
+                            context: EventContext,
+                            event_info: EventDescriptor,
                             upstream_queue: str):
         """
         Publish payload in configured one or more queues for a given configured stream
         """
         assert self.stream_manager is not None, "stream_manager not created. Call `start()`."
         assert event_info.write_stream is not None, "write_stream name not configured"
-        assert event_info.config.stream.compression, "stream compression not configured"
-        assert event_info.config.stream.serialization, "stream serialization not configured"
+        assert context.settings.stream.compression, "stream compression not configured"
+        assert context.settings.stream.serialization, "stream serialization not configured"
 
         for configured_queue in event_info.write_stream.queues:
-
             stream_name = event_info.write_stream.name
             if (
                 upstream_queue != StreamQueue.AUTO and
@@ -190,9 +195,9 @@ class AppEngine:
                 payload=StreamManager.as_data_event(payload),
                 track_ids=context.track_ids,
                 auth_info=context.auth_info,
-                compression=event_info.config.stream.compression,
-                serialization=event_info.config.stream.serialization,
-                target_max_len=event_info.config.stream.target_max_len
+                compression=context.settings.stream.compression,
+                serialization=context.settings.stream.serialization,
+                target_max_len=context.settings.stream.target_max_len
             )
 
     async def preprocess(self, *,
@@ -214,14 +219,15 @@ class AppEngine:
     async def _process_stream_event_with_timeout(
             self, stream_event: StreamEvent, stream_info: ReadStreamDescriptor,
             stream_name: str, queue: str,
-            context: EventContext, stats: StreamStats,
+            context: EventContext,
+            stats: StreamStats,
             log_info: Dict[str, str]) -> Union[EventPayload, Exception]:
         """
         Invokes _process_stream_event with a configured timeout
         :return: result of _process_stream_event
         :raise: TimeoutError in case the event is not processed on the configured timeout
         """
-        timeout = context.event_info.config.stream.timeout
+        timeout = context.settings.stream.timeout
         try:
             return await asyncio.wait_for(
                 self._process_stream_event(stream_event=stream_event, stream_info=stream_info,
@@ -239,7 +245,7 @@ class AppEngine:
     async def _read_stream_cycle(
             self,
             event_name: str,
-            event_config: EventDescriptor,
+            event_settings: EventSettings,
             stream_info: ReadStreamDescriptor,
             datatypes: Dict[str, type],
             offset: str,
@@ -273,7 +279,7 @@ class AppEngine:
                         datatypes=datatypes,
                         track_headers=self.app_config.engine.track_headers,
                         offset=offset,
-                        batch_size=event_config.config.stream.batch_size,
+                        batch_size=event_settings.stream.batch_size,
                         timeout=self.app_config.engine.read_stream_timeout,
                         batch_interval=self.app_config.engine.read_stream_interval):
 
@@ -287,6 +293,7 @@ class AppEngine:
                             app_config=self.app_config,
                             plugin_config=self.app_config,
                             event_name=event_name,
+                            settings=event_settings,
                             track_ids=stream_event.track_ids,
                             auth_info=stream_auth_info(stream_event)
                         )
@@ -360,6 +367,7 @@ class AppEngine:
             event_config = self.effective_events[event_name]
             stream_info = event_config.read_stream
             assert stream_info, f"No read_stream section in config for event={event_name}"
+            event_settings = get_event_settings(self.settings, event_name)
             for queue in stream_info.queues:
                 await self.stream_manager.ensure_consumer_group(
                     stream_name=(
@@ -380,7 +388,7 @@ class AppEngine:
             last_res, last_context, last_err = None, None, None
             while self._running[event_name].locked():
                 last_res, last_context, last_err = await self._read_stream_cycle(
-                    event_name, event_config, stream_info, datatypes, offset, stats,
+                    event_name, event_settings, stream_info, datatypes, offset, stats,
                     log_info, test_mode, last_err
                 )
             logger.info(__name__, 'Stopped read_stream.', extra=extra(prefix='stream.', **log_info))
@@ -408,7 +416,10 @@ class AppEngine:
             assert self.event_handler
             assert self.stream_manager
 
-            result = await self._execute_event(context, None, stream_event.payload, stream_event.queue)
+            result = await self._execute_event(
+                context=context, query_args=None,
+                payload=stream_event.payload, queue=stream_event.queue
+            )
             await self.stream_manager.ack_read_stream(
                 stream_name=stream_name,
                 consumer_group=stream_info.consumer_group,
@@ -434,7 +445,8 @@ class AppEngine:
             stats.inc(error=True)
             return e
 
-    def _service_event_context(self, event_name: str, previous_context: Optional[EventContext] = None):
+    def _service_event_context(self, event_name: str, event_settings: EventSettings,
+                               previous_context: Optional[EventContext] = None):
         if previous_context is None:
             track_ids = {
                 'track.request_id': str(uuid.uuid4()),
@@ -446,6 +458,7 @@ class AppEngine:
             app_config=self.app_config,
             plugin_config=self.app_config,
             event_name=event_name,
+            settings=event_settings,
             track_ids={
                 **track_ids,
                 'track.operation_id': str(uuid.uuid4()),
@@ -482,14 +495,19 @@ class AppEngine:
         service_handler = getattr(impl, '__service__')
         assert service_handler is not None, \
             f"{event_name} must implement method `__service__(context) -> Spawn[...]` to run as a service"
-        context = self._service_event_context(event_name=event_name)
+        event_settings = get_event_settings(self.settings, event_name)
+        context = self._service_event_context(event_name=event_name, event_settings=event_settings)
         last_result = None
         if self._running[event_name].locked():
             async for payload in service_handler(context):
                 try:
-                    context = self._service_event_context(event_name=event_name, previous_context=context)
+                    context = self._service_event_context(
+                        event_name=event_name, event_settings=event_settings, previous_context=context
+                    )
                     logger.start(context, extra=extra(prefix='service.', **log_info))
-                    last_result = await self.execute(context=context, query_args=None, payload=payload)
+                    last_result = await self.execute(
+                        context=context, query_args=None, payload=payload
+                    )
                     logger.done(context, extra=extra(prefix='service.', **log_info))
                     if not self._running[event_name].locked():
                         logger.info(__name__, "Stopped service.", extra=extra(prefix='service.', **log_info))

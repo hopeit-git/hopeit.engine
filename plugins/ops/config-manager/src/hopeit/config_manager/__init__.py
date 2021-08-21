@@ -20,7 +20,7 @@ class ServerInfo:
     url: str = "in-process"
 
 
-class ServerStatus(Enum):
+class ServerStatus(str, Enum):
     ALIVE = "ALIVE"
     ERROR = "ERROR"
 

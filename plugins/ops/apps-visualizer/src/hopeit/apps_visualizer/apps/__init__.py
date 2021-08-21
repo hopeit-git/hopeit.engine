@@ -11,7 +11,7 @@ from hopeit.server.logger import engine_extra_logger
 from hopeit.config_manager import RuntimeApps
 from hopeit.config_manager.client import get_apps_config
 
-from hopeit.apps_visualizer import AppsVisualizerEnv
+from hopeit.apps_visualizer import AppsVisualizerSettings
 
 logger, extra = engine_extra_logger()
 
@@ -29,13 +29,13 @@ async def get_runtime_apps(context: EventContext,
     global _apps, _expire
     if not refresh and _lock.locked():
         raise RuntimeError("Events graph request in process. Ignoring")
-    env = AppsVisualizerEnv.from_context(context)
+    settings = context.settings(key="apps_visualizer", datatype=AppsVisualizerSettings)
     now_ts = datetime.now(tz=timezone.utc).timestamp()
     async with _lock:
         if _apps is None or refresh or now_ts > _expire:
             logger.info(context, "Contacting hosts config-manager...")
-            _apps = await get_apps_config(env.hosts, context, expand_events=expand_events)
-            _expire = now_ts + env.refresh_hosts_seconds
+            _apps = await get_apps_config(settings.hosts, context, expand_events=expand_events)
+            _expire = now_ts + settings.refresh_hosts_seconds
         else:
             logger.info(context, "Using cached runtime apps information.")
         return _apps

@@ -1,9 +1,9 @@
 import pytest
+import uuid
 
 from hopeit.dataobjects.payload import Payload
 
 from hopeit.log_streamer import LogBatch, LogRawBatch, LogReaderConfig
-import uuid
 from hopeit.testing.apps import config, create_test_context
 
 from . import APP_VERSION, APPS_API_VERSION
@@ -91,6 +91,6 @@ def log_config():
 
 
 @pytest.fixture
-def context():
+def service_context():
     app_config = config('plugins/ops/log-streamer/config/plugin-config.json')
     return create_test_context(app_config, "log_reader")

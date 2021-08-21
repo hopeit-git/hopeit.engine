@@ -14,8 +14,8 @@ from hopeit.log_streamer import LogFileHandler, start_observer
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
 )
-async def test_read_one_batch(raw_log_entries, log_config, context):
-    handler = LogFileHandler(log_config, context)
+async def test_read_one_batch(raw_log_entries, log_config, service_context):
+    handler = LogFileHandler(log_config, service_context)
     os.makedirs(log_config.logs_path, exist_ok=True)
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
@@ -39,8 +39,8 @@ async def test_read_one_batch(raw_log_entries, log_config, context):
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
 )
-async def test_checkpoint(raw_log_entries, raw_log_entries2, log_config, context):
-    handler = LogFileHandler(log_config, context)
+async def test_checkpoint(raw_log_entries, raw_log_entries2, log_config, service_context):
+    handler = LogFileHandler(log_config, service_context)
     os.makedirs(log_config.logs_path, exist_ok=True)
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
@@ -59,7 +59,7 @@ async def test_checkpoint(raw_log_entries, raw_log_entries2, log_config, context
         observer.stop()
         observer.join()
 
-        handler = LogFileHandler(log_config, context)
+        handler = LogFileHandler(log_config, service_context)
         observer = start_observer(handler, log_config.logs_path)
 
         # with open(path, 'a') as f:
@@ -84,9 +84,9 @@ async def test_checkpoint(raw_log_entries, raw_log_entries2, log_config, context
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
 )
-async def test_checkpoint_expire(raw_log_entries, raw_log_entries2, log_config, context):
+async def test_checkpoint_expire(raw_log_entries, raw_log_entries2, log_config, service_context):
     log_config.file_checkpoint_expire_secs = 1
-    handler = LogFileHandler(log_config, context)
+    handler = LogFileHandler(log_config, service_context)
     os.makedirs(log_config.logs_path, exist_ok=True)
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
@@ -105,7 +105,7 @@ async def test_checkpoint_expire(raw_log_entries, raw_log_entries2, log_config, 
         observer.stop()
         observer.join()
 
-        handler = LogFileHandler(log_config, context)
+        handler = LogFileHandler(log_config, service_context)
         observer = start_observer(handler, log_config.logs_path)
         await asyncio.sleep(2)
 
@@ -133,8 +133,8 @@ async def test_checkpoint_expire(raw_log_entries, raw_log_entries2, log_config, 
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
 )
-async def test_checkpoint_same_timestamp(raw_log_entries, raw_log_entries2, log_config, context):
-    handler = LogFileHandler(log_config, context)
+async def test_checkpoint_same_timestamp(raw_log_entries, raw_log_entries2, log_config, service_context):
+    handler = LogFileHandler(log_config, service_context)
     os.makedirs(log_config.logs_path, exist_ok=True)
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
@@ -161,7 +161,7 @@ async def test_checkpoint_same_timestamp(raw_log_entries, raw_log_entries2, log_
         observer.stop()
         observer.join()
 
-        handler = LogFileHandler(log_config, context)
+        handler = LogFileHandler(log_config, service_context)
         observer = start_observer(handler, log_config.logs_path)
 
         # with open(path, 'a') as f:
@@ -191,8 +191,8 @@ async def test_checkpoint_same_timestamp(raw_log_entries, raw_log_entries2, log_
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
 )
-async def test_move_file(raw_log_entries, raw_log_entries2, log_config, context):
-    handler = LogFileHandler(log_config, context)
+async def test_move_file(raw_log_entries, raw_log_entries2, log_config, service_context):
+    handler = LogFileHandler(log_config, service_context)
     os.makedirs(log_config.logs_path, exist_ok=True)
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
@@ -234,8 +234,8 @@ async def test_move_file(raw_log_entries, raw_log_entries2, log_config, context)
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
 )
-async def test_delete_file(raw_log_entries, raw_log_entries2, log_config, context):
-    handler = LogFileHandler(log_config, context)
+async def test_delete_file(raw_log_entries, raw_log_entries2, log_config, service_context):
+    handler = LogFileHandler(log_config, service_context)
     os.makedirs(log_config.logs_path, exist_ok=True)
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")

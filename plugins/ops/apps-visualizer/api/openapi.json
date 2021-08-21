@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.10",
+    "version": "0.11",
     "title": "Simple Example",
     "description": "Simple Example"
   },
   "paths": {
-    "/api/config-manager/0x10/runtime-apps-config": {
+    "/api/config-manager/0x11/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -62,11 +62,11 @@
           }
         },
         "tags": [
-          "config_manager.0x10"
+          "config_manager.0x11"
         ]
       }
     },
-    "/api/config-manager/0x10/cluster-apps-config": {
+    "/api/config-manager/0x11/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -122,7 +122,7 @@
           }
         },
         "tags": [
-          "config_manager.0x10"
+          "config_manager.0x11"
         ]
       }
     },
@@ -209,11 +209,11 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x10"
+          "apps_visualizer.0x11"
         ]
       }
     },
-    "/api/apps-visualizer/0x10/apps/events-graph": {
+    "/api/apps-visualizer/0x11/apps/events-graph": {
       "get": {
         "summary": "App Visualizer: Events Graph Data",
         "description": "App Visualizer: Events Graph Data",
@@ -287,11 +287,11 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x10"
+          "apps_visualizer.0x11"
         ]
       }
     },
-    "/api/apps-visualizer/0x10/event-stats/live": {
+    "/api/apps-visualizer/0x11/event-stats/live": {
       "get": {
         "summary": "App Visualizer: Live Stats",
         "description": "App Visualizer: Live Stats",
@@ -365,7 +365,7 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x10"
+          "apps_visualizer.0x11"
         ]
       }
     }
@@ -494,6 +494,12 @@
               "type": "object"
             },
             "default": {}
+          },
+          "effective_settings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
           }
         },
         "x-module-name": "hopeit.app.config",
@@ -656,29 +662,6 @@
           "write_stream": {
             "$ref": "#/components/schemas/WriteStreamDescriptor"
           },
-          "config": {
-            "$ref": "#/components/schemas/EventConfig",
-            "default": {
-              "response_timeout": 60.0,
-              "logging": {
-                "extra_fields": [],
-                "stream_fields": [
-                  "stream.name",
-                  "stream.msg_id",
-                  "stream.consumer_group"
-                ]
-              },
-              "stream": {
-                "timeout": 60.0,
-                "target_max_len": 0,
-                "throttle_ms": 0,
-                "step_delay": 0,
-                "batch_size": 100,
-                "compression": null,
-                "serialization": null
-              }
-            }
-          },
           "auth": {
             "type": "array",
             "items": {
@@ -691,6 +674,13 @@
               ],
               "x-enum-name": "AuthType",
               "x-module-name": "hopeit.server.config"
+            },
+            "default": []
+          },
+          "setting_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
             },
             "default": []
           }
@@ -783,121 +773,6 @@
         "x-module-name": "hopeit.app.config",
         "description": "\n    Configuration to publish messages to a stream\n\n    :field: name, str: stream name\n    :field: queue, List[str], queue names to be used to publish to stream.\n        Each queue act as separate stream with queue name used as stream name suffix,\n        allowing to publish messages to i.e. a queue that will be consumed with priority,\n        or to multiple queues that will be consumed by different readers.\n        Queue suffix will be propagated through events, allowing an event in a defined queue\n        and successive events in following steps to be consumed using same queue name.\n        Notice that queue will be applied only to messages coming from default queue\n        (where queue is not specified at intial message creation). Messages consumed\n        from other queues will be published using same queue name as they have when consumed.\n    :field queue_stategory: strategy to be used when consuming messages from a stream\n        with a queue name and publishing to another stream. Default is `StreamQueueStrategy.DROP`,\n        so in case of complex stream propagating queue names are configured,\n        `StreamQueueStrategy.PROPAGATE` must be explicitly specified.\n    "
       },
-      "EventConfig": {
-        "type": "object",
-        "properties": {
-          "response_timeout": {
-            "type": "number",
-            "default": 60.0
-          },
-          "logging": {
-            "$ref": "#/components/schemas/EventLoggingConfig",
-            "default": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            }
-          },
-          "stream": {
-            "$ref": "#/components/schemas/EventStreamConfig",
-            "default": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": null,
-              "serialization": null
-            }
-          }
-        },
-        "x-module-name": "hopeit.app.config",
-        "description": "\n    Event execution configuration\n    :field response_timeout: float, default 60.0: seconds to timeout waiting for event execution\n        when invoked externally .i.e. GET or POST events. If exceeded, Timed Out response will be returned.\n        Notice that this timeout does not apply for stream processing events. Use EventStreamsConfig.timeout\n        to set up timeout on stream processing.\n    :field logging: EventLoggingConfig, configuration for logging for this particular event\n    :field stream: EventStreamConfig, configuration for stream processing for this particular event\n    "
-      },
-      "EventLoggingConfig": {
-        "type": "object",
-        "properties": {
-          "extra_fields": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": []
-          },
-          "stream_fields": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": []
-          }
-        },
-        "x-module-name": "hopeit.app.config",
-        "description": "\n    Logging configuration specific for the event\n\n    :field extra_fields: list of str, extra fields required to apps when logging\n        as part of extra(...) call\n    :field stream_fields: list of str, field names to extra when reading streams,\n        valid options are\n            'name': stream name,\n            'msg_id', internal message id\n            'consumer_group', conaumer group name\n            'submit_ts', utc time message was submited to stream\n            'event_ts', event timestamp from @data_event\n            'event_id', event id from @data_event\n            'read_ts': uct time when message was consumed from stream\n    "
-      },
-      "EventStreamConfig": {
-        "type": "object",
-        "properties": {
-          "timeout": {
-            "type": "number",
-            "default": 60.0
-          },
-          "target_max_len": {
-            "type": "integer",
-            "default": 0
-          },
-          "throttle_ms": {
-            "type": "integer",
-            "default": 0
-          },
-          "step_delay": {
-            "type": "integer",
-            "default": 0
-          },
-          "batch_size": {
-            "type": "integer",
-            "default": 100
-          },
-          "compression": {
-            "type": "string",
-            "enum": [
-              "none",
-              "lz4",
-              "lz4:0",
-              "lz4:16",
-              "zip",
-              "zip:1",
-              "zip:9",
-              "gzip",
-              "gzip:1",
-              "gzip:9",
-              "bz2",
-              "bz2:1",
-              "bz2:9",
-              "lzma"
-            ],
-            "x-enum-name": "Compression",
-            "x-module-name": "hopeit.app.config"
-          },
-          "serialization": {
-            "type": "string",
-            "enum": [
-              "json",
-              "json+base64",
-              "pickle:3",
-              "pickle:4",
-              "pickle:5"
-            ],
-            "x-enum-name": "Serialization",
-            "x-module-name": "hopeit.app.config"
-          }
-        },
-        "x-module-name": "hopeit.app.config",
-        "description": "\n    Stream configuration for STREAM events\n    :field timeout: float, timeout for stream processing im seconds. If timeout is exceeded event\n        processing will be cancelled. Default 60 seconds\n    :field target_max_len: int, default 0, max number of elements to be used as a target\n        for the stream collection size. Messages above this value might be dropped\n        from the collection when new items are added. Notice that the number of the items\n        in the collection could exceed temporary this value to allow optimized behaviour,\n        but no items will be dropped until the collection exceeds target_max_len.\n        With default value of 0, collection size is unlimited and items should be removed by apps.\n    :field throttle_ms: int, milliseconds specifying minimum duration for each event\n    :filed step_delay: int, milliseconds to sleep between steps\n    :field batch_size: int, number of max messages to process each time when reading stream,\n        set to 1 to ensure min losses in case of process stop, set higher for performance\n    :field compression: Compression, compression algorithm used to send messages to stream, if not specified\n        default from Server config will be used.\n    :field serialization: Serialization, serialization method used to send messages to stream, if not specified\n        default from Server config will be used.\n    "
-      },
       "ServerConfig": {
         "type": "object",
         "properties": {
@@ -938,7 +813,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.10.2"
+            "default": "0.11.0"
           }
         },
         "x-module-name": "hopeit.server.config",

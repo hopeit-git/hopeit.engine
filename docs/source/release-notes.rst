@@ -1,6 +1,31 @@
 Release Notes
 =============
 
+Version 0.11.0
+______________
+- Support for `settings` section in config:
+  - Each event settings (basic event setup, `logging`, `streams` settings) must be defined in a settings key with
+  the same name as event.
+  - Stream settings (like max_len, batch_size) must be configured in a settings section with the stream name as a key.
+  - EventContext has settings available on event execution time under `context.settings`.
+  - Custom settings can be added to each event settings section and parsed using a dataobject using
+  i.e. `context.settings(datatype=MySettings)`.
+  - Extra settings sections can be linked to each event context using `"setting_keys": ["section"]` in event config.
+  This section will be available to be parsed using `context.settings(key="section", datatype=MySettings)`
+
+- Plugins:
+  - log_streamer: Moved configuration to `settings` section
+  - config_manager: Moved configuration to `settings` section
+  - apps_visualizer: Moved configuration to `settings` section
+
+- Fixes:
+  - Explicitly specifying utf-8 encoding when saving and reading files
+  - log_streamer: fixed LogFileReader missing `super()` call on initialization
+
+- Potential breaking changes:
+  - When using custom config files for plugins where settings where part of `env` section, you need
+  to update those files to use `settings` section instead, as defined in provided plugin config files.
+
 
 Version 0.10.2
 ______________

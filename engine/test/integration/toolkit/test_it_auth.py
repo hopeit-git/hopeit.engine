@@ -4,6 +4,7 @@ import os
 import time
 import pathlib
 from datetime import datetime, timedelta, timezone
+from hopeit.server.events import get_event_settings
 
 from jwt import ExpiredSignatureError, DecodeError, InvalidSignatureError
 
@@ -202,6 +203,7 @@ def _setup_server_context(app_config: AppConfig) -> EventContext:
         app_config=app_config,
         plugin_config=app_config,
         event_name='mock_event',
+        settings=get_event_settings(app_config.effective_settings, 'mock_event'),  # type: ignore
         track_ids={},
         auth_info={}
     )
@@ -228,6 +230,7 @@ def _setup_client_context(app_config: AppConfig, server_app_config: AppConfig,
         app_config=app_config,
         plugin_config=app_config,
         event_name='mock_event',
+        settings=get_event_settings(app_config.effective_settings, 'mock_event'),  # type: ignore
         track_ids={},
         auth_info={}
     )

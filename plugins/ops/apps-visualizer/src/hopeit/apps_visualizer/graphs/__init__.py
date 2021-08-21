@@ -10,7 +10,7 @@ from hopeit.app.config import AppConnection, AppDescriptor, EventDescriptor, Eve
 from hopeit.server.names import auto_path
 
 
-class NodeType(Enum):
+class NodeType(str, Enum):
     REQUEST = "REQUEST"
     EVENT = "EVENT"
     STREAM = "STREAM"
