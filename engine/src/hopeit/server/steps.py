@@ -150,9 +150,21 @@ async def execute_steps(steps: Dict[str, StepInfo], *,
             invoke_result = copy_payload(invoke_result)
             sub_steps = copy(steps)
             del sub_steps[step_name]
-            yield await _execute_sub_steps(
-                sub_steps, start_ts=start_ts, context=context, payload=invoke_result
-            )
+            if len(sub_steps) == 0:
+                yield invoke_result
+            else:
+                async for item, step_name in _execute_sub_steps(
+                    sub_steps, start_ts=start_ts, context=context, payload=invoke_result
+                ):
+                    sub_sub_steps = copy(sub_steps)
+                    del sub_sub_steps[step_name]
+                    if len(sub_sub_steps) == 0:
+                        yield item
+                    else:
+                        item, _ = await _execute_sub_steps(
+                            sub_sub_steps, start_ts=start_ts, context=context, payload=item
+                        )
+                        yield item
             start_ts = datetime.now()
 
 
@@ -167,9 +179,8 @@ async def _execute_sub_steps(steps: Dict[str, StepInfo], *,
     """
     curr_obj = payload
     step_delay = context.settings.stream.step_delay / 1000.0
-    steps = copy(steps)
     step_name, func = _find_next_step(curr_obj, pending_steps=steps)
-    while step_name:
+    if step_name:
         assert step_name
         assert func is not None, f"Cannot find implementation for step={context.event_name}.{step_name}"
         if step_delay:
@@ -179,12 +190,8 @@ async def _execute_sub_steps(steps: Dict[str, StepInfo], *,
                 func=func,
                 context=context,
                 disable_spawn=True):
-            invoke_result = copy_payload(invoke_result)
-            curr_obj = invoke_result
-        del steps[step_name]
-        step_name, func = _find_next_step(curr_obj, pending_steps=steps)
-    await _throttle(context, start_ts)
-    return curr_obj
+            yield copy_payload(invoke_result), step_name
+            await _throttle(context, start_ts)
 
 
 async def invoke_single_step(func: Callable, *,
@@ -210,11 +217,11 @@ async def _invoke_step(*,
     if inspect.iscoroutine(func_res):
         yield await func_res
     elif isinstance(func_res, AsyncGenerator):  # pylint: disable=isinstance-second-argument-not-valid-type
-        if disable_spawn:
-            raise NotImplementedError(
-                "`Spawn[...]` only supported in initial step."
-                " Cannot execute `{func.__name__}`."
-                " Insert `SHUFFLE` step after spawn event.")
+        # if disable_spawn:
+            # raise NotImplementedError(
+            #     "`Spawn[...]` only supported in initial step."
+            #     " Cannot execute `{func.__name__}`."
+            #     " Insert `SHUFFLE` step after spawn event.")
         async for res in func_res:
             yield res
     else:
