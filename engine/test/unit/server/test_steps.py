@@ -144,9 +144,9 @@ async def step_spawn(payload: None, context: EventContext, *, query_arg1: str) -
         yield MockData(query_arg1 + ' ' + str(i))
 
 
-async def step_spawn_middle(payload: MockData, context: EventContext) -> Spawn[MockData]:
-    for i in range(3):
-        yield MockData(payload.value + ' ' + str(i))
+async def step_respawn(payload: MockData, context: EventContext) -> Spawn[MockData]:
+    for j in range(3):
+        yield MockData(payload.value + ' respawn:' + str(j))
 
 
 def test_context() -> EventContext:
@@ -216,6 +216,36 @@ async def test_execute_spawn_initial_steps():
         assert result == MockResult(f"b {i} step1 step2 step3 step4 step5b step6")
         i += 1
     assert i == 3
+
+
+@pytest.mark.asyncio
+async def test_execute_multiple_spawn_steps():
+    steps = [
+        (0, 'step_spawn', (step_spawn, None, Spawn[MockData], True)),
+        (1, 'step1', (step1, MockData, MockData, False)),
+        (2, 'step2', (step2, MockData, MockData, False)),
+        (3, 'step3', (step3, MockData, MockData, False)),
+        (4, 'step_respawn', (step_respawn, MockData, Spawn[MockData], True)),
+        (5, 'step4', (step4, MockData, Union[MockData, str], False)),
+        (6, 'step5a', (step5a, MockData, MockResult, False)),
+        (7, 'step5b', (step5b, str, MockResult, False)),
+        (8, 'step6', (step6, MockResult, MockResult, False))
+    ]
+    i, j, count = 0, 0, 0
+    async for result in execute_steps(steps=steps, payload=None, context=test_context(), query_arg1='a'):
+        assert result == MockResult(f"a {i} step1 step2 step3 respawn:{j} step4 step5a step6")
+        i, j = i + 1 if j == 2 else i, j + 1 if j < 2 else 0
+        count += 1
+        assert count <= 9
+    assert count == 9
+
+    i, j, count = 0, 0, 0
+    async for result in execute_steps(steps=steps, payload=None, context=test_context(), query_arg1='b'):
+        assert result == MockResult(f"b {i} step1 step2 step3 respawn:{j} step4 step5b step6")
+        i, j = i + 1 if j == 2 else i, j + 1 if j < 2 else 0
+        count += 1
+        assert count <= 9
+    assert count == 9
 
 
 @pytest.mark.asyncio

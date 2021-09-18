@@ -138,7 +138,10 @@ async def _execute_steps_recursion(payload: Optional[EventPayload],
                                    is_spawn: bool,
                                    step_delay: float,
                                    query_args: Dict[str, Any]) -> AsyncGenerator[Optional[EventPayload], None]:
-    """Steps execution handler that allows processing Spawn events results using recursion"""
+    """
+    Steps execution handler that allows processing Spawn events results using recursion,
+    and sequential execution of events using iteration
+    """
     if is_spawn:
         async for invoke_result in _invoke_spawn_step(
                 copy_payload(payload),
@@ -151,13 +154,24 @@ async def _execute_steps_recursion(payload: Optional[EventPayload],
             if i == -1:
                 yield copy_payload(invoke_result)
             else:
+                # Recursive call for each received element
                 async for recursion_result in _execute_steps_recursion(
                     invoke_result, context, steps, i, f, it, step_delay, {}
                 ):
                     yield recursion_result
+
     else:
-        i, f, q, invoke_result = step_index, func, query_args, payload
+        i, f, q, it, invoke_result = step_index, func, query_args, is_spawn, payload
         while 0 <= i < MAX_STEPS:
+            # Recursive call if result is iterable (Spawn)
+            if it:
+                async for recursion_result in _execute_steps_recursion(
+                    invoke_result, context, steps, i, f, it, step_delay, {}
+                ):
+                    yield recursion_result
+                break
+
+            # Single step invokation
             invoke_result = await _invoke_step(
                 copy_payload(invoke_result),
                 f,  # type: ignore
@@ -168,12 +182,12 @@ async def _execute_steps_recursion(payload: Optional[EventPayload],
             if step_delay:
                 await asyncio.sleep(step_delay)
             i, f, it = _find_next_step(invoke_result, steps, from_index=i + 1)
-            if it:
-                async for recursion_result in _execute_steps_recursion(
-                    invoke_result, context, steps, i, f, it, step_delay, {}
-                ):
-                    yield recursion_result
-        yield copy_payload(invoke_result)
+
+        if i == -1:
+            # Yields result if all steps were exhausted
+            yield copy_payload(invoke_result)
+        if i >= MAX_STEPS:
+            raise RuntimeError(f"Maximun number of steps to execute exceeded (MAX_STEPS={MAX_STEPS}).")
 
 
 async def execute_steps(steps: StepExecutionList,
