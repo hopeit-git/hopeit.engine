@@ -19,7 +19,6 @@ async def test_spawn_event(monkeypatch, app_config,  # noqa: F811
         expected[i].status.ts = result.payload.status.ts
         for j in range(len(expected[i].history)):
             expected[i].history[j].ts = result.payload.history[j].ts
-        print(result)
         assert result == SomethingStored(
             path=f"{app_config.env['fs']['data_path']}{result.payload.id}.json",
             payload=expected[i]

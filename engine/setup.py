@@ -64,7 +64,7 @@ setuptools.setup(
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Framework :: AsyncIO",
-    ],
+    ],    
     project_urls={
         "CI: GitHub Actions": "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow",  # noqa
         "Docs: RTD": "https://hopeitengine.readthedocs.io/en/latest/",
