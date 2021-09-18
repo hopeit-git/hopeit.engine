@@ -7,7 +7,6 @@ from functools import partial
 from types import ModuleType
 from typing import Type, Dict, Any, Optional, Callable, Tuple, AsyncGenerator, List, Union
 import inspect
-from copy import copy
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventType, \
     ReadStreamDescriptor, StreamQueueStrategy, WriteStreamDescriptor
@@ -37,6 +36,7 @@ __all__ = ['extract_module_steps',
 SHUFFLE = '__shuffle__'
 
 StepInfo = Tuple[Callable, Type, Type]
+StepExecutionList = List[Tuple[int, str, StepInfo]]
 
 logger = engine_logger()
 extra = extra_logger()
@@ -51,15 +51,16 @@ def extract_module_steps(impl: ModuleType) -> List[Tuple[str, Optional[StepInfo]
 
 
 def effective_steps(event_name: str,
-                    module_steps: List[Tuple[str, Optional[StepInfo]]]) -> Dict[str, StepInfo]:
+                    module_steps: List[Tuple[str, Optional[StepInfo]]]) -> StepExecutionList:
     """
     Return list of steps given the possibility that event steps are splitted in stages
-    using SHUFFLE keyword. Imn that case event name will contain `event_name.stage_step` format.
+    using SHUFFLE keyword. In that case event name will contain `event_name.stage_step` format.
     In case event_name does not contain '.' and stage_step, the list of steps from start
     up to a SHUFFLE if found is returned. In case event_name hast '.' and stage_step,
     steps starting in stage_step up to the next SHUFFLE step if present is are returned.
     """
-    steps: List[Tuple[str, StepInfo]] = []
+    i = 0
+    steps: StepExecutionList = []
     _, from_step = event_and_step(event_name)
     found = (from_step is None)
     for step_name, step_info in module_steps:
@@ -67,12 +68,14 @@ def effective_steps(event_name: str,
             if step_name == SHUFFLE:
                 break
             assert step_info
-            steps.append((step_name, step_info))
+            steps.append((i, step_name, step_info))
         elif step_name == from_step:
+            i = 0
             found = True
             assert step_info
-            steps.append((step_name, step_info))
-    return dict(steps)
+            steps.append((i, step_name, step_info))
+        i += 1
+    return steps
 
 
 def extract_event_stages(impl: ModuleType) -> List[str]:
@@ -126,8 +129,34 @@ def event_and_step(event_name: str) -> Tuple[str, Optional[str]]:
     return event_name, None
 
 
-async def execute_steps(steps: Dict[str, StepInfo], *,
-                        context: EventContext,
+async def _execute_steps_recursion(payload: Optional[EventPayload],
+                                   context: EventContext,
+                                   steps: StepExecutionList,
+                                   step_index: int,
+                                   func: Optional[Callable],
+                                   step_delay: float,
+                                   query_args: Dict[str, Any]) -> AsyncGenerator[Optional[EventPayload], None]:
+    """Steps execution handler that allows processing Spawn events results using recursion"""
+    payload_copy = copy_payload(payload)
+    async for invoke_result in _invoke_step(
+            payload=payload_copy,
+            func=func,  # type: ignore
+            context=context,
+            **query_args):
+        if step_delay:
+            await asyncio.sleep(step_delay)
+        i, _, f = _find_next_step(invoke_result, steps, from_index=step_index + 1)
+        if i == -1:
+            yield invoke_result
+        else:
+            async for recursion_result in _execute_steps_recursion(
+                invoke_result, context, steps, i, f, step_delay, {}
+            ):
+                yield recursion_result
+
+
+async def execute_steps(steps: StepExecutionList,
+                        *, context: EventContext,
                         payload: Optional[EventPayload],
                         **kwargs) -> AsyncGenerator[Optional[EventPayload], None]:
     """
@@ -136,79 +165,21 @@ async def execute_steps(steps: Dict[str, StepInfo], *,
     and will updated the payload and invoke next valid step.
     """
     start_ts = datetime.now()
-    step_name, func = _find_next_step(payload, pending_steps=steps)
-    if step_name:
-        assert step_name
-        assert func is not None, f"Cannot find implementation for step={context.event_name}.{step_name}"
-        payload_copy = copy_payload(payload)
-        async for invoke_result in _invoke_step(
-                payload=payload_copy,
-                func=func,
-                context=context,
-                disable_spawn=False,
-                **kwargs):
-            invoke_result = copy_payload(invoke_result)
-            sub_steps = copy(steps)
-            del sub_steps[step_name]
-            if len(sub_steps) == 0:
-                yield invoke_result
-            else:
-                async for item, step_name in _execute_sub_steps(
-                    sub_steps, start_ts=start_ts, context=context, payload=invoke_result
-                ):
-                    sub_sub_steps = copy(sub_steps)
-                    del sub_sub_steps[step_name]
-                    if len(sub_sub_steps) == 0:
-                        yield item
-                    else:
-                        item, _ = await _execute_sub_steps(
-                            sub_sub_steps, start_ts=start_ts, context=context, payload=item
-                        )
-                        yield item
-            start_ts = datetime.now()
-
-
-async def _execute_sub_steps(steps: Dict[str, StepInfo], *,
-                             start_ts: datetime,
-                             context: EventContext,
-                             payload: Optional[EventPayload]) -> Optional[EventPayload]:
-    """
-    Invoke steps from a event.
-    It will try to find next step in configuration order that matches input type of the payload,
-    and will updated the payload and invoke next valid step.
-    """
-    curr_obj = payload
     step_delay = context.settings.stream.step_delay / 1000.0
-    step_name, func = _find_next_step(curr_obj, pending_steps=steps)
-    if step_name:
-        assert step_name
-        assert func is not None, f"Cannot find implementation for step={context.event_name}.{step_name}"
-        if step_delay:
-            await asyncio.sleep(step_delay)
-        async for invoke_result in _invoke_step(
-                payload=curr_obj,
-                func=func,
-                context=context,
-                disable_spawn=True):
-            yield copy_payload(invoke_result), step_name
-            await _throttle(context, start_ts)
-
-
-async def invoke_single_step(func: Callable, *,
-                             payload: Optional[EventPayload],
-                             context: EventContext,
-                             **kwargs) -> Optional[EventPayload]:
-    payload_copy = copy_payload(payload)
-    async for res in _invoke_step(payload=payload_copy, func=func, context=context, disable_spawn=True, **kwargs):
-        return res
-    return None
+    throttle_ms = context.settings.stream.throttle_ms
+    i, _, func = _find_next_step(payload, steps, from_index=0)
+    if i >= 0:
+        async for result in _execute_steps_recursion(
+            payload, context, steps, i, func, step_delay, kwargs
+        ):
+            await _throttle(context, throttle_ms, start_ts)
+            yield result
 
 
 async def _invoke_step(*,
                        payload: Optional[EventPayload],
                        func: Callable,
                        context: EventContext,
-                       disable_spawn: bool,
                        **kwargs) -> AsyncGenerator[Optional[EventPayload], None]:
     """
     Invokes step handler method
@@ -217,36 +188,43 @@ async def _invoke_step(*,
     if inspect.iscoroutine(func_res):
         yield await func_res
     elif isinstance(func_res, AsyncGenerator):  # pylint: disable=isinstance-second-argument-not-valid-type
-        # if disable_spawn:
-            # raise NotImplementedError(
-            #     "`Spawn[...]` only supported in initial step."
-            #     " Cannot execute `{func.__name__}`."
-            #     " Insert `SHUFFLE` step after spawn event.")
         async for res in func_res:
             yield res
     else:
         yield func_res
 
 
-def _find_next_step(payload: Optional[EventPayload], *,
-                    pending_steps: Dict[str, StepInfo]) -> Tuple[Optional[str], Optional[Callable]]:
+async def invoke_single_step(func: Callable, *,
+                             payload: Optional[EventPayload],
+                             context: EventContext,
+                             **kwargs) -> Optional[EventPayload]:
+    payload_copy = copy_payload(payload)
+    async for res in _invoke_step(payload=payload_copy, func=func, context=context, **kwargs):
+        return res
+    return None
+
+
+def _find_next_step(payload: Optional[EventPayload],
+                    steps: StepExecutionList,
+                    from_index: int) -> Tuple[int, Optional[str], Optional[Callable]]:
     """
     Finds next step to exectute in pending_steps list, base on the payload data type
     """
-    for step_name, step_info in pending_steps.items():
+    if from_index >= len(steps):
+        return -1, None, None
+    for i, step_name, step_info in steps[from_index:]:
         func, input_type, _ = step_info
         if input_type is None and payload is None:
-            return step_name, func
+            return i, step_name, func
         if input_type is not None and isinstance(payload, input_type):
-            return step_name, func
-    return None, None
+            return i, step_name, func
+    return -1, None, None
 
 
-async def _throttle(context: EventContext, start_ts: datetime):
+async def _throttle(context: EventContext, throttle_ms: int, start_ts: datetime):
     """
     Performs an async sleep in order to achieve duration specified by throttle configuration
     """
-    throttle_ms = context.settings.stream.throttle_ms
     delay = 0.0
     if throttle_ms:
         elapsed_td = datetime.now() - start_ts
