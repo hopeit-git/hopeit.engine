@@ -218,28 +218,10 @@ async def test_execute_spawn_initial_steps():
     assert i == 3
 
 
-# @pytest.mark.asyncio
-# async def test_execute_spawn_middle_steps_not_supported():
-#     steps = {'step1': (step1, MockData, MockData),
-#              'step2': (step2, MockData, MockData),
-#              'step3': (step3, MockData, MockData),
-#              'step_spawn_middle': (step_spawn_middle, MockData, Spawn[MockData])}
-
-#     with pytest.raises(NotImplementedError):
-#         async for _ in execute_steps(steps=steps, payload=MockData('a'), context=test_context()):
-#             pass
-
-
 @pytest.mark.asyncio
 async def test_invoke_single_step():
     result = await invoke_single_step(step1, payload=MockData('input'), context=test_context())
     assert result == MockData("input step1")
-
-
-# @pytest.mark.asyncio
-# async def test_invoke_single_spawn_step_not_supported():
-#     with pytest.raises(NotImplementedError):
-#         await invoke_single_step(step_spawn, payload=None, context=test_context(), query_arg1='input')
 
 
 def test_split_event_stages(mock_app_config):  # noqa: F811

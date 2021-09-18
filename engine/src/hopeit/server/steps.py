@@ -145,7 +145,7 @@ async def _execute_steps_recursion(payload: Optional[EventPayload],
             **query_args):
         if step_delay:
             await asyncio.sleep(step_delay)
-        i, _, f = _find_next_step(invoke_result, steps, from_index=step_index + 1)
+        i, f = _find_next_step(invoke_result, steps, from_index=step_index + 1)
         if i == -1:
             yield invoke_result
         else:
@@ -167,7 +167,7 @@ async def execute_steps(steps: StepExecutionList,
     start_ts = datetime.now()
     step_delay = context.settings.stream.step_delay / 1000.0
     throttle_ms = context.settings.stream.throttle_ms
-    i, _, func = _find_next_step(payload, steps, from_index=0)
+    i, func = _find_next_step(payload, steps, from_index=0)
     if i >= 0:
         async for result in _execute_steps_recursion(
             payload, context, steps, i, func, step_delay, kwargs
@@ -206,19 +206,19 @@ async def invoke_single_step(func: Callable, *,
 
 def _find_next_step(payload: Optional[EventPayload],
                     steps: StepExecutionList,
-                    from_index: int) -> Tuple[int, Optional[str], Optional[Callable]]:
+                    from_index: int) -> Tuple[int, Optional[Callable]]:
     """
     Finds next step to exectute in pending_steps list, base on the payload data type
     """
     if from_index >= len(steps):
-        return -1, None, None
-    for i, step_name, step_info in steps[from_index:]:
+        return -1, None
+    for i, _, step_info in steps[from_index:]:
         func, input_type, _ = step_info
         if input_type is None and payload is None:
-            return i, step_name, func
+            return i, func
         if input_type is not None and isinstance(payload, input_type):
-            return i, step_name, func
-    return -1, None, None
+            return i, func
+    return -1, None
 
 
 async def _throttle(context: EventContext, throttle_ms: int, start_ts: datetime):
