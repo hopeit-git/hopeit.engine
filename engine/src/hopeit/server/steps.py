@@ -147,7 +147,7 @@ async def _execute_steps_recursion(payload: Optional[EventPayload],
             await asyncio.sleep(step_delay)
         i, f = _find_next_step(invoke_result, steps, from_index=step_index + 1)
         if i == -1:
-            yield invoke_result
+            yield copy_payload(invoke_result)
         else:
             async for recursion_result in _execute_steps_recursion(
                 invoke_result, context, steps, i, f, step_delay, {}
