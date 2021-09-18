@@ -34,8 +34,9 @@ __all__ = ['extract_module_steps',
 
 
 SHUFFLE = '__shuffle__'
+MAX_STEPS = 1000  # To protect for infinite loops up to 1000 sequential steps can be executed
 
-StepInfo = Tuple[Callable, Type, Type]
+StepInfo = Tuple[Callable, Type, Type, bool]
 StepExecutionList = List[Tuple[int, str, StepInfo]]
 
 logger = engine_logger()
@@ -117,7 +118,7 @@ def extract_input_type(impl: ModuleType, from_step: Optional[str] = None) -> Typ
     assert hasattr(impl, '__steps__'), f"Missing `__steps__` definition in module={impl.__name__}"
     for step_name in getattr(impl, '__steps__'):
         if from_step is None or step_name == from_step:
-            _, input_type, _ = _signature(impl, step_name)
+            _, input_type, _, _ = _signature(impl, step_name)
             return input_type
     raise NotImplementedError(f"Cannot find payload datatype for module={impl.__name__} step={from_step}")
 
@@ -134,25 +135,45 @@ async def _execute_steps_recursion(payload: Optional[EventPayload],
                                    steps: StepExecutionList,
                                    step_index: int,
                                    func: Optional[Callable],
+                                   is_spawn: bool,
                                    step_delay: float,
                                    query_args: Dict[str, Any]) -> AsyncGenerator[Optional[EventPayload], None]:
     """Steps execution handler that allows processing Spawn events results using recursion"""
-    payload_copy = copy_payload(payload)
-    async for invoke_result in _invoke_step(
-            payload=payload_copy,
-            func=func,  # type: ignore
-            context=context,
-            **query_args):
-        if step_delay:
-            await asyncio.sleep(step_delay)
-        i, f = _find_next_step(invoke_result, steps, from_index=step_index + 1)
-        if i == -1:
-            yield copy_payload(invoke_result)
-        else:
-            async for recursion_result in _execute_steps_recursion(
-                invoke_result, context, steps, i, f, step_delay, {}
-            ):
-                yield recursion_result
+    if is_spawn:
+        async for invoke_result in _invoke_spawn_step(
+                copy_payload(payload),
+                func,  # type: ignore
+                context,
+                **query_args):
+            if step_delay:
+                await asyncio.sleep(step_delay)
+            i, f, it = _find_next_step(invoke_result, steps, from_index=step_index + 1)
+            if i == -1:
+                yield copy_payload(invoke_result)
+            else:
+                async for recursion_result in _execute_steps_recursion(
+                    invoke_result, context, steps, i, f, it, step_delay, {}
+                ):
+                    yield recursion_result
+    else:
+        i, f, q, invoke_result = step_index, func, query_args, payload
+        while 0 <= i < MAX_STEPS:
+            invoke_result = await _invoke_step(
+                copy_payload(invoke_result),
+                f,  # type: ignore
+                context,
+                **q
+            )
+            q = {}
+            if step_delay:
+                await asyncio.sleep(step_delay)
+            i, f, it = _find_next_step(invoke_result, steps, from_index=i + 1)
+            if it:
+                async for recursion_result in _execute_steps_recursion(
+                    invoke_result, context, steps, i, f, it, step_delay, {}
+                ):
+                    yield recursion_result
+        yield copy_payload(invoke_result)
 
 
 async def execute_steps(steps: StepExecutionList,
@@ -167,58 +188,61 @@ async def execute_steps(steps: StepExecutionList,
     start_ts = datetime.now()
     step_delay = context.settings.stream.step_delay / 1000.0
     throttle_ms = context.settings.stream.throttle_ms
-    i, func = _find_next_step(payload, steps, from_index=0)
+    i, func, is_spawn = _find_next_step(payload, steps, from_index=0)
     if i >= 0:
         async for result in _execute_steps_recursion(
-            payload, context, steps, i, func, step_delay, kwargs
+            payload, context, steps, i, func, is_spawn, step_delay, kwargs
         ):
             await _throttle(context, throttle_ms, start_ts)
             yield result
 
 
-async def _invoke_step(*,
-                       payload: Optional[EventPayload],
+async def _invoke_step(payload: Optional[EventPayload],
                        func: Callable,
                        context: EventContext,
-                       **kwargs) -> AsyncGenerator[Optional[EventPayload], None]:
+                       **kwargs) -> Optional[EventPayload]:
     """
     Invokes step handler method
     """
     func_res = func(payload, context, **kwargs)
     if inspect.iscoroutine(func_res):
-        yield await func_res
-    elif isinstance(func_res, AsyncGenerator):  # pylint: disable=isinstance-second-argument-not-valid-type
-        async for res in func_res:
-            yield res
-    else:
-        yield func_res
+        return await func_res
+    return func_res
+
+
+async def _invoke_spawn_step(payload: Optional[EventPayload],
+                             func: Callable,
+                             context: EventContext,
+                             **kwargs) -> AsyncGenerator[Optional[EventPayload], None]:
+    """
+    Invokes step handler method that returns Spawn/AsyncGenerator type
+    """
+    async for res in func(payload, context, **kwargs):
+        yield res
 
 
 async def invoke_single_step(func: Callable, *,
                              payload: Optional[EventPayload],
                              context: EventContext,
                              **kwargs) -> Optional[EventPayload]:
-    payload_copy = copy_payload(payload)
-    async for res in _invoke_step(payload=payload_copy, func=func, context=context, **kwargs):
-        return res
-    return None
+    return await _invoke_step(payload=payload, func=func, context=context, **kwargs)
 
 
 def _find_next_step(payload: Optional[EventPayload],
                     steps: StepExecutionList,
-                    from_index: int) -> Tuple[int, Optional[Callable]]:
+                    from_index: int) -> Tuple[int, Optional[Callable], bool]:
     """
     Finds next step to exectute in pending_steps list, base on the payload data type
     """
     if from_index >= len(steps):
-        return -1, None
+        return -1, None, False
     for i, _, step_info in steps[from_index:]:
-        func, input_type, _ = step_info
+        func, input_type, _, is_iterable = step_info
         if input_type is None and payload is None:
-            return i, func
+            return i, func, is_iterable
         if input_type is not None and isinstance(payload, input_type):
-            return i, func
-    return -1, None
+            return i, func, is_iterable
+    return -1, None, False
 
 
 async def _throttle(context: EventContext, throttle_ms: int, start_ts: datetime):
@@ -330,7 +354,7 @@ class CollectorStepsDescriptor:
         if self.steps is None:
             self.steps = []
             for step_name in self.step_names:
-                step_impl, payload_type, _ = _signature(module, step_name)
+                step_impl, payload_type, _, _ = _signature(module, step_name)
                 assert step_impl is not None, "Collector can only contain function definitions."
                 assert payload_type is AsyncCollector, f"step={step_name} first arg must be `Collector`"
                 self.steps.append((step_name, step_impl))
@@ -341,7 +365,7 @@ async def _run_collector(step_group: CollectorStepsDescriptor, payload: EventPay
     return await AsyncCollector().input(payload).steps(*step_group.steps).run(context)
 
 
-def _signature(impl: ModuleType, step_name: Union[str, CollectorStepsDescriptor]) -> Tuple[Callable, Type, Type]:
+def _signature(impl: ModuleType, step_name: Union[str, CollectorStepsDescriptor]) -> Tuple[Callable, Type, Type, bool]:
     """
     Computes signature (`CollectorStepsDescriptor`) from a given step (def) in an event module. Results
     are used internally by the engine to compute input/output datatypes of events and find proper steps
@@ -357,4 +381,11 @@ def _signature(impl: ModuleType, step_name: Union[str, CollectorStepsDescriptor]
         payload_arg = next(iter(signature.parameters.values()))
         annotation = payload_arg.annotation if payload_arg.annotation is not inspect.Signature.empty else Any
         return_annotation = signature.return_annotation if signature.return_annotation else Any
-    return func, annotation, return_annotation
+    return func, annotation, return_annotation, _is_iterable(return_annotation)
+
+
+def _is_iterable(annotation: Type) -> bool:
+    try:
+        return annotation._name == "AsyncGenerator"  # pylint: disable=protected-access
+    except AttributeError:
+        return False

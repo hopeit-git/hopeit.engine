@@ -558,7 +558,7 @@ class AppEngine:
         steps = effective_steps(event_name, all_steps)
         datatypes = {}
         for _, _, step in steps:
-            _, datatype, _ = step
+            _, datatype, _, _ = step
             if hasattr(datatype, '__stream_event__'):
                 datatypes[datatype.__name__] = datatype
         if len(datatypes) == 0:
