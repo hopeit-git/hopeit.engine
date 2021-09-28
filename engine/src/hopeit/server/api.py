@@ -614,7 +614,7 @@ def _generate_schemas(app_config: AppConfig, event_name: str) -> dict:
 
 def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):
     if step_info is not None:
-        _, input_type, ret_type = step_info
+        _, input_type, ret_type, _ = step_info
         datatypes = _explode_datatypes([input_type, ret_type])
         for datatype in datatypes:
             if datatype is not None and hasattr(datatype, '__data_object__'):

@@ -56,11 +56,7 @@ async def runtime_apps(collector: Collector, context: EventContext) -> RuntimeAp
 
 
 def _filter_apps(runtime_info: RuntimeAppInfo, options: VisualizationOptions) -> bool:
-    return (
-        options.app_prefix == '' or (
-            runtime_info.app_config.app.name[0:len(options.app_prefix)] == options.app_prefix
-        )
-    )
+    return options.app_prefix == runtime_info.app_config.app.name[0:len(options.app_prefix)]
 
 
 def _filter_hosts(runtime_info: RuntimeAppInfo, options: VisualizationOptions) -> bool:

@@ -23,9 +23,9 @@ def test_extract_event_steps():
     f3 = getattr(impl, 'handle_special_case')
     steps = extract_module_steps(impl)
     assert steps == [
-        ('entry_point', (f1, None, Union[MockData, str])),
-        ('handle_ok_case', (f2, MockData, str)),
-        ('handle_special_case', (f3, str, str))
+        ('entry_point', (f1, None, Union[MockData, str], False)),
+        ('handle_ok_case', (f2, MockData, str, False)),
+        ('handle_special_case', (f3, str, str, False))
     ]
 
 
@@ -35,16 +35,16 @@ def test_effective_steps():
     f2 = getattr(impl, 'handle_ok_case')
     f3 = getattr(impl, 'handle_special_case')
     module_steps = [
-        ('entry_point', (f1, None, Union[MockData, str])),
-        ('handle_ok_case', (f2, MockData, str)),
-        ('handle_special_case', (f3, str, str))
+        ('entry_point', (f1, None, Union[MockData, str], False)),
+        ('handle_ok_case', (f2, MockData, str, False)),
+        ('handle_special_case', (f3, str, str, False))
     ]
     steps = effective_steps('mock_event', module_steps)
-    assert steps == {
-        'entry_point': (f1, None, Union[MockData, str]),
-        'handle_ok_case': (f2, MockData, str),
-        'handle_special_case': (f3, str, str)
-    }
+    assert steps == [
+        (0, 'entry_point', (f1, None, Union[MockData, str], False)),
+        (1, 'handle_ok_case', (f2, MockData, str, False)),
+        (2, 'handle_special_case', (f3, str, str, False))
+    ]
 
 
 def test_extract_event_steps_with_shuffle():
@@ -54,10 +54,10 @@ def test_extract_event_steps_with_shuffle():
     f3 = getattr(impl, 'generate_default')
     steps = extract_module_steps(impl)
     assert steps == [
-        ('produce_messages', (f1, str, Spawn[MockData])),
+        ('produce_messages', (f1, str, Spawn[MockData], True)),
         (SHUFFLE, None),
-        ('consume_stream', (f2, MockData, Optional[MockResult])),
-        ('generate_default', (f3, None, MockResult))
+        ('consume_stream', (f2, MockData, Optional[MockResult], False)),
+        ('generate_default', (f3, None, MockResult, False))
     ]
 
 
@@ -67,27 +67,27 @@ def test_effective_steps_shuffle_event():
     f2 = getattr(impl, 'consume_stream')
     f3 = getattr(impl, 'generate_default')
     module_steps = [
-        ('produce_messages', (f1, str, Spawn[MockData])),
+        ('produce_messages', (f1, str, Spawn[MockData], True)),
         (SHUFFLE, None),
-        ('consume_stream', (f2, MockData, Optional[MockResult])),
-        ('generate_default', (f3, None, MockResult))
+        ('consume_stream', (f2, MockData, Optional[MockResult], False)),
+        ('generate_default', (f3, None, MockResult, False))
     ]
     steps = effective_steps('mock_shuffle_event', module_steps)
-    assert steps == {
-        'produce_messages': (f1, str, Spawn[MockData])
-    }
+    assert steps == [
+        (0, 'produce_messages', (f1, str, Spawn[MockData], True))
+    ]
     steps = effective_steps('mock_shuffle_event$consume_stream', module_steps)
-    assert steps == {
-        'consume_stream': (f2, MockData, Optional[MockResult]),
-        'generate_default': (f3, None, MockResult)
-    }
+    assert steps == [
+        (0, 'consume_stream', (f2, MockData, Optional[MockResult], False)),
+        (1, 'generate_default', (f3, None, MockResult, False))
+    ]
 
 
 def test_extract_postprocess_handler():
     impl = importlib.import_module('mock_app.mock_event')
     f1 = getattr(impl, '__postprocess__')
     pp_handler = extract_postprocess_handler(impl)
-    assert pp_handler == (f1, str, str)
+    assert pp_handler == (f1, str, str, False)
 
 
 def test_extract_input_type_none():
@@ -144,9 +144,9 @@ async def step_spawn(payload: None, context: EventContext, *, query_arg1: str) -
         yield MockData(query_arg1 + ' ' + str(i))
 
 
-async def step_spawn_middle(payload: MockData, context: EventContext) -> Spawn[MockData]:
-    for i in range(3):
-        yield MockData(payload.value + ' ' + str(i))
+async def step_respawn(payload: MockData, context: EventContext) -> Spawn[MockData]:
+    for j in range(3):
+        yield MockData(payload.value + ' respawn:' + str(j))
 
 
 def test_context() -> EventContext:
@@ -166,22 +166,26 @@ def test_context() -> EventContext:
 
 @pytest.mark.asyncio
 async def test_execute_linear_steps():
-    steps = {'step1': (step1, MockData, MockData),
-             'step2': (step2, MockData, MockData),
-             'step3': (step3, MockData, MockData)}
+    steps = [
+        (0, 'step1', (step1, MockData, MockData, False)),
+        (1, 'step2', (step2, MockData, MockData, False)),
+        (2, 'step3', (step3, MockData, MockData, False))
+    ]
     async for result in execute_steps(steps=steps, payload=MockData('input'), context=test_context()):
         assert result == MockData("input step1 step2 step3")
 
 
 @pytest.mark.asyncio
 async def test_execute_decision_steps():
-    steps = {'step1': (step1, MockData, MockData),
-             'step2': (step2, MockData, MockData),
-             'step3': (step3, MockData, MockData),
-             'step4': (step4, MockData, Union[MockData, str]),
-             'step5a': (step5a, MockData, MockResult),
-             'step5b': (step5b, str, MockResult),
-             'step6': (step6, MockResult, MockResult)}
+    steps = [
+        (0, 'step1', (step1, MockData, MockData, False)),
+        (1, 'step2', (step2, MockData, MockData, False)),
+        (2, 'step3', (step3, MockData, MockData, False)),
+        (3, 'step4', (step4, MockData, Union[MockData, str], False)),
+        (4, 'step5a', (step5a, MockData, MockResult, False)),
+        (5, 'step5b', (step5b, str, MockResult, False)),
+        (6, 'step6', (step6, MockResult, MockResult, False))
+    ]
     async for result in execute_steps(steps=steps, payload=MockData('a'), context=test_context()):
         assert result == MockResult("a step1 step2 step3 step4 step5a step6")
 
@@ -191,14 +195,16 @@ async def test_execute_decision_steps():
 
 @pytest.mark.asyncio
 async def test_execute_spawn_initial_steps():
-    steps = {'step_spawn': (step_spawn, None, Spawn[MockData]),
-             'step1': (step1, MockData, MockData),
-             'step2': (step2, MockData, MockData),
-             'step3': (step3, MockData, MockData),
-             'step4': (step4, MockData, Union[MockData, str]),
-             'step5a': (step5a, MockData, MockResult),
-             'step5b': (step5b, str, MockResult),
-             'step6': (step6, MockResult, MockResult)}
+    steps = [
+        (0, 'step_spawn', (step_spawn, None, Spawn[MockData], True)),
+        (1, 'step1', (step1, MockData, MockData, False)),
+        (2, 'step2', (step2, MockData, MockData, False)),
+        (3, 'step3', (step3, MockData, MockData, False)),
+        (4, 'step4', (step4, MockData, Union[MockData, str], False)),
+        (5, 'step5a', (step5a, MockData, MockResult, False)),
+        (6, 'step5b', (step5b, str, MockResult, False)),
+        (7, 'step6', (step6, MockResult, MockResult, False))
+    ]
     i = 0
     async for result in execute_steps(steps=steps, payload=None, context=test_context(), query_arg1='a'):
         assert result == MockResult(f"a {i} step1 step2 step3 step4 step5a step6")
@@ -213,27 +219,39 @@ async def test_execute_spawn_initial_steps():
 
 
 @pytest.mark.asyncio
-async def test_execute_spawn_middle_steps_not_supported():
-    steps = {'step1': (step1, MockData, MockData),
-             'step2': (step2, MockData, MockData),
-             'step3': (step3, MockData, MockData),
-             'step_spawn_middle': (step_spawn_middle, MockData, Spawn[MockData])}
+async def test_execute_multiple_spawn_steps():
+    steps = [
+        (0, 'step_spawn', (step_spawn, None, Spawn[MockData], True)),
+        (1, 'step1', (step1, MockData, MockData, False)),
+        (2, 'step2', (step2, MockData, MockData, False)),
+        (3, 'step3', (step3, MockData, MockData, False)),
+        (4, 'step_respawn', (step_respawn, MockData, Spawn[MockData], True)),
+        (5, 'step4', (step4, MockData, Union[MockData, str], False)),
+        (6, 'step5a', (step5a, MockData, MockResult, False)),
+        (7, 'step5b', (step5b, str, MockResult, False)),
+        (8, 'step6', (step6, MockResult, MockResult, False))
+    ]
+    i, j, count = 0, 0, 0
+    async for result in execute_steps(steps=steps, payload=None, context=test_context(), query_arg1='a'):
+        assert result == MockResult(f"a {i} step1 step2 step3 respawn:{j} step4 step5a step6")
+        i, j = i + 1 if j == 2 else i, j + 1 if j < 2 else 0
+        count += 1
+        assert count <= 9
+    assert count == 9
 
-    with pytest.raises(NotImplementedError):
-        async for _ in execute_steps(steps=steps, payload=MockData('a'), context=test_context()):
-            pass
+    i, j, count = 0, 0, 0
+    async for result in execute_steps(steps=steps, payload=None, context=test_context(), query_arg1='b'):
+        assert result == MockResult(f"b {i} step1 step2 step3 respawn:{j} step4 step5b step6")
+        i, j = i + 1 if j == 2 else i, j + 1 if j < 2 else 0
+        count += 1
+        assert count <= 9
+    assert count == 9
 
 
 @pytest.mark.asyncio
 async def test_invoke_single_step():
     result = await invoke_single_step(step1, payload=MockData('input'), context=test_context())
     assert result == MockData("input step1")
-
-
-@pytest.mark.asyncio
-async def test_invoke_single_spawn_step_not_supported():
-    with pytest.raises(NotImplementedError):
-        await invoke_single_step(step_spawn, payload=None, context=test_context(), query_arg1='input')
 
 
 def test_split_event_stages(mock_app_config):  # noqa: F811

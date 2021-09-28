@@ -6,8 +6,10 @@ from typing import Dict, Optional, List, Tuple, AsyncGenerator, Any
 from asyncio import iscoroutine
 
 from hopeit.dataobjects import EventPayload
-from hopeit.server.steps import extract_postprocess_handler, extract_preprocess_handler, execute_steps, \
-    invoke_single_step, extract_module_steps, effective_steps, event_and_step, StepInfo
+from hopeit.server.steps import (
+    StepExecutionList, StepInfo, extract_postprocess_handler, extract_preprocess_handler, execute_steps,
+    invoke_single_step, extract_module_steps, effective_steps, event_and_step
+)
 from hopeit.server.logger import setup_app_logger, engine_logger, extra_logger
 from hopeit.server.imports import find_event_handler
 from hopeit.app.config import AppConfig, EventDescriptor, EventSettings
@@ -36,7 +38,7 @@ class EventHandler:
         """
         self.app_config = app_config
         self.modules: Dict[str, Tuple[ModuleType, bool, list]] = {}
-        self.steps: Dict[str, Dict[str, StepInfo]] = {}
+        self.steps: Dict[str, StepExecutionList] = {}
         self.preprocess_handlers: Dict[str, Optional[StepInfo]] = {}
         self.postprocess_handlers: Dict[str, Optional[StepInfo]] = {}
         self.settings = settings

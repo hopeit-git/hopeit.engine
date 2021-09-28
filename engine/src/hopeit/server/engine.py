@@ -557,12 +557,12 @@ class AppEngine:
         all_steps = extract_module_steps(impl)
         steps = effective_steps(event_name, all_steps)
         datatypes = {}
-        for _, step in steps.items():
-            _, datatype, _ = step
+        for _, _, step in steps:
+            _, datatype, _, _ = step
             if hasattr(datatype, '__stream_event__'):
                 datatypes[datatype.__name__] = datatype
         if len(datatypes) == 0:
-            raise NotImplementedError(f"No data types found to read from stream in even={event_name}. "
+            raise NotImplementedError(f"No data types found to read from stream in event={event_name}. "
                                       "Dataclasses must be decorated with `@dataobject` to be used in streams")
         return datatypes
 
