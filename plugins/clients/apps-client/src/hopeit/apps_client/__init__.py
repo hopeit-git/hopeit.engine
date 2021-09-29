@@ -310,7 +310,7 @@ class AppsClient(Client):
 
     def _get_event_connection(self, context: EventContext, event_name: str):
         try:
-            return self.event_connections[context.event_name][event_name]
+            return self.event_connections[context.event_name.split('$')[0]][event_name]
         except KeyError:
             raise AppConnectionNotFound(  # pylint: disable=raise-missing-from
                 f"Event {event_name} not found in event connections for {context.event_name}"

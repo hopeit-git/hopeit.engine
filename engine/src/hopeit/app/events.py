@@ -1,11 +1,11 @@
 """
 Events handling
 """
-from typing import AsyncGenerator, TypeVar, Type
+from typing import AsyncGenerator, Type, TypeVar
 
 from hopeit.dataobjects import EventPayloadType
-from hopeit.server.steps import CollectorStepsDescriptor, SHUFFLE
 from hopeit.server.collector import Collector
+from hopeit.server.steps import SHUFFLE, CollectorStepsDescriptor
 
 __all__ = ['Spawn', 'SHUFFLE', 'collector_step', 'Collector']
 
