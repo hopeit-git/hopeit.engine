@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+Version 0.11.2
+______________
+- Fix: apps-client plugin, fixed issue where app_connections are not found when event is split with `SHUFFLE`
+
+
 Version 0.11.1
 ______________
 - Support for multiple steps with `Spawn` return values in a single step without needing to split using `SHUFFLE` steps.

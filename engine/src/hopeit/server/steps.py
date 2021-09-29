@@ -309,6 +309,7 @@ def split_event_stages(app: AppDescriptor,
         sub_event_info = EventDescriptor(
             type=event_type,
             read_stream=read_stream,
+            connections=event_info.connections,
             write_stream=WriteStreamDescriptor(
                 name=intermediate_stream,
                 queue_strategy=StreamQueueStrategy.PROPAGATE
