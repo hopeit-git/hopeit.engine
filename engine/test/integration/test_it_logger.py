@@ -123,6 +123,13 @@ def test_get_app_logger(monkeypatch, mock_app_config):  # noqa: F811
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
            "| track.session_id=test_session_id | event.app=mock_app.test"
+    logger.debug(_event_context(mock_app_config), "Test message")
+    assert MockHandler.formatter.format(MockHandler.record)[24:] \
+        == "| DEBUG | mock_app test mock_event test_host test_pid | Test message " \
+           "| track.operation_id=test_operation_id " \
+           "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
+           "| track.session_id=test_session_id | event.app=mock_app.test"
+
 
 
 def test_app_logger_traceback(monkeypatch, mock_app_config):  # noqa: F811
@@ -149,6 +156,14 @@ def test_app_logger_traceback(monkeypatch, mock_app_config):  # noqa: F811
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
            "| track.session_id=test_session_id | event.app=mock_app.test " \
            "| trace=%5B%22AssertionError%3A%20Test%20for%20error%5Cn%22%5D"
+    logger.debug(_event_context(mock_app_config), exc)
+    assert MockHandler.formatter.format(MockHandler.record)[24:] \
+        == "| DEBUG | mock_app test mock_event test_host test_pid | Test for error " \
+           "| track.operation_id=test_operation_id " \
+           "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
+           "| track.session_id=test_session_id | event.app=mock_app.test " \
+           "| trace=%5B%22AssertionError%3A%20Test%20for%20error%5Cn%22%5D"
+
 
 
 def test_get_app_logger_extra(monkeypatch, mock_app_config):  # noqa: F811
@@ -190,6 +205,19 @@ def test_get_app_logger_extra(monkeypatch, mock_app_config):  # noqa: F811
            "| track.operation_id=test_operation_id " \
            "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
            "| track.session_id=test_session_id | event.app=mock_app.test"
+
+    logger.debug(
+        context,
+        "Test message",
+        extra=extra(field1='value1', field2=42, field3='optional')
+    )
+    assert MockHandler.formatter.format(MockHandler.record)[24:] \
+        == "| DEBUG | mock_app test mock_event test_host test_pid | Test message " \
+           "| extra.field1=value1 | extra.field2=42 | extra.field3=optional " \
+           "| track.operation_id=test_operation_id " \
+           "| track.request_id=test_request_id | track.request_ts=2020-01-01T00:00:00Z " \
+           "| track.session_id=test_session_id | event.app=mock_app.test"
+
 
     with pytest.raises(KeyError):
         logger.info(context, "Missing required field", extra=extra(field3='optional'))
@@ -311,6 +339,15 @@ def test_engine_logger_no_context(monkeypatch, mock_app_config):  # noqa: F811
     )
     assert MockHandler.formatter.format(MockHandler.record)[24:] \
         == f"| ERROR | {version.ENGINE_NAME} {version.ENGINE_VERSION} engine test_host test_pid " \
+           "| [test_it_logging] Log message " \
+           "| extra.field1=value1 | extra.field2=42"
+    
+    logger.debug(
+        "test_it_logging", "Log message",
+        extra=server_logging.extra_values([], field1='value1', field2=42)
+    )
+    assert MockHandler.formatter.format(MockHandler.record)[24:] \
+        == f"| DEBUG | {version.ENGINE_NAME} {version.ENGINE_VERSION} engine test_host test_pid " \
            "| [test_it_logging] Log message " \
            "| extra.field1=value1 | extra.field2=42"
 
