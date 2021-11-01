@@ -1,4 +1,4 @@
-aiohttp
+aiohttp>=3.7.4,<3.8
 aiohttp-cors
 aiohttp-swagger3>=0.5.6,<0.6
 aiojobs

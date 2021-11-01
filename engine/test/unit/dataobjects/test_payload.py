@@ -254,8 +254,20 @@ def test_from_obj_dict():
     }
 
 
-def test_from_json_dataobject_validate():
+def test_from_json_dataobject_validate_datatype():
     data = '{"id": "test", "value": "not-ok"}'
+    with pytest.raises(ValueError):
+        Payload.from_json(data, MockDataValidate)
+
+
+def test_from_json_dataobject_validate_null():
+    data = '{"id": "test", "value": null}'
+    with pytest.raises(ValueError):
+        Payload.from_json(data, MockDataValidate)
+
+
+def test_from_json_dataobject_validate_missing():
+    data = '{"id": "test"}'
     with pytest.raises(ValueError):
         Payload.from_json(data, MockDataValidate)
 
@@ -266,16 +278,28 @@ def test_from_obj_dataobject_validate():
         Payload.from_obj(data, MockDataValidate)
 
 
-def test_from_json_dataobject_do_not_validate():
-    data = '{"id": "test", "value": "not-ok"}'
+def test_from_json_dataobject_do_not_validate_null():
+    data = '{"id": "test", "value": null}'
     assert Payload.from_json(data, MockDataDoNotValidate) \
-        == MockDataDoNotValidate(id='test', value='not-ok')  # type: ignore
+        == MockDataDoNotValidate(id='test', value=None)  # type: ignore
 
 
-def test_from_obj_dataobject_do_not_validate():
-    data = {"id": "test", "value": "not-ok"}
+def test_from_json_dataobject_do_not_validate_missing():
+    data = '{"id": "test"}'
+    assert Payload.from_json(data, MockDataDoNotValidate) \
+        == MockDataDoNotValidate(id='test', value=None)  # type: ignore
+
+
+def test_from_obj_dataobject_do_not_validate_none():
+    data = {"id": "test", "value": None}
     assert Payload.from_obj(data, MockDataDoNotValidate) \
-        == MockDataDoNotValidate(id='test', value='not-ok')  # type: ignore
+        == MockDataDoNotValidate(id='test', value=None)  # type: ignore
+
+
+def test_from_obj_dataobject_do_not_validate_missing():
+    data = {"id": "test"}
+    assert Payload.from_obj(data, MockDataDoNotValidate) \
+        == MockDataDoNotValidate(id='test', value=None)  # type: ignore
 
 
 def test_to_json_dataobject_validate():
