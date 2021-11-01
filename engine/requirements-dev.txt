@@ -10,5 +10,4 @@ coverage
 coverage-badge
 mypy
 wheel
-docker-compose
 aiofiles

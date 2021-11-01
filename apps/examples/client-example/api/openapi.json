@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.11",
+    "version": "0.12",
     "title": "Client Example",
     "description": "Client Example"
   },
   "paths": {
-    "/api/config-manager/0x11/runtime-apps-config": {
+    "/api/config-manager/0x12/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -62,11 +62,11 @@
           }
         },
         "tags": [
-          "config_manager.0x11"
+          "config_manager.0x12"
         ]
       }
     },
-    "/api/config-manager/0x11/cluster-apps-config": {
+    "/api/config-manager/0x12/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -122,11 +122,11 @@
           }
         },
         "tags": [
-          "config_manager.0x11"
+          "config_manager.0x12"
         ]
       }
     },
-    "/api/client-example/0x11/count-and-save": {
+    "/api/client-example/0x12/count-and-save": {
       "get": {
         "summary": "Client Example: Count Objects and Save new one",
         "description": "Count all available Something objects connecting to simple-example app",
@@ -193,7 +193,7 @@
           }
         },
         "tags": [
-          "client_example.0x11"
+          "client_example.0x12"
         ],
         "security": [
           {
@@ -289,15 +289,15 @@
             "additionalProperties": {
               "type": "object",
               "additionalProperties": {
-                "oneOf": [
+                "anyOf": [
                   {
-                    "type": "string"
+                    "type": "boolean"
                   },
                   {
                     "type": "number"
                   },
                   {
-                    "type": "boolean"
+                    "type": "string"
                   }
                 ]
               }
@@ -646,7 +646,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.11.0"
+            "default": "0.12.0"
           }
         },
         "x-module-name": "hopeit.server.config",

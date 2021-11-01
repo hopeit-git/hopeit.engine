@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+Version 0.12.0
+______________
+- Fix: fixed test and jsonschemas for dataclasses_jsonschema>=2.15 compatiblility
+
+- BREAKING CHANGES:
+  - @dataobject annotated classes set to `validate=False` will now fail to parse invalid datatypes anyway.
+  `validate=False` is only intended to improve performance in safe scenarios (i.e. dataobjets used internally in tested code)
+
+
 Version 0.11.2
 ______________
 - Fix: apps-client plugin, fixed issue where app_connections are not found when event is split with `SHUFFLE`
