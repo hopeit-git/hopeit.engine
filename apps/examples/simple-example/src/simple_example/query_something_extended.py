@@ -80,6 +80,6 @@ async def __postprocess__(payload: Union[Something, SomethingNotFound],
                           context: EventContext,
                           response: PostprocessHook) -> Union[Something, SomethingNotFound]:
     if isinstance(payload, SomethingNotFound):
-        logger.debug(context, "__postprocess__ file not found")
+        logger.debug(context, '404 - File %s not found', payload.id)
         response.status = 404
     return payload

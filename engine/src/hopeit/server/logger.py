@@ -18,6 +18,7 @@ from hopeit.server.errors import json_exc
 from hopeit.server.config import ServerConfig, LoggingConfig
 
 DEFAULT_ENGINE_LOGGER = 'engine_logger_default'
+EMPTY_EXTRA = {'extra': ''}
 LOG_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(message)s | %(extra)s"
 WARNINGS_LOG_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(message)s | "
 
@@ -39,8 +40,9 @@ class EventLoggerWrapper:
         self.logger = logger
 
     def debug(self, context: EventContext, msg, *args, **kwargs) -> None:
-        _enrich_extra(kwargs, context, msg)
-        self.logger.debug(msg, *args, **kwargs)
+        if self.logger.isEnabledFor(logging.DEBUG):
+            _enrich_extra(kwargs, context, msg)
+            self.logger.debug(msg, *args, **kwargs)
 
     def info(self, context: EventContext, msg, *args, **kwargs) -> None:
         _enrich_extra(kwargs, context, msg)
