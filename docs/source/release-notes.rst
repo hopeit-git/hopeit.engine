@@ -1,9 +1,14 @@
 Release Notes
 =============
 
+Version 0.12.1
+______________
+- Fix: add context processing to EventLoggerWrapper debug method
+
+
 Version 0.12.0
 ______________
-- Fix: fixed test and jsonschemas for dataclasses_jsonschema>=2.15 compatiblility
+- Fix: fixed test and jsonschemas for dataclasses_jsonschema>=2.15 compatibility
 
 - BREAKING CHANGES:
   - @dataobject annotated classes set to `validate=False` will now fail to parse invalid datatypes anyway.

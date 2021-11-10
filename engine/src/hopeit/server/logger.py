@@ -38,8 +38,10 @@ class EventLoggerWrapper:
     def __init__(self, logger: logging.Logger):
         self.logger = logger
 
-    def debug(self, msg, *args, **kwargs) -> None:
-        self.logger.debug(msg, *args, **kwargs)
+    def debug(self, context: EventContext, msg, *args, **kwargs) -> None:
+        if self.logger.isEnabledFor(logging.DEBUG):
+            _enrich_extra(kwargs, context, msg)
+            self.logger.debug(msg, *args, **kwargs)
 
     def info(self, context: EventContext, msg, *args, **kwargs) -> None:
         _enrich_extra(kwargs, context, msg)
