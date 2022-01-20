@@ -22,6 +22,12 @@
       "chunk_size": 16384
     }
   },
+  "storage": {
+    "fs_storage": {
+      "impl": "hopeit.plugins.fs_storage.FileStorage",
+      "path": "/tmp/{app.name}/"
+    }
+  },
   "settings": {
     "{events.streams.something_event.write_stream.name}": {
       "target_max_len": 1000,
@@ -90,7 +96,8 @@
       "type": "POST",
       "write_stream": {
         "name": "{auto}",
-        "queues": ["high-prio"]
+        "queues": ["high-prio"],
+        "storage": "fs_storage"
       }
     },
     "streams.process_events": {
