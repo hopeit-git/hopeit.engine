@@ -60,7 +60,7 @@ __all__ = ['parse_args',
 logger: EngineLoggerWrapper = logging.getLogger(__name__)  # type: ignore
 extra = extra_logger()
 
-ResponseType = Union[web.Response, web.FileResponse]
+ResponseType = Union[web.Response, web.FileResponse, web.StreamResponse]
 
 # server = Server()
 web_server = web.Application()
@@ -346,6 +346,8 @@ def _response(*, track_ids: Dict[str, str], key: str,
             path=hook.file_response,
             headers={'Content-Type': hook.content_type, **headers}
         )
+    elif hook.stream_response is not None:
+        response = hook.stream_response
     else:
         serializer: Callable[..., str] = CONTENT_TYPE_BODY_SER.get(
             hook.content_type, _text_response

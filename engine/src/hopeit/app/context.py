@@ -7,7 +7,8 @@ from abc import ABC
 from pathlib import Path
 from datetime import datetime, timezone
 
-from multidict import CIMultiDict, CIMultiDictProxy, istr
+from aiohttp import web
+from multidict import MultiDict,CIMultiDict, CIMultiDictProxy, istr
 
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventSettings, EventType
@@ -67,6 +68,28 @@ class EventContext:
             self.track_ids['event.plugin'] = self.plugin_key
 
 
+class PostprocessStreamResponseHook():
+    def __init__(self, filename: str, content_type: str, content_length: int):
+        self.resp = web.StreamResponse(
+                    headers=MultiDict(
+                        {
+                            "CONTENT-DISPOSITION": (
+                                f"attachment; filename='{filename}'"
+                            ),
+                            "Content-Type": content_type,
+                        }
+                    )
+                )
+        self.resp.content_type = content_type
+        self.resp.content_length = content_length
+
+    async def prepare(self, request: web.Request):
+        await self.resp.prepare(request)
+
+    async def write(self, data: bytes):
+        await self.resp.write(data)
+
+
 class PostprocessHook():
     """
     Post process hook that keeps additional changes to add to response on
@@ -74,13 +97,20 @@ class PostprocessHook():
 
     Useful to set cookies, change status and set additional headers in web responses.
     """
-    def __init__(self):
+    def __init__(self, request: web.Request):
         self.headers: Dict[str, str] = {}
         self.cookies: Dict[str, Tuple[str, tuple, dict]] = {}
         self.del_cookies: List[Tuple[str, tuple, dict]] = []
         self.status: Optional[int] = None
         self.file_response: Optional[Union[str, Path]] = None
+        self.stream_response: Optional[PostprocessStreamResponseHook] = None
         self.content_type: str = "application/json"
+        self.request = request
+
+    async def create_stream_response(self, filename: str, content_type: str, content_length: int):
+        self.stream_response = PostprocessStreamResponseHook(filename, content_type, content_length)
+        await self.stream_response.prepare(self.request)
+        return self.stream_response
 
     def set_header(self, name: str, value: Any):
         self.headers[name] = value
