@@ -8,7 +8,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 from aiohttp import web
-from multidict import MultiDict,CIMultiDict, CIMultiDictProxy, istr
+from multidict import MultiDict, CIMultiDict, CIMultiDictProxy, istr
 
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventSettings, EventType
@@ -69,6 +69,11 @@ class EventContext:
 
 
 class PostprocessStreamResponseHook():
+    """
+    Post process stream response hook
+
+    Useful to stream content and avoid memory overhead.
+    """
     def __init__(self, filename: str, content_type: str, content_length: int):
         self.resp = web.StreamResponse(
                     headers=MultiDict(
