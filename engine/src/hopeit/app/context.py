@@ -198,12 +198,26 @@ class PreprocessFileHook(Generic[_BodyPartReader]):
         self.data = data
         self.size = 0
 
-    async def read_chunks(self, *, chunk_size: int) -> AsyncGenerator[bytes, None]:
+    async def _read_chunk(self, *, chunk_size: int) -> bytes:
         chunk = await self.data.read_chunk(size=chunk_size)
+        self.size += len(chunk)
+        return chunk
+
+    async def read(self, chunk_size: int = -1) -> bytes:
+        if chunk_size > 0:
+            return await self._read_chunk(chunk_size=chunk_size)
+        if chunk_size == -1:
+            content = b""
+            async for chunk in self.read_chunks(chunk_size=chunk_size):
+                content += chunk
+            return content
+        return b""
+
+    async def read_chunks(self, *, chunk_size: int) -> AsyncGenerator[bytes, None]:
+        chunk = await self._read_chunk(chunk_size=chunk_size)
         while chunk:
-            self.size += len(chunk)
             yield chunk
-            chunk = await self.data.read_chunk(size=chunk_size)
+            chunk = await self._read_chunk(chunk_size=chunk_size)
 
 
 class PreprocessHeaders:
