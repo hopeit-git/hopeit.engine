@@ -204,6 +204,14 @@ class PreprocessFileHook(Generic[_BodyPartReader]):
         return chunk
 
     async def read(self, chunk_size: int = -1) -> bytes:
+        """
+        File like object read function
+
+        :param chunk_size: Size in bytes of each chunk
+        If chunk_size > 0 the read will be return a part of upcoming file of `chunk_size` size
+        If chunk_size = -1 the read will be return the full upcomming file
+        If chunk_size = 0 the read will be return an empty bytes
+        """
         if chunk_size > 0:
             return await self._read_chunk(chunk_size=chunk_size)
         if chunk_size == -1:
@@ -214,6 +222,11 @@ class PreprocessFileHook(Generic[_BodyPartReader]):
         return b""
 
     async def read_chunks(self, *, chunk_size: int) -> AsyncGenerator[bytes, None]:
+        """
+        Returns from multipart requests a file in chunks as generator:
+
+        :param chunk_size: Size in bytes of each chunk
+        """
         chunk = await self._read_chunk(chunk_size=chunk_size)
         while chunk:
             yield chunk
