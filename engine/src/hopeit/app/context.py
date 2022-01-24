@@ -207,10 +207,11 @@ class PreprocessFileHook(Generic[_BodyPartReader]):
         """
         File like object read function
 
-        :param chunk_size: Size in bytes of each chunk
-        If chunk_size > 0 the read will be return a part of upcoming file of `chunk_size` size
-        If chunk_size = -1 the read will be return the full upcomming file
-        If chunk_size = 0 the read will be return an empty bytes
+        :param chunk_size: Size in bytes of each chunk.
+            If chunk_size > 0 read will return a part of upcoming file of chunk_size size
+            If chunk_size = -1 read will return the full upcoming file
+            If chunk_size = 0 read will return empty bytes
+        :return bytes
         """
         if chunk_size > 0:
             return await self._read_chunk(chunk_size=chunk_size)

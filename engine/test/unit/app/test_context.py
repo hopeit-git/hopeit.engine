@@ -5,14 +5,16 @@ from hopeit.testing.hooks import MockMultipartReader, MockFileHook
 
 
 class MockData:
-    chunks = [b'testdata'] * 4
+
+    def __init__(self):
+        self.chunks = [b'testdata'] * 4
 
     async def read_chunk(self, size: int) -> bytes:
         return self.chunks.pop() if len(self.chunks) > 0 else b''
 
 
 @pytest.mark.asyncio
-async def test_preprocess_file_hook():
+async def test_preprocess_file_hook_read_chunks():
     attachment_data = b'testdatatestdatatestdatatestdata'
     reader = MockData()
     hook = PreprocessFileHook(name="test_name", file_name="test_file_name", data=reader)
@@ -20,6 +22,37 @@ async def test_preprocess_file_hook():
     async for chunk in hook.read_chunks(chunk_size=8):
         data += chunk
     assert data == attachment_data
+
+
+@pytest.mark.asyncio
+async def test_preprocess_file_hook_read_chunked():
+    attachment_data = b'testdatatestdatatestdatatestdata'
+    reader = MockData()
+    hook = PreprocessFileHook(name="test_name", file_name="test_file_name", data=reader)
+    data = b''
+    chunck = await hook.read(chunk_size=8)
+    while chunck:
+        data += chunck
+        chunck = await hook.read(chunk_size=8)
+    assert data == attachment_data
+
+
+@pytest.mark.asyncio
+async def test_preprocess_file_hook_read_ones():
+    attachment_data = b'testdatatestdatatestdatatestdata'
+    reader = MockData()
+    hook = PreprocessFileHook(name="test_name", file_name="test_file_name", data=reader)
+    data = await hook.read(chunk_size=-1)
+    assert data == attachment_data
+
+
+@pytest.mark.asyncio
+async def test_preprocess_file_hook_read_none():
+    attachment_data = b'testdatatestdatatestdatatestdata'
+    reader = MockData()
+    hook = PreprocessFileHook(name="test_name", file_name="test_file_name", data=reader)
+    data = await hook.read(chunk_size=0)
+    assert data == b''
 
 
 @pytest.mark.asyncio
