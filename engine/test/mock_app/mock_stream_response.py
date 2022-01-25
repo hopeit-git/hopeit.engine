@@ -11,11 +11,11 @@ async def __postprocess__(file_name: str,
                           context: EventContext, *,
                           response: PostprocessHook) -> str:
     data = b"TestDataTestData"
-    file_size = len(data) * 5
+    file_size = len(data) * 3
     stream = await response.create_stream_response(filename=file_name,
                                                    content_type="application/octet-stream",
                                                    content_length=file_size)
 
-    for _ in range(5):
+    for _ in range(3):
         await stream.write(data)
     return stream

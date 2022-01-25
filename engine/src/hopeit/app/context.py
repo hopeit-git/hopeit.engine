@@ -79,7 +79,7 @@ class PostprocessStreamResponseHook():
                     headers=MultiDict(
                         {
                             "CONTENT-DISPOSITION": (
-                                f"attachment; filename='{filename}'"
+                                f'attachment; filename="{filename}"'
                             ),
                             "Content-Type": content_type,
                         }

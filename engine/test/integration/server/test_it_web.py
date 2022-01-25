@@ -327,10 +327,28 @@ async def call_get_file_response(client):
     assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
     assert res.headers.get('X-Track-Request-Id')
     assert res.headers.get('X-Track-Request-Ts')
-    assert res.headers.get("Content-Disposition") == f"attachment; filename={file_name}"
+    assert res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
     assert res.headers.get("Content-Type") == 'text/plain'
     result = (await res.read()).decode()
     assert result == 'mock_file_response test file_response'
+
+
+async def call_get_stream_response(client):
+    file_name = str(uuid.uuid4()) + '.txt'
+    res: ClientResponse = await client.get(
+        '/api/mock-app/test/mock-stream-response',
+        params={'file_name': file_name},
+        headers={'X-Track-Session-Id': 'test_session_id'}
+    )
+    assert res.status == 200    
+    # assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
+    # assert res.headers.get('X-Track-Request-Id')
+    # assert res.headers.get('X-Track-Request-Ts')
+    assert res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
+    assert res.headers.get("Content-Type") == 'application/octet-stream'
+    assert res.headers.get("Content-length") == '48'
+    result = (await res.read())
+    assert result == b'TestDataTestDataTestDataTestDataTestDataTestData'
 
 
 async def call_get_file_response_content_type(client):
