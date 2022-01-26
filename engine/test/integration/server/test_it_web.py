@@ -340,10 +340,10 @@ async def call_get_stream_response(client):
         params={'file_name': file_name},
         headers={'X-Track-Session-Id': 'test_session_id'}
     )
-    assert res.status == 200    
-    # assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    # assert res.headers.get('X-Track-Request-Id')
-    # assert res.headers.get('X-Track-Request-Ts')
+    assert res.status == 200
+    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
+    assert res.headers.get('X-Track-Request-Id')
+    assert res.headers.get('X-Track-Request-Ts')
     assert res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
     assert res.headers.get("Content-Type") == 'application/octet-stream'
     assert res.headers.get("Content-length") == '48'

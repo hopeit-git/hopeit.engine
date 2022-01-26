@@ -74,14 +74,13 @@ class PostprocessStreamResponseHook():
 
     Useful to stream content and avoid memory overhead.
     """
-    def __init__(self, filename: str, content_type: str, content_length: int):
+    def __init__(self, filename: str, content_type: str, content_length: int, headers: Dict[str, str]):
         self.resp = web.StreamResponse(
                     headers=MultiDict(
                         {
-                            "CONTENT-DISPOSITION": (
-                                f'attachment; filename="{filename}"'
-                            ),
+                            "Content-Disposition": f'attachment; filename="{filename}"',
                             "Content-Type": content_type,
+                            **headers
                         }
                     )
                 )
@@ -102,8 +101,8 @@ class PostprocessHook():
 
     Useful to set cookies, change status and set additional headers in web responses.
     """
-    def __init__(self, request: web.Request):
-        self.headers: Dict[str, str] = {}
+    def __init__(self, request: web.Request, headers: Dict[str, str]):
+        self.headers = headers
         self.cookies: Dict[str, Tuple[str, tuple, dict]] = {}
         self.del_cookies: List[Tuple[str, tuple, dict]] = []
         self.status: Optional[int] = None
@@ -113,7 +112,7 @@ class PostprocessHook():
         self.request = request
 
     async def create_stream_response(self, filename: str, content_type: str, content_length: int):
-        self.stream_response = PostprocessStreamResponseHook(filename, content_type, content_length)
+        self.stream_response = PostprocessStreamResponseHook(filename, content_type, content_length, self.headers)
         await self.stream_response.prepare(self.request)
         return self.stream_response
 

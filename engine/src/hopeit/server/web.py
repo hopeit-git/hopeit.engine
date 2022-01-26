@@ -330,21 +330,17 @@ def _create_event_management_routes(
     ]
 
 
-def _response(*, track_ids: Dict[str, str], key: str,
-              payload: EventPayload, hook: PostprocessHook) -> ResponseType:
+def _response(*, key: str, payload: EventPayload, hook: PostprocessHook) -> ResponseType:
     """
     Creates a web response object from a given payload (body), header track ids
     and applies a postprocess hook
     """
     response: ResponseType
-    headers = {
-        **hook.headers,
-        **{f"X-{re.sub(' ', '-', titlecase(k))}": v for k, v in track_ids.items()}
-    }
+
     if hook.file_response is not None:
         response = web.FileResponse(
             path=hook.file_response,
-            headers={'Content-Type': hook.content_type, **headers}
+            headers={'Content-Type': hook.content_type, **hook.headers}
         )
     elif hook.stream_response is not None:
         response = hook.stream_response.resp
@@ -355,7 +351,7 @@ def _response(*, track_ids: Dict[str, str], key: str,
         body = serializer(payload, key=key)
         response = web.Response(
             body=body,
-            headers=headers,
+            headers={**hook.headers},
             content_type=hook.content_type
         )
         for name, cookie in hook.cookies.items():
@@ -516,7 +512,10 @@ async def _request_execute(
     """
     Executes request using engine event handler
     """
-    response_hook = PostprocessHook(request)
+    response_headers = {
+        **{f"X-{re.sub(' ', '-', titlecase(k))}": v for k, v in context.track_ids.items()}
+    }
+    response_hook = PostprocessHook(request, response_headers)
     result = await app_engine.preprocess(
         context=context, query_args=query_args, payload=payload, request=preprocess_hook)
     if (preprocess_hook.status is None) or (preprocess_hook.status == 200):
@@ -525,7 +524,6 @@ async def _request_execute(
     else:
         response_hook.set_status(preprocess_hook.status)
     response = _response(
-        track_ids=context.track_ids,
         key=event_name,
         payload=result,
         hook=response_hook

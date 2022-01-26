@@ -48,7 +48,6 @@ async def test_preprocess_file_hook_read_ones():
 
 @pytest.mark.asyncio
 async def test_preprocess_file_hook_read_none():
-    attachment_data = b'testdatatestdatatestdatatestdata'
     reader = MockData()
     hook = PreprocessFileHook(name="test_name", file_name="test_file_name", data=reader)
     data = await hook.read(chunk_size=0)
