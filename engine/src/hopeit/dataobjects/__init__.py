@@ -97,7 +97,7 @@ class BinaryDownload:
         content_type = "image/png"
     ```
 
-    This way, the  type can be used in event API speficacation as reponse type.
+    This way, the  type can be used in event API specification as response type.
     """
     content_type: str = "application/octet-stream"
 

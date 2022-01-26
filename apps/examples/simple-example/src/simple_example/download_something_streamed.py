@@ -2,7 +2,7 @@
 Simple Example: Download Something Streamed
 -------------------------------------------
 Download streamd randomly created content as file.
-The PostprocessHook return the requested resource as stream using `create_stream_response`.
+The PostprocessHook return the requested resource as stream using `prepare_stream_response`.
 """
 from dataclasses import dataclass
 import os
@@ -34,15 +34,18 @@ async def get_streamed_data(payload: None, context: EventContext, *, file_name: 
     return RandomFile(file_name=file_name)
 
 
-async def __postprocess__(file: RandomFile, context: EventContext, response: PostprocessHook) -> str:
+async def __postprocess__(file: RandomFile, context: EventContext, response: PostprocessHook) -> RandomFile:
     """
     Stream 50 MB of binary random content:
     """
     file_size = 1024 * 1024 * 50
-    stream = await response.create_stream_response(filename=file.file_name,
-                                                   content_type=file.content_type,
-                                                   content_length=file_size)
+    stream = await response.prepare_stream_response(
+        context,
+        content_disposition=f'attachment; filename="{file.file_name}"',
+        content_type=file.content_type,
+        content_length=file_size
+    )
 
-    for _ in range(50):
-        await stream.write(os.urandom(1024 * 1024))
-    return stream
+    for i in range(50):
+        await stream.write(f"{i}".encode() * (1024 * 1024))
+    return file

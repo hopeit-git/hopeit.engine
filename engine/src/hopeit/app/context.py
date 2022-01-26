@@ -6,10 +6,11 @@ from typing import AsyncGenerator, AsyncIterator, Callable, Generic, TypeVar, \
 from abc import ABC
 from pathlib import Path
 from datetime import datetime, timezone
+import re
 
 from aiohttp import web
 from multidict import MultiDict, CIMultiDict, CIMultiDictProxy, istr
-
+from stringcase import titlecase
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventSettings, EventType
 
@@ -74,16 +75,16 @@ class PostprocessStreamResponseHook():
 
     Useful to stream content and avoid memory overhead.
     """
-    def __init__(self, filename: str, content_type: str, content_length: int, headers: Dict[str, str]):
+    def __init__(self, content_disposition: str, content_type: str, content_length: int, headers: Dict[str, str]):
         self.resp = web.StreamResponse(
-                    headers=MultiDict(
-                        {
-                            "Content-Disposition": f'attachment; filename="{filename}"',
-                            "Content-Type": content_type,
-                            **headers
-                        }
-                    )
-                )
+            headers=MultiDict(
+                {
+                    "Content-Disposition": content_disposition,
+                    "Content-Type": content_type,
+                    **headers
+                }
+            )
+        )
         self.resp.content_type = content_type
         self.resp.content_length = content_length
 
@@ -94,6 +95,28 @@ class PostprocessStreamResponseHook():
         await self.resp.write(data)
 
 
+class PostprocessTestingStreamResponseHook(PostprocessStreamResponseHook):
+    """
+    Post process stream response hook
+
+    Useful to stream content and avoid memory overhead.
+    """
+    def __init__(self, content_disposition: str, content_type: str, content_length: int, headers: Dict[str, str]):
+        self.resp: bytes
+        self.headers = {
+            "Content-Disposition": content_disposition,
+            "Content-Type": content_type,
+            "Content-Length": str(content_length),
+            **headers
+        }
+ 
+    async def prepare(self, request: Optional[web.Request]):
+        self.resp = b''
+
+    async def write(self, data: bytes):
+        self.resp += data
+
+
 class PostprocessHook():
     """
     Post process hook that keeps additional changes to add to response on
@@ -101,8 +124,8 @@ class PostprocessHook():
 
     Useful to set cookies, change status and set additional headers in web responses.
     """
-    def __init__(self, request: web.Request, headers: Dict[str, str]):
-        self.headers = headers
+    def __init__(self, request: Optional[web.BaseRequest] = None):
+        self.headers: Dict[str, str] = {}
         self.cookies: Dict[str, Tuple[str, tuple, dict]] = {}
         self.del_cookies: List[Tuple[str, tuple, dict]] = []
         self.status: Optional[int] = None
@@ -111,8 +134,18 @@ class PostprocessHook():
         self.content_type: str = "application/json"
         self.request = request
 
-    async def create_stream_response(self, filename: str, content_type: str, content_length: int):
-        self.stream_response = PostprocessStreamResponseHook(filename, content_type, content_length, self.headers)
+    async def prepare_stream_response(
+        self, context: EventContext, content_disposition: str, content_type: str, content_length: int
+    ):
+        headers = {
+            **self.headers,
+            **{f"X-{re.sub(' ', '-', titlecase(k))}": v for k, v in context.track_ids.items()}
+        }
+        if self.request:
+            self.stream_response = PostprocessStreamResponseHook(content_disposition, content_type, content_length, headers)
+        else:
+            self.stream_response = PostprocessTestingStreamResponseHook(content_disposition, content_type, content_length, headers)
+
         await self.stream_response.prepare(self.request)
         return self.stream_response
 
