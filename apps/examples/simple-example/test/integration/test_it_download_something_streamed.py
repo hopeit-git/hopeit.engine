@@ -9,7 +9,7 @@ APP_VERSION = APPS_API_VERSION.replace('.', "x")
 @pytest.mark.asyncio
 async def test_it_download_something_streamed(app_config):
 
-    file_name = "hopeit-iso.png"
+    file_name = "randomfile"
 
     result, pp_result, response = await execute_event(
         app_config=app_config,
@@ -22,9 +22,12 @@ async def test_it_download_something_streamed(app_config):
     assert result.file_name == file_name
     assert pp_result.file_name == file_name
     assert response.headers == {
-        'Content-Disposition': f'attachment; filename={file_name}'
+        'Content-Disposition': f'attachment; filename="{file_name}"',
+        'Content-Type': 'application/octet-stream',
+        'Content-Length': '52428800',
     }
-    assert response.stream_response.resp == (
-        f"/tmp/simple_example.{APP_VERSION}.fs.data_path/{file_name}"
-    )
-    assert response.content_type == 'image/png'
+    assert response.stream_response.resp == ''.join([
+        f"{i}" * 1024 * 1024
+        for i in range(50)
+    ]).encode()
+    assert response.content_type == 'application/octet-stream'

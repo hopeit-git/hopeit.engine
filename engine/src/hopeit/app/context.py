@@ -75,15 +75,12 @@ class PostprocessStreamResponseHook():
 
     Useful to stream content and avoid memory overhead.
     """
-    def __init__(self, content_disposition: str, content_type: str, content_length: int, headers: Dict[str, str]):
+    def __init__(self, content_disposition: str, content_type: str, content_length: int):
         self.resp = web.StreamResponse(
-            headers=MultiDict(
-                {
-                    "Content-Disposition": content_disposition,
-                    "Content-Type": content_type,
-                    **headers
-                }
-            )
+            headers=MultiDict({
+                "Content-Disposition": content_disposition,
+                "Content-Type": content_type,
+            })
         )
         self.resp.content_type = content_type
         self.resp.content_length = content_length
@@ -101,14 +98,13 @@ class PostprocessTestingStreamResponseHook(PostprocessStreamResponseHook):
 
     Useful to stream content and avoid memory overhead.
     """
-    def __init__(self, content_disposition: str, content_type: str, content_length: int, headers: Dict[str, str]):
+    def __init__(self, content_disposition: str, content_type: str, content_length: int):
         self.resp: bytes
-        self.headers = {
+        self.headers = MultiDict({
             "Content-Disposition": content_disposition,
             "Content-Type": content_type,
             "Content-Length": str(content_length),
-            **headers
-        }
+        })
  
     async def prepare(self, request: Optional[web.Request]):
         self.resp = b''
@@ -137,14 +133,19 @@ class PostprocessHook():
     async def prepare_stream_response(
         self, context: EventContext, content_disposition: str, content_type: str, content_length: int
     ):
-        headers = {
+        if self.request:
+            self.stream_response = PostprocessStreamResponseHook(content_disposition, content_type, content_length)
+        else:
+            self.stream_response = PostprocessTestingStreamResponseHook(content_disposition, content_type, content_length)
+        
+        self.headers.update(
+            self.stream_response.headers
+        )
+        self.stream_response.headers.update({
             **self.headers,
             **{f"X-{re.sub(' ', '-', titlecase(k))}": v for k, v in context.track_ids.items()}
-        }
-        if self.request:
-            self.stream_response = PostprocessStreamResponseHook(content_disposition, content_type, content_length, headers)
-        else:
-            self.stream_response = PostprocessTestingStreamResponseHook(content_disposition, content_type, content_length, headers)
+        })
+        self.content_type = self.stream_response.headers["Content-Type"]
 
         await self.stream_response.prepare(self.request)
         return self.stream_response
