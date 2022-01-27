@@ -362,7 +362,7 @@ async def call_get_file_response_content_type(client):
     assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
     assert res.headers.get('X-Track-Request-Id')
     assert res.headers.get('X-Track-Request-Ts')
-    assert res.headers.get("Content-Disposition") == f"attachment; filename={file_name}"
+    assert res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
     assert res.headers.get("Content-Type") == 'image/png'
     result = (await res.read()).decode()
     assert result == file_name

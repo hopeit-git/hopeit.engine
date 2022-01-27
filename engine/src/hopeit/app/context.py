@@ -90,6 +90,11 @@ class PostprocessStreamResponseHook():
     async def write(self, data: bytes):
         await self.resp.write(data)
 
+class TestingResp:
+    def __init__(self):
+        self.headers = MultiDict()
+        self.data: bytes
+
 
 class PostprocessTestingStreamResponseHook(PostprocessStreamResponseHook):
     """
@@ -98,18 +103,18 @@ class PostprocessTestingStreamResponseHook(PostprocessStreamResponseHook):
     Useful to stream content and avoid memory overhead.
     """
     def __init__(self, content_disposition: str, content_type: str, content_length: int):
-        self.resp: bytes
+        self.resp = TestingResp()
         self.headers = MultiDict({
             "Content-Disposition": content_disposition,
             "Content-Type": content_type,
             "Content-Length": str(content_length),
         })
  
-    async def prepare(self, request: Optional[web.Request]):
-        self.resp = b''
+    async def prepare(self, request: None):
+        self.resp.data = b''
 
     async def write(self, data: bytes):
-        self.resp += data
+        self.resp.data += data
 
 
 class PostprocessHook():

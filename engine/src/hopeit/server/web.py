@@ -343,7 +343,7 @@ def _response(*, track_ids: Dict[str, str], key: str, payload: EventPayload, hoo
     if hook.file_response is not None:
         response = web.FileResponse(
             path=hook.file_response,
-            headers={'Content-Type': hook.content_type, **hook.headers}
+            headers={'Content-Type': hook.content_type, **headers}
         )
     elif hook.stream_response is not None:
         response = hook.stream_response.resp
