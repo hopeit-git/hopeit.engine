@@ -76,12 +76,11 @@ class PostprocessStreamResponseHook():
     Useful to stream content and avoid memory overhead.
     """
     def __init__(self, content_disposition: str, content_type: str, content_length: int):
-        self.resp = web.StreamResponse(
-            headers=MultiDict({
-                "Content-Disposition": content_disposition,
-                "Content-Type": content_type,
-            })
-        )
+        self.headers = MultiDict({
+            "Content-Disposition": content_disposition,
+            "Content-Type": content_type,
+        })
+        self.resp = web.StreamResponse(headers=self.headers)
         self.resp.content_type = content_type
         self.resp.content_length = content_length
 
@@ -141,7 +140,7 @@ class PostprocessHook():
         self.headers.update(
             self.stream_response.headers
         )
-        self.stream_response.headers.update({
+        self.stream_response.resp.headers.update({
             **self.headers,
             **{f"X-{re.sub(' ', '-', titlecase(k))}": v for k, v in context.track_ids.items()}
         })
