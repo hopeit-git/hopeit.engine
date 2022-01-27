@@ -216,6 +216,34 @@
       },
       "auth": []
     },
+    "download_something_streamed": {
+      "type": "GET",
+      "plug_mode": "Standalone",
+      "connections": [],
+      "config": {
+        "response_timeout": 60,
+        "logging": {
+          "extra_fields": [],
+          "stream_fields": [
+            "stream.name",
+            "stream.msg_id",
+            "stream.consumer_group"
+          ]
+        },
+        "stream": {
+          "timeout": 60,
+          "target_max_len": 0,
+          "throttle_ms": 0,
+          "step_delay": 0,
+          "batch_size": 100,
+          "compression": "lz4",
+          "serialization": "json+base64"
+        }
+      },
+      "auth": [
+        "Unsecured"
+      ]
+    },
     "upload_something": {
       "type": "MULTIPART",
       "plug_mode": "Standalone",

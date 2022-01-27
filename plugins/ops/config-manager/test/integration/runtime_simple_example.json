@@ -77,6 +77,15 @@
             "auth": [],
             "setting_keys": []
           },
+          "download_something_streamed": {
+            "type": "GET",
+            "plug_mode": "Standalone",
+            "connections": [],
+            "auth": [
+              "Unsecured"
+            ],
+            "setting_keys": []
+          },
           "upload_something": {
             "type": "MULTIPART",
             "plug_mode": "Standalone",
@@ -343,6 +352,27 @@
             "extras": {}
           },
           "download_something": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 0,
+              "throttle_ms": 0,
+              "step_delay": 0,
+              "batch_size": 100,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            },
+            "extras": {}
+          },
+          "download_something_streamed": {
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
@@ -665,6 +695,15 @@
           "plug_mode": "Standalone",
           "connections": [],
           "auth": [],
+          "setting_keys": []
+        },
+        "simple_example.${APPS_ROUTE_VERSION}.download_something_streamed": {
+          "type": "GET",
+          "plug_mode": "Standalone",
+          "connections": [],
+          "auth": [
+            "Unsecured"
+          ],
           "setting_keys": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.upload_something": {
