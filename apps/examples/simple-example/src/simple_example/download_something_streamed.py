@@ -5,12 +5,10 @@ Download streamd randomly created content as file.
 The PostprocessHook return the requested resource as stream using `prepare_stream_response`.
 """
 from dataclasses import dataclass
-import os
 
-from hopeit.dataobjects import BinaryDownload
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
-
+from hopeit.dataobjects import BinaryDownload
 
 __steps__ = ['get_streamed_data']
 
@@ -26,6 +24,7 @@ __api__ = event_api(
         200: (RandomFile, "Return random content with filename=`file_name`")
     }
 )
+
 
 async def get_streamed_data(payload: None, context: EventContext, *, file_name: str) -> RandomFile:
     """

@@ -10,7 +10,7 @@ import re
 
 from aiohttp import web
 from multidict import MultiDict, CIMultiDict, CIMultiDictProxy, istr
-from stringcase import titlecase
+from stringcase import titlecase  # type: ignore
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventSettings, EventType
 
@@ -90,10 +90,11 @@ class PostprocessStreamResponseHook():
     async def write(self, data: bytes):
         await self.resp.write(data)
 
+
 class TestingResp:
     def __init__(self):
         self.headers = MultiDict()
-        self.data: bytes
+        self.data: bytes = b''
 
 
 class PostprocessTestingStreamResponseHook(PostprocessStreamResponseHook):
@@ -103,14 +104,15 @@ class PostprocessTestingStreamResponseHook(PostprocessStreamResponseHook):
     Useful to stream content and avoid memory overhead.
     """
     def __init__(self, content_disposition: str, content_type: str, content_length: int):
-        self.resp = TestingResp()
+        super().__init__(content_disposition, content_type, content_length)
+        self.resp: TestingResp = TestingResp()  # type: ignore
         self.headers = MultiDict({
             "Content-Disposition": content_disposition,
             "Content-Type": content_type,
             "Content-Length": str(content_length),
         })
- 
-    async def prepare(self, request: None):
+
+    async def prepare(self, request):
         self.resp.data = b''
 
     async def write(self, data: bytes):
@@ -137,11 +139,14 @@ class PostprocessHook():
     async def prepare_stream_response(
         self, context: EventContext, content_disposition: str, content_type: str, content_length: int
     ):
+        """
+        Prepare stream response allow to send file like objects as stream response.
+        """
         if self.request:
             self.stream_response = PostprocessStreamResponseHook(content_disposition, content_type, content_length)
         else:
-            self.stream_response = PostprocessTestingStreamResponseHook(content_disposition, content_type, content_length)
-        
+            self.stream_response = PostprocessTestingStreamResponseHook(content_disposition,
+                                                                        content_type, content_length)
         self.headers.update(
             self.stream_response.headers
         )
@@ -151,7 +156,7 @@ class PostprocessHook():
         })
         self.content_type = self.stream_response.headers["Content-Type"]
 
-        await self.stream_response.prepare(self.request)
+        await self.stream_response.prepare(self.request)  # type: ignore
         return self.stream_response
 
     def set_header(self, name: str, value: Any):

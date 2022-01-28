@@ -1,4 +1,3 @@
-from aiohttp import content_disposition_filename
 from hopeit.app.context import EventContext, PostprocessHook
 
 __steps__ = ["create_file"]
