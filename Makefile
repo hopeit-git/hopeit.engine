@@ -4,6 +4,8 @@ SRC = $(wildcard src/*.py)
 
 deps:
 	cd engine && \
+	pip install -U pip && \
+	pip install -U wheel && \
 	pip install -U -r requirements.txt
 
 dev-deps: deps

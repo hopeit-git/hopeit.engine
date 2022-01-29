@@ -314,7 +314,7 @@ async def call_get_mock_timeout_exceeded(client):
     assert res.status == 500
     result = (await res.read()).decode()
     assert result == '{"msg": "Response timeout exceeded seconds=2.0", '\
-                     '"tb": ["TimeoutError: Response timeout exceeded seconds=2.0\\n"]}'
+                     '"tb": ["asyncio.exceptions.TimeoutError: Response timeout exceeded seconds=2.0\\n"]}'
 
 
 async def call_get_file_response(client):
