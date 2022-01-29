@@ -313,8 +313,7 @@ async def call_get_mock_timeout_exceeded(client):
     )
     assert res.status == 500
     result = (await res.read()).decode()
-    assert result == '{"msg": "Response timeout exceeded seconds=2.0", '\
-                     '"tb": ["asyncio.exceptions.TimeoutError: Response timeout exceeded seconds=2.0\\n"]}'
+    assert '{"msg": "Response timeout exceeded seconds=2.0"' in result
 
 
 async def call_get_file_response(client):
@@ -504,12 +503,12 @@ def loop():
         return asyncio.new_event_loop()
 
 
-# @pytest.mark.order(1)
+@pytest.mark.order(1)
 @pytest.mark.asyncio
-async def test_all(monkeypatch,
-                   mock_app_config,  # noqa: F811
-                   mock_plugin_config,  # noqa: F811
-                   aiohttp_client):  # noqa: F811
+async def test_endpoints(monkeypatch,
+                         mock_app_config,  # noqa: F811
+                         mock_plugin_config,  # noqa: F811
+                         aiohttp_client):  # noqa: F811
     test_client = await _setup(monkeypatch, mock_app_config, mock_plugin_config,
                                aiohttp_client)
 

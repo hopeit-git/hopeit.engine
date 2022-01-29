@@ -4,7 +4,7 @@ Engine module: handle apps load, setup and serving
 import asyncio
 import random
 import uuid
-from asyncio.exceptions import CancelledError
+from asyncio import CancelledError
 from datetime import datetime, timezone
 from typing import Awaitable, Optional, Dict, List, Union, Tuple, Any
 
@@ -106,8 +106,8 @@ class AppEngine:
                 self._execute_event(context, query_args, payload),
                 timeout=context.settings.response_timeout
             )
-        except asyncio.exceptions.TimeoutError as e:
-            raise asyncio.exceptions.TimeoutError(
+        except asyncio.TimeoutError as e:
+            raise asyncio.TimeoutError(
                 f"Response timeout exceeded seconds={context.settings.response_timeout}"
             ) from e
 
@@ -234,9 +234,8 @@ class AppEngine:
                                            context=context, stats=stats, log_info=log_info),
                 timeout=context.settings.stream.timeout
             )
-        except asyncio.exceptions.TimeoutError as e:
-            logger.info(context, type(e))
-            terr = asyncio.exceptions.TimeoutError(
+        except asyncio.TimeoutError:
+            terr = asyncio.TimeoutError(
                 f'Stream processing timeout exceeded seconds={context.settings.stream.timeout}'
             )
             logger.error(context, str(terr), extra=extra(
