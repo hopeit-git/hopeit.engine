@@ -469,29 +469,25 @@ async def call_stop_service(client):
 
 
 async def start_test_server(
-        mock_app_config, mock_plugin_config, aiohttp_server, streams=None):  # noqa: F811
+        mock_app_config, mock_plugin_config, streams=None):  # noqa: F811
     await start_server(mock_app_config.server)
     await start_app(mock_plugin_config)
     await start_app(mock_app_config, start_streams=streams)
-    # test_server = await aiohttp_server(hopeit.server.web.web_server)
     print('Test engine started.', hopeit.server.web.web_server)
     await asyncio.sleep(5)
-    # return test_server
 
 
 async def _setup(monkeypatch,
-           mock_app_config,  # noqa: F811
-           mock_plugin_config,  # noqa: F811
-           aiohttp_server,  # noqa: F811
-           aiohttp_client,  # noqa: F811
-           streams=None):
+                 mock_app_config,  # noqa: F811
+                 mock_plugin_config,  # noqa: F811
+                 aiohttp_client,  # noqa: F811
+                 streams=None):
     stream_event = MockResult("ok: ok")
     monkeypatch.setattr(MockStreamManager, 'test_payload', stream_event)
     monkeypatch.setattr(MockEventHandler, 'test_track_ids', None)
 
     api.clear()
-    await start_test_server(
-        mock_app_config, mock_plugin_config, aiohttp_server, streams)
+    await start_test_server(mock_app_config, mock_plugin_config, streams)
     return await aiohttp_client(hopeit.server.web.web_server)
 
 
@@ -511,13 +507,12 @@ def loop():
 # @pytest.mark.order(1)
 @pytest.mark.asyncio
 async def test_all(monkeypatch,
-             mock_app_config,  # noqa: F811
-             mock_plugin_config,  # noqa: F811
-             aiohttp_server,  # noqa: F811
-             aiohttp_client):  # noqa: F811
+                   mock_app_config,  # noqa: F811
+                   mock_plugin_config,  # noqa: F811
+                   aiohttp_client):  # noqa: F811
     test_client = await _setup(monkeypatch, mock_app_config, mock_plugin_config,
-                         aiohttp_server, aiohttp_client)
-    
+                               aiohttp_client)
+
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
@@ -564,12 +559,11 @@ async def test_all(monkeypatch,
 @pytest.mark.order(2)
 @pytest.mark.asyncio
 async def test_start_streams_on_startup(monkeypatch,
-                                  mock_app_config,  # noqa: F811
-                                  mock_plugin_config,  # noqa: F811
-                                  aiohttp_server,  # noqa: F811
-                                  aiohttp_client):  # noqa: F811
+                                        mock_app_config,  # noqa: F811
+                                        mock_plugin_config,  # noqa: F811
+                                        aiohttp_client):  # noqa: F811
     test_client = await _setup(monkeypatch, mock_app_config, mock_plugin_config,
-                         aiohttp_server, aiohttp_client, streams=True)
+                               aiohttp_client, streams=True)
     await call_stop_stream(test_client)
     await call_stop_service(test_client)
     await stop_server()
