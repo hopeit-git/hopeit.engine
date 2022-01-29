@@ -21,12 +21,9 @@ from typing import (
 )
 
 import aiohttp_cors  # type: ignore
-import aiojobs  # type: ignore
-import aiojobs.aiohttp as aiojobs_http  # type: ignore
 from aiohttp import web
 from aiohttp.web_response import Response
 from aiohttp_cors import CorsConfig
-from aiojobs import Scheduler
 from stringcase import snakecase, titlecase  # type: ignore
 
 from hopeit.app.config import (
@@ -67,14 +64,12 @@ ResponseType = Union[web.Response, web.FileResponse]
 
 # server = Server()
 web_server = web.Application()
-aiojobs_http.setup(web_server)
 auth_info_default = {}
 
 
 def main(host: Optional[str], port: Optional[int], path: Optional[str], start_streams: bool,
          config_files: List[str], api_file: Optional[str]):
     loop = asyncio.get_event_loop()
-    scheduler = loop.run_until_complete(aiojobs.create_scheduler())
 
     logger.info("Loading engine config file=%s...", config_files[0])  # type: ignore
     server_config = _load_engine_config(config_files[0])
@@ -95,7 +90,7 @@ def main(host: Optional[str], port: Optional[int], path: Optional[str], start_st
     api.register_apps(apps_config)
     api.enable_swagger(server_config, web_server)
     for config in apps_config:
-        loop.run_until_complete(start_app(config, scheduler, start_streams))
+        loop.run_until_complete(start_app(config, start_streams))
 
     logger.debug(__name__, "Performing forced garbage collection...")
     gc.collect()
@@ -123,7 +118,7 @@ async def stop_server():
     web_server = web.Application()
 
 
-async def start_app(config: AppConfig, scheduler: Scheduler, start_streams: bool = False):
+async def start_app(config: AppConfig, start_streams: bool = False):
     """
     Start Hopeit app specified by config
 
@@ -147,7 +142,7 @@ async def start_app(config: AppConfig, scheduler: Scheduler, start_streams: bool
         app = app_engine.app_config.app
         _enable_cors(route_name('api', app.name, app.version), cors_origin)
     if start_streams:
-        await _start_streams(app_engine, scheduler)
+        _start_streams(app_engine)
 
 
 def _effective_events(app_engine: AppEngine, plugin: Optional[AppEngine] = None):
@@ -649,7 +644,7 @@ async def _handle_multipart_invocation(
     except Exception as e:  # pylint: disable=broad-except
         return _failed_response(context, e)
 
-async def _start_streams(app_engine: AppEngine, scheduler: Scheduler):
+def _start_streams(app_engine: AppEngine):
     """
     Start all stream event types configured in app.
 
@@ -660,11 +655,11 @@ async def _start_streams(app_engine: AppEngine, scheduler: Scheduler):
             assert event_info.read_stream
             logger.info(
                 __name__, f"STREAM start event_name={event_name} read_stream={event_info.read_stream.name}")
-            await scheduler.spawn(app_engine.read_stream(event_name=event_name))
+            asyncio.create_task(app_engine.read_stream(event_name=event_name))
         elif event_info.type == EventType.SERVICE:
             logger.info(
                 __name__, f"SERVICE start event_name={event_name}")
-            await scheduler.spawn(app_engine.service_loop(event_name=event_name))
+            asyncio.create_task(app_engine.service_loop(event_name=event_name))
 
 
 
@@ -678,7 +673,7 @@ async def _handle_stream_start_invocation(
     in the background.
     """
     assert request
-    await aiojobs_http.spawn(request, app_engine.read_stream(event_name=event_name))
+    asyncio.create_task(app_engine.read_stream(event_name=event_name))
     return web.Response()
 
 
@@ -692,7 +687,7 @@ async def _handle_service_start_invocation(
     generator in the background
     """
     assert request
-    await aiojobs_http.spawn(request, app_engine.service_loop(event_name=event_name))
+    asyncio.create_task(app_engine.service_loop(event_name=event_name))
     return web.Response()
 
 
