@@ -135,7 +135,7 @@ class EventHandler:
             init_f = getattr(module, '__init_event__')
             coro_or_res = init_f(context)
             if iscoroutine(coro_or_res):
-                await coro_or_res
+                await coro_or_res  # type: ignore
 
 
 def get_runtime_settings(app_config: AppConfig, plugins: List[AppConfig]) -> Dict[str, Any]:
