@@ -95,7 +95,6 @@ setuptools.setup(
     },
     python_requires=">=3.7",
     install_requires=[ f"{lib}>={libversion(lib)}" for lib in [
-        "aiojobs",
         "lz4",
         "stringcase",
         "PyJWT[crypto]",
