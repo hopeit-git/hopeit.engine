@@ -1,13 +1,12 @@
 echo "=========================="
 echo "CI STATIC ANALYSIS: ENGINE"
 echo "=========================="
-# export MYPYPATH=engine/src/ && mypy --install-types
 code=0
-export MYPYPATH=engine/src/ && python3 -m mypy --install-types --namespace-packages -p hopeit
+export MYPYPATH=engine/src/ && python3 -m mypy --install-types --namespace-packages -p hopeit < engine/build/y.txt
 code+=$?
-export MYPYPATH=engine/src:engine/test/ && python3 -m mypy --install-types --namespace-packages engine/test/unit/
+export MYPYPATH=engine/src:engine/test/ && python3 -m mypy --install-types --namespace-packages engine/test/unit/ < engine/build/y.txt
 code+=$?
-export MYPYPATH=engine/src:engine/test/ && python3 -m mypy --install-types --namespace-packages engine/test/integration/
+export MYPYPATH=engine/src:engine/test/ && python3 -m mypy --install-types --namespace-packages engine/test/integration/ < engine/build/y.txt
 code+=$?
 python3 -m flake8 --max-line-length=120 engine/src/hopeit/ engine/test/
 code+=$?
