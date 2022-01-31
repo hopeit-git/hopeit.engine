@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+Version 0.13.0
+______________
+ - Updated aiohttp version
+ - Removed aiojobs to spawn stream tasks. Replaced with asyncio.create_task
+ - Update web integration tests for compatibility with latest pytest_aiohttp
+ - Fix: Handle CancelledError on stream timeout
+ - Added test build for Python 3.10
+
+
 Version 0.12.1
 ______________
 - Fix: add context processing to EventLoggerWrapper debug method

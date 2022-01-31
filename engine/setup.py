@@ -57,6 +57,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Development Status :: 4 - Beta",
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X",
@@ -95,7 +96,6 @@ setuptools.setup(
     },
     python_requires=">=3.7",
     install_requires=[ f"{lib}>={libversion(lib)}" for lib in [
-        "aiojobs",
         "lz4",
         "stringcase",
         "PyJWT[crypto]",

@@ -63,7 +63,6 @@ def test_main(monkeypatch):
     _register_apps = MagicMock()
     _load_app_config = MagicMock()
     _run_app = MagicMock()
-    _create_scheduler = MagicMock()
     _start_server = MagicMock()
     _start_app = MagicMock()
 
@@ -77,7 +76,6 @@ def test_main(monkeypatch):
     monkeypatch.setattr(web.web, 'run_app', _run_app)
     monkeypatch.setattr(web, 'start_server', _start_server)
     monkeypatch.setattr(web, 'start_app', _start_app)
-    monkeypatch.setattr(web.aiojobs, 'create_scheduler', _create_scheduler)
 
     web.main(host='test', port=1234, path='//test', start_streams=True,
              config_files=['test_server_file.json', 'test_app_file.json', 'test_app_file2.json'],

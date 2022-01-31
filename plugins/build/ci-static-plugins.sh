@@ -1,7 +1,7 @@
 echo "==========================="
 echo "CI STATIC ANALYSIS: PLUGINS"
 echo "==========================="
-mypy --install-types
+
 code=0
 echo "auth/basic-auth"
 export MYPYPATH=engine/src/:plugins/auth/basic-auth/src/ && python3 -m mypy --namespace-packages -p hopeit.basic_auth

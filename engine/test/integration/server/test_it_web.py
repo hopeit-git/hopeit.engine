@@ -2,12 +2,12 @@ import json
 import os
 import uuid
 import asyncio
-import aiohttp
+import logging
 
-import aiojobs  # type: ignore
+import aiohttp
 import pytest
 from aiohttp import ClientResponse
-from pytest_aiohttp import aiohttp_server, aiohttp_client  # type: ignore  # noqa: F401
+# from pytest_aiohttp import aiohttp_client  # type: ignore  # noqa: F401
 
 import hopeit.server.web
 from hopeit.server import api
@@ -313,8 +313,7 @@ async def call_get_mock_timeout_exceeded(client):
     )
     assert res.status == 500
     result = (await res.read()).decode()
-    assert result == '{"msg": "Response timeout exceeded seconds=2.0", '\
-                     '"tb": ["TimeoutError: Response timeout exceeded seconds=2.0\\n"]}'
+    assert '{"msg": "Response timeout exceeded seconds=2.0"' in result
 
 
 async def call_get_file_response(client):
@@ -469,32 +468,26 @@ async def call_stop_service(client):
 
 
 async def start_test_server(
-        mock_app_config, mock_plugin_config, aiohttp_server, streams=None):  # noqa: F811
-    scheduler = await aiojobs.create_scheduler()
+        mock_app_config, mock_plugin_config, streams=None):  # noqa: F811
     await start_server(mock_app_config.server)
-    await start_app(mock_plugin_config, scheduler)
-    await start_app(mock_app_config, scheduler, start_streams=streams)
-    test_server = await aiohttp_server(hopeit.server.web.web_server)
-    print('Test engine started:', test_server)
+    await start_app(mock_plugin_config)
+    await start_app(mock_app_config, start_streams=streams)
+    print('Test engine started.', hopeit.server.web.web_server)
     await asyncio.sleep(5)
-    return test_server
 
 
-def _setup(monkeypatch,
-           loop,
-           mock_app_config,  # noqa: F811
-           mock_plugin_config,  # noqa: F811
-           aiohttp_server,  # noqa: F811
-           aiohttp_client,  # noqa: F811
-           streams=None):
+async def _setup(monkeypatch,
+                 mock_app_config,  # noqa: F811
+                 mock_plugin_config,  # noqa: F811
+                 aiohttp_client,  # noqa: F811
+                 streams=None):
     stream_event = MockResult("ok: ok")
     monkeypatch.setattr(MockStreamManager, 'test_payload', stream_event)
     monkeypatch.setattr(MockEventHandler, 'test_track_ids', None)
 
     api.clear()
-    loop.run_until_complete(start_test_server(
-        mock_app_config, mock_plugin_config, aiohttp_server, streams))
-    return loop.run_until_complete(aiohttp_client(hopeit.server.web.web_server))
+    await start_test_server(mock_app_config, mock_plugin_config, streams)
+    return await aiohttp_client(hopeit.server.web.web_server)
 
 
 @pytest.fixture
@@ -511,55 +504,65 @@ def loop():
 
 
 @pytest.mark.order(1)
-def test_all(monkeypatch,
-             loop,
-             mock_app_config,  # noqa: F811
-             mock_plugin_config,  # noqa: F811
-             aiohttp_server,  # noqa: F811
-             aiohttp_client):  # noqa: F811
-    test_client = _setup(monkeypatch, loop, mock_app_config, mock_plugin_config,
-                         aiohttp_server, aiohttp_client)
+@pytest.mark.asyncio
+async def test_endpoints(monkeypatch,
+                         mock_app_config,  # noqa: F811
+                         mock_plugin_config,  # noqa: F811
+                         aiohttp_client):  # noqa: F811
+    test_client = await _setup(monkeypatch, mock_app_config, mock_plugin_config,
+                               aiohttp_client)
 
-    loop.run_until_complete(call_get_mock_event(test_client))
-    loop.run_until_complete(call_get_mock_event_cors_allowed(test_client))
-    loop.run_until_complete(call_get_mock_event_cors_unknown(test_client))
-    loop.run_until_complete(call_get_mock_event_special_case(test_client))
-    loop.run_until_complete(call_post_invalid_payload(test_client))
-    loop.run_until_complete(call_post_mock_collector(test_client))
-    loop.run_until_complete(call_get_mock_timeout_ok(test_client))
-    loop.run_until_complete(call_get_mock_timeout_exceeded(test_client))
-    loop.run_until_complete(call_get_fail_request(test_client))
-    loop.run_until_complete(call_get_mock_spawn_event(test_client))
-    loop.run_until_complete(call_post_mock_event(test_client))
-    loop.run_until_complete(call_multipart_mock_event(test_client))
-    loop.run_until_complete(call_multipart_mock_event_plain_text_json(test_client))
-    loop.run_until_complete(call_multipart_mock_event_bad_request(test_client))
-    loop.run_until_complete(call_post_nopayload(test_client))
-    loop.run_until_complete(call_post_fail_request(test_client))
-    loop.run_until_complete(call_get_file_response(test_client))
-    loop.run_until_complete(call_get_mock_auth_event(test_client))
-    loop.run_until_complete(call_get_mock_auth_event_malformed_authorization(test_client))
-    loop.run_until_complete(call_get_mock_auth_event_unauthorized(test_client))
-    loop.run_until_complete(call_post_mock_auth_event(test_client))
-    loop.run_until_complete(call_post_mock_auth_event_unauthorized(test_client))
-    loop.run_until_complete(call_get_plugin_event_on_app(test_client))
-    loop.run_until_complete(call_start_stream(test_client))
-    loop.run_until_complete(call_stop_stream(test_client))
-    loop.run_until_complete(call_start_service(test_client))
-    loop.run_until_complete(call_stop_service(test_client))
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    logger.addHandler(ch)
 
-    loop.run_until_complete(stop_server())
+    test_list = [
+        call_get_mock_event,
+        call_get_mock_event_cors_allowed,
+        call_get_mock_event_cors_unknown,
+        call_get_mock_event_special_case,
+        call_post_invalid_payload,
+        call_post_mock_collector,
+        call_get_mock_timeout_ok,
+        call_get_mock_timeout_exceeded,
+        call_get_fail_request,
+        call_get_mock_spawn_event,
+        call_post_mock_event,
+        call_multipart_mock_event,
+        call_multipart_mock_event_plain_text_json,
+        call_multipart_mock_event_bad_request,
+        call_post_nopayload,
+        call_post_fail_request,
+        call_get_file_response,
+        call_get_mock_auth_event,
+        call_get_mock_auth_event_malformed_authorization,
+        call_get_mock_auth_event_unauthorized,
+        call_post_mock_auth_event,
+        call_post_mock_auth_event_unauthorized,
+        call_get_plugin_event_on_app,
+        call_start_stream,
+        call_stop_stream,
+        call_start_service,
+        call_stop_service,
+    ]
+
+    for test_func in test_list:
+        logger.debug("=" * 120)
+        logger.debug("Running web test %s...", test_func)
+        await test_func(test_client)
+
+    await stop_server()
 
 
 @pytest.mark.order(2)
-def test_start_streams_on_startup(monkeypatch,
-                                  loop,
-                                  mock_app_config,  # noqa: F811
-                                  mock_plugin_config,  # noqa: F811
-                                  aiohttp_server,  # noqa: F811
-                                  aiohttp_client):  # noqa: F811
-    test_client = _setup(monkeypatch, loop, mock_app_config, mock_plugin_config,
-                         aiohttp_server, aiohttp_client, streams=True)
-    loop.run_until_complete(call_stop_stream(test_client))
-    loop.run_until_complete(call_stop_service(test_client))
-    loop.run_until_complete(stop_server())
+@pytest.mark.asyncio
+async def test_start_streams_on_startup(monkeypatch,
+                                        mock_app_config,  # noqa: F811
+                                        mock_plugin_config,  # noqa: F811
+                                        aiohttp_client):  # noqa: F811
+    test_client = await _setup(monkeypatch, mock_app_config, mock_plugin_config,
+                               aiohttp_client, streams=True)
+    await call_stop_stream(test_client)
+    await call_stop_service(test_client)
+    await stop_server()

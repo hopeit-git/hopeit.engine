@@ -101,15 +101,15 @@ class AppEngine:
         :return: EventPayload, result from executing the event
         :raise: TimeoutException in case configured timeout is exceeded before getting the result
         """
-        assert self.event_handler is not None, "event_handler not created. Call `start()`."
-        timeout = context.settings.response_timeout
         try:
             return await asyncio.wait_for(
                 self._execute_event(context, query_args, payload),
-                timeout=timeout
+                timeout=context.settings.response_timeout
             )
         except asyncio.TimeoutError as e:
-            raise TimeoutError(f"Response timeout exceeded seconds={timeout}") from e
+            raise asyncio.TimeoutError(
+                f"Response timeout exceeded seconds={context.settings.response_timeout}"
+            ) from e
 
     async def _execute_event(self, context: EventContext,
                              query_args: Optional[dict],
@@ -227,16 +227,17 @@ class AppEngine:
         :return: result of _process_stream_event
         :raise: TimeoutError in case the event is not processed on the configured timeout
         """
-        timeout = context.settings.stream.timeout
         try:
             return await asyncio.wait_for(
                 self._process_stream_event(stream_event=stream_event, stream_info=stream_info,
                                            stream_name=stream_name, queue=queue,
                                            context=context, stats=stats, log_info=log_info),
-                timeout=timeout
+                timeout=context.settings.stream.timeout
             )
         except asyncio.TimeoutError:
-            terr = TimeoutError(f'Stream processing timeout exceeded seconds={timeout}')
+            terr = asyncio.TimeoutError(
+                f'Stream processing timeout exceeded seconds={context.settings.stream.timeout}'
+            )
             logger.error(context, str(terr), extra=extra(
                 prefix='stream.', **{**log_info, 'name': stream_name, 'queue': queue}
             ))

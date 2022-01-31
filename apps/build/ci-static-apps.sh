@@ -2,9 +2,7 @@ echo "========================"
 echo "CI STATIC ANALYSIS: APPS"
 echo "========================"
 
-mypy --install-types
 code=0
-
 echo "apps/simple-example"
 export MYPYPATH=engine/src/:plugins/storage/fs/src:engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/ && python3 -m mypy --namespace-packages -p common -p model -p simple_example
 code+=$?
