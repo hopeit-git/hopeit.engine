@@ -27,7 +27,7 @@ async def test_it_download_something_streamed(app_config):
         'Content-Length': '52428800',
     }
     assert response.stream_response.resp.data == ''.join([
-        f"{i}" * 1024 * 1024
-        for i in range(50)
+        "x" * 1024 * 1024
+        for _ in range(50)
     ]).encode()
     assert response.content_type == 'application/octet-stream'

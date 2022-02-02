@@ -14,26 +14,26 @@ __steps__ = ['get_streamed_data']
 
 
 @dataclass
-class RandomFile(BinaryDownload):
+class SomeFile(BinaryDownload):
     file_name: str
 
 
 __api__ = event_api(
     query_args=[("file_name", str, "expected return file name")],
     responses={
-        200: (RandomFile, "Return random content with filename=`file_name`")
+        200: (SomeFile, "Return content with filename=`file_name`")
     }
 )
 
 
-async def get_streamed_data(payload: None, context: EventContext, *, file_name: str) -> RandomFile:
+async def get_streamed_data(payload: None, context: EventContext, *, file_name: str) -> SomeFile:
     """
     Prepare output file name to be streamd
     """
-    return RandomFile(file_name=file_name)
+    return SomeFile(file_name=file_name)
 
 
-async def __postprocess__(file: RandomFile, context: EventContext, response: PostprocessHook) -> RandomFile:
+async def __postprocess__(file: SomeFile, context: EventContext, response: PostprocessHook) -> SomeFile:
     """
     Stream 50 MB of binary content:
     """
