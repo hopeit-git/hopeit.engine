@@ -1,7 +1,7 @@
 """
 Simple Example: Download Something Streamed
 -------------------------------------------
-Download streamd randomly created content as file.
+Download streamd created content as file.
 The PostprocessHook return the requested resource as stream using `prepare_stream_response`.
 """
 from dataclasses import dataclass
@@ -35,10 +35,10 @@ async def get_streamed_data(payload: None, context: EventContext, *, file_name: 
 
 async def __postprocess__(file: RandomFile, context: EventContext, response: PostprocessHook) -> RandomFile:
     """
-    Stream 50 MB of binary random content:
+    Stream 50 MB of binary content:
     """
     file_size = 1024 * 1024 * 50
-    stream = await response.prepare_stream_response(
+    stream_response = await response.prepare_stream_response(
         context,
         content_disposition=f'attachment; filename="{file.file_name}"',
         content_type=file.content_type,
@@ -46,5 +46,5 @@ async def __postprocess__(file: RandomFile, context: EventContext, response: Pos
     )
 
     for i in range(50):
-        await stream.write(f"{i}".encode() * (1024 * 1024))
+        await stream_response.write(f"{i}".encode() * (1024 * 1024))
     return file

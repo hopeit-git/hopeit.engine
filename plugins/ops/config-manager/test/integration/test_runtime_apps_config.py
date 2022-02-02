@@ -19,7 +19,6 @@ async def test_runtime_apps_config(monkeypatch, runtime_apps_response):
 
     plugin_config = config('plugins/ops/config-manager/config/plugin-config.json')
     result = await execute_event(app_config=plugin_config, event_name="runtime_apps_config", payload=None)
-    print(result.to_json(indent=2))
     assert result == runtime_apps_response
 
 
