@@ -550,7 +550,7 @@ async def test_read_stream_timeout_fail(monkeypatch, mock_app_config, mock_plugi
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
     monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
     res = await engine.read_stream(event_name='mock_stream_timeout', test_mode=True)
-    assert isinstance(res, asyncio.TimeoutError)
+    assert isinstance(res, asyncio.TimeoutError) or isinstance(res, asyncio.CancelledError)
     await engine.stop()
 
 
