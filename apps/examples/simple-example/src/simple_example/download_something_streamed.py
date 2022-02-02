@@ -37,14 +37,15 @@ async def __postprocess__(file: RandomFile, context: EventContext, response: Pos
     """
     Stream 50 MB of binary content:
     """
-    file_size = 1024 * 1024 * 50
+    line = ("x" * 1024 * 1024).encode()
+    response_length = 50 * len(line)
     stream_response = await response.prepare_stream_response(
         context,
         content_disposition=f'attachment; filename="{file.file_name}"',
         content_type=file.content_type,
-        content_length=file_size
+        content_length=response_length
     )
 
-    for i in range(50):
-        await stream_response.write(f"{i}".encode() * (1024 * 1024))
+    for _ in range(50):
+        await stream_response.write(line)
     return file

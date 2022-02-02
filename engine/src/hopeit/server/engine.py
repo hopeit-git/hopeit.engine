@@ -234,7 +234,7 @@ class AppEngine:
                                            context=context, stats=stats, log_info=log_info),
                 timeout=context.settings.stream.timeout
             )
-        except asyncio.TimeoutError:
+        except (asyncio.TimeoutError, asyncio.CancelledError):
             terr = asyncio.TimeoutError(
                 f'Stream processing timeout exceeded seconds={context.settings.stream.timeout}'
             )
@@ -438,13 +438,13 @@ class AppEngine:
             logger.error(context, 'Cancelled', extra=extra(prefix='stream.', **extra_info))
             logger.failed(context, extra=extra(prefix='stream.', **extra_info))
             stats.inc(error=True)
-            raise e
+            return e
         except Exception as e:  # pylint: disable=broad-except
             extra_info = {**log_info, 'name': stream_name, 'queue': queue}
             logger.error(context, e, extra=extra(prefix='stream.', **extra_info))
             logger.failed(context, extra=extra(prefix='stream.', **extra_info))
             stats.inc(error=True)
-            raise e
+            return e
 
     def _service_event_context(self, event_name: str, event_settings: EventSettings,
                                previous_context: Optional[EventContext] = None):

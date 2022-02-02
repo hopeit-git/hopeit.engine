@@ -61,6 +61,8 @@ class MockEventHandler(EventHandler):
         assert payload == MockEventHandler.input_payload
         if isinstance(payload, MockData) and payload.value == 'fail':  # type: ignore
             raise ValueError("Test for error")
+        if isinstance(payload, MockData) and payload.value == 'cancel':  # type: ignore
+            raise asyncio.CancelledError("Test for cancellation")
         if isinstance(payload, MockData) and payload.value == 'timeout':  # type: ignore
             await asyncio.sleep(5.0)
         yield MockEventHandler.expected_result
