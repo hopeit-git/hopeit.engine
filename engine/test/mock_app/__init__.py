@@ -183,6 +183,9 @@ def mock_app_config():
             "mock_file_response": EventDescriptor(
                 type=EventType.GET
             ),
+            "mock_stream_response": EventDescriptor(
+                type=EventType.GET
+            ),
             "mock_file_response_content_type": EventDescriptor(
                 type=EventType.GET
             ),

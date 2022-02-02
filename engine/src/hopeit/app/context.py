@@ -6,9 +6,11 @@ from typing import AsyncGenerator, AsyncIterator, Callable, Generic, TypeVar, \
 from abc import ABC
 from pathlib import Path
 from datetime import datetime, timezone
+import re
 
-from multidict import CIMultiDict, CIMultiDictProxy, istr
-
+from aiohttp import web
+from multidict import MultiDict, CIMultiDict, CIMultiDictProxy, istr
+from stringcase import titlecase  # type: ignore
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventSettings, EventType
 
@@ -67,6 +69,56 @@ class EventContext:
             self.track_ids['event.plugin'] = self.plugin_key
 
 
+class PostprocessStreamResponseHook():
+    """
+    Post process stream response hook
+
+    Useful to stream content and avoid memory overhead.
+    """
+    def __init__(self, content_disposition: str, content_type: str, content_length: int):
+        self.headers = MultiDict({
+            "Content-Disposition": content_disposition,
+            "Content-Type": content_type,
+        })
+        self.resp = web.StreamResponse(headers=self.headers)
+        self.resp.content_type = content_type
+        self.resp.content_length = content_length
+
+    async def prepare(self, request: web.Request):
+        await self.resp.prepare(request)
+
+    async def write(self, data: bytes):
+        await self.resp.write(data)
+
+
+class TestingResp:
+    def __init__(self):
+        self.headers = MultiDict()
+        self.data: bytes = b''
+
+
+class PostprocessTestingStreamResponseHook(PostprocessStreamResponseHook):
+    """
+    Post process stream response hook
+
+    Useful to stream content and avoid memory overhead.
+    """
+    def __init__(self, content_disposition: str, content_type: str, content_length: int):
+        super().__init__(content_disposition, content_type, content_length)
+        self.resp: TestingResp = TestingResp()  # type: ignore
+        self.headers = MultiDict({
+            "Content-Disposition": content_disposition,
+            "Content-Type": content_type,
+            "Content-Length": str(content_length),
+        })
+
+    async def prepare(self, request):
+        self.resp.data = b''
+
+    async def write(self, data: bytes):
+        self.resp.data += data
+
+
 class PostprocessHook():
     """
     Post process hook that keeps additional changes to add to response on
@@ -74,13 +126,38 @@ class PostprocessHook():
 
     Useful to set cookies, change status and set additional headers in web responses.
     """
-    def __init__(self):
+    def __init__(self, request: Optional[web.BaseRequest] = None):
         self.headers: Dict[str, str] = {}
         self.cookies: Dict[str, Tuple[str, tuple, dict]] = {}
         self.del_cookies: List[Tuple[str, tuple, dict]] = []
         self.status: Optional[int] = None
         self.file_response: Optional[Union[str, Path]] = None
+        self.stream_response: Optional[PostprocessStreamResponseHook] = None
         self.content_type: str = "application/json"
+        self.request = request
+
+    async def prepare_stream_response(
+        self, context: EventContext, content_disposition: str, content_type: str, content_length: int
+    ):
+        """
+        Prepare stream response allow to send file like objects as stream response.
+        """
+        if self.request:
+            self.stream_response = PostprocessStreamResponseHook(content_disposition, content_type, content_length)
+        else:
+            self.stream_response = PostprocessTestingStreamResponseHook(content_disposition,
+                                                                        content_type, content_length)
+        self.headers.update(
+            self.stream_response.headers
+        )
+        self.stream_response.resp.headers.update({
+            **self.headers,
+            **{f"X-{re.sub(' ', '-', titlecase(k))}": v for k, v in context.track_ids.items()}
+        })
+        self.content_type = self.stream_response.headers["Content-Type"]
+
+        await self.stream_response.prepare(self.request)  # type: ignore
+        return self.stream_response
 
     def set_header(self, name: str, value: Any):
         self.headers[name] = value
@@ -163,12 +240,40 @@ class PreprocessFileHook(Generic[_BodyPartReader]):
         self.data = data
         self.size = 0
 
-    async def read_chunks(self, *, chunk_size: int) -> AsyncGenerator[bytes, None]:
+    async def _read_chunk(self, *, chunk_size: int) -> bytes:
         chunk = await self.data.read_chunk(size=chunk_size)
+        self.size += len(chunk)
+        return chunk
+
+    async def read(self, chunk_size: int = -1) -> bytes:
+        """
+        File like object read function
+
+        :param chunk_size: Size in bytes of each chunk.
+            If chunk_size > 0 read will return a part of upcoming file of chunk_size size
+            If chunk_size = -1 read will return the full upcoming file
+            If chunk_size = 0 read will return empty bytes
+        :return bytes
+        """
+        if chunk_size > 0:
+            return await self._read_chunk(chunk_size=chunk_size)
+        if chunk_size == -1:
+            content = b""
+            async for chunk in self.read_chunks(chunk_size=chunk_size):
+                content += chunk
+            return content
+        return b""
+
+    async def read_chunks(self, *, chunk_size: int) -> AsyncGenerator[bytes, None]:
+        """
+        Returns from multipart requests a file in chunks as generator:
+
+        :param chunk_size: Size in bytes of each chunk
+        """
+        chunk = await self._read_chunk(chunk_size=chunk_size)
         while chunk:
-            self.size += len(chunk)
             yield chunk
-            chunk = await self.data.read_chunk(size=chunk_size)
+            chunk = await self._read_chunk(chunk_size=chunk_size)
 
 
 class PreprocessHeaders:

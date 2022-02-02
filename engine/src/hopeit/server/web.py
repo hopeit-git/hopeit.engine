@@ -60,7 +60,7 @@ __all__ = ['parse_args',
 logger: EngineLoggerWrapper = logging.getLogger(__name__)  # type: ignore
 extra = extra_logger()
 
-ResponseType = Union[web.Response, web.FileResponse]
+ResponseType = Union[web.Response, web.FileResponse, web.StreamResponse]
 
 # server = Server()
 web_server = web.Application()
@@ -330,8 +330,7 @@ def _create_event_management_routes(
     ]
 
 
-def _response(*, track_ids: Dict[str, str], key: str,
-              payload: EventPayload, hook: PostprocessHook) -> ResponseType:
+def _response(*, track_ids: Dict[str, str], key: str, payload: EventPayload, hook: PostprocessHook) -> ResponseType:
     """
     Creates a web response object from a given payload (body), header track ids
     and applies a postprocess hook
@@ -346,6 +345,8 @@ def _response(*, track_ids: Dict[str, str], key: str,
             path=hook.file_response,
             headers={'Content-Type': hook.content_type, **headers}
         )
+    elif hook.stream_response is not None:
+        response = hook.stream_response.resp
     else:
         serializer: Callable[..., str] = CONTENT_TYPE_BODY_SER.get(
             hook.content_type, _text_response
@@ -509,11 +510,12 @@ async def _request_execute(
         context: EventContext,
         query_args: Dict[str, Any],
         payload: Optional[EventPayloadType],
-        preprocess_hook: PreprocessHook) -> ResponseType:
+        preprocess_hook: PreprocessHook,
+        request: web.Request) -> ResponseType:
     """
     Executes request using engine event handler
     """
-    response_hook = PostprocessHook()
+    response_hook = PostprocessHook(request)
     result = await app_engine.preprocess(
         context=context, query_args=query_args, payload=payload, request=preprocess_hook)
     if (preprocess_hook.status is None) or (preprocess_hook.status == 200):
@@ -571,7 +573,7 @@ async def _handle_post_invocation(
         payload = await _request_process_payload(context, datatype, request)
         hook: PreprocessHook[NoopMultiparReader] = PreprocessHook(headers=request.headers)
         return await _request_execute(
-            impl, event_name, context, query_args, payload, preprocess_hook=hook
+            impl, event_name, context, query_args, payload, preprocess_hook=hook, request=request
         )
     except Unauthorized as e:
         return _ignored_response(context, 401, e)
@@ -603,7 +605,8 @@ async def _handle_get_invocation(
         return await _request_execute(
             impl, event_name, context,
             query_args, payload=payload,
-            preprocess_hook=hook
+            preprocess_hook=hook,
+            request=request
         )
     except Unauthorized as e:
         return _ignored_response(context, 401, e)
@@ -635,7 +638,8 @@ async def _handle_multipart_invocation(
         return await _request_execute(
             impl, event_name, context,
             query_args, payload=None,
-            preprocess_hook=hook
+            preprocess_hook=hook,
+            request=request
         )
     except Unauthorized as e:
         return _ignored_response(context, 401, e)

@@ -73,6 +73,10 @@
     "download_something": {
       "type": "GET"
     },
+    "download_something_streamed": {
+      "type": "GET",
+      "auth" : ["Unsecured"]
+    },
     "upload_something": {
       "type": "MULTIPART"
     },

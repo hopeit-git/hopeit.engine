@@ -6,7 +6,7 @@
     "description": "Simple Benchmark App"
   },
   "paths": {
-    "/api/simple-benchmark/0x13/give-me-something": {
+    "/api/simple-benchmark/0x14/give-me-something": {
       "get": {
         "summary": "Simple Benchamrck: Give me Something",
         "description": "Loads Something from disk",
@@ -53,11 +53,11 @@
           }
         },
         "tags": [
-          "simple_benchmark.0x13"
+          "simple_benchmark.0x14"
         ]
       }
     },
-    "/api/simple-benchmark/0x13/query-something-fs": {
+    "/api/simple-benchmark/0x14/query-something-fs": {
       "get": {
         "summary": "Simple Benchamrck: Query Something",
         "description": "Loads Something from disk",
@@ -114,11 +114,11 @@
           }
         },
         "tags": [
-          "simple_benchmark.0x13"
+          "simple_benchmark.0x14"
         ]
       }
     },
-    "/api/simple-benchmark/0x13/save-something-fs": {
+    "/api/simple-benchmark/0x14/save-something-fs": {
       "post": {
         "summary": "Simple Benchmark: Save Something",
         "description": "Creates and saves Something",
@@ -176,11 +176,11 @@
           }
         },
         "tags": [
-          "simple_benchmark.0x13"
+          "simple_benchmark.0x14"
         ]
       }
     },
-    "/api/simple-benchmark/0x13/query-something-redis": {
+    "/api/simple-benchmark/0x14/query-something-redis": {
       "get": {
         "summary": "Simple Benchamrck: Query Something",
         "description": "Loads Something from disk",
@@ -237,11 +237,11 @@
           }
         },
         "tags": [
-          "simple_benchmark.0x13"
+          "simple_benchmark.0x14"
         ]
       }
     },
-    "/api/simple-benchmark/0x13/save-something-redis": {
+    "/api/simple-benchmark/0x14/save-something-redis": {
       "post": {
         "summary": "Simple Benchmark: Save Something",
         "description": "Creates and saves Something",
@@ -299,7 +299,7 @@
           }
         },
         "tags": [
-          "simple_benchmark.0x13"
+          "simple_benchmark.0x14"
         ]
       }
     }

@@ -125,6 +125,20 @@
     },
     "classes": "EVENT"
   },
+  "simple_example.${APPS_ROUTE_VERSION}.download_something_streamed.GET": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.download_something_streamed.GET",
+      "content": "GET"
+    },
+    "classes": "REQUEST"
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.download_something_streamed": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.download_something_streamed",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\ndownload_something_streamed"
+    },
+    "classes": "EVENT"
+  },
   "simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART": {
     "data": {
       "id": "simple_example.${APPS_ROUTE_VERSION}.upload_something.MULTIPART",
@@ -376,6 +390,14 @@
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.download_something.GET",
       "source": "simple_example.${APPS_ROUTE_VERSION}.download_something.GET",
       "target": "simple_example.${APPS_ROUTE_VERSION}.download_something",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.download_something_streamed.GET": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.download_something_streamed.GET",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.download_something_streamed.GET",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.download_something_streamed",
       "label": ""
     }
   },

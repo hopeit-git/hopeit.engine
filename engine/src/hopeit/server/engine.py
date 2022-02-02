@@ -234,7 +234,7 @@ class AppEngine:
                                            context=context, stats=stats, log_info=log_info),
                 timeout=context.settings.stream.timeout
             )
-        except asyncio.TimeoutError:
+        except (asyncio.TimeoutError, asyncio.CancelledError):
             terr = asyncio.TimeoutError(
                 f'Stream processing timeout exceeded seconds={context.settings.stream.timeout}'
             )

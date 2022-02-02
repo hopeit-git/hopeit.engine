@@ -22,7 +22,7 @@ async def test_it_download_something(app_config):
     assert result.file_name == file_name
     assert pp_result == f"File {file_name}"
     assert response.headers == {
-        'Content-Disposition': f'attachment; filename={file_name}'
+        'Content-Disposition': f'attachment; filename="{file_name}"'
     }
     assert response.file_response == (
         f"/tmp/simple_example.{APP_VERSION}.fs.data_path/{file_name}"

@@ -540,7 +540,6 @@ async def test_read_stream_timeout_ok(monkeypatch, mock_app_config, mock_plugin_
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_stream_timeout_fail(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
     payload = MockData("timeout")
     expected = MockResult("none")
@@ -551,8 +550,42 @@ async def test_read_stream_timeout_fail(monkeypatch, mock_app_config, mock_plugi
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
     monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
     res = await engine.read_stream(event_name='mock_stream_timeout', test_mode=True)
-    # Result could be TimeoutError ot CancelledError depending on execution environment
     assert isinstance(res, asyncio.TimeoutError) or isinstance(res, asyncio.CancelledError)
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_stream_event_fail_and_process_next(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
+    setup_mocks(monkeypatch)
+
+    payload = MockData("cancel")
+    expected = MockResult("none")
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_stream_timeout', test_mode=True)
+    assert isinstance(res, asyncio.CancelledError)
+
+    payload = MockData("fail")
+    expected = MockResult("none")
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_stream_timeout', test_mode=True)
+    assert isinstance(res, ValueError)
+
+    payload = MockData("ok")
+    expected = MockResult("ok: ok")
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    res = await engine.read_stream(event_name='mock_stream_timeout', test_mode=True)
+    assert res == expected
+
     await engine.stop()
 
 
@@ -581,8 +614,10 @@ async def test_read_stream_failed(monkeypatch, mock_app_config, mock_plugin_conf
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
     monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
-    res = await engine.read_stream(event_name='mock_stream_event', test_mode=True)
-    assert isinstance(res, ValueError)
+    try:
+        await engine.read_stream(event_name='mock_stream_event', test_mode=True)
+    except Exception as e:
+        assert isinstance(e, ValueError)
     await engine.stop()
 
 
