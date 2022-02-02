@@ -7,7 +7,6 @@ from hopeit.testing.hooks import MockMultipartReader, MockFileHook
 
 
 class MockData:
-
     def __init__(self):
         self.chunks = [b'testdata'] * 4
 
@@ -40,7 +39,7 @@ async def test_preprocess_file_hook_read_chunked():
 
 
 @pytest.mark.asyncio
-async def test_preprocess_file_hook_read_ones():
+async def test_preprocess_file_hook_read_once():
     attachment_data = b'testdatatestdatatestdatatestdata'
     reader = MockData()
     hook = PreprocessFileHook(name="test_name", file_name="test_file_name", data=reader)

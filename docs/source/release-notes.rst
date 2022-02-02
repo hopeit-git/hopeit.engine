@@ -4,6 +4,8 @@ Release Notes
 Version 0.14.0
 ______________
  - Support for web.StreamResponse
+ - Added read() method to PreprocessFileHook to be used by libraries reading the file in chunks. 
+ (Support is limited to read binary mode).
 
 
 Version 0.13.0
