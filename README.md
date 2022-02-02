@@ -204,7 +204,17 @@ If an external request triggers a process that requires background tasks to run,
 
 ## Current status and roadmap
 
-- **JULY 2021:**: `hopeit.apps_client` plugin was created and `hopeit.engine` `0.9.0` released. This plugin allows invoking
+The framework is stable and running in production by early adopters with no major issues. 
+It's also being tested and used in new projects. Now we are focusing in bug-fixing,
+complete requested new features and optimize small pieces of the software.
+
+- **JANUARY 2022**: `hopeit.engine` `0.13.0` ensures support for Python 3.10 and updates `aiohttp` to latest version. 
+`0.14.0` adds support to return `web.StreamResponse` in chunks. 
+
+- **AUGUST 2021**: `hopeit.engine` in `0.11.0` apps configuration is simplified by adding a `settings` section. General
+improvements in engine steps execution. `0.12.0` updates components and fixes dataobject issues.
+
+- **JULY 2021**: `hopeit.apps_client` plugin was created and `hopeit.engine` `0.9.0` released and improved in `0.10.0`. This plugin allows invoking
 GET/POST endpoints on other hopeit Apps, supporting common microservices patterns as retrying and circuit breaking.
 `hopeit.apps_visualizer` plugin now allows live monitoring of services activity on multiple servers since `0.7.0`, it was enhanced with
 live monitoring and interactive filters of apps and hosts in `0.8.0` and from `0.9.0` it can be
@@ -220,13 +230,6 @@ used to visualize app dependencies either through streams or configured `app_con
 
 - **JULY 2020**: `hopeit.engine` version 0.1.0 is released as Open Source in github!
     
-- We are still working on improving documentation and tutorials.
-
-- Early adopters are implementing solutions in small organizations using hopeit.engine. We are continuously gathering feedback and making the engine more stable and easy to use as we learn from real use case scenarios.
-
-- Our next objective is to create more learning material to allow software professionals to learn on Microservices development using *hopeit.engine* to enable this. Tutorials are already available as part of [documentation](https://hopeitengine.readthedocs.io/en/latest/tutorials/index.html)
-
-
 ## More info
 
 Please check the [docs](https://hopeitengine.readthedocs.io/en/latest/index.html).
