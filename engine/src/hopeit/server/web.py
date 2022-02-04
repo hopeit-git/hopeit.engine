@@ -3,6 +3,7 @@ Webserver module based on aiohttp to handle web/api requests
 """
 # flake8: noqa
 # pylint: disable=wrong-import-position, wrong-import-order
+from collections import namedtuple
 import aiohttp
 
 setattr(aiohttp.http, 'SERVER_SOFTWARE', '')
@@ -52,9 +53,10 @@ from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
 
 __all__ = ['parse_args',
-           'main',
            'start_server',
-           'start_app',
+           'server_startup_hook'
+           'app_startup_hook',
+           'streams_startup_hook',
            'stop_server']
 
 logger: EngineLoggerWrapper = logging.getLogger(__name__)  # type: ignore
@@ -65,20 +67,15 @@ ResponseType = Union[web.Response, web.FileResponse, web.StreamResponse]
 # server = Server()
 web_server = web.Application()
 auth_info_default = {}
-server_task: Optional[asyncio.Task] = None
-apps_tasks: List[asyncio.Task] = []
 
 
-def main(host: Optional[str], port: Optional[int], path: Optional[str], start_streams: bool,
-         config_files: List[str], api_file: Optional[str]):
-    global server_task, apps_tasks
-
+def start_server(config_files: List[str], api_file: Optional[str], start_streams: bool):
     logger.info("Loading engine config file=%s...", config_files[0])  # type: ignore
     server_config = _load_engine_config(config_files[0])
-    
+
     # Add startup hook to start engine
-    server_task = web_server.on_startup.append(
-        partial(_server_startup_hook, server_config)
+    web_server.on_startup.append(
+        partial(server_startup_hook, server_config)
     )
     if server_config.auth.domain:
         auth_info_default['domain'] = server_config.auth.domain
@@ -97,22 +94,19 @@ def main(host: Optional[str], port: Optional[int], path: Optional[str], start_st
     api.register_apps(apps_config)
     api.enable_swagger(server_config, web_server)
     for config in apps_config:
-        task = web_server.on_startup.append(
-            partial(_app_startup_hook, config)
+        web_server.on_startup.append(
+            partial(app_startup_hook, config)
         )
-        apps_tasks.append(task)
 
-    # Add hooks to start streams and service 
+    # Add hooks to start streams and service
     if start_streams:
         for config in apps_config:
             web_server.on_startup.append(
-                partial(_stream_startup_hook, config)
+                partial(stream_startup_hook, config)
             )
 
     logger.debug(__name__, "Performing forced garbage collection...")
     gc.collect()
-
-    web.run_app(web_server, path=path, port=port, host=host)
 
 
 def init_logger():
@@ -120,7 +114,7 @@ def init_logger():
     logger = engine_logger()
 
 
-async def _server_startup_hook(config: ServerConfig, *args, **kwargs):
+async def server_startup_hook(config: ServerConfig, *args, **kwargs):
     """
     Start engine engine
     """
@@ -136,7 +130,7 @@ async def stop_server():
     web_server = web.Application()
 
 
-async def _app_startup_hook(config: AppConfig, *args, **kwargs):
+async def app_startup_hook(config: AppConfig, *args, **kwargs):
     """
     Start Hopeit app specified by config
 
@@ -161,7 +155,7 @@ async def _app_startup_hook(config: AppConfig, *args, **kwargs):
         _enable_cors(route_name('api', app.name, app.version), cors_origin)
 
 
-async def _stream_startup_hook(app_config: AppConfig, *args, **kwargs):
+async def stream_startup_hook(app_config: AppConfig, *args, **kwargs):
     """
     Start all stream event types configured in app.
 
@@ -694,6 +688,8 @@ async def _handle_stream_start_invocation(
     in the background.
     """
     assert request
+    if app_engine.is_running(event_name):
+        return web.Response(status=500, body=f"Stream already running: {event_name}")
     asyncio.create_task(app_engine.read_stream(event_name=event_name))
     return web.Response()
 
@@ -708,6 +704,8 @@ async def _handle_service_start_invocation(
     generator in the background
     """
     assert request
+    if app_engine.is_running(event_name):
+        return web.Response(status=500, body=f"Service already running: {event_name}")
     asyncio.create_task(app_engine.service_loop(event_name=event_name))
     return web.Response()
 
@@ -720,10 +718,13 @@ async def _handle_event_stop_invocation(
     Signals engine for stopping an event.
     Used to stop reading stream processing events.
     """
-    assert request
-    await app_engine.stop_event(event_name)
-    logger.info(__name__, f"Event stop signaled event_name={event_name}...")
-    return web.Response()
+    try:
+        assert request
+        await app_engine.stop_event(event_name)
+        logger.info(__name__, f"Event stop signaled event_name={event_name}...")
+        return web.Response()
+    except RuntimeError as e:
+        return web.Response(status=500, body=str(e))
 
 
 def parse_args(args) -> Tuple[Optional[str], Optional[int], Optional[str], bool, List[str], Optional[str]]:
@@ -756,10 +757,18 @@ def parse_args(args) -> Tuple[Optional[str], Optional[int], Optional[str], bool,
     port = int(parsed_args.port) if parsed_args.port else 8020 if parsed_args.path is None else None
     config_files = parsed_args.config_files.split(',')
 
-    return parsed_args.host, port, parsed_args.path, bool(parsed_args.start_streams), \
-        config_files, parsed_args.api_file
+    ParsedArgs = namedtuple("ParsedArgs", ["host", "port", "path", "start_streams", "config_files", "api_file"])
+    return ParsedArgs(
+        host=parsed_args.host,
+        port=port,
+        path=parsed_args.path,
+        start_streams=bool(parsed_args.start_streams),
+        config_files=config_files,
+        api_file=parsed_args.api_file
+    )
 
 
 if __name__ == "__main__":
     sys_args = parse_args(sys.argv[1:])
-    main(*sys_args)
+    start_server(sys_args.config_files, sys_args.api_file, sys_args.start_streams)
+    web.run_app(web_server, path=sys_args.path, port=sys_args.port, host=sys_args.host)
