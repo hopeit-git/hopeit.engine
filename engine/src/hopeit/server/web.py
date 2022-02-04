@@ -65,15 +65,18 @@ ResponseType = Union[web.Response, web.FileResponse, web.StreamResponse]
 # server = Server()
 web_server = web.Application()
 auth_info_default = {}
+server_task: Optional[asyncio.Task] = None
+apps_tasks: List[asyncio.Task] = []
 
 
 def main(host: Optional[str], port: Optional[int], path: Optional[str], start_streams: bool,
          config_files: List[str], api_file: Optional[str]):
-    loop = asyncio.get_event_loop()
+    global server_task, apps_tasks
 
     logger.info("Loading engine config file=%s...", config_files[0])  # type: ignore
     server_config = _load_engine_config(config_files[0])
-    loop.run_until_complete(start_server(server_config))
+    # loop.run_until_complete(start_server(server_config))
+    server_task = web_server.on_startup.append(partial(start_server, server_config))
     if server_config.auth.domain:
         auth_info_default['domain'] = server_config.auth.domain
     if api_file is not None:
@@ -90,10 +93,12 @@ def main(host: Optional[str], port: Optional[int], path: Optional[str], start_st
     api.register_apps(apps_config)
     api.enable_swagger(server_config, web_server)
     for config in apps_config:
-        loop.run_until_complete(start_app(config, start_streams))
+        task = web_server.on_startup.append(partial(start_app, config, start_streams))
+        apps_tasks.append(task)
 
     logger.debug(__name__, "Performing forced garbage collection...")
     gc.collect()
+
     web.run_app(web_server, path=path, port=port, host=host)
 
 
@@ -102,7 +107,7 @@ def init_logger():
     logger = engine_logger()
 
 
-async def start_server(config: ServerConfig):
+async def start_server(config: ServerConfig, *args, **kwargs):
     """
     Start engine engine
     """
@@ -118,7 +123,7 @@ async def stop_server():
     web_server = web.Application()
 
 
-async def start_app(config: AppConfig, start_streams: bool = False):
+async def start_app(config: AppConfig, start_streams: bool = False, *args, **kwargs):
     """
     Start Hopeit app specified by config
 
