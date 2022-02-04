@@ -489,7 +489,7 @@ async def start_test_server(
         mock_app_config, mock_plugin_config, streams=None):  # noqa: F811
     await start_server(mock_app_config.server)
     await start_app(mock_plugin_config)
-    await start_app(mock_app_config, start_streams=streams)
+    await start_app(mock_app_config)
     print('Test engine started.', hopeit.server.web.web_server)
     await asyncio.sleep(5)
 
