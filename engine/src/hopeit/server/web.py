@@ -75,8 +75,11 @@ def main(host: Optional[str], port: Optional[int], path: Optional[str], start_st
 
     logger.info("Loading engine config file=%s...", config_files[0])  # type: ignore
     server_config = _load_engine_config(config_files[0])
-    # loop.run_until_complete(start_server(server_config))
-    server_task = web_server.on_startup.append(partial(start_server, server_config))
+    
+    # Add startup hook to start engine
+    server_task = web_server.on_startup.append(
+        partial(_server_startup_hook, server_config)
+    )
     if server_config.auth.domain:
         auth_info_default['domain'] = server_config.auth.domain
     if api_file is not None:
@@ -90,11 +93,21 @@ def main(host: Optional[str], port: Optional[int], path: Optional[str], start_st
         config.server = server_config
         apps_config.append(config)
 
+    # Register and add startup hooks to start configured apps
     api.register_apps(apps_config)
     api.enable_swagger(server_config, web_server)
     for config in apps_config:
-        task = web_server.on_startup.append(partial(start_app, config, start_streams))
+        task = web_server.on_startup.append(
+            partial(_app_startup_hook, config)
+        )
         apps_tasks.append(task)
+
+    # Add hooks to start streams and service 
+    if start_streams:
+        for config in apps_config:
+            web_server.on_startup.append(
+                partial(_stream_startup_hook, config)
+            )
 
     logger.debug(__name__, "Performing forced garbage collection...")
     gc.collect()
@@ -107,7 +120,7 @@ def init_logger():
     logger = engine_logger()
 
 
-async def start_server(config: ServerConfig, *args, **kwargs):
+async def _server_startup_hook(config: ServerConfig, *args, **kwargs):
     """
     Start engine engine
     """
@@ -123,7 +136,7 @@ async def stop_server():
     web_server = web.Application()
 
 
-async def start_app(config: AppConfig, start_streams: bool = False, *args, **kwargs):
+async def _app_startup_hook(config: AppConfig, *args, **kwargs):
     """
     Start Hopeit app specified by config
 
@@ -146,8 +159,25 @@ async def start_app(config: AppConfig, start_streams: bool = False, *args, **kwa
     if cors_origin:
         app = app_engine.app_config.app
         _enable_cors(route_name('api', app.name, app.version), cors_origin)
-    if start_streams:
-        _start_streams(app_engine)
+
+
+async def _stream_startup_hook(app_config: AppConfig, *args, **kwargs):
+    """
+    Start all stream event types configured in app.
+
+    :param app_key: already started app_key
+    """
+    app_engine = runtime.server.app_engines[app_config.app_key()]
+    for event_name, event_info in app_engine.effective_events.items():
+        if event_info.type == EventType.STREAM:
+            assert event_info.read_stream
+            logger.info(
+                __name__, f"STREAM start event_name={event_name} read_stream={event_info.read_stream.name}")
+            asyncio.create_task(app_engine.read_stream(event_name=event_name))
+        elif event_info.type == EventType.SERVICE:
+            logger.info(
+                __name__, f"SERVICE start event_name={event_name}")
+            asyncio.create_task(app_engine.service_loop(event_name=event_name))
 
 
 def _effective_events(app_engine: AppEngine, plugin: Optional[AppEngine] = None):
@@ -652,24 +682,6 @@ async def _handle_multipart_invocation(
         return _ignored_response(context, 400, e)
     except Exception as e:  # pylint: disable=broad-except
         return _failed_response(context, e)
-
-def _start_streams(app_engine: AppEngine):
-    """
-    Start all stream event types configured in app.
-
-    :param app_engine: already started instance of AppEngine
-    """
-    for event_name, event_info in app_engine.effective_events.items():
-        if event_info.type == EventType.STREAM:
-            assert event_info.read_stream
-            logger.info(
-                __name__, f"STREAM start event_name={event_name} read_stream={event_info.read_stream.name}")
-            asyncio.create_task(app_engine.read_stream(event_name=event_name))
-        elif event_info.type == EventType.SERVICE:
-            logger.info(
-                __name__, f"SERVICE start event_name={event_name}")
-            asyncio.create_task(app_engine.service_loop(event_name=event_name))
-
 
 
 async def _handle_stream_start_invocation(
