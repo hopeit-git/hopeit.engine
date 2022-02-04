@@ -11,7 +11,7 @@ from aiohttp import ClientResponse
 
 import hopeit.server.web
 from hopeit.server import api
-from hopeit.server.web import start_server, stop_server, start_app
+from hopeit.server.web import server_startup_hook, stop_server, app_startup_hook, stream_startup_hook
 
 from mock_engine import MockStreamManager, MockEventHandler
 from mock_app import MockResult, mock_app_config  # type: ignore  # noqa: F401
@@ -487,9 +487,11 @@ async def call_stop_service(client):
 
 async def start_test_server(
         mock_app_config, mock_plugin_config, streams=None):  # noqa: F811
-    await start_server(mock_app_config.server)
-    await start_app(mock_plugin_config)
-    await start_app(mock_app_config, start_streams=streams)
+    await server_startup_hook(mock_app_config.server)
+    await app_startup_hook(mock_plugin_config)
+    await app_startup_hook(mock_app_config)
+    if streams:
+        await stream_startup_hook(mock_app_config)
     print('Test engine started.', hopeit.server.web.web_server)
     await asyncio.sleep(5)
 

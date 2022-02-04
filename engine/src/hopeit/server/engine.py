@@ -529,6 +529,11 @@ class AppEngine:
         logger.info(__name__, "Finished service.", extra=extra(prefix='service.', **log_info))
         return last_result
 
+
+    def is_running(self, event_name) -> bool:
+        return self._running[event_name].locked()
+
+
     async def stop_event(self, event_name: str):
         """
         Sets running state to stopped for a continuous-running event.
@@ -538,6 +543,8 @@ class AppEngine:
         """
         if self._running[event_name].locked():
             self._running[event_name].release()
+        else:
+            raise RuntimeError(f"Cannot stop non running event: {event_name}.")
 
     @staticmethod
     def _config_effective_events(app_config: AppConfig) -> Dict[str, EventDescriptor]:
