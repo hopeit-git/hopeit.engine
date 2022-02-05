@@ -53,7 +53,8 @@ from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
 
 __all__ = ['parse_args',
-           'start_server',
+           'prepare_engine',
+           'serve',
            'server_startup_hook'
            'app_startup_hook',
            'streams_startup_hook',
@@ -69,7 +70,7 @@ web_server = web.Application()
 auth_info_default = {}
 
 
-def start_server(config_files: List[str], api_file: Optional[str], start_streams: bool):
+def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_streams: bool):
     logger.info("Loading engine config file=%s...", config_files[0])  # type: ignore
     server_config = _load_engine_config(config_files[0])
 
@@ -107,6 +108,10 @@ def start_server(config_files: List[str], api_file: Optional[str], start_streams
 
     logger.debug(__name__, "Performing forced garbage collection...")
     gc.collect()
+
+
+def serve(*, host: str, path: str, port: int):    
+    web.run_app(web_server, host=host, path=path, port=port)
 
 
 def init_logger():
@@ -770,5 +775,9 @@ def parse_args(args) -> Tuple[Optional[str], Optional[int], Optional[str], bool,
 
 if __name__ == "__main__":
     sys_args = parse_args(sys.argv[1:])
-    start_server(sys_args.config_files, sys_args.api_file, sys_args.start_streams)
-    web.run_app(web_server, path=sys_args.path, port=sys_args.port, host=sys_args.host)
+    prepare_engine(
+        config_files=sys_args.config_files,
+        api_file=sys_args.api_file,
+        start_streams=sys_args.start_streams
+    )
+    serve(host=sys_args.host, path=sys_args.path, port=sys_args.port)

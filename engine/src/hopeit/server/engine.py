@@ -79,8 +79,9 @@ class AppEngine:
         Stops and clean handlers
         """
         logger.info(__name__, f"Stopping app={self.app_key}...")
-        for event_name in self._running.keys():
-            await self.stop_event(event_name)
+        for event_name, running in self._running.items():
+            if running.locked():
+                await self.stop_event(event_name)
         if self.stream_manager:
             await asyncio.sleep(self.app_config.engine.read_stream_timeout + 5)
             await self.stream_manager.close()
