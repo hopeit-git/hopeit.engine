@@ -30,7 +30,10 @@ def run(config_files: str, api_file: str, host: str, port: int, path: str, start
     """
     Runs web server hosting apps specified in config files.
     """
-    web.main(host, port, path, start_streams, config_files.split(','), api_file)
+    web.prepare_engine(
+        config_files=config_files.split(','), api_file=api_file, start_streams=start_streams
+    )
+    web.serve(host=host, path=path, port=port)
 
 
 cli = click.CommandCollection(sources=[server])
