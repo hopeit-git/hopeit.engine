@@ -11,3 +11,5 @@ coverage-badge
 mypy
 wheel
 aiofiles
+nest-asyncio
+

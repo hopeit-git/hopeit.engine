@@ -111,6 +111,7 @@ def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_st
 
 
 def serve(*, host: str, path: str, port: int):    
+    logger.info(__name__, f"Starting web server host: {host} port: {port} socket: {path}...")
     web.run_app(web_server, host=host, path=path, port=port)
 
 
