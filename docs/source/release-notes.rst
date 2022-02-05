@@ -1,11 +1,18 @@
 Release Notes
 =============
 
+Version 0.14.1
+______________
+- Reworked web server startup:
+  - Fixed automatic stream and services start on server initialization
+  - Removed using of `loop.run_until_complete` in favour of aiohttp `on_startup` hooks
+
+
 Version 0.14.0
 ______________
- - Support for web.StreamResponse
- - Added read() method to PreprocessFileHook to be used by libraries reading the file in chunks. 
- (Support is limited to read binary mode).
+- Support for web.StreamResponse
+- Added read() method to PreprocessFileHook to be used by libraries reading the file in chunks. 
+(Support is limited to read binary mode).
 
 
 Version 0.13.0
