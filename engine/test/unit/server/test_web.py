@@ -1,10 +1,14 @@
 import asyncio
-import pytest
-
 from unittest.mock import MagicMock
+
+import nest_asyncio
+from aiohttp.web_runner import GracefulExit
+import pytest
 
 from hopeit.server import web
 from hopeit.server.web import parse_args
+
+from hopeit.app.config import AppConfig, AppDescriptor
 
 
 def test_port_path():
@@ -49,15 +53,6 @@ def test_config_with_api_file():
     assert result == (None, 8020, None, False, ['test.json'], 'openapi.json')
 
 
-
-# class MockLoop:
-#     def run_until_complete(self, mock):
-#         return mock
-
-#     @staticmethod
-#     def get_event_loop():
-#         return MockLoop()
-
 class MockHooks:
     _server_startup_hook_calls = []
     _app_startup_hook_calls = []
@@ -79,10 +74,22 @@ async def _stream_startup_hook(*args, **kwargs):
     )
 
 
-def test_main(monkeypatch):
-    async def _serve():
+@pytest.mark.asyncio
+async def test_server_initialization(monkeypatch):
+    async def _shutdown(*args, **kwargs):
+        await asyncio.sleep(1)
+        raise GracefulExit
+
+    def _serve():
+        web.prepare_engine(
+            config_files=['test_server_file.json', 'test_app_file.json', 'test_app_file2.json'],
+            api_file='test_api_file.json',
+            start_streams=True
+        )
+        web.web_server.on_startup.append(_shutdown)
         web.serve(host='localhost', port=8020, path=None)
-        await asyncio.sleep(5)
+
+    nest_asyncio.apply()
 
     _load_engine_config = MagicMock()
     _load_api_file = MagicMock()
@@ -90,7 +97,6 @@ def test_main(monkeypatch):
     _register_server_config = MagicMock()
     _register_apps = MagicMock()
     _load_app_config = MagicMock()
-    _run_app = MagicMock()
 
     # monkeypatch.setattr(web.asyncio, 'get_event_loop', MockLoop.get_event_loop)
     monkeypatch.setattr(web, '_load_engine_config', _load_engine_config)
@@ -99,31 +105,21 @@ def test_main(monkeypatch):
     monkeypatch.setattr(web.api, 'register_apps', _register_apps)
     monkeypatch.setattr(web.api, 'enable_swagger', _enable_swagger)
     monkeypatch.setattr(web, '_load_app_config', _load_app_config)
-    # monkeypatch.setattr(web.web, 'run_app', _run_app)
     monkeypatch.setattr(web, 'server_startup_hook', _server_startup_hook)
     monkeypatch.setattr(web, 'app_startup_hook', _app_startup_hook)
     monkeypatch.setattr(web, 'stream_startup_hook', _stream_startup_hook)
 
-    web.prepare_engine(
-        config_files=['test_server_file.json', 'test_app_file.json', 'test_app_file2.json'],
-        api_file='test_api_file.json',
-        start_streams=True
-    )
+    try:
+        _serve()
+    except Exception as e:  # Forced shutdown of server during test initialization
+        assert len(MockHooks._server_startup_hook_calls) == 1
+        assert len(MockHooks._app_startup_hook_calls) == 2
+        assert len(MockHooks._stream_startup_hook_calls) == 2
 
-    loop = asyncio.get_event_loop()
-    loop.create_task(_serve())
-
-    assert MockHooks._server_startup_hook_calls == []
-    assert MockHooks._app_startup_hook_calls == []
-    assert MockHooks._stream_startup_hook_calls == []
-
-    assert _load_engine_config.call_args[0] == ('test_server_file.json',)
-    assert _load_api_file.call_args[0] == ('test_api_file.json',)
-    assert _register_server_config.call_count == 1
-    assert _load_app_config.call_args_list[0][0] == ('test_app_file.json',)
-    assert _load_app_config.call_args_list[1][0] == ('test_app_file2.json',)
-    assert _register_apps.call_count == 1
-    assert _enable_swagger.call_count == 1
-    assert _run_app.call_args[0] == (web.web_server,)
-    assert _run_app.call_args[1] == {'host': 'test', 'path': '//test', 'port': 1234}
-
+        assert _load_engine_config.call_args[0] == ('test_server_file.json',)
+        assert _load_api_file.call_args[0] == ('test_api_file.json',)
+        assert _register_server_config.call_count == 1
+        assert _load_app_config.call_args_list[0][0] == ('test_app_file.json',)
+        assert _load_app_config.call_args_list[1][0] == ('test_app_file2.json',)
+        assert _register_apps.call_count == 1
+        assert _enable_swagger.call_count == 1
