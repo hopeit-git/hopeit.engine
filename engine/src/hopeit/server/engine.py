@@ -530,10 +530,8 @@ class AppEngine:
         logger.info(__name__, "Finished service.", extra=extra(prefix='service.', **log_info))
         return last_result
 
-
     def is_running(self, event_name) -> bool:
         return self._running[event_name].locked()
-
 
     async def stop_event(self, event_name: str):
         """

@@ -18,7 +18,7 @@ import uuid
 from datetime import datetime, timezone
 from functools import partial
 from typing import (
-    Any, Callable, Coroutine, Dict, List, Optional, Tuple, Type, Union
+    Any, Callable, Coroutine, Dict, List, Optional, Type, Union
 )
 
 import aiohttp_cors  # type: ignore
@@ -55,9 +55,9 @@ from hopeit.toolkit import auth
 __all__ = ['parse_args',
            'prepare_engine',
            'serve',
-           'server_startup_hook'
+           'server_startup_hook',
            'app_startup_hook',
-           'streams_startup_hook',
+           'stream_startup_hook',
            'stop_server']
 
 logger: EngineLoggerWrapper = logging.getLogger(__name__)  # type: ignore
@@ -71,6 +71,10 @@ auth_info_default = {}
 
 
 def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_streams: bool):
+    """
+    Load configuration files and add hooks to setup engine server and apps,
+    start streams and services.
+    """
     logger.info("Loading engine config file=%s...", config_files[0])  # type: ignore
     server_config = _load_engine_config(config_files[0])
 
@@ -110,7 +114,7 @@ def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_st
     gc.collect()
 
 
-def serve(*, host: str, path: str, port: int):    
+def serve(*, host: str, path: str, port: int):
     logger.info(__name__, f"Starting web server host: {host} port: {port} socket: {path}...")
     web.run_app(web_server, host=host, path=path, port=port)
 
@@ -733,7 +737,10 @@ async def _handle_event_stop_invocation(
         return web.Response(status=500, body=str(e))
 
 
-def parse_args(args) -> Tuple[Optional[str], Optional[int], Optional[str], bool, List[str], Optional[str]]:
+ParsedArgs = namedtuple("ParsedArgs", ["host", "port", "path", "start_streams", "config_files", "api_file"])
+
+
+def parse_args(args) -> ParsedArgs:
     """
     Parse command line arguments:
     param: args: in form of --arg=value
@@ -763,7 +770,6 @@ def parse_args(args) -> Tuple[Optional[str], Optional[int], Optional[str], bool,
     port = int(parsed_args.port) if parsed_args.port else 8020 if parsed_args.path is None else None
     config_files = parsed_args.config_files.split(',')
 
-    ParsedArgs = namedtuple("ParsedArgs", ["host", "port", "path", "start_streams", "config_files", "api_file"])
     return ParsedArgs(
         host=parsed_args.host,
         port=port,

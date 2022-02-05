@@ -1,14 +1,13 @@
 import asyncio
+from typing import List, Any
 from unittest.mock import MagicMock
 
-import nest_asyncio
+import nest_asyncio  # type: ignore
 from aiohttp.web_runner import GracefulExit
 import pytest
 
 from hopeit.server import web
 from hopeit.server.web import parse_args
-
-from hopeit.app.config import AppConfig, AppDescriptor
 
 
 def test_port_path():
@@ -54,19 +53,22 @@ def test_config_with_api_file():
 
 
 class MockHooks:
-    _server_startup_hook_calls = []
-    _app_startup_hook_calls = []
-    _stream_startup_hook_calls = []
+    _server_startup_hook_calls: List[Any] = []
+    _app_startup_hook_calls: List[Any] = []
+    _stream_startup_hook_calls: List[Any] = []
+
 
 async def _server_startup_hook(*args, **kwargs):
     MockHooks._server_startup_hook_calls.append(
         [*args, {**kwargs}]
     )
 
+
 async def _app_startup_hook(*args, **kwargs):
     MockHooks._app_startup_hook_calls.append(
         [*args, {**kwargs}]
     )
+
 
 async def _stream_startup_hook(*args, **kwargs):
     MockHooks._stream_startup_hook_calls.append(
@@ -98,7 +100,6 @@ async def test_server_initialization(monkeypatch):
     _register_apps = MagicMock()
     _load_app_config = MagicMock()
 
-    # monkeypatch.setattr(web.asyncio, 'get_event_loop', MockLoop.get_event_loop)
     monkeypatch.setattr(web, '_load_engine_config', _load_engine_config)
     monkeypatch.setattr(web.api, 'load_api_file', _load_api_file)
     monkeypatch.setattr(web.api, 'register_server_config', _register_server_config)
@@ -111,7 +112,9 @@ async def test_server_initialization(monkeypatch):
 
     try:
         _serve()
-    except Exception as e:  # Forced shutdown of server during test initialization
+    except Exception as e:
+        raise e  # Unexpected error
+    finally:
         assert len(MockHooks._server_startup_hook_calls) == 1
         assert len(MockHooks._app_startup_hook_calls) == 2
         assert len(MockHooks._stream_startup_hook_calls) == 2
