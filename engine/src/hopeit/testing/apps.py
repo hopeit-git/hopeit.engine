@@ -147,9 +147,9 @@ async def execute_event(app_config: AppConfig,
 
     if context is None:
         context = create_test_context(app_config, event_name)
-    impl = find_event_handler(app_config=app_config, event_name=event_name)
 
     event_info = app_config.events[event_name]
+    impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
     effective_events = {**split_event_stages(app_config.app, event_name, event_info, impl)}
     handler = EventHandler(
         app_config=app_config, plugins=[],
@@ -224,7 +224,8 @@ async def execute_service(app_config: AppConfig,
     :return: List of results of processing available events
     """
     context = create_test_context(app_config, event_name)
-    impl = find_event_handler(app_config=app_config, event_name=event_name)
+    event_info = app_config.events[event_name]
+    impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
     handler = getattr(impl, '__service__')
     count = 0
     results = []

@@ -22,12 +22,6 @@
       "chunk_size": 16384
     }
   },
-  "storage": {
-    "fs_storage": {
-      "impl": "hopeit.plugins.fs_storage.FileStorage",
-      "path": "/tmp/{app.name}/"
-    }
-  },
   "settings": {
     "{events.streams.something_event.write_stream.name}": {
       "target_max_len": 1000,
@@ -59,6 +53,9 @@
       "logging": {
         "extra_fields": ["something_id"]
       }
+    },
+    "storage.save_events_fs": {
+      "path": "/tmp/{auto}"
     }
   },
   "events": {
@@ -92,7 +89,7 @@
         "name": "{events.streams.something_event.write_stream.name}"
       }
     },
-    "streams.something_event" : {
+    "streams.something_event": {
       "type": "POST",
       "write_stream": {
         "name": "{auto}",
@@ -111,23 +108,35 @@
     "collector.query_concurrently": {
       "type": "POST"
     },
-    "collector.collect_spawn" : {
+    "collector.collect_spawn": {
       "type": "POST",
       "write_stream": {
         "name": "{events.streams.something_event.write_stream.name}"
       }
     },
-    "shuffle.spawn_event" : {
+    "shuffle.spawn_event": {
       "type": "POST",
       "write_stream": {
         "name": "{events.streams.something_event.write_stream.name}"
       }
     },
-    "shuffle.parallelize_event" : {
+    "shuffle.parallelize_event": {
       "type": "POST",
       "write_stream": {
         "name": "{events.streams.something_event.write_stream.name}"
       }
+    },
+    "storage.save_events_fs": {
+      "type": "STREAM",
+      "read_stream": {
+        "name": "{events.streams.something_event.write_stream.name}",
+        "consumer_group": "{auto}",
+        "queues": ["high-prio", "AUTO"]
+      },
+      "impl": "hopeit.fs_storage.events.streams_storage",
+      "dataobjects": [
+        "model.Something"
+      ]
     }
   }
 }

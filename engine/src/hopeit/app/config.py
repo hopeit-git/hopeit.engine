@@ -302,11 +302,13 @@ class EventDescriptor:
     type: EventType
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE
     route: Optional[str] = None
+    impl: Optional[str] = None
     connections: List[EventConnection] = field(default_factory=list)
     read_stream: Optional[ReadStreamDescriptor] = None
     write_stream: Optional[WriteStreamDescriptor] = None
     auth: List[AuthType] = field(default_factory=list)
     setting_keys: List[str] = field(default_factory=list)
+    dataobjects: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         if self.read_stream:

@@ -441,8 +441,8 @@ def _update_api_schemas(app_config: AppConfig):
     """
     assert spec is not None
     schemas = spec['components'].get('schemas', {})
-    for event_name in app_config.events.keys():
-        event_schemas = _generate_schemas(app_config, event_name)
+    for event_name, event_info in app_config.events.items():
+        event_schemas = _generate_schemas(app_config, event_name, event_info)
         for name, event_schema in event_schemas.items():
             if name in runtime_schemas:
                 if not event_schema == schemas.get(name):
@@ -509,7 +509,9 @@ def _update_api_paths(app_config: AppConfig, plugin: Optional[AppConfig] = None)
         method = METHOD_MAPPING.get(event_info.type)
         if method is None:
             continue
-        event_api_spec = _extract_event_api_spec(app_config if plugin is None else plugin, event_name)
+        event_api_spec = _extract_event_api_spec(
+            app_config if plugin is None else plugin, event_name, event_info
+        )
         if event_api_spec is None:
             event_api_spec = paths.get(route, {}).get(method)
         if event_api_spec is None and _options.get('generate_mode'):
@@ -592,11 +594,11 @@ def _set_path_security(event_api_spec: dict, app_config: AppConfig, event_info: 
         event_api_spec['security'] = security
 
 
-def _extract_event_api_spec(app_config: AppConfig, event_name: str) -> Optional[dict]:
+def _extract_event_api_spec(app_config: AppConfig, event_name: str, event_info: EventDescriptor) -> Optional[dict]:
     """
     Extract __api__ definition from event implementation
     """
-    module = find_event_handler(app_config=app_config, event_name=event_name)
+    module = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
     if hasattr(module, '__api__'):
         method_spec = getattr(module, '__api__')
         if isinstance(method_spec, dict):
@@ -605,11 +607,11 @@ def _extract_event_api_spec(app_config: AppConfig, event_name: str) -> Optional[
     return None
 
 
-def _generate_schemas(app_config: AppConfig, event_name: str) -> dict:
+def _generate_schemas(app_config: AppConfig, event_name: str, event_info: EventDescriptor) -> dict:
     """
     Generate all schemas for a given event, based on steps signatures
     """
-    module = find_event_handler(app_config=app_config, event_name=event_name)
+    module = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
     steps = extract_module_steps(module)
     schemas: dict = {}
     for _, step_info in steps:

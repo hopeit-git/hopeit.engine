@@ -6,7 +6,7 @@ from hopeit.server.imports import find_event_handler
 
 
 def test_find_event_handler(mock_app_config):  # noqa: F811
-    impl = find_event_handler(app_config=mock_app_config, event_name='mock_event')
+    impl = find_event_handler(app_config=mock_app_config, event_name='mock_event', event_info=mock_app_config.events['mock_event'])
     assert impl is mock_event
 
 

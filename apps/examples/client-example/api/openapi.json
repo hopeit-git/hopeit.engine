@@ -482,6 +482,9 @@
           "route": {
             "type": "string"
           },
+          "impl": {
+            "type": "string"
+          },
           "connections": {
             "type": "array",
             "items": {
@@ -511,6 +514,13 @@
             "default": []
           },
           "setting_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "dataobjects": {
             "type": "array",
             "items": {
               "type": "string"
