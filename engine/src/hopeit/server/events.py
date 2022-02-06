@@ -49,9 +49,9 @@ class EventHandler:
         """
         Load and setup event implementation modules. Set logger and load settings.
         """
-        for event_name in effective_events.keys():
+        for event_name, event_info in effective_events.items():
             base_event, _ = event_and_step(event_name)
-            module = find_event_handler(app_config=self.app_config, event_name=base_event)
+            module = find_event_handler(app_config=self.app_config, event_name=base_event, event_info=event_info)
             steps = extract_module_steps(module)
             self.modules[base_event] = (module, False, steps)
             self.preprocess_handlers[base_event] = extract_preprocess_handler(module)

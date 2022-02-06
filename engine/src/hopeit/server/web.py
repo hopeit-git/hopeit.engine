@@ -239,19 +239,19 @@ def _setup_app_event_routes(app_engine: AppEngine,
         if event_info.type == EventType.POST:
             web_server.add_routes([
                 _create_post_event_route(
-                    app_engine, plugin=plugin, event_name=event_name, override_route_name=event_info.route
+                    app_engine, plugin=plugin, event_name=event_name, event_info=event_info
                 )
             ])
         elif event_info.type == EventType.GET:
             web_server.add_routes([
                 _create_get_event_route(
-                    app_engine, plugin=plugin, event_name=event_name, override_route_name=event_info.route
+                    app_engine, plugin=plugin, event_name=event_name, event_info=event_info
                 )
             ])
         elif event_info.type == EventType.MULTIPART:
             web_server.add_routes([
                 _create_multipart_event_route(
-                    app_engine, plugin=plugin, event_name=event_name, override_route_name=event_info.route
+                    app_engine, plugin=plugin, event_name=event_name, event_info=event_info
                 )
             ])
         elif event_info.type == EventType.STREAM and plugin is None:
@@ -282,14 +282,14 @@ def _create_post_event_route(
         app_engine: AppEngine, *,
         plugin: Optional[AppEngine] = None,
         event_name: str,
-        override_route_name: Optional[str]) -> web.RouteDef:
+        event_info: EventDescriptor) -> web.RouteDef:
     """
     Creates route for handling POST event
     """
-    datatype = find_datatype_handler(app_config=app_engine.app_config, event_name=event_name)
+    datatype = find_datatype_handler(app_config=app_engine.app_config, event_name=event_name, event_info=event_info)
     route = app_route_name(app_engine.app_config.app, event_name=event_name,
                            plugin=None if plugin is None else plugin.app_config.app,
-                           override_route_name=override_route_name)
+                           override_route_name=event_info.route)
     logger.info(__name__, f"POST path={route} input={str(datatype)}")
     impl = plugin if plugin else app_engine
     handler = partial(_handle_post_invocation, app_engine, impl,
@@ -304,13 +304,13 @@ def _create_get_event_route(
         app_engine: AppEngine, *,
         plugin: Optional[AppEngine] = None,
         event_name: str,
-        override_route_name: Optional[str]) -> web.RouteDef:
+        event_info: EventDescriptor) -> web.RouteDef:
     """
     Creates route for handling GET requests
     """
     route = app_route_name(app_engine.app_config.app, event_name=event_name,
                            plugin=None if plugin is None else plugin.app_config.app,
-                           override_route_name=override_route_name)
+                           override_route_name=event_info.route)
     logger.info(__name__, f"GET path={route}")
     impl = plugin if plugin else app_engine
     handler = partial(_handle_get_invocation, app_engine, impl, event_name, _auth_types(impl, event_name))
@@ -324,14 +324,14 @@ def _create_multipart_event_route(
         app_engine: AppEngine, *,
         plugin: Optional[AppEngine] = None,
         event_name: str,
-        override_route_name: Optional[str]) -> web.RouteDef:
+        event_info: EventDescriptor) -> web.RouteDef:
     """
     Creates route for handling MULTIPART event
     """
-    datatype = find_datatype_handler(app_config=app_engine.app_config, event_name=event_name)
+    datatype = find_datatype_handler(app_config=app_engine.app_config, event_name=event_name, event_info=event_info)
     route = app_route_name(app_engine.app_config.app, event_name=event_name,
                            plugin=None if plugin is None else plugin.app_config.app,
-                           override_route_name=override_route_name)
+                           override_route_name=event_info.route)
     logger.info(__name__, f"MULTIPART path={route} input={str(datatype)}")
     impl = plugin if plugin else app_engine
     handler = partial(_handle_multipart_invocation, app_engine, impl,

@@ -2,6 +2,7 @@
 Storage/persistence asynchronous stores and gets dataobjects from filesystem.
 
 """
+from dataclasses import dataclass
 import os
 from glob import glob
 from pathlib import Path
@@ -10,12 +11,19 @@ from typing import Optional, Type, Generic, List
 
 import aiofiles  # type: ignore
 
-from hopeit.dataobjects import DataObject
+from hopeit.dataobjects import dataobject, DataObject
 from hopeit.dataobjects.payload import Payload
 
-__all__ = ['FileStorage']
+__all__ = ['FileStorage',
+           'FileStorageSettings']
 
 SUFFIX = '.json'
+
+
+@dataobject
+@dataclass
+class FileStorageSettings:
+    path: str
 
 
 class FileStorage(Generic[DataObject]):
@@ -29,6 +37,7 @@ class FileStorage(Generic[DataObject]):
         :param path: str, base path to be used to store and retrieve objects
         """
         self.path: Path = Path(path)
+        os.makedirs(self.path.resolve().as_posix(), exist_ok=True)
 
     async def list_objects(self, wildcard: str = '*') -> List[str]:
         """
@@ -88,7 +97,6 @@ class FileStorage(Generic[DataObject]):
         """
         file_path = path / file_name
         tmp_path = path / str(f".{uuid.uuid4()}")
-        os.makedirs(str(path), exist_ok=True)
         async with aiofiles.open(tmp_path, 'w') as f:  # type: ignore
             await f.write(payload_str)
             await f.flush()

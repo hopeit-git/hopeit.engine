@@ -11,7 +11,7 @@ import inspect
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventType, \
     ReadStreamDescriptor, StreamQueueStrategy, WriteStreamDescriptor
 from hopeit.app.context import EventContext
-from hopeit.dataobjects import EventPayload, copy_payload, EventPayloadType
+from hopeit.dataobjects import DataObject, EventPayload, copy_payload, EventPayloadType
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger, extra_logger
 from hopeit.server.names import auto_path
@@ -254,6 +254,8 @@ def _find_next_step(payload: Optional[EventPayload],
         func, input_type, _, is_iterable = step_info
         if input_type is None and payload is None:
             return i, func, is_iterable
+        if input_type is DataObject and payload is not None:
+            return i, func, is_iterable
         if input_type is not None and isinstance(payload, input_type):
             return i, func, is_iterable
     return -1, None, False
@@ -324,9 +326,9 @@ def split_event_stages(app: AppDescriptor,
     return effective_events
 
 
-def find_datatype_handler(*, app_config: AppConfig, event_name: str):
+def find_datatype_handler(*, app_config: AppConfig, event_name: str, event_info: EventDescriptor):
     base_event, from_step = event_and_step(event_name)
-    impl = find_event_handler(app_config=app_config, event_name=base_event)
+    impl = find_event_handler(app_config=app_config, event_name=base_event, event_info=event_info)
     datatype = extract_input_type(impl, from_step=from_step)
     return datatype
 

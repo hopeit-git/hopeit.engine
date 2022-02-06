@@ -218,9 +218,10 @@ class RedisStreamManager(StreamManager):
             :event_ts: extracted from payload.event_ts() if defined, if not empty string
             :payload: json serialized payload
         """
+        datatype = type(payload)
         event_fields = {
             'id': payload.event_id(),  # type: ignore
-            'type': type(payload).__name__,
+            'type': f"{datatype.__module__}.{datatype.__qualname__}",
             'submit_ts': datetime.now().astimezone(tz=timezone.utc).isoformat(),
             'event_ts': '',
             **{k: v or '' for k, v in track_ids.items()},
