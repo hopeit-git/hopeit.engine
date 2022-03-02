@@ -56,6 +56,9 @@
     },
     "storage.save_events_fs": {
       "path": "/tmp/{auto}"
+    },
+    "storage.flush_events_fs": {
+      "path": "{settings.storage.save_events_fs.path}"
     }
   },
   "events": {
@@ -133,10 +136,14 @@
         "consumer_group": "{auto}",
         "queues": ["high-prio", "AUTO"]
       },
-      "impl": "hopeit.fs_storage.events.streams_storage",
+      "impl": "hopeit.fs_storage.events.stream_batch_storage",
       "dataobjects": [
         "model.Something"
       ]
+    },
+    "storage.flush_events_fs": {
+      "type": "SERVICE",
+      "impl": "hopeit.fs_storage.events.stream_batch_storage"
     }
   }
 }
