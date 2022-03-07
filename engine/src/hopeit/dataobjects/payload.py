@@ -44,6 +44,7 @@ class Payload(Generic[EventPayloadType]):
         except Exception as e:
             assert getattr(datatype, 'from_json'), \
                 f"{datatype} should be annotated with @dataobject"
+            raise  # Raises unexpected exceptions, if assert block does not catch missing @dataobject
 
 
     @staticmethod

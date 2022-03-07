@@ -126,7 +126,10 @@ def extract_input_type(impl: ModuleType, from_step: Optional[str] = None) -> Typ
 def event_and_step(event_name: str) -> Tuple[str, Optional[str]]:
     comps = event_name.split('$')
     if len(comps) > 1:
-        return comps[0], comps[1]
+        return (
+            comps[0],
+            comps[1] if comps[1][0] != "_" else None  # Ignore special suffixes after '$' (i.e. `$__service__`)
+        )
     return event_name, None
 
 
@@ -243,13 +246,15 @@ async def invoke_single_step(func: Callable, *,
 
 
 def _find_next_step(payload: Optional[EventPayload],
-                    steps: StepExecutionList,
-                    from_index: int) -> Tuple[int, Optional[Callable], bool]:
+                   steps: StepExecutionList,
+                   from_index: int) -> Tuple[int, Optional[Callable], bool]:
     """
     Finds next step to exectute in pending_steps list, base on the payload data type
     """
+    # Returns in case no more steps are available
     if from_index >= len(steps):
         return -1, None, False
+    # Try to match specific payload datatypes incluiding None
     for i, _, step_info in steps[from_index:]:
         func, input_type, _, is_iterable = step_info
         if input_type is None and payload is None:
@@ -260,12 +265,15 @@ def _find_next_step(payload: Optional[EventPayload],
             and isinstance(payload, input_type)
         ):
             return i, func, is_iterable
+    # Return if there was no match for None payload
     if payload is None:
         return -1, None, False
+    # Finally try to match generic `payload: DataObject` argument in step
     for i, _, step_info in steps[from_index:]:
         func, input_type, _, is_iterable = step_info
         if input_type is DataObject and payload is not None:
             return i, func, is_iterable
+    # No step input datatype matches current payload
     return -1, None, False
 
 
@@ -320,6 +328,7 @@ def split_event_stages(app: AppDescriptor,
             type=event_type,
             read_stream=read_stream,
             connections=event_info.connections,
+            impl=event_info.impl,
             write_stream=WriteStreamDescriptor(
                 name=intermediate_stream,
                 queue_strategy=StreamQueueStrategy.PROPAGATE

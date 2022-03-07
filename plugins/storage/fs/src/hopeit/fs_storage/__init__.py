@@ -23,7 +23,22 @@ SUFFIX = '.json'
 @dataobject
 @dataclass
 class FileStorageSettings:
+    """
+    File storage plugin config
+
+    :field: path, str: base path in file systems here data is saved
+    :field: partition_dateformat, optional str: date format to be used to prefix file name in order
+        to parition saved files to different subfolders based on event_ts(). i.e. "%Y/%m/%d"
+        will store each files in a folder `base_path/year/month/day/`
+    :field: flush_seconds, float: number of seconds to trigger a flush event to save all current 
+        buffered partitions. Default 0 means flish is not triggered by time.
+    :field: fllush_max_size: max number of elements to keep in a partition before forcing a flush.
+        Default 1. A value of 0 will disable flushing by partition size.
+    """
     path: str
+    partition_dateformat: Optional[str] = None
+    flush_seconds: float = 0.0
+    flush_max_size: int = 1
 
 
 class FileStorage(Generic[DataObject]):

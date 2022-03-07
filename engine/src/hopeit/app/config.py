@@ -297,7 +297,33 @@ class EventConnection:
 @dataclass
 class EventDescriptor:
     """
-    Event descriptor
+    Event Descriptor: condfigures event implementation
+
+    :field: type, EventType: type of event i.e.: GET, POST, MULTIPART, STREAM, SERVICE
+    :field: plug_mode, EventPlugMode: defines whether an event defined in a plugin is created in the
+        current app (ON_APP) or it will be created in the original plugin (STANDALONE, default)
+    :field: route, optional str: custom route for endpoint. If not specified route will be derived
+        from `/api/app_name/app_version/event_name`
+    :field: impl, optional str: custom event implementation Python module. If not specified, module
+        with same same as event will be imported.
+    :field: connections, list of EventConnection: specifies dependencies on other apps/endpoints,
+        that can be used by client plugins to call events on external apps
+    :field: read_stream, optional ReadStreamDescriptor: specifies source stream to read from.
+        Valid only for STREAM events.
+    :field: write_stream, optional WriteStreamDescriptor: for any type of events, resultant dataobjects will
+        be published to the specified stream.
+    :field: auth, list of AuthType: supported authentication schemas for this event. If not specified
+        application default will be used.
+    :field: setting_keys, list of str: by default EventContext will have access to the settings section
+        with the same name of the event using `settings = context.settings(datatype=MySettingsType)`.
+        In case additional sections are needed to be accessed from
+        EventContext, then a list of setting keys, including the name of the event if needed,
+        can be specified here. Then access to a `custom` key can be done using 
+        `custom_settings = context.settings(key="customer", datatype=MyCustomSettingsType)`
+    :field: dataobjects, list of str: list of full qualified dataobject types that this event can process.
+        When not specified, the engine will inspect the module implementation and find all datatypes supported
+        as payload in the functions defined as `__steps__`. In case of generic functions that support
+        `payload: DataObject` argument, then a list of full qualified datatypes must be specified here.
     """
     type: EventType
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE
