@@ -61,7 +61,7 @@ class FileStorage(Generic[DataObject]):
         """
         self.path: Path = Path(path)
         os.makedirs(self.path.resolve().as_posix(), exist_ok=True)
-        self.partition_dateformat = partition_dateformat
+        self.partition_dateformat = (partition_dateformat or '').strip('/')
 
     @classmethod
     def with_settings(cls, settings: FileStorageSettings) -> "FileStorage":
@@ -79,7 +79,7 @@ class FileStorage(Generic[DataObject]):
         """
         base_path = str(self.path.resolve())
         path = base_path + '/' + wildcard + SUFFIX
-        n_part_comps = len(self.partition_dateformat.strip('/').split('/'))
+        n_part_comps = len(self.partition_dateformat.split('/'))
         return [
             self._get_item_locator(item_path, n_part_comps) for item_path in glob(path)
         ]

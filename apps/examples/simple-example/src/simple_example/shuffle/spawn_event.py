@@ -39,7 +39,6 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-
 async def spawn_many_events(payload: Something, context: EventContext) -> Spawn[Something]:
     """
     Produces 3 events to be published to stream
@@ -76,7 +75,7 @@ def update_status(payload: Something, context: EventContext) -> Something:
     if payload.status:
         payload.history.append(payload.status)
     payload.status = Status(
-        ts=datetime.now(),
+        ts=datetime.now(tz=timezone.utc),
         type=StatusType.PROCESSED
     )
     return payload

@@ -166,7 +166,7 @@ class RedisStreamManager(StreamManager):
                                          batch_size=len(batch), head=batch[0][0], tail=batch[-1][0]))
                 stream_events: List[Union[StreamEvent, Exception]] = []
                 for msg in batch:
-                    read_ts = datetime.now().astimezone(tz=timezone.utc).isoformat()
+                    read_ts = datetime.now(tz=timezone.utc).isoformat()
                     msg_type = msg[1][b'type'].decode()
                     datatype = datatypes.get(msg_type)
                     if datatype is None:
@@ -222,7 +222,7 @@ class RedisStreamManager(StreamManager):
         event_fields = {
             'id': payload.event_id(),  # type: ignore
             'type': f"{datatype.__module__}.{datatype.__qualname__}",
-            'submit_ts': datetime.now().astimezone(tz=timezone.utc).isoformat(),
+            'submit_ts': datetime.now(tz=timezone.utc).isoformat(),
             'event_ts': '',
             **{k: v or '' for k, v in track_ids.items()},
             'auth_info': base64.b64encode(json.dumps(auth_info).encode()),

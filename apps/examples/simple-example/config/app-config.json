@@ -15,7 +15,7 @@
   },
   "env" : {
     "storage": {
-      "base_path": "/tmp"
+      "base_path": "/tmp/hopeit/"
     },
     "upload_something": {
       "save_path": "{env.storage.base_path}/{auto}/",

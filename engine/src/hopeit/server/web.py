@@ -315,7 +315,7 @@ def _create_get_event_route(
     impl = plugin if plugin else app_engine
     handler = partial(_handle_get_invocation, app_engine, impl, event_name, _auth_types(impl, event_name))
     setattr(handler, '__closure__', None)
-    setattr(handler, '__code__', _handle_post_invocation.__code__)
+    setattr(handler, '__code__', _handle_get_invocation.__code__)
     api_handler = api.add_route('get', route, handler)
     return web.get(route, api_handler)
 
@@ -414,7 +414,7 @@ def _track_ids(request: web.Request) -> Dict[str, str]:
     return {
         'track.operation_id': str(uuid.uuid4()),
         'track.request_id': str(uuid.uuid4()),
-        'track.request_ts': datetime.now().astimezone(timezone.utc).isoformat(),
+        'track.request_ts': datetime.now(tz=timezone.utc).isoformat(),
         **{
             "track." + snakecase(k[8:].lower()): v
             for k, v in request.headers.items() if k.lower().startswith('x-track-')

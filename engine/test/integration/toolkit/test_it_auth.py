@@ -49,8 +49,8 @@ def test_token_lifecycle(mock_app_config):  # noqa: F811
     context = _setup_server_context(mock_app_config)
     payload = {
         'test': 'test_value',
-        'iat': datetime.now().astimezone(timezone.utc),
-        'exp': datetime.now().astimezone(timezone.utc) + timedelta(seconds=2)
+        'iat': datetime.now(tz=timezone.utc),
+        'exp': datetime.now(tz=timezone.utc) + timedelta(seconds=2)
     }
     token = auth.new_token(mock_app_config.app_key(), payload)
     assert token is not None
@@ -72,8 +72,8 @@ def test_token_lifecycle(mock_app_config):  # noqa: F811
 
     token = auth.new_token(mock_app_config.app_key(), payload={
         'test': 'test_value',
-        'iat': datetime.now().astimezone(timezone.utc),
-        'exp': datetime.now().astimezone(timezone.utc) + timedelta(seconds=2)
+        'iat': datetime.now(tz=timezone.utc),
+        'exp': datetime.now(tz=timezone.utc) + timedelta(seconds=2)
     })
     auth.init(mock_app_config.app_key(), AuthConfig(
         secrets_location=f"/tmp/{uuid.uuid4()}",
@@ -97,8 +97,8 @@ def test_client_tokens(mock_app_config, mock_client_app_config):  # noqa: F811
 
     payload = {
         'test': 'test_value',
-        'iat': datetime.now().astimezone(timezone.utc),
-        'exp': datetime.now().astimezone(timezone.utc) + timedelta(seconds=2)
+        'iat': datetime.now(tz=timezone.utc),
+        'exp': datetime.now(tz=timezone.utc) + timedelta(seconds=2)
     }
 
     # Client-generated token validated in server
@@ -123,8 +123,8 @@ def test_client_not_registered(mock_app_config, mock_client_app_config):  # noqa
 
     payload = {
         'test': 'test_value',
-        'iat': datetime.now().astimezone(timezone.utc),
-        'exp': datetime.now().astimezone(timezone.utc) + timedelta(seconds=2)
+        'iat': datetime.now(tz=timezone.utc),
+        'exp': datetime.now(tz=timezone.utc) + timedelta(seconds=2)
     }
 
     # Client-generated token validated in server
@@ -161,7 +161,7 @@ def test_auth_method_bearer(mock_app_config):  # noqa: F811
     context = _setup_server_context(mock_app_config)
     payload = {
         'test': 'test_value',
-        'exp': datetime.now().astimezone(timezone.utc) + timedelta(seconds=2)
+        'exp': datetime.now(tz=timezone.utc) + timedelta(seconds=2)
     }
     token = auth.new_token(mock_app_config.app_key(), payload)
     assert auth.validate_auth_method(
@@ -177,7 +177,7 @@ def test_auth_method_refresh(mock_app_config):  # noqa: F811
     context = _setup_server_context(mock_app_config)
     payload = {
         'test': 'test_value',
-        'exp': datetime.now().astimezone(timezone.utc) + timedelta(seconds=2)
+        'exp': datetime.now(tz=timezone.utc) + timedelta(seconds=2)
     }
     token = auth.new_token(mock_app_config.app_key(), payload)
     assert auth.validate_auth_method(

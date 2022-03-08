@@ -25,6 +25,6 @@ async def test_it_download_something(app_config):
         'Content-Disposition': f'attachment; filename="{file_name}"'
     }
     assert response.file_response == (
-        f"/tmp/simple_example.{APP_VERSION}.fs.data_path/{file_name}"
+        f"/tmp/hopeit/{file_name}"
     )
     assert response.content_type == 'image/png'

@@ -31,7 +31,7 @@ async def refresh(payload: None, context: EventContext) -> AuthInfoExtended:
     Returns a new access and refresh tokens, from a request containing a valid refresh token.
     """
     assert context.auth_info['allowed']
-    now = datetime.now().astimezone(timezone.utc)
+    now = datetime.now(tz=timezone.utc)
     if context.auth_info['auth_type'] == AuthType.REFRESH:
         user_info = ContextUserInfo(
             id=context.auth_info['payload']['id'],

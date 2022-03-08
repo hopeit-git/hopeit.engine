@@ -17,7 +17,8 @@ __steps__ = ['load', 'update_status_history']
 __api__ = event_api(
     summary="Simple Example: Query Something",
     query_args=[
-        ('item_id', str, 'Item Id to read')
+        ('item_id', str, 'Item Id to read'),
+        ('partitiom_key', str, 'Partition folder in `YYYY/MM/DD/HH` format')
     ],
     responses={
         200: (Something, "Something object returned when found"),
@@ -38,9 +39,9 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-
 async def load(payload: None, context: EventContext, *,
-               item_id: str, update_status: bool = False) -> Union[Something, SomethingNotFound]:
+               item_id: str, partition_key: str,
+               update_status: bool = False) -> Union[Something, SomethingNotFound]:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -52,10 +53,10 @@ async def load(payload: None, context: EventContext, *,
     """
     assert fs
     logger.info(context, "load", extra=extra(something_id=item_id, path=fs.path))
-    something = await fs.get(key=item_id, datatype=Something)
+    something = await fs.get(key=item_id, datatype=Something, partition_key=partition_key)
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
-        return SomethingNotFound(str(fs.path), item_id)
+        return SomethingNotFound(str(fs.path / partition_key), item_id)
     return something
 
 

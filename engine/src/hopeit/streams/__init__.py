@@ -178,7 +178,7 @@ class StreamManager(ABC):
         :return: str, concatenating current UTC ISO datetime, host name, process id
             and this StreamManager instance id
         """
-        ts = datetime.now().astimezone(tz=timezone.utc).isoformat()
+        ts = datetime.now(tz=timezone.utc).isoformat()
         host = socket.gethostname()
         pid = os.getpid()
         mgr = id(self)

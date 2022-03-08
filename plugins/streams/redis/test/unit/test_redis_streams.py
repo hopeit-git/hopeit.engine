@@ -50,7 +50,7 @@ async def write_stream():
     written_fields = mgr._write_pool.xadd_fields
     assert written_fields == {
         'id': 'test_value',
-        'type': 'MockData',
+        'type': 'unit.test_redis_streams.MockData',
         'submit_ts': written_fields['submit_ts'],
         'event_ts': '1970-01-01T00:00:00+00:00',
         'track.operation_id': 'test_operation_id',
@@ -97,7 +97,7 @@ async def read_stream():
     for stream_event in (await mgr.read_stream(
             stream_name='test_stream',
             consumer_group='test_group',
-            datatypes={'MockData': MockData},
+            datatypes={'unit.test_redis_streams.MockData': MockData},
             track_headers=MockEventHandler.test_track_ids.keys(),
             offset='>',
             batch_size=10,
@@ -202,7 +202,7 @@ class MockRedisPool():
     test_url: str = 'redis://test_url'
     message_count = 10
     test_msg = [b'0000000000-0', {
-        b'type': b'MockData',
+        b'type': b'unit.test_redis_streams.MockData',
         b'track.request_id': b'test_request_id',
         b'track.request_ts': b'2020-02-05T17:07:37.771396+00:00',
         b'track.session_id': b'test_session_id',

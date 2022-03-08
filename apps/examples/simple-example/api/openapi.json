@@ -267,6 +267,15 @@
             }
           },
           {
+            "name": "partitiom_key",
+            "in": "query",
+            "required": true,
+            "description": "Partition folder in `YYYY/MM/DD/HH` format",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "X-Track-Request-Id",
             "in": "header",
             "required": false,
@@ -346,6 +355,15 @@
             "in": "query",
             "required": true,
             "description": "Item Id to read",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "partitiom_key",
+            "in": "query",
+            "required": true,
+            "description": "Partition folder in `YYYY/MM/DD/HH` format",
             "schema": {
               "type": "string"
             }
@@ -2272,6 +2290,10 @@
           },
           "item2_id": {
             "type": "string"
+          },
+          "partition_key": {
+            "type": "string",
+            "default": ""
           }
         },
         "x-module-name": "model",

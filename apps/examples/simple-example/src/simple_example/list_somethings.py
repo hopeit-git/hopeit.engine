@@ -37,6 +37,9 @@ async def __init_event__(context):
 
 
 async def load_all(payload: None, context: EventContext, wildcard: str = '*') -> List[Something]:
+    """
+    Load objects that match the given wildcard
+    """
     assert fs
     logger.info(context, "load_all", extra=extra(path=fs.path))
     items: List[Something] = []
@@ -49,8 +52,7 @@ async def load_all(payload: None, context: EventContext, wildcard: str = '*') ->
         else:
             logger.warning(context, "Item not found", extra=extra(
                 path=fs.path,
-                item_path=item_path,
-                parition_key=partition_key,
-                item_id=item_id
+                partition_key=item_loc.partition_key,
+                item_id=item_loc.item_id
             ))
     return items

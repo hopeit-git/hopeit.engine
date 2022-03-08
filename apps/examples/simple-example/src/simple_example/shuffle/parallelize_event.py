@@ -54,7 +54,6 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-
 async def fork_something(payload: Something, context: EventContext) -> Spawn[Union[FirstPart, SecondPart]]:
     """
     Produces 2 variants from payload to be processed in parallel

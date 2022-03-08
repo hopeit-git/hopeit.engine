@@ -66,6 +66,7 @@ class ItemsInfo:
     """
     item1_id: str
     item2_id: str
+    partition_key: str = ""
 
 
 @dataobject(event_id='payload.id', event_ts='payload.status.ts')
