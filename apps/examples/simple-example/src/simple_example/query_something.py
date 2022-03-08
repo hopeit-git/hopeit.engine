@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.logger import app_extra_logger
-from hopeit.fs_storage import FileStorage
+from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import Something, StatusType, Status, SomethingNotFound
 
 __steps__ = ['load', 'update_status_history']
@@ -32,7 +32,11 @@ fs: Optional[FileStorage] = None
 async def __init_event__(context):
     global fs
     if fs is None:
-        fs = FileStorage(path=str(context.env['fs']['data_path']))
+        settings: FileStorageSettings = context.settings(
+            key="fs_storage", datatype=FileStorageSettings
+        )
+        fs = FileStorage.with_settings(settings)
+
 
 
 async def load(payload: None, context: EventContext, *,

@@ -16,7 +16,7 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.dataobjects import dataobject
 from hopeit.server.collector import Collector
 from hopeit.server.steps import SHUFFLE
-from hopeit.fs_storage import FileStorage
+from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import ItemsInfo, Something, SomethingNotFound
 
 
@@ -50,7 +50,10 @@ fs: Optional[FileStorage] = None
 async def __init_event__(context):
     global fs
     if fs is None:
-        fs = FileStorage(path=str(context.env['fs']['data_path']))
+        settings: FileStorageSettings = context.settings(
+            key="fs_storage", datatype=FileStorageSettings
+        )
+        fs = FileStorage.with_settings(settings)
 
 
 async def load_first(collector: Collector, context: EventContext) -> Union[Something, SomethingNotFound]:

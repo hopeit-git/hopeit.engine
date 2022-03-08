@@ -17,13 +17,6 @@ from model import Something, User, SomethingParams
 __steps__ = ['create_something']
 
 logger, extra = app_extra_logger()
-fs: Optional[FileStorage] = None
-
-
-async def __init_event__(context: EventContext):
-    global fs
-    if fs is None:
-        fs = FileStorage(path=str(context.env['fs']['data_path']))
 
 
 async def __service__(context: EventContext) -> Spawn[SomethingParams]:

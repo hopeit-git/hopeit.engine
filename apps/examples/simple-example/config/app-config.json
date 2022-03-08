@@ -14,11 +14,11 @@
     "cors_origin": "*"
   },
   "env" : {
-    "fs": {
-      "data_path": "/tmp/{auto}/"
+    "storage": {
+      "base_path": "/tmp"
     },
     "upload_something": {
-      "save_path": "/tmp/{auto}/",
+      "save_path": "{env.storage.base_path}/{auto}/",
       "chunk_size": 16384
     }
   },
@@ -54,8 +54,12 @@
         "extra_fields": ["something_id"]
       }
     },
+    "fs_storage": {
+      "path": "{env.storage.base_path}/{auto}",
+      "partition_dateformat": "%Y/%m/%d/%H/"
+    },
     "storage.save_events_fs": {
-      "path": "/tmp/{auto}",
+      "path": "{env.storage.base_path}/{auto}",
       "partition_dateformat": "%Y/%m/%d/%H/",
       "flush_seconds": 60.0,
       "flush_max_size": 100
@@ -63,18 +67,22 @@
   },
   "events": {
     "list_somethings": {
-      "type": "GET"
+      "type": "GET",
+      "setting_keys": ["fs_storage"]
     },
     "query_something": {
       "type": "GET",
-      "route": "{app.name}/{app.version}/query_something"
+      "route": "{app.name}/{app.version}/query_something",
+      "setting_keys": ["fs_storage"]
     },
     "query_something_extended": {
       "type": "POST",
-      "route": "{app.name}/{app.version}/query_something"
+      "route": "{app.name}/{app.version}/query_something",
+      "setting_keys": ["fs_storage"]
     },
     "save_something" : {
-      "type": "POST"
+      "type": "POST",
+      "setting_keys": ["fs_storage"]
     },
     "download_something": {
       "type": "GET"
@@ -105,28 +113,33 @@
         "name": "{events.streams.something_event.write_stream.name}",
         "consumer_group": "{auto}",
         "queues": ["high-prio", "AUTO"]
-      }
+      },
+      "setting_keys": ["fs_storage"]
     },
     "collector.query_concurrently": {
-      "type": "POST"
+      "type": "POST",
+      "setting_keys": ["fs_storage"]
     },
     "collector.collect_spawn": {
       "type": "POST",
       "write_stream": {
         "name": "{events.streams.something_event.write_stream.name}"
-      }
+      },
+      "setting_keys": ["fs_storage"]
     },
     "shuffle.spawn_event": {
       "type": "POST",
       "write_stream": {
         "name": "{events.streams.something_event.write_stream.name}"
-      }
+      },
+      "setting_keys": ["fs_storage"]
     },
     "shuffle.parallelize_event": {
       "type": "POST",
       "write_stream": {
         "name": "{events.streams.something_event.write_stream.name}"
-      }
+      },
+      "setting_keys": ["fs_storage"]
     },
     "storage.save_events_fs": {
       "type": "STREAM",
@@ -138,7 +151,8 @@
       "impl": "hopeit.fs_storage.events.stream_batch_storage",
       "dataobjects": [
         "model.Something"
-      ]
+      ],
+      "setting_keys": ["fs_storage"]
     }
   }
 }
