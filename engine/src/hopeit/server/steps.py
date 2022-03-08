@@ -2,7 +2,7 @@
 Handling sequencing and execution of steps from events
 """
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import partial
 from types import ModuleType
 from typing import Type, Dict, Any, Optional, Callable, Tuple, AsyncGenerator, List, Union
@@ -202,7 +202,7 @@ async def execute_steps(steps: StepExecutionList,
     It will try to find next step in configuration order that matches input type of the payload,
     and will updated the payload and invoke next valid step.
     """
-    start_ts = datetime.now()
+    start_ts = datetime.now(tz=timezone.utc)
     step_delay = context.settings.stream.step_delay / 1000.0
     throttle_ms = context.settings.stream.throttle_ms
     i, func, is_spawn = _find_next_step(payload, steps, from_index=0)
@@ -283,7 +283,7 @@ async def _throttle(context: EventContext, throttle_ms: int, start_ts: datetime)
     """
     delay = 0.0
     if throttle_ms:
-        elapsed_td = datetime.now() - start_ts
+        elapsed_td = datetime.now(tz=timezone.utc) - start_ts
         elapsed = 1000.0 * elapsed_td.total_seconds()
         delay = max(0.0, 1.0 * throttle_ms - elapsed)
     if delay > 0.0:

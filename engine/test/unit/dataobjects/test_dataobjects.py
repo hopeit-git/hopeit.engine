@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from hopeit.dataobjects import StreamEventParams, copy_payload
 
@@ -8,7 +8,7 @@ from . import MockNested, MockData, MockDataWithoutTs, MockDataWithAutoEventId, 
 
 
 def test_data_event_params_extract_attr():
-    now = datetime.now()
+    now = datetime.now(tz=timezone.utc)
     obj = MockData('id1', 'value1', MockNested(now))
     assert StreamEventParams.extract_attr(obj, 'id') == 'id1'
     assert StreamEventParams.extract_attr(obj, 'value') == 'value1'
@@ -17,7 +17,7 @@ def test_data_event_params_extract_attr():
 
 
 def test_data_event():
-    now = datetime.now()
+    now = datetime.now(tz=timezone.utc)
     obj = MockData('id1', 'value1', MockNested(now))
     assert obj.event_id() == 'id1'
     assert obj.event_ts() == now
@@ -37,7 +37,7 @@ def test_data_event_with_auto_event_id(monkeypatch):
 
 
 def test_copy_mutable_dataobject():
-    now = datetime.now()
+    now = datetime.now(tz=timezone.utc)
     obj = MockData('id1', 'value1', MockNested(now))
     new = copy_payload(obj)
     assert new == obj
@@ -45,7 +45,7 @@ def test_copy_mutable_dataobject():
 
 
 def test_copy_immutable_dataobject_should_return_same():
-    now = datetime.now()
+    now = datetime.now(tz=timezone.utc)
     obj = MockDataImmutable('id1', 'value1', MockNested(now))
     new = copy_payload(obj)
     assert new == obj
@@ -53,7 +53,7 @@ def test_copy_immutable_dataobject_should_return_same():
 
 
 def test_copy_unsafe_dataobject_should_return_same():
-    now = datetime.now()
+    now = datetime.now(tz=timezone.utc)
     obj = MockDataUnsafe('id1', 'value1', MockNested(now))
     new = copy_payload(obj)
     assert new == obj

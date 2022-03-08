@@ -452,7 +452,7 @@ class AppEngine:
         if previous_context is None:
             track_ids = {
                 'track.request_id': str(uuid.uuid4()),
-                'track.request_ts': datetime.now().astimezone(timezone.utc).isoformat()
+                'track.request_ts': datetime.now(tz=timezone.utc).isoformat()
             }
         else:
             track_ids = previous_context.track_ids

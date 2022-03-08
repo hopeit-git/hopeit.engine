@@ -17,11 +17,11 @@ def sample_file_id():
     test_id = str(uuid.uuid4())
     json_str = '{"id": "' + test_id + '", "user": {"id": "u1", "name": "test_user"}, ' \
                + '"status": {"ts": "2020-05-01T00:00:00Z", "type": "NEW"}, "history": []}'
-    os.makedirs(f'/tmp/simple_example.{APP_VERSION}.fs.data_path/', exist_ok=True)
-    with open(f'/tmp/simple_example.{APP_VERSION}.fs.data_path/{test_id}.json', 'w') as f:
+    os.makedirs(f'/tmp/hopeit/simple_example.{APP_VERSION}.fs_storage.path/2020/05/01/00/', exist_ok=True)
+    with open(f'/tmp/hopeit/simple_example.{APP_VERSION}.fs_storage.path/2020/05/01/00/{test_id}.json', 'w') as f:
         f.write(json_str)
         f.flush()
-    return test_id
+    return test_id, "2020/05/01/00"
 
 
 @pytest.mark.asyncio
@@ -31,10 +31,11 @@ async def test_query_item(app_config, sample_file_id):  # noqa: F811
                                                  event_name='query_something_extended',
                                                  payload=status,
                                                  postprocess=True,
-                                                 item_id=sample_file_id)
+                                                 item_id=sample_file_id[0],
+                                                 partition_key=sample_file_id[1])
     assert isinstance(result, Something)
     assert result == pp_result
-    assert result.id == sample_file_id
+    assert result.id == sample_file_id[0]
     assert result.status == status
 
 
@@ -46,8 +47,9 @@ async def test_query_item_not_found(app_config):  # noqa: F811
                                                  event_name='query_something_extended',
                                                  payload=status,
                                                  postprocess=True,
-                                                 item_id=item_id)
+                                                 item_id=item_id,
+                                                 partition_key="x")
     assert res.status == 404
     assert result == pp_result
     assert result == SomethingNotFound(
-        path=f'/tmp/simple_example.{APP_VERSION}.fs.data_path', id=item_id)
+        path=f'/tmp/hopeit/simple_example.{APP_VERSION}.fs_storage.path/x', id=item_id)

@@ -1,5 +1,5 @@
 import pytest  # type: ignore
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import hopeit.toolkit.auth as auth
 from hopeit.app.context import EventContext, PostprocessHook
@@ -32,7 +32,7 @@ async def execute_flow(context):
 def _event_context(mock_app_config, plugin_config):  # noqa: F811
     settings = get_event_settings(plugin_config.effective_settings, "logout")
     cfg = settings(key='auth', datatype=AuthSettings)
-    iat = datetime.now()
+    iat = datetime.now(tz=timezone.utc)
     timeout = cfg.access_token_expiration
     return EventContext(
         app_config=mock_app_config,

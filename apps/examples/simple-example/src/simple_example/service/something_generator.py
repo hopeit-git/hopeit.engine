@@ -4,13 +4,11 @@ Simple Example: Service Something Generator
 Creates and publish Something object every 10 seconds
 """
 import asyncio
-from typing import Optional
 import random
 
 from hopeit.app.events import Spawn
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
-from hopeit.fs_storage import FileStorage
 
 from model import Something, User, SomethingParams
 

@@ -173,7 +173,7 @@ async def execute_event(app_config: AppConfig,
         payload = await _preprocess(preprocess_hook, payload)
         if postprocess_hook and preprocess_hook.status is not None:
             postprocess_hook.set_status(preprocess_hook.status)
-    datatype = find_datatype_handler(app_config=app_config, event_name=event_name)
+    datatype = find_datatype_handler(app_config=app_config, event_name=event_name, event_info=event_info)
     if datatype is None:
         if payload is not None:
             return (payload, payload, postprocess_hook) if postprocess else payload

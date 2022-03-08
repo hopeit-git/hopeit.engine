@@ -30,7 +30,7 @@ async def test_it_save_something(app_config, something_params_example, something
     assert result == [something_upload_example]
 
     with open(
-        f'/tmp/simple_example.{APP_VERSION}.upload_something.save_path/attachment-test_file_name.bytes',
+        f'/tmp/hopeit/simple_example.{APP_VERSION}.upload_something.save_path/attachment-test_file_name.bytes',
         'rb'
     ) as f:
         data = f.read()

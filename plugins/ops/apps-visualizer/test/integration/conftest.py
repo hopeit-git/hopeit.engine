@@ -2,7 +2,7 @@ import asyncio
 import json
 import os
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 import socket
 
 import pytest
@@ -73,7 +73,7 @@ async def log_entries() -> LogBatch:
         f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} login host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test | event.app=simple_example.{APPS_ROUTE_VERSION} | event.plugin=basic_auth.{APPS_ROUTE_VERSION}",  # noqa: E501
     ])
     batch = await _process_log_entries(raw)
-    ts = datetime.now()
+    ts = datetime.now(tz=timezone.utc)
     for entry in batch.entries:
         entry.ts = ts.strftime("%Y-%m-%d %H:%M:%S")
         entry.host = socket.gethostname()

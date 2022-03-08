@@ -39,7 +39,6 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-
 async def load_first(collector: Collector, context: EventContext) -> Union[Something, SomethingNotFound]:
     """
     Loads json file from filesystem as `Something` instance
@@ -54,7 +53,7 @@ async def load_first(collector: Collector, context: EventContext) -> Union[Somet
     item_id = items_to_read.item1_id
     await asyncio.sleep(0.1)
     logger.info(context, "load_second", extra=extra(something_id=item_id, path=fs.path))
-    something = await fs.get(key=item_id, datatype=Something)
+    something = await fs.get(key=item_id, datatype=Something, partition_key=items_to_read.partition_key)
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
         return SomethingNotFound(str(fs.path), item_id)
@@ -75,7 +74,7 @@ async def load_second(collector: Collector, context: EventContext) -> Union[Some
     item_id = items_to_read.item2_id
     await asyncio.sleep(0.1)
     logger.info(context, "load_first", extra=extra(something_id=item_id, path=fs.path))
-    something = await fs.get(key=item_id, datatype=Something)
+    something = await fs.get(key=item_id, datatype=Something, partition_key=items_to_read.partition_key)
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
         return SomethingNotFound(str(fs.path), item_id)

@@ -3,7 +3,7 @@ Log Stramer dataclasses and file handler implementation based on watchdog librar
 """
 import asyncio
 from typing import Dict, List, TextIO
-from datetime import datetime
+from datetime import datetime, timezone
 
 from watchdog.observers import Observer  # type: ignore
 from watchdog.events import FileSystemEventHandler  # type: ignore
@@ -151,7 +151,7 @@ class LogFileHandler(FileSystemEventHandler):
             key = f'{self.context.app_key}.{src_path}.checkpoint'.replace('/', 'x')
             cp = Checkpoint(
                 line=line,
-                expire=int(datetime.now().timestamp()) + self.file_checkpoint_expire
+                expire=int(datetime.now(tz=timezone.utc).timestamp()) + self.file_checkpoint_expire
             )
             await self.checkpoint_storage.store(key, cp)
 
@@ -160,7 +160,7 @@ class LogFileHandler(FileSystemEventHandler):
         cp = await self.checkpoint_storage.get(key, datatype=Checkpoint)
         if cp is None:
             return ''
-        if int(cp.expire) < int(datetime.now().timestamp()):
+        if int(cp.expire) < int(datetime.now(tz=timezone.utc).timestamp()):
             return ''
         return cp.line
 
@@ -171,7 +171,7 @@ class LogFileHandler(FileSystemEventHandler):
         """
         try:
             async with self.lock:
-                self.last_access[src_path] = datetime.now().timestamp()
+                self.last_access[src_path] = datetime.now(tz=timezone.utc).timestamp()
                 if self.open_files.get(src_path) is None:
                     checkpoint = await self._load_checkpoint(src_path)
                     logger.info(self.context, "Opening log file...", extra=extra(
@@ -204,7 +204,7 @@ class LogFileHandler(FileSystemEventHandler):
         """
         Closes files that are inactive (deleted of with no activity)
         """
-        exp = datetime.now().timestamp()
+        exp = datetime.now(tz=timezone.utc).timestamp()
         for key, last_ts in list(self.last_access.items()):
             if (last_ts + self.file_open_timeout) < exp:
                 try:

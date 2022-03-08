@@ -1,4 +1,5 @@
-from typing import List
+from datetime import datetime, timezone
+from typing import List, Optional
 
 import os
 from dataclasses import dataclass
@@ -7,26 +8,56 @@ import aiofiles  # type: ignore
 
 import hopeit.fs_storage as fs_module
 from hopeit.dataobjects import dataobject
-from hopeit.fs_storage import FileStorage
+from hopeit.fs_storage import FileStorage, ItemLocator
 import pytest  # type: ignore
 
 
-@dataobject
+@dataobject(event_ts="ts")
 @dataclass
 class FsMockData:
     test: str
+    ts: Optional[datetime] = None
 
 
 payload_str = """{"test":"test_fs"}"""
-test_fs = FsMockData(test='test_fs')
+test_fs = FsMockData(
+    test='test_fs'
+)
+
+payload_str_with_ts = """{"test":"test_fs", "ts":"2022-03-01T00:00:00+00:00"}"""
+test_fs_with_ts = FsMockData(
+    test='test_fs',
+    ts=datetime(2022, 3, 1, tzinfo=timezone.utc)
+)
 
 
-async def save_and_load_file(payload):
+async def save_and_load_file():
     key = "VALIDFILE"
     fs = FileStorage(path=f"/tmp/{key}/")
     path = await fs.store(key, test_fs)
     assert path == f'/tmp/{key}/{key}.json'
     loaded = await fs.get(key, datatype=FsMockData)
+    assert loaded == test_fs
+    assert type(loaded) is FsMockData
+
+
+async def save_and_load_file_in_partition():
+    key = "VALIDFILEWITHTS"
+    fs = FileStorage(path=f"/tmp/{key}/", partition_dateformat="%Y/%m/%d")
+    path = await fs.store(key, test_fs_with_ts)
+    assert path == f'/tmp/{key}/2022/03/01/{key}.json'
+    loaded = await fs.get(key, datatype=FsMockData, partition_key="2022/03/01")
+    assert loaded == test_fs_with_ts
+    assert type(loaded) is FsMockData
+
+
+async def save_and_load_file_in_partition_default_ts():
+    key = "VALIDFILE"
+    fs = FileStorage(path=f"/tmp/{key}/", partition_dateformat="%Y/%m/%d")
+    path = await fs.store(key, test_fs)
+    partition_key = datetime.now(tz=timezone.utc).strftime("%Y/%m/%d")
+    assert path == f'/tmp/{key}/{partition_key}/{key}.json'
+    loaded = await fs.get(key, datatype=FsMockData, partition_key=partition_key)
     assert loaded == test_fs
     assert type(loaded) is FsMockData
 
@@ -75,6 +106,8 @@ class MockFile:
         assert mode
         if "FILENOTFOUND" in str(path):
             raise FileNotFoundError(str(path))
+        elif "VALIDFILEWITHTS" in str(path):
+            return MockFile(payload_str_with_ts)
         elif "VALIDFILE" in str(path):
             return MockFile(payload_str)
         else:
@@ -106,13 +139,46 @@ def mock_glob(wc: str) -> List[str]:
     raise ValueError(f"glob received unexpected wildcard: {wc}")
 
 
+
+def mock_glob_partitions(wc: str) -> List[str]:
+    if wc == '/path/*.json':
+        return []
+    elif wc == '/path/2022/03/01/*.json':
+        return [
+            "/path/2022/03/01/1.json",
+            "/path/2022/03/01/2.json",
+            "/path/2022/03/01/3.json"
+        ]
+    elif wc == '/path/**/**/**/1*.json':
+        return ["/path/2022/03/01/1.json"]
+    raise ValueError(f"glob received unexpected wildcard: {wc}")
+
+
 @pytest.mark.asyncio
-async def test_load_file(monkeypatch):
+async def test_save_load_file(monkeypatch):
     monkeypatch.setattr(aiofiles, 'open', MockFile.open)
     monkeypatch.setattr(os, 'makedirs', MockOs.makedirs)
     monkeypatch.setattr(os.path, 'exists', MockPath.exists)
     monkeypatch.setattr(os, 'rename', MockOs.rename)
-    await save_and_load_file(payload_str)
+    await save_and_load_file()
+
+
+@pytest.mark.asyncio
+async def test_save_load_file_in_partition(monkeypatch):
+    monkeypatch.setattr(aiofiles, 'open', MockFile.open)
+    monkeypatch.setattr(os, 'makedirs', MockOs.makedirs)
+    monkeypatch.setattr(os.path, 'exists', MockPath.exists)
+    monkeypatch.setattr(os, 'rename', MockOs.rename)
+    await save_and_load_file_in_partition()
+
+
+@pytest.mark.asyncio
+async def test_save_load_file_in_partition_default_ts(monkeypatch):
+    monkeypatch.setattr(aiofiles, 'open', MockFile.open)
+    monkeypatch.setattr(os, 'makedirs', MockOs.makedirs)
+    monkeypatch.setattr(os.path, 'exists', MockPath.exists)
+    monkeypatch.setattr(os, 'rename', MockOs.rename)
+    await save_and_load_file_in_partition_default_ts()
 
 
 @pytest.mark.asyncio
@@ -128,7 +194,35 @@ async def test_list_objects(monkeypatch):
     fs = FileStorage(path='/path')
 
     files = await fs.list_objects()
-    assert files == ['1', '2', '3']
+    assert files == [
+        ItemLocator('1', None),
+        ItemLocator('2', None),
+        ItemLocator('3', None),
+    ]
 
     files = await fs.list_objects(wildcard="1*")
-    assert files == ['1']
+    assert files == [
+        ItemLocator('1', None),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_list_objects_within_partitions(monkeypatch):
+    monkeypatch.setattr(os, 'makedirs', MockOs.makedirs)
+    monkeypatch.setattr(fs_module, 'glob', mock_glob_partitions)
+    fs = FileStorage(path='/path', partition_dateformat="%Y/%m/%d/")
+
+    files = await fs.list_objects()
+    assert files == []
+
+    files = await fs.list_objects(wildcard="2022/03/01/*")
+    assert files == [
+        ItemLocator('1', "2022/03/01"),
+        ItemLocator('2', "2022/03/01"),
+        ItemLocator('3', "2022/03/01"),
+    ]
+
+    files = await fs.list_objects(wildcard="**/**/**/1*")
+    assert files == [
+        ItemLocator('1', "2022/03/01")
+    ]

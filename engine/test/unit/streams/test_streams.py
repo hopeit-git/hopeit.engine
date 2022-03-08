@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -19,7 +19,7 @@ class MockInvalidDataEvent:
 
 
 def test_as_data_event():  # noqa: F811
-    test_data = MockData("ok", datetime.now())
+    test_data = MockData("ok", datetime.now(tz=timezone.utc))
     assert StreamManager.as_data_event(test_data) == test_data
     with pytest.raises(NotImplementedError):
         StreamManager.as_data_event(MockInvalidDataEvent("ok"))
