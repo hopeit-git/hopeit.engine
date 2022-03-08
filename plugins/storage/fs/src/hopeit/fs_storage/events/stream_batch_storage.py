@@ -92,6 +92,7 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.dataobjects import DataObject, dataobject
 from hopeit.dataobjects.payload import Payload
 from hopeit.fs_storage import FileStorageSettings
+from hopeit.fs_storage.partition import get_partition_key
 
 logger, extra = app_extra_logger()
 
@@ -103,6 +104,8 @@ class Partition:
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     items: List[DataObject] = field(default_factory=list)
 
+
+SUFFIX = '.jsonlines'
 buffer: Dict[str, Partition] = {}
 buffer_lock: asyncio.Lock = asyncio.Lock()
 
@@ -136,10 +139,7 @@ async def __service__(context: EventContext) -> Spawn[FlushSignal]:
 async def buffer_item(payload: DataObject, context: EventContext) -> Optional[FlushSignal]:
     global buffer, buffer_lock
     settings: FileStorageSettings = context.settings(datatype=FileStorageSettings)
-    ts = _partition_timestamp(payload)
-    partition_key = ts.strftime(
-        (settings.partition_dateformat.strip('/') + '/') or "%Y/%m/%d/"
-    )
+    partition_key = get_partition_key(payload, settings.partition_dateformat or "")
     async with buffer_lock:
         partition = buffer.get(partition_key, Partition())
         buffer[partition_key] = partition
@@ -165,7 +165,7 @@ async def flush(signal: FlushSignal, context: EventContext):
 async def _save_partition(partition_key: str, items: List[DataObject], context: EventContext):
     settings = context.settings(datatype=FileStorageSettings)
     path = Path(settings.path) / partition_key
-    file = path / f"{uuid.uuid4()}.jsonlines"
+    file = path / f"{uuid.uuid4()}.{SUFFIX}"
     logger.info(context, f"Saving {file}...")
     os.makedirs(path.resolve(), exist_ok=True)
     async with aiofiles.open(file, 'w') as f:
@@ -173,6 +173,4 @@ async def _save_partition(partition_key: str, items: List[DataObject], context: 
             await f.write(Payload.to_json(item) + "\n")
 
 
-def _partition_timestamp(payload: DataObject) -> datetime:
-    ts = payload.event_ts() or datetime.now(tz=timezone.utc)
-    return ts.astimezone(timezone.utc)
+

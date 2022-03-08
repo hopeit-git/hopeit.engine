@@ -8,7 +8,7 @@ from typing import Optional, Union
 
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-from hopeit.toolkit.storage.fs import FileStorage
+from hopeit.fs_storage import FileStorage
 
 from .data_model import Status, MyMessage
 

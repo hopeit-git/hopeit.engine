@@ -11,7 +11,7 @@ from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.events import Spawn, SHUFFLE
 from hopeit.app.logger import app_extra_logger
-from hopeit.fs_storage import FileStorage
+from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import Something, SomethingStored, Status, StatusType
 
 logger, extra = app_extra_logger()
@@ -33,7 +33,11 @@ fs: Optional[FileStorage] = None
 async def __init_event__(context):
     global fs
     if fs is None:
-        fs = FileStorage(path=str(context.env['fs']['data_path']))
+        settings: FileStorageSettings = context.settings(
+            key="fs_storage", datatype=FileStorageSettings
+        )
+        fs = FileStorage.with_settings(settings)
+
 
 
 async def spawn_many_events(payload: Something, context: EventContext) -> Spawn[Something]:

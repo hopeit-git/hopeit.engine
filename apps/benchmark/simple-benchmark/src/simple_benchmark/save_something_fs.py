@@ -8,7 +8,7 @@ from typing import Optional
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
-from hopeit.fs_storage import FileStorage
+from hopeit.fs_storage import FileStorage, FileStorageSettings
 
 from model import Something, User, SomethingParams
 
@@ -32,7 +32,10 @@ rnd: int = 0
 async def __init_event__(context):
     global fs
     if fs is None:
-        fs = FileStorage(path=str(context.env['fs']['data_path']))
+        settings: FileStorageSettings = context.settings(
+            key="fs_storage", datatype=FileStorageSettings
+        )
+        fs = FileStorage.with_settings(settings)
 
 
 async def create_something(payload: SomethingParams, context: EventContext) -> Something:

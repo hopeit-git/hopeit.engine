@@ -10,7 +10,7 @@ import asyncio
 
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
-from hopeit.fs_storage import FileStorage
+from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import Something, SomethingStored, Status, StatusType
 
 __steps__ = ['update_status', 'save']
@@ -23,7 +23,10 @@ fs: Optional[FileStorage] = None
 async def __init_event__(context):
     global fs
     if fs is None:
-        fs = FileStorage(path=str(context.env['fs']['data_path']))
+        settings: FileStorageSettings = context.settings(
+            key="fs_storage", datatype=FileStorageSettings
+        )
+        fs = FileStorage.with_settings(settings)
 
 
 def update_status(payload: Something, context: EventContext) -> Something:
