@@ -786,10 +786,6 @@ def mock_api_spec():
             }
         },
         "security": [
-            {
-                "auth.bearer": []
-            }
-
         ]
     }
 

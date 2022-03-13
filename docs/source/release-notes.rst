@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+Version 0.14.2
+______________
+- Fix: removed global security section from generate openapi file to allow per event configuration to take precedence
+
+Plugin: apps-visualizer
+  - Fix: pinned `cytoscape` version to latest stable
+
+
 Version 0.14.1
 ______________
 - Reworked web server startup:
