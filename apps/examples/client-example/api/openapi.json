@@ -646,7 +646,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.14.1"
+            "default": "0.14.2"
           }
         },
         "x-module-name": "hopeit.server.config",
@@ -801,9 +801,5 @@
       }
     }
   },
-  "security": [
-    {
-      "auth.bearer": []
-    }
-  ]
+  "security": []
 }

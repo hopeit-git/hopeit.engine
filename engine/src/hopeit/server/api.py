@@ -177,6 +177,7 @@ def register_apps(apps_config: List[AppConfig]):
                 plugin_config = apps_config_by_key[plugin.app_key()]
                 _register_api_spec(config, plugin_config)
         _cleanup_api_schemas()
+        _cleanup_global_auth()
 
 
 def _register_api_spec(app_config: AppConfig, plugin: Optional[AppConfig] = None):
@@ -480,6 +481,14 @@ def _cleanup_api_schemas():
                 clean[name] = schema
         modified = len(schemas) > len(clean)
         spec['components']['schemas'] = clean
+
+
+def _cleanup_global_auth():
+    """
+    Remove global security requirements as they are propagated path by path.
+    """
+    assert spec is not None
+    spec['security'] = []
 
 
 def _update_api_paths(app_config: AppConfig, plugin: Optional[AppConfig] = None):
