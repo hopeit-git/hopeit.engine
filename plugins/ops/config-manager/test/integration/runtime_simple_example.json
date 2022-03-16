@@ -31,12 +31,12 @@
         },
         "app_connections": {},
         "env": {
-          "fs": {
-            "data_path": "/tmp/simple_example.${APPS_ROUTE_VERSION}.fs.data_path/"
+          "storage": {
+            "base_path": "/tmp/hopeit/"
           },
           "upload_something": {
-            "save_path": "/tmp/simple_example.${APPS_ROUTE_VERSION}.upload_something.save_path/",
-            "chunk_size": 16384
+            "save_path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.upload_something.save_path/",
+            "chunk_size": "16384"
           }
         },
         "events": {
@@ -45,7 +45,10 @@
             "plug_mode": "Standalone",
             "connections": [],
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [
+              "fs_storage"
+            ],
+            "dataobjects": []
           },
           "query_something": {
             "type": "GET",
@@ -53,7 +56,10 @@
             "route": "simple-example/${APPS_API_VERSION}/query_something",
             "connections": [],
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [
+              "fs_storage"
+            ],
+            "dataobjects": []
           },
           "query_something_extended": {
             "type": "POST",
@@ -61,21 +67,28 @@
             "route": "simple-example/${APPS_API_VERSION}/query_something",
             "connections": [],
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [
+              "fs_storage"
+            ],
+            "dataobjects": []
           },
           "save_something": {
             "type": "POST",
             "plug_mode": "Standalone",
             "connections": [],
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [
+              "fs_storage"
+            ],
+            "dataobjects": []
           },
           "download_something": {
             "type": "GET",
             "plug_mode": "Standalone",
             "connections": [],
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [],
+            "dataobjects": []
           },
           "download_something_streamed": {
             "type": "GET",
@@ -84,14 +97,16 @@
             "auth": [
               "Unsecured"
             ],
-            "setting_keys": []
+            "setting_keys": [],
+            "dataobjects": []
           },
           "upload_something": {
             "type": "MULTIPART",
             "plug_mode": "Standalone",
             "connections": [],
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [],
+            "dataobjects": []
           },
           "service.something_generator": {
             "type": "SERVICE",
@@ -105,7 +120,8 @@
               "queue_strategy": "DROP"
             },
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [],
+            "dataobjects": []
           },
           "streams.something_event": {
             "type": "POST",
@@ -119,7 +135,8 @@
               "queue_strategy": "DROP"
             },
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [],
+            "dataobjects": []
           },
           "streams.process_events": {
             "type": "STREAM",
@@ -134,14 +151,20 @@
               ]
             },
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [
+              "fs_storage"
+            ],
+            "dataobjects": []
           },
           "collector.query_concurrently": {
             "type": "POST",
             "plug_mode": "Standalone",
             "connections": [],
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [
+              "fs_storage"
+            ],
+            "dataobjects": []
           },
           "collector.collect_spawn": {
             "type": "POST",
@@ -155,7 +178,10 @@
               "queue_strategy": "DROP"
             },
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [
+              "fs_storage"
+            ],
+            "dataobjects": []
           },
           "shuffle.spawn_event": {
             "type": "POST",
@@ -169,7 +195,10 @@
               "queue_strategy": "DROP"
             },
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [
+              "fs_storage"
+            ],
+            "dataobjects": []
           },
           "shuffle.parallelize_event": {
             "type": "POST",
@@ -183,7 +212,29 @@
               "queue_strategy": "DROP"
             },
             "auth": [],
-            "setting_keys": []
+            "setting_keys": [
+              "fs_storage"
+            ],
+            "dataobjects": []
+          },
+          "storage.save_events_fs": {
+            "type": "STREAM",
+            "plug_mode": "Standalone",
+            "impl": "hopeit.fs_storage.events.stream_batch_storage",
+            "connections": [],
+            "read_stream": {
+              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+              "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs",
+              "queues": [
+                "high-prio",
+                "AUTO"
+              ]
+            },
+            "auth": [],
+            "setting_keys": [],
+            "dataobjects": [
+              "model.Something"
+            ]
           }
         },
         "server": {
@@ -207,7 +258,7 @@
             ]
           },
           "api": {},
-          "engine_version": "${APPS_API_VERSION}.2"
+          "engine_version": "${ENGINE_VERSION}"
         },
         "plugins": [
           {
@@ -260,6 +311,16 @@
               ]
             }
           },
+          "fs_storage": {
+            "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+            "partition_dateformat": "%Y/%m/%d/%H/"
+          },
+          "storage.save_events_fs": {
+            "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs.path",
+            "partition_dateformat": "%Y/%m/%d/%H/",
+            "flush_seconds": 60.0,
+            "flush_max_size": 100
+          },
           "simple_example.${APPS_ROUTE_VERSION}.streams.something_event": {
             "target_max_len": 1000,
             "throttle_ms": 10,
@@ -286,7 +347,12 @@
               "compression": "lz4",
               "serialization": "json+base64"
             },
-            "extras": {}
+            "extras": {
+              "fs_storage": {
+                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                "partition_dateformat": "%Y/%m/%d/%H/"
+              }
+            }
           },
           "query_something": {
             "response_timeout": 60.0,
@@ -307,7 +373,12 @@
               "compression": "lz4",
               "serialization": "json+base64"
             },
-            "extras": {}
+            "extras": {
+              "fs_storage": {
+                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                "partition_dateformat": "%Y/%m/%d/%H/"
+              }
+            }
           },
           "query_something_extended": {
             "response_timeout": 60.0,
@@ -328,7 +399,12 @@
               "compression": "lz4",
               "serialization": "json+base64"
             },
-            "extras": {}
+            "extras": {
+              "fs_storage": {
+                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                "partition_dateformat": "%Y/%m/%d/%H/"
+              }
+            }
           },
           "save_something": {
             "response_timeout": 60.0,
@@ -349,7 +425,12 @@
               "compression": "lz4",
               "serialization": "json+base64"
             },
-            "extras": {}
+            "extras": {
+              "fs_storage": {
+                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                "partition_dateformat": "%Y/%m/%d/%H/"
+              }
+            }
           },
           "download_something": {
             "response_timeout": 60.0,
@@ -507,6 +588,10 @@
                     "something_id"
                   ]
                 }
+              },
+              "fs_storage": {
+                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                "partition_dateformat": "%Y/%m/%d/%H/"
               }
             }
           },
@@ -529,7 +614,12 @@
               "compression": "lz4",
               "serialization": "json+base64"
             },
-            "extras": {}
+            "extras": {
+              "fs_storage": {
+                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                "partition_dateformat": "%Y/%m/%d/%H/"
+              }
+            }
           },
           "collector.collect_spawn": {
             "response_timeout": 60.0,
@@ -559,6 +649,10 @@
                     "something_id"
                   ]
                 }
+              },
+              "fs_storage": {
+                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                "partition_dateformat": "%Y/%m/%d/%H/"
               }
             }
           },
@@ -590,6 +684,10 @@
                     "something_id"
                   ]
                 }
+              },
+              "fs_storage": {
+                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                "partition_dateformat": "%Y/%m/%d/%H/"
               }
             }
           },
@@ -621,6 +719,38 @@
                     "something_id"
                   ]
                 }
+              },
+              "fs_storage": {
+                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                "partition_dateformat": "%Y/%m/%d/%H/"
+              }
+            }
+          },
+          "storage.save_events_fs": {
+            "response_timeout": 60.0,
+            "logging": {
+              "extra_fields": [],
+              "stream_fields": [
+                "stream.name",
+                "stream.msg_id",
+                "stream.consumer_group"
+              ]
+            },
+            "stream": {
+              "timeout": 60.0,
+              "target_max_len": 1000,
+              "throttle_ms": 10,
+              "step_delay": 0,
+              "batch_size": 5,
+              "compression": "lz4",
+              "serialization": "json+base64"
+            },
+            "extras": {
+              "_": {
+                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs.path",
+                "partition_dateformat": "%Y/%m/%d/%H/",
+                "flush_seconds": 60.0,
+                "flush_max_size": 100
               }
             }
           }
@@ -636,7 +766,8 @@
           ],
           "setting_keys": [
             "auth"
-          ]
+          ],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh": {
           "type": "GET",
@@ -647,7 +778,8 @@
           ],
           "setting_keys": [
             "auth"
-          ]
+          ],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout": {
           "type": "GET",
@@ -658,14 +790,18 @@
           ],
           "setting_keys": [
             "auth"
-          ]
+          ],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.list_somethings": {
           "type": "GET",
           "plug_mode": "Standalone",
           "connections": [],
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [
+            "fs_storage"
+          ],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.query_something": {
           "type": "GET",
@@ -673,7 +809,10 @@
           "route": "simple-example/${APPS_API_VERSION}/query_something",
           "connections": [],
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [
+            "fs_storage"
+          ],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.query_something_extended": {
           "type": "POST",
@@ -681,21 +820,28 @@
           "route": "simple-example/${APPS_API_VERSION}/query_something",
           "connections": [],
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [
+            "fs_storage"
+          ],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.save_something": {
           "type": "POST",
           "plug_mode": "Standalone",
           "connections": [],
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [
+            "fs_storage"
+          ],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.download_something": {
           "type": "GET",
           "plug_mode": "Standalone",
           "connections": [],
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.download_something_streamed": {
           "type": "GET",
@@ -704,14 +850,16 @@
           "auth": [
             "Unsecured"
           ],
-          "setting_keys": []
+          "setting_keys": [],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.upload_something": {
           "type": "MULTIPART",
           "plug_mode": "Standalone",
           "connections": [],
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.service.something_generator": {
           "type": "SERVICE",
@@ -725,7 +873,8 @@
             "queue_strategy": "DROP"
           },
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.streams.something_event": {
           "type": "POST",
@@ -739,7 +888,8 @@
             "queue_strategy": "DROP"
           },
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.streams.process_events": {
           "type": "STREAM",
@@ -754,14 +904,20 @@
             ]
           },
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [
+            "fs_storage"
+          ],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently": {
           "type": "POST",
           "plug_mode": "Standalone",
           "connections": [],
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [
+            "fs_storage"
+          ],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn": {
           "type": "POST",
@@ -775,7 +931,10 @@
             "queue_strategy": "DROP"
           },
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [
+            "fs_storage"
+          ],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event": {
           "type": "POST",
@@ -789,7 +948,10 @@
             "queue_strategy": "DROP"
           },
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [
+            "fs_storage"
+          ],
+          "dataobjects": []
         },
         "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event": {
           "type": "POST",
@@ -803,7 +965,29 @@
             "queue_strategy": "DROP"
           },
           "auth": [],
-          "setting_keys": []
+          "setting_keys": [
+            "fs_storage"
+          ],
+          "dataobjects": []
+        },
+        "simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs": {
+          "type": "STREAM",
+          "plug_mode": "Standalone",
+          "impl": "hopeit.fs_storage.events.stream_batch_storage",
+          "connections": [],
+          "read_stream": {
+            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs",
+            "queues": [
+              "high-prio",
+              "AUTO"
+            ]
+          },
+          "auth": [],
+          "setting_keys": [],
+          "dataobjects": [
+            "model.Something"
+          ]
         }
       }
     },
@@ -846,7 +1030,8 @@
             ],
             "setting_keys": [
               "auth"
-            ]
+            ],
+            "dataobjects": []
           },
           "refresh": {
             "type": "GET",
@@ -857,7 +1042,8 @@
             ],
             "setting_keys": [
               "auth"
-            ]
+            ],
+            "dataobjects": []
           },
           "logout": {
             "type": "GET",
@@ -868,7 +1054,8 @@
             ],
             "setting_keys": [
               "auth"
-            ]
+            ],
+            "dataobjects": []
           },
           "decode": {
             "type": "GET",
@@ -877,7 +1064,8 @@
             "auth": [
               "Bearer"
             ],
-            "setting_keys": []
+            "setting_keys": [],
+            "dataobjects": []
           }
         },
         "server": {
@@ -901,7 +1089,7 @@
             ]
           },
           "api": {},
-          "engine_version": "${APPS_API_VERSION}.2"
+          "engine_version": "${ENGINE_VERSION}"
         },
         "plugins": [],
         "settings": {
@@ -1024,7 +1212,8 @@
           "auth": [
             "Bearer"
           ],
-          "setting_keys": []
+          "setting_keys": [],
+          "dataobjects": []
         }
       }
     }

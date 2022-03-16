@@ -307,6 +307,13 @@
     },
     "classes": "EVENT"
   },
+  "simple_example.${APPS_ROUTE_VERSION}.simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs": {
+    "data": {
+      "id": "simple_example.${APPS_ROUTE_VERSION}.simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs",
+      "content": "simple_example.${APPS_ROUTE_VERSION}\nsimple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs"
+    },
+    "classes": "EVENT"
+  },
   "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET": {
     "data": {
       "id": "client_example.${APPS_ROUTE_VERSION}.count_and_save.GET",
@@ -417,6 +424,14 @@
       "label": ""
     }
   },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs",
+      "label": ""
+    }
+  },
   "edge_simple_example.${APPS_ROUTE_VERSION}.service.something_generator.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO": {
     "data": {
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.service.something_generator.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.AUTO",
@@ -438,6 +453,14 @@
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.streams.process_events.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio",
       "source": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
       "target": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
+      "label": "high-prio"
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs.simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio.high-prio",
+      "source": ">simple_example.${APPS_ROUTE_VERSION}.streams.something_event.high-prio",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs",
       "label": "high-prio"
     }
   },

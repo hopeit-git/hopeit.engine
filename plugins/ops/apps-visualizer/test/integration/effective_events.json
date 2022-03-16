@@ -676,6 +676,25 @@
         }
       },
       "auth": []
+    },
+    "simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs": {
+      "type": "STREAM",
+      "plug_mode": "Standalone",
+      "impl": "hopeit.fs_storage.events.stream_batch_storage",
+      "connections": [],
+      "read_stream": {
+        "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+        "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs",
+        "queues": [
+          "high-prio",
+          "AUTO"
+        ]
+      },
+      "auth": [],
+      "setting_keys": [],
+      "dataobjects": [
+        "model.Something"
+      ]
     }
   },
   "client_example.${APPS_ROUTE_VERSION}": {

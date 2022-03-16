@@ -267,7 +267,7 @@
             }
           },
           {
-            "name": "partitiom_key",
+            "name": "partition_key",
             "in": "query",
             "required": true,
             "description": "Partition folder in `YYYY/MM/DD/HH` format",
@@ -360,7 +360,7 @@
             }
           },
           {
-            "name": "partitiom_key",
+            "name": "partition_key",
             "in": "query",
             "required": true,
             "description": "Partition folder in `YYYY/MM/DD/HH` format",

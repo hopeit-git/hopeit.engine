@@ -151,8 +151,7 @@
       "impl": "hopeit.fs_storage.events.stream_batch_storage",
       "dataobjects": [
         "model.Something"
-      ],
-      "setting_keys": ["fs_storage"]
+      ]
     }
   }
 }
