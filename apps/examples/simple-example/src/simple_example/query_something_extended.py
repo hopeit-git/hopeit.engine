@@ -19,7 +19,7 @@ __api__ = event_api(
     summary="Simple Example: Query Something Extended",
     query_args=[
         ('item_id', str, 'Item Id to read'),
-        ('partitiom_key', str, 'Partition folder in `YYYY/MM/DD/HH` format')
+        ('partition_key', str, 'Partition folder in `YYYY/MM/DD/HH` format')
     ],
     payload=(Status, "Status change for the retrieved object"),
     responses={

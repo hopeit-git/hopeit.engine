@@ -12,7 +12,6 @@ async def test_simple_example_events_diagram(
     async with mock_lock:
         mock_runtime(monkeypatch, effective_events)
         result = await execute_event(app_config=plugin_config, event_name="apps.events-graph", payload=None)
-
         assert result.graph.data == events_graph_data_standard
         assert result.options.expanded_view is False
 
