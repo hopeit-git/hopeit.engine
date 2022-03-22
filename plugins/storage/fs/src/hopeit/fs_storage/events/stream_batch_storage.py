@@ -48,7 +48,7 @@ class Something:
 
 If event_ts is not set or date field is None, current timestamp at the moment the event
 is consumed in UTC will be used. In case event_ts is defined, it will be converted to UTC
-before used for partitioning. In case datetime field is naive (no timezone) it will 
+before used for partitioning. In case datetime field is naive (no timezone) it will
 be assumed to be in local timezone before converstion to UTC (Python `astimezone()` implementation)
 
 The maximum elements per partition to be kept in memory are set by the `flush_max_size` setting.
@@ -67,7 +67,7 @@ i.e. for a daily format `%Y/%m/%d` (default):
           |  ...
           |--02
              ...
-```             
+```
 
 This way data can be filtered out on retrieval without the need to iterate
 all folders.
@@ -79,11 +79,9 @@ dataobjects consumed from the input stream.
 import asyncio
 import os
 import uuid
-from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Protocol
 
 import aiofiles
 from hopeit.app.context import EventContext
@@ -102,7 +100,7 @@ __steps__ = ['buffer_item', 'flush']
 @dataclass
 class Partition:
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
-    items: List[DataObject] = field(default_factory=list)
+    items: List[Protocol[DataObject]] = field(default_factory=list)  # type: ignore
 
 
 SUFFIX = '.jsonlines'
@@ -117,7 +115,6 @@ class FlushSignal:
 
 
 async def __service__(context: EventContext) -> Spawn[FlushSignal]:
-    global buffer
     settings: FileStorageSettings = context.settings(datatype=FileStorageSettings)
     if settings.flush_seconds:
         while True:
@@ -127,7 +124,7 @@ async def __service__(context: EventContext) -> Spawn[FlushSignal]:
     else:
         if settings.flush_max_size == 0:
             logger.warning(
-                context, 
+                context,
                 "Flushing partitions by size and time are disabled."
                 "Specify either `flush_seconds` or `flush_max_size`"
                 "to enable flushing the buffer periodically"
@@ -137,7 +134,9 @@ async def __service__(context: EventContext) -> Spawn[FlushSignal]:
 
 
 async def buffer_item(payload: DataObject, context: EventContext) -> Optional[FlushSignal]:
-    global buffer, buffer_lock
+    """
+    Consumes any Dataobject type from stream and put it local memory buffer to be flushed later
+    """
     settings: FileStorageSettings = context.settings(datatype=FileStorageSettings)
     partition_key = get_partition_key(payload, settings.partition_dateformat or "")
     async with buffer_lock:
@@ -151,7 +150,6 @@ async def buffer_item(payload: DataObject, context: EventContext) -> Optional[Fl
 
 
 async def flush(signal: FlushSignal, context: EventContext):
-    global buffer, buffer_lock
     logger.info(context, f"Flushing partition {signal.partition_key}...")
     partition = buffer[signal.partition_key]
     async with partition.lock:
@@ -171,6 +169,3 @@ async def _save_partition(partition_key: str, items: List[DataObject], context: 
     async with aiofiles.open(file, 'w') as f:
         for item in items:
             await f.write(Payload.to_json(item) + "\n")
-
-
-

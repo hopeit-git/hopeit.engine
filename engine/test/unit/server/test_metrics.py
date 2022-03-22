@@ -17,8 +17,8 @@ class MockDatetime(datetime.datetime):
     ts = 0.0
 
     @classmethod
-    def now(cls):
-        return datetime.datetime.fromtimestamp(cls.ts)
+    def now(cls, tz=None):
+        return datetime.datetime.fromtimestamp(cls.ts, tz=tz)
 
 
 def test_metrics(mock_app_config):  # noqa: F811

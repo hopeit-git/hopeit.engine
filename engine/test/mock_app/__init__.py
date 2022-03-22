@@ -212,6 +212,10 @@ def mock_app_config():
                 write_stream=WriteStreamDescriptor(
                     name='mock_read_write_stream.write'
                 )
+            ),
+            "mock_event_custom": EventDescriptor(
+                type=EventType.GET,
+                impl="mock_app.mock_event_custom_impl"
             )
         },
         server=ServerConfig(
