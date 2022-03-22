@@ -318,7 +318,7 @@ class EventDescriptor:
         with the same name of the event using `settings = context.settings(datatype=MySettingsType)`.
         In case additional sections are needed to be accessed from
         EventContext, then a list of setting keys, including the name of the event if needed,
-        can be specified here. Then access to a `custom` key can be done using 
+        can be specified here. Then access to a `custom` key can be done using
         `custom_settings = context.settings(key="customer", datatype=MyCustomSettingsType)`
     :field: dataobjects, list of str: list of full qualified dataobject types that this event can process.
         When not specified, the engine will inspect the module implementation and find all datatypes supported

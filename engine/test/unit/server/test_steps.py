@@ -255,7 +255,11 @@ async def test_invoke_single_step():
 
 
 def test_split_event_stages(mock_app_config):  # noqa: F811
-    impl = find_event_handler(app_config=mock_app_config, event_name='mock_shuffle_event')
+    impl = find_event_handler(
+        app_config=mock_app_config,
+        event_name='mock_shuffle_event',
+        event_info=mock_app_config.events['mock_shuffle_event']
+    )
     event_info = mock_app_config.events['mock_shuffle_event']
     stages = split_event_stages(mock_app_config.app,
                                 event_name='mock_shuffle_event',
@@ -286,7 +290,11 @@ def test_split_event_stages(mock_app_config):  # noqa: F811
 
 
 def test_split_event_stages_queues(mock_app_config):  # noqa: F811
-    impl = find_event_handler(app_config=mock_app_config, event_name='mock_shuffle_event')
+    impl = find_event_handler(
+        app_config=mock_app_config,
+        event_name='mock_shuffle_event',
+        event_info=mock_app_config.events['mock_shuffle_event']
+    )
     event_info = deepcopy(mock_app_config.events['mock_shuffle_event'])
     event_info.read_stream = ReadStreamDescriptor(
         name="test_read_stream", consumer_group="test_group", queues=["q1", "q2"]
@@ -323,7 +331,11 @@ def test_split_event_stages_queues(mock_app_config):  # noqa: F811
 
 
 def test_collector_steps_descriptor(mock_app_config):  # noqa: F811
-    impl = find_event_handler(app_config=mock_app_config, event_name='mock_collector')
+    impl = find_event_handler(
+        app_config=mock_app_config,
+        event_name='mock_collector',
+        event_info=mock_app_config.events['mock_collector']
+    )
     steps = extract_module_steps(impl)
     collector: CollectorStepsDescriptor = steps[0][0]
     assert isinstance(collector, CollectorStepsDescriptor)

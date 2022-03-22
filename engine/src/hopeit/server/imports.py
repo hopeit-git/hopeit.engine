@@ -21,10 +21,10 @@ def find_event_handler(*, app_config: AppConfig,
     """
     if event_info.impl:
         return import_module(event_info.impl)
-           
+
     imps = (
-        app_config.engine.import_modules \
-        if app_config.engine and app_config.engine.import_modules \
+        app_config.engine.import_modules
+        if app_config.engine and app_config.engine.import_modules
         else [app_config.app.name]
     )
 
@@ -39,11 +39,11 @@ def find_event_handler(*, app_config: AppConfig,
 
 
 def find_datobject_type(qual_type_name: str) -> Type[DataObject]:
-    module_name,  type_name = (
+    mod_name,  type_name = (
         '.'.join(qual_type_name.split('.')[:-1]),
         qual_type_name.split('.')[-1]
     )
-    module = import_module(module_name)
+    module = import_module(mod_name)
     datatype = getattr(module, type_name)
     assert hasattr(datatype, "__data_object__"), \
         f"Type {qual_type_name} must be annotated with `@dataobject`."

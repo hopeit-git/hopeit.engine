@@ -9,7 +9,8 @@ from datetime import datetime, timezone
 from typing import Awaitable, Optional, Dict, List, Union, Tuple, Any
 
 from hopeit.server.imports import find_datobject_type, find_event_handler
-from hopeit.server.steps import find_datatype_handler, split_event_stages, event_and_step, extract_module_steps, effective_steps
+from hopeit.server.steps import split_event_stages, event_and_step, extract_module_steps, \
+    effective_steps
 from hopeit.toolkit import auth
 from hopeit.app.config import AppConfig, EventSettings, EventType, ReadStreamDescriptor, EventDescriptor, \
     StreamQueue, StreamQueueStrategy
@@ -548,6 +549,14 @@ class AppEngine:
 
     @staticmethod
     def _config_effective_events(app_config: AppConfig) -> Dict[str, EventDescriptor]:
+        """
+        Return effective events computed from user app config.
+
+        Effective events could be result of splitting a single event in stages,
+        using the "SHUFFLE" keyword, that will internaally generate 2 events.
+        Or for STREAMS that implementes the `__service__` method, both a STREAM
+        and a SERVICE event will be generated.
+        """
         effective_events: Dict[str, EventDescriptor] = {}
         for event_name, event_info in app_config.events.items():
             impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
@@ -556,7 +565,7 @@ class AppEngine:
             effective_events.update(**splits)
             # Add associated SERVICE events to streams
             if event_info.type == EventType.STREAM and hasattr(impl, "__service__"):
-                effective_events[f"{event_name}$__service__"]= EventDescriptor(
+                effective_events[f"{event_name}$__service__"] = EventDescriptor(
                     type=EventType.SERVICE,
                     connections=event_info.connections,
                     impl=event_info.impl,

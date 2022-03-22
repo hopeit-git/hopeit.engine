@@ -139,7 +139,6 @@ def mock_glob(wc: str) -> List[str]:
     raise ValueError(f"glob received unexpected wildcard: {wc}")
 
 
-
 def mock_glob_partitions(wc: str) -> List[str]:
     if wc == '/path/*.json':
         return []

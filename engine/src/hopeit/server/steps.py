@@ -245,9 +245,11 @@ async def invoke_single_step(func: Callable, *,
     return await _invoke_step(payload=payload, func=func, context=context, **kwargs)
 
 
-def _find_next_step(payload: Optional[EventPayload],
-                   steps: StepExecutionList,
-                   from_index: int) -> Tuple[int, Optional[Callable], bool]:
+def _find_next_step(
+    payload: Optional[EventPayload],
+    steps: StepExecutionList,
+    from_index: int
+) -> Tuple[int, Optional[Callable], bool]:
     """
     Finds next step to exectute in pending_steps list, base on the payload data type
     """
@@ -260,8 +262,8 @@ def _find_next_step(payload: Optional[EventPayload],
         if input_type is None and payload is None:
             return i, func, is_iterable
         if (
-            input_type is not None 
-            and input_type is not DataObject 
+            input_type is not None
+            and input_type is not DataObject
             and isinstance(payload, input_type)
         ):
             return i, func, is_iterable

@@ -41,11 +41,10 @@ class Payload(Generic[EventPayloadType]):
             return datatype.from_json(json_str, validate=datatype.__data_object__['validate'])  # type: ignore
         except ValidationError as e:
             raise ValueError(f"Cannot read JSON: type={datatype} validation_error={str(e)}") from e
-        except Exception as e:
+        except Exception:
             assert getattr(datatype, 'from_json'), \
                 f"{datatype} should be annotated with @dataobject"
             raise  # Raises unexpected exceptions, if assert block does not catch missing @dataobject
-
 
     @staticmethod
     def from_obj(data: Union[dict, list],
