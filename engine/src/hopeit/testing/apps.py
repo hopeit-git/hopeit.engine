@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 
 from hopeit.app.config import AppConfig, parse_app_config_json, EventDescriptor
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
-from hopeit.dataobjects import EventPayload
+from hopeit.dataobjects import DataObject, EventPayload
 from hopeit.server.config import AuthType, ServerConfig, LoggingConfig
 from hopeit.server.events import EventHandler, get_event_settings
 from hopeit.server.steps import split_event_stages, find_datatype_handler
@@ -177,7 +177,7 @@ async def execute_event(app_config: AppConfig,
     if datatype is None:
         if payload is not None:
             return (payload, payload, postprocess_hook) if postprocess else payload
-    elif not isinstance(payload, datatype):
+    elif not (datatype is DataObject or isinstance(payload, datatype)):
         return (payload, payload, postprocess_hook) if postprocess else payload
 
     on_queue, pp_result, pp_called = [payload], None, False

@@ -81,7 +81,7 @@ import os
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Protocol
+from typing import Dict, List, Optional
 
 import aiofiles
 from hopeit.app.context import EventContext
@@ -100,7 +100,7 @@ __steps__ = ['buffer_item', 'flush']
 @dataclass
 class Partition:
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
-    items: List[Protocol[DataObject]] = field(default_factory=list)  # type: ignore
+    items: List[DataObject] = field(default_factory=list)  # type: ignore
 
 
 SUFFIX = '.jsonlines'
@@ -163,7 +163,7 @@ async def flush(signal: FlushSignal, context: EventContext):
 async def _save_partition(partition_key: str, items: List[DataObject], context: EventContext):
     settings = context.settings(datatype=FileStorageSettings)
     path = Path(settings.path) / partition_key
-    file = path / f"{uuid.uuid4()}.{SUFFIX}"
+    file = path / f"{uuid.uuid4()}{SUFFIX}"
     logger.info(context, f"Saving {file}...")
     os.makedirs(path.resolve(), exist_ok=True)
     async with aiofiles.open(file, 'w') as f:
