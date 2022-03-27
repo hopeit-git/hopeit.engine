@@ -1,29 +1,21 @@
-from dataclasses import dataclass
 from datetime import datetime, timezone
 import uuid
 import pytest  # type: ignore
+
 from hopeit.testing.apps import config
 
-from hopeit.dataobjects import dataobject
-
-from hopeit.fs_storage import FileStorageSettings
-
-
-@dataobject(event_id="object_id", event_ts="object_ts")
-@dataclass
-class TestObject:
-    object_id: str
-    object_ts: datetime
-    value: int
+from . import MyObject
 
 
 @pytest.fixture
 def test_objs():
     # Creates 10 elements, in 5 partitions
     return [
-        TestObject(
+        MyObject(
             object_id=f"obj{i}",
-            object_ts=datetime.strptime(f"2020-05-01T0{i//2}:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z").astimezone(tz=timezone.utc),
+            object_ts=datetime.strptime(
+                f"2020-05-01T0{i//2}:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"
+            ).astimezone(tz=timezone.utc),
             value=i
         ) for i in range(10)
     ]

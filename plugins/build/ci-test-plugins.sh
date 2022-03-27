@@ -19,7 +19,7 @@ export PYTHONPATH=engine/src/:plugins/storage/redis/src/ && python3 -m pytest -v
 code+=$?
 
 # storage/fs
-export PYTHONPATH=engine/src/:plugins/storage/fs/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/storage/fs/src/ plugins/storage/fs/test/unit/
+export PYTHONPATH=engine/src/:plugins/storage/fs/src/ && python3 -m pytest -v --cov-fail-under=90 --cov-report=term --cov=plugins/storage/fs/src/ plugins/storage/fs/test/unit/ plugins/storage/fs/test/integration/
 code+=$?
 
 # ops/apps-visualizer
