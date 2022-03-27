@@ -1,0 +1,32 @@
+{
+    "app": {
+        "name": "test",
+        "version": "test"
+    },
+    "events": {
+        "test_stream_batch_storage": {
+            "type": "STREAM",
+            "plug_mode": "Standalone",
+            "impl": "hopeit.fs_storage.events.stream_batch_storage",
+            "connections": [],
+            "read_stream": {
+                "name": "test_stream",
+                "consumer_group": "test",
+                "queues": [
+                    "AUTO"
+                ]
+            },
+            "dataobjects": [
+                "TestObject"
+            ]
+        }
+    },
+    "settings": {
+        "test_stream_batch_storage": {
+            "path": "/tmp/hopeit/test_stream_batch_storage",
+            "partition_dateformat": "%Y/%m/%d/%H/",
+            "flush_seconds": 60,
+            "flush_max_size": 2
+        }
+    }
+}
