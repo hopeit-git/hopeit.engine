@@ -17,7 +17,7 @@ __all__ = ['api_from_config',
            'event_api',
            'app_base_route_name']
 
-ArgType = TypeVar("ArgType", bound=Type)
+ArgType = TypeVar("ArgType", bound=Type)  # pylint: disable=invalid-name
 ArgDef = Union[str, Tuple[str, ArgType], Tuple[str, ArgType, str]]
 PayloadDef = Union[Type, Tuple[Type, str]]
 
