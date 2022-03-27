@@ -48,9 +48,9 @@ code+=$?
 echo "storage/fs"
 export MYPYPATH=engine/src/:plugins/storage/fs/src/ && python3 -m mypy --namespace-packages -p hopeit.fs_storage
 code+=$?
-export MYPYPATH=engine/src/:plugins/storage/fs/src/ && python3 -m mypy --namespace-packages plugins/storage/fs/test/unit/
+export MYPYPATH=engine/src/:plugins/storage/fs/src/ && python3 -m mypy --namespace-packages plugins/storage/fs/test/unit/ plugins/storage/fs/test/integration/
 code+=$?
-python3 -m flake8 --max-line-length=120 plugins/storage/fs/src/hopeit/ plugins/storage/fs/test/unit/
+python3 -m flake8 --max-line-length=120 plugins/storage/fs/src/hopeit/ plugins/storage/fs/test/unit/ plugins/storage/fs/test/integration/
 code+=$?
 python3 -m pylint plugins/storage/fs/src/hopeit/fs_storage/
 code+=$?
