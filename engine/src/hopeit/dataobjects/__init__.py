@@ -78,7 +78,7 @@ class StreamEventMixin:
 
 DataObject = TypeVar("DataObject", bound=JsonSchemaMixin)
 EventPayload = Union[str, int, float, bool, dict, set, list, DataObject]
-EventPayloadType = TypeVar("EventPayloadType")
+EventPayloadType = TypeVar("EventPayloadType")  # pylint: disable=invalid-name
 
 
 class BinaryAttachment:

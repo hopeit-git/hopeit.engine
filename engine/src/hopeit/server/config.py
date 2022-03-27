@@ -24,7 +24,7 @@ __all__ = ['StreamsConfig',
 
 
 DEFAULT_STR = "<<DEFAULT>>"
-ConfigType = TypeVar("ConfigType")
+ConfigType = TypeVar("ConfigType")  # pylint: disable=invalid-name
 
 
 @dataobject
