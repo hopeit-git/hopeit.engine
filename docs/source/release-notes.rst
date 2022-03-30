@@ -1,6 +1,22 @@
 Release Notes
 =============
 
+
+Version 0.15.0
+______________
+-Plugins:
+  - fs_storage: event implementation to support persiting directly from a stream into disk by adding event to configuration:
+  using ```"impl": "hopeit.fs_storage.events.stream_batch_storage"``` in event configuration.
+
+-Engine:
+  - Support for custom implementation for events, enable to reuse code provided in external libraries or plugins as events
+  in an app, like `hopeit.fs_storage.events.stream_batch_storage` to persist data from streams to disks directly.
+  - Support for generic `DataObject` as a type for step payload. Enable creating generic events that can be reused
+  among apps.
+  - Extended EventDescriptor configuration, to provide a list of dataobject types that can be handled by generic events
+  using `DataObject` payload.
+
+
 Version 0.14.2
 ______________
 - Fix: removed global security section from generate openapi file to allow per event configuration to take precedence
