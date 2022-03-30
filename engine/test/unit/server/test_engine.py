@@ -151,12 +151,28 @@ async def test_read_stream(monkeypatch, mock_app_config, mock_plugin_config):  #
     payload = MockData("ok")
     expected = MockResult("ok: ok")
     setup_mocks(monkeypatch)
+    from mock_app import mock_event_dataobject_payload
+    monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
+    monkeypatch.setattr(MockEventHandler, 'call_function', mock_event_dataobject_payload.entry_point)
+    monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    res = await engine.read_stream(event_name='mock_stream_event', test_mode=True)
+    assert res == expected
+    await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_read_stream_dataobject_payload(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
+    payload = MockData("ok")
+    expected = """{"value": "ok"}"""
+    setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
     monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
-    res = await engine.read_stream(event_name='mock_stream_event', test_mode=True)
+    res = await engine.read_stream(event_name='mock_event_dataobject_payload', test_mode=True)
     assert res == expected
     await engine.stop()
 
