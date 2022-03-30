@@ -43,6 +43,7 @@ class MockEventHandler(EventHandler):
         'track.session_id': 'test_session_id'
     }
     expected_track_ids = test_track_ids
+    call_function = None
 
     def __init__(self, *,
                  app_config: AppConfig,
@@ -59,11 +60,13 @@ class MockEventHandler(EventHandler):
                                  query_args: Optional[dict],
                                  payload: Optional[EventPayload]) -> AsyncGenerator[Optional[EventPayload], None]:
         assert payload == MockEventHandler.input_payload
-        if isinstance(payload, MockData) and payload.value == 'fail':  # type: ignore
+        if MockEventHandler.call_function is not None:
+            yield MockEventHandler.call_function(payload, context)
+        elif isinstance(payload, MockData) and payload.value == 'fail':  # type: ignore
             raise ValueError("Test for error")
-        if isinstance(payload, MockData) and payload.value == 'cancel':  # type: ignore
+        elif isinstance(payload, MockData) and payload.value == 'cancel':  # type: ignore
             raise asyncio.CancelledError("Test for cancellation")
-        if isinstance(payload, MockData) and payload.value == 'timeout':  # type: ignore
+        elif isinstance(payload, MockData) and payload.value == 'timeout':  # type: ignore
             await asyncio.sleep(5.0)
         yield MockEventHandler.expected_result
 

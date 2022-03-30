@@ -216,6 +216,16 @@ def mock_app_config():
             "mock_event_custom": EventDescriptor(
                 type=EventType.GET,
                 impl="mock_app.mock_event_custom_impl"
+            ),
+            "mock_event_dataobject_payload": EventDescriptor(
+                type=EventType.STREAM,
+                read_stream=ReadStreamDescriptor(
+                    name='mock_read_write_stream.read',
+                    consumer_group='mock_event_dataobject_payload'
+                ),
+                dataobjects=[
+                    "mock_app.MockData"
+                ]
             )
         },
         server=ServerConfig(
