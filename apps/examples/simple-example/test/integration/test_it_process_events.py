@@ -16,7 +16,7 @@ async def test_it_process_events(app_config,  # noqa: F811
     partition_key = get_partition_key(something_processed, partition_dateformat="%Y/%m/%d/%H")
     assert result == SomethingStored(
             path=(
-                f"{app_config.env['storage']['base_path']}simple_example.0x14.fs_storage.path/"
+                f"{app_config.env['storage']['base_path']}simple_example.0x15.fs_storage.path/"
                 f"{partition_key}{result.payload.id}.json"
             ),
             payload=something_processed
