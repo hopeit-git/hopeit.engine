@@ -81,6 +81,16 @@ async def test_preprocess_hook():
 
 
 @pytest.mark.asyncio
+async def test_preprocess_hook_payload_raw():
+    payload_raw = b"{'a':   'field-a', 'b': 'field-b'}"
+    hook = PreprocessHook(
+        payload_raw=payload_raw,
+        headers={}
+    )
+    assert hook.payload_raw == payload_raw
+
+
+@pytest.mark.asyncio
 async def test_preprocess_hook_parsed_args():
     fields = {'a': 'field-a', 'b': 'field-b'}
     reader = MockMultipartReader(fields=fields, attachments={})

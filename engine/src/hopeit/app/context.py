@@ -303,9 +303,11 @@ class PreprocessHook(Generic[_MultipartReader]):
     from `__preprocess__(...)` event method when defined.
     """
     def __init__(self, *, headers: CIMultiDictProxy[str],
+                 payload_raw: Optional[bytes] = None,
                  multipart_reader: Optional[_MultipartReader] = None,
                  file_hook_factory: Callable = PreprocessFileHook):
         self.headers = PreprocessHeaders(headers)
+        self.payload_raw = payload_raw
         self._multipart_reader = multipart_reader
         self._args: Dict[str, Any] = {}
         self._iterated = False
