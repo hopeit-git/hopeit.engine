@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from hopeit.app.config import AppConfig, parse_app_config_json, EventDescriptor
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import DataObject, EventPayload
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.config import AuthType, ServerConfig, LoggingConfig
 from hopeit.server.events import EventHandler, get_event_settings
 from hopeit.server.steps import split_event_stages, find_datatype_handler
@@ -162,19 +163,20 @@ async def execute_event(app_config: AppConfig,
         preprocess_hook = PreprocessHook(
             headers=CIMultiDictProxy(CIMultiDict()),
             multipart_reader=MockMultipartReader(fields or {}, upload or {}),  # type: ignore
-            file_hook_factory=MockFileHook
+            file_hook_factory=MockFileHook,
+            payload_raw=b'' if payload is None else Payload.to_json(payload).encode()
         )
     if postprocess:
         postprocess_hook = PostprocessHook()
     if mocks is not None:
         _apply_mocks(context, handler, event_name, effective_events, preprocess_hook, postprocess_hook, mocks)
 
+    datatype = find_datatype_handler(app_config=app_config, event_name=event_name, event_info=event_info)
     if preprocess_hook:
         payload = await _preprocess(preprocess_hook, payload)
         if postprocess_hook and preprocess_hook.status is not None:
             postprocess_hook.set_status(preprocess_hook.status)
-    datatype = find_datatype_handler(app_config=app_config, event_name=event_name, event_info=event_info)
-    if datatype is None:
+    elif datatype is None:
         if payload is not None:
             return (payload, payload, postprocess_hook) if postprocess else payload
     elif not (datatype is DataObject or isinstance(payload, datatype)):
