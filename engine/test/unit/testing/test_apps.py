@@ -170,7 +170,8 @@ async def test_execute_event_preprocess(mock_app_config):  # noqa: F811
         assert postprocess_hook.headers.get('recognized') is None
 
     result, pp_result, response = await execute_event(
-        mock_app_config, 'mock_post_preprocess', MockData(value='ok'), query_arg1='ok', preprocess=True, postprocess=True,
+        mock_app_config, 'mock_post_preprocess', MockData(value='ok'),
+        query_arg1='ok', preprocess=True, postprocess=True,
         mocks=[mock_hooks]
     )
     assert result == MockData(value='ok: Testing!')
@@ -187,7 +188,8 @@ async def test_execute_event_preprocess_no_datatype(mock_app_config):  # noqa: F
         assert postprocess_hook.headers.get('recognized') is None
 
     result, pp_result, response = await execute_event(
-        mock_app_config, 'mock_post_preprocess_no_datatype', payload=None, query_arg1='ok', preprocess=True, postprocess=True,
+        mock_app_config, 'mock_post_preprocess_no_datatype',
+        payload=None, query_arg1='ok', preprocess=True, postprocess=True,
         mocks=[mock_hooks]
     )
     assert result == MockData(value='ok: Testing!')
