@@ -584,10 +584,9 @@ async def _request_process_payload(
     """
     try:
         payload_raw = await request.read()
-        if (payload_raw is None) or (payload_raw == b''):
-            return None, payload_raw
-        payload = Payload.from_json(payload_raw, datatype) if datatype else payload_raw.decode()
-        return payload, payload_raw  # type: ignore
+        if datatype is not None:
+            return Payload.from_json(payload_raw, datatype), payload_raw  # type: ignore
+        return None, payload_raw
     except ValueError as e:
         logger.error(context, e)
         raise BadRequest(e) from e

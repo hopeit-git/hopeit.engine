@@ -96,6 +96,18 @@ def test_extract_input_type_none():
     assert datatype is None
 
 
+def test_extract_input_type_preprocess():
+    impl = importlib.import_module('mock_app.mock_post_preprocess')
+    datatype = extract_input_type(impl)
+    assert datatype is MockData
+
+
+def test_extract_input_type_none_preprocess():
+    impl = importlib.import_module('mock_app.mock_post_preprocess_no_datatype')
+    datatype = extract_input_type(impl)
+    assert datatype is None
+
+
 def test_extract_input_type_dataclass():
     impl = importlib.import_module('mock_app.mock_post_event')
     datatype = extract_input_type(impl)
