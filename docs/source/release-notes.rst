@@ -5,7 +5,7 @@ Release Notes
 Version 0.15.0
 ______________
 -Plugins:
-  - fs_storage: event implementation to support persiting directly from a stream into disk by adding event to configuration:
+  - fs_storage: event implementation to support persisting directly from a stream into disk by adding event to configuration:
   using ```"impl": "hopeit.fs_storage.events.stream_batch_storage"``` in event configuration.
 
 -Engine:

@@ -297,7 +297,7 @@ class EventConnection:
 @dataclass
 class EventDescriptor:
     """
-    Event Descriptor: condfigures event implementation
+    Event Descriptor: configures event implementation
 
     :field: type, EventType: type of event i.e.: GET, POST, MULTIPART, STREAM, SERVICE
     :field: plug_mode, EventPlugMode: defines whether an event defined in a plugin is created in the
