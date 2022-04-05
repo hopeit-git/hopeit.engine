@@ -123,7 +123,7 @@ async def call_post_mock_event_preprocess(client):
     res: ClientResponse = await client.post(
         '/api/mock-app/test/mock-post-preprocess',
         params={'query_arg1': 'ok'},
-        data='{"value": "ok"}\n',
+        data='{"value": "ok"}',
         headers={
             'X-Track-Request-Id': 'test_request_id',
             'X-Track-Session-Id': 'test_session_id'
