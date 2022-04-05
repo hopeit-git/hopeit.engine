@@ -119,7 +119,7 @@ Microservices architecture is proven to be an efficient way that allows systems 
 
 #### Consejo Nacional de Bomberos Voluntarios de la República Argentina
 
-National Council of Volunteer Firefighters adopted hopeit.engine to create new applications, including APIs for data integration, nation-wide real-time resources monitoring, Firefighters Academy, COVID-19 dashboards, to mention a few examples. hopeit.engine leverages for this organization the ability to ease development of new features at fast speed and allows them to integrate onto existing software and decouple compoenents using Microservices architecture. 
+National Council of Volunteer Firefighters adopted hopeit.engine to create new applications, including APIs for data integration, nation-wide real-time resources monitoring, Firefighters Academy, COVID-19 dashboards, to mention a few examples. hopeit.engine leverages for this organization the ability to ease development of new features at fast speed and allows them to integrate onto existing software and decouple components using Microservices architecture. 
 
 <img align="left" width="56" height="56" src="docs/source/readme/capsfe.png">
 
@@ -207,6 +207,10 @@ If an external request triggers a process that requires background tasks to run,
 The framework is stable and running in production by early adopters with no major issues. 
 It's also being tested and used in new projects. Now we are focusing in bug-fixing,
 complete requested new features and optimize small pieces of the software.
+
+- **APRIL 2022**: `hopeit.engine` `0.15.0` adds support to persist data directly from streams with zero-code approach using 
+`hopeit.fs_storage` plugin. Initially it supports saving data in batches to the file system using folders as partitions.
+This can be easily extended to persist in databases or cloud storage services like S3 or GCS.
 
 - **JANUARY 2022**: `hopeit.engine` `0.13.0` ensures support for Python 3.10 and updates `aiohttp` to latest version. 
 `0.14.0` adds support to return `web.StreamResponse` in chunks. 

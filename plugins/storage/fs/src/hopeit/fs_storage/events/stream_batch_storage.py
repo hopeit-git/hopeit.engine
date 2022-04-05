@@ -3,7 +3,7 @@ Stream Batch Storage
 
 This event implementation allows saving data from a stream to the file system.
 This event acts as a STREAM event and at the same time as a SERVICE,
-manged internally by hopeit.engine once configured (see example below).
+managed internally by hopeit.engine once configured (see example below).
 
 The STREAM event, consumed elements from a stream and keeps them in a memory buffer.
 The SERVICE part provides a loop to flush the buffer in a fixed time interval.
