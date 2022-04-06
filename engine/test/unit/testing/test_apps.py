@@ -166,11 +166,30 @@ async def test_execute_multipart_event(mock_app_config):  # noqa: F811
 async def test_execute_event_preprocess(mock_app_config):  # noqa: F811
 
     def mock_hooks(module, context: EventContext, preprocess_hook: PreprocessHook, postprocess_hook: PostprocessHook):
-        preprocess_hook.headers = PreprocessHeaders.from_dict({'user-agent': 'Testing!'})
+        preprocess_hook.headers = PreprocessHeaders.from_dict({'X-Track-Request-Id': 'Testing!'})
         assert postprocess_hook.headers.get('recognized') is None
 
     result, pp_result, response = await execute_event(
-        mock_app_config, 'mock_post_preprocess', None, query_arg1='ok', preprocess=True, postprocess=True,
+        mock_app_config, 'mock_post_preprocess', MockData(value='ok'),
+        query_arg1='ok', preprocess=True, postprocess=True,
+        mocks=[mock_hooks]
+    )
+    assert result == MockData(value='ok: Testing!')
+    assert pp_result == result
+    assert response.headers['recognized'] == 'ok: Testing!'
+
+
+@pytest.mark.asyncio
+async def test_execute_event_preprocess_no_datatype(mock_app_config):  # noqa: F811
+
+    def mock_hooks(module, context: EventContext, preprocess_hook: PreprocessHook, postprocess_hook: PostprocessHook):
+        preprocess_hook.headers = PreprocessHeaders.from_dict({'X-Track-Request-Id': 'Testing!'})
+        preprocess_hook.payload_raw = b'OK\n'
+        assert postprocess_hook.headers.get('recognized') is None
+
+    result, pp_result, response = await execute_event(
+        mock_app_config, 'mock_post_preprocess_no_datatype',
+        payload=None, query_arg1='ok', preprocess=True, postprocess=True,
         mocks=[mock_hooks]
     )
     assert result == MockData(value='ok: Testing!')

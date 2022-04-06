@@ -116,6 +116,9 @@ def extract_preprocess_handler(impl: ModuleType) -> Optional[StepInfo]:
 
 def extract_input_type(impl: ModuleType, from_step: Optional[str] = None) -> Type:
     assert hasattr(impl, '__steps__'), f"Missing `__steps__` definition in module={impl.__name__}"
+    if from_step is None and hasattr(impl, '__preprocess__'):
+        _, input_type, _, _ = _signature(impl, '__preprocess__')
+        return input_type
     for step_name in getattr(impl, '__steps__'):
         if from_step is None or step_name == from_step:
             _, input_type, _, _ = _signature(impl, step_name)

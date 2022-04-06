@@ -119,6 +119,40 @@ async def call_post_mock_event(client):
     assert result == '{"value": "ok: ok", "processed": true}'
 
 
+async def call_post_mock_event_preprocess(client):
+    res: ClientResponse = await client.post(
+        '/api/mock-app/test/mock-post-preprocess',
+        params={'query_arg1': 'ok'},
+        data='{"value": "ok"}',
+        headers={
+            'X-Track-Request-Id': 'test_request_id',
+            'X-Track-Session-Id': 'test_session_id'
+        }
+    )
+    assert res.status == 200
+    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
+    assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+    result = (await res.read()).decode()
+    assert result == '{"value": "ok: test_request_id"}'
+
+
+async def call_post_mock_event_preprocess_no_datatype(client):
+    res: ClientResponse = await client.post(
+        '/api/mock-app/test/mock-post-preprocess-no-datatype',
+        params={'query_arg1': 'ok'},
+        data='OK\n',
+        headers={
+            'X-Track-Request-Id': 'test_request_id',
+            'X-Track-Session-Id': 'test_session_id'
+        }
+    )
+    assert res.status == 200
+    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
+    assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+    result = (await res.read()).decode()
+    assert result == '{"value": "ok: test_request_id"}'
+
+
 async def call_multipart_mock_event(client):
     os.makedirs('/tmp/call_multipart_mock_event/', exist_ok=True)
     with open('/tmp/call_multipart_mock_event/test_attachment', 'wb') as f:
@@ -549,6 +583,8 @@ async def test_endpoints(monkeypatch,
         call_get_fail_request,
         call_get_mock_spawn_event,
         call_post_mock_event,
+        call_post_mock_event_preprocess,
+        call_post_mock_event_preprocess_no_datatype,
         call_multipart_mock_event,
         call_multipart_mock_event_plain_text_json,
         call_multipart_mock_event_bad_request,

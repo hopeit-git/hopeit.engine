@@ -132,6 +132,10 @@ def mock_app_config():
                 type=EventType.POST,
                 route='mock-app/test/mock-post-preprocess'
             ),
+            "mock_post_preprocess_no_datatype": EventDescriptor(
+                type=EventType.POST,
+                route='mock-app/test/mock-post-preprocess-no-datatype'
+            ),
             "mock_stream_event": EventDescriptor(
                 type=EventType.STREAM,
                 read_stream=ReadStreamDescriptor(

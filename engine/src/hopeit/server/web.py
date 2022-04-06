@@ -18,7 +18,7 @@ import uuid
 from datetime import datetime, timezone
 from functools import partial
 from typing import (
-    Any, Callable, Coroutine, Dict, List, Optional, Type, Union
+    Any, Callable, Coroutine, Dict, List, Optional, Type, Tuple, Union
 )
 
 import aiohttp_cors  # type: ignore
@@ -577,17 +577,16 @@ async def _request_execute(
 async def _request_process_payload(
         context: EventContext,
         datatype: Optional[Type[EventPayloadType]],
-        request: web.Request) -> Optional[EventPayloadType]:
+        request: web.Request) -> Tuple[Optional[EventPayloadType], Optional[bytes]]:
     """
     Extract payload from request.
     Returns payload if parsing succeeded. Raises BadRequest if payload fails to parse
     """
     try:
         payload_raw = await request.read()
-        if (payload_raw is None) or (payload_raw == b''):
-            return None
-        payload = Payload.from_json(payload_raw, datatype) if datatype else payload_raw.decode()
-        return payload  # type: ignore
+        if datatype is not None:
+            return Payload.from_json(payload_raw, datatype), payload_raw  # type: ignore
+        return None, payload_raw
     except ValueError as e:
         logger.error(context, e)
         raise BadRequest(e) from e
@@ -609,8 +608,8 @@ async def _handle_post_invocation(
         context = _request_start(app_engine, impl, event_name, event_settings, request)
         query_args = dict(request.query)
         _validate_authorization(app_engine.app_config, context, auth_types, request)
-        payload = await _request_process_payload(context, datatype, request)
-        hook: PreprocessHook[NoopMultiparReader] = PreprocessHook(headers=request.headers)
+        payload, payload_raw = await _request_process_payload(context, datatype, request)
+        hook: PreprocessHook[NoopMultiparReader] = PreprocessHook(headers=request.headers, payload_raw=payload_raw)
         return await _request_execute(
             impl, event_name, context, query_args, payload, preprocess_hook=hook, request=request
         )

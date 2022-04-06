@@ -2,6 +2,12 @@ Release Notes
 =============
 
 
+Version 0.15.1
+______________
+- Add `payload_raw` property to PreprocessHook object
+- Change: event input type is defined by __preprocess__ payload type when is present
+
+
 Version 0.15.0
 ______________
 -Plugins:
