@@ -82,7 +82,8 @@
     },
     "save_something" : {
       "type": "POST",
-      "setting_keys": ["fs_storage"]
+      "setting_keys": ["fs_storage"],
+      "groups": ["g2"]
     },
     "download_something": {
       "type": "GET"
@@ -92,7 +93,8 @@
       "auth" : ["Unsecured"]
     },
     "upload_something": {
-      "type": "MULTIPART"
+      "type": "MULTIPART",
+      "groups": ["g1"]
     },
     "service.something_generator": {
       "type": "SERVICE",

@@ -628,7 +628,7 @@ class Server:
         """
         Starts and register a Hopeit App into this engine instance
 
-        :param app_config: AppConfog, app configuration as specified in config module
+        :param app_config: AppConfig, app configuration as specified in config module
         """
         logger.info(__name__, f"Starting app={app_config.app_key()}...")
         plugins = [

@@ -324,6 +324,8 @@ class EventDescriptor:
         When not specified, the engine will inspect the module implementation and find all datatypes supported
         as payload in the functions defined as `__steps__`. In case of generic functions that support
         `payload: DataObject` argument, then a list of full qualified datatypes must be specified here.
+    :field: groups, list of str: list of groups where the event is enabled. if none is assigned, it is automatically
+        assigned as ['DEFAULT'].
     """
     type: EventType
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE
@@ -335,6 +337,7 @@ class EventDescriptor:
     auth: List[AuthType] = field(default_factory=list)
     setting_keys: List[str] = field(default_factory=list)
     dataobjects: List[str] = field(default_factory=list)
+    groups: List[str] = field(default_factory=lambda: ['DEFAULT'])
 
     def __post_init__(self):
         if self.read_stream:
@@ -404,6 +407,7 @@ class AppConfig:
     engine: AppEngineConfig = field(default_factory=AppEngineConfig)
     app_connections: Dict[str, AppConnection] = field(default_factory=dict)
     env: Env = field(default_factory=dict)
+    groups: List[str] = field(default_factory=list)
     events: Dict[str, EventDescriptor] = field(default_factory=dict)
     server: Optional[ServerConfig] = None
     plugins: List[AppDescriptor] = field(default_factory=list)

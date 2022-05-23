@@ -70,7 +70,7 @@ web_server = web.Application()
 auth_info_default = {}
 
 
-def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_streams: bool):
+def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_streams: bool, groups: List[str]):
     """
     Load configuration files and add hooks to setup engine server and apps,
     start streams and services.
@@ -93,6 +93,7 @@ def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_st
         logger.info(__name__, f"Loading app config file={config_file}...")
         config = _load_app_config(config_file)
         config.server = server_config
+        config.groups = groups
         apps_config.append(config)
 
     # Register and add startup hooks to start configured apps
@@ -173,6 +174,9 @@ async def stream_startup_hook(app_config: AppConfig, *args, **kwargs):
     """
     app_engine = runtime.server.app_engines[app_config.app_key()]
     for event_name, event_info in app_engine.effective_events.items():
+        if app_engine.app_config.groups and \
+            not any(item in event_info.groups for item in app_engine.app_config.groups):
+            continue
         if event_info.type == EventType.STREAM:
             assert event_info.read_stream
             logger.info(
@@ -236,6 +240,9 @@ def _setup_app_event_routes(app_engine: AppEngine,
         by same app_engine
     """
     for event_name, event_info in _effective_events(app_engine, plugin).items():
+        if app_engine.app_config.groups and \
+            not any(item in event_info.groups for item in app_engine.app_config.groups):
+            continue
         if event_info.type == EventType.POST:
             web_server.add_routes([
                 _create_post_event_route(
@@ -736,7 +743,7 @@ async def _handle_event_stop_invocation(
         return web.Response(status=500, body=str(e))
 
 
-ParsedArgs = namedtuple("ParsedArgs", ["host", "port", "path", "start_streams", "config_files", "api_file"])
+ParsedArgs = namedtuple("ParsedArgs", ["host", "port", "path", "start_streams", "config_files", "api_file", "groups"])
 
 
 def parse_args(args) -> ParsedArgs:
@@ -748,6 +755,7 @@ def parse_args(args) -> ParsedArgs:
     --start-streams, optional True if to auto start all events of STREAM type
     --config-files, is a comma-separated list of hopeit apps config files relative or full paths
     --api-file, optional path to openapi.json file with at least openapi and info sections
+    --groups, optional list of group label to be started
     Example::
 
         python web.py --port=8020 --path=/tmp/hopeit.01 --config-files=test.json
@@ -764,10 +772,12 @@ def parse_args(args) -> ParsedArgs:
     parser.add_argument('--start-streams', action='store_true')
     parser.add_argument('--config-files')
     parser.add_argument('--api-file')
+    parser.add_argument('--groups')
 
     parsed_args = parser.parse_args(args=args)
     port = int(parsed_args.port) if parsed_args.port else 8020 if parsed_args.path is None else None
     config_files = parsed_args.config_files.split(',')
+    groups = list(set(parsed_args.groups.split(','))) if parsed_args.groups else []
 
     return ParsedArgs(
         host=parsed_args.host,
@@ -775,7 +785,8 @@ def parse_args(args) -> ParsedArgs:
         path=parsed_args.path,
         start_streams=bool(parsed_args.start_streams),
         config_files=config_files,
-        api_file=parsed_args.api_file
+        api_file=parsed_args.api_file,
+        groups=groups
     )
 
 
@@ -784,6 +795,7 @@ if __name__ == "__main__":
     prepare_engine(
         config_files=sys_args.config_files,
         api_file=sys_args.api_file,
-        start_streams=sys_args.start_streams
+        start_streams=sys_args.start_streams,
+        groups=sys_args.groups
     )
     serve(host=sys_args.host, path=sys_args.path, port=sys_args.port)
