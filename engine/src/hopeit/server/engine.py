@@ -558,18 +558,20 @@ class AppEngine:
         and a SERVICE event will be generated.
         """
         effective_events: Dict[str, EventDescriptor] = {}
+        assert app_config.server
         for event_name, event_info in app_config.events.items():
-            impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
-            # Add events resultatn of splitting steps on SHUFFLE (stages)
-            splits = split_event_stages(app_config.app, event_name, event_info, impl)
-            effective_events.update(**splits)
-            # Add associated SERVICE events to streams
-            if event_info.type == EventType.STREAM and hasattr(impl, "__service__"):
-                effective_events[f"{event_name}$__service__"] = EventDescriptor(
-                    type=EventType.SERVICE,
-                    connections=event_info.connections,
-                    impl=event_info.impl,
-                )
+            if (not app_config.server.enabled_groups or event_info.group in app_config.server.enabled_groups):
+                impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
+                # Add events resultatn of splitting steps on SHUFFLE (stages)
+                splits = split_event_stages(app_config.app, event_name, event_info, impl)
+                effective_events.update(**splits)
+                # Add associated SERVICE events to streams
+                if event_info.type == EventType.STREAM and hasattr(impl, "__service__"):
+                    effective_events[f"{event_name}$__service__"] = EventDescriptor(
+                        type=EventType.SERVICE,
+                        connections=event_info.connections,
+                        impl=event_info.impl,
+                    )
         return effective_events
 
     def _find_stream_datatype_handlers(self, event_name: str, event_info: EventDescriptor) -> Dict[str, type]:

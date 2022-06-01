@@ -174,17 +174,15 @@ async def stream_startup_hook(app_config: AppConfig, *args, **kwargs):
     """
     app_engine = runtime.server.app_engines[app_config.app_key()]
     for event_name, event_info in app_engine.effective_events.items():
-        if (not app_engine.app_config.server.enabled_groups
-            or event_info.group in app_engine.app_config.server.enabled_groups):
-            if event_info.type == EventType.STREAM:
-                assert event_info.read_stream
-                logger.info(
-                    __name__, f"STREAM start event_name={event_name} read_stream={event_info.read_stream.name}")
-                asyncio.create_task(app_engine.read_stream(event_name=event_name))
-            elif event_info.type == EventType.SERVICE:
-                logger.info(
-                    __name__, f"SERVICE start event_name={event_name}")
-                asyncio.create_task(app_engine.service_loop(event_name=event_name))
+        if event_info.type == EventType.STREAM:
+            assert event_info.read_stream
+            logger.info(
+                __name__, f"STREAM start event_name={event_name} read_stream={event_info.read_stream.name}")
+            asyncio.create_task(app_engine.read_stream(event_name=event_name))
+        elif event_info.type == EventType.SERVICE:
+            logger.info(
+                __name__, f"SERVICE start event_name={event_name}")
+            asyncio.create_task(app_engine.service_loop(event_name=event_name))
 
 
 def _effective_events(app_engine: AppEngine, plugin: Optional[AppEngine] = None):
@@ -238,42 +236,39 @@ def _setup_app_event_routes(app_engine: AppEngine,
         is handled by a plugin app, if not specified methods will be handled
         by same app_engine
     """
-    assert app_engine.app_config.server
     for event_name, event_info in _effective_events(app_engine, plugin).items():
-        if (not app_engine.app_config.server.enabled_groups
-            or event_info.group in app_engine.app_config.server.enabled_groups):
-            if event_info.type == EventType.POST:
-                web_server.add_routes([
-                    _create_post_event_route(
-                        app_engine, plugin=plugin, event_name=event_name, event_info=event_info
-                    )
-                ])
-            elif event_info.type == EventType.GET:
-                web_server.add_routes([
-                    _create_get_event_route(
-                        app_engine, plugin=plugin, event_name=event_name, event_info=event_info
-                    )
-                ])
-            elif event_info.type == EventType.MULTIPART:
-                web_server.add_routes([
-                    _create_multipart_event_route(
-                        app_engine, plugin=plugin, event_name=event_name, event_info=event_info
-                    )
-                ])
-            elif event_info.type == EventType.STREAM and plugin is None:
-                web_server.add_routes(
-                    _create_event_management_routes(
-                        app_engine, event_name=event_name, event_info=event_info
-                    )
+        if event_info.type == EventType.POST:
+            web_server.add_routes([
+                _create_post_event_route(
+                    app_engine, plugin=plugin, event_name=event_name, event_info=event_info
                 )
-            elif event_info.type == EventType.SERVICE and plugin is None:
-                web_server.add_routes(
-                    _create_event_management_routes(
-                        app_engine, event_name=event_name, event_info=event_info
-                    )
+            ])
+        elif event_info.type == EventType.GET:
+            web_server.add_routes([
+                _create_get_event_route(
+                    app_engine, plugin=plugin, event_name=event_name, event_info=event_info
                 )
-            else:
-                raise ValueError(f"Invalid event_type:{event_info.type} for event:{event_name}")
+            ])
+        elif event_info.type == EventType.MULTIPART:
+            web_server.add_routes([
+                _create_multipart_event_route(
+                    app_engine, plugin=plugin, event_name=event_name, event_info=event_info
+                )
+            ])
+        elif event_info.type == EventType.STREAM and plugin is None:
+            web_server.add_routes(
+                _create_event_management_routes(
+                    app_engine, event_name=event_name, event_info=event_info
+                )
+            )
+        elif event_info.type == EventType.SERVICE and plugin is None:
+            web_server.add_routes(
+                _create_event_management_routes(
+                    app_engine, event_name=event_name, event_info=event_info
+                )
+            )
+        else:
+            raise ValueError(f"Invalid event_type:{event_info.type} for event:{event_name}")
 
 
 def _auth_types(app_engine: AppEngine, event_name: str):
