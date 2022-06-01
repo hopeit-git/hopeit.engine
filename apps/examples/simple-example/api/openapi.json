@@ -1696,13 +1696,6 @@
             },
             "default": {}
           },
-          "groups": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": []
-          },
           "events": {
             "type": "object",
             "additionalProperties": {
@@ -1926,14 +1919,9 @@
             },
             "default": []
           },
-          "groups": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": [
-              "DEFAULT"
-            ]
+          "group": {
+            "type": "string",
+            "default": "DEFAULT"
           }
         },
         "x-module-name": "hopeit.app.config",
@@ -2065,6 +2053,13 @@
           "engine_version": {
             "type": "string",
             "default": "0.15.1"
+          },
+          "enabled_groups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
           }
         },
         "x-module-name": "hopeit.server.config",

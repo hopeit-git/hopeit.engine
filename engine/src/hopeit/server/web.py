@@ -76,7 +76,8 @@ def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_st
     start streams and services.
     """
     logger.info("Loading engine config file=%s...", config_files[0])  # type: ignore
-    server_config = _load_engine_config(config_files[0])
+    server_config: ServerConfig = _load_engine_config(config_files[0])
+    server_config.enabled_groups = groups
 
     # Add startup hook to start engine
     web_server.on_startup.append(
@@ -93,7 +94,6 @@ def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_st
         logger.info(__name__, f"Loading app config file={config_file}...")
         config = _load_app_config(config_file)
         config.server = server_config
-        config.groups = groups
         apps_config.append(config)
 
     # Register and add startup hooks to start configured apps
@@ -174,18 +174,17 @@ async def stream_startup_hook(app_config: AppConfig, *args, **kwargs):
     """
     app_engine = runtime.server.app_engines[app_config.app_key()]
     for event_name, event_info in app_engine.effective_events.items():
-        if app_engine.app_config.groups and \
-            not any(item in event_info.groups for item in app_engine.app_config.groups):
-            continue
-        if event_info.type == EventType.STREAM:
-            assert event_info.read_stream
-            logger.info(
-                __name__, f"STREAM start event_name={event_name} read_stream={event_info.read_stream.name}")
-            asyncio.create_task(app_engine.read_stream(event_name=event_name))
-        elif event_info.type == EventType.SERVICE:
-            logger.info(
-                __name__, f"SERVICE start event_name={event_name}")
-            asyncio.create_task(app_engine.service_loop(event_name=event_name))
+        if (not app_engine.app_config.server.enabled_groups
+            or event_info.group in app_engine.app_config.server.enabled_groups):
+            if event_info.type == EventType.STREAM:
+                assert event_info.read_stream
+                logger.info(
+                    __name__, f"STREAM start event_name={event_name} read_stream={event_info.read_stream.name}")
+                asyncio.create_task(app_engine.read_stream(event_name=event_name))
+            elif event_info.type == EventType.SERVICE:
+                logger.info(
+                    __name__, f"SERVICE start event_name={event_name}")
+                asyncio.create_task(app_engine.service_loop(event_name=event_name))
 
 
 def _effective_events(app_engine: AppEngine, plugin: Optional[AppEngine] = None):
@@ -239,42 +238,42 @@ def _setup_app_event_routes(app_engine: AppEngine,
         is handled by a plugin app, if not specified methods will be handled
         by same app_engine
     """
+    assert app_engine.app_config.server
     for event_name, event_info in _effective_events(app_engine, plugin).items():
-        if app_engine.app_config.groups and \
-            not any(item in event_info.groups for item in app_engine.app_config.groups):
-            continue
-        if event_info.type == EventType.POST:
-            web_server.add_routes([
-                _create_post_event_route(
-                    app_engine, plugin=plugin, event_name=event_name, event_info=event_info
+        if (not app_engine.app_config.server.enabled_groups
+            or event_info.group in app_engine.app_config.server.enabled_groups):
+            if event_info.type == EventType.POST:
+                web_server.add_routes([
+                    _create_post_event_route(
+                        app_engine, plugin=plugin, event_name=event_name, event_info=event_info
+                    )
+                ])
+            elif event_info.type == EventType.GET:
+                web_server.add_routes([
+                    _create_get_event_route(
+                        app_engine, plugin=plugin, event_name=event_name, event_info=event_info
+                    )
+                ])
+            elif event_info.type == EventType.MULTIPART:
+                web_server.add_routes([
+                    _create_multipart_event_route(
+                        app_engine, plugin=plugin, event_name=event_name, event_info=event_info
+                    )
+                ])
+            elif event_info.type == EventType.STREAM and plugin is None:
+                web_server.add_routes(
+                    _create_event_management_routes(
+                        app_engine, event_name=event_name, event_info=event_info
+                    )
                 )
-            ])
-        elif event_info.type == EventType.GET:
-            web_server.add_routes([
-                _create_get_event_route(
-                    app_engine, plugin=plugin, event_name=event_name, event_info=event_info
+            elif event_info.type == EventType.SERVICE and plugin is None:
+                web_server.add_routes(
+                    _create_event_management_routes(
+                        app_engine, event_name=event_name, event_info=event_info
+                    )
                 )
-            ])
-        elif event_info.type == EventType.MULTIPART:
-            web_server.add_routes([
-                _create_multipart_event_route(
-                    app_engine, plugin=plugin, event_name=event_name, event_info=event_info
-                )
-            ])
-        elif event_info.type == EventType.STREAM and plugin is None:
-            web_server.add_routes(
-                _create_event_management_routes(
-                    app_engine, event_name=event_name, event_info=event_info
-                )
-            )
-        elif event_info.type == EventType.SERVICE and plugin is None:
-            web_server.add_routes(
-                _create_event_management_routes(
-                    app_engine, event_name=event_name, event_info=event_info
-                )
-            )
-        else:
-            raise ValueError(f"Invalid event_type:{event_info.type} for event:{event_name}")
+            else:
+                raise ValueError(f"Invalid event_type:{event_info.type} for event:{event_name}")
 
 
 def _auth_types(app_engine: AppEngine, event_name: str):
@@ -777,7 +776,7 @@ def parse_args(args) -> ParsedArgs:
     parsed_args = parser.parse_args(args=args)
     port = int(parsed_args.port) if parsed_args.port else 8020 if parsed_args.path is None else None
     config_files = parsed_args.config_files.split(',')
-    groups = list(set(parsed_args.groups.split(','))) if parsed_args.groups else []
+    groups = parsed_args.groups.split(',') if parsed_args.groups else []
 
     return ParsedArgs(
         host=parsed_args.host,

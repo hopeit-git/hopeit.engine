@@ -337,7 +337,7 @@ class EventDescriptor:
     auth: List[AuthType] = field(default_factory=list)
     setting_keys: List[str] = field(default_factory=list)
     dataobjects: List[str] = field(default_factory=list)
-    groups: List[str] = field(default_factory=lambda: ['DEFAULT'])
+    group: str = 'DEFAULT'
 
     def __post_init__(self):
         if self.read_stream:
@@ -407,7 +407,6 @@ class AppConfig:
     engine: AppEngineConfig = field(default_factory=AppEngineConfig)
     app_connections: Dict[str, AppConnection] = field(default_factory=dict)
     env: Env = field(default_factory=dict)
-    groups: List[str] = field(default_factory=list)
     events: Dict[str, EventDescriptor] = field(default_factory=dict)
     server: Optional[ServerConfig] = None
     plugins: List[AppDescriptor] = field(default_factory=list)

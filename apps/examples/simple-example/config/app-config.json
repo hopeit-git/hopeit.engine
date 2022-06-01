@@ -83,7 +83,7 @@
     "save_something" : {
       "type": "POST",
       "setting_keys": ["fs_storage"],
-      "groups": ["g2"]
+      "group": "g2"
     },
     "download_something": {
       "type": "GET"
@@ -94,7 +94,7 @@
     },
     "upload_something": {
       "type": "MULTIPART",
-      "groups": ["g1"]
+      "group": "g1"
     },
     "service.something_generator": {
       "type": "SERVICE",
