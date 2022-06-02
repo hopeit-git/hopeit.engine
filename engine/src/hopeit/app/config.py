@@ -324,8 +324,7 @@ class EventDescriptor:
         When not specified, the engine will inspect the module implementation and find all datatypes supported
         as payload in the functions defined as `__steps__`. In case of generic functions that support
         `payload: DataObject` argument, then a list of full qualified datatypes must be specified here.
-    :field: groups, list of str: list of groups where the event is enabled. if none is assigned, it is automatically
-        assigned as ['DEFAULT'].
+    :field: group, str: group name, if none is assigned it is automatically assigned as 'DEFAULT'.
     """
     type: EventType
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE
