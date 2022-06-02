@@ -98,7 +98,6 @@ class ServerConfig:
     auth: AuthConfig = field(default_factory=AuthConfig.no_auth)
     api: APIConfig = field(default_factory=APIConfig)
     engine_version: str = field(default=ENGINE_VERSION)
-    enabled_groups: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         self.engine_version = ENGINE_VERSION

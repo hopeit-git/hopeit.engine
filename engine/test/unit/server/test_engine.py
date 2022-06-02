@@ -1,7 +1,7 @@
 import asyncio
 
 import pytest  # type: ignore
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.server.config import AuthType
@@ -17,14 +17,19 @@ from mock_app import mock_app_config  # type: ignore  # noqa: F401
 from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401
 
 
-async def create_engine(app_config: AppConfig, plugin: AppConfig) -> AppEngine:
-    engine = await AppEngine(app_config=app_config, plugins=[plugin]).start()
+async def create_engine(app_config: AppConfig, plugin: AppConfig,
+                        enabled_groups: Optional[List[str]] = None) -> AppEngine:
+    if enabled_groups is None:
+        enabled_groups = []
+    engine = await AppEngine(app_config=app_config, plugins=[plugin], enabled_groups=enabled_groups).start()
     assert engine.stream_manager is not None
     return engine
 
 
-async def create_plugin_engine(plugin: AppConfig) -> AppEngine:
-    engine = await AppEngine(app_config=plugin, plugins=[]).start()
+async def create_plugin_engine(plugin: AppConfig, enabled_groups: Optional[List[str]] = None) -> AppEngine:
+    if enabled_groups is None:
+        enabled_groups = []
+    engine = await AppEngine(app_config=plugin, plugins=[], enabled_groups=enabled_groups).start()
     assert engine.stream_manager is None
     return engine
 

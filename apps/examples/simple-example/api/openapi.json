@@ -229,7 +229,7 @@
         ],
         "responses": {
           "200": {
-            "description": "List",
+            "description": "typing.List[model.Something]",
             "content": {
               "application/json": {
                 "schema": {
@@ -2053,13 +2053,6 @@
           "engine_version": {
             "type": "string",
             "default": "0.15.1"
-          },
-          "enabled_groups": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": []
           }
         },
         "x-module-name": "hopeit.server.config",

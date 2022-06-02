@@ -1,5 +1,5 @@
 {
-    "version": "0.2.0",
+    "version": "0.2.0",    
     "configurations": [
         {
             "name": "simple-example",
@@ -11,7 +11,7 @@
                 "--start-streams",
                 "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
                 "--api-file=apps/examples/simple-example/api/openapi.json",
-                "--groups=g1,g2"
+                "--enabled-groups=g1,g2"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"

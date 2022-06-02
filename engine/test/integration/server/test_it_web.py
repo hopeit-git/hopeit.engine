@@ -3,7 +3,7 @@ import os
 import uuid
 import asyncio
 import logging
-
+from typing import Optional, List
 import aiohttp
 import pytest
 from aiohttp import ClientResponse
@@ -519,13 +519,13 @@ async def call_stop_service(client):
     assert res.status == 200
 
 
-async def start_test_server(
-        mock_app_config, mock_plugin_config, streams=None):  # noqa: F811
+async def start_test_server(mock_app_config, mock_plugin_config,  # noqa: F811
+                            streams: bool, enabled_groups: List[str]):
     await server_startup_hook(mock_app_config.server)
-    await app_startup_hook(mock_plugin_config)
-    await app_startup_hook(mock_app_config)
+    await app_startup_hook(mock_plugin_config, enabled_groups)
+    await app_startup_hook(mock_app_config, enabled_groups)
     if streams:
-        await stream_startup_hook(mock_app_config)
+        await stream_startup_hook(mock_app_config, enabled_groups)
     print('Test engine started.', hopeit.server.web.web_server)
     await asyncio.sleep(5)
 
@@ -534,13 +534,16 @@ async def _setup(monkeypatch,
                  mock_app_config,  # noqa: F811
                  mock_plugin_config,  # noqa: F811
                  aiohttp_client,  # noqa: F811
-                 streams=None):
+                 streams=None,
+                 enabled_groups: Optional[List[str]] = None):
     stream_event = MockResult("ok: ok")
     monkeypatch.setattr(MockStreamManager, 'test_payload', stream_event)
     monkeypatch.setattr(MockEventHandler, 'test_track_ids', None)
 
     api.clear()
-    await start_test_server(mock_app_config, mock_plugin_config, streams)
+    if enabled_groups is None:
+        enabled_groups = []
+    await start_test_server(mock_app_config, mock_plugin_config, streams, enabled_groups)
     return await aiohttp_client(hopeit.server.web.web_server)
 
 
@@ -564,7 +567,7 @@ async def test_endpoints(monkeypatch,
                          mock_plugin_config,  # noqa: F811
                          aiohttp_client):  # noqa: F811
     test_client = await _setup(monkeypatch, mock_app_config, mock_plugin_config,
-                               aiohttp_client)
+                               aiohttp_client, [])
 
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)

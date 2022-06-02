@@ -14,12 +14,13 @@ from mock_app import MockData, MockResult  # type: ignore
 
 
 class MockAppEngine(AppEngine):
-    def __init__(self, *, app_config: AppConfig, plugins: List[AppConfig]):
+    def __init__(self, *, app_config: AppConfig, plugins: List[AppConfig], enabled_groups: List[str]):
         """
         Creates an instance of the AppEngine
 
         :param app_config: AppConfig, Hopeit application configuration as specified in config module
         """
+        self.effective_events = self._config_effective_events(app_config, enabled_groups)
         self.app_config = app_config
         self.plugins = plugins
 
@@ -202,8 +203,8 @@ class MockServer(Server):
     async def stop(self):
         pass
 
-    async def start_app(self, app_config: AppConfig):
-        self.app = MockAppEngine(app_config=app_config, plugins=[])
+    async def start_app(self, app_config: AppConfig, enabled_groups: List[str]):
+        self.app = MockAppEngine(app_config=app_config, plugins=[], enabled_groups=enabled_groups)
 
     def app_engine(self, *, app_key: str) -> AppEngine:
         return self.app

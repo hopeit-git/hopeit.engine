@@ -53,7 +53,7 @@ def test_config_with_api_file():
 
 
 def test_config_with_groups():
-    args = ['--config-files=test.json', '--api-file=openapi.json', '--groups=g1,g2']
+    args = ['--config-files=test.json', '--api-file=openapi.json', '--enabled-groups=g1,g2']
     result = parse_args(args)
     assert result == (None, 8020, None, False, ['test.json'], 'openapi.json', ['g1', 'g2'])
 
@@ -93,7 +93,7 @@ async def test_server_initialization(monkeypatch):
             config_files=['test_server_file.json', 'test_app_file.json', 'test_app_file2.json'],
             api_file='test_api_file.json',
             start_streams=True,
-            groups=[]
+            enabled_groups=[]
         )
         web.web_server.on_startup.append(_shutdown)
         web.serve(host='localhost', port=8020, path=None)

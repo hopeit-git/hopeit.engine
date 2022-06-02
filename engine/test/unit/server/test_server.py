@@ -1,7 +1,9 @@
 import pytest  # type: ignore
 
 from hopeit.app.config import AppConfig
+from hopeit.server import runtime
 from hopeit.server.engine import Server, AppEngine
+
 
 from mock_app import mock_app_config  # type: ignore  # noqa: F401
 from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401
@@ -11,9 +13,9 @@ from mock_engine import MockAppEngine
 async def start_server(app_config: AppConfig,
                        plugin: AppConfig) -> Server:
     assert app_config.server
-    server = await Server().start(config=app_config.server)
-    await server.start_app(plugin)
-    await server.start_app(app_config)
+    server = await runtime.server.start(config=app_config.server)
+    await server.start_app(app_config=plugin, enabled_groups=[])
+    await server.start_app(app_config=app_config, enabled_groups=[])
     return server
 
 

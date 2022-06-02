@@ -35,7 +35,8 @@ class AppEngine:
     Engine that handles a Hopeit Application
     """
 
-    def __init__(self, *, app_config: AppConfig, plugins: List[AppConfig], streams_enabled: bool = True):
+    def __init__(self, *, app_config: AppConfig, plugins: List[AppConfig],
+                 streams_enabled: bool = True, enabled_groups: List[str]):
         """
         Creates an instance of the AppEngine
 
@@ -43,7 +44,7 @@ class AppEngine:
         """
         self.app_config = app_config
         self.app_key = app_config.app_key()
-        self.effective_events = self._config_effective_events(app_config)
+        self.effective_events = self._config_effective_events(app_config, enabled_groups)
         self.plugins = plugins
         self.settings = get_runtime_settings(app_config, plugins)
         self.event_handler: Optional[EventHandler] = None
@@ -548,7 +549,7 @@ class AppEngine:
             raise RuntimeError(f"Cannot stop non running event: {event_name}.")
 
     @staticmethod
-    def _config_effective_events(app_config: AppConfig) -> Dict[str, EventDescriptor]:
+    def _config_effective_events(app_config: AppConfig, enabled_groups: List[str]) -> Dict[str, EventDescriptor]:
         """
         Return effective events computed from user app config.
 
@@ -560,9 +561,9 @@ class AppEngine:
         effective_events: Dict[str, EventDescriptor] = {}
         assert app_config.server
         for event_name, event_info in app_config.events.items():
-            if (not app_config.server.enabled_groups or event_info.group in app_config.server.enabled_groups):
+            if len(enabled_groups) == 0 or event_info.group in enabled_groups:
                 impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
-                # Add events resultatn of splitting steps on SHUFFLE (stages)
+                # Add events resultant of splitting steps on SHUFFLE (stages)
                 splits = split_event_stages(app_config.app, event_name, event_info, impl)
                 effective_events.update(**splits)
                 # Add associated SERVICE events to streams
@@ -626,7 +627,7 @@ class Server:
             await app_engine.stop()
         logger.info(__name__, 'Engine stopped.')
 
-    async def start_app(self, app_config: AppConfig):
+    async def start_app(self, app_config: AppConfig, enabled_groups: List[str]):
         """
         Starts and register a Hopeit App into this engine instance
 
@@ -637,7 +638,9 @@ class Server:
             self.app_engine(app_key=plugin.app_key()).app_config
             for plugin in app_config.plugins
         ]
-        app_engine = await AppEngine(app_config=app_config, plugins=plugins).start()
+        app_engine = await AppEngine(app_config=app_config,
+                                     plugins=plugins,
+                                     enabled_groups=enabled_groups).start()
         self.app_engines[app_config.app_key()] = app_engine
         return app_engine
 
