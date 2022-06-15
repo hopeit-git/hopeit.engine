@@ -722,3 +722,79 @@ async def test_execute_collector(monkeypatch, mock_app_config, mock_plugin_confi
                             "track.session_id": "test_session_id"
                          })
     await engine.stop()
+
+
+@pytest.mark.asyncio
+async def test_start_all_groups(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
+    setup_mocks(monkeypatch)
+    engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config, enabled_groups=None)
+    assert all(
+        event_name in engine.effective_events
+        for event_name in mock_app_config.events.keys()
+    )
+
+
+@pytest.mark.asyncio
+async def test_start_single_group(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
+    setup_mocks(monkeypatch)
+    engine = await create_engine(
+        app_config=mock_app_config,
+        plugin=mock_plugin_config,
+        enabled_groups=['GROUP_A']
+    )
+    assert len(engine.effective_events) == 4
+    assert all(
+        event_name in engine.effective_events
+        for event_name in ['mock_event', 'mock_post_event', 'mock_event_logging', 'mock_stream_event']
+    )
+    assert all(
+        event_name in engine.effective_events
+        for event_name, event_info in mock_app_config.events.items()
+        if event_info.group == 'GROUP_A'
+    )
+
+
+
+@pytest.mark.asyncio
+async def test_start_multiple_groups(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
+    setup_mocks(monkeypatch)
+    engine = await create_engine(
+        app_config=mock_app_config,
+        plugin=mock_plugin_config,
+        enabled_groups=['GROUP_A', 'GROUP_B']
+    )
+    assert len(engine.effective_events) == 6
+    assert all(
+        event_name in engine.effective_events
+        for event_name in [
+            'mock_event', 'mock_post_event', 'mock_event_logging', 'mock_stream_event',
+            'mock_stream_timeout', 'mock_multipart_event'
+        ]
+    )
+    assert all(
+        event_name in engine.effective_events
+        for event_name, event_info in mock_app_config.events.items()
+        if event_info.group in ('GROUP_A', 'GROUP_B')
+    )
+
+
+
+@pytest.mark.asyncio
+async def test_start_default_group(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
+    setup_mocks(monkeypatch)
+    engine = await create_engine(
+        app_config=mock_app_config,
+        plugin=mock_plugin_config,
+        enabled_groups=['DEFAULT']
+    )
+    # Checking count it should be 19 events + 2 split events == 21
+    assert len(engine.effective_events) == 21
+    assert all(
+        event_name not in engine.effective_events
+        for event_name in ['mock_event', 'mock_post_event', 'mock_event_logging', 'mock_stream_event']
+    )
+    assert all(
+        event_name in engine.effective_events
+        for event_name, event_info in mock_app_config.events.items()
+        if event_info.group == 'DEFAULT'
+    )

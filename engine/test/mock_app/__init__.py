@@ -111,18 +111,22 @@ def mock_app_config():
         events={
             "mock_event": EventDescriptor(
                 type=EventType.GET,
-                route='mock-app/test/mock-event-test'
+                route='mock-app/test/mock-event-test',
+                group='GROUP_A'
             ),
             "mock_event_logging": EventDescriptor(
-                type=EventType.GET
+                type=EventType.GET,
+                group='GROUP_A'
             ),
             "mock_post_event": EventDescriptor(
                 type=EventType.POST,
-                route='mock-app/test/mock-event-test'
+                route='mock-app/test/mock-event-test',
+                group='GROUP_A'
             ),
             "mock_multipart_event": EventDescriptor(
                 type=EventType.MULTIPART,
-                route='mock-app/test/mock-multipart-event-test'
+                route='mock-app/test/mock-multipart-event-test',
+                group='GROUP_B'
             ),
             "mock_post_nopayload": EventDescriptor(
                 type=EventType.POST,
@@ -142,14 +146,16 @@ def mock_app_config():
                     name='mock_stream',
                     consumer_group='mock_consumer_group'
                 ),
-                setting_keys=["custom_extra_settings"]
+                setting_keys=["custom_extra_settings"],
+                group='GROUP_A'
             ),
             "mock_stream_timeout": EventDescriptor(
                 type=EventType.STREAM,
                 read_stream=ReadStreamDescriptor(
                     name='mock_stream',
                     consumer_group='mock_consumer_group'
-                )
+                ),
+                group='GROUP_B'
             ),
             "mock_write_stream_event": EventDescriptor(
                 type=EventType.GET,
