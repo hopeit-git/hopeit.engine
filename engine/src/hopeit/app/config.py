@@ -326,6 +326,8 @@ class EventDescriptor:
         `payload: DataObject` argument, then a list of full qualified datatypes must be specified here.
     :field: group, str: group name, if none is assigned it is automatically assigned as 'DEFAULT'.
     """
+    DEFAULT_GROUP = 'DEFAULT'
+
     type: EventType
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE
     route: Optional[str] = None
@@ -336,7 +338,7 @@ class EventDescriptor:
     auth: List[AuthType] = field(default_factory=list)
     setting_keys: List[str] = field(default_factory=list)
     dataobjects: List[str] = field(default_factory=list)
-    group: str = 'DEFAULT'
+    group: str = DEFAULT_GROUP
 
     def __post_init__(self):
         if self.read_stream:

@@ -742,7 +742,7 @@ async def test_start_single_group(monkeypatch, mock_app_config, mock_plugin_conf
         plugin=mock_plugin_config,
         enabled_groups=['GROUP_A']
     )
-    assert len(engine.effective_events) == 4
+    assert len(engine.effective_events) == 25
     assert all(
         event_name in engine.effective_events
         for event_name in ['mock_event', 'mock_post_event', 'mock_event_logging', 'mock_stream_event']
@@ -750,7 +750,7 @@ async def test_start_single_group(monkeypatch, mock_app_config, mock_plugin_conf
     assert all(
         event_name in engine.effective_events
         for event_name, event_info in mock_app_config.events.items()
-        if event_info.group == 'GROUP_A'
+        if event_info.group in ('DEFAULT', 'GROUP_A')
     )
 
 
@@ -762,7 +762,7 @@ async def test_start_multiple_groups(monkeypatch, mock_app_config, mock_plugin_c
         plugin=mock_plugin_config,
         enabled_groups=['GROUP_A', 'GROUP_B']
     )
-    assert len(engine.effective_events) == 6
+    assert len(engine.effective_events) == 27
     assert all(
         event_name in engine.effective_events
         for event_name in [
@@ -773,7 +773,7 @@ async def test_start_multiple_groups(monkeypatch, mock_app_config, mock_plugin_c
     assert all(
         event_name in engine.effective_events
         for event_name, event_info in mock_app_config.events.items()
-        if event_info.group in ('GROUP_A', 'GROUP_B')
+        if event_info.group in ('DEFAULT', 'GROUP_A', 'GROUP_B')
     )
 
 

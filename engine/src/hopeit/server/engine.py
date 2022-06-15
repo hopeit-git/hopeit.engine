@@ -566,7 +566,11 @@ class AppEngine:
         effective_events: Dict[str, EventDescriptor] = {}
         assert app_config.server
         for event_name, event_info in app_config.events.items():
-            if len(enabled_groups) == 0 or event_info.group in enabled_groups:
+            if (
+                len(enabled_groups) == 0
+                or event_info.group == EventDescriptor.DEFAULT_GROUP
+                or event_info.group in enabled_groups
+            ):
                 impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
                 # Add events resultant of splitting steps on SHUFFLE (stages)
                 splits = split_event_stages(app_config.app, event_name, event_info, impl)
