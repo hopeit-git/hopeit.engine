@@ -145,7 +145,8 @@ async def app_startup_hook(config: AppConfig, enabled_groups: List[str], *args, 
     Start Hopeit app specified by config
 
     :param config: AppConfig, configuration for the app to start
-    :param start_streams: if True all stream events in app will start consuming
+    :param enabled_groups: list of event groups names to enable. If empty,
+        all events will be enabled.
     """
     app_engine = await runtime.server.start_app(app_config=config, enabled_groups=enabled_groups)
     cors_origin = aiohttp_cors.setup(web_server, defaults={
