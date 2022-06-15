@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.15",
+    "version": "0.16",
     "title": "Simple Example",
     "description": "Simple Example"
   },
   "paths": {
-    "/api/config-manager/0x15/runtime-apps-config": {
+    "/api/config-manager/0x16/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -62,11 +62,11 @@
           }
         },
         "tags": [
-          "config_manager.0x15"
+          "config_manager.0x16"
         ]
       }
     },
-    "/api/config-manager/0x15/cluster-apps-config": {
+    "/api/config-manager/0x16/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -122,7 +122,7 @@
           }
         },
         "tags": [
-          "config_manager.0x15"
+          "config_manager.0x16"
         ]
       }
     },
@@ -209,11 +209,11 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x15"
+          "apps_visualizer.0x16"
         ]
       }
     },
-    "/api/apps-visualizer/0x15/apps/events-graph": {
+    "/api/apps-visualizer/0x16/apps/events-graph": {
       "get": {
         "summary": "App Visualizer: Events Graph Data",
         "description": "App Visualizer: Events Graph Data",
@@ -287,11 +287,11 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x15"
+          "apps_visualizer.0x16"
         ]
       }
     },
-    "/api/apps-visualizer/0x15/event-stats/live": {
+    "/api/apps-visualizer/0x16/event-stats/live": {
       "get": {
         "summary": "App Visualizer: Live Stats",
         "description": "App Visualizer: Live Stats",
@@ -365,7 +365,7 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x15"
+          "apps_visualizer.0x16"
         ]
       }
     }
@@ -700,7 +700,7 @@
           }
         },
         "x-module-name": "hopeit.app.config",
-        "description": "\n    Event Descriptor: configures event implementation\n\n    :field: type, EventType: type of event i.e.: GET, POST, MULTIPART, STREAM, SERVICE\n    :field: plug_mode, EventPlugMode: defines whether an event defined in a plugin is created in the\n        current app (ON_APP) or it will be created in the original plugin (STANDALONE, default)\n    :field: route, optional str: custom route for endpoint. If not specified route will be derived\n        from `/api/app_name/app_version/event_name`\n    :field: impl, optional str: custom event implementation Python module. If not specified, module\n        with same same as event will be imported.\n    :field: connections, list of EventConnection: specifies dependencies on other apps/endpoints,\n        that can be used by client plugins to call events on external apps\n    :field: read_stream, optional ReadStreamDescriptor: specifies source stream to read from.\n        Valid only for STREAM events.\n    :field: write_stream, optional WriteStreamDescriptor: for any type of events, resultant dataobjects will\n        be published to the specified stream.\n    :field: auth, list of AuthType: supported authentication schemas for this event. If not specified\n        application default will be used.\n    :field: setting_keys, list of str: by default EventContext will have access to the settings section\n        with the same name of the event using `settings = context.settings(datatype=MySettingsType)`.\n        In case additional sections are needed to be accessed from\n        EventContext, then a list of setting keys, including the name of the event if needed,\n        can be specified here. Then access to a `custom` key can be done using\n        `custom_settings = context.settings(key=\"customer\", datatype=MyCustomSettingsType)`\n    :field: dataobjects, list of str: list of full qualified dataobject types that this event can process.\n        When not specified, the engine will inspect the module implementation and find all datatypes supported\n        as payload in the functions defined as `__steps__`. In case of generic functions that support\n        `payload: DataObject` argument, then a list of full qualified datatypes must be specified here.\n    :field: groups, list of str: list of groups where the event is enabled. if none is assigned, it is automatically\n        assigned as ['DEFAULT'].\n    "
+        "description": "\n    Event Descriptor: configures event implementation\n\n    :field: type, EventType: type of event i.e.: GET, POST, MULTIPART, STREAM, SERVICE\n    :field: plug_mode, EventPlugMode: defines whether an event defined in a plugin is created in the\n        current app (ON_APP) or it will be created in the original plugin (STANDALONE, default)\n    :field: route, optional str: custom route for endpoint. If not specified route will be derived\n        from `/api/app_name/app_version/event_name`\n    :field: impl, optional str: custom event implementation Python module. If not specified, module\n        with same same as event will be imported.\n    :field: connections, list of EventConnection: specifies dependencies on other apps/endpoints,\n        that can be used by client plugins to call events on external apps\n    :field: read_stream, optional ReadStreamDescriptor: specifies source stream to read from.\n        Valid only for STREAM events.\n    :field: write_stream, optional WriteStreamDescriptor: for any type of events, resultant dataobjects will\n        be published to the specified stream.\n    :field: auth, list of AuthType: supported authentication schemas for this event. If not specified\n        application default will be used.\n    :field: setting_keys, list of str: by default EventContext will have access to the settings section\n        with the same name of the event using `settings = context.settings(datatype=MySettingsType)`.\n        In case additional sections are needed to be accessed from\n        EventContext, then a list of setting keys, including the name of the event if needed,\n        can be specified here. Then access to a `custom` key can be done using\n        `custom_settings = context.settings(key=\"customer\", datatype=MyCustomSettingsType)`\n    :field: dataobjects, list of str: list of full qualified dataobject types that this event can process.\n        When not specified, the engine will inspect the module implementation and find all datatypes supported\n        as payload in the functions defined as `__steps__`. In case of generic functions that support\n        `payload: DataObject` argument, then a list of full qualified datatypes must be specified here.\n    :field: group, str: group name, if none is assigned it is automatically assigned as 'DEFAULT'.\n    "
       },
       "EventConnection": {
         "type": "object",
@@ -827,7 +827,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.15.1"
+            "default": "0.16.0"
           }
         },
         "x-module-name": "hopeit.server.config",
