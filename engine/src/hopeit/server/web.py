@@ -70,7 +70,7 @@ web_server = web.Application()
 auth_info_default = {}
 
 
-def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_streams: bool, enabled_groups: List[str]):
+def prepare_engine(*, config_files: List[str], api_file: Optional[str], enabled_groups: List[str], start_streams: bool):
     """
     Load configuration files and add hooks to setup engine server and apps,
     start streams and services.

@@ -36,8 +36,8 @@ def run(config_files: str, api_file: str, host: str, port: int, path: str, start
     web.prepare_engine(
         config_files=config_files.split(','),
         api_file=api_file,
+        enabled_groups=enabled_groups.split(','),
         start_streams=start_streams,
-        enabled_groups=enabled_groups.split(',')
     )
     web.serve(host=host, path=path, port=port)
 
