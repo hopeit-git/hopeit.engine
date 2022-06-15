@@ -171,7 +171,7 @@ async def init_mock_client_app(module, monkeypatch, mock_auth, app_config, event
             "authorization": "Bearer test-token"
         }
     ))
-    await engine.AppEngine(app_config=app_config, plugins=[], streams_enabled=False, enabled_groups=[]).start()
+    await engine.AppEngine(app_config=app_config, plugins=[], enabled_groups=[], streams_enabled=False).start()
 
 
 async def init_mock_client_app_plugin(module, monkeypatch, mock_auth, app_config, plugin_name, event_name, response):
@@ -190,4 +190,4 @@ async def init_mock_client_app_plugin(module, monkeypatch, mock_auth, app_config
         }
 
     ))
-    await engine.AppEngine(app_config=app_config, plugins=[], streams_enabled=False, enabled_groups=[]).start()
+    await engine.AppEngine(app_config=app_config, plugins=[], enabled_groups=[], streams_enabled=False).start()

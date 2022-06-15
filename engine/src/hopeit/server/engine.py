@@ -36,11 +36,14 @@ class AppEngine:
     """
 
     def __init__(self, *, app_config: AppConfig, plugins: List[AppConfig],
-                 streams_enabled: bool = True, enabled_groups: List[str]):
+                 enabled_groups: List[str], streams_enabled: bool = True):
         """
         Creates an instance of the AppEngine
 
         :param app_config: AppConfig, Hopeit application configuration as specified in config module
+        :param plugins: List of AppConfig, Hopeit application configurations for enabled plugins
+        :enabled_groups: List of str, list of enabled event groups
+        :streams_enabled: bool, for testing, set to False to disable automatic starting streams
         """
         self.app_config = app_config
         self.app_key = app_config.app_key()
@@ -555,8 +558,10 @@ class AppEngine:
 
         Effective events could be result of splitting a single event in stages,
         using the "SHUFFLE" keyword, that will internaally generate 2 events.
-        Or for STREAMS that implementes the `__service__` method, both a STREAM
+        Or for STREAMS that implements the `__service__` method, both a STREAM
         and a SERVICE event will be generated.
+        Only events with groups defined in `enabled_groups` list will be returned.
+        If `enabled_groups` is empty, all events wil be considered.
         """
         effective_events: Dict[str, EventDescriptor] = {}
         assert app_config.server
