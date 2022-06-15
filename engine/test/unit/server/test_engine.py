@@ -754,7 +754,6 @@ async def test_start_single_group(monkeypatch, mock_app_config, mock_plugin_conf
     )
 
 
-
 @pytest.mark.asyncio
 async def test_start_multiple_groups(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
     setup_mocks(monkeypatch)
@@ -776,7 +775,6 @@ async def test_start_multiple_groups(monkeypatch, mock_app_config, mock_plugin_c
         for event_name, event_info in mock_app_config.events.items()
         if event_info.group in ('GROUP_A', 'GROUP_B')
     )
-
 
 
 @pytest.mark.asyncio
