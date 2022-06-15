@@ -28,7 +28,8 @@ def server():
 @click.option('--start-streams', is_flag=True, default=False, help='Auto start reading stream events.')
 @click.option('--enabled-groups', prompt='Comma-separated group labels.',
               help="List of groups to start. If no group is specified, all events will be started."
-              "You can add the group label 'DEFAULT' to start the events without an explicit group setting")
+              "Events with DEFAULT or no group will always be started. DEAULT group label can be also"
+              "used explicitly to start only events with no group / default group.")
 def run(config_files: str, api_file: str, host: str, port: int, path: str, start_streams: bool, enabled_groups: str):
     """
     Runs web server hosting apps specified in config files.
