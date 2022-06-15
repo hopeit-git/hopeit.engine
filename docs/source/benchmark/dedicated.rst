@@ -12,11 +12,11 @@ real time") for every request in the 99th percentile. The result is a rate (requ
 
 Three endpoints are evaluated in each test scenario
 
-* http://hostname:port/api/simple-benchmark/0x15/give-me-something retrieves information from objects randomly created
+* http://hostname:port/api/simple-benchmark/0x16/give-me-something retrieves information from objects randomly created
 
-* http://hostname:port/api/simple-benchmark/0x15/query-something-redis returns information from objects stored on a Redis server (memory store)
+* http://hostname:port/api/simple-benchmark/0x16/query-something-redis returns information from objects stored on a Redis server (memory store)
 
-* http://hostname:port/api/simple-benchmark/0x15/query-something-fs retrieves information from objects stored on a file system (SSD drive)
+* http://hostname:port/api/simple-benchmark/0x16/query-something-fs retrieves information from objects stored on a file system (SSD drive)
 
 Scenarios:
 __________
@@ -68,13 +68,13 @@ Now we are ready to start the simple-benchmark app to run the tests
 
 Latency (HdrHistogram - Uncorrected Latency, measured without taking delayed starts into account) results:
 
-./wrk2/wrk -t8 -c34 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x15/give-me-something?item_id=string"
+./wrk2/wrk -t8 -c34 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x16/give-me-something?item_id=string"
  p99 30.38ms @ 1794.29 req/s
 
-./wrk2/wrk -t6 -c32 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x15/query-something-redis?item_id=string"
+./wrk2/wrk -t6 -c32 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x16/query-something-redis?item_id=string"
  p99 27.18ms @ 1226.51 req/s
 
-./wrk2/wrk -t4 -c18 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x15/query-something-fs?item_id=string"
+./wrk2/wrk -t4 -c18 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x16/query-something-fs?item_id=string"
  p99 31.12ms @ 803.38 req/s
 
 2 . Docker, single/multiple instances of hopeit.engine
@@ -103,22 +103,22 @@ Latency (HdrHistogram - Uncorrected Latency, measured without taking delayed sta
 
 4 hopeit.engine instances behind a reverse proxy
 
-./wrk2/wrk -t8 -c40 -d60s -R4000 --u_latency "http://localhost:8025/api/simple-benchmark/0x15/give-me-something?item_id=string"
+./wrk2/wrk -t8 -c40 -d60s -R4000 --u_latency "http://localhost:8025/api/simple-benchmark/0x16/give-me-something?item_id=string"
  p99 27.77ms @ 2587.95 req/s
 
-./wrk2/wrk -t6 -c32 -d60s -R4000 --u_latency "http://localhost:8025/api/simple-benchmark/0x15/query-something-redis?item_id=string"
+./wrk2/wrk -t6 -c32 -d60s -R4000 --u_latency "http://localhost:8025/api/simple-benchmark/0x16/query-something-redis?item_id=string"
  p99 28.67ms @ 1810.14 req/s
 
-./wrk2/wrk -t4 -c20 -d60s -R4000 --u_latency "http://localhost:8025/api/simple-benchmark/0x15/query-something-fs?item_id=string"
+./wrk2/wrk -t4 -c20 -d60s -R4000 --u_latency "http://localhost:8025/api/simple-benchmark/0x16/query-something-fs?item_id=string"
  p99 30.29ms @ 1241.39 req/s
 
 1 hopeit.engine instance
 
-./wrk2/wrk -t8 -c34 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x15/give-me-something?item_id=string"
+./wrk2/wrk -t8 -c34 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x16/give-me-something?item_id=string"
  p99 26.48ms @ 1336.18 req/s
 
-./wrk2/wrk -t6 -c24 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x15/query-something-redis?item_id=string"
+./wrk2/wrk -t6 -c24 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x16/query-something-redis?item_id=string"
  p99 29.14ms @ 908.93 req/s
 
-./wrk2/wrk -t4 -c14 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x15/query-something-fs?item_id=string"
+./wrk2/wrk -t4 -c14 -d60s -R4000 --u_latency "http://localhost:8021/api/simple-benchmark/0x16/query-something-fs?item_id=string"
  p99 24.77ms @ 624.77 req/s

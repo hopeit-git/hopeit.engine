@@ -2,6 +2,13 @@ Release Notes
 =============
 
 
+Version 0.16.0
+______________
+Engine:
+- Support for event `group` attribute and start selected groupson engine
+- `hopeit_server` command line support `enabled_groups` parameter
+
+
 Version 0.15.1
 ______________
 - Add `payload_raw` property to PreprocessHook object

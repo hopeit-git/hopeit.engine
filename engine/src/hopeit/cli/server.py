@@ -26,12 +26,19 @@ def server():
 @click.option('--port', default='8020', help='TCP/IP port to listen.')
 @click.option('--path', help='POSIX complaint socket name.')
 @click.option('--start-streams', is_flag=True, default=False, help='Auto start reading stream events.')
-def run(config_files: str, api_file: str, host: str, port: int, path: str, start_streams: bool):
+@click.option('--enabled-groups', prompt='Comma-separated group labels.',
+              help="List of groups to start. If no group is specified, all events will be started."
+              "Events with DEFAULT or no group will always be started. DEAULT group label can be also"
+              "used explicitly to start only events with no group / default group.")
+def run(config_files: str, api_file: str, host: str, port: int, path: str, start_streams: bool, enabled_groups: str):
     """
     Runs web server hosting apps specified in config files.
     """
     web.prepare_engine(
-        config_files=config_files.split(','), api_file=api_file, start_streams=start_streams
+        config_files=config_files.split(','),
+        api_file=api_file,
+        enabled_groups=enabled_groups.split(','),
+        start_streams=start_streams,
     )
     web.serve(host=host, path=path, port=port)
 

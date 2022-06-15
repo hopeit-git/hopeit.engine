@@ -70,7 +70,7 @@ async def __postprocess__(result: RuntimeAppsConfig, context: EventContext, resp
 
     app_prefix = f"{result.options.app_prefix}*" if result.options.app_prefix else 'All running apps'
     host_filter = f"*{result.options.host_filter}*" if result.options.host_filter else 'All servers'
-    view_type = "Expanded view" if result.options.expanded_view else "Standard view"
+    view_type = "Effective Events" if result.options.expanded_view else "Configured Events"
     live_type = "Live!" if result.options.live else "Static"
 
     refresh_endpoint_comps = (

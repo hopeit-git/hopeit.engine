@@ -35,15 +35,19 @@ class AppEngine:
     Engine that handles a Hopeit Application
     """
 
-    def __init__(self, *, app_config: AppConfig, plugins: List[AppConfig], streams_enabled: bool = True):
+    def __init__(self, *, app_config: AppConfig, plugins: List[AppConfig],
+                 enabled_groups: List[str], streams_enabled: bool = True):
         """
         Creates an instance of the AppEngine
 
         :param app_config: AppConfig, Hopeit application configuration as specified in config module
+        :param plugins: List of AppConfig, Hopeit application configurations for enabled plugins
+        :enabled_groups: List of str, list of enabled event groups
+        :streams_enabled: bool, for testing, set to False to disable automatic starting streams
         """
         self.app_config = app_config
         self.app_key = app_config.app_key()
-        self.effective_events = self._config_effective_events(app_config)
+        self.effective_events = self._config_effective_events(app_config, enabled_groups)
         self.plugins = plugins
         self.settings = get_runtime_settings(app_config, plugins)
         self.event_handler: Optional[EventHandler] = None
@@ -548,28 +552,36 @@ class AppEngine:
             raise RuntimeError(f"Cannot stop non running event: {event_name}.")
 
     @staticmethod
-    def _config_effective_events(app_config: AppConfig) -> Dict[str, EventDescriptor]:
+    def _config_effective_events(app_config: AppConfig, enabled_groups: List[str]) -> Dict[str, EventDescriptor]:
         """
         Return effective events computed from user app config.
 
         Effective events could be result of splitting a single event in stages,
         using the "SHUFFLE" keyword, that will internaally generate 2 events.
-        Or for STREAMS that implementes the `__service__` method, both a STREAM
+        Or for STREAMS that implements the `__service__` method, both a STREAM
         and a SERVICE event will be generated.
+        Only events with groups defined in `enabled_groups` list will be returned.
+        If `enabled_groups` is empty, all events wil be considered.
         """
         effective_events: Dict[str, EventDescriptor] = {}
+        assert app_config.server
         for event_name, event_info in app_config.events.items():
-            impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
-            # Add events resultatn of splitting steps on SHUFFLE (stages)
-            splits = split_event_stages(app_config.app, event_name, event_info, impl)
-            effective_events.update(**splits)
-            # Add associated SERVICE events to streams
-            if event_info.type == EventType.STREAM and hasattr(impl, "__service__"):
-                effective_events[f"{event_name}$__service__"] = EventDescriptor(
-                    type=EventType.SERVICE,
-                    connections=event_info.connections,
-                    impl=event_info.impl,
-                )
+            if (
+                len(enabled_groups) == 0
+                or event_info.group == EventDescriptor.DEFAULT_GROUP
+                or event_info.group in enabled_groups
+            ):
+                impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
+                # Add events resultant of splitting steps on SHUFFLE (stages)
+                splits = split_event_stages(app_config.app, event_name, event_info, impl)
+                effective_events.update(**splits)
+                # Add associated SERVICE events to streams
+                if event_info.type == EventType.STREAM and hasattr(impl, "__service__"):
+                    effective_events[f"{event_name}$__service__"] = EventDescriptor(
+                        type=EventType.SERVICE,
+                        connections=event_info.connections,
+                        impl=event_info.impl,
+                    )
         return effective_events
 
     def _find_stream_datatype_handlers(self, event_name: str, event_info: EventDescriptor) -> Dict[str, type]:
@@ -624,18 +636,20 @@ class Server:
             await app_engine.stop()
         logger.info(__name__, 'Engine stopped.')
 
-    async def start_app(self, app_config: AppConfig):
+    async def start_app(self, app_config: AppConfig, enabled_groups: List[str]):
         """
         Starts and register a Hopeit App into this engine instance
 
-        :param app_config: AppConfog, app configuration as specified in config module
+        :param app_config: AppConfig, app configuration as specified in config module
         """
         logger.info(__name__, f"Starting app={app_config.app_key()}...")
         plugins = [
             self.app_engine(app_key=plugin.app_key()).app_config
             for plugin in app_config.plugins
         ]
-        app_engine = await AppEngine(app_config=app_config, plugins=plugins).start()
+        app_engine = await AppEngine(app_config=app_config,
+                                     plugins=plugins,
+                                     enabled_groups=enabled_groups).start()
         self.app_engines[app_config.app_key()] = app_engine
         return app_engine
 

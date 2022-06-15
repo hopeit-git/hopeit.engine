@@ -70,13 +70,13 @@ web_server = web.Application()
 auth_info_default = {}
 
 
-def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_streams: bool):
+def prepare_engine(*, config_files: List[str], api_file: Optional[str], enabled_groups: List[str], start_streams: bool):
     """
     Load configuration files and add hooks to setup engine server and apps,
     start streams and services.
     """
     logger.info("Loading engine config file=%s...", config_files[0])  # type: ignore
-    server_config = _load_engine_config(config_files[0])
+    server_config: ServerConfig = _load_engine_config(config_files[0])
 
     # Add startup hook to start engine
     web_server.on_startup.append(
@@ -100,7 +100,7 @@ def prepare_engine(*, config_files: List[str], api_file: Optional[str], start_st
     api.enable_swagger(server_config, web_server)
     for config in apps_config:
         web_server.on_startup.append(
-            partial(app_startup_hook, config)
+            partial(app_startup_hook, config, enabled_groups)
         )
 
     # Add hooks to start streams and service
@@ -140,14 +140,15 @@ async def stop_server():
     web_server = web.Application()
 
 
-async def app_startup_hook(config: AppConfig, *args, **kwargs):
+async def app_startup_hook(config: AppConfig, enabled_groups: List[str], *args, **kwargs):
     """
     Start Hopeit app specified by config
 
     :param config: AppConfig, configuration for the app to start
-    :param start_streams: if True all stream events in app will start consuming
+    :param enabled_groups: list of event groups names to enable. If empty,
+        all events will be enabled.
     """
-    app_engine = await runtime.server.start_app(app_config=config)
+    app_engine = await runtime.server.start_app(app_config=config, enabled_groups=enabled_groups)
     cors_origin = aiohttp_cors.setup(web_server, defaults={
         config.engine.cors_origin: aiohttp_cors.ResourceOptions(
             allow_credentials=True,
@@ -736,7 +737,8 @@ async def _handle_event_stop_invocation(
         return web.Response(status=500, body=str(e))
 
 
-ParsedArgs = namedtuple("ParsedArgs", ["host", "port", "path", "start_streams", "config_files", "api_file"])
+ParsedArgs = namedtuple("ParsedArgs", ["host", "port", "path", "start_streams",
+                                       "config_files", "api_file", "enabled_groups"])
 
 
 def parse_args(args) -> ParsedArgs:
@@ -748,6 +750,7 @@ def parse_args(args) -> ParsedArgs:
     --start-streams, optional True if to auto start all events of STREAM type
     --config-files, is a comma-separated list of hopeit apps config files relative or full paths
     --api-file, optional path to openapi.json file with at least openapi and info sections
+    --enabled-groups, optional list of group label to be started
     Example::
 
         python web.py --port=8020 --path=/tmp/hopeit.01 --config-files=test.json
@@ -764,10 +767,12 @@ def parse_args(args) -> ParsedArgs:
     parser.add_argument('--start-streams', action='store_true')
     parser.add_argument('--config-files')
     parser.add_argument('--api-file')
+    parser.add_argument('--enabled-groups')
 
     parsed_args = parser.parse_args(args=args)
     port = int(parsed_args.port) if parsed_args.port else 8020 if parsed_args.path is None else None
     config_files = parsed_args.config_files.split(',')
+    enabled_groups = parsed_args.enabled_groups.split(',') if parsed_args.enabled_groups else []
 
     return ParsedArgs(
         host=parsed_args.host,
@@ -775,7 +780,8 @@ def parse_args(args) -> ParsedArgs:
         path=parsed_args.path,
         start_streams=bool(parsed_args.start_streams),
         config_files=config_files,
-        api_file=parsed_args.api_file
+        api_file=parsed_args.api_file,
+        enabled_groups=enabled_groups
     )
 
 
@@ -784,6 +790,7 @@ if __name__ == "__main__":
     prepare_engine(
         config_files=sys_args.config_files,
         api_file=sys_args.api_file,
-        start_streams=sys_args.start_streams
+        start_streams=sys_args.start_streams,
+        enabled_groups=sys_args.enabled_groups
     )
     serve(host=sys_args.host, path=sys_args.path, port=sys_args.port)

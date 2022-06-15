@@ -1,4 +1,6 @@
-import pytest  # type: ignore
+import pytest
+
+from hopeit.server.version import APPS_ROUTE_VERSION  # type: ignore
 
 from hopeit.testing.apps import execute_event
 from hopeit.fs_storage.partition import get_partition_key
@@ -16,7 +18,7 @@ async def test_it_process_events(app_config,  # noqa: F811
     partition_key = get_partition_key(something_processed, partition_dateformat="%Y/%m/%d/%H")
     assert result == SomethingStored(
             path=(
-                f"{app_config.env['storage']['base_path']}simple_example.0x15.fs_storage.path/"
+                f"{app_config.env['storage']['base_path']}simple_example.{APPS_ROUTE_VERSION}.fs_storage.path/"
                 f"{partition_key}{result.payload.id}.json"
             ),
             payload=something_processed

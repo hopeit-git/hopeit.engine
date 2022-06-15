@@ -80,7 +80,8 @@
             "setting_keys": [
               "fs_storage"
             ],
-            "dataobjects": []
+            "dataobjects": [],
+            "group": "g2"
           },
           "download_something": {
             "type": "GET",
@@ -106,7 +107,8 @@
             "connections": [],
             "auth": [],
             "setting_keys": [],
-            "dataobjects": []
+            "dataobjects": [],
+            "group": "g1"
           },
           "service.something_generator": {
             "type": "SERVICE",
@@ -833,7 +835,8 @@
           "setting_keys": [
             "fs_storage"
           ],
-          "dataobjects": []
+          "dataobjects": [],
+          "group": "g2"
         },
         "simple_example.${APPS_ROUTE_VERSION}.download_something": {
           "type": "GET",
@@ -859,7 +862,8 @@
           "connections": [],
           "auth": [],
           "setting_keys": [],
-          "dataobjects": []
+          "dataobjects": [],
+          "group": "g1"
         },
         "simple_example.${APPS_ROUTE_VERSION}.service.something_generator": {
           "type": "SERVICE",
