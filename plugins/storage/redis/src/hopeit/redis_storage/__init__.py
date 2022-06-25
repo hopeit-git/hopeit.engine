@@ -18,7 +18,7 @@ class RedisStorage(Generic[DataObject]):
        This class must be initialized with the method connect
        Example:
            ```
-           redis_store = await RedisStorage().connect(address="redis://hostname:6379")
+           redis_store = RedisStorage().connect(address="redis://hostname:6379")
            ```
     """
     def __init__(self):
@@ -50,13 +50,34 @@ class RedisStorage(Generic[DataObject]):
             return Payload.from_json(payload_str, datatype)
         return None
 
-    async def store(self, key: str, value: DataObject):
+    async def store(self, key: str, value: DataObject, **kwargs):
         """
         Stores value under specified key
 
         :param key: str
         :param value: DataObject, instance of dataclass annotated with @dataobject
+        :param **kwargs: extra args
+
         """
         assert self._conn
         payload_str = str(Payload.to_json(value))
-        await self._conn.set(key, payload_str)
+        await self._conn.set(key, payload_str, **kwargs)
+
+    async def delete(self, key: str):
+        """
+        Delete specified key
+
+        :param key: str, key to be deleted
+        """
+        assert self._conn
+        await self._conn.delete(key)
+
+    async def list(self, pattern: str = "*")-> List[str]:
+        """
+        Returns a list of keys matching `pattern`
+
+        :param pattern: str
+        """
+        assert self._conn
+        return await self._conn.keys(pattern)
+
