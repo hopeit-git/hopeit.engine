@@ -2,7 +2,7 @@
 Storage/persistence asynchronous get/set key-values.
 Backed by Redis
 """
-from typing import Optional, Type, Generic, Any
+from typing import Optional, Type, Generic, Any, List
 
 import aioredis
 
@@ -56,28 +56,43 @@ class RedisStorage(Generic[DataObject]):
 
         :param key: str
         :param value: DataObject, instance of dataclass annotated with @dataobject
-        :param **kwargs: extra args
+        :param **kwargs: You can use arguments expected by the set method in the aioredis library i.e.:
+            ex sets an expire flag on key name for ex seconds.
+            px sets an expire flag on key name for px milliseconds.
+            nx if set to True, set the value at key name to value only if it does not exist.
+            xx if set to True, set the value at key name to value only if it already exists.
+            keepttl if True, retain the time to live associated with the key. (Available since Redis 6.0).
+            *These arguments may vary depending on the version of aioredis installed.
+
+        i.e. store object:
+        ```
+        redis_store.store(key='my_key', value=my_dataobject, ex=60)
+        ```
+
+        i.e. store object with kwargs, adding `ex=60` redis set a ttl of 60 seconds for the object:
+        ```
+        redis_store.store(key='my_key', value=my_dataobject, ex=60)
+        ```
 
         """
         assert self._conn
         payload_str = str(Payload.to_json(value))
         await self._conn.set(key, payload_str, **kwargs)
 
-    async def delete(self, key: str):
+    async def delete(self, *keys: str):
         """
-        Delete specified key
+        Delete specified keys
 
         :param key: str, key to be deleted
         """
         assert self._conn
-        await self._conn.delete(key)
+        await self._conn.delete(*keys)
 
-    async def list(self, pattern: str = "*")-> List[str]:
+    async def list_objects(self, wildcard: str = "*") -> List[bytes]:
         """
-        Returns a list of keys matching `pattern`
+        Returns a list of keys matching `wildcard`
 
-        :param pattern: str
+        :param wildcard: str, expected glob-style wildcards
         """
         assert self._conn
-        return await self._conn.keys(pattern)
-
+        return await self._conn.keys(wildcard)
