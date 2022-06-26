@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 0.16.1
+______________
+Engine:
+- Updated PyJWT version to fix potential vulnerability: https://github.com/hopeit-git/hopeit.engine/security/dependabot/1
+Plugins:
+- basic-auth [non production plugin]: Updated PyJWT version
+
 
 Version 0.16.0
 ______________
