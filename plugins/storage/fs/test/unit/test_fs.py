@@ -5,6 +5,7 @@ import os
 from dataclasses import dataclass
 
 import aiofiles  # type: ignore
+import aiofiles.os
 
 import hopeit.fs_storage as fs_module
 from hopeit.dataobjects import dataobject
@@ -37,6 +38,7 @@ async def save_and_load_file():
     path = await fs.store(key, test_fs)
     assert path == f'/tmp/{key}/{key}.json'
     loaded = await fs.get(key, datatype=FsMockData)
+    await fs.delete(key)
     assert loaded == test_fs
     assert type(loaded) is FsMockData
 
@@ -122,12 +124,19 @@ class MockPath:
 
 
 class MockOs:
+    def __init__(self):
+        self.path
+
     @staticmethod
     def rename(source, dest):
         pass
 
     @staticmethod
     def makedirs(path, mode=None, exist_ok=False):
+        pass
+
+    @staticmethod
+    async def remove(path):
         pass
 
 
@@ -159,6 +168,7 @@ async def test_save_load_file(monkeypatch):
     monkeypatch.setattr(os, 'makedirs', MockOs.makedirs)
     monkeypatch.setattr(os.path, 'exists', MockPath.exists)
     monkeypatch.setattr(os, 'rename', MockOs.rename)
+    monkeypatch.setattr(aiofiles.os, 'remove', MockOs.remove)
     await save_and_load_file()
 
 
