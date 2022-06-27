@@ -66,10 +66,10 @@ class RedisStorage(Generic[DataObject]):
 
         i.e. store object:
         ```
-        redis_store.store(key='my_key', value=my_dataobject, ex=60)
+        redis_store.store(key='my_key', value=my_dataobject)
         ```
 
-        i.e. store object with kwargs, adding `ex=60` redis set a ttl of 60 seconds for the object:
+        i.e. store object with kwargs option, adding `ex=60` redis set a ttl of 60 seconds for the object:
         ```
         redis_store.store(key='my_key', value=my_dataobject, ex=60)
         ```

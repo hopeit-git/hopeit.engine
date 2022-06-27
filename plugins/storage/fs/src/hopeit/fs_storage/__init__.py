@@ -10,6 +10,7 @@ import uuid
 from typing import Optional, Type, Generic, List
 
 import aiofiles  # type: ignore
+import aiofiles.os  # type: ignore
 
 from hopeit.dataobjects import dataobject, DataObject
 from hopeit.dataobjects.payload import Payload
@@ -128,6 +129,18 @@ class FileStorage(Generic[DataObject]):
             path = path / get_partition_key(value, self.partition_dateformat)
             os.makedirs(path.resolve().as_posix(), exist_ok=True)
         return await self._save_file(payload_str, path=path, file_name=key + SUFFIX)
+
+    async def delete(self, *keys: str, partition_key: Optional[str] = None):
+        """
+        Delete specified keys
+
+        :param key: str, key to be deleted
+        """
+        path = self.path / partition_key if partition_key else self.path
+        for key in keys:
+            file_name= path / (key + SUFFIX)
+            await aiofiles.os.remove(file_name)
+
 
     @staticmethod
     async def _load_file(*, path: Path, file_name: str) -> Optional[str]:
