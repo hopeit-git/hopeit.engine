@@ -138,9 +138,7 @@ class FileStorage(Generic[DataObject]):
         """
         path = self.path / partition_key if partition_key else self.path
         for key in keys:
-            file_name= path / (key + SUFFIX)
-            await aiofiles.os.remove(file_name)
-
+            await aiofiles.os.remove(path / (key + SUFFIX))
 
     @staticmethod
     async def _load_file(*, path: Path, file_name: str) -> Optional[str]:
