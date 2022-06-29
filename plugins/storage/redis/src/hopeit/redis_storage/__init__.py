@@ -88,11 +88,11 @@ class RedisStorage(Generic[DataObject]):
         assert self._conn
         await self._conn.delete(*keys)
 
-    async def list_objects(self, wildcard: str = "*") -> List[bytes]:
+    async def list_objects(self, wildcard: str = "*") -> List[str]:
         """
         Returns a list of keys matching `wildcard`
 
         :param wildcard: str, expected glob-style wildcards
         """
         assert self._conn
-        return await self._conn.keys(wildcard)
+        return [obj.decode('utf-8') for obj in await self._conn.keys(wildcard)]

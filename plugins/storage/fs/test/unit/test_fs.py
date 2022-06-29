@@ -38,9 +38,35 @@ async def save_and_load_file():
     path = await fs.store(key, test_fs)
     assert path == f'/tmp/{key}/{key}.json'
     loaded = await fs.get(key, datatype=FsMockData)
-    await fs.delete(key)
     assert loaded == test_fs
     assert type(loaded) is FsMockData
+
+
+async def delete_files():
+    key1 = "VALIDFILE1"
+    key2 = "VALIDFILE2"
+    fs = FileStorage(path="/tmp/DELETE/")
+    assert await fs.store(key1, test_fs) is not None
+    assert await fs.store(key2, test_fs) is not None
+    assert await fs.get(key1, datatype=FsMockData) == test_fs
+    assert await fs.get(key2, datatype=FsMockData) == test_fs
+    await fs.delete(key1, key2)
+    assert await fs.get(key1, datatype=FsMockData) is None
+    assert await fs.get(key2, datatype=FsMockData) is None
+
+
+async def delete_files_in_partition():
+    key1 = "VALIDFILE1"
+    key2 = "VALIDFILE2"
+    fs = FileStorage(path="/tmp/DELETE/", partition_dateformat="%Y/%m/%d")
+    partition_key = datetime.now(tz=timezone.utc).strftime("%Y/%m/%d")
+    assert await fs.store(key1, test_fs) is not None
+    assert await fs.store(key2, test_fs) is not None
+    assert await fs.get(key1, datatype=FsMockData, partition_key=partition_key) == test_fs
+    assert await fs.get(key2, datatype=FsMockData, partition_key=partition_key) == test_fs
+    await fs.delete(key1, key2, partition_key=partition_key)
+    assert await fs.get(key1, datatype=FsMockData, partition_key=partition_key) is None
+    assert await fs.get(key2, datatype=FsMockData, partition_key=partition_key) is None
 
 
 async def save_and_load_file_in_partition():
@@ -135,10 +161,6 @@ class MockOs:
     def makedirs(path, mode=None, exist_ok=False):
         pass
 
-    @staticmethod
-    async def remove(path):
-        pass
-
 
 def mock_glob(wc: str) -> List[str]:
     if wc == '/path/*.json':
@@ -168,8 +190,17 @@ async def test_save_load_file(monkeypatch):
     monkeypatch.setattr(os, 'makedirs', MockOs.makedirs)
     monkeypatch.setattr(os.path, 'exists', MockPath.exists)
     monkeypatch.setattr(os, 'rename', MockOs.rename)
-    monkeypatch.setattr(aiofiles.os, 'remove', MockOs.remove)
     await save_and_load_file()
+
+
+@pytest.mark.asyncio
+async def test_delete_file(monkeypatch):
+    await delete_files()
+
+
+@pytest.mark.asyncio
+async def test_delete_file_in_partition(monkeypatch):
+    await delete_files_in_partition()
 
 
 @pytest.mark.asyncio

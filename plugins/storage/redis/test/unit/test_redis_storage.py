@@ -101,8 +101,8 @@ class MockRedisPool:
 
     async def keys(self, pattern: str):
         if pattern == "*":
-            return [k for k in self.items]
-        return [k for k in self.items if fnmatch(k, pattern)]
+            return [k.encode('utf-8') for k in self.items]
+        return [k.encode('utf-8') for k in self.items if fnmatch(k, pattern)]
 
     @staticmethod
     def from_url(url):
