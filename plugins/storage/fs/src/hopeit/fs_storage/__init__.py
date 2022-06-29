@@ -134,7 +134,7 @@ class FileStorage(Generic[DataObject]):
         """
         Delete specified keys
 
-        :param key: str, key to be deleted
+        :param keys: str, keys to be deleted
         """
         path = self.path / partition_key if partition_key else self.path
         for key in keys:

@@ -5,7 +5,6 @@ import os
 from dataclasses import dataclass
 
 import aiofiles  # type: ignore
-import aiofiles.os
 
 import hopeit.fs_storage as fs_module
 from hopeit.dataobjects import dataobject
@@ -150,9 +149,6 @@ class MockPath:
 
 
 class MockOs:
-    def __init__(self):
-        self.path
-
     @staticmethod
     def rename(source, dest):
         pass

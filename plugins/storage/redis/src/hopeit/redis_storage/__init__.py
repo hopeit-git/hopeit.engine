@@ -83,7 +83,7 @@ class RedisStorage(Generic[DataObject]):
         """
         Delete specified keys
 
-        :param key: str, key to be deleted
+        :param keys: str, keys to be deleted
         """
         assert self._conn
         await self._conn.delete(*keys)
