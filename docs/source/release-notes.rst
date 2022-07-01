@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 0.16.2
+______________
+Plugins:
+- redis-storage: add `delete` and `list_objects` methods, extend `store` method to support extra aioredis kwargs
+- fs-storage: add `delete` method
+
+
 Version 0.16.1
 ______________
 Engine:
