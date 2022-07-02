@@ -660,7 +660,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.16.2"
+            "default": "0.16.3"
           }
         },
         "x-module-name": "hopeit.server.config",

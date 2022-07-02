@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+Version 0.16.3
+______________
+Engine:
+- Fix: Calling the `hopeit_server` command line without `--enabled_groups` parameter or with an empty one prevents to
+start the server. Now `--enabled_groups` is an optional parameter.
+
 Version 0.16.2
 ______________
 Plugins:
