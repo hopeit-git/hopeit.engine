@@ -40,6 +40,9 @@ test-engine:
 test-plugins:
 	/bin/bash plugins/build/ci-test-plugins.sh
 
+test-plugins-apps-client:
+	/bin/bash plugins/build/ci-test-plugins.sh clients/apps-client
+
 test-apps:
 	/bin/bash apps/build/ci-test-apps.sh
 
