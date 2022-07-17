@@ -26,7 +26,7 @@ class AppConnectionNotFound(ClientException):
 
 
 class UnhandledResponse(ClientException):
-    """Base exception for Unhandled datatypes"""
+    """Base exception for Unhandled responses"""
     def __init__(self, message, response, status):
         super().__init__(message)
         self.response = response
@@ -63,7 +63,7 @@ class Client(ABC):
     async def call(self, event_name: str,
                    *, datatype: Type[EventPayloadType], payload: Optional[EventPayload],
                    context: EventContext,
-                   datatypes: Optional[Dict[int, Type[EventPayloadType]]], **kwargs) -> List[EventPayloadType]:
+                   responses: Optional[Dict[int, Type[EventPayloadType]]], **kwargs) -> List[EventPayloadType]:
         """
         Implement invocation to external apps in the configured app_connection.
 
@@ -76,7 +76,7 @@ class Client(ABC):
         :param datatype: str, type of items returned
         :param payload: payload to pass to taget event
         :param context: current EventContext
-        :param datatypes: Optional[Dict[int, Type[EventPayloadType]]] to handle non 200 status responses
+        :param responses: Optional[Dict[int, Type[EventPayloadType]]] to handle non 200 status responses
         ex.: {404: NotFoundResultClass}
         :param **kwargs: query args to be passed to target event
 
@@ -119,7 +119,7 @@ def app_client(app_connection: str, context: EventContext) -> Client:
 async def app_call(app_connection: str,
                    *, event: str, datatype: Type[EventPayloadType],
                    payload: EventPayload, context: EventContext,
-                   datatypes: Optional[Dict[int, Type[EventPayloadType]]] = None,
+                   responses: Optional[Dict[int, Type[EventPayloadType]]] = None,
                    **kwargs) -> EventPayloadType:
     """
     Invokes event in external app using configured app_connection, for events that return
@@ -130,13 +130,13 @@ async def app_call(app_connection: str,
     :param datatype: str, type of returned value
     :param payload: payload to pass to taget event
     :param context: current EventContext
-    :param datatypes: Optional[Dict[int, Type[EventPayloadType]]] to handle non 200 status responses
+    :param responses: Optional[Dict[int, Type[EventPayloadType]]] to handle non 200 status responses
     ex.: {404: NotFoundResultClass}
     :param **kwargs: query args to be passed to target event
     """
     client = app_client(app_connection, context)
     results = await client.call(
-        event, datatype=datatype, payload=payload, context=context, datatypes=datatypes, **kwargs
+        event, datatype=datatype, payload=payload, context=context, responses=responses, **kwargs
     )
     return results[0]
 
@@ -144,7 +144,7 @@ async def app_call(app_connection: str,
 async def app_call_list(app_connection: str,
                         *, event: str, datatype: Type[EventPayloadType],
                         payload: EventPayload, context: EventContext,
-                        datatypes: Optional[Dict[int, Type[EventPayloadType]]] = None,
+                        responses: Optional[Dict[int, Type[EventPayloadType]]] = None,
                         **kwargs) -> List[EventPayloadType]:
     """
     Invokes event in external app using configured app_connection, for events that return
@@ -155,11 +155,11 @@ async def app_call_list(app_connection: str,
     :param datatype: str, type of returned value for each item
     :param payload: payload to pass to taget event
     :param context: current EventContext
-    :param datatypes: Optional[Dict[int, Type[EventPayloadType]]] to handle non 200 status responses
+    :param responses: Optional[Dict[int, Type[EventPayloadType]]] to handle non 200 status responses
     ex.: {404: NotFoundResultClass}
     :param kwargs: query args to be passed to target event
     """
     client = app_client(app_connection, context)
     return await client.call(
-        event, datatype=datatype, payload=payload, context=context, datatypes=datatypes, **kwargs
+        event, datatype=datatype, payload=payload, context=context, responses=responses, **kwargs
     )

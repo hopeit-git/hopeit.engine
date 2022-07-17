@@ -201,6 +201,100 @@
           }
         ]
       }
+    },
+    "/api/client-example/0x16/handle-responses": {
+      "get": {
+        "summary": "Client Example: Handle Responses",
+        "description": "Non default responses and UnhandledResponse exception\n\nTo manage different types of responses from the same endpoint we can use the `responses` parameter where we list the\nhttp response status codes expected and the corresponding data type for each one. In this example `app_call` expect \nand handle, 200 and 404 responses.\n\nAlso in the code you can see how to handle an expection of type `UnhandledResponse` and log as warining.",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "query",
+            "required": true,
+            "description": "Item Id to read",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "partition_key",
+            "in": "query",
+            "required": true,
+            "description": "Partition folder in `YYYY/MM/DD/HH` format",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Show the response of the call",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "handle_responses"
+                  ],
+                  "properties": {
+                    "handle_responses": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "handle_responses string payload"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "client_example.0x16"
+        ],
+        "security": [
+          {
+            "auth.basic": []
+          }
+        ]
+      }
     }
   },
   "components": {

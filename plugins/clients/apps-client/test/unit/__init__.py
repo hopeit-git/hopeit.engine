@@ -41,6 +41,7 @@ class MockResponse():
     def __init__(self, status: int, response: Union[MockResponseData, str]):
         self.status = status
         self.response = response
+        self.content_type = "application/json"
 
     async def __aenter__(self):
         return self
@@ -59,6 +60,7 @@ class MockResponseList():
     def __init__(self, status: int, items: List[MockResponseData]):
         self.status = status
         self.items = items
+        self.content_type = "application/json"
 
     async def __aenter__(self):
         return self

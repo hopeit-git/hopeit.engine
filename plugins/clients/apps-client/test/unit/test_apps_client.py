@@ -377,7 +377,7 @@ async def test_client_session_lifecycle(monkeypatch, mock_client_app_config, moc
 
 
 @pytest.mark.asyncio
-async def test_client_datatypes(monkeypatch, mock_client_app_config, mock_auth):
+async def test_client_responses(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(
             apps_client_module, monkeypatch, mock_auth, mock_client_app_config, "test-event-get", "ok"
@@ -389,14 +389,14 @@ async def test_client_datatypes(monkeypatch, mock_client_app_config, mock_auth):
         result = await app_call(
             "test_app_connection", event="test_event_get",
             datatype=MockResponseData, payload=None, context=context,
-            datatypes={403: MockResponseData}, test_param="test_param_value"
+            responses={403: MockResponseData}, test_param="test_param_value"
         )
         assert result == MockResponseData(value="ok", param="test_param_value", host="http://test-host1",
                                           log={"http://test-host1": 1})
 
 
 @pytest.mark.asyncio
-async def test_client_list_datatypes(monkeypatch, mock_client_app_config, mock_auth):
+async def test_client_list_responses(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(
             apps_client_module, monkeypatch, mock_auth, mock_client_app_config, "test-event-post", "ok"
@@ -409,7 +409,7 @@ async def test_client_list_datatypes(monkeypatch, mock_client_app_config, mock_a
             "test_app_connection", event="test_event_post",
             datatype=MockResponseData,
             payload=MockPayloadData("payload"), context=context,
-            datatypes={403: MockResponseData},
+            responses={403: MockResponseData},
             test_param="test_param_value"
         )
         assert result == [MockResponseData(
@@ -431,7 +431,7 @@ async def test_client_unhandled_response_exception(monkeypatch, mock_client_app_
                 "test_app_connection", event="test_event_get",
                 datatype=MockResponseData, payload=None, context=context,
                 test_param="test_param_value")
-        assert str(unhandled_response.value) == 'Missing 405 status handler, use `datatypes` to handle this exception'
+        assert str(unhandled_response.value) == 'Missing 405 status handler, use `responses` to handle this exception'
         assert unhandled_response.value.status == 405
         assert unhandled_response.value.response == "MockResponseData(value='ok', param='test_param_value'," \
                                                     " host='http://test-host1', log={'http://test-host1': 1})"

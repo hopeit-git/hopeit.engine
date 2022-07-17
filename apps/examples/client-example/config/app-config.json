@@ -67,6 +67,32 @@
                 }
             ],
             "auth": ["Basic"]
+        },
+        "handle_responses": {
+            "type": "GET",
+            "connections": [
+                {
+                    "app_connection": "simple_example_auth_conn",
+                    "event": "login",
+                    "type": "GET"
+                },
+                {
+                    "app_connection": "simple_example_conn",
+                    "event": "not_found",
+                    "type": "GET"
+                },
+                {
+                    "app_connection": "simple_example_conn",
+                    "event": "save_something",
+                    "type": "POST"
+                },
+                {
+                    "app_connection": "simple_example_conn",
+                    "event": "query_something",
+                    "type": "GET"
+                }
+            ],
+            "auth": ["Basic"]
         }
     }
 }

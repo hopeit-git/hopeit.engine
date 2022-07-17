@@ -237,7 +237,7 @@ class AppsClient(Client):
 
     async def call(self, event_name: str,
                    *, datatype: Type[EventPayloadType], payload: Optional[EventPayload],
-                   context: EventContext, datatypes: Optional[Dict[int, Type[EventPayloadType]]] = None,
+                   context: EventContext, responses: Optional[Dict[int, Type[EventPayloadType]]] = None,
                    **kwargs) -> List[EventPayloadType]:
         """
         Invokes event on external app linked in config `app_connections` section.
@@ -248,7 +248,7 @@ class AppsClient(Client):
         :param datatype: Type[EventPayloadType]: expected return type for 200 status response
         :param payload: optional payload to send when calling external event
         :param context: EventContext of current application
-        :param datatypes: Optional[Dict[int, Type[EventPayloadType]]] to handle non 200 status responses
+        :param responses: Optional[Dict[int, Type[EventPayloadType]]] to handle non 200 status responses
         ex.: {404: NotFoundResultClass}
         :param **kwargs: any other argument to be sent as query args when calling event
 
@@ -279,7 +279,7 @@ class AppsClient(Client):
                 if event_info.type == EventConnectionType.GET:
                     request_func = self.session.get(url, headers=headers, params=kwargs)
                     return await self._request(
-                        request_func, context, datatype, event_name, host_index, datatypes
+                        request_func, context, datatype, event_name, host_index, responses
                     )
 
                 if event_info.type == EventConnectionType.POST:
@@ -287,7 +287,7 @@ class AppsClient(Client):
                         url, headers=headers, data=Payload.to_json(payload), params=kwargs
                     )
                     return await self._request(
-                        request_func, context, datatype, event_name, host_index, datatypes
+                        request_func, context, datatype, event_name, host_index, responses
                     )
 
                 raise NotImplementedError(f"Event type {event_info.type.value} not supported")
@@ -398,35 +398,38 @@ class AppsClient(Client):
     async def _parse_response(self, response, context: EventContext,
                               datatype: Type[EventPayloadType],
                               target_event_name: str,
-                              datatypes: Optional[Dict[int, Type[EventPayloadType]]]) -> List[EventPayloadType]:
+                              responses: Optional[Dict[int, Type[EventPayloadType]]]) -> List[EventPayloadType]:
         """
         Parses http response from external App, catching Unathorized errors
         and converting the result to the desired datatype
         """
+        if responses and response.status in responses:
+            if response.content_type == 'text/plain':
+                data = {target_event_name: await response.text()}
+            else:
+                data = await response.json()
+            response_type = responses[response.status]
+            if isinstance(data, list):
+                return Payload.from_obj(data, list, item_datatype=response_type)  # type: ignore
+            return [Payload.from_obj(data, response_type, key=target_event_name)]
         if response.status == 200:
             data = await response.json()
             if isinstance(data, list):
                 return Payload.from_obj(data, list, item_datatype=datatype)  # type: ignore
             return [Payload.from_obj(data, datatype, key=target_event_name)]
-        if datatypes and response.status in datatypes:
-            data = await response.json()
-            response_type = datatypes[response.status]
-            if isinstance(data, list):
-                return Payload.from_obj(data, list, item_datatype=response_type)  # type: ignore
-            return [Payload.from_obj(data, response_type, key=target_event_name)]
         if response.status == 401:
             raise Unauthorized(context.app_key)
         if response.status >= 500:
             raise ServerException(await response.text())
-        raise UnhandledResponse(f"Missing {response.status} status handler, use `datatypes` to handle this exception",
+        raise UnhandledResponse(f"Missing {response.status} status handler, use `responses` to handle this exception",
                                 await response.text(), response.status)
 
     async def _request(self, request_func: AbstractAsyncContextManager, context: EventContext,
                        datatype: Type[EventPayloadType], target_event_name: str, host_index: int,
-                       datatypes: Optional[Dict[int, Type[EventPayloadType]]]) -> List[EventPayloadType]:
+                       responses: Optional[Dict[int, Type[EventPayloadType]]]) -> List[EventPayloadType]:
         async with request_func as response:
             result = await self._parse_response(
-                response, context, datatype, target_event_name, datatypes
+                response, context, datatype, target_event_name, responses
             )
             self.conn_state.load_balancer.success(host_index)  # type: ignore
             return result
