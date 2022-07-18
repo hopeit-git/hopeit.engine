@@ -41,8 +41,7 @@ class ListOptions:
     partition_key: str
 
 
-async def handle_exception(payload: None, context: EventContext, 
-                           item_id: str, partition_key: str) -> ListOptions:
+async def handle_exception(payload: None, context: EventContext, item_id: str, partition_key: str) -> ListOptions:
     """
     To manage different types of responses from the same endpoint we can use the `responses` parameter where we list
     the http response status codes expected and the corresponding data type for each one. In this example app_call

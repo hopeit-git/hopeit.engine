@@ -110,7 +110,7 @@ async def test_login_response_not_recognized(monkeypatch, client_app_config):  #
 async def test_handle_responses_something(monkeypatch, client_app_config):  # noqa: F811
 
     def mock_client_calls(module, context: EventContext):
-        monkeypatch.setattr(module, "app_call", custom_app_call)        
+        monkeypatch.setattr(module, "app_call", custom_app_call)
 
     context = create_test_context(
         client_app_config, "handle_responses",

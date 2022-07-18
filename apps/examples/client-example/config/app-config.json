@@ -70,12 +70,7 @@
         },
         "handle_responses": {
             "type": "GET",
-            "connections": [
-                {
-                    "app_connection": "simple_example_auth_conn",
-                    "event": "login",
-                    "type": "GET"
-                },
+            "connections": [                
                 {
                     "app_connection": "simple_example_conn",
                     "event": "query_something",

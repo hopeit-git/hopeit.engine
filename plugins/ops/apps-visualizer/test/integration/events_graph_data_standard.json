@@ -518,15 +518,7 @@
       "target": "client_example.${APPS_ROUTE_VERSION}.handle_responses",
       "label": ""
     }
-  },
-  "edge_client_example.${APPS_ROUTE_VERSION}.handle_responses.simple-example.login.GET": {
-    "data": {
-      "id": "edge_client_example.${APPS_ROUTE_VERSION}.handle_responses.simple-example.login.GET",
-      "source": "client_example.${APPS_ROUTE_VERSION}.handle_responses",
-      "target": "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login.GET",
-      "label": ""
-    }
-  },
+  },  
   "edge_client_example.${APPS_ROUTE_VERSION}.handle_responses.simple-example.query_something.GET": {
     "data": {
       "id": "edge_client_example.${APPS_ROUTE_VERSION}.handle_responses.simple-example.query_something.GET",
