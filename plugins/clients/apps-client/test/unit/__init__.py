@@ -38,10 +38,10 @@ class MockServer:
 
 
 class MockResponse():
-    def __init__(self, status: int, response: Union[MockResponseData, str]):
+    def __init__(self, status: int, response: Union[MockResponseData, str], content_type: str = "application/json"):
         self.status = status
         self.response = response
-        self.content_type = "application/json"
+        self.content_type = content_type
 
     async def __aenter__(self):
         return self
@@ -57,10 +57,10 @@ class MockResponse():
 
 
 class MockResponseList():
-    def __init__(self, status: int, items: List[MockResponseData]):
+    def __init__(self, status: int, items: List[MockResponseData], content_type: str = "application/json"):
         self.status = status
         self.items = items
-        self.content_type = "application/json"
+        self.content_type = content_type
 
     async def __aenter__(self):
         return self

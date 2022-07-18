@@ -68,17 +68,17 @@ async def handle_exception(options: ListOptions, context: EventContext) -> ListO
     """
     To manage different types of responses from the same endpoint we can use the `responses` parameter where we list
     the http response status codes expected and the corresponding data type for each one. In this example app_call
-    expect 200 and 202 responses but unexpectedly we will get 404, this is captured as `UnhandledResponse` exception
+    expect 200 and 202 responses but unexpectedly we will get 400, this is captured as `UnhandledResponse` exception
     and reported in the log.
     """
-    responses = {200: Something, 202: str}
+    responses = {200: Something, 404: str}
     try:
-        ret: Union[str, Something] = await app_call(
-            "simple_example_conn", event="not_found", datatype=str, payload=None,
+        ret: Union[Something, SomethingNotFound] = await app_call(
+            "simple_example_conn", event="query_something", datatype=Something, payload=None,
             context=context, responses=responses)
         if isinstance(ret, Something):
             logger.info(context, "Answer status 200")
-        logger.info(context, "Answer status 202")
+        logger.info(context, "Answer status 404")
     except UnhandledResponse as e:
         logger.warning(
             context, f"Unexpected response status {e.status}")
