@@ -396,6 +396,25 @@ async def test_client_responses(monkeypatch, mock_client_app_config, mock_auth):
 
 
 @pytest.mark.asyncio
+async def test_client_get_str(monkeypatch, mock_client_app_config, mock_auth):
+    async with MockClientSession.lock:
+        await init_mock_client_app(
+            apps_client_module, monkeypatch, mock_auth, mock_client_app_config, "test-event-get", "ok"
+        )
+        context = create_test_context(mock_client_app_config, "mock_client_event")
+
+        MockClientSession.set_alternate_response("http://test-host1", 200, 'text/plain')
+
+        result = await app_call(
+            "test_app_connection", event="test_event_get",
+            datatype=str, payload=None, context=context,
+            test_param="test_param_value"
+        )
+        assert result == "MockResponseData(value='ok', param='test_param_value'," \
+                         " host='http://test-host1', log={'http://test-host1': 1})"
+
+
+@pytest.mark.asyncio
 async def test_client_list_responses(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(

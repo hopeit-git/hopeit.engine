@@ -83,6 +83,7 @@ class MockClientSession():
     failure: Dict[str, int] = {}
     alternate: Dict[str, int] = {}
     call_log: Dict[str, int] = defaultdict(int)
+    content_type: str = "application/json"
 
     @classmethod
     def setup(cls, responses: Dict[str, str], headers: Dict[str, str]):
@@ -101,8 +102,9 @@ class MockClientSession():
         return cls
 
     @classmethod
-    def set_alternate_response(cls, host: str, status: int):
+    def set_alternate_response(cls, host: str, status: int, content_type: str = "application/json"):
         cls.alternate[cls._host(host)] = status
+        cls.content_type = content_type
         return cls
 
     def __init__(self, *args, **kwargs):
@@ -142,8 +144,7 @@ class MockClientSession():
                 value=self.responses[url],
                 param=str(params.get("test_param", "")),
                 host=host,
-                log=dict(self.call_log)
-            ))
+                log=dict(self.call_log)), self.content_type)
         if url in self.responses:
             return MockResponse(200, MockResponseData(
                 value=self.responses[url],

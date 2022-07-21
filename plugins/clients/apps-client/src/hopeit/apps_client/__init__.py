@@ -403,26 +403,23 @@ class AppsClient(Client):
         Parses http response from external App, catching Unathorized errors
         and converting the result to the desired datatype
         """
-        if responses and response.status in responses:
+        try:
+            response_type = datatype if response.status == 200 else responses[response.status]  # type: ignore
             if response.content_type == 'text/plain':
                 data = {target_event_name: await response.text()}
             else:
                 data = await response.json()
-            response_type = responses[response.status]
             if isinstance(data, list):
                 return Payload.from_obj(data, list, item_datatype=response_type)  # type: ignore
             return [Payload.from_obj(data, response_type, key=target_event_name)]
-        if response.status == 200:
-            data = await response.json()
-            if isinstance(data, list):
-                return Payload.from_obj(data, list, item_datatype=datatype)  # type: ignore
-            return [Payload.from_obj(data, datatype, key=target_event_name)]
-        if response.status == 401:
-            raise Unauthorized(context.app_key)
-        if response.status >= 500:
-            raise ServerException(await response.text())
-        raise UnhandledResponse(f"Missing {response.status} status handler, use `responses` to handle this exception",
-                                await response.text(), response.status)
+        except (TypeError, KeyError):
+            if response.status == 401:
+                raise Unauthorized(context.app_key)  # pylint: disable=raise-missing-from
+            if response.status >= 500:
+                raise ServerException(await response.text())  # pylint: disable=raise-missing-from
+            raise UnhandledResponse(  # pylint: disable=raise-missing-from
+                f"Missing {response.status} status handler, use `responses` to handle this exception",
+                await response.text(), response.status)
 
     async def _request(self, request_func: AbstractAsyncContextManager, context: EventContext,
                        datatype: Type[EventPayloadType], target_event_name: str, host_index: int,

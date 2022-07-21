@@ -4,8 +4,8 @@ Release Notes
 Version 0.16.4
 ______________
 Plugin: 
-  - apps-client: `app_call` and `app_call_list` adds the optional `responses` parameter, this allows to handle
-  different datatypes per status code response. Also the `UnhandledResponse` exception is added, when an unexpected
+  - apps-client: `app_call` and `app_call_list` add the optional `responses` parameter, this allows to handle
+  different datatypes per response status code. Also the `UnhandledResponse` exception is added, when an unexpected
   response is received it raises an `UnhandledResponse` enriched with information such as the `status` code and
   `response` content of the request.
   

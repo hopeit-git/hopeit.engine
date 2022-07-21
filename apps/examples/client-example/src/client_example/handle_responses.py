@@ -18,7 +18,7 @@ from hopeit.app.client import app_call, UnhandledResponse
 from hopeit.dataobjects import dataobject, dataclass
 from model import Something, SomethingNotFound
 
-__steps__ = ['handle_exception', 'handle_respones']
+__steps__ = ['handle_exception', 'handle_responses']
 
 __api__ = event_api(
     summary="Client Example: Handle Responses",
@@ -59,7 +59,7 @@ async def handle_exception(payload: None, context: EventContext, item_id: str, p
     return ListOptions(item_id=item_id, partition_key=partition_key)
 
 
-async def handle_respones(options: ListOptions, context: EventContext) -> str:
+async def handle_responses(options: ListOptions, context: EventContext) -> str:
     """
     To manage different types of responses from the same endpoint we can use the `responses` parameter where we list
     the http response status codes expected and the corresponding data type for each one. In this example app_call
@@ -70,9 +70,9 @@ async def handle_respones(options: ListOptions, context: EventContext) -> str:
     something: Union[Something, SomethingNotFound] = await app_call(
         "simple_example_conn", event="query_something", datatype=Something,
         payload=None, context=context,
-        responses={200: Something, 404: SomethingNotFound},
+        responses={404: SomethingNotFound},
         item_id=options.item_id, partition_key=options.partition_key)
 
     if isinstance(something, Something):
-        return f"You get a 200 response with: '{something}'"
-    return f"You get a 404 response with: '{something}'"
+        return f"Got 200 response with: '{something}'"
+    return f"Got 404 response with: '{something}'"

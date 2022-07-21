@@ -26,7 +26,7 @@ class AppConnectionNotFound(ClientException):
 
 
 class UnhandledResponse(ClientException):
-    """Base exception for Unhandled responses"""
+    """Exception for unhandled responses"""
     def __init__(self, message, response, status):
         super().__init__(message)
         self.response = response
@@ -73,7 +73,7 @@ class Client(ABC):
         This method is not usually called directly, use instead `app_call` and `app_call_list` functions.
 
         :param event: str, event name to invoke in external app, must be configured in event connections section
-        :param datatype: str, type of items returned
+        :param datatype: str, type of items returned for 200 status response
         :param payload: payload to pass to taget event
         :param context: current EventContext
         :param responses: Optional[Dict[int, Type[EventPayloadType]]] to handle non 200 status responses
@@ -127,7 +127,7 @@ async def app_call(app_connection: str,
 
     :param app_connection: str, app_connection name as in app_config
     :param event: str, event name to invoke in external app, must be configured in event connections section
-    :param datatype: str, type of returned value
+    :param datatype: str, type of returned value for 200 status response
     :param payload: payload to pass to taget event
     :param context: current EventContext
     :param responses: Optional[Dict[int, Type[EventPayloadType]]] to handle non 200 status responses
@@ -152,7 +152,7 @@ async def app_call_list(app_connection: str,
 
     :param app_connection: str, app_connection name as in app_config
     :param event: str, event name to invoke in external app, must be configured in event connections section
-    :param datatype: str, type of returned value for each item
+    :param datatype: Type[EventPayloadType]: expected return type for each item for 200 status response
     :param payload: payload to pass to taget event
     :param context: current EventContext
     :param responses: Optional[Dict[int, Type[EventPayloadType]]] to handle non 200 status responses

@@ -126,7 +126,7 @@ async def test_handle_responses_something(monkeypatch, client_app_config):  # no
         item_id="id_something",
         partition_key="YYYY/MM/DD/HH")
 
-    assert result == "You get a 200 response with: 'Something(id='id_something', user=User(id='test'," \
+    assert result == "Got 200 response with: 'Something(id='id_something', user=User(id='test'," \
         " name='test'), status=None, history=[])'"
 
 
@@ -150,4 +150,4 @@ async def test_handle_responses_something_not_found(monkeypatch, client_app_conf
         item_id="id_not_found",
         partition_key="YYYY/MM/DD/HH")
 
-    assert result == "You get a 404 response with: 'SomethingNotFound(path='', id='id_not_found')'"
+    assert result == "Got 404 response with: 'SomethingNotFound(path='', id='id_not_found')'"
