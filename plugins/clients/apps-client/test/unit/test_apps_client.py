@@ -438,7 +438,7 @@ async def test_client_list_responses(monkeypatch, mock_client_app_config, mock_a
         )]
 
 
-async def test_client_unhandled_response_exception(monkeypatch, mock_client_app_config, mock_auth):
+async def test_client_unhandled_response_type_error(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(
             apps_client_module, monkeypatch, mock_auth, mock_client_app_config, "test-event-get", "ok"
@@ -450,6 +450,26 @@ async def test_client_unhandled_response_exception(monkeypatch, mock_client_app_
                 "test_app_connection", event="test_event_get",
                 datatype=MockResponseData, payload=None, context=context,
                 test_param="test_param_value")
+        assert str(unhandled_response.value) == 'Missing 405 status handler, use `responses` to handle this exception'
+        assert unhandled_response.value.status == 405
+        assert unhandled_response.value.response == "MockResponseData(value='ok', param='test_param_value'," \
+                                                    " host='http://test-host1', log={'http://test-host1': 1})"
+
+
+async def test_client_unhandled_response_key_error(monkeypatch, mock_client_app_config, mock_auth):
+    async with MockClientSession.lock:
+        await init_mock_client_app(
+            apps_client_module, monkeypatch, mock_auth, mock_client_app_config, "test-event-get", "ok"
+        )
+        context = create_test_context(mock_client_app_config, "mock_client_event")
+        MockClientSession.set_alternate_response("http://test-host1", 405)
+        with pytest.raises(UnhandledResponse) as unhandled_response:
+            await app_call(
+                "test_app_connection", event="test_event_get",
+                datatype=MockResponseData, payload=None, context=context,
+                responses={403: MockResponseData},
+                test_param="test_param_value"
+            )
         assert str(unhandled_response.value) == 'Missing 405 status handler, use `responses` to handle this exception'
         assert unhandled_response.value.status == 405
         assert unhandled_response.value.response == "MockResponseData(value='ok', param='test_param_value'," \

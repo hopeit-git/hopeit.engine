@@ -405,13 +405,6 @@ class AppsClient(Client):
         """
         try:
             response_type = datatype if response.status == 200 else responses[response.status]  # type: ignore
-            if response.content_type == 'text/plain':
-                data = {target_event_name: await response.text()}
-            else:
-                data = await response.json()
-            if isinstance(data, list):
-                return Payload.from_obj(data, list, item_datatype=response_type)  # type: ignore
-            return [Payload.from_obj(data, response_type, key=target_event_name)]
         except (TypeError, KeyError):
             if response.status == 401:
                 raise Unauthorized(context.app_key)  # pylint: disable=raise-missing-from
@@ -420,6 +413,14 @@ class AppsClient(Client):
             raise UnhandledResponse(  # pylint: disable=raise-missing-from
                 f"Missing {response.status} status handler, use `responses` to handle this exception",
                 await response.text(), response.status)
+        
+        if response.content_type == 'text/plain':
+            data = {target_event_name: await response.text()}
+        else:
+            data = await response.json()
+        if isinstance(data, list):
+            return Payload.from_obj(data, list, item_datatype=response_type)  # type: ignore
+        return [Payload.from_obj(data, response_type, key=target_event_name)]
 
     async def _request(self, request_func: AbstractAsyncContextManager, context: EventContext,
                        datatype: Type[EventPayloadType], target_event_name: str, host_index: int,
