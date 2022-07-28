@@ -413,7 +413,7 @@ class AppsClient(Client):
             raise UnhandledResponse(  # pylint: disable=raise-missing-from
                 f"Missing {response.status} status handler, use `responses` to handle this exception",
                 await response.text(), response.status)
-        
+
         if response.content_type == 'text/plain':
             data = {target_event_name: await response.text()}
         else:
