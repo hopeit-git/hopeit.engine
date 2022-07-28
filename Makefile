@@ -38,7 +38,7 @@ test-engine:
 	/bin/bash engine/build/ci-test-engine.sh
 
 test-plugins:
-	/bin/bash plugins/build/ci-test-plugins.sh
+	/bin/bash plugins/build/ci-test-plugins.sh $(PLUGINFOLDER)
 
 test-apps:
 	/bin/bash apps/build/ci-test-apps.sh
