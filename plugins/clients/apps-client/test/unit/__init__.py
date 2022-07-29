@@ -38,9 +38,10 @@ class MockServer:
 
 
 class MockResponse():
-    def __init__(self, status: int, response: Union[MockResponseData, str]):
+    def __init__(self, status: int, response: Union[MockResponseData, str], content_type: str = "application/json"):
         self.status = status
         self.response = response
+        self.content_type = content_type
 
     async def __aenter__(self):
         return self
@@ -56,9 +57,10 @@ class MockResponse():
 
 
 class MockResponseList():
-    def __init__(self, status: int, items: List[MockResponseData]):
+    def __init__(self, status: int, items: List[MockResponseData], content_type: str = "application/json"):
         self.status = status
         self.items = items
+        self.content_type = content_type
 
     async def __aenter__(self):
         return self
@@ -79,7 +81,9 @@ class MockClientSession():
     responses: Dict[str, str] = {}
     headers: Dict[str, str] = {}
     failure: Dict[str, int] = {}
+    alternate: Dict[str, int] = {}
     call_log: Dict[str, int] = defaultdict(int)
+    content_type: str = "application/json"
 
     @classmethod
     def setup(cls, responses: Dict[str, str], headers: Dict[str, str]):
@@ -93,8 +97,14 @@ class MockClientSession():
         return cls
 
     @classmethod
-    def set_failure(cls, host: str, failure: bool):
+    def set_failure(cls, host: str, failure: int):
         cls.failure[cls._host(host)] = failure
+        return cls
+
+    @classmethod
+    def set_alternate_response(cls, host: str, status: int, content_type: str = "application/json"):
+        cls.alternate[cls._host(host)] = status
+        cls.content_type = content_type
         return cls
 
     def __init__(self, *args, **kwargs):
@@ -127,6 +137,14 @@ class MockClientSession():
             return MockResponse(
                 self.failure.get(host, 0), "Mock server error"
             )
+        if self.alternate.get(host):
+            status = self.alternate.get(host)
+            assert status
+            return MockResponse(status, MockResponseData(
+                value=self.responses[url],
+                param=str(params.get("test_param", "")),
+                host=host,
+                log=dict(self.call_log)), self.content_type)
         if url in self.responses:
             return MockResponse(200, MockResponseData(
                 value=self.responses[url],
@@ -145,6 +163,16 @@ class MockClientSession():
             return MockResponse(
                 self.failure.get(host, 0), "Mock server error"
             )
+        if self.alternate.get(host):
+            status = self.alternate.get(host)
+            assert status
+            payload = Payload.from_json(data, MockPayloadData)
+            return MockResponseList(status, items=[MockResponseData(
+                value=f"{payload.value} {self.responses[url]}",
+                param=str(params.get("test_param", "")),
+                host=host,
+                log=self.call_log
+            )])
         if url in self.responses:
             payload = Payload.from_json(data, MockPayloadData)
             return MockResponseList(200, items=[MockResponseData(

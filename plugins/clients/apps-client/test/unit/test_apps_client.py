@@ -4,7 +4,7 @@ import pytest
 
 import hopeit.apps_client as apps_client_module
 from hopeit.apps_client import AppsClientException, ClientLoadBalancerException
-from hopeit.app.client import AppConnectionNotFound, app_call, app_call_list, app_client
+from hopeit.app.client import AppConnectionNotFound, app_call, app_call_list, app_client, UnhandledResponse
 from hopeit.app.config import AppConfig
 from hopeit.app.errors import Unauthorized
 from hopeit.server.config import AuthType
@@ -374,3 +374,103 @@ async def test_client_session_lifecycle(monkeypatch, mock_client_app_config, moc
         client = app_client("test_app_connection", context)
         await client.stop()
         assert MockClientSession.session_open is False
+
+
+@pytest.mark.asyncio
+async def test_client_responses(monkeypatch, mock_client_app_config, mock_auth):
+    async with MockClientSession.lock:
+        await init_mock_client_app(
+            apps_client_module, monkeypatch, mock_auth, mock_client_app_config, "test-event-get", "ok"
+        )
+        context = create_test_context(mock_client_app_config, "mock_client_event")
+
+        MockClientSession.set_alternate_response("http://test-host1", 403)
+
+        result = await app_call(
+            "test_app_connection", event="test_event_get",
+            datatype=MockResponseData, payload=None, context=context,
+            responses={403: MockResponseData}, test_param="test_param_value"
+        )
+        assert result == MockResponseData(value="ok", param="test_param_value", host="http://test-host1",
+                                          log={"http://test-host1": 1})
+
+
+@pytest.mark.asyncio
+async def test_client_get_str(monkeypatch, mock_client_app_config, mock_auth):
+    async with MockClientSession.lock:
+        await init_mock_client_app(
+            apps_client_module, monkeypatch, mock_auth, mock_client_app_config, "test-event-get", "ok"
+        )
+        context = create_test_context(mock_client_app_config, "mock_client_event")
+
+        MockClientSession.set_alternate_response("http://test-host1", 200, 'text/plain')
+
+        result = await app_call(
+            "test_app_connection", event="test_event_get",
+            datatype=str, payload=None, context=context,
+            test_param="test_param_value"
+        )
+        assert result == "MockResponseData(value='ok', param='test_param_value'," \
+                         " host='http://test-host1', log={'http://test-host1': 1})"
+
+
+@pytest.mark.asyncio
+async def test_client_list_responses(monkeypatch, mock_client_app_config, mock_auth):
+    async with MockClientSession.lock:
+        await init_mock_client_app(
+            apps_client_module, monkeypatch, mock_auth, mock_client_app_config, "test-event-post", "ok"
+        )
+
+        MockClientSession.set_alternate_response("http://test-host1", 403)
+
+        context = create_test_context(mock_client_app_config, "mock_client_event")
+        result = await app_call_list(
+            "test_app_connection", event="test_event_post",
+            datatype=MockResponseData,
+            payload=MockPayloadData("payload"), context=context,
+            responses={403: MockResponseData},
+            test_param="test_param_value"
+        )
+        assert result == [MockResponseData(
+            value="payload ok", param="test_param_value",
+            host="http://test-host1",
+            log={"http://test-host1": 1}
+        )]
+
+
+async def test_client_unhandled_response_type_error(monkeypatch, mock_client_app_config, mock_auth):
+    async with MockClientSession.lock:
+        await init_mock_client_app(
+            apps_client_module, monkeypatch, mock_auth, mock_client_app_config, "test-event-get", "ok"
+        )
+        context = create_test_context(mock_client_app_config, "mock_client_event")
+        MockClientSession.set_alternate_response("http://test-host1", 405)
+        with pytest.raises(UnhandledResponse) as unhandled_response:
+            await app_call(
+                "test_app_connection", event="test_event_get",
+                datatype=MockResponseData, payload=None, context=context,
+                test_param="test_param_value")
+        assert str(unhandled_response.value) == 'Missing 405 status handler, use `responses` to handle this exception'
+        assert unhandled_response.value.status == 405
+        assert unhandled_response.value.response == "MockResponseData(value='ok', param='test_param_value'," \
+                                                    " host='http://test-host1', log={'http://test-host1': 1})"
+
+
+async def test_client_unhandled_response_key_error(monkeypatch, mock_client_app_config, mock_auth):
+    async with MockClientSession.lock:
+        await init_mock_client_app(
+            apps_client_module, monkeypatch, mock_auth, mock_client_app_config, "test-event-get", "ok"
+        )
+        context = create_test_context(mock_client_app_config, "mock_client_event")
+        MockClientSession.set_alternate_response("http://test-host1", 405)
+        with pytest.raises(UnhandledResponse) as unhandled_response:
+            await app_call(
+                "test_app_connection", event="test_event_get",
+                datatype=MockResponseData, payload=None, context=context,
+                responses={403: MockResponseData},
+                test_param="test_param_value"
+            )
+        assert str(unhandled_response.value) == 'Missing 405 status handler, use `responses` to handle this exception'
+        assert unhandled_response.value.status == 405
+        assert unhandled_response.value.response == "MockResponseData(value='ok', param='test_param_value'," \
+                                                    " host='http://test-host1', log={'http://test-host1': 1})"

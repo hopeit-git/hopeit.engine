@@ -58,7 +58,7 @@ class StreamEventMixin:
     MixIn class to add functionality for DataObjects to provide event id and event timestamp
     to be suitable for stream publishing.
 
-    Do not use this class directly, instead use `@databoject` class decorator.
+    Do not use this class directly, instead use `@dataobject` class decorator.
     """
 
     def __init__(self, *, event_id_expr=None, event_ts_expr=None):
