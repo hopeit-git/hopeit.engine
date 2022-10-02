@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+Version 0.16.5
+______________
+Plugin: 
+  - fs-storage: include `hopeit.fs_storage.events` module in release package
+
+
 Version 0.16.4
 ______________
 Plugin: 
