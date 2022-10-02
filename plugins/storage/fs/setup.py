@@ -40,11 +40,13 @@ setuptools.setup(
         "": "src"
     },
     packages=[
-        "hopeit.fs_storage"
+        "hopeit.fs_storage",
+        "hopeit.fs_storage.events",
     ],
     include_package_data=True,
     package_data={
         "hopeit.fs_storage": ["py.typed"]
+        "hopeit.fs_storage.events": ["py.typed"],
     },
     python_requires=">=3.7",
     install_requires=[
