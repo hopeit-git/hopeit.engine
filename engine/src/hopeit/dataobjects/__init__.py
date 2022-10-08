@@ -22,7 +22,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import TypeVar, Optional, Union, Any
+from typing import Iterator, TypeVar, Optional, Union, Tuple, Any
 
 from dataclasses_jsonschema import JsonSchemaMixin
 
@@ -43,6 +43,7 @@ class StreamEventParams:
     """
     event_id_expr: Optional[str]
     event_ts_expr: Optional[str]
+    event_partition_exprs: Tuple[str]
 
     @staticmethod
     def extract_attr(obj, expr):
@@ -61,8 +62,8 @@ class StreamEventMixin:
     Do not use this class directly, instead use `@dataobject` class decorator.
     """
 
-    def __init__(self, *, event_id_expr=None, event_ts_expr=None):
-        self.__stream_event__ = StreamEventParams(event_id_expr, event_ts_expr)  # pragma: no cover
+    def __init__(self, *, event_id_expr=None, event_ts_expr=None, event_partition_exprs=None):
+        self.__stream_event__ = StreamEventParams(event_id_expr, event_ts_expr, event_partition_exprs)  # pragma: no cover
         raise NotImplementedError  # must use @dataobject decorator  # pragma: no cover
 
     def event_id(self) -> str:
@@ -73,6 +74,14 @@ class StreamEventMixin:
     def event_ts(self) -> Optional[datetime]:
         if self.__stream_event__.event_ts_expr:
             return self.__stream_event__.extract_attr(self, self.__stream_event__.event_ts_expr)
+        return None
+
+    def event_partition_keys(self) -> Optional[Iterator[str]]:
+        if isinstance(self.__stream_event__.event_partition_exprs, tuple):
+            return (
+                self.__stream_event__.extract_attr(self, expr)
+                for expr in self.__stream_event__.event_partition_exprs
+            )
         return None
 
 
@@ -106,6 +115,7 @@ def dataobject(
         decorated_class=None, *,
         event_id: Optional[str] = None,
         event_ts: Optional[str] = None,
+        partition: Optional[Tuple[str]] = None,
         unsafe: bool = False,
         validate: bool = True,
         schema: bool = True):
@@ -168,9 +178,10 @@ def dataobject(
     def wrap(cls):
         amended_class = _add_jsonschema_support(cls)
         setattr(amended_class, '__data_object__', {'unsafe': unsafe, 'validate': validate, 'schema': schema})
-        setattr(amended_class, '__stream_event__', StreamEventParams(event_id, event_ts))
+        setattr(amended_class, '__stream_event__', StreamEventParams(event_id, event_ts, partition))
         setattr(amended_class, 'event_id', StreamEventMixin.event_id)
         setattr(amended_class, 'event_ts', StreamEventMixin.event_ts)
+        setattr(amended_class, 'event_partition_keys', StreamEventMixin.event_partition_keys)
         return amended_class
 
     if decorated_class is None:
