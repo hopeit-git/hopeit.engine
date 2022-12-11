@@ -2,7 +2,7 @@ from uuid import uuid4
 from dataclasses import dataclass
 from fnmatch import fnmatch
 import pytest  # type: ignore
-import aioredis
+import redis.asyncio as redis
 from hopeit.dataobjects import dataobject
 from hopeit.dataobjects.payload import Payload
 
@@ -112,41 +112,41 @@ class MockRedisPool:
 
 @pytest.mark.asyncio
 async def test_set(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await store_item()
 
 
 async def test_set_extra_args(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await store_item_extra_args()
 
 
 @pytest.mark.asyncio
 async def test_get(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await get_item()
 
 
 @pytest.mark.asyncio
 async def test_delete(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await delete_item()
     await delete_items()
 
 
 @pytest.mark.asyncio
 async def test_list_objects(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await list_objects()
 
 
 @pytest.mark.asyncio
 async def test_get_item_not_found(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await get_item_not_found()
 
 
 @pytest.mark.asyncio
 async def test_connect(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await connect()

@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 0.16.6
+______________
+- Plugins:
+  - redis-streams: switch from aioredis 2.0.0 to redis 4.4.0 library.
+  - redis-storage: switch from aioredis 2.0.0 to redis 4.4.0 library.
+
+
 Version 0.16.5
 ______________
 Plugin: 

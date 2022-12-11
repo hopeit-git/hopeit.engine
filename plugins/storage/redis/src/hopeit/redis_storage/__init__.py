@@ -4,7 +4,7 @@ Backed by Redis
 """
 from typing import Optional, Type, Generic, Any, List
 
-import aioredis
+import redis.asyncio as redis
 
 from hopeit.dataobjects import DataObject
 from hopeit.dataobjects.payload import Payload
@@ -25,7 +25,7 @@ class RedisStorage(Generic[DataObject]):
         """
         Setups Redis connection
         """
-        self._conn: Optional[aioredis.Redis] = None
+        self._conn: Optional[redis.Redis] = None
 
     def connect(self, *, address: str) -> Any:
         """
@@ -33,7 +33,7 @@ class RedisStorage(Generic[DataObject]):
 
         :param address: str, address = "redis://hostname:6379/0?encoding=utf-8"
         """
-        self._conn = aioredis.from_url(address)
+        self._conn = redis.from_url(address)
         return self
 
     async def get(self, key: str, *, datatype: Type[DataObject]) -> Optional[DataObject]:
@@ -56,13 +56,13 @@ class RedisStorage(Generic[DataObject]):
 
         :param key: str
         :param value: DataObject, instance of dataclass annotated with @dataobject
-        :param **kwargs: You can use arguments expected by the set method in the aioredis library i.e.:
+        :param **kwargs: You can use arguments expected by the set method in the redis library i.e.:
             ex sets an expire flag on key name for ex seconds.
             px sets an expire flag on key name for px milliseconds.
             nx if set to True, set the value at key name to value only if it does not exist.
             xx if set to True, set the value at key name to value only if it already exists.
             keepttl if True, retain the time to live associated with the key. (Available since Redis 6.0).
-            *These arguments may vary depending on the version of aioredis installed.
+            *These arguments may vary depending on the version of redis installed.
 
         i.e. store object:
         ```
