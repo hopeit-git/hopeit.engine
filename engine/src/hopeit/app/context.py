@@ -2,8 +2,8 @@
 Context information and handling
 """
 from typing import AsyncGenerator, AsyncIterator, Callable, Generic, TypeVar, \
-    Dict, Optional, Any, Tuple, Union, List
-from abc import ABC
+    Dict, Optional, Any, Tuple, Union, List, Mapping
+from abc import ABC, abstractmethod
 from pathlib import Path
 from datetime import datetime, timezone
 import re
@@ -76,7 +76,7 @@ class PostprocessStreamResponseHook():
     Useful to stream content and avoid memory overhead.
     """
     def __init__(self, content_disposition: str, content_type: str, content_length: int):
-        self.headers = MultiDict({
+        self.headers: Mapping = MultiDict({
             "Content-Disposition": content_disposition,
             "Content-Type": content_type,
         })
@@ -94,7 +94,7 @@ class PostprocessStreamResponseHook():
 class TestingResp:
     def __init__(self):
         self.headers = MultiDict()
-        self.data: bytes = b''
+        self.data = b''
 
 
 class PostprocessTestingStreamResponseHook(PostprocessStreamResponseHook):
@@ -183,24 +183,30 @@ class BodyPartReaderProtocol(ABC):
     Required functionallity for BodyPartReader implementation
     to be used in PreprocessHook
     """
+    @abstractmethod
     async def read_chunk(self, size: Optional[int] = None) -> bytes:
         ...
 
+    @abstractmethod
     async def text(self, *, encoding: Optional[str] = None) -> str:
         ...
 
+    @abstractmethod
     async def json(self, *, encoding: Optional[str] = None) -> Optional[Dict[str, Any]]:
         ...
 
     @property
+    @abstractmethod
     def name(self) -> Optional[str]:
         ...
 
     @property
+    @abstractmethod
     def filename(self) -> Optional[str]:
         ...
 
     @property
+    @abstractmethod
     def headers(self) -> CIMultiDictProxy[str]:
         ...
 
@@ -211,11 +217,13 @@ class MultipartReaderProtocol(ABC):
     to be used in PreprocessHook
     """
 
+    @abstractmethod
     def __aiter__(
         self,
     ) -> AsyncIterator["BodyPartReaderProtocol"]:
         ...
 
+    @abstractmethod
     async def __anext__(
         self,
     ) -> Optional[Union["MultipartReaderProtocol", BodyPartReaderProtocol]]:
