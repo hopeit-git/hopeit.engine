@@ -84,7 +84,6 @@ python3 -m flake8 --max-line-length=120 plugins/ops/log-streamer/src/hopeit/ plu
 code+=$?
 python3 -m pylint plugins/ops/log-streamer/src/hopeit/log_streamer/
 code+=$?
-echo $code
 if [ $code -gt 0 ]
 then
   echo "[FAILED] CI STATIC ANALYSIS: PLUGINS"
