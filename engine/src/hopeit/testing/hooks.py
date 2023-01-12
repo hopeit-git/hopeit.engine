@@ -1,7 +1,7 @@
 """
 Mock hooks for testing apps
 """
-from typing import Optional, AsyncGenerator, Dict, AsyncIterator, Union
+from typing import Optional, AsyncGenerator, Dict, AsyncIterator, Union, Mapping
 
 from multidict import CIMultiDict
 
@@ -16,7 +16,7 @@ class MockField:
         self._value = value
         self.filename = None if file_data is None else value
         self.file_data = file_data
-        self.headers = CIMultiDict({
+        self.headers: Mapping = CIMultiDict({
             'Content-Type': 'application/json' if isinstance(value, dict)
             else 'application/octect-stream' if file_data is not None
             else 'text/plain'

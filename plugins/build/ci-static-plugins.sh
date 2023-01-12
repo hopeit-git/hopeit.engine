@@ -2,7 +2,7 @@ echo "==========================="
 echo "CI STATIC ANALYSIS: PLUGINS"
 echo "==========================="
 
-code=0
+declare -i code=0
 echo "auth/basic-auth"
 export MYPYPATH=engine/src/:plugins/auth/basic-auth/src/ && python3 -m mypy --namespace-packages -p hopeit.basic_auth
 code+=$?
@@ -84,7 +84,6 @@ python3 -m flake8 --max-line-length=120 plugins/ops/log-streamer/src/hopeit/ plu
 code+=$?
 python3 -m pylint plugins/ops/log-streamer/src/hopeit/log_streamer/
 code+=$?
-
 if [ $code -gt 0 ]
 then
   echo "[FAILED] CI STATIC ANALYSIS: PLUGINS"

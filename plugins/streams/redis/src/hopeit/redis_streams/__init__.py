@@ -9,8 +9,8 @@ import uuid
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Union
 
-import aioredis
-from aioredis import RedisError
+import redis.asyncio as redis
+from redis import RedisError, ResponseError
 
 from hopeit.app.config import Compression, Serialization, StreamQueue
 from hopeit.dataobjects import EventPayload
@@ -37,8 +37,8 @@ class RedisStreamManager(StreamManager):
         """
         self.address = address
         self.consumer_id = self._consumer_id()
-        self._write_pool: aioredis.Redis
-        self._read_pool: aioredis.Redis
+        self._write_pool: redis.Redis
+        self._read_pool: redis.Redis
 
     async def connect(self):
         """
@@ -47,8 +47,8 @@ class RedisStreamManager(StreamManager):
         """
         logger.info(__name__, f"Connecting address={self.address}...")
         try:
-            self._write_pool = aioredis.from_url(self.address)
-            self._read_pool = aioredis.from_url(self.address)
+            self._write_pool = redis.from_url(self.address)
+            self._read_pool = redis.from_url(self.address)
             return self
         except (OSError, RedisError) as e:  # pragma: no cover
             logger.error(__name__, e)
@@ -115,7 +115,7 @@ class RedisStreamManager(StreamManager):
                 id='0',
                 mkstream=True
             )
-        except aioredis.exceptions.ResponseError:
+        except ResponseError:
             logger.info(__name__,
                         "Consumer_group already exists " +
                         f"read_stream={stream_name} consumer_group={consumer_group}")

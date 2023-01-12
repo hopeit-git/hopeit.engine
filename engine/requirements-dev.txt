@@ -13,4 +13,4 @@ wheel
 aiofiles
 types-aiofiles
 nest-asyncio
-
+types-redis

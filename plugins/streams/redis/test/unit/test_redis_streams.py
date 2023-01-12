@@ -1,4 +1,5 @@
-import aioredis
+import redis.asyncio as redis
+from redis import ResponseError
 
 import pytest
 from datetime import datetime, timezone
@@ -151,25 +152,25 @@ async def ack_read_stream():
 
 @pytest.mark.asyncio
 async def test_write_stream(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await write_stream()
 
 
 @pytest.mark.asyncio
 async def test_ensure_consume_group(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await ensure_consumer_group()
 
 
 @pytest.mark.asyncio
 async def test_read_stream(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await read_stream()
 
 
 @pytest.mark.asyncio
 async def test_read_stream_queue_name(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     monkeypatch.setattr(TestStreamData, 'test_queue', 'custom')
     test_msg = deepcopy(MockRedisPool.test_msg)
     test_msg[1][b'queue'] = b'custom'
@@ -179,7 +180,7 @@ async def test_read_stream_queue_name(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_read_stream_default_queue_name_when_missing(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     test_msg = deepcopy(MockRedisPool.test_msg)
     del test_msg[1][b'queue']
     monkeypatch.setattr(MockRedisPool, 'test_msg', test_msg)
@@ -188,13 +189,13 @@ async def test_read_stream_default_queue_name_when_missing(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_read_stream_empty_batch(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await read_stream_empty_batch()
 
 
 @pytest.mark.asyncio
 async def test_ack_read_stream(monkeypatch):
-    monkeypatch.setattr(aioredis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
     await ack_read_stream()
 
 
@@ -244,7 +245,7 @@ class MockRedisPool():
     async def xgroup_create(self, name, groupname, id='$', mkstream=False):
         if self.xgroup_name == name and self.xgroup_groupname == groupname:
             self.xgroup_exists = True
-            raise aioredis.exceptions.ResponseError
+            raise ResponseError
         self.xgroup_name = name
         self.xgroup_groupname = groupname
         self.xgroup_latest_id = id
