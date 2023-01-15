@@ -36,7 +36,7 @@
           },
           "upload_something": {
             "save_path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.upload_something.save_path/",
-            "chunk_size": "16384"
+            "chunk_size": 16384
           }
         },
         "events": {

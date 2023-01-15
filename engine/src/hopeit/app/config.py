@@ -48,7 +48,7 @@ class AppDescriptor:
         return auto_path(self.name, self.version)
 
 
-Env = Dict[str, Dict[str, Union[str, float, bool]]]
+Env = Dict[str, Dict[str, Union[str, float, int, bool]]]
 AppSettings = Dict[str, Dict[str, Any]]
 
 

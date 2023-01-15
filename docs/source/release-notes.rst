@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+Version 0.16.7
+______________
+- Update dependencies
+- Fix config load on newer version of `dataclasses_jsonschema`
+
+
 Version 0.16.6
 ______________
 - Plugins:
