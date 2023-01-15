@@ -20,11 +20,6 @@ async def test_runtime_apps_config(monkeypatch, runtime_apps_response):
     plugin_config = config('plugins/ops/config-manager/config/plugin-config.json')
     result = await execute_event(app_config=plugin_config, event_name="runtime_apps_config", payload=None)
 
-    import json
-    with open('1.json', 'w') as f:
-        json.dump(result.to_dict(), f)
-    with open('2.json', 'w') as f:
-        json.dump(runtime_apps_response.to_dict(), f)
     assert result == runtime_apps_response
 
 

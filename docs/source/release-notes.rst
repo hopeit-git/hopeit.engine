@@ -3,10 +3,11 @@ Release Notes
 
 Version 0.16.7
 ______________
-Update libraries  
+- Update dependencies
+- Fix config load on newer version of `dataclasses_jsonschema`
 
 
-Version 0.16.7
+Version 0.16.6
 ______________
 - Plugins:
   - redis-streams: switch from aioredis 2.0.0 to redis 4.4.0 library.
