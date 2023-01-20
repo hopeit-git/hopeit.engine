@@ -5,7 +5,7 @@ Payload tools to serialize and deserialze event payloads and responses, includin
 import json
 from typing import Type, Generic, Optional, Union
 
-from dataclasses_jsonschema import ValidationError
+from pydantic import ValidationError
 
 from hopeit.dataobjects import EventPayloadType
 

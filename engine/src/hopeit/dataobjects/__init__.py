@@ -9,7 +9,7 @@ Annotate dataclasses with @dataobject annotation to make it support:
 
 Example:
 
-    from hopeit.dataobjects import dataclass, dataobject
+    from hopeit.dataobjects import dataobject
 
     @dataobject
     @dataclass
@@ -19,12 +19,12 @@ Example:
 """
 import pickle
 import uuid
-from dataclasses import dataclass
+import copy
 from datetime import datetime
 from decimal import Decimal
 from typing import TypeVar, Optional, Union, Any
 
-from dataclasses_jsonschema import JsonSchemaMixin
+from pydantic import BaseModel
 
 __all__ = ['EventPayload',
            'EventPayloadType',
@@ -35,8 +35,7 @@ __all__ = ['EventPayload',
            'payload']
 
 
-@dataclass
-class StreamEventParams:
+class StreamEventParams(BaseModel):
     """
     Helper class used to access attributes in @dataobject
     decorated objects, based on dot notation expressions
@@ -76,7 +75,7 @@ class StreamEventMixin:
         return None
 
 
-DataObject = TypeVar("DataObject", bound=JsonSchemaMixin)
+DataObject = TypeVar("DataObject", bound=BaseModel)
 EventPayload = Union[str, int, float, bool, dict, set, list, DataObject]
 EventPayloadType = TypeVar("EventPayloadType")  # pylint: disable=invalid-name
 
@@ -111,7 +110,7 @@ def dataobject(
         schema: bool = True):
     """
     Decorator for dataclasses intended to be used in API and/or streams. This decorated mainly implements
-    JsonSchemaMixIn adding dataclass functionality to:
+    pydantic.BaseModel adding dataclass functionality to:
         * Generate Json Schema for Open API definition
         * Parse and convert from and to json
         * Validate Json against Json schema
@@ -166,9 +165,19 @@ def dataobject(
     """
 
     def wrap(cls):
-        amended_class = _add_jsonschema_support(cls)
+        print(event_id, cls.__annotations__)
+        amended_class = type(
+            cls.__name__,
+            (BaseModel,),
+            {
+                "__annotations__": cls.__annotations__
+            }
+        )
         setattr(amended_class, '__data_object__', {'unsafe': unsafe, 'validate': validate, 'schema': schema})
-        setattr(amended_class, '__stream_event__', StreamEventParams(event_id, event_ts))
+        setattr(amended_class, '__stream_event__', StreamEventParams(
+            event_id_expr=event_id,
+            event_ts_expr=event_ts
+        ))
         setattr(amended_class, 'event_id', StreamEventMixin.event_id)
         setattr(amended_class, 'event_ts', StreamEventMixin.event_ts)
         return amended_class
@@ -176,36 +185,3 @@ def dataobject(
     if decorated_class is None:
         return wrap
     return wrap(decorated_class)
-
-
-def _add_jsonschema_support(cls):
-    if hasattr(cls, '__data_object__'):
-        return cls
-    if hasattr(cls, '__annotations__') and hasattr(cls, '__dataclass_fields__'):
-        amended_class = type(cls.__name__,
-                             (JsonSchemaMixin,) + cls.__mro__,
-                             dict(cls.__dict__))
-        return amended_class
-    return cls
-
-
-def _binary_copy(payload: Any) -> Any:
-    return pickle.loads(pickle.dumps(payload, protocol=4))
-
-
-def copy_payload(original: Optional[EventPayload]) -> Optional[EventPayload]:
-    """
-    Creates a copy of the original DataObject in case it is mutable.
-    Returns original object in case it is a frozen dataclass
-    """
-    if original is None:
-        return None
-    if isinstance(original, (str, int, float, bool, tuple, Decimal)):  # immutable supported types
-        return original
-    if isinstance(original, (dict, set, list)):
-        return _binary_copy(original)
-    if hasattr(original, '__dataclass_params__') and original.__dataclass_params__.frozen:  # type: ignore
-        return original
-    if hasattr(original, '__data_object__') and original.__data_object__['unsafe']:
-        return original
-    return _binary_copy(original)

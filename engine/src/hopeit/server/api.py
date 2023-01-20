@@ -18,7 +18,7 @@ from aiohttp_swagger3.validators import MISSING, _MissingType  # type: ignore
 from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
 from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
-from dataclasses_jsonschema import SchemaType
+from pydantic import BaseModel
 
 from hopeit.dataobjects import BinaryAttachment, BinaryDownload  # type: ignore
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventPlugMode, EventType
@@ -462,7 +462,7 @@ def _update_predefined_schemas():
     """
     assert spec is not None
     spec['components']['schemas'].update(
-        ErrorInfo.json_schema(schema_type=SchemaType.V3, embeddable=True)
+        ErrorInfo.schema()
     )
 
 
@@ -630,7 +630,7 @@ def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):
         for datatype in datatypes:
             if datatype is not None and hasattr(datatype, '__data_object__'):
                 if datatype.__data_object__['schema']:
-                    schemas.update(datatype.json_schema(schema_type=SchemaType.V3, embeddable=True))
+                    schemas.update(datatype.schema())
 
 
 def _explode_datatypes(datatypes: List[Type]) -> List[Type]:

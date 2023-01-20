@@ -6,7 +6,8 @@ from typing import TypeVar, List, Optional
 import re
 import os
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass # field
+from pydantic import Field
 
 from hopeit.dataobjects import dataobject
 from hopeit.server.names import auto_path_prefixed
@@ -33,7 +34,10 @@ class StreamsConfig:
     """
     :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379
     """
-    stream_manager: str = "hopeit.streams.NoStreamManager"
+    stream_manager_impl: str = Field(
+        default="hopeit.streams.NoStreamManager",
+        alias="stream_manager"
+    )
     connection_str: str = '<<NoStreamManager>>'
     delay_auto_start_seconds: int = 3
 
