@@ -13,8 +13,6 @@ __steps__ = ['get_streamed_data']
 
 @dataobject
 class SomeFile(BinaryDownload):
-    #TODO: does not inherit the contet_type property
-    content_type: str = "application/octet-stream"
     file_name: str
 
 

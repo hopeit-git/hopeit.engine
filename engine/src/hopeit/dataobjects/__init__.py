@@ -158,7 +158,7 @@ def dataobject(
     def wrap(cls):
         amended_class = type(
             cls.__name__,
-            (BaseModel,),
+            (*({cls.__mro__[1]} - {object}), BaseModel),
             {
                 k: v for k, v in cls.__dict__.items()
                 if k not in _EXCLUDE_CLASS_MEMBERS
