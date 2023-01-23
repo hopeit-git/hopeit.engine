@@ -4,17 +4,17 @@ Simple Example: Download Something Streamed
 Download streamd created content as file.
 The PostprocessHook return the requested resource as stream using `prepare_stream_response`.
 """
-from dataclasses import dataclass
-
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.dataobjects import BinaryDownload
+from hopeit.dataobjects import BinaryDownload, dataobject
 
 __steps__ = ['get_streamed_data']
 
 
-@dataclass
+@dataobject
 class SomeFile(BinaryDownload):
+    #TODO: does not inherit the contet_type property
+    content_type: str = "application/octet-stream"
     file_name: str
 
 

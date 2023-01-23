@@ -9,8 +9,8 @@ async def test_it_something_generator(app_config, something_params_example):  # 
     result = await execute_event(app_config=app_config,
                                  event_name='service.something_generator',
                                  payload=something_params_example)
-    assert result == Something(something_params_example.id,
-                               User(something_params_example.user, something_params_example.user))
+    assert result == Something(id=something_params_example.id,
+                               user=User(id=something_params_example.user, name=something_params_example.user))
 
 
 @pytest.mark.asyncio

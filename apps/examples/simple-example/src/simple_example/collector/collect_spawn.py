@@ -6,7 +6,6 @@ using `collector` steps constructor (instantiating an `AsyncCollector`)
 then spawn the items found individually into a stream
 """
 import asyncio
-from dataclasses import dataclass
 from typing import Union, Optional, List
 
 from hopeit.app.api import event_api
@@ -21,7 +20,6 @@ from model import ItemsInfo, Something, SomethingNotFound
 
 
 @dataobject
-@dataclass
 class ItemsCollected:
     """
     Collected items. Need a dataclass in order to publish to stream
@@ -73,7 +71,7 @@ async def load_first(collector: Collector, context: EventContext) -> Union[Somet
     something = await fs.get(key=item_id, datatype=Something, partition_key=items_to_read.partition_key)
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
-        return SomethingNotFound(str(fs.path), item_id)
+        return SomethingNotFound(path=str(fs.path), id=item_id)
     return something
 
 
@@ -94,7 +92,7 @@ async def load_second(collector: Collector, context: EventContext) -> Union[Some
     something = await fs.get(key=item_id, datatype=Something, partition_key=items_to_read.partition_key)
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
-        return SomethingNotFound(str(fs.path), item_id)
+        return SomethingNotFound(path=str(fs.path), id=item_id)
     return something
 
 
@@ -126,7 +124,7 @@ async def result(collector: Collector, context: EventContext) -> ItemsCollected:
     """
     items = await collector['combine']
     logger.info(context, f"Found {len(items)} items.")
-    return ItemsCollected(items)
+    return ItemsCollected(items=items)
 
 
 async def spawn(payload: ItemsCollected, context: EventContext) -> Spawn[Something]:

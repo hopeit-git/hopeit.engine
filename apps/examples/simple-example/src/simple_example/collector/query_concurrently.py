@@ -56,7 +56,7 @@ async def load_first(collector: Collector, context: EventContext) -> Union[Somet
     something = await fs.get(key=item_id, datatype=Something, partition_key=items_to_read.partition_key)
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
-        return SomethingNotFound(str(fs.path), item_id)
+        return SomethingNotFound(path=str(fs.path), id=item_id)
     return something
 
 
@@ -77,7 +77,7 @@ async def load_second(collector: Collector, context: EventContext) -> Union[Some
     something = await fs.get(key=item_id, datatype=Something, partition_key=items_to_read.partition_key)
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
-        return SomethingNotFound(str(fs.path), item_id)
+        return SomethingNotFound(path=str(fs.path), id=item_id)
     return something
 
 

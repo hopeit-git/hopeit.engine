@@ -56,7 +56,7 @@ async def load(payload: None, context: EventContext, *,
     something = await fs.get(key=item_id, datatype=Something, partition_key=partition_key)
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
-        return SomethingNotFound(str(fs.path / partition_key), item_id)
+        return SomethingNotFound(path=str(fs.path / partition_key), id=item_id)
     return something
 
 

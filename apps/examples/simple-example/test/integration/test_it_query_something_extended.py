@@ -26,7 +26,7 @@ def sample_file_id():
 
 @pytest.mark.asyncio
 async def test_query_item(app_config, sample_file_id):  # noqa: F811
-    status = Status(datetime.now(tz=timezone.utc), StatusType.LOADED)
+    status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.LOADED)
     result, pp_result, res = await execute_event(app_config=app_config,
                                                  event_name='query_something_extended',
                                                  payload=status,
@@ -41,7 +41,7 @@ async def test_query_item(app_config, sample_file_id):  # noqa: F811
 
 @pytest.mark.asyncio
 async def test_query_item_not_found(app_config):  # noqa: F811
-    status = Status(datetime.now(tz=timezone.utc), StatusType.LOADED)
+    status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.LOADED)
     item_id = str(uuid.uuid4())
     result, pp_result, res = await execute_event(app_config=app_config,
                                                  event_name='query_something_extended',

@@ -79,7 +79,6 @@ dataobjects consumed from the input stream.
 import asyncio
 import os
 import uuid
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -87,7 +86,7 @@ import aiofiles
 from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn
 from hopeit.app.logger import app_extra_logger
-from hopeit.dataobjects import DataObject, dataobject
+from hopeit.dataobjects import DataObject, dataobject, Field
 from hopeit.dataobjects.payload import Payload
 from hopeit.fs_storage import FileStorageSettings
 from hopeit.fs_storage.partition import get_partition_key
@@ -97,10 +96,10 @@ logger, extra = app_extra_logger()
 __steps__ = ['buffer_item', 'flush']
 
 
-@dataclass
+@dataobject
 class Partition:
-    lock: asyncio.Lock = field(default_factory=asyncio.Lock)
-    items: List[DataObject] = field(default_factory=list)  # type: ignore
+    lock: asyncio.Lock = Field(default_factory=asyncio.Lock)
+    items: List[DataObject] = Field(default_factory=list)  # type: ignore
 
 
 SUFFIX = '.jsonlines'
