@@ -11,13 +11,12 @@ pickle5_available = (sys.version_info.major > 3) or ((sys.version_info.major == 
 
 
 @dataobject
-@dataclass
 class Data:
     x: str
     y: int
 
 
-data = Data("data", 42)
+data = Data(x="data", y=42)
 
 ser = {
     Serialization.JSON_UTF8: b'{"x": "data", "y": 42}',

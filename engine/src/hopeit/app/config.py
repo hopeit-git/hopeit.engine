@@ -3,7 +3,7 @@ Config module: apps config data model and json loader
 """
 from copy import deepcopy
 from enum import Enum
-from typing import Any, Dict, Optional, Type, Union, List, Generic
+from typing import Any, ClassVar, Dict, Optional, Type, Union, List, Generic
 
 from pydantic import validator
 
@@ -322,7 +322,7 @@ class EventDescriptor:
         `payload: DataObject` argument, then a list of full qualified datatypes must be specified here.
     :field: group, str: group name, if none is assigned it is automatically assigned as 'DEFAULT'.
     """
-    DEFAULT_GROUP = 'DEFAULT'
+    DEFAULT_GROUP: ClassVar[str] = 'DEFAULT'
 
     type: EventType
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE

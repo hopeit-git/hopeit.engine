@@ -2,19 +2,19 @@ from datetime import datetime, timezone
 
 import pytest
 
-from hopeit.dataobjects import dataobject, dataclass
+from pydantic import BaseModel
+
+from hopeit.dataobjects import dataobject
 from hopeit.streams import StreamManager
 
 
 @dataobject(event_id='value', event_ts='ts')
-@dataclass
 class MockData:
     value: str
     ts: datetime
 
 
-@dataclass
-class MockInvalidDataEvent:
+class MockInvalidDataEvent(BaseModel):
     value: str
 
 
