@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 import pytest  # type: ignore
 
 from hopeit.app.config import AppConfig, AppDescriptor, \
@@ -10,14 +8,12 @@ from hopeit.server.config import APIConfig, AuthConfig, AuthType, LoggingConfig,
 
 
 @dataobject(event_id='value')
-@dataclass
 class MockData:
     """MockData object"""
     value: str
 
 
 @dataobject(event_id='value')
-@dataclass
 class MockResult:
     value: str
     processed: bool = True
@@ -31,7 +27,7 @@ def mock_app_config():
             version='test'
         ),
         plugins=[
-            AppDescriptor('mock_plugin', 'test')
+            AppDescriptor(name='mock_plugin', version='test')
         ],
         engine=AppEngineConfig(
             import_modules=['mock_app'],
@@ -279,7 +275,6 @@ def mock_client_app_config():
 
 
 @dataobject
-@dataclass
 class TestAPIObj:
     msg: str
 

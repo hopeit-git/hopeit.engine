@@ -121,47 +121,47 @@ def test_extract_input_type_builtin_type():
 
 
 def step1(payload: MockData, context: EventContext) -> MockData:
-    return MockData(payload.value + ' step1')
+    return MockData(value=payload.value + ' step1')
 
 
 def step2(payload: MockData, context: EventContext) -> MockData:
-    return MockData(payload.value + ' step2')
+    return MockData(value=payload.value + ' step2')
 
 
 def step3(payload: MockData, context: EventContext) -> MockData:
-    return MockData(payload.value + ' step3')
+    return MockData(value=payload.value + ' step3')
 
 
 def step4(payload: MockData, context: EventContext) -> Union[MockData, str]:
     if payload.value.startswith('a'):
-        return MockData(payload.value + ' step4')
+        return MockData(value=payload.value + ' step4')
     else:
         return payload.value + ' step4'
 
 
 def step5a(payload: MockData, context: EventContext) -> MockResult:
-    return MockResult(payload.value + ' step5a')
+    return MockResult(value=payload.value + ' step5a')
 
 
 def step5b(payload: str, context: EventContext) -> MockResult:
-    return MockResult(payload + ' step5b')
+    return MockResult(value=payload + ' step5b')
 
 
 def step6(payload: MockResult, context: EventContext) -> MockResult:
-    return MockResult(payload.value + ' step6')
+    return MockResult(value=payload.value + ' step6')
 
 
 async def step_spawn(payload: None, context: EventContext, *, query_arg1: str) -> Spawn[MockData]:
     for i in range(3):
-        yield MockData(query_arg1 + ' ' + str(i))
+        yield MockData(value=query_arg1 + ' ' + str(i))
 
 
 async def step_respawn(payload: MockData, context: EventContext) -> Spawn[MockData]:
     for j in range(3):
-        yield MockData(payload.value + ' respawn:' + str(j))
+        yield MockData(value=payload.value + ' respawn:' + str(j))
 
 
-def test_context() -> EventContext:
+def apptest_context() -> EventContext:
     app_config = AppConfig(
         app=AppDescriptor(name='test_steps', version='test_version'),
         events={'test_steps': EventDescriptor(type=EventType.POST)}
@@ -183,8 +183,8 @@ async def test_execute_linear_steps():
         (1, 'step2', (step2, MockData, MockData, False)),
         (2, 'step3', (step3, MockData, MockData, False))
     ]
-    async for result in execute_steps(steps=steps, payload=MockData('input'), context=test_context()):
-        assert result == MockData("input step1 step2 step3")
+    async for result in execute_steps(steps=steps, payload=MockData(value='input'), context=apptest_context()):
+        assert result == MockData(value="input step1 step2 step3")
 
 
 @pytest.mark.asyncio
@@ -198,11 +198,11 @@ async def test_execute_decision_steps():
         (5, 'step5b', (step5b, str, MockResult, False)),
         (6, 'step6', (step6, MockResult, MockResult, False))
     ]
-    async for result in execute_steps(steps=steps, payload=MockData('a'), context=test_context()):
-        assert result == MockResult("a step1 step2 step3 step4 step5a step6")
+    async for result in execute_steps(steps=steps, payload=MockData(value='a'), context=apptest_context()):
+        assert result == MockResult(value="a step1 step2 step3 step4 step5a step6")
 
-    async for result in execute_steps(steps=steps, payload=MockData('b'), context=test_context()):
-        assert result == MockResult("b step1 step2 step3 step4 step5b step6")
+    async for result in execute_steps(steps=steps, payload=MockData(value='b'), context=apptest_context()):
+        assert result == MockResult(value="b step1 step2 step3 step4 step5b step6")
 
 
 @pytest.mark.asyncio
@@ -218,14 +218,14 @@ async def test_execute_spawn_initial_steps():
         (7, 'step6', (step6, MockResult, MockResult, False))
     ]
     i = 0
-    async for result in execute_steps(steps=steps, payload=None, context=test_context(), query_arg1='a'):
-        assert result == MockResult(f"a {i} step1 step2 step3 step4 step5a step6")
+    async for result in execute_steps(steps=steps, payload=None, context=apptest_context(), query_arg1='a'):
+        assert result == MockResult(value=f"a {i} step1 step2 step3 step4 step5a step6")
         i += 1
     assert i == 3
 
     i = 0
-    async for result in execute_steps(steps=steps, payload=None, context=test_context(), query_arg1='b'):
-        assert result == MockResult(f"b {i} step1 step2 step3 step4 step5b step6")
+    async for result in execute_steps(steps=steps, payload=None, context=apptest_context(), query_arg1='b'):
+        assert result == MockResult(value=f"b {i} step1 step2 step3 step4 step5b step6")
         i += 1
     assert i == 3
 
@@ -244,16 +244,16 @@ async def test_execute_multiple_spawn_steps():
         (8, 'step6', (step6, MockResult, MockResult, False))
     ]
     i, j, count = 0, 0, 0
-    async for result in execute_steps(steps=steps, payload=None, context=test_context(), query_arg1='a'):
-        assert result == MockResult(f"a {i} step1 step2 step3 respawn:{j} step4 step5a step6")
+    async for result in execute_steps(steps=steps, payload=None, context=apptest_context(), query_arg1='a'):
+        assert result == MockResult(value=f"a {i} step1 step2 step3 respawn:{j} step4 step5a step6")
         i, j = i + 1 if j == 2 else i, j + 1 if j < 2 else 0
         count += 1
         assert count <= 9
     assert count == 9
 
     i, j, count = 0, 0, 0
-    async for result in execute_steps(steps=steps, payload=None, context=test_context(), query_arg1='b'):
-        assert result == MockResult(f"b {i} step1 step2 step3 respawn:{j} step4 step5b step6")
+    async for result in execute_steps(steps=steps, payload=None, context=apptest_context(), query_arg1='b'):
+        assert result == MockResult(value=f"b {i} step1 step2 step3 respawn:{j} step4 step5b step6")
         i, j = i + 1 if j == 2 else i, j + 1 if j < 2 else 0
         count += 1
         assert count <= 9
@@ -262,8 +262,8 @@ async def test_execute_multiple_spawn_steps():
 
 @pytest.mark.asyncio
 async def test_invoke_single_step():
-    result = await invoke_single_step(step1, payload=MockData('input'), context=test_context())
-    assert result == MockData("input step1")
+    result = await invoke_single_step(step1, payload=MockData(value='input'), context=apptest_context())
+    assert result == MockData(value="input step1")
 
 
 def test_split_event_stages(mock_app_config):  # noqa: F811
