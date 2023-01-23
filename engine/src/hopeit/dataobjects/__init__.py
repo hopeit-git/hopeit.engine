@@ -17,9 +17,7 @@ Example:
         name: str
         number: int
 """
-import pickle
 import uuid
-import copy
 from datetime import datetime
 from decimal import Decimal
 from typing import TypeVar, Optional, Union, Any
@@ -101,6 +99,11 @@ class BinaryDownload:
     content_type: str = "application/octet-stream"
 
 
+_EXCLUDE_CLASS_MEMBERS = {
+    "__dict__", "__weakref__"
+}
+
+
 def dataobject(
         decorated_class=None, *,
         event_id: Optional[str] = None,
@@ -165,12 +168,12 @@ def dataobject(
     """
 
     def wrap(cls):
-        print(event_id, cls.__annotations__)
         amended_class = type(
             cls.__name__,
             (BaseModel,),
             {
-                "__annotations__": cls.__annotations__
+                k: v for k, v in cls.__dict__.items()
+                if k not in _EXCLUDE_CLASS_MEMBERS
             }
         )
         setattr(amended_class, '__data_object__', {'unsafe': unsafe, 'validate': validate, 'schema': schema})
