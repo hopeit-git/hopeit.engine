@@ -19,7 +19,7 @@ Example:
 """
 import uuid
 from datetime import datetime
-from typing import TypeVar, Optional, Union, Any
+from typing import TypeVar, Optional, Union, Any, ClassVar
 
 from pydantic import BaseModel, Field, ValidationError
 
@@ -96,7 +96,7 @@ class BinaryDownload(BaseModel):
 
     This way, the  type can be used in event API specification as response type.
     """
-    content_type: str = "application/octet-stream"
+    content_type: ClassVar[str] = "application/octet-stream"
 
 
 _EXCLUDE_CLASS_MEMBERS = {

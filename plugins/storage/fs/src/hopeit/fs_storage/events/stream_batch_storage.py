@@ -39,7 +39,6 @@ This implementation will buffer a number of events for a given time, divided int
 Partitions are determined by the `event_ts()` returning function of a dataobject, i.e.:
 ```
 @dataobject(event_ts='date_field')
-@dataclass
 class Something:
     ...
     date_field: datetime
@@ -98,6 +97,8 @@ __steps__ = ['buffer_item', 'flush']
 
 @dataobject
 class Partition:
+    class Config:
+        arbitrary_types_allowed=True
     lock: asyncio.Lock = Field(default_factory=asyncio.Lock)
     items: List[DataObject] = Field(default_factory=list)  # type: ignore
 
@@ -108,7 +109,6 @@ buffer_lock: asyncio.Lock = asyncio.Lock()
 
 
 @dataobject
-@dataclass
 class FlushSignal:
     partition_key: str
 
