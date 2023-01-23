@@ -6,10 +6,7 @@ from typing import TypeVar, List, Optional
 import re
 import os
 
-from dataclasses import dataclass # field
-from pydantic import Field
-
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataobject, Field
 from hopeit.server.names import auto_path_prefixed
 from hopeit.server.version import ENGINE_VERSION
 
@@ -29,7 +26,6 @@ ConfigType = TypeVar("ConfigType")  # pylint: disable=invalid-name
 
 
 @dataobject
-@dataclass
 class StreamsConfig:
     """
     :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379
@@ -43,7 +39,6 @@ class StreamsConfig:
 
 
 @dataobject
-@dataclass
 class LoggingConfig:
     log_level: str = 'INFO'
     log_path: str = 'logs/'
@@ -60,7 +55,6 @@ class AuthType(str, Enum):
 
 
 @dataobject
-@dataclass
 class AuthConfig:
     """
     Server configuration to handle authorization tokens
@@ -71,7 +65,7 @@ class AuthConfig:
     create_keys: bool = False
     domain: Optional[str] = None
     encryption_algorithm: str = 'RS256'
-    default_auth_methods: List[AuthType] = field(default_factory=list)
+    default_auth_methods: List[AuthType] = Field(default_factory=list)
 
     def __post_init__(self):
         if len(self.default_auth_methods) == 0:
@@ -79,11 +73,14 @@ class AuthConfig:
 
     @staticmethod
     def no_auth():
-        return AuthConfig('.secrets/', '', enabled=False)
+        return AuthConfig(
+            secrets_location='.secrets/', 
+            auth_passphrase='',
+            enabled=False
+        )
 
 
 @dataobject
-@dataclass
 class APIConfig:
     """
     Config for Open API docs page
@@ -92,16 +89,15 @@ class APIConfig:
 
 
 @dataobject
-@dataclass
 class ServerConfig:
     """
     Server configuration
     """
-    streams: StreamsConfig = field(default_factory=StreamsConfig)
-    logging: LoggingConfig = field(default_factory=LoggingConfig)
-    auth: AuthConfig = field(default_factory=AuthConfig.no_auth)
-    api: APIConfig = field(default_factory=APIConfig)
-    engine_version: str = field(default=ENGINE_VERSION)
+    streams: StreamsConfig = Field(default_factory=StreamsConfig)
+    logging: LoggingConfig = Field(default_factory=LoggingConfig)
+    auth: AuthConfig = Field(default_factory=AuthConfig.no_auth)
+    api: APIConfig = Field(default_factory=APIConfig)
+    engine_version: str = Field(default=ENGINE_VERSION)
 
     def __post_init__(self):
         self.engine_version = ENGINE_VERSION
@@ -114,7 +110,7 @@ def parse_server_config_json(config_json: str) -> ServerConfig:
     respective values (@see _replace_args)
     """
     effective_json = replace_env_vars(config_json)
-    parsed_config = ServerConfig.from_json(effective_json)  # type: ignore
+    parsed_config = ServerConfig.parse_raw(effective_json)
     replace_config_args(
         parsed_config=parsed_config,
         config_classes=tuple([StreamsConfig])

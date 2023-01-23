@@ -1,5 +1,7 @@
 from datetime import datetime
+from typing import Optional
 
+from pydantic import StrictStr
 from hopeit.dataobjects import dataobject
 
 
@@ -15,6 +17,13 @@ class MockData:
     nested: MockNested
 
 
+@dataobject(event_id='id', event_ts='nested.ts')
+class MockDataStrict:
+    id: StrictStr
+    value: str
+    nested: MockNested
+
+
 @dataobject(event_id='id')
 class MockDataWithoutTs:
     id: str
@@ -26,14 +35,22 @@ class MockDataWithAutoEventId:
     value: str
 
 
-# TODO: support @dataobject(frozen=True)
+@dataobject
+class MockDataFrozen:
+    class Config:
+        allow_mutation=False
+
+    id: str
+    value: int
+
+
 @dataobject
 class MockDataValidate:
-    id: str
+    id: StrictStr
     value: int
 
 
-@dataobject(validate=False)
-class MockDataDoNotValidate:
+@dataobject
+class MockDataOptional:
     id: str
-    value: int
+    value: Optional[int]

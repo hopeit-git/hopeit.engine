@@ -19,17 +19,17 @@ Example:
 """
 import uuid
 from datetime import datetime
-from decimal import Decimal
 from typing import TypeVar, Optional, Union, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, ValidationError
 
 __all__ = ['EventPayload',
            'EventPayloadType',
            'StreamEventParams',
            'dataobject',
+           'Field',
+           'ValidationError',
            'DataObject',
-           'copy_payload',
            'payload']
 
 
@@ -108,8 +108,6 @@ def dataobject(
         decorated_class=None, *,
         event_id: Optional[str] = None,
         event_ts: Optional[str] = None,
-        unsafe: bool = False,
-        validate: bool = True,
         schema: bool = True):
     """
     Decorator for dataclasses intended to be used in API and/or streams. This decorated mainly implements
@@ -137,15 +135,6 @@ def dataobject(
         to navigate to id field (i.e. 'id' or 'event.id')
     :param event_ts: optional str, dot notation expression
         to navigate to a datetime field (i.e. 'last_update.ts')
-    :param unsafe: bool, default False. When False, every time a new step is invoked a copy of
-        dataobject will be sent, preventing object to be mutated unintentionally.
-        Specifying unsafe=True prevents making copies every time a step is invoked, improving performance.
-        Use with caution: with unsafe=True, you can accidentally mutate objects after they are yield,
-        specially when returning generators or `Spawn[...]`.
-    :param validate: bool, default True: indicates whether to validate using JsonSchema automatically generated
-        by `@dataobject` annotation when reading from and converting to json using `Json.from_json` and
-        `Json.to_json`. Notice that if you call from_json or to_json directly from annotated dataobject
-        you need to specify validate=True/False parameter value.
     :param schema: bool, default True: indicates to attempt json_schema generation in API module
 
     In case event_id is not provided, an uuid will be generated on each call to `event_id()`
@@ -154,7 +143,6 @@ def dataobject(
     Example::
 
         @dataobject
-        @dataclass
         class StatusChange:
             ts: datetime
             status: str
@@ -176,7 +164,7 @@ def dataobject(
                 if k not in _EXCLUDE_CLASS_MEMBERS
             }
         )
-        setattr(amended_class, '__data_object__', {'unsafe': unsafe, 'validate': validate, 'schema': schema})
+        setattr(amended_class, '__data_object__', {'schema': schema})
         setattr(amended_class, '__stream_event__', StreamEventParams(
             event_id_expr=event_id,
             event_ts_expr=event_ts
