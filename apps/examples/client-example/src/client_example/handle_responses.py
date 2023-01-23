@@ -15,7 +15,8 @@ from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.client import app_call, UnhandledResponse
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataobject
+from hopeit.dataobjects.payload import Payload
 from model import Something, SomethingNotFound
 
 __steps__ = ['handle_exception', 'handle_responses']
@@ -35,7 +36,6 @@ logger, extra = app_extra_logger()
 
 
 @dataobject
-@dataclass
 class ListOptions:
     item_id: str
     partition_key: str
@@ -74,5 +74,5 @@ async def handle_responses(options: ListOptions, context: EventContext) -> str:
         item_id=options.item_id, partition_key=options.partition_key)
 
     if isinstance(something, Something):
-        return f"Got 200 response with: '{something}'"
-    return f"Got 404 response with: '{something}'"
+        return f"Got 200 response with: {Payload.to_json(something)}"
+    return f"Got 404 response with: {Payload.to_json(something)}"
