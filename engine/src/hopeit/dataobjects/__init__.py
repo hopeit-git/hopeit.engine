@@ -82,7 +82,7 @@ class BinaryAttachment:
     """Type descriptor for multipart binary attachments"""
 
 
-class BinaryDownload:
+class BinaryDownload(BaseModel):
     """
     Type descriptor for binary download. Events returning files to download
     should specialize this class for specififc content types, i.e.:
