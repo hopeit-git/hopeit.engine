@@ -10,6 +10,8 @@ from hopeit.dataobjects import dataobject, Field
 from hopeit.server.names import auto_path_prefixed
 from hopeit.server.version import ENGINE_VERSION
 
+from hopeit.dataobjects.payload import Payload
+
 
 __all__ = ['StreamsConfig',
            'LoggingConfig',
@@ -110,7 +112,7 @@ def parse_server_config_json(config_json: str) -> ServerConfig:
     respective values (@see _replace_args)
     """
     effective_json = replace_env_vars(config_json)
-    parsed_config = ServerConfig.parse_raw(effective_json)
+    parsed_config = Payload.from_json(effective_json, datatype=ServerConfig)
     replace_config_args(
         parsed_config=parsed_config,
         config_classes=tuple([StreamsConfig])

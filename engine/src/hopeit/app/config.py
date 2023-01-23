@@ -2,11 +2,12 @@
 Config module: apps config data model and json loader
 """
 from copy import deepcopy
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, Optional, Type, Union, List, Generic
 
-from hopeit.dataobjects import EventPayloadType, dataobject
+from pydantic import validator
+
+from hopeit.dataobjects import EventPayloadType, dataobject, Field
 from hopeit.dataobjects.payload import Payload
 from hopeit.server.config import replace_config_args, replace_env_vars, ServerConfig, AuthType
 from hopeit.server.names import auto_path
@@ -30,7 +31,6 @@ __all__ = ['AppDescriptor',
 
 
 @dataobject
-@dataclass
 class AppDescriptor:
     """
     App descriptor
@@ -38,11 +38,11 @@ class AppDescriptor:
     name: str
     version: str
 
-    def __post_init__(self):
-        if len(self.name) == 0:
-            raise ValueError('name', self)
-        if len(self.version) == 0:
-            raise ValueError('version', self)
+    @validator("name", "version")
+    def validate_content(value):
+        if len(value) == 0:
+            raise ValueError("Should not be empty")
+        return value
 
     def app_key(self):
         return auto_path(self.name, self.version)
@@ -78,7 +78,6 @@ class StreamQueue:
 
 
 @dataobject
-@dataclass
 class ReadStreamDescriptor:
     """
     Configuration to read streams
@@ -100,7 +99,7 @@ class ReadStreamDescriptor:
     """
     name: str
     consumer_group: str
-    queues: List[str] = field(default_factory=StreamQueue.default_queues)
+    queues: List[str] = Field(default_factory=StreamQueue.default_queues)
 
 
 class StreamQueueStrategy(str, Enum):
@@ -117,7 +116,6 @@ class StreamQueueStrategy(str, Enum):
 
 
 @dataobject
-@dataclass
 class WriteStreamDescriptor:
     """
     Configuration to publish messages to a stream
@@ -138,12 +136,11 @@ class WriteStreamDescriptor:
         `StreamQueueStrategy.PROPAGATE` must be explicitly specified.
     """
     name: str
-    queues: List[str] = field(default_factory=StreamQueue.default_queues)
+    queues: List[str] = Field(default_factory=StreamQueue.default_queues)
     queue_strategy: StreamQueueStrategy = StreamQueueStrategy.DROP
 
 
 @dataobject
-@dataclass
 class EventLoggingConfig:
     """
     Logging configuration specific for the event
@@ -158,16 +155,19 @@ class EventLoggingConfig:
             'submit_ts', utc time message was submited to stream
             'event_ts', event timestamp from @data_event
             'event_id', event id from @data_event
-            'read_ts': uct time when message was consumed from stream
+            'read_ts': utc time when message was consumed from stream
     """
-    extra_fields: List[str] = field(default_factory=list)
-    stream_fields: List[str] = field(default_factory=list)
+    extra_fields: List[str] = Field(default_factory=list)
+    stream_fields: List[str] = Field(default_factory=list)
 
-    def __post_init__(self):
-        if len(self.stream_fields) == 0:
-            self.stream_fields = ['name', 'msg_id', 'consumer_group']
-        self.stream_fields = [k if k.startswith('stream.') else f"stream.{k}"
-                              for k in self.stream_fields]
+    @validator("stream_fields")
+    def validate_stream_fields(value):
+        if len(value) == 0:
+            return ['stream.name', 'stream.msg_id', 'stream.consumer_group']
+        return [
+            k if k.startswith('stream.') else f"stream.{k}"
+            for k in value
+        ]
 
 
 class Compression(str, Enum):
@@ -202,7 +202,6 @@ class Serialization(str, Enum):
 
 
 @dataobject
-@dataclass
 class EventStreamConfig:
     """
     Stream configuration for STREAM events
@@ -215,7 +214,7 @@ class EventStreamConfig:
         but no items will be dropped until the collection exceeds target_max_len.
         With default value of 0, collection size is unlimited and items should be removed by apps.
     :field throttle_ms: int, milliseconds specifying minimum duration for each event
-    :filed step_delay: int, milliseconds to sleep between steps
+    :field step_delay: int, milliseconds to sleep between steps
     :field batch_size: int, number of max messages to process each time when reading stream,
         set to 1 to ensure min losses in case of process stop, set higher for performance
     :field compression: Compression, compression algorithm used to send messages to stream, if not specified
@@ -233,7 +232,6 @@ class EventStreamConfig:
 
 
 @dataobject
-@dataclass
 class EventSettings(Generic[EventPayloadType]):
     """
     Event execution configuration, used to parse `settings` entries in app config file where the key
@@ -247,9 +245,9 @@ class EventSettings(Generic[EventPayloadType]):
     :field stream: EventStreamConfig, configuration for stream processing for this particular event
     """
     response_timeout: float = 60.0
-    logging: EventLoggingConfig = field(default_factory=EventLoggingConfig)
-    stream: EventStreamConfig = field(default_factory=EventStreamConfig)
-    extras: Dict[str, Any] = field(default_factory=dict)
+    logging: EventLoggingConfig = Field(default_factory=EventLoggingConfig)
+    stream: EventStreamConfig = Field(default_factory=EventStreamConfig)
+    extras: Dict[str, Any] = Field(default_factory=dict)
 
     def __call__(self, *, key: str = '_', datatype: Type[EventPayloadType]) -> EventPayloadType:
         return Payload.from_obj(self.extras.get(key, {}), datatype=datatype)
@@ -276,7 +274,6 @@ class EventConnectionType(str, Enum):
 
 
 @dataobject
-@dataclass
 class EventConnection:
     """
     EventConnection: describes dependencies on this event when calling
@@ -294,7 +291,6 @@ class EventConnection:
 
 
 @dataobject
-@dataclass
 class EventDescriptor:
     """
     Event Descriptor: configures event implementation
@@ -332,22 +328,23 @@ class EventDescriptor:
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE
     route: Optional[str] = None
     impl: Optional[str] = None
-    connections: List[EventConnection] = field(default_factory=list)
+    connections: List[EventConnection] = Field(default_factory=list)
     read_stream: Optional[ReadStreamDescriptor] = None
     write_stream: Optional[WriteStreamDescriptor] = None
-    auth: List[AuthType] = field(default_factory=list)
-    setting_keys: List[str] = field(default_factory=list)
-    dataobjects: List[str] = field(default_factory=list)
+    auth: List[AuthType] = Field(default_factory=list)
+    setting_keys: List[str] = Field(default_factory=list)
+    dataobjects: List[str] = Field(default_factory=list)
     group: str = DEFAULT_GROUP
 
-    def __post_init__(self):
-        if self.read_stream:
-            assert '{auto}' not in self.read_stream.name, \
-                "read_stream.name should be defined. {auto} is not allowed."
+    @validator("read_stream")
+    def validate_read_stream(value):
+        if value:
+            if '{auto}' in value.name:
+                raise ValueError("read_stream.name should be defined. {auto} is not allowed.")
+        return value
 
 
 @dataobject
-@dataclass
 class AppEngineConfig:
     """
     Engine specific parameters shared among events
@@ -365,19 +362,20 @@ class AppEngineConfig:
     read_stream_interval: int = 1000
     default_stream_compression: Compression = Compression.LZ4
     default_stream_serialization: Serialization = Serialization.JSON_BASE64
-    track_headers: List[str] = field(default_factory=list)
+    track_headers: List[str] = Field(default_factory=list)
     cors_origin: Optional[str] = None
 
-    def __post_init__(self):
-        self.track_headers = [k if k.startswith('track.') else f"track.{k}" for k in self.track_headers]
-        if 'track.request_ts' not in self.track_headers:
-            self.track_headers = ['track.request_ts'] + self.track_headers
-        if 'track.request_id' not in self.track_headers:
-            self.track_headers = ['track.request_id'] + self.track_headers
+    @validator("track_headers")
+    def validate_track_headers(value):
+        track_headers = [k if k.startswith('track.') else f"track.{k}" for k in value]
+        if 'track.request_ts' not in track_headers:
+            track_headers = ['track.request_ts'] + track_headers
+        if 'track.request_id' not in track_headers:
+            track_headers = ['track.request_id'] + track_headers
+        return track_headers
 
 
 @dataobject
-@dataclass
 class AppConnection:
     """
     AppConnections: metadata to initialize app client in order to connect
@@ -399,19 +397,18 @@ class AppConnection:
 
 
 @dataobject
-@dataclass
 class AppConfig:
     """
     App Configuration container
     """
     app: AppDescriptor
-    engine: AppEngineConfig = field(default_factory=AppEngineConfig)
-    app_connections: Dict[str, AppConnection] = field(default_factory=dict)
-    env: Env = field(default_factory=dict)
-    events: Dict[str, EventDescriptor] = field(default_factory=dict)
+    engine: AppEngineConfig = Field(default_factory=AppEngineConfig)
+    app_connections: Dict[str, AppConnection] = Field(default_factory=dict)
+    env: Env = Field(default_factory=dict)
+    events: Dict[str, EventDescriptor] = Field(default_factory=dict)
     server: Optional[ServerConfig] = None
-    plugins: List[AppDescriptor] = field(default_factory=list)
-    settings: AppSettings = field(default_factory=dict)
+    plugins: List[AppDescriptor] = Field(default_factory=list)
+    settings: AppSettings = Field(default_factory=dict)
     effective_settings: Optional[AppSettings] = None
 
     def app_key(self):
@@ -440,12 +437,12 @@ class AppConfig:
             settings_data = deepcopy(self.settings.get(event_name, {"stream": {}}))
             stream_settings.update(settings_data.get('stream', {}))
             settings_data['stream'] = stream_settings
-            settings = EventSettings.from_dict(settings_data, validate=True)
+            settings = Payload.from_obj(settings_data, datatype=EventSettings)
             if settings.stream.compression is None:
                 settings.stream.compression = self.engine.default_stream_compression
             if settings.stream.serialization is None:
                 settings.stream.serialization = self.engine.default_stream_serialization
-            self.effective_settings[event_name] = settings.to_dict()
+            self.effective_settings[event_name] = Payload.to_obj(settings)
 
     def _setup_event_extra_settings(self):
         """
@@ -472,7 +469,7 @@ def parse_app_config_json(config_json: str) -> AppConfig:
     """
     # effective_config_json = _replace_args(config_json)
     effective_config_json = replace_env_vars(config_json)
-    app_config = AppConfig.from_json(effective_config_json)  # type: ignore
+    app_config = Payload.from_json(effective_config_json, datatype=AppConfig)
     replace_config_args(
         parsed_config=app_config,
         config_classes=(
