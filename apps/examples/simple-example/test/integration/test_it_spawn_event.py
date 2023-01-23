@@ -18,7 +18,7 @@ async def test_spawn_event(monkeypatch, app_config,  # noqa: F811
         event_name='shuffle.spawn_event',
         payload=something_with_status_example,
         postprocess=True)
-    expected = [something_with_status_processed_example.copy() for _ in range(3)]
+    expected = [something_with_status_processed_example.copy(deep=True) for _ in range(3)]
     for i, result in enumerate(results):
         expected[i].id = str(i)
         expected[i].status.ts = result.payload.status.ts

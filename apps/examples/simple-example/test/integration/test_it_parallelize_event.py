@@ -11,9 +11,9 @@ async def test_parallelize_event(monkeypatch, app_config,  # noqa: F811
         event_name='shuffle.parallelize_event',
         payload=something_with_status_example,
         postprocess=True)
-    first = something_with_status_processed_example.copy()
+    first = something_with_status_processed_example.copy(deep=True)
     first.id = 'first_' + first.id
-    second = something_with_status_processed_example.copy()
+    second = something_with_status_processed_example.copy(deep=True)
     second.id = 'second_' + second.id
     for i, expected in enumerate([first, second]):
         expected.status.ts = results[i].payload.status.ts

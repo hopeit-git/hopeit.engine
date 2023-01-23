@@ -62,8 +62,8 @@ async def fork_something(payload: Something, context: EventContext) -> Spawn[Uni
         ts=datetime.now(tz=timezone.utc),
         type=StatusType.SUBMITTED
     )
-    yield FirstPart(data=payload)
-    yield SecondPart(data=payload)
+    yield FirstPart(data=payload.copy(deep=True))
+    yield SecondPart(data=payload.copy(deep=True))
 
 
 async def __postprocess__(payload: Something, context: EventContext, response: PostprocessHook) -> str:  # noqa: C0103
