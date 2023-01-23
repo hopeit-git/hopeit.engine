@@ -44,10 +44,10 @@ async def spawn_many_events(payload: Something, context: EventContext) -> Spawn[
     Produces 3 events to be published to stream
     """
     logger.info(context, "spawning event 3 times", extra=extra(something_id=payload.id))
-    result = payload.copy(deep=True)
-    if result.status:
-        result.history.append(result.status)
     for i in range(3):
+        result = payload.copy(deep=True)
+        if result.status:
+            result.history.append(result.status)
         result.status = Status(
             ts=datetime.now(tz=timezone.utc),
             type=StatusType.SUBMITTED
