@@ -3,7 +3,6 @@ from redis import ResponseError
 
 import pytest
 from datetime import datetime, timezone
-from dataclasses import dataclass
 
 from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import dataobject
@@ -17,16 +16,9 @@ from copy import deepcopy
 
 
 @dataobject(event_id='value', event_ts='ts')
-@dataclass
 class MockData:
     value: str
     ts: datetime
-
-
-@dataclass
-class MockInvalidDataEvent:
-    value: str
-
 
 async def create_stream_manager():
     return await RedisStreamManager(address=MockRedisPool.test_url).connect()
@@ -34,7 +26,7 @@ async def create_stream_manager():
 
 async def write_stream():
     mgr = await create_stream_manager()
-    payload = MockData('test_value', datetime.fromtimestamp(0, tz=timezone.utc))
+    payload = MockData(value='test_value', ts=datetime.fromtimestamp(0, tz=timezone.utc))
     res = await mgr.write_stream(
         stream_name='test_stream',
         queue=TestStreamData.test_queue,
@@ -106,7 +98,7 @@ async def read_stream():
             timeout=1)):
         assert stream_event.msg_internal_id == b'0000000000-0'
         assert stream_event.queue == TestStreamData.test_queue
-        assert stream_event.payload == MockData('test_value', stream_event.payload.ts)
+        assert stream_event.payload == MockData(value='test_value', ts=stream_event.payload.ts)
         for k, v in TestStreamData.test_track_ids.items():
             assert k in stream_event.track_ids
             if k != 'stream.read_ts':
