@@ -18,7 +18,7 @@ from aiohttp_swagger3.validators import MISSING, _MissingType  # type: ignore
 from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
 from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
-from pydantic import BaseModel
+from pydantic.schema import schema
 
 from hopeit.dataobjects import BinaryAttachment, BinaryDownload  # type: ignore
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventPlugMode, EventType
@@ -195,6 +195,18 @@ def diff_specs() -> bool:
 
     :return: True if differences are found, False if loaded spec matches runtime.
     """
+    # TODO: cleanup
+    # print(static_spec['components'] == spec['components'])
+    # print(static_spec['paths'] == spec['paths'])
+
+    
+    # import json
+    # with open('static.json', 'w') as fb:
+    #     fb.write(json.dumps(static_spec['paths'] , indent=2))
+
+    # with open('dinamic.json', 'w') as fb:
+    #     fb.write(json.dumps(spec['paths'], indent=2))
+
     return static_spec != spec
 
 
@@ -625,17 +637,17 @@ def _generate_schemas(app_config: AppConfig, event_name: str, event_info: EventD
 
 def _get_schema(datatype) -> Dict:
     # TODO: Review schema creation
-    data = datatype.schema()
-    if 'title' in data:
-        title = datatype.__name__
-        try:
-            del data['title']
-            del data['properties']['value']['title']
-            data['x-module-name'] = datatype.__module__
-            return { title: data}
-        except:
-            return { title: data}
-    return {}
+    top_level_schema = schema([datatype], ref_prefix='#/components/schemas/')
+    data = top_level_schema
+    
+    data = data['definitions']
+    try:
+        del data[datatype.__name__]['properties']['value']['title']
+        del data[datatype.__name__]['title']
+        data[datatype.__name__]['x-module-name'] = datatype.__module__
+        return data
+    except:
+        return {}
 
 
 def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):

@@ -229,7 +229,7 @@
         ],
         "responses": {
           "200": {
-            "description": "typing.List[model.Something]",
+            "description": "List",
             "content": {
               "application/json": {
                 "schema": {

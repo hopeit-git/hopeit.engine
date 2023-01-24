@@ -32,20 +32,6 @@ def test_generate_mode(mock_api_app_config, mock_api_spec, mock_plugin_config, m
               generate_mode=True)
     generated_spec = deepcopy(mock_api_spec)
     generated_spec['paths'].update(mock_app_api_generated)
-    
-    # import json
-
-    # t = json.dumps(api.spec)
-    # f = open("api.json","w")    
-    # f.write(t)
-    # f.close()
-    
-    # t = json.dumps(generated_spec)
-    # d = open("gen.json","w")
-    # d.write()
-    # d.close()
-
-
     assert api.spec == generated_spec
 
 

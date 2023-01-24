@@ -10,7 +10,7 @@
                 "--port=8020",
                 "--start-streams",
                 "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
-                // "--api-file=apps/examples/simple-example/api/openapi.json"                
+                "--api-file=apps/examples/simple-example/api/openapi.json"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
