@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from hopeit.dataobjects import dataobject
 import hopeit.fs_storage.partition as partition
 
 
 @dataobject(event_id="object_id", event_ts="object_ts")
-@dataclass
 class TimedObject:
     object_id: str
     object_ts: datetime
@@ -13,16 +11,14 @@ class TimedObject:
 
 
 @dataobject
-@dataclass
 class UntimedObject:
     object_id: str
     value: int
 
 
 def test_get_partition_timed_object():
-    obj = TimedObject(
-        "obj1",
-        datetime.strptime(
+    obj = TimedObject(object_id="obj1",
+        object_ts=datetime.strptime(
             "2020-05-01T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"
         ).astimezone(tz=timezone.utc),
         value=1
