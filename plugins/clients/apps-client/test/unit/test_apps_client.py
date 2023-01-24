@@ -67,7 +67,7 @@ async def test_client_post(monkeypatch, mock_client_app_config, mock_auth):
         result = await app_call_list(
             "test_app_connection", event="test_event_post",
             datatype=MockResponseData,
-            payload=MockPayloadData("payload"), context=context,
+            payload=MockPayloadData(value="payload"), context=context,
             test_param="test_param_value"
         )
         assert result == [MockResponseData(
@@ -410,8 +410,8 @@ async def test_client_get_str(monkeypatch, mock_client_app_config, mock_auth):
             datatype=str, payload=None, context=context,
             test_param="test_param_value"
         )
-        assert result == "MockResponseData(value='ok', param='test_param_value'," \
-                         " host='http://test-host1', log={'http://test-host1': 1})"
+        assert result == "value='ok' param='test_param_value'" \
+                         " host='http://test-host1' log={'http://test-host1': 1}"
 
 
 @pytest.mark.asyncio
@@ -427,7 +427,7 @@ async def test_client_list_responses(monkeypatch, mock_client_app_config, mock_a
         result = await app_call_list(
             "test_app_connection", event="test_event_post",
             datatype=MockResponseData,
-            payload=MockPayloadData("payload"), context=context,
+            payload=MockPayloadData(value="payload"), context=context,
             responses={403: MockResponseData},
             test_param="test_param_value"
         )
@@ -452,8 +452,8 @@ async def test_client_unhandled_response_type_error(monkeypatch, mock_client_app
                 test_param="test_param_value")
         assert str(unhandled_response.value) == 'Missing 405 status handler, use `responses` to handle this exception'
         assert unhandled_response.value.status == 405
-        assert unhandled_response.value.response == "MockResponseData(value='ok', param='test_param_value'," \
-                                                    " host='http://test-host1', log={'http://test-host1': 1})"
+        assert unhandled_response.value.response == "value='ok' param='test_param_value'" \
+                                                    " host='http://test-host1' log={'http://test-host1': 1}"
 
 
 async def test_client_unhandled_response_key_error(monkeypatch, mock_client_app_config, mock_auth):
@@ -472,5 +472,5 @@ async def test_client_unhandled_response_key_error(monkeypatch, mock_client_app_
             )
         assert str(unhandled_response.value) == 'Missing 405 status handler, use `responses` to handle this exception'
         assert unhandled_response.value.status == 405
-        assert unhandled_response.value.response == "MockResponseData(value='ok', param='test_param_value'," \
-                                                    " host='http://test-host1', log={'http://test-host1': 1})"
+        assert unhandled_response.value.response == "value='ok' param='test_param_value'" \
+                                                    " host='http://test-host1' log={'http://test-host1': 1}"
