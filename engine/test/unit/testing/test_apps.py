@@ -9,6 +9,7 @@ import pytest  # type: ignore
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHeaders, PreprocessHook
 from hopeit.server.config import AuthType
 from hopeit.testing.apps import config, server_config, create_test_context, execute_event, execute_service
+from hopeit.dataobjects.payload import Payload
 from mock_app import mock_app_config, MockData, mock_event, MockResult  # noqa: F401
 
 
@@ -16,7 +17,7 @@ def test_config(mock_app_config):  # noqa: F811
     file_name = Path('/tmp') / (str(uuid.uuid4()) + '.json')
     expected = mock_app_config
     with open(file_name, 'w') as f:
-        f.write(expected.to_json())
+        f.write(Payload.to_json(expected))
     result = config(file_name)
     os.remove(file_name)
     assert result.app == expected.app

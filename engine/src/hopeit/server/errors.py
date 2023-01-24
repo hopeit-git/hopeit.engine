@@ -4,7 +4,6 @@ Server error handling convenience module
 import traceback
 import json
 import urllib.parse
-from dataclasses import dataclass
 from typing import List
 
 from hopeit.dataobjects import dataobject
@@ -15,7 +14,6 @@ __all__ = ['ErrorInfo',
 
 
 @dataobject
-@dataclass
 class ErrorInfo:
     """
     Error information to be returned in failed responses

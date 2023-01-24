@@ -17,4 +17,4 @@ async def __service__(context: EventContext) -> Spawn[str]:
 
 
 async def message(payload: str, context: EventContext) -> MockData:
-    return MockData(payload)
+    return MockData(value=payload)
