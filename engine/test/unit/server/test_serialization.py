@@ -1,10 +1,11 @@
 import base64
 import pickle
-from dataclasses import dataclass
+
 import sys
 
 from hopeit.app.config import Serialization, Compression
 from hopeit.dataobjects import dataobject
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.serialization import serialize, deserialize
 
 pickle5_available = (sys.version_info.major > 3) or ((sys.version_info.major == 3) and (sys.version_info.minor >= 8))
@@ -22,25 +23,29 @@ ser = {
     Serialization.JSON_UTF8: b'{"x": "data", "y": 42}',
     Serialization.JSON_BASE64: b'eyJ4IjogImRhdGEiLCAieSI6IDQyfQ==',
     Serialization.PICKLE3: (
-        b'\x80\x03ctest_serialization\nData\nq\x00)\x81q\x01}q\x02(X\x01\x00\x00\x00xq'
-        b'\x03X\x04\x00\x00\x00dataq\x04X\x01\x00\x00\x00yq\x05K*ub.'),
+        b'\x80\x03ctest_serialization\nData\nq\x00)\x81q\x01}q\x02(X\x08\x00\x00'
+        b'\x00__dict__q\x03}q\x04(X\x01\x00\x00\x00xq\x05X\x04\x00\x00\x00dataq'
+        b'\x06X\x01\x00\x00\x00yq\x07K*uX\x0e\x00\x00\x00__fields_set__q\x08cbuiltins'
+        b'\nset\nq\t]q\n(h\x07h\x05e\x85q\x0bRq\x0cX\x1c\x00\x00\x00__private_attribute_values__q\r}q\x0eub.'),
     Serialization.PICKLE4: (
-        b'\x80\x04\x958\x00\x00\x00\x00\x00\x00\x00\x8c\x12test_serialization\x94'
-        b'\x8c\x04Data\x94\x93\x94)\x81\x94}\x94(\x8c\x01x\x94\x8c\x04data\x94\x8c\x01'
-        b'y\x94K*ub.'),
+        b'\x80\x04\x95\x81\x00\x00\x00\x00\x00\x00\x00\x8c\x12test_serialization\x94\x8c'
+        b'\x04Data\x94\x93\x94)\x81\x94}\x94(\x8c\x08__dict__\x94}\x94(\x8c\x01x\x94\x8c'
+        b'\x04data\x94\x8c\x01y\x94K*u\x8c\x0e__fields_set__\x94\x8f\x94(h\th\x07\x90\x8c'
+        b'\x1c__private_attribute_values__\x94}\x94ub.'),
     Serialization.PICKLE5: (
-        b'\x80\x05\x958\x00\x00\x00\x00\x00\x00\x00\x8c\x12test_serialization\x94'
-        b'\x8c\x04Data\x94\x93\x94)\x81\x94}\x94(\x8c\x01x\x94\x8c\x04data\x94\x8c\x01'
-        b'y\x94K*ub.')
+        b'\x80\x05\x95\x81\x00\x00\x00\x00\x00\x00\x00\x8c\x12test_serialization\x94\x8c'
+        b'\x04Data\x94\x93\x94)\x81\x94}\x94(\x8c\x08__dict__\x94}\x94(\x8c\x01x\x94\x8c'
+        b'\x04data\x94\x8c\x01y\x94K*u\x8c\x0e__fields_set__\x94\x8f\x94(h\th\x07\x90\x8c'
+        b'\x1c__private_attribute_values__\x94}\x94ub.')
 }
 
 
 def test_serialize():
     print(sys.version_info, sys.version)
     assert serialize(data, Serialization.JSON_UTF8, Compression.NONE) == \
-        ser[Serialization.JSON_UTF8] == data.to_json().encode()
+        ser[Serialization.JSON_UTF8] == Payload.to_json(data).encode()
     assert serialize(data, Serialization.JSON_BASE64, Compression.NONE) == \
-        ser[Serialization.JSON_BASE64] == base64.b64encode(data.to_json().encode())
+        ser[Serialization.JSON_BASE64] == base64.b64encode(Payload.to_json(data).encode())
     assert serialize(data, Serialization.PICKLE3, Compression.NONE) == \
         ser[Serialization.PICKLE3] == pickle.dumps(data, 3)
     assert serialize(data, Serialization.PICKLE4, Compression.NONE) == \
