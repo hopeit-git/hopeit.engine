@@ -5,7 +5,6 @@ from contextlib import AbstractAsyncContextManager
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Type
 import asyncio
-from dataclasses import dataclass
 from collections import defaultdict
 from datetime import datetime, timezone
 from functools import partial
@@ -62,7 +61,7 @@ class AppsClientSettings:
     routes_override: Dict[str, str] = Field(default_factory=dict)
 
 
-@dataclass
+@dataobject
 class CircuitBreakLoadBalancer:
     """
     Simple round robin load-balancer with a circuit breaker.
@@ -139,7 +138,7 @@ class ServerException(ClientException):
     """Wrapper for 5xx responses from services when invoked using client"""
 
 
-@dataclass
+@dataobject
 class AppConnectionState:
     app_connection: str
     load_balancer: CircuitBreakLoadBalancer

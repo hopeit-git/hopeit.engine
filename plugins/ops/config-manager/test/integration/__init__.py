@@ -3,7 +3,7 @@ from typing import Dict
 from hopeit.app.config import AppConfig, EventDescriptor
 
 from hopeit.config_manager import RuntimeApps
-
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.version import APPS_ROUTE_VERSION
 
 
@@ -35,7 +35,7 @@ class MockResponse():
         return None
 
     async def json(self):
-        return self.response.to_dict()
+        return Payload.to_json(self.response)
 
 
 class MockClientSession():

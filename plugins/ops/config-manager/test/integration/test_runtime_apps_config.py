@@ -1,6 +1,6 @@
 import pytest
 from hopeit.app.config import EventPlugMode
-
+from hopeit.dataobjects.payload import Payload
 from hopeit.server import runtime
 from hopeit.testing.apps import config, execute_event
 
