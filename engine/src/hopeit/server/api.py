@@ -635,21 +635,6 @@ def _generate_schemas(app_config: AppConfig, event_name: str, event_info: EventD
     return schemas
 
 
-def _get_schema(datatype) -> Dict:
-    # TODO: Review schema creation
-    top_level_schema = schema([datatype], ref_prefix='#/components/schemas/')
-    data = top_level_schema
-    
-    data = data['definitions']
-    try:
-        del data[datatype.__name__]['properties']['value']['title']
-        del data[datatype.__name__]['title']
-        data[datatype.__name__]['x-module-name'] = datatype.__module__
-        return data
-    except:
-        return {}
-
-
 def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):
     if step_info is not None:
         _, input_type, ret_type, _ = step_info
@@ -657,9 +642,7 @@ def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):
         for datatype in datatypes:
             if datatype is not None and hasattr(datatype, '__data_object__'):
                 if datatype.__data_object__['schema']:
-                    data = _get_schema(datatype)
-                    if data:
-                        schemas.update(data)
+                    schemas.update(schema([datatype], ref_prefix='#/components/schemas/')['definitions'])
 
 
 def _explode_datatypes(datatypes: List[Type]) -> List[Type]:

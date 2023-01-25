@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from watchdog.observers import Observer  # type: ignore
 from watchdog.events import FileSystemEventHandler  # type: ignore
 
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataobject
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 
@@ -18,7 +18,6 @@ logger, extra = app_extra_logger()
 
 
 @dataobject
-@dataclass
 class LogReaderConfig:
     """
     Log reader config settings section
@@ -33,7 +32,6 @@ class LogReaderConfig:
 
 
 @dataobject
-@dataclass
 class LogRawBatch:
     """
     Batch of raw lines read from logs
@@ -42,7 +40,6 @@ class LogRawBatch:
 
 
 @dataobject
-@dataclass
 class LogEntry:
     """
     Parsed log line
@@ -59,7 +56,6 @@ class LogEntry:
 
 
 @dataobject
-@dataclass
 class LogBatch:
     """
     Batch of parsed log entries
@@ -68,7 +64,6 @@ class LogBatch:
 
 
 @dataobject
-@dataclass
 class Checkpoint:
     line: str
     expire: int
