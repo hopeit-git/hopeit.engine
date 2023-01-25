@@ -5,7 +5,7 @@ from typing import Optional
 
 from hopeit.app.context import EventContext
 from hopeit.app.api import event_api
-from hopeit.dataobjects import dataclass, dataobject
+from hopeit.dataobjects import dataobject
 from hopeit.app.events import collector_step, Collector
 from hopeit.app.logger import app_extra_logger
 
@@ -30,7 +30,6 @@ __steps__ = [
 
 
 @dataobject
-@dataclass
 class EventsGraphResult:
     runtime_apps: RuntimeApps
     graph: CytoscapeGraph

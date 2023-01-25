@@ -2,10 +2,9 @@
 Apps Visualizer: graph elements model
 """
 from typing import List, Dict
-from dataclasses import dataclass, field
 from enum import Enum
 
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataobject, Field
 from hopeit.app.config import AppConnection, AppDescriptor, EventDescriptor, EventType, StreamQueueStrategy
 from hopeit.server.names import auto_path
 
@@ -18,18 +17,16 @@ class NodeType(str, Enum):
 
 
 @dataobject
-@dataclass
 class Node:
     id: str
     label: str
     type: NodeType
-    inputs: List[str] = field(default_factory=list)
-    outputs: List[str] = field(default_factory=list)
-    slots: List[str] = field(default_factory=list)
+    inputs: List[str] = Field(default_factory=list)
+    outputs: List[str] = Field(default_factory=list)
+    slots: List[str] = Field(default_factory=list)
 
 
 @dataobject
-@dataclass
 class Edge:
     id: str
     label: str
@@ -38,7 +35,6 @@ class Edge:
 
 
 @dataobject
-@dataclass
 class Graph:
     nodes: List[Node]
     edges: List[Edge]

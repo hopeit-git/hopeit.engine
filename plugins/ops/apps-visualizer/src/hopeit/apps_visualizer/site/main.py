@@ -8,7 +8,7 @@ from hopeit.app.context import EventContext, PostprocessHook
 
 from hopeit.server.names import route_name
 from hopeit.app.api import event_api
-from hopeit.dataobjects import dataclass, dataobject
+from hopeit.dataobjects import dataobject
 
 from hopeit.config_manager import RuntimeApps
 
@@ -34,7 +34,6 @@ _dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 
 
 @dataobject
-@dataclass
 class RuntimeAppsConfig:
     runtime_apps: RuntimeApps
     options: VisualizationOptions

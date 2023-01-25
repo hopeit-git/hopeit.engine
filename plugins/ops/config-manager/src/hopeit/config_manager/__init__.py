@@ -1,5 +1,5 @@
 """
-Config Manager dataclasses
+Config Manager dataobjects
 """
 from typing import Dict, List
 from enum import Enum

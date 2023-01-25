@@ -368,10 +368,7 @@
         "description": "Available serialization methods for event payloads.",
         "enum": [
           "json",
-          "json+base64",
-          "pickle:3",
-          "pickle:4",
-          "pickle:5"
+          "json+base64"
         ],
         "type": "string"
       },
