@@ -195,18 +195,6 @@ def diff_specs() -> bool:
 
     :return: True if differences are found, False if loaded spec matches runtime.
     """
-    # TODO: cleanup
-    # print(static_spec['components'] == spec['components'])
-    # print(static_spec['paths'] == spec['paths'])
-
-    
-    # import json
-    # with open('static.json', 'w') as fb:
-    #     fb.write(json.dumps(static_spec['paths'] , indent=2))
-
-    # with open('dinamic.json', 'w') as fb:
-    #     fb.write(json.dumps(spec['paths'], indent=2))
-
     return static_spec != spec
 
 

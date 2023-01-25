@@ -778,17 +778,18 @@ def mock_api_spec():
         }, "components": {
             "schemas": {
                 "MockData": {
+                    "title": "MockData",
                     "type": "object",
                     "required": [
                         "value"
                     ],
                     "properties": {
                         "value": {
+                            "title": "Value",
                             "type": "string"
                         }
                     },
                     "description": "MockData object",
-                    "x-module-name": "mock_app"
                 }
             }, "securitySchemes": {
                 "auth.basic": {
