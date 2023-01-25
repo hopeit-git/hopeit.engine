@@ -196,9 +196,6 @@ class Serialization(str, Enum):
     """
     JSON_UTF8 = 'json'
     JSON_BASE64 = 'json+base64'
-    PICKLE3 = 'pickle:3'
-    PICKLE4 = 'pickle:4'
-    PICKLE5 = 'pickle:5'
 
 
 @dataobject
