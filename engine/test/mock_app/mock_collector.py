@@ -27,7 +27,7 @@ async def step3(collector: Collector, context: EventContext) -> MockResult:
     step1 = await collector['step1']
     step2 = await collector['step2']
     await asyncio.sleep(0.01)
-    return MockResult(f"({step1}&{step2}+{context.event_name}+step3)")
+    return MockResult(value=f"({step1}&{step2}+{context.event_name}+step3)")
 
 
 async def result(collector: Collector, context: EventContext) -> MockResult:

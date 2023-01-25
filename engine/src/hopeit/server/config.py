@@ -6,6 +6,8 @@ from typing import TypeVar, List, Optional
 import re
 import os
 
+from pydantic import validator
+
 from hopeit.dataobjects import dataobject, Field
 from hopeit.server.names import auto_path_prefixed
 from hopeit.server.version import ENGINE_VERSION
@@ -55,6 +57,10 @@ class AuthType(str, Enum):
     REFRESH = 'Refresh'
 
 
+def _default_no_auth():
+    return [AuthType.UNSECURED]
+
+
 @dataobject
 class AuthConfig:
     """
@@ -66,11 +72,7 @@ class AuthConfig:
     create_keys: bool = False
     domain: Optional[str] = None
     encryption_algorithm: str = 'RS256'
-    default_auth_methods: List[AuthType] = Field(default_factory=list)
-
-    def __post_init__(self):
-        if len(self.default_auth_methods) == 0:
-            self.default_auth_methods.append(AuthType.UNSECURED)
+    default_auth_methods: List[AuthType] = Field(default_factory=_default_no_auth)
 
     @staticmethod
     def no_auth():

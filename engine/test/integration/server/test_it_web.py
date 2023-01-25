@@ -262,11 +262,11 @@ async def call_post_invalid_payload(client):
         }
     )
     assert res.status == 400
-    result = (await res.read()).decode()
-    assert result == \
-        '{"msg": "Expecting value: line 1 column 11 (char 10)", "tb": ' \
-        '["hopeit.app.errors.BadRequest: Expecting value: line 1 column 11 (char 10)\\n"]}'
-
+    result = json.loads((await res.read()).decode())
+    assert result['msg'] == """1 validation error for MockData\n__root__\n  Expecting value: line 1 column 11 (char 10) (type=value_error.jsondecode; msg=Expecting value; doc={"value": invalid_json}; pos=10; lineno=1; colno=11)"""
+    assert result['tb'] == [
+        """hopeit.app.errors.BadRequest: 1 validation error for MockData\n__root__\n  Expecting value: line 1 column 11 (char 10) (type=value_error.jsondecode; msg=Expecting value; doc={"value": invalid_json}; pos=10; lineno=1; colno=11)\n"""
+    ]
 
 async def call_post_fail_request(client):
     res: ClientResponse = await client.post(
