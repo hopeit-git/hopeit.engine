@@ -527,7 +527,7 @@ async def start_test_server(mock_app_config, mock_plugin_config,  # noqa: F811
     if streams:
         await stream_startup_hook(mock_app_config, enabled_groups)
     print('Test engine started.', hopeit.server.web.web_server)
-    await asyncio.sleep(5)
+    await asyncio.sleep(1)
 
 
 async def _setup(monkeypatch,
