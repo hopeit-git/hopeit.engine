@@ -19,7 +19,7 @@ locked-deps:
 	pip install --force-reinstall -r requirements.lock && \
 	pip install -U -r requirements-dev.txt
 
-lock-requirements: clean dev-deps
+lock-requirements: clean deps
 	cd engine && \
 	pip freeze > requirements.lock
 
