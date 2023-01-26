@@ -35,11 +35,11 @@ class MockDataWithAutoEventId:
     value: str
 
 
+# TODO: review if needed
 @dataobject
 class MockDataFrozen:
     class Config:
-        allow_mutation=False
-
+        allow_mutation = False
     id: str
     value: int
 

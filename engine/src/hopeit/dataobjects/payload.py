@@ -5,8 +5,6 @@ Payload tools to serialize and deserialze event payloads and responses, includin
 import json
 from typing import Type, Generic, Optional, Union
 
-from pydantic import ValidationError
-
 from hopeit.dataobjects import EventPayloadType
 
 _ATOMIC_TYPES = (str, int, float, bool)

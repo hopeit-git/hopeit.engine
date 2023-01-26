@@ -18,7 +18,7 @@ Example:
 """
 import uuid
 from datetime import datetime
-from typing import TypeVar, Optional, Union, Any, ClassVar
+from typing import TypeVar, Optional, Union, ClassVar
 
 from pydantic import BaseModel, Field, ValidationError
 

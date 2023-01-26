@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from hopeit.dataobjects import ValidationError
 from hopeit.dataobjects.payload import Payload
 
-from . import MockNested, MockData, MockDataFrozen, MockDataStrict, MockDataValidate, MockDataOptional
+from . import MockNested, MockData, MockDataStrict, MockDataValidate, MockDataOptional
 
 
 def test_to_json_python_types():
@@ -128,7 +128,6 @@ def test_to_json_dict_mixed():
 
 
 def test_to_obj_dict_mixed():
-    dt = datetime.fromtimestamp(0, tz=timezone.utc)
     assert Payload.to_obj({
         "item1": {
             'item': 1,
@@ -366,7 +365,8 @@ def test_to_json_invalid_types():
 
     with pytest.raises(ValidationError):
         Payload.to_json(
-            MockDataStrict(id=42, value='ok-value', nested=MockNested(ts=datetime.now(tz=timezone.utc))))  # type: ignore
+            MockDataStrict(
+                id=42, value='ok-value', nested=MockNested(ts=datetime.now(tz=timezone.utc))))  # type: ignore
 
     with pytest.raises(ValidationError):
         Payload.to_json(MockData(id='1', value='ok-value', nested=MockNested(ts="NOT A DATETIME")))  # type: ignore
@@ -376,10 +376,11 @@ def test_to_obj_invalid_types():
     # Do not fail when number is converted to string by default
     Payload.to_obj(
         MockData(id=42, value='ok-value', nested=MockNested(ts=datetime.now(tz=timezone.utc))))  # type: ignore
-    
+
     with pytest.raises(ValidationError):
         Payload.to_obj(
-            MockDataStrict(id=42, value='ok-value', nested=MockNested(ts=datetime.now(tz=timezone.utc))))  # type: ignore
+            MockDataStrict(
+                id=42, value='ok-value', nested=MockNested(ts=datetime.now(tz=timezone.utc))))  # type: ignore
 
     with pytest.raises(ValidationError):
         Payload.to_obj(MockData(id='1', value='ok-value', nested=MockNested(ts="NOT A DATETIME")))  # type: ignore

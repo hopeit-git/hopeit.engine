@@ -1,7 +1,5 @@
 import base64
 
-import sys
-
 from hopeit.app.config import Serialization, Compression
 from hopeit.dataobjects import dataobject
 from hopeit.dataobjects.payload import Payload

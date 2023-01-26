@@ -5,6 +5,7 @@ from hopeit.dataobjects import StreamEventParams
 
 from . import MockNested, MockData, MockDataWithoutTs, MockDataWithAutoEventId
 
+
 def test_data_event_params_extract_attr():
     now = datetime.now(tz=timezone.utc)
     obj = MockData(id='id1', value='value1', nested=MockNested(ts=now))
