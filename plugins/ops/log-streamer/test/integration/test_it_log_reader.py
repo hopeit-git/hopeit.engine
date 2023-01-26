@@ -33,7 +33,7 @@ async def write_logs(log_config, raw_log_entries):
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
 )
 async def test_service(monkeypatch, raw_log_entries, log_config, service_context):
-    monkeypatch.setattr(service_context.settings, 'extras', {'_': log_config.to_dict()})
+    monkeypatch.setattr(service_context.settings, 'extras', {'_': log_config.dict()})
     loop = asyncio.get_event_loop()
     loop.create_task(write_logs(log_config, raw_log_entries))
     lines = []

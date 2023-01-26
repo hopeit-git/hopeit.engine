@@ -12,7 +12,6 @@ Example:
     from hopeit.dataobjects import dataobject
 
     @dataobject
-    @dataclass
     class MyObject:
         name: str
         number: int
@@ -89,7 +88,6 @@ class BinaryDownload(BaseModel):
 
     ```
     @dataobject
-    @dataclass
     class ImagePng(BinaryDownload):
         content_type = "image/png"
     ```
@@ -119,8 +117,7 @@ def dataobject(
         * Detect undocumented API changes early (i.e. fields added or changed)
 
     In general, all dataclasses that are to be exchanged using API endpoints (payload and responses),
-    or write and read from streams, need to implement @dataobject and decorator in addition to Python
-    @dataclass decorator.
+    or write and read from streams, need to implement @dataobject decorator.
 
     In order to publish instances to streams, an event id and event timestamp
     can be extracted. StreamManager does that automatically for classes defining
@@ -148,7 +145,6 @@ def dataobject(
             status: str
 
         @dataobject(event_id='id', event_ts='last_status.ts', unsafe=True, validate=False)
-        @dataclass
         class EventData:
             id: str
             last_status: StatusChange
