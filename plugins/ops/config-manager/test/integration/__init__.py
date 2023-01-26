@@ -35,7 +35,7 @@ class MockResponse():
         return None
 
     async def json(self):
-        return Payload.to_json(self.response)
+        return Payload.to_obj(self.response)
 
 
 class MockClientSession():

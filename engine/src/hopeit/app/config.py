@@ -160,7 +160,7 @@ class EventLoggingConfig:
     extra_fields: List[str] = Field(default_factory=list)
     stream_fields: List[str] = Field(default_factory=list)
 
-    @validator("stream_fields")
+    @validator("stream_fields", always=True)
     def validate_stream_fields(value):
         if len(value) == 0:
             return ['stream.name', 'stream.msg_id', 'stream.consumer_group']
@@ -362,7 +362,7 @@ class AppEngineConfig:
     track_headers: List[str] = Field(default_factory=list)
     cors_origin: Optional[str] = None
 
-    @validator("track_headers")
+    @validator("track_headers", always=True)
     def validate_track_headers(value):
         track_headers = [k if k.startswith('track.') else f"track.{k}" for k in value]
         if 'track.request_ts' not in track_headers:

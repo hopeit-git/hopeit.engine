@@ -5,10 +5,6 @@
   },
   "engine" : {
     "import_modules": ["hopeit.basic_auth"],
-    "track_headers": [
-      "track.request_id",
-      "track.request_ts"
-    ],
     "cors_origin": "http://localhost:8020"
   },
   "settings" : {

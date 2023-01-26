@@ -23,7 +23,6 @@ ser = {
 
 
 def test_serialize():
-    print(sys.version_info, sys.version)
     assert serialize(data, Serialization.JSON_UTF8, Compression.NONE) == \
         ser[Serialization.JSON_UTF8] == Payload.to_json(data).encode()
     assert serialize(data, Serialization.JSON_BASE64, Compression.NONE) == \

@@ -123,7 +123,6 @@ async def test_handle_responses_something(monkeypatch, client_app_config):  # no
         mocks=[mock_client_calls],
         item_id="id_something",
         partition_key="YYYY/MM/DD/HH")
-    print(result)
     assert result == 'Got 200 response with: {"id": "id_something",' \
         ' "user": {"id": "test", "name": "test"}, "status": null, "history": []}'
 

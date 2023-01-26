@@ -18,6 +18,15 @@ async def test_cluster_apps_config(monkeypatch, cluster_apps_response,
         mocks=[apply_mock_client], hosts="http://test-server1,http://test-server2"
     )
 
+    from hopeit.dataobjects.payload import Payload
+
+    with open("runtime.json", "w") as f:
+        f.write(Payload.to_json(result))
+
+    with open("text.json", "w") as f:
+        f.write(Payload.to_json(cluster_apps_response))
+
+
     assert result == cluster_apps_response
 
 
