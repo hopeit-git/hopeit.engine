@@ -1,6 +1,5 @@
 import pytest
 from hopeit.app.config import EventPlugMode
-from hopeit.dataobjects.payload import Payload
 from hopeit.server import runtime
 from hopeit.testing.apps import config, execute_event
 from hopeit.app.config import AppConfig
@@ -20,17 +19,6 @@ async def test_runtime_apps_config(monkeypatch, runtime_apps_response):
 
     plugin_config = config('plugins/ops/config-manager/config/plugin-config.json')
     result = await execute_event(app_config=plugin_config, event_name="runtime_apps_config", payload=None)
-
-
-    from hopeit.dataobjects.payload import Payload
-
-    with open("runtime.json", "w") as f:
-        f.write(Payload.to_json(result))
-
-    with open("text.json", "w") as f:
-        f.write(Payload.to_json(runtime_apps_response))
-
-
     assert result == runtime_apps_response
 
 

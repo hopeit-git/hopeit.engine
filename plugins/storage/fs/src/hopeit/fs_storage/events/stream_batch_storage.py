@@ -98,7 +98,7 @@ __steps__ = ['buffer_item', 'flush']
 @dataobject
 class Partition:
     class Config:
-        arbitrary_types_allowed=True
+        arbitrary_types_allowed = True
     lock: asyncio.Lock = Field(default_factory=asyncio.Lock)
     items: List[DataObject] = Field(default_factory=list)  # type: ignore
 

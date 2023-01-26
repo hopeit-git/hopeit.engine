@@ -20,6 +20,7 @@ class MockData:
     value: str
     ts: datetime
 
+
 async def create_stream_manager():
     return await RedisStreamManager(address=MockRedisPool.test_url).connect()
 
