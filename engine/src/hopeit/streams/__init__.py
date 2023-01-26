@@ -8,9 +8,10 @@ import socket
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Union
 from importlib import import_module
+from dataclasses import dataclass
 
 from hopeit.app.config import Compression, Serialization
-from hopeit.dataobjects import EventPayload, dataobject
+from hopeit.dataobjects import EventPayload
 from hopeit.server.config import AuthType, StreamsConfig
 from hopeit.server.logger import engine_logger, extra_logger
 
@@ -23,7 +24,7 @@ __all__ = ['StreamEvent',
            'StreamOSError']
 
 
-@dataobject
+@dataclass
 class StreamEvent:
     msg_internal_id: bytes
     queue: str
