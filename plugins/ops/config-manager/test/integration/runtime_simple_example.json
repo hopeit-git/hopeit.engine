@@ -334,11 +334,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -360,11 +356,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -386,11 +378,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -412,11 +400,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -438,11 +422,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -459,11 +439,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -480,11 +456,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -501,11 +473,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -524,11 +492,7 @@
               "extra_fields": [
                 "something_id"
               ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -601,11 +565,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -629,11 +589,7 @@
               "extra_fields": [
                 "something_id"
               ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -664,11 +620,7 @@
               "extra_fields": [
                 "something_id"
               ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -699,11 +651,7 @@
               "extra_fields": [
                 "something_id"
               ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -732,11 +680,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -1108,11 +1052,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -1135,11 +1075,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -1162,11 +1098,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
@@ -1189,11 +1121,7 @@
             "response_timeout": 60.0,
             "logging": {
               "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
+              "stream_fields": []
             },
             "stream": {
               "timeout": 60.0,
