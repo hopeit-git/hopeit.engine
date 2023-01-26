@@ -71,7 +71,7 @@ async def _get_host_config(host: str,
     try:
         async with aiohttp.ClientSession() as client:
             async with client.get(url) as response:
-                return host, Payload.from_json(await response.json(), RuntimeApps)  # type: ignore
+                return host, Payload.from_obj((await response.json()), RuntimeApps)  # type: ignore
     except Exception as e:  # pylint: disable=broad-except
         logger.error(context or __name__, "Error contacting host: %s", host, extra=extra(
             host=host, url=url, error=str(e)
