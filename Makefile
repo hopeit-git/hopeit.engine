@@ -52,6 +52,10 @@ install:
 	pip install -U -e ".[web]" --no-deps && \
 	pip install -U -e ".[cli]" --no-deps
 
+ci-install: locked-deps
+	cd engine && \
+	pip install -U -e . --no-deps
+
 install-app:
 	cd $(APPFOLDER) && \
 	pip install -U -e .
