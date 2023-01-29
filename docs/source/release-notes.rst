@@ -15,6 +15,10 @@ ______________
       pydantic. I.e. `@validator`.
 
 - Mypy plugin wrapper to `pydantic` to validate dataobjects
+  - Developers can add this plugin to enable dataobjects to be checked:
+  ```
+  plugins = hopeit.dataobjects.mypy
+  ```
 
 - Chore:
   - Removed unused `simple-benchmark` application
