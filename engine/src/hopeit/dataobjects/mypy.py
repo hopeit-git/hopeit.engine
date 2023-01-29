@@ -11,7 +11,7 @@ from pydantic.mypy import PydanticPlugin
 DATACLASS_FULLNAME = 'hopeit.dataobjects.dataobject'
 
 
-def plugin(version: str) -> TypingType[Plugin]:
+def plugin(version: str) -> 'TypingType[Plugin]':
     return DataObjectPlugin
 
 
