@@ -58,7 +58,10 @@ class StreamEventMixin:
     """
 
     def __init__(self, *, event_id_expr=None, event_ts_expr=None):
-        self.__stream_event__ = StreamEventParams(event_id_expr, event_ts_expr)  # pragma: no cover
+        self.__stream_event__ = StreamEventParams(  # pragma: no cover
+            event_id_expr=event_id_expr,
+            event_ts_expr=event_ts_expr
+        )
         raise NotImplementedError  # must use @dataobject decorator  # pragma: no cover
 
     def event_id(self) -> str:

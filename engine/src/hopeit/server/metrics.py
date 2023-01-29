@@ -96,10 +96,10 @@ class StreamStats:
         if self.start_ts is None:
             self.start_ts = datetime.now(tz=timezone.utc)
             self.from_ts = datetime.now(tz=timezone.utc)
-            self.event_count: int = 0
-            self.error_count: int = 0
+            self.event_count = 0
+            self.error_count = 0
             self.total_event_count = 0
-            self.total_error_count: int = 0
+            self.total_error_count = 0
         return self
 
     def reset_batch(self, now: datetime):

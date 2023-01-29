@@ -36,7 +36,7 @@ class Payload(Generic[EventPayloadType]):
         if datatype in _COLLECTION_TYPES:
             return datatype(json.loads(json_str))  # type: ignore
         try:
-            return datatype.parse_raw(json_str)
+            return datatype.parse_raw(json_str)  # type: ignore
         except AttributeError as e:
             raise TypeError(f"Cannot convert to json: {datatype} should be annotated with @dataobject") from e
 
@@ -69,7 +69,7 @@ class Payload(Generic[EventPayloadType]):
                 ])
             return datatype(data)  # type: ignore
         try:
-            return datatype.parse_obj(data)
+            return datatype.parse_obj(data)  # type: ignore
         except AttributeError as e:
             raise TypeError(f"Cannot convert to dict: {datatype} should be annotated with @dataobject") from e
 
@@ -94,7 +94,7 @@ class Payload(Generic[EventPayloadType]):
                 f'"{str(k)}": {Payload.to_json(item, key=None)}' for k, item in payload.items()
             ) + "}"
         try:
-            return payload.json()
+            return payload.json()  # type: ignore
         except AttributeError as e:
             raise TypeError(f"Cannot convert to dict: {type(payload)} should be annotated with @dataobject") from e
 
@@ -120,7 +120,7 @@ class Payload(Generic[EventPayloadType]):
         if isinstance(payload, _MAPPING_TYPES):
             return {k: Payload.to_obj(v, key=None) for k, v in payload.items()}
         try:
-            return payload.dict()
+            return payload.dict()  # type: ignore
         except AttributeError as e:
             raise TypeError(f"Cannot convert to dict: {type(payload)} should be annotated with @dataobject") from e
 
@@ -130,4 +130,4 @@ class Payload(Generic[EventPayloadType]):
         """Helper to parse dataobjects from form-fields where encoding type is not correctly set to json"""
         if isinstance(field_data, str):
             return Payload.from_json(field_data, datatype, key)
-        return datatype.parse_obj(field_data)
+        return datatype.parse_obj(field_data)  # type: ignore

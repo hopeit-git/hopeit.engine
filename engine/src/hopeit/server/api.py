@@ -47,7 +47,7 @@ logger = engine_logger()
 swagger: Optional[Swagger] = None
 spec: Optional[dict] = None
 static_spec: Optional[dict] = None
-runtime_schemas = {}
+runtime_schemas: dict = {}
 _options = {
     'generate_mode': False
 }
@@ -391,7 +391,9 @@ def _update_auth_methods():
     """
     Generate default securitySchemes section
     """
-    security_schemas = spec['components'].get('securitySchemes', {})
+    assert spec is not None
+
+    security_schemas: dict = spec['components'].get('securitySchemes', {})
     security_schemas.update({
         'auth.basic': {
             'type': 'http',
@@ -462,7 +464,7 @@ def _update_predefined_schemas():
     """
     assert spec is not None
     spec['components']['schemas'].update(
-        ErrorInfo.schema()
+        ErrorInfo.schema()  # type: ignore
     )
 
 

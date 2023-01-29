@@ -39,7 +39,8 @@ class AppDescriptor:
     version: str
 
     @validator("name", "version")
-    def validate_content(value):
+    @classmethod
+    def validate_content(cls, value: str):
         if len(value) == 0:
             raise ValueError("Should not be empty")
         return value
@@ -161,7 +162,8 @@ class EventLoggingConfig:
     stream_fields: List[str] = Field(default_factory=list)
 
     @validator("stream_fields", always=True)
-    def validate_stream_fields(value):
+    @classmethod
+    def validate_stream_fields(cls, value: List[str]):
         if len(value) == 0:
             return ['stream.name', 'stream.msg_id', 'stream.consumer_group']
         return [
@@ -334,7 +336,8 @@ class EventDescriptor:
     group: str = DEFAULT_GROUP
 
     @validator("read_stream")
-    def validate_read_stream(value):
+    @classmethod
+    def validate_read_stream(cls, value: Optional[ReadStreamDescriptor]):
         if value:
             if '{auto}' in value.name:
                 raise ValueError("read_stream.name should be defined. {auto} is not allowed.")
@@ -363,7 +366,8 @@ class AppEngineConfig:
     cors_origin: Optional[str] = None
 
     @validator("track_headers", always=True)
-    def validate_track_headers(value):
+    @classmethod
+    def validate_track_headers(cls, value: List[str]):
         track_headers = [k if k.startswith('track.') else f"track.{k}" for k in value]
         if 'track.request_ts' not in track_headers:
             track_headers = ['track.request_ts'] + track_headers
@@ -425,6 +429,8 @@ class AppConfig:
             from write_stream or read_stream name
         2) Sets default compression and serialization for streams based on server config
         """
+        assert self.effective_settings is not None
+
         for event_name, event_info in self.events.items():
             stream_settings = {}
             if event_info.write_stream:
@@ -439,7 +445,7 @@ class AppConfig:
                 settings.stream.compression = self.engine.default_stream_compression
             if settings.stream.serialization is None:
                 settings.stream.serialization = self.engine.default_stream_serialization
-            self.effective_settings[event_name] = Payload.to_obj(settings)
+            self.effective_settings[event_name] = Payload.to_obj(settings)  # type: ignore
 
     def _setup_event_extra_settings(self):
         """
@@ -449,6 +455,8 @@ class AppConfig:
 
         For these extra keys, validation is not perform until accessed.
         """
+        assert self.effective_settings is not None
+
         for event_name, event_info in self.events.items():
             extras = {}
             if event_name in self.settings:
