@@ -89,8 +89,12 @@ def authorize(context: EventContext,
     renew_in = int(1000.0 * max(
         1.0 * cfg.access_token_expiration - 1.0 * cfg.access_token_renew_window * (1.0 + 0.5 * random.random()),
         0.5 * cfg.access_token_expiration * (0.5 * random.random() + 0.5)))
-    token = _new_access_token(Payload.to_obj(user_info), context, now, cfg.access_token_expiration, renew_in)
-    refresh_token = _new_refresh_token(Payload.to_obj(user_info), context, now, cfg.refresh_token_expiration)
+    token = _new_access_token(  # type: ignore
+        Payload.to_obj(user_info), context, now, cfg.access_token_expiration, renew_in
+    )
+    refresh_token = _new_refresh_token(  # type: ignore
+        Payload.to_obj(user_info), context, now, cfg.refresh_token_expiration
+    )
     result = AuthInfoExtended(
         app=context.app_key,
         access_token=token,

@@ -222,6 +222,7 @@ class AppsClient(Client):
             app=self.app_key, app_connection=self.app_conn_key
         ))
         try:
+            assert self.session is not None
             await self.session.close()
         except Exception as e:  # pylint: disable=broad-except
             logger.error(__name__, str(e))
@@ -229,7 +230,7 @@ class AppsClient(Client):
             await asyncio.sleep(1.0)
             self.session = None
             self.token = None
-            self.token_expire = 0.0
+            self.token_expire = 0
             logger.info(__name__, "Client stopped.", extra=extra(
                 app=self.app_key, app_connection=self.app_conn_key
             ))

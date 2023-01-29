@@ -130,7 +130,7 @@ class LogFileHandler(FileSystemEventHandler):
             if await self._open_file(src_path):
                 line = await self._read_line(src_path)
                 if line:
-                    lines = []
+                    lines: List[str] = []
                     self._add_line(lines, line)
                     while line:
                         line = await self._read_line(src_path)
