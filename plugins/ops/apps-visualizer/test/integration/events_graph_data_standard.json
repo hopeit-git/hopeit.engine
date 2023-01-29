@@ -265,7 +265,7 @@
     },
     "classes": "EVENT"
   },
-  "client_example.0x16.handle_responses.GET": {
+  "client_example.${APPS_ROUTE_VERSION}.handle_responses.GET": {
     "data": {
       "id": "client_example.${APPS_ROUTE_VERSION}.handle_responses.GET",
       "content": "GET"
