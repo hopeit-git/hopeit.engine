@@ -2,9 +2,10 @@ import pytest
 import json
 from datetime import datetime, timezone
 
+from hopeit.dataobjects import ValidationError
 from hopeit.dataobjects.payload import Payload
 
-from . import MockNested, MockData, MockDataValidate, MockDataDoNotValidate
+from . import MockNested, MockData, MockDataStrict, MockDataValidate, MockDataOptional
 
 
 def test_to_json_python_types():
@@ -40,11 +41,12 @@ def test_to_json_list_dataobject():
 
 
 def test_to_obj_list_dataobject():
+    dt = datetime.fromtimestamp(0, tz=timezone.utc)
     assert Payload.to_obj([
-        MockData(id='1', value='ok-1', nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc))),
-        MockData(id='2', value='ok-2', nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc))),
-    ]) == [{"id": "1", "value": "ok-1", "nested": {"ts": "1970-01-01T00:00:00+00:00"}},
-           {"id": "2", "value": "ok-2", "nested": {"ts": "1970-01-01T00:00:00+00:00"}}]
+        MockData(id='1', value='ok-1', nested=MockNested(ts=dt)),
+        MockData(id='2', value='ok-2', nested=MockNested(ts=dt)),
+    ]) == [{"id": "1", "value": "ok-1", "nested": {"ts": dt}},
+           {"id": "2", "value": "ok-2", "nested": {"ts": dt}}]
 
 
 def test_to_json_dict_dataobject():
@@ -56,11 +58,12 @@ def test_to_json_dict_dataobject():
 
 
 def test_to_obj_dict_dataobject():
+    dt = datetime.fromtimestamp(0, tz=timezone.utc)
     assert Payload.to_obj({
-        'item1': MockData(id='1', value='ok-1', nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc))),
-        'item2': MockData(id='2', value='ok-2', nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc))),
-    }) == {"item1": {"id": "1", "value": "ok-1", "nested": {"ts": "1970-01-01T00:00:00+00:00"}},
-           "item2": {"id": "2", "value": "ok-2", "nested": {"ts": "1970-01-01T00:00:00+00:00"}}}
+        'item1': MockData(id='1', value='ok-1', nested=MockNested(ts=dt)),
+        'item2': MockData(id='2', value='ok-2', nested=MockNested(ts=dt)),
+    }) == {"item1": {"id": "1", "value": "ok-1", "nested": {"ts": dt}},
+           "item2": {"id": "2", "value": "ok-2", "nested": {"ts": dt}}}
 
 
 def test_to_json_list_mixed():
@@ -84,21 +87,22 @@ def test_to_json_list_mixed():
 
 
 def test_to_obj_list_mixed():
+    dt = datetime.fromtimestamp(0, tz=timezone.utc)
     assert Payload.to_obj([
         {
             'item': 1,
-            'data': MockData(id='1', value='ok-1', nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc)))
+            'data': MockData(id='1', value='ok-1', nested=MockNested(ts=dt))
         },
         {
             'item': 2,
-            'data': MockData(id='2', value='ok-2', nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc)))
+            'data': MockData(id='2', value='ok-2', nested=MockNested(ts=dt))
         }
     ]) == [{'data': {'id': '1',
-                     'nested': {'ts': '1970-01-01T00:00:00+00:00'},
+                     'nested': {'ts': dt},
                      'value': 'ok-1'},
             'item': 1},
            {'data': {'id': '2',
-                     'nested': {'ts': '1970-01-01T00:00:00+00:00'},
+                     'nested': {'ts': dt},
                      'value': 'ok-2'},
             'item': 2}]
 
@@ -134,11 +138,11 @@ def test_to_obj_dict_mixed():
             'data': MockData(id='2', value='ok-2', nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc)))
         }
     }) == {'item1': {'data': {'id': '1',
-                              'nested': {'ts': '1970-01-01T00:00:00+00:00'},
+                              'nested': {'ts': datetime.fromtimestamp(0, tz=timezone.utc)},
                               'value': 'ok-1'},
                      'item': 1},
            'item2': {'data': {'id': '2',
-                              'nested': {'ts': '1970-01-01T00:00:00+00:00'},
+                              'nested': {'ts': datetime.fromtimestamp(0, tz=timezone.utc)},
                               'value': 'ok-2'},
                      'item': 2}}
 
@@ -154,13 +158,14 @@ def test_to_json_dataobject():
 
 
 def test_to_obj_dataobject():
+    dt = datetime.fromtimestamp(0, tz=timezone.utc)
     assert Payload.to_obj(MockData(
         id='test',
         value='ok',
         nested=MockNested(
-            ts=datetime.fromtimestamp(0, tz=timezone.utc)
+            ts=dt
         )
-    )) == {"id": "test", "value": "ok", "nested": {"ts": "1970-01-01T00:00:00+00:00"}}
+    )) == {"id": "test", "value": "ok", "nested": {"ts": dt}}
 
 
 def test_from_json_python_types():
@@ -256,103 +261,91 @@ def test_from_obj_dict():
 
 def test_from_json_dataobject_validate_datatype():
     data = '{"id": "test", "value": "not-ok"}'
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Payload.from_json(data, MockDataValidate)
 
 
 def test_from_json_dataobject_validate_null():
     data = '{"id": "test", "value": null}'
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Payload.from_json(data, MockDataValidate)
 
 
 def test_from_json_dataobject_validate_missing():
     data = '{"id": "test"}'
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Payload.from_json(data, MockDataValidate)
 
 
 def test_from_obj_dataobject_validate():
     data = '{"id": "test", "value": "not-ok"}'
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Payload.from_obj(data, MockDataValidate)
 
 
 def test_from_json_dataobject_do_not_validate_null():
     data = '{"id": "test", "value": null}'
-    assert Payload.from_json(data, MockDataDoNotValidate) \
-        == MockDataDoNotValidate(id='test', value=None)  # type: ignore
+    assert Payload.from_json(data, MockDataOptional) \
+        == MockDataOptional(id='test', value=None)  # type: ignore
 
 
 def test_from_json_dataobject_do_not_validate_missing():
     data = '{"id": "test"}'
-    assert Payload.from_json(data, MockDataDoNotValidate) \
-        == MockDataDoNotValidate(id='test', value=None)  # type: ignore
+    assert Payload.from_json(data, MockDataOptional) \
+        == MockDataOptional(id='test', value=None)  # type: ignore
 
 
 def test_from_obj_dataobject_do_not_validate_none():
     data = {"id": "test", "value": None}
-    assert Payload.from_obj(data, MockDataDoNotValidate) \
-        == MockDataDoNotValidate(id='test', value=None)  # type: ignore
+    assert Payload.from_obj(data, MockDataOptional) \
+        == MockDataOptional(id='test', value=None)  # type: ignore
 
 
 def test_from_obj_dataobject_do_not_validate_missing():
     data = {"id": "test"}
-    assert Payload.from_obj(data, MockDataDoNotValidate) \
-        == MockDataDoNotValidate(id='test', value=None)  # type: ignore
-
-
-def test_to_json_dataobject_validate():
-    data = MockDataValidate(id='test', value='not-ok')  # type: ignore
-    with pytest.raises(ValueError):
-        Payload.to_json(data)
-
-
-def test_to_obj_dataobject_validate():
-    data = MockDataValidate(id='test', value='not-ok')  # type: ignore
-    with pytest.raises(ValueError):
-        Payload.to_obj(data)
+    assert Payload.from_obj(data, MockDataOptional) \
+        == MockDataOptional(id='test', value=None)  # type: ignore
 
 
 def test_to_json_dataobject_do_not_validate():
-    data = MockDataDoNotValidate(id='test', value='not-ok')  # type: ignore
+    data = MockDataValidate.construct(id='test', value='not-ok')  # type: ignore
     assert Payload.to_json(data) == '{"id": "test", "value": "not-ok"}'
 
 
 def test_to_obj_dataobject_do_not_validate():
-    data = MockDataDoNotValidate(id='test', value='not-ok')  # type: ignore
+    data = MockDataValidate.construct(id='test', value='not-ok')  # type: ignore
     assert Payload.to_obj(data) == {"id": "test", "value": "not-ok"}
 
 
 def test_from_json_invalid_types():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Payload.from_json('{"id": "1", "value": "ok-1", "nested": {"ts": "INVALID DATE"}}', MockData)
 
-    with pytest.raises(ValueError):
-        Payload.from_json('{"id": 42, "value": 42, "nested": {"ts": "1970-01-01T00:00:00+00:00"}}', MockData)
+    with pytest.raises(ValidationError):
+        Payload.from_json('{"id": 42, "value": 42, "nested": {"ts": "1970-01-01T00:00:00+00:00"}}', MockDataStrict)
 
 
 def test_from_obj_invalid_types():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Payload.from_obj({"id": "1", "value": "ok-1", "nested": {"ts": "INVALID DATE"}}, MockData)
 
-    with pytest.raises(ValueError):
-        Payload.from_obj({"id": 42, "value": 42, "nested": {"ts": "1970-01-01T00:00:00+00:00"}}, MockData)
+    with pytest.raises(ValidationError):
+        Payload.from_obj({"id": 42, "value": 42, "nested": {"ts": "1970-01-01T00:00:00+00:00"}}, MockDataStrict)
 
 
 def test_from_json_missing_fields():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Payload.from_json('{"id": "1", "value": "ok-1", "nested": {}', MockData)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Payload.from_json('{"value": 42, "nested": {"ts": "1970-01-01T00:00:00+00:00"}}', MockData)
 
 
 def test_from_obj_missing_fields():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Payload.from_obj({"id": "1", "value": "ok-1", "nested": {}}, MockData)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Payload.from_obj({"value": 42, "nested": {"ts": "1970-01-01T00:00:00+00:00"}}, MockData)
 
 
@@ -361,23 +354,33 @@ def test_from_json_malformed():
         Payload.from_json(
             '{"item1": {"id": "1", "value": "ok-1", "nested": {"ts": "1970-01-01T00:00:00+00:00"}', MockData)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         Payload.from_json('BAD STRING', MockData)
 
 
 def test_to_json_invalid_types():
-    with pytest.raises(ValueError):
-        Payload.to_json(
-            MockData(id=42, value='ok-value', nested=MockNested(ts=datetime.now(tz=timezone.utc))))  # type: ignore
+    # Do not fail when number is converted to string by default
+    Payload.to_json(
+        MockData(id=42, value='ok-value', nested=MockNested(ts=datetime.now(tz=timezone.utc))))  # type: ignore
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
+        Payload.to_json(
+            MockDataStrict(
+                id=42, value='ok-value', nested=MockNested(ts=datetime.now(tz=timezone.utc))))  # type: ignore
+
+    with pytest.raises(ValidationError):
         Payload.to_json(MockData(id='1', value='ok-value', nested=MockNested(ts="NOT A DATETIME")))  # type: ignore
 
 
 def test_to_obj_invalid_types():
-    with pytest.raises(ValueError):
-        Payload.to_obj(
-            MockData(id=42, value='ok-value', nested=MockNested(ts=datetime.now(tz=timezone.utc))))  # type: ignore
+    # Do not fail when number is converted to string by default
+    Payload.to_obj(
+        MockData(id=42, value='ok-value', nested=MockNested(ts=datetime.now(tz=timezone.utc))))  # type: ignore
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
+        Payload.to_obj(
+            MockDataStrict(
+                id=42, value='ok-value', nested=MockNested(ts=datetime.now(tz=timezone.utc))))  # type: ignore
+
+    with pytest.raises(ValidationError):
         Payload.to_obj(MockData(id='1', value='ok-value', nested=MockNested(ts="NOT A DATETIME")))  # type: ignore

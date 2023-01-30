@@ -7,8 +7,8 @@ import os
 import socket
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Union
-from dataclasses import dataclass
 from importlib import import_module
+from dataclasses import dataclass
 
 from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import EventPayload

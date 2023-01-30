@@ -1,5 +1,4 @@
 from uuid import uuid4
-from dataclasses import dataclass
 from fnmatch import fnmatch
 import pytest  # type: ignore
 import redis.asyncio as redis
@@ -10,7 +9,6 @@ from hopeit.redis_storage import RedisStorage
 
 
 @dataobject
-@dataclass
 class RedisMockData:
     test: str
 

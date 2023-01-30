@@ -2,7 +2,6 @@
 Provides generic `serialize`, `deserialize` methods to handle payloads
 """
 import base64
-import pickle
 from typing import Type
 
 from hopeit.app.config import Serialization, Compression
@@ -22,14 +21,6 @@ def _deser_json_utf8(data: bytes, datatype: Type[EventPayloadType]) -> EventPayl
     return Payload.from_json(data.decode('utf-8'), datatype)
 
 
-def _ser_pickle(data: EventPayload, level: int) -> bytes:
-    return pickle.dumps(data, protocol=level)
-
-
-def _deser_pickle(data: bytes, datatype: Type[EventPayloadType]) -> EventPayload:
-    return pickle.loads(data)
-
-
 def _ser_json_base64(data: EventPayload, level: int) -> bytes:
     return base64.b64encode(_ser_json_utf8(data, level))
 
@@ -41,9 +32,6 @@ def _deser_json_base64(data: bytes, datatype: Type[EventPayloadType]) -> EventPa
 _SERDESER = {
     Serialization.JSON_UTF8: (_ser_json_utf8, 0, _deser_json_utf8),
     Serialization.JSON_BASE64: (_ser_json_base64, 0, _deser_json_base64),
-    Serialization.PICKLE3: (_ser_pickle, 3, _deser_pickle),
-    Serialization.PICKLE4: (_ser_pickle, 4, _deser_pickle),
-    Serialization.PICKLE5: (_ser_pickle, 5, _deser_pickle)
 }
 
 

@@ -1,11 +1,10 @@
 """
 Apps Visualizer plugin module
 """
-from hopeit.dataobjects import dataclass, dataobject
+from hopeit.dataobjects import dataobject
 
 
 @dataobject
-@dataclass
 class AppsVisualizerSettings:
     """
     Apps visualizer settings.

@@ -24,4 +24,4 @@ __api__ = event_api(
 
 def entry_point(payload: None, context: EventContext, *, arg1: Optional[int] = None) -> List[MockData]:
     logger.info(context, "mock_app_api_get_list.entry_point")
-    return [MockData(f"get-{arg1}")]
+    return [MockData(value=f"get-{arg1}")]

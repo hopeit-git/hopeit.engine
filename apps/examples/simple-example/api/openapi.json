@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.16",
+    "version": "0.20",
     "title": "Simple Example",
     "description": "Simple Example"
   },
   "paths": {
-    "/api/basic-auth/0x16/decode": {
+    "/api/basic-auth/0x20/decode": {
       "get": {
         "summary": "Basic Auth: Decode",
         "description": "Returns decoded auth info",
@@ -44,7 +44,7 @@
           }
         },
         "tags": [
-          "basic_auth.0x16"
+          "basic_auth.0x20"
         ],
         "security": [
           {
@@ -53,7 +53,7 @@
         ]
       }
     },
-    "/api/config-manager/0x16/runtime-apps-config": {
+    "/api/config-manager/0x20/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -109,11 +109,11 @@
           }
         },
         "tags": [
-          "config_manager.0x16"
+          "config_manager.0x20"
         ]
       }
     },
-    "/api/config-manager/0x16/cluster-apps-config": {
+    "/api/config-manager/0x20/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -169,11 +169,11 @@
           }
         },
         "tags": [
-          "config_manager.0x16"
+          "config_manager.0x20"
         ]
       }
     },
-    "/api/simple-example/0x16/list-somethings": {
+    "/api/simple-example/0x20/list-somethings": {
       "get": {
         "summary": "Simple Example: List Objects",
         "description": "Lists all available Something objects",
@@ -229,7 +229,7 @@
         ],
         "responses": {
           "200": {
-            "description": "typing.List[model.Something]",
+            "description": "List",
             "content": {
               "application/json": {
                 "schema": {
@@ -243,7 +243,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -252,7 +252,7 @@
         ]
       }
     },
-    "/api/simple-example/0x16/query-something": {
+    "/api/simple-example/0x20/query-something": {
       "get": {
         "summary": "Simple Example: Query Something",
         "description": "Loads Something from disk",
@@ -338,7 +338,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -442,7 +442,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -451,7 +451,7 @@
         ]
       }
     },
-    "/api/simple-example/0x16/save-something": {
+    "/api/simple-example/0x20/save-something": {
       "post": {
         "summary": "Simple Example: Save Something",
         "description": "Creates and saves Something",
@@ -548,7 +548,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -557,7 +557,7 @@
         ]
       }
     },
-    "/api/simple-example/0x16/download-something": {
+    "/api/simple-example/0x20/download-something": {
       "get": {
         "summary": "Simple Example: Download Something",
         "description": "Download image file. The PostprocessHook return the requested file as stream.",
@@ -644,7 +644,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -653,7 +653,7 @@
         ]
       }
     },
-    "/api/simple-example/0x16/download-something-streamed": {
+    "/api/simple-example/0x20/download-something-streamed": {
       "get": {
         "summary": "Simple Example: Download Something Streamed",
         "description": "Download streamd created content as file.\nThe PostprocessHook return the requested resource as stream using `prepare_stream_response`.",
@@ -721,11 +721,11 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ]
       }
     },
-    "/api/simple-example/0x16/upload-something": {
+    "/api/simple-example/0x20/upload-something": {
       "post": {
         "summary": "Simple Example: Multipart Upload files",
         "description": "Upload files using Multipart form request",
@@ -863,7 +863,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -872,7 +872,7 @@
         ]
       }
     },
-    "/api/simple-example/0x16/streams/something-event": {
+    "/api/simple-example/0x20/streams/something-event": {
       "post": {
         "summary": "Simple Example: Something Event",
         "description": "Submits a Something object to a stream to be processed asynchronously by process-events app event",
@@ -941,7 +941,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -950,7 +950,7 @@
         ]
       }
     },
-    "/api/simple-example/0x16/collector/query-concurrently": {
+    "/api/simple-example/0x20/collector/query-concurrently": {
       "post": {
         "summary": "Simple Example: Query Concurrently",
         "description": "Loads 2 Something objects concurrently from disk and combine the results\nusing `collector` steps constructor (instantiating an `AsyncCollector`)",
@@ -1022,7 +1022,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -1031,7 +1031,7 @@
         ]
       }
     },
-    "/api/simple-example/0x16/collector/collect-spawn": {
+    "/api/simple-example/0x20/collector/collect-spawn": {
       "post": {
         "summary": "Simple Example: Collect and Spawn",
         "description": "Loads 2 Something objects concurrently from disk, combine the results\nusing `collector` steps constructor (instantiating an `AsyncCollector`)\nthen spawn the items found individually into a stream",
@@ -1109,7 +1109,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -1118,7 +1118,7 @@
         ]
       }
     },
-    "/api/simple-example/0x16/shuffle/spawn-event": {
+    "/api/simple-example/0x20/shuffle/spawn-event": {
       "post": {
         "summary": "Simple Example: Spawn Event",
         "description": "This example will spawn 3 data events, those are going to be send to a stream using SHUFFLE\nand processed in asynchronously / in parallel if multiple nodes are available",
@@ -1196,7 +1196,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -1205,7 +1205,7 @@
         ]
       }
     },
-    "/api/simple-example/0x16/shuffle/parallelize-event": {
+    "/api/simple-example/0x20/shuffle/parallelize-event": {
       "post": {
         "summary": "Simple Example: Parallelize Event",
         "description": "This example will spawn 2 copies of payload data, those are going to be send to a stream using SHUFFLE\nand processed in asynchronously / in parallel if multiple nodes are available,\nthen submitted to other stream to be updated and saved",
@@ -1283,7 +1283,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -1292,7 +1292,7 @@
         ]
       }
     },
-    "/api/simple-example/0x16/basic-auth/0x16/login": {
+    "/api/simple-example/0x20/basic-auth/0x20/login": {
       "get": {
         "summary": "Basic Auth: Login",
         "description": "Handles users login using basic-auth\nand generate access tokens for external services invoking apps\nplugged in with basic-auth plugin.",
@@ -1360,7 +1360,7 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
@@ -1369,7 +1369,7 @@
         ]
       }
     },
-    "/api/simple-example/0x16/basic-auth/0x16/refresh": {
+    "/api/simple-example/0x20/basic-auth/0x20/refresh": {
       "get": {
         "summary": "Basic Auth: Refresh",
         "description": "This event can be used for obtain new access token and update refresh token (http cookie),\nwith no need to re-login the user if there is a valid refresh token active.",
@@ -1437,16 +1437,16 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
-            "simple_example.0x16.refresh": []
+            "simple_example.0x20.refresh": []
           }
         ]
       }
     },
-    "/api/simple-example/0x16/basic-auth/0x16/logout": {
+    "/api/simple-example/0x20/basic-auth/0x20/logout": {
       "get": {
         "summary": "Basic Auth: Logout",
         "description": "Invalidates previous refresh cookies.",
@@ -1523,11 +1523,11 @@
           }
         },
         "tags": [
-          "simple_example.0x16"
+          "simple_example.0x20"
         ],
         "security": [
           {
-            "simple_example.0x16.refresh": []
+            "simple_example.0x20.refresh": []
           }
         ]
       }
@@ -1535,354 +1535,372 @@
   },
   "components": {
     "schemas": {
-      "ErrorInfo": {
+      "ContextUserInfo": {
+        "title": "ContextUserInfo",
+        "description": "User info that will be available in context during events execution",
         "type": "object",
-        "required": [
-          "msg",
-          "tb"
-        ],
         "properties": {
-          "msg": {
+          "id": {
+            "title": "Id",
             "type": "string"
           },
-          "tb": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "user": {
+            "title": "User",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
           }
         },
-        "x-module-name": "hopeit.server.errors",
-        "description": "\n    Error information to be returned in failed responses\n    "
-      },
-      "ContextUserInfo": {
-        "type": "object",
         "required": [
           "id",
           "user",
           "email"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "user": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          }
-        },
-        "x-module-name": "hopeit.basic_auth",
-        "description": "\n    User info that will be available in context during events execution\n    "
+        ]
       },
       "AuthInfo": {
+        "title": "AuthInfo",
+        "description": "Minimal auth info that should be returned outside this app",
         "type": "object",
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "token_type": {
+            "title": "Token Type",
+            "type": "string"
+          },
+          "renew": {
+            "title": "Renew",
+            "type": "integer"
+          }
+        },
         "required": [
           "access_token",
           "token_type",
           "renew"
-        ],
-        "properties": {
-          "access_token": {
-            "type": "string"
-          },
-          "token_type": {
-            "type": "string"
-          },
-          "renew": {
-            "type": "integer"
-          }
-        },
-        "x-module-name": "hopeit.basic_auth",
-        "description": "\n    Minimal auth info that should be returned outside this app\n    "
-      },
-      "RuntimeAppInfo": {
-        "type": "object",
-        "required": [
-          "servers",
-          "app_config",
-          "effective_events"
-        ],
-        "properties": {
-          "servers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ServerInfo"
-            }
-          },
-          "app_config": {
-            "$ref": "#/components/schemas/AppConfig"
-          },
-          "effective_events": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/EventDescriptor"
-            }
-          }
-        },
-        "x-module-name": "hopeit.config_manager",
-        "description": "\n    Application config information associated to servers at runtime\n    "
+        ]
       },
       "ServerInfo": {
+        "title": "ServerInfo",
+        "description": "Server info associated with runtime apps",
         "type": "object",
-        "required": [
-          "host_name",
-          "pid"
-        ],
         "properties": {
           "host_name": {
+            "title": "Host Name",
             "type": "string"
           },
           "pid": {
+            "title": "Pid",
             "type": "string"
           },
           "url": {
-            "type": "string",
-            "default": "in-process"
+            "title": "Url",
+            "default": "in-process",
+            "type": "string"
           }
         },
-        "x-module-name": "hopeit.config_manager",
-        "description": "\n    Server info associated with runtime apps\n    "
-      },
-      "AppConfig": {
-        "type": "object",
         "required": [
-          "app"
-        ],
-        "properties": {
-          "app": {
-            "$ref": "#/components/schemas/AppDescriptor"
-          },
-          "engine": {
-            "$ref": "#/components/schemas/AppEngineConfig",
-            "default": {
-              "import_modules": null,
-              "read_stream_timeout": 1000,
-              "read_stream_interval": 1000,
-              "default_stream_compression": "lz4",
-              "default_stream_serialization": "json+base64",
-              "track_headers": [
-                "track.request_id",
-                "track.request_ts"
-              ],
-              "cors_origin": null
-            }
-          },
-          "app_connections": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/AppConnection"
-            },
-            "default": {}
-          },
-          "env": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "additionalProperties": {
-                "anyOf": [
-                  {
-                    "type": "boolean"
-                  },
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "string"
-                  }
-                ]
-              }
-            },
-            "default": {}
-          },
-          "events": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/EventDescriptor"
-            },
-            "default": {}
-          },
-          "server": {
-            "$ref": "#/components/schemas/ServerConfig"
-          },
-          "plugins": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AppDescriptor"
-            },
-            "default": []
-          },
-          "settings": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object"
-            },
-            "default": {}
-          },
-          "effective_settings": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object"
-            }
-          }
-        },
-        "x-module-name": "hopeit.app.config",
-        "description": "\n    App Configuration container\n    "
+          "host_name",
+          "pid"
+        ]
       },
       "AppDescriptor": {
+        "title": "AppDescriptor",
+        "description": "App descriptor",
         "type": "object",
-        "required": [
-          "name",
-          "version"
-        ],
         "properties": {
           "name": {
+            "title": "Name",
             "type": "string"
           },
           "version": {
+            "title": "Version",
             "type": "string"
           }
         },
-        "x-module-name": "hopeit.app.config",
-        "description": "\n    App descriptor\n    "
+        "required": [
+          "name",
+          "version"
+        ]
+      },
+      "Compression": {
+        "title": "Compression",
+        "description": "Available compression algorithms and levels for event payloads.",
+        "enum": [
+          "none",
+          "lz4",
+          "lz4:0",
+          "lz4:16",
+          "zip",
+          "zip:1",
+          "zip:9",
+          "gzip",
+          "gzip:1",
+          "gzip:9",
+          "bz2",
+          "bz2:1",
+          "bz2:9",
+          "lzma"
+        ],
+        "type": "string"
+      },
+      "Serialization": {
+        "title": "Serialization",
+        "description": "Available serialization methods for event payloads.",
+        "enum": [
+          "json",
+          "json+base64"
+        ],
+        "type": "string"
       },
       "AppEngineConfig": {
+        "title": "AppEngineConfig",
+        "description": "Engine specific parameters shared among events\n\n:field import_modules: list of string with the python module names to import to find\n    events and datatype implementations\n:field read_stream_timeout: timeout in milliseconds to block connection pool when waiting for stream events\n:field read_stream_interval: delay in milliseconds to wait before attempting a new batch. Use to prevent\n    connection pool to be blocked constantly.\n:track_headers: list of required X-Track-* headers\n:cors_origin: allowed CORS origin for web server",
         "type": "object",
         "properties": {
           "import_modules": {
+            "title": "Import Modules",
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "read_stream_timeout": {
-            "type": "integer",
-            "default": 1000
+            "title": "Read Stream Timeout",
+            "default": 1000,
+            "type": "integer"
           },
           "read_stream_interval": {
-            "type": "integer",
-            "default": 1000
+            "title": "Read Stream Interval",
+            "default": 1000,
+            "type": "integer"
           },
           "default_stream_compression": {
-            "type": "string",
-            "enum": [
-              "none",
-              "lz4",
-              "lz4:0",
-              "lz4:16",
-              "zip",
-              "zip:1",
-              "zip:9",
-              "gzip",
-              "gzip:1",
-              "gzip:9",
-              "bz2",
-              "bz2:1",
-              "bz2:9",
-              "lzma"
-            ],
-            "x-enum-name": "Compression",
-            "x-module-name": "hopeit.app.config",
-            "default": "lz4"
+            "default": "lz4",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Compression"
+              }
+            ]
           },
           "default_stream_serialization": {
-            "type": "string",
-            "enum": [
-              "json",
-              "json+base64",
-              "pickle:3",
-              "pickle:4",
-              "pickle:5"
-            ],
-            "x-enum-name": "Serialization",
-            "x-module-name": "hopeit.app.config",
-            "default": "json+base64"
+            "default": "json+base64",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Serialization"
+              }
+            ]
           },
           "track_headers": {
+            "title": "Track Headers",
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "default": []
+            }
           },
           "cors_origin": {
+            "title": "Cors Origin",
             "type": "string"
           }
-        },
-        "x-module-name": "hopeit.app.config",
-        "description": "\n    Engine specific parameters shared among events\n\n    :field import_modules: list of string with the python module names to import to find\n        events and datatype implementations\n    :field read_stream_timeout: timeout in milliseconds to block connection pool when waiting for stream events\n    :field read_stream_interval: delay in milliseconds to wait before attempting a new batch. Use to prevent\n        connection pool to be blocked constantly.\n    :track_headers: list of required X-Track-* headers\n    :cors_origin: allowed CORS origin for web server\n    "
+        }
       },
       "AppConnection": {
+        "title": "AppConnection",
+        "description": "AppConnections: metadata to initialize app client in order to connect\nand issue requests to other running apps\n\n:field: name, str: target app name to connect to\n:field: version, str: target app version\n:field: client, str: hopeit.app.client.Client class implementation, from available client plugins\n:field: settings, optional str: key under `settings` section of app config containing connection configuration,\n    if not specified, plugin will lookup its default section usually the plugin name. But in case multiple\n    clients need to be configured, this value can be overridden.",
         "type": "object",
-        "required": [
-          "name",
-          "version"
-        ],
         "properties": {
           "name": {
+            "title": "Name",
             "type": "string"
           },
           "version": {
+            "title": "Version",
             "type": "string"
           },
           "client": {
-            "type": "string",
-            "default": "<<NO CLIENT CONFIGURED>>"
+            "title": "Client",
+            "default": "<<NO CLIENT CONFIGURED>>",
+            "type": "string"
           },
           "settings": {
+            "title": "Settings",
             "type": "string"
           },
           "plugin_name": {
+            "title": "Plugin Name",
             "type": "string"
           },
           "plugin_version": {
+            "title": "Plugin Version",
             "type": "string"
           }
         },
-        "x-module-name": "hopeit.app.config",
-        "description": "\n    AppConnections: metadata to initialize app client in order to connect\n    and issue requests to other running apps\n\n    :field: name, str: target app name to connect to\n    :field: version, str: target app version\n    :field: client, str: hopeit.app.client.Client class implementation, from available client plugins\n    :field: settings, optional str: key under `settings` section of app config containing connection configuration,\n        if not specified, plugin will lookup its default section usually the plugin name. But in case multiple\n        clients need to be configured, this value can be overridden.\n    "
+        "required": [
+          "name",
+          "version"
+        ]
+      },
+      "EventType": {
+        "title": "EventType",
+        "description": "Supported event types\n\nGET: event triggered from api get endpoint\nPOST: event triggered from api post endpoint\nSTREAM: event triggered read events from stream. Can be started and stopped.\nSERVICE: event executed on demand or continuously. Long lived. Can be started and stopped.\nMULTIPART: event triggered from api postform-multipart request via endpoint.",
+        "enum": [
+          "GET",
+          "POST",
+          "STREAM",
+          "SERVICE",
+          "MULTIPART"
+        ],
+        "type": "string"
+      },
+      "EventPlugMode": {
+        "title": "EventPlugMode",
+        "description": "Defines how an event route is plugged into apps when\nit is used as a plugin.\n\nSTANDALONE: The event is added as a normal route where it is defined. Not added to apps.\nON_APP: The event route is added only to app routes where it is used as a plugin.",
+        "enum": [
+          "Standalone",
+          "OnApp"
+        ],
+        "type": "string"
+      },
+      "EventConnectionType": {
+        "title": "EventConnectionType",
+        "description": "Event connection type",
+        "enum": [
+          "GET",
+          "POST"
+        ],
+        "type": "string"
+      },
+      "EventConnection": {
+        "title": "EventConnection",
+        "description": "EventConnection: describes dependencies on this event when calling\nevent on apps configured in `app_connections` sections. Only events\nspecified are allowed to be invoked using `hopeit.client`\n\n:field: app_connection, str: key of app entry used in app_connections sections\n:field: event, str: target event_name to be called\n:filed: type, EventConnectionType: a valid event connection type, i.e. GET or POST\n:field: route, optional str: custom route in case event is not attached to default `app/version/event`",
+        "type": "object",
+        "properties": {
+          "app_connection": {
+            "title": "App Connection",
+            "type": "string"
+          },
+          "event": {
+            "title": "Event",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EventConnectionType"
+          }
+        },
+        "required": [
+          "app_connection",
+          "event",
+          "type"
+        ]
+      },
+      "ReadStreamDescriptor": {
+        "title": "ReadStreamDescriptor",
+        "description": "Configuration to read streams\n\n:field stream_name: str, base stream name to read\n:consumer_group: str, consumer group to send to stream processing engine to keep track of\n    next messag to consume\n:queues: List[str], list of queue names to poll from. Each queue act as separate stream\n    with queue name used as stream name suffix, where `AUTO` queue name means to consume\n    events when no queue where specified at publish time, allowing to consume message with different\n    priorities without waiting for all events in the stream to be consumed.\n    Queues specified in this entry will be consumed by this event\n    on each poll cycle, on the order specified. If not present\n    only AUTO queue will be consumed. Take into account that in applications using multiple\n    queue names, in order to ensure all messages are consumed, all queue names should be listed\n    here including AUTO, except that the app is intentionally designed for certain events to\n    consume only from specific queues. This configuration is manual to allow consuming messages\n    produced by external apps.",
+        "type": "object",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "consumer_group": {
+            "title": "Consumer Group",
+            "type": "string"
+          },
+          "queues": {
+            "title": "Queues",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "consumer_group"
+        ]
+      },
+      "StreamQueueStrategy": {
+        "title": "StreamQueueStrategy",
+        "description": "Different strategies to be used when reading streams from a queue and writing to another stream.\n\n:field PROPAGATE: original queue name will be preserved, so messages consumed from a queue will\n    maintain that queue name when published\n:field DROP: queue name will be dropped, so messages will be published only to queue specified in\n    `write_stream` configuration, or default queue if not specified.",
+        "enum": [
+          "PROPAGATE",
+          "DROP"
+        ],
+        "type": "string"
+      },
+      "WriteStreamDescriptor": {
+        "title": "WriteStreamDescriptor",
+        "description": "Configuration to publish messages to a stream\n\n:field: name, str: stream name\n:field: queue, List[str], queue names to be used to publish to stream.\n    Each queue act as separate stream with queue name used as stream name suffix,\n    allowing to publish messages to i.e. a queue that will be consumed with priority,\n    or to multiple queues that will be consumed by different readers.\n    Queue suffix will be propagated through events, allowing an event in a defined queue\n    and successive events in following steps to be consumed using same queue name.\n    Notice that queue will be applied only to messages coming from default queue\n    (where queue is not specified at intial message creation). Messages consumed\n    from other queues will be published using same queue name as they have when consumed.\n:field queue_stategory: strategy to be used when consuming messages from a stream\n    with a queue name and publishing to another stream. Default is `StreamQueueStrategy.DROP`,\n    so in case of complex stream propagating queue names are configured,\n    `StreamQueueStrategy.PROPAGATE` must be explicitly specified.",
+        "type": "object",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "queues": {
+            "title": "Queues",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "queue_strategy": {
+            "default": "DROP",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StreamQueueStrategy"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "AuthType": {
+        "title": "AuthType",
+        "description": "Supported Authorization/Authentication types",
+        "enum": [
+          "Unsecured",
+          "Basic",
+          "Bearer",
+          "Refresh"
+        ],
+        "type": "string"
       },
       "EventDescriptor": {
+        "title": "EventDescriptor",
+        "description": "Event Descriptor: configures event implementation\n\n:field: type, EventType: type of event i.e.: GET, POST, MULTIPART, STREAM, SERVICE\n:field: plug_mode, EventPlugMode: defines whether an event defined in a plugin is created in the\n    current app (ON_APP) or it will be created in the original plugin (STANDALONE, default)\n:field: route, optional str: custom route for endpoint. If not specified route will be derived\n    from `/api/app_name/app_version/event_name`\n:field: impl, optional str: custom event implementation Python module. If not specified, module\n    with same same as event will be imported.\n:field: connections, list of EventConnection: specifies dependencies on other apps/endpoints,\n    that can be used by client plugins to call events on external apps\n:field: read_stream, optional ReadStreamDescriptor: specifies source stream to read from.\n    Valid only for STREAM events.\n:field: write_stream, optional WriteStreamDescriptor: for any type of events, resultant dataobjects will\n    be published to the specified stream.\n:field: auth, list of AuthType: supported authentication schemas for this event. If not specified\n    application default will be used.\n:field: setting_keys, list of str: by default EventContext will have access to the settings section\n    with the same name of the event using `settings = context.settings(datatype=MySettingsType)`.\n    In case additional sections are needed to be accessed from\n    EventContext, then a list of setting keys, including the name of the event if needed,\n    can be specified here. Then access to a `custom` key can be done using\n    `custom_settings = context.settings(key=\"customer\", datatype=MyCustomSettingsType)`\n:field: dataobjects, list of str: list of full qualified dataobject types that this event can process.\n    When not specified, the engine will inspect the module implementation and find all datatypes supported\n    as payload in the functions defined as `__steps__`. In case of generic functions that support\n    `payload: DataObject` argument, then a list of full qualified datatypes must be specified here.\n:field: group, str: group name, if none is assigned it is automatically assigned as 'DEFAULT'.",
         "type": "object",
-        "required": [
-          "type"
-        ],
         "properties": {
           "type": {
-            "type": "string",
-            "enum": [
-              "GET",
-              "POST",
-              "STREAM",
-              "SERVICE",
-              "MULTIPART"
-            ],
-            "x-enum-name": "EventType",
-            "x-module-name": "hopeit.app.config"
+            "$ref": "#/components/schemas/EventType"
           },
           "plug_mode": {
-            "type": "string",
-            "enum": [
-              "Standalone",
-              "OnApp"
-            ],
-            "x-enum-name": "EventPlugMode",
-            "x-module-name": "hopeit.app.config",
-            "default": "Standalone"
+            "default": "Standalone",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EventPlugMode"
+              }
+            ]
           },
           "route": {
+            "title": "Route",
             "type": "string"
           },
           "impl": {
+            "title": "Impl",
             "type": "string"
           },
           "connections": {
+            "title": "Connections",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/EventConnection"
-            },
-            "default": []
+            }
           },
           "read_stream": {
             "$ref": "#/components/schemas/ReadStreamDescriptor"
@@ -1893,269 +1911,272 @@
           "auth": {
             "type": "array",
             "items": {
-              "type": "string",
-              "enum": [
-                "Unsecured",
-                "Basic",
-                "Bearer",
-                "Refresh"
-              ],
-              "x-enum-name": "AuthType",
-              "x-module-name": "hopeit.server.config"
-            },
-            "default": []
+              "$ref": "#/components/schemas/AuthType"
+            }
           },
           "setting_keys": {
+            "title": "Setting Keys",
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "default": []
+            }
           },
           "dataobjects": {
+            "title": "Dataobjects",
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "default": []
+            }
           },
           "group": {
-            "type": "string",
-            "default": "DEFAULT"
+            "title": "Group",
+            "default": "DEFAULT",
+            "type": "string"
           }
         },
-        "x-module-name": "hopeit.app.config",
-        "description": "\n    Event Descriptor: configures event implementation\n\n    :field: type, EventType: type of event i.e.: GET, POST, MULTIPART, STREAM, SERVICE\n    :field: plug_mode, EventPlugMode: defines whether an event defined in a plugin is created in the\n        current app (ON_APP) or it will be created in the original plugin (STANDALONE, default)\n    :field: route, optional str: custom route for endpoint. If not specified route will be derived\n        from `/api/app_name/app_version/event_name`\n    :field: impl, optional str: custom event implementation Python module. If not specified, module\n        with same same as event will be imported.\n    :field: connections, list of EventConnection: specifies dependencies on other apps/endpoints,\n        that can be used by client plugins to call events on external apps\n    :field: read_stream, optional ReadStreamDescriptor: specifies source stream to read from.\n        Valid only for STREAM events.\n    :field: write_stream, optional WriteStreamDescriptor: for any type of events, resultant dataobjects will\n        be published to the specified stream.\n    :field: auth, list of AuthType: supported authentication schemas for this event. If not specified\n        application default will be used.\n    :field: setting_keys, list of str: by default EventContext will have access to the settings section\n        with the same name of the event using `settings = context.settings(datatype=MySettingsType)`.\n        In case additional sections are needed to be accessed from\n        EventContext, then a list of setting keys, including the name of the event if needed,\n        can be specified here. Then access to a `custom` key can be done using\n        `custom_settings = context.settings(key=\"customer\", datatype=MyCustomSettingsType)`\n    :field: dataobjects, list of str: list of full qualified dataobject types that this event can process.\n        When not specified, the engine will inspect the module implementation and find all datatypes supported\n        as payload in the functions defined as `__steps__`. In case of generic functions that support\n        `payload: DataObject` argument, then a list of full qualified datatypes must be specified here.\n    :field: group, str: group name, if none is assigned it is automatically assigned as 'DEFAULT'.\n    "
-      },
-      "EventConnection": {
-        "type": "object",
         "required": [
-          "app_connection",
-          "event",
           "type"
-        ],
-        "properties": {
-          "app_connection": {
-            "type": "string"
-          },
-          "event": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "GET",
-              "POST"
-            ],
-            "x-enum-name": "EventConnectionType",
-            "x-module-name": "hopeit.app.config"
-          }
-        },
-        "x-module-name": "hopeit.app.config",
-        "description": "\n    EventConnection: describes dependencies on this event when calling\n    event on apps configured in `app_connections` sections. Only events\n    specified are allowed to be invoked using `hopeit.client`\n\n    :field: app_connection, str: key of app entry used in app_connections sections\n    :field: event, str: target event_name to be called\n    :filed: type, EventConnectionType: a valid event connection type, i.e. GET or POST\n    :field: route, optional str: custom route in case event is not attached to default `app/version/event`\n    "
-      },
-      "ReadStreamDescriptor": {
-        "type": "object",
-        "required": [
-          "name",
-          "consumer_group"
-        ],
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "consumer_group": {
-            "type": "string"
-          },
-          "queues": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": [
-              "AUTO"
-            ]
-          }
-        },
-        "x-module-name": "hopeit.app.config",
-        "description": "\n    Configuration to read streams\n\n    :field stream_name: str, base stream name to read\n    :consumer_group: str, consumer group to send to stream processing engine to keep track of\n        next messag to consume\n    :queues: List[str], list of queue names to poll from. Each queue act as separate stream\n        with queue name used as stream name suffix, where `AUTO` queue name means to consume\n        events when no queue where specified at publish time, allowing to consume message with different\n        priorities without waiting for all events in the stream to be consumed.\n        Queues specified in this entry will be consumed by this event\n        on each poll cycle, on the order specified. If not present\n        only AUTO queue will be consumed. Take into account that in applications using multiple\n        queue names, in order to ensure all messages are consumed, all queue names should be listed\n        here including AUTO, except that the app is intentionally designed for certain events to\n        consume only from specific queues. This configuration is manual to allow consuming messages\n        produced by external apps.\n    "
-      },
-      "WriteStreamDescriptor": {
-        "type": "object",
-        "required": [
-          "name"
-        ],
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "queues": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": [
-              "AUTO"
-            ]
-          },
-          "queue_strategy": {
-            "type": "string",
-            "enum": [
-              "PROPAGATE",
-              "DROP"
-            ],
-            "x-enum-name": "StreamQueueStrategy",
-            "x-module-name": "hopeit.app.config",
-            "default": "DROP"
-          }
-        },
-        "x-module-name": "hopeit.app.config",
-        "description": "\n    Configuration to publish messages to a stream\n\n    :field: name, str: stream name\n    :field: queue, List[str], queue names to be used to publish to stream.\n        Each queue act as separate stream with queue name used as stream name suffix,\n        allowing to publish messages to i.e. a queue that will be consumed with priority,\n        or to multiple queues that will be consumed by different readers.\n        Queue suffix will be propagated through events, allowing an event in a defined queue\n        and successive events in following steps to be consumed using same queue name.\n        Notice that queue will be applied only to messages coming from default queue\n        (where queue is not specified at intial message creation). Messages consumed\n        from other queues will be published using same queue name as they have when consumed.\n    :field queue_stategory: strategy to be used when consuming messages from a stream\n        with a queue name and publishing to another stream. Default is `StreamQueueStrategy.DROP`,\n        so in case of complex stream propagating queue names are configured,\n        `StreamQueueStrategy.PROPAGATE` must be explicitly specified.\n    "
-      },
-      "ServerConfig": {
-        "type": "object",
-        "properties": {
-          "streams": {
-            "$ref": "#/components/schemas/StreamsConfig",
-            "default": {
-              "stream_manager": "hopeit.streams.NoStreamManager",
-              "connection_str": "<<NoStreamManager>>",
-              "delay_auto_start_seconds": 3
-            }
-          },
-          "logging": {
-            "$ref": "#/components/schemas/LoggingConfig",
-            "default": {
-              "log_level": "INFO",
-              "log_path": "logs/"
-            }
-          },
-          "auth": {
-            "$ref": "#/components/schemas/AuthConfig",
-            "default": {
-              "secrets_location": ".secrets/",
-              "auth_passphrase": "",
-              "enabled": false,
-              "create_keys": false,
-              "domain": null,
-              "encryption_algorithm": "RS256",
-              "default_auth_methods": [
-                "Unsecured"
-              ]
-            }
-          },
-          "api": {
-            "$ref": "#/components/schemas/APIConfig",
-            "default": {
-              "docs_path": null
-            }
-          },
-          "engine_version": {
-            "type": "string",
-            "default": "0.16.7"
-          }
-        },
-        "x-module-name": "hopeit.server.config",
-        "description": "\n    Server configuration\n    "
+        ]
       },
       "StreamsConfig": {
+        "title": "StreamsConfig",
+        "description": ":field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379",
         "type": "object",
         "properties": {
           "stream_manager": {
-            "type": "string",
-            "default": "hopeit.streams.NoStreamManager"
+            "title": "Stream Manager",
+            "default": "hopeit.streams.NoStreamManager",
+            "type": "string"
           },
           "connection_str": {
-            "type": "string",
-            "default": "<<NoStreamManager>>"
+            "title": "Connection Str",
+            "default": "<<NoStreamManager>>",
+            "type": "string"
           },
           "delay_auto_start_seconds": {
-            "type": "integer",
-            "default": 3
+            "title": "Delay Auto Start Seconds",
+            "default": 3,
+            "type": "integer"
           }
-        },
-        "x-module-name": "hopeit.server.config",
-        "description": "\n    :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    "
+        }
       },
       "LoggingConfig": {
+        "title": "LoggingConfig",
         "type": "object",
         "properties": {
           "log_level": {
-            "type": "string",
-            "default": "INFO"
+            "title": "Log Level",
+            "default": "INFO",
+            "type": "string"
           },
           "log_path": {
-            "type": "string",
-            "default": "logs/"
+            "title": "Log Path",
+            "default": "logs/",
+            "type": "string"
           }
-        },
-        "x-module-name": "hopeit.server.config",
-        "description": "LoggingConfig(log_level: str = 'INFO', log_path: str = 'logs/')"
+        }
       },
       "AuthConfig": {
+        "title": "AuthConfig",
+        "description": "Server configuration to handle authorization tokens",
         "type": "object",
-        "required": [
-          "secrets_location",
-          "auth_passphrase"
-        ],
         "properties": {
           "secrets_location": {
+            "title": "Secrets Location",
             "type": "string"
           },
           "auth_passphrase": {
+            "title": "Auth Passphrase",
             "type": "string"
           },
           "enabled": {
-            "type": "boolean",
-            "default": true
+            "title": "Enabled",
+            "default": true,
+            "type": "boolean"
           },
           "create_keys": {
-            "type": "boolean",
-            "default": false
+            "title": "Create Keys",
+            "default": false,
+            "type": "boolean"
           },
           "domain": {
+            "title": "Domain",
             "type": "string"
           },
           "encryption_algorithm": {
-            "type": "string",
-            "default": "RS256"
+            "title": "Encryption Algorithm",
+            "default": "RS256",
+            "type": "string"
           },
           "default_auth_methods": {
             "type": "array",
             "items": {
-              "type": "string",
-              "enum": [
-                "Unsecured",
-                "Basic",
-                "Bearer",
-                "Refresh"
-              ],
-              "x-enum-name": "AuthType",
-              "x-module-name": "hopeit.server.config"
-            },
-            "default": []
+              "$ref": "#/components/schemas/AuthType"
+            }
           }
         },
-        "x-module-name": "hopeit.server.config",
-        "description": "\n    Server configuration to handle authorization tokens\n    "
+        "required": [
+          "secrets_location",
+          "auth_passphrase"
+        ]
       },
       "APIConfig": {
+        "title": "APIConfig",
+        "description": "Config for Open API docs page",
         "type": "object",
         "properties": {
           "docs_path": {
+            "title": "Docs Path",
             "type": "string"
           }
+        }
+      },
+      "ServerConfig": {
+        "title": "ServerConfig",
+        "description": "Server configuration",
+        "type": "object",
+        "properties": {
+          "streams": {
+            "$ref": "#/components/schemas/StreamsConfig"
+          },
+          "logging": {
+            "$ref": "#/components/schemas/LoggingConfig"
+          },
+          "auth": {
+            "$ref": "#/components/schemas/AuthConfig"
+          },
+          "api": {
+            "$ref": "#/components/schemas/APIConfig"
+          },
+          "engine_version": {
+            "title": "Engine Version",
+            "default": "0.20.0",
+            "type": "string"
+          }
+        }
+      },
+      "AppConfig": {
+        "title": "AppConfig",
+        "description": "App Configuration container",
+        "type": "object",
+        "properties": {
+          "app": {
+            "$ref": "#/components/schemas/AppDescriptor"
+          },
+          "engine": {
+            "$ref": "#/components/schemas/AppEngineConfig"
+          },
+          "app_connections": {
+            "title": "App Connections",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AppConnection"
+            }
+          },
+          "env": {
+            "title": "Env",
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              }
+            }
+          },
+          "events": {
+            "title": "Events",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EventDescriptor"
+            }
+          },
+          "server": {
+            "$ref": "#/components/schemas/ServerConfig"
+          },
+          "plugins": {
+            "title": "Plugins",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AppDescriptor"
+            }
+          },
+          "settings": {
+            "title": "Settings",
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "effective_settings": {
+            "title": "Effective Settings",
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
         },
-        "x-module-name": "hopeit.server.config",
-        "description": "\n    Config for Open API docs page\n    "
+        "required": [
+          "app"
+        ]
+      },
+      "RuntimeAppInfo": {
+        "title": "RuntimeAppInfo",
+        "description": "Application config information associated to servers at runtime",
+        "type": "object",
+        "properties": {
+          "servers": {
+            "title": "Servers",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServerInfo"
+            }
+          },
+          "app_config": {
+            "$ref": "#/components/schemas/AppConfig"
+          },
+          "effective_events": {
+            "title": "Effective Events",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EventDescriptor"
+            }
+          }
+        },
+        "required": [
+          "servers",
+          "app_config",
+          "effective_events"
+        ]
+      },
+      "ServerStatus": {
+        "title": "ServerStatus",
+        "description": "An enumeration.",
+        "enum": [
+          "ALIVE",
+          "ERROR"
+        ],
+        "type": "string"
       },
       "RuntimeApps": {
+        "title": "RuntimeApps",
+        "description": "Combined App Config and Server Status information for running apps",
         "type": "object",
-        "required": [
-          "apps"
-        ],
         "properties": {
           "apps": {
+            "title": "Apps",
             "type": "object",
             "additionalProperties": {
               "$ref": "#/components/schemas/RuntimeAppInfo"
@@ -2164,71 +2185,70 @@
           "server_status": {
             "type": "object",
             "additionalProperties": {
-              "type": "string",
-              "enum": [
-                "ALIVE",
-                "ERROR"
-              ],
-              "x-enum-name": "ServerStatus",
-              "x-module-name": "hopeit.config_manager"
-            },
-            "default": {}
+              "$ref": "#/components/schemas/ServerStatus"
+            }
           }
         },
-        "x-module-name": "hopeit.config_manager",
-        "description": "\n    Combined App Config and Server Status information for running apps\n    "
+        "required": [
+          "apps"
+        ]
       },
       "User": {
+        "title": "User",
+        "description": "User information",
         "type": "object",
-        "required": [
-          "id",
-          "name"
-        ],
         "properties": {
           "id": {
+            "title": "Id",
             "type": "string"
           },
           "name": {
+            "title": "Name",
             "type": "string"
           }
         },
-        "x-module-name": "model",
-        "description": "User information"
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "StatusType": {
+        "title": "StatusType",
+        "description": "An enumeration.",
+        "enum": [
+          "NEW",
+          "LOADED",
+          "SUBMITTED",
+          "PROCESSED"
+        ],
+        "type": "string"
       },
       "Status": {
+        "title": "Status",
+        "description": "Status change",
         "type": "object",
-        "required": [
-          "ts",
-          "type"
-        ],
         "properties": {
           "ts": {
+            "title": "Ts",
             "type": "string",
             "format": "date-time"
           },
           "type": {
-            "type": "string",
-            "enum": [
-              "NEW",
-              "LOADED",
-              "SUBMITTED",
-              "PROCESSED"
-            ],
-            "x-enum-name": "StatusType",
-            "x-module-name": "model"
+            "$ref": "#/components/schemas/StatusType"
           }
         },
-        "x-module-name": "model",
-        "description": "Status change"
+        "required": [
+          "ts",
+          "type"
+        ]
       },
       "Something": {
+        "title": "Something",
+        "description": "Example Something event",
         "type": "object",
-        "required": [
-          "id",
-          "user"
-        ],
         "properties": {
           "id": {
+            "title": "Id",
             "type": "string"
           },
           "user": {
@@ -2238,70 +2258,79 @@
             "$ref": "#/components/schemas/Status"
           },
           "history": {
+            "title": "History",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Status"
-            },
-            "default": []
+            }
           }
         },
-        "x-module-name": "model",
-        "description": "Example Something event"
-      },
-      "SomethingNotFound": {
-        "type": "object",
-        "required": [
-          "path",
-          "id"
-        ],
-        "properties": {
-          "path": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          }
-        },
-        "x-module-name": "model",
-        "description": "Item not found in datastore"
-      },
-      "SomethingParams": {
-        "type": "object",
         "required": [
           "id",
           "user"
-        ],
+        ]
+      },
+      "SomethingNotFound": {
+        "title": "SomethingNotFound",
+        "description": "Item not found in datastore",
+        "type": "object",
+        "properties": {
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "id"
+        ]
+      },
+      "SomethingParams": {
+        "title": "SomethingParams",
+        "description": "Params to create and save Something",
+        "type": "object",
         "properties": {
           "id": {
+            "title": "Id",
             "type": "string"
           },
           "user": {
+            "title": "User",
             "type": "string"
           }
         },
-        "x-module-name": "model",
-        "description": "Params to create and save Something"
+        "required": [
+          "id",
+          "user"
+        ]
       },
       "ItemsInfo": {
+        "title": "ItemsInfo",
+        "description": "Items to read concurrently",
         "type": "object",
-        "required": [
-          "item1_id",
-          "item2_id"
-        ],
         "properties": {
           "item1_id": {
+            "title": "Item1 Id",
             "type": "string"
           },
           "item2_id": {
+            "title": "Item2 Id",
             "type": "string"
           },
           "partition_key": {
-            "type": "string",
-            "default": ""
+            "title": "Partition Key",
+            "default": "",
+            "type": "string"
           }
         },
-        "x-module-name": "model",
-        "description": "\n    Items to read concurrently\n    "
+        "required": [
+          "item1_id",
+          "item2_id"
+        ]
       }
     },
     "securitySchemes": {
@@ -2313,10 +2342,10 @@
         "type": "http",
         "scheme": "bearer"
       },
-      "simple_example.0x16.refresh": {
+      "simple_example.0x20.refresh": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "simple_example.0x16.refresh"
+        "name": "simple_example.0x20.refresh"
       }
     }
   },

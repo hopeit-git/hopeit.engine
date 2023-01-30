@@ -5,7 +5,6 @@ Use `hopeit.app.events` `collector_step(...)` constructor to define steps implem
 """
 import asyncio
 from typing import Callable, Dict, Any, Tuple, Optional, Coroutine
-from hopeit.dataobjects import copy_payload
 
 from hopeit.app.context import EventContext
 
@@ -73,12 +72,12 @@ class AsyncCollector(AbstractCollector):
         In case name is 'payload', returns collector input without blocking.
         """
         if name == 'payload':
-            return copy_payload(self.payload)
+            return self.payload
         assert self.executed, "Collector not executed. Call collector.run(...) before accessing results."
         item = self.items[name]
         await item.lock.acquire()
         try:
-            return copy_payload(item.data)
+            return item.data
         finally:
             if not lock:
                 item.lock.release()

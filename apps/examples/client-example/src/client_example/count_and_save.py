@@ -11,7 +11,7 @@ from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.client import app_call, app_call_list
 from hopeit.basic_auth import AuthInfo
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataobject
 from hopeit.toolkit import auth
 from hopeit.server.web import Unauthorized
 
@@ -34,7 +34,6 @@ logger, extra = app_extra_logger()
 
 
 @dataobject
-@dataclass
 class ListOptions:
     wildcard: str
 

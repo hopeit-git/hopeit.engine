@@ -150,4 +150,4 @@ def get_runtime_settings(app_config: AppConfig, plugins: List[AppConfig]) -> Dic
 
 def get_event_settings(settings: Dict[str, Any], event_name: str) -> EventSettings:
     data = settings[event_name.split('$')[0]]  # Removes auto-generated event suffixes
-    return EventSettings.from_dict(data, validate=False)  # type: ignore
+    return EventSettings.parse_obj(data)  # type: ignore

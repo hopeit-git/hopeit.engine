@@ -6,14 +6,13 @@ from collections import defaultdict, deque
 from datetime import datetime, timedelta, timezone
 
 from hopeit.app.context import EventContext
-from hopeit.dataobjects import dataclass, dataobject
+from hopeit.dataobjects import dataobject
 from hopeit.server.names import auto_path
 
 from hopeit.log_streamer import LogBatch, LogEntry
 
 
 @dataobject
-@dataclass
 class EventStats:
     started: int = 0
     done: int = 0

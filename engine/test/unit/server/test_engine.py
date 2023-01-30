@@ -73,8 +73,8 @@ def setup_mocks(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_execute(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -128,8 +128,8 @@ async def test_execute_plugin(monkeypatch, mock_app_config, mock_plugin_config):
 @pytest.mark.asyncio
 async def test_execute_provided_request_id(
         monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     track_ids = {
         "track.request_id": "test_request_id",
         "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
@@ -153,8 +153,8 @@ async def test_execute_provided_request_id(
 
 @pytest.mark.asyncio
 async def test_read_stream(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     from mock_app import mock_event_dataobject_payload
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
@@ -169,7 +169,7 @@ async def test_read_stream(monkeypatch, mock_app_config, mock_plugin_config):  #
 
 @pytest.mark.asyncio
 async def test_read_stream_dataobject_payload(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
-    payload = MockData("ok")
+    payload = MockData(value="ok")
     expected = """{"value": "ok"}"""
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
@@ -186,8 +186,8 @@ async def test_read_stream_dataobject_payload(monkeypatch, mock_app_config, mock
 async def test_read_write_stream_auto_queue(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -212,8 +212,8 @@ async def test_read_write_stream_auto_queue(
 async def test_read_write_stream_propagate_queue(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -241,8 +241,8 @@ async def test_read_write_stream_propagate_queue(
 async def test_read_write_stream_drop_queue(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -270,8 +270,8 @@ async def test_read_write_stream_drop_queue(
 async def test_read_write_stream_new_queue(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -298,8 +298,8 @@ async def test_read_write_stream_new_queue(
 async def test_read_write_stream_new_queue_propagate_auto(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -328,8 +328,8 @@ async def test_read_write_stream_new_queue_propagate_auto(
 async def test_read_write_stream_new_queue_propagate(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -359,8 +359,8 @@ async def test_read_write_stream_new_queue_propagate(
 async def test_read_write_stream_new_queue_drop(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -390,8 +390,8 @@ async def test_read_write_stream_new_queue_drop(
 async def test_read_write_stream_multiple_queues(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -431,8 +431,8 @@ async def test_read_write_stream_multiple_queues(
 async def test_read_write_stream_multiple_queues_propagate(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -474,8 +474,8 @@ async def test_read_write_stream_multiple_queues_propagate(
 async def test_read_write_stream_multiple_queues_propagate_AUTO(
     monkeypatch, mock_app_config, mock_plugin_config  # noqa: F811
 ):
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -516,7 +516,7 @@ async def test_read_write_stream_multiple_queues_propagate_AUTO(
 @pytest.mark.asyncio
 async def test_service_loop(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
     payload = "stream: service.0"
-    expected = MockData("stream: service.0")
+    expected = MockData(value="stream: service.0")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -531,8 +531,8 @@ async def test_service_loop(monkeypatch, mock_app_config, mock_plugin_config):  
 
 @pytest.mark.asyncio
 async def test_service_loop_timeout(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
-    payload = MockData("timeout")
-    expected = MockData("stream: service.1")
+    payload = MockData(value="timeout")
+    expected = MockData(value="stream: service.1")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -548,8 +548,8 @@ async def test_service_loop_timeout(monkeypatch, mock_app_config, mock_plugin_co
 
 @pytest.mark.asyncio
 async def test_read_stream_timeout_ok(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -562,8 +562,8 @@ async def test_read_stream_timeout_ok(monkeypatch, mock_app_config, mock_plugin_
 
 
 async def test_read_stream_timeout_fail(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
-    payload = MockData("timeout")
-    expected = MockResult("none")
+    payload = MockData(value="timeout")
+    expected = MockResult(value="none")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -579,8 +579,8 @@ async def test_read_stream_timeout_fail(monkeypatch, mock_app_config, mock_plugi
 async def test_read_stream_event_fail_and_process_next(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
     setup_mocks(monkeypatch)
 
-    payload = MockData("cancel")
-    expected = MockResult("none")
+    payload = MockData(value="cancel")
+    expected = MockResult(value="none")
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
@@ -589,8 +589,8 @@ async def test_read_stream_event_fail_and_process_next(monkeypatch, mock_app_con
     res = await engine.read_stream(event_name='mock_stream_timeout', test_mode=True)
     assert isinstance(res, asyncio.CancelledError)
 
-    payload = MockData("fail")
-    expected = MockResult("none")
+    payload = MockData(value="fail")
+    expected = MockResult(value="none")
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
@@ -599,8 +599,8 @@ async def test_read_stream_event_fail_and_process_next(monkeypatch, mock_app_con
     res = await engine.read_stream(event_name='mock_stream_timeout', test_mode=True)
     assert isinstance(res, ValueError)
 
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
@@ -612,8 +612,8 @@ async def test_read_stream_event_fail_and_process_next(monkeypatch, mock_app_con
 
 @pytest.mark.asyncio
 async def test_read_stream_stop_and_recover(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -628,7 +628,7 @@ async def test_read_stream_stop_and_recover(monkeypatch, mock_app_config, mock_p
 
 @pytest.mark.asyncio
 async def test_read_stream_failed(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
-    payload = MockData("fail")
+    payload = MockData(value="fail")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', None)
@@ -644,8 +644,8 @@ async def test_read_stream_failed(monkeypatch, mock_app_config, mock_plugin_conf
 
 @pytest.mark.asyncio
 async def test_write_stream(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
-    payload = MockData("ok")
-    expected = MockResult("ok: ok")
+    payload = MockData(value="ok")
+    expected = MockResult(value="ok: ok")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)
@@ -674,7 +674,7 @@ async def test_write_stream(monkeypatch, mock_app_config, mock_plugin_config):  
 @pytest.mark.asyncio
 async def test_write_stream_batch(monkeypatch, mock_app_config, mock_plugin_config):  # noqa: F811
     payload = "ok"
-    expected = MockData("stream: ok.3")
+    expected = MockData(value="stream: ok.3")
     setup_mocks(monkeypatch)
     monkeypatch.setattr(MockEventHandler, 'input_payload', payload)
     monkeypatch.setattr(MockEventHandler, 'expected_result', expected)

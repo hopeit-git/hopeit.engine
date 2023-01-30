@@ -1,60 +1,56 @@
 from datetime import datetime
+from typing import Optional
 
-from hopeit.dataobjects import dataobject, dataclass
+from pydantic import StrictStr
+from hopeit.dataobjects import dataobject
 
 
 @dataobject
-@dataclass
 class MockNested:
     ts: datetime
 
 
 @dataobject(event_id='id', event_ts='nested.ts')
-@dataclass
 class MockData:
     id: str
     value: str
     nested: MockNested
 
 
+@dataobject(event_id='id', event_ts='nested.ts')
+class MockDataStrict:
+    id: StrictStr
+    value: str
+    nested: MockNested
+
+
 @dataobject(event_id='id')
-@dataclass
 class MockDataWithoutTs:
     id: str
     value: str
 
 
 @dataobject
-@dataclass
 class MockDataWithAutoEventId:
     value: str
 
 
+# TODO: review if needed
 @dataobject
-@dataclass(frozen=True)
-class MockDataImmutable:
+class MockDataFrozen:
+    class Config:
+        allow_mutation = False
     id: str
-    value: str
-    nested: MockNested
-
-
-@dataobject(unsafe=True)
-@dataclass
-class MockDataUnsafe:
-    id: str
-    value: str
-    nested: MockNested
+    value: int
 
 
 @dataobject
-@dataclass
 class MockDataValidate:
-    id: str
+    id: StrictStr
     value: int
 
 
-@dataobject(validate=False)
-@dataclass
-class MockDataDoNotValidate:
+@dataobject
+class MockDataOptional:
     id: str
-    value: int
+    value: Optional[int]

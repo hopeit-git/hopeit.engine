@@ -32,10 +32,6 @@ class MockField:
             return self._value
         raise TypeError("field value must be dict")
 
-    def __repr__(self):
-        return f"{type(self).__name__}(name={self.name}, value={self._value}, filename={self.filename}, " \
-               f"file_data={None if self.file_data is None else self.file_data[0:min(len(self.file_data),10)]}...)"
-
 
 class MockFileHook:
     """

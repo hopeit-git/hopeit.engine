@@ -73,4 +73,4 @@ __api__ = {
 
 def entry_point(payload: None, context: EventContext, arg1: Optional[int] = None) -> MockData:
     logger.info(context, "mock_app_api_get.entry_point")
-    return MockData(f"get-{arg1}")
+    return MockData(value=f"get-{arg1}")

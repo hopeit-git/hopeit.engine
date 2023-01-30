@@ -1,21 +1,19 @@
 from typing import AsyncGenerator, Dict, List, Optional
 import asyncio
 
-from hopeit.dataobjects import EventPayload, dataobject, dataclass
+from hopeit.dataobjects import EventPayload, dataobject
 from hopeit.app.config import AppConfig, EventDescriptor
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.server.events import EventHandler
 
 
 @dataobject(event_id='value')
-@dataclass
 class MockData:
     """MockData object"""
     value: str
 
 
 @dataobject(event_id='value')
-@dataclass
 class MockResult:
     value: str
     processed: bool = True
@@ -23,8 +21,8 @@ class MockResult:
 
 class MockEventHandler(EventHandler):
     input_query_args = {"query_arg1": "ok"}
-    input_payload = MockData("ok")
-    expected_result = MockResult("ok: ok", processed=True)
+    input_payload = MockData(value="ok")
+    expected_result = MockResult(value="ok: ok", processed=True)
     test_track_ids = {
         'track.operation_id': 'test_operation_id',
         'track.request_id': 'test_request_id',
@@ -65,7 +63,7 @@ class MockEventHandler(EventHandler):
 
 class TestStreamData:
     test_queue = 'AUTO'
-    test_payload = MockResult("ok: ok", processed=True)
+    test_payload = MockResult(value="ok: ok", processed=True)
     test_track_ids = {
         'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00',

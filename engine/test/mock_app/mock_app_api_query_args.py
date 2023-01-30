@@ -36,4 +36,4 @@ def entry_point(payload: None, context: EventContext,
                 arg_datetime: Optional[datetime] = None) -> List[MockData]:
 
     logger.info(context, "mock_app_api_query_args.entry_point")
-    return [MockData(f"get-{arg_str} get-{arg_int}, get-{arg_float}, get-{arg_date}, get{arg_datetime}")]
+    return [MockData(value=f"get-{arg_str} get-{arg_int}, get-{arg_float}, get-{arg_date}, get{arg_datetime}")]

@@ -64,6 +64,8 @@ class AppEngine:
         """
         Starts handlers, services and pools for this application
         """
+        assert self.app_config.server is not None
+
         self.event_handler = EventHandler(
             app_config=self.app_config, plugins=self.plugins,
             effective_events=self.effective_events,

@@ -4,7 +4,7 @@ echo "========================"
 
 declare -i code=0
 echo "apps/simple-example"
-export MYPYPATH=engine/src/:plugins/storage/fs/src:engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/ && python3 -m mypy --namespace-packages -p common -p model -p simple_example
+export MYPYPATH=engine/src/:plugins/storage/fs/src:engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/ && python3 -m mypy --check-untyped-defs --namespace-packages -p common -p model -p simple_example
 code+=$?
 export MYPYPATH=engine/src/:plugins/storage/fs/src:engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/ && python3 -m mypy --namespace-packages apps/examples/simple-example/test/unit/
 code+=$?
@@ -16,7 +16,7 @@ python3 -m pylint apps/examples/simple-example/src/
 code+=$?
 
 echo "apps/client-example"
-export MYPYPATH=engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/:apps/examples/client-example/src/ && python3 -m mypy --namespace-packages -p client_example
+export MYPYPATH=engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/:apps/examples/client-example/src/ && python3 -m mypy --check-untyped-defs --namespace-packages -p client_example
 code+=$?
 export MYPYPATH=engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/:apps/examples/client-example/src/ && python3 -m mypy --namespace-packages apps/examples/client-example/test/unit/
 code+=$?

@@ -1,6 +1,29 @@
 Release Notes
 =============
 
+Version 0.20.0
+______________
+- Breaking change:
+  - DataObjects: Replaced `dataclasses_jsonschema` with `pydantic`
+  - `@dataobject` is a wrapper on top of `pydantic.BaseModel`
+  - `@dataclass` annotation must be removed from dataobjects
+  - `dataclasses.field` function uses must be replaced with `hopeit.dataobjects.Field`
+  - Know incompatibilites: 
+    - now `dataobjects` must be compatible with `pydantic.BaseModel`, type annotations
+      used from `dataclasses_jsonschema` might not function properly.
+    - `__post_init__` and other dataclasses features must be replaces with its equivalent
+      pydantic. I.e. `@validator`.
+
+- Mypy plugin wrapper to `pydantic` to validate dataobjects
+  - Developers can add this plugin to enable dataobjects to be checked:
+  ```
+  plugins = hopeit.dataobjects.mypy
+  ```
+
+- Chore:
+  - Removed unused `simple-benchmark` application
+
+
 Version 0.16.7
 ______________
 - Update dependencies

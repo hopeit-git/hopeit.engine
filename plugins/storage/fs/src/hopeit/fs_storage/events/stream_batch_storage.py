@@ -39,7 +39,6 @@ This implementation will buffer a number of events for a given time, divided int
 Partitions are determined by the `event_ts()` returning function of a dataobject, i.e.:
 ```
 @dataobject(event_ts='date_field')
-@dataclass
 class Something:
     ...
     date_field: datetime
@@ -79,7 +78,6 @@ dataobjects consumed from the input stream.
 import asyncio
 import os
 import uuid
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -87,7 +85,7 @@ import aiofiles
 from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn
 from hopeit.app.logger import app_extra_logger
-from hopeit.dataobjects import DataObject, dataobject
+from hopeit.dataobjects import DataObject, dataobject, Field
 from hopeit.dataobjects.payload import Payload
 from hopeit.fs_storage import FileStorageSettings
 from hopeit.fs_storage.partition import get_partition_key
@@ -97,10 +95,12 @@ logger, extra = app_extra_logger()
 __steps__ = ['buffer_item', 'flush']
 
 
-@dataclass
+@dataobject
 class Partition:
-    lock: asyncio.Lock = field(default_factory=asyncio.Lock)
-    items: List[DataObject] = field(default_factory=list)  # type: ignore
+    class Config:
+        arbitrary_types_allowed = True
+    lock: asyncio.Lock = Field(default_factory=asyncio.Lock)
+    items: List[DataObject] = Field(default_factory=list)  # type: ignore
 
 
 SUFFIX = '.jsonlines'
@@ -109,7 +109,6 @@ buffer_lock: asyncio.Lock = asyncio.Lock()
 
 
 @dataobject
-@dataclass
 class FlushSignal:
     partition_key: str
 

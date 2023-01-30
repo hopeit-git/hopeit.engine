@@ -53,7 +53,7 @@ async def test_buffer_object_and_flush_signal(app_config, test_objs):  # noqa: F
 
     # Send flush partition signal to force flush single object
     partition_key = test_obj.object_ts.strftime("%Y/%m/%d/%H") + '/'
-    signal = FlushSignal(partition_key)
+    signal = FlushSignal(partition_key=partition_key)
     result = await execute_event(
         app_config=app_config,
         event_name='test_stream_batch_storage',

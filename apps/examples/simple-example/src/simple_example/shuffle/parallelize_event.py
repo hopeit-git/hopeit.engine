@@ -5,7 +5,6 @@ This example will spawn 2 copies of payload data, those are going to be send to 
 and processed in asynchronously / in parallel if multiple nodes are available,
 then submitted to other stream to be updated and saved
 """
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional, Union
 
@@ -31,13 +30,11 @@ __api__ = event_api(
 
 
 @dataobject
-@dataclass
 class FirstPart:
     data: Something
 
 
 @dataobject
-@dataclass
 class SecondPart:
     data: Something
 
@@ -65,8 +62,8 @@ async def fork_something(payload: Something, context: EventContext) -> Spawn[Uni
         ts=datetime.now(tz=timezone.utc),
         type=StatusType.SUBMITTED
     )
-    yield FirstPart(payload)
-    yield SecondPart(payload)
+    yield FirstPart(data=payload.copy(deep=True))  # type: ignore
+    yield SecondPart(data=payload.copy(deep=True))  # type: ignore
 
 
 async def __postprocess__(payload: Something, context: EventContext, response: PostprocessHook) -> str:  # noqa: C0103

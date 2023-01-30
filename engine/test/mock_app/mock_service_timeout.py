@@ -15,7 +15,7 @@ async def __service__(context: EventContext) -> Spawn[MockData]:
     while True:
         i += 1
         logger.info(context, f"service: producing message {i}")
-        yield MockData("timeout")
+        yield MockData(value="timeout")
 
 
 async def message(payload: MockData, context: EventContext) -> MockData:

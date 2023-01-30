@@ -1,16 +1,14 @@
 """
-Config Manager dataclasses
+Config Manager dataobjects
 """
 from typing import Dict, List
 from enum import Enum
-from dataclasses import dataclass, field
 
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataobject, Field
 from hopeit.app.config import AppConfig, EventDescriptor
 
 
 @dataobject
-@dataclass
 class ServerInfo:
     """
     Server info associated with runtime apps
@@ -26,7 +24,6 @@ class ServerStatus(str, Enum):
 
 
 @dataobject
-@dataclass
 class RuntimeAppInfo:
     """
     Application config information associated to servers at runtime
@@ -37,10 +34,9 @@ class RuntimeAppInfo:
 
 
 @dataobject
-@dataclass
 class RuntimeApps:
     """
     Combined App Config and Server Status information for running apps
     """
     apps: Dict[str, RuntimeAppInfo]
-    server_status: Dict[str, ServerStatus] = field(default_factory=dict)
+    server_status: Dict[str, ServerStatus] = Field(default_factory=dict)

@@ -59,7 +59,7 @@ class RedisStreamManager(StreamManager):
         Close connections to Redis
         """
 
-        async def _close(pool) -> None:
+        async def _close(pool):
             if pool:
                 pool.close()
                 await pool.wait_closed()

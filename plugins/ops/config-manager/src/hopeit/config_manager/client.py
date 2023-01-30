@@ -10,6 +10,7 @@ import aiohttp
 from hopeit.server.version import APPS_ROUTE_VERSION
 from hopeit.app.context import EventContext
 from hopeit.server.logger import engine_extra_logger
+from hopeit.dataobjects.payload import Payload
 
 from hopeit.config_manager import RuntimeAppInfo, RuntimeApps, ServerStatus
 from hopeit.config_manager.runtime import get_in_process_config
@@ -70,7 +71,7 @@ async def _get_host_config(host: str,
     try:
         async with aiohttp.ClientSession() as client:
             async with client.get(url) as response:
-                return host, RuntimeApps.from_dict(await response.json())  # type: ignore
+                return host, Payload.from_obj(await response.json(), RuntimeApps)  # type: ignore
     except Exception as e:  # pylint: disable=broad-except
         logger.error(context or __name__, "Error contacting host: %s", host, extra=extra(
             host=host, url=url, error=str(e)

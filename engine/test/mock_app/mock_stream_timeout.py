@@ -16,4 +16,4 @@ async def wait(payload: MockData, context: EventContext) -> MockResult:
         logger.info(context, "simulating timeout...")
         await asyncio.sleep(30.0)
         logger.info(context, "done simulating timeout.")
-    return MockResult("ok: ok")
+    return MockResult(value="ok: ok")
