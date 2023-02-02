@@ -606,7 +606,7 @@ class AppEngine:
                     datatypes[f"{datatype.__module__}.{datatype.__qualname__}"] = datatype
         if len(datatypes) == 0:
             raise NotImplementedError(f"No data types found to read from stream in event={event_name}. "
-                                      "Dataclasses must be decorated with `@dataobject` to be used in streams")
+                                      "Class must be decorated with `@dataobject` to be used in streams")
         return datatypes
 
 

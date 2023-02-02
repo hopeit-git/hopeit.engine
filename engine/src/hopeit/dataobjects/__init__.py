@@ -1,6 +1,6 @@
 """
 Data Objects type abstractions.
-A Dataobject is basically any object wrapped in a Dataclass and that is able
+A Dataobject is basically any object wrapped in a Pydantic BaseModel and that is able
 to be stored, retrieved, serialized and deserialized by the platform toolkit.
 
 Annotate dataclasses with @dataobject annotation to make it support:

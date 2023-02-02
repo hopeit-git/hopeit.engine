@@ -74,7 +74,7 @@ Step 5: Add OpenAPI json-schema validation and API docs
 To add Open API support to your endpoints, add a description header, and
 an ``__api__`` definition to your source file:
 
-.. code:: python
+.. code:: ipython3
 
     """
     API: sample-endpoint
@@ -86,8 +86,6 @@ an ``__api__`` definition to your source file:
     representation.
     """
     
-    from dataclasses import dataclass
-    
     from hopeit.app.api import event_api
     from hopeit.app.context import EventContext
     from hopeit.dataobjects import dataobject
@@ -96,14 +94,13 @@ an ``__api__`` definition to your source file:
     
     
     @dataobject
-    @dataclass
     class MyObject:
         text: str
         length: int
     
     
     __api__ = event_api(
-        summary="Sample Endpoint",
+        title="Sample Endpoint",
         query_args=[('payload', str, "provide a 'string' to create 'MyObject'"),
                     ('number', int, "number to be added to the 'length' of the payload of MyObject")],
         responses={

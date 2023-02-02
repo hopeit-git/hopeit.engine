@@ -25,10 +25,6 @@ aiofiles
     Link: https://github.com/Tinche/aiofiles
     License: Apache-2.0 (https://github.com/Tinche/aiofiles/blob/master/LICENSE)
 
-dataclasses-jsonschema
-    Link: https://github.com/s-knibbs/dataclasses-jsonschema
-    License: MIT (https://github.com/s-knibbs/dataclasses-jsonschema/blob/master/LICENSE)
-
 stringcase
     Link: https://github.com/okunishinishi/python-stringcase
     License: MIT (https://github.com/okunishinishi/python-stringcase/blob/master/LICENSE)
@@ -53,13 +49,13 @@ click
     Link: https://github.com/pallets/click
     License: BSD 3-Clause "New" or "Revised" (https://github.com/pallets/click/blob/master/LICENSE.rst)
 
+pydantic
+    Link: https://github.com/pydantic/pydantic
+    License: MIT (https://github.com/pydantic/pydantic/blob/main/LICENSE)
+
 deepdiff
     Link: https://github.com/seperman/deepdiff
     License: MIT (https://github.com/seperman/deepdiff/blob/master/LICENSE)
-
-fastjsonschema
-    Link: https://github.com/horejsek/python-fastjsonschema
-    License: BSD 3-Clause "New" or "Revised" (https://github.com/horejsek/python-fastjsonschema/blob/master/LICENSE)
 
 typing_inspect
     Link: https://github.com/ilevkivskyi/typing_inspect

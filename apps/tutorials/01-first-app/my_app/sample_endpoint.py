@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import dataobject
 
@@ -7,7 +5,6 @@ __steps__ = ['step1']
 
 
 @dataobject
-@dataclass
 class MyObject:
     text: str
     length: int
