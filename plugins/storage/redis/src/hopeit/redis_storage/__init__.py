@@ -41,7 +41,7 @@ class RedisStorage(Generic[DataObject]):
         Retrieves value under specified key, converted to datatype
 
         :param key: str
-        :param datatype: dataclass implementing @dataobject (@see DataObject)
+        :param datatype: class implementing @dataobject (@see DataObject)
         :return: instance of datatype or None if not found
         """
         assert self._conn
@@ -55,7 +55,7 @@ class RedisStorage(Generic[DataObject]):
         Stores value under specified key
 
         :param key: str
-        :param value: DataObject, instance of dataclass annotated with @dataobject
+        :param value: DataObject, object annotated with @dataobject
         :param **kwargs: You can use arguments expected by the set method in the redis library i.e.:
             ex sets an expire flag on key name for ex seconds.
             px sets an expire flag on key name for px milliseconds.

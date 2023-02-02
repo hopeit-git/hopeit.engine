@@ -100,7 +100,7 @@ an ``__api__`` definition to your source file:
     
     
     __api__ = event_api(
-        title="Sample Endpoint",
+        summary="Sample Endpoint",
         query_args=[('payload', str, "provide a 'string' to create 'MyObject'"),
                     ('number', int, "number to be added to the 'length' of the payload of MyObject")],
         responses={

@@ -81,7 +81,7 @@ class RedisStreamManager(StreamManager):
         Writes event to a Redis stream using XADD
         :param stream_name: stream name or key used by Redis
         :param queue: queue name to be saved into the message. Will not affect provided stream_name.
-        :param payload: EventPayload, a special type of dataclass object decorated with `@dataobject`
+        :param payload: EventPayload, a special type of object decorated with `@dataobject`
         :param track_ids: dict with key and id values to track in stream event
         :param auth_info: dict with auth info to be tracked as part of stream event
         :param compression: Compression, supported compression algorithm from enum

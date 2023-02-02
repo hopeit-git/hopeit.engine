@@ -39,7 +39,8 @@ from different backgrounds.
 **Data driven**: *hopeit.engine* was thought keeping in mind that most
 business logic and decisions are and will be driven by data. Working
 with data is a key part of the library. We embrace
-`dataclasses <https://docs.python.org/3/library/dataclasses.html>`__ and
+`dataclasses <https://docs.python.org/3/library/dataclasses.html>`__ , 
+we call them `dataobjects`, and 
 enforce data-types checking on input and output data. The library
 provides Open API validation and documentation and a way to share data
 between applications using streams. *hopeit.engine* is Data
