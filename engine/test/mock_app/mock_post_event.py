@@ -28,8 +28,8 @@ async def entry_point(payload: MockData, context: EventContext, *, query_arg1: s
 
 
 def handle_special_case(payload: None, context: EventContext) -> MockResult:
-    return MockResult("None")
+    return MockResult(value="None")
 
 
 def handle_ok_case(payload: MockData, context: EventContext) -> MockResult:
-    return MockResult("ok: " + payload.value)
+    return MockResult(value="ok: " + payload.value)

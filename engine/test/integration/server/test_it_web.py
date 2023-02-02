@@ -262,10 +262,16 @@ async def call_post_invalid_payload(client):
         }
     )
     assert res.status == 400
-    result = (await res.read()).decode()
-    assert result == \
-        '{"msg": "Expecting value: line 1 column 11 (char 10)", "tb": ' \
-        '["hopeit.app.errors.BadRequest: Expecting value: line 1 column 11 (char 10)\\n"]}'
+    result = json.loads((await res.read()).decode())
+    assert result['msg'] == (
+        """1 validation error for MockData\n__root__\n  Expecting value: line 1 column 11 (char 10) """
+        """(type=value_error.jsondecode; msg=Expecting value; doc={"value": invalid_json}; """
+        """pos=10; lineno=1; colno=11)""")
+    assert result['tb'] == [(
+        """hopeit.app.errors.BadRequest: 1 validation error for MockData\n__root__\n  """
+        """Expecting value: line 1 column 11 (char 10) """
+        """(type=value_error.jsondecode; msg=Expecting value; """
+        """doc={"value": invalid_json}; pos=10; lineno=1; colno=11)\n""")]
 
 
 async def call_post_fail_request(client):
@@ -527,7 +533,7 @@ async def start_test_server(mock_app_config, mock_plugin_config,  # noqa: F811
     if streams:
         await stream_startup_hook(mock_app_config, enabled_groups)
     print('Test engine started.', hopeit.server.web.web_server)
-    await asyncio.sleep(5)
+    await asyncio.sleep(1)
 
 
 async def _setup(monkeypatch,
@@ -536,7 +542,7 @@ async def _setup(monkeypatch,
                  aiohttp_client,  # noqa: F811
                  streams=None,
                  enabled_groups: Optional[List[str]] = None):
-    stream_event = MockResult("ok: ok")
+    stream_event = MockResult(value="ok: ok")
     monkeypatch.setattr(MockStreamManager, 'test_payload', stream_event)
     monkeypatch.setattr(MockEventHandler, 'test_track_ids', None)
 

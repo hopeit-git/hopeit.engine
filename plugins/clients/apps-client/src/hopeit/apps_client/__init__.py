@@ -5,8 +5,8 @@ from contextlib import AbstractAsyncContextManager
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Type
 import asyncio
+from dataclasses import dataclass
 from collections import defaultdict
-from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import partial
 import random
@@ -18,7 +18,7 @@ from hopeit.app.client import AppConnectionNotFound, Client, ClientException, Un
 from hopeit.app.context import EventContext
 from hopeit.app.config import AppConfig, AppDescriptor, EventConnection, EventConnectionType
 from hopeit.app.errors import Unauthorized
-from hopeit.dataobjects import EventPayload, EventPayloadType, dataobject
+from hopeit.dataobjects import EventPayload, EventPayloadType, dataobject, Field
 from hopeit.dataobjects.payload import Payload
 from hopeit.toolkit import auth
 from hopeit.server.logger import engine_extra_logger
@@ -41,7 +41,6 @@ class ClientAuthStrategy(str, Enum):
 
 
 @dataobject
-@dataclass
 class AppsClientSettings:
     """
     AppsClient configuration
@@ -60,7 +59,7 @@ class AppsClientSettings:
     max_connections_per_host: int = 0
     dns_cache_ttl: int = 10
     auth_strategy: ClientAuthStrategy = ClientAuthStrategy.CLIENT_APP_PUBLIC_KEY
-    routes_override: Dict[str, str] = field(default_factory=dict)
+    routes_override: Dict[str, str] = Field(default_factory=dict)
 
 
 @dataclass
@@ -82,9 +81,9 @@ class CircuitBreakLoadBalancer:
     """
     hosts: List[str]
     host_index: int = 0
-    cb_failures: List[int] = field(default_factory=list)
-    cb_failure_reset_ttl: List[int] = field(default_factory=list)
-    cb_open_ttl: List[int] = field(default_factory=list)
+    cb_failures: List[int] = Field(default_factory=list)
+    cb_failure_reset_ttl: List[int] = Field(default_factory=list)
+    cb_open_ttl: List[int] = Field(default_factory=list)
 
     def __post_init__(self):
         self.cb_failures = [0] * len(self.hosts)
@@ -144,7 +143,7 @@ class ServerException(ClientException):
 class AppConnectionState:
     app_connection: str
     load_balancer: CircuitBreakLoadBalancer
-    events: Dict[str, Dict[str, EventConnection]] = field(
+    events: Dict[str, Dict[str, EventConnection]] = Field(
         default_factory=partial(defaultdict, dict)  # type: ignore
     )
 
@@ -223,6 +222,7 @@ class AppsClient(Client):
             app=self.app_key, app_connection=self.app_conn_key
         ))
         try:
+            assert self.session is not None
             await self.session.close()
         except Exception as e:  # pylint: disable=broad-except
             logger.error(__name__, str(e))
@@ -230,7 +230,7 @@ class AppsClient(Client):
             await asyncio.sleep(1.0)
             self.session = None
             self.token = None
-            self.token_expire = 0.0
+            self.token_expire = 0
             logger.info(__name__, "Client stopped.", extra=extra(
                 app=self.app_key, app_connection=self.app_conn_key
             ))

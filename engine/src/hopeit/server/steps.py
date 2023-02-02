@@ -11,7 +11,7 @@ import inspect
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventType, \
     ReadStreamDescriptor, StreamQueueStrategy, WriteStreamDescriptor
 from hopeit.app.context import EventContext
-from hopeit.dataobjects import DataObject, EventPayload, copy_payload, EventPayloadType
+from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger, extra_logger
 from hopeit.server.names import auto_path
@@ -150,7 +150,7 @@ async def _execute_steps_recursion(payload: Optional[EventPayload],
     """
     if is_spawn:
         async for invoke_result in _invoke_spawn_step(
-                copy_payload(payload),
+                payload,
                 func,  # type: ignore
                 context,
                 **query_args):
@@ -158,7 +158,7 @@ async def _execute_steps_recursion(payload: Optional[EventPayload],
                 await asyncio.sleep(step_delay)
             i, f, it = _find_next_step(invoke_result, steps, from_index=step_index + 1)
             if i == -1:
-                yield copy_payload(invoke_result)
+                yield invoke_result
             else:
                 # Recursive call for each received element
                 async for recursion_result in _execute_steps_recursion(
@@ -179,7 +179,7 @@ async def _execute_steps_recursion(payload: Optional[EventPayload],
 
             # Single step invokation
             invoke_result = await _invoke_step(
-                copy_payload(invoke_result),
+                invoke_result,
                 f,  # type: ignore
                 context,
                 **q
@@ -191,7 +191,7 @@ async def _execute_steps_recursion(payload: Optional[EventPayload],
 
         if i == -1:
             # Yields result if all steps were exhausted
-            yield copy_payload(invoke_result)
+            yield invoke_result
         if i >= MAX_STEPS:
             raise RuntimeError(f"Maximun number of steps to execute exceeded (MAX_STEPS={MAX_STEPS}).")
 

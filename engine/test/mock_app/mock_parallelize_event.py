@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from typing import Union
 
 from hopeit.app.events import Spawn, SHUFFLE
@@ -13,13 +11,11 @@ logger, extra = app_extra_logger()
 
 
 @dataobject
-@dataclass
 class A:
     a: str
 
 
 @dataobject
-@dataclass
 class B:
     b: str
 
@@ -27,8 +23,8 @@ class B:
 async def produce_messages(payload: str, context: EventContext) -> Spawn[Union[A, B]]:
     logger.info(context, f"producing messages of type A and B from {payload}")
     a, b = payload.split('.')[:2]
-    yield A(a)
-    yield B(b)
+    yield A(a=a)
+    yield B(b=b)
 
 
 async def process_a(payload: A, context: EventContext) -> str:

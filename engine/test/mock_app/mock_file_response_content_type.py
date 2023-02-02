@@ -1,13 +1,12 @@
 from pathlib import Path
-from dataclasses import dataclass
 from hopeit.app.api import event_api
-from hopeit.dataobjects import BinaryDownload
+from hopeit.dataobjects import BinaryDownload, dataobject
 from hopeit.app.context import EventContext, PostprocessHook
 
 __steps__ = ['create_file']
 
 
-@dataclass
+@dataobject
 class ImagePng(BinaryDownload):
     content_type = 'image/png'
     file_name: str

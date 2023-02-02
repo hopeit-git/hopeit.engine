@@ -27,7 +27,7 @@ def sample_file_ids():
 
 @pytest.mark.asyncio
 async def test_find_two_items(app_config, sample_file_ids):  # noqa: F811
-    payload = ItemsInfo(*sample_file_ids)
+    payload = ItemsInfo(item1_id=sample_file_ids[0], item2_id=sample_file_ids[1])
     payload.partition_key = "2020/05/01/00/"
     result, pp_result, response = await execute_event(app_config=app_config,
                                                       event_name='collector.collect_spawn',
@@ -42,7 +42,7 @@ async def test_find_two_items(app_config, sample_file_ids):  # noqa: F811
 
 @pytest.mark.asyncio
 async def test_find_one_item(app_config, sample_file_ids):  # noqa: F811
-    payload = ItemsInfo(sample_file_ids[0], str(uuid.uuid4()))
+    payload = ItemsInfo(item1_id=sample_file_ids[0], item2_id=str(uuid.uuid4()))
     payload.partition_key = "2020/05/01/00/"
     result, pp_result, response = await execute_event(app_config=app_config,
                                                       event_name='collector.collect_spawn',
@@ -55,10 +55,10 @@ async def test_find_one_item(app_config, sample_file_ids):  # noqa: F811
 
 @pytest.mark.asyncio
 async def test_find_no_items(app_config, sample_file_ids):  # noqa: F811
-    payload = ItemsInfo(str(uuid.uuid4()), str(uuid.uuid4()))
+    payload = ItemsInfo(item1_id=str(uuid.uuid4()), item2_id=str(uuid.uuid4()))
     result, pp_result, response = await execute_event(app_config=app_config,
                                                       event_name='collector.collect_spawn',
                                                       payload=payload,
                                                       postprocess=True)
-    assert result == ItemsCollected([])
+    assert result == ItemsCollected(items=[])
     assert pp_result == 0

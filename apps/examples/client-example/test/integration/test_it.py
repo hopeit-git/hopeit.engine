@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import List, Type, Union
 import pytest
 from base64 import b64encode
@@ -14,7 +13,6 @@ from client_example import CountAndSaveResult
 
 
 @dataobject
-@dataclass
 class MockAuthInfo:
     access_token: str
 
@@ -41,8 +39,8 @@ async def custom_app_call(app_connection: str,
         return MockAuthInfo(access_token="test-app,test-user")
     if app_connection == "simple_example_conn" and event == "query_something" and "item_id" in kwargs:
         if kwargs['item_id'] == "id_not_found":
-            return SomethingNotFound('', kwargs['item_id'])
-        return Something(kwargs['item_id'], User(id="test", name="test"))
+            return SomethingNotFound(path='', id=kwargs['item_id'])
+        return Something(id=kwargs['item_id'], user=User(id="test", name="test"))
     if app_connection == "simple_example_conn" and event == "query_something":
         raise UnhandledResponse("Missing 400 status handler, use `responses` to handle this exception",
                                 "", 400)
@@ -125,9 +123,8 @@ async def test_handle_responses_something(monkeypatch, client_app_config):  # no
         mocks=[mock_client_calls],
         item_id="id_something",
         partition_key="YYYY/MM/DD/HH")
-
-    assert result == "Got 200 response with: 'Something(id='id_something', user=User(id='test'," \
-        " name='test'), status=None, history=[])'"
+    assert result == 'Got 200 response with: {"id": "id_something",' \
+        ' "user": {"id": "test", "name": "test"}, "status": null, "history": []}'
 
 
 @pytest.mark.asyncio
@@ -150,4 +147,4 @@ async def test_handle_responses_something_not_found(monkeypatch, client_app_conf
         item_id="id_not_found",
         partition_key="YYYY/MM/DD/HH")
 
-    assert result == "Got 404 response with: 'SomethingNotFound(path='', id='id_not_found')'"
+    assert result == 'Got 404 response with: {"path": "", "id": "id_not_found"}'

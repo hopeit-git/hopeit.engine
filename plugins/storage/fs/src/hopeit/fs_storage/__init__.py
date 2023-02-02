@@ -2,7 +2,6 @@
 Storage/persistence asynchronous stores and gets dataobjects from filesystem.
 
 """
-from dataclasses import dataclass
 import os
 from glob import glob
 from pathlib import Path
@@ -23,7 +22,6 @@ SUFFIX = '.json'
 
 
 @dataobject
-@dataclass
 class FileStorageSettings:
     """
     File storage plugin config
@@ -44,7 +42,6 @@ class FileStorageSettings:
 
 
 @dataobject
-@dataclass
 class ItemLocator:
     item_id: str
     partition_key: Optional[str] = None

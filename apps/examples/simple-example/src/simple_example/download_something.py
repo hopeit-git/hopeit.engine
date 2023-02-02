@@ -3,11 +3,10 @@ Simple Example: Download Something
 -----------------------------------------
 Download image file. The PostprocessHook return the requested file as stream.
 """
-from dataclasses import dataclass
 import os
 import shutil
 
-from hopeit.dataobjects import BinaryDownload
+from hopeit.dataobjects import BinaryDownload, dataobject
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PostprocessHook
@@ -16,7 +15,7 @@ from hopeit.app.context import EventContext, PostprocessHook
 __steps__ = ['find_image']
 
 
-@dataclass
+@dataobject
 class ImagePng(BinaryDownload):
     content_type = 'image/png'
     file_name: str

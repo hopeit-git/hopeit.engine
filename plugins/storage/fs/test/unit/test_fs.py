@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 from typing import List, Optional
 
 import os
-from dataclasses import dataclass
 
 import aiofiles  # type: ignore
 
@@ -13,7 +12,6 @@ import pytest  # type: ignore
 
 
 @dataobject(event_ts="ts")
-@dataclass
 class FsMockData:
     test: str
     ts: Optional[datetime] = None
@@ -231,14 +229,14 @@ async def test_list_objects(monkeypatch):
 
     files = await fs.list_objects()
     assert files == [
-        ItemLocator('1', None),
-        ItemLocator('2', None),
-        ItemLocator('3', None),
+        ItemLocator(item_id='1', partition_key=None),
+        ItemLocator(item_id='2', partition_key=None),
+        ItemLocator(item_id='3', partition_key=None),
     ]
 
     files = await fs.list_objects(wildcard="1*")
     assert files == [
-        ItemLocator('1', None),
+        ItemLocator(item_id='1', partition_key=None),
     ]
 
 
@@ -253,12 +251,12 @@ async def test_list_objects_within_partitions(monkeypatch):
 
     files = await fs.list_objects(wildcard="2022/03/01/*")
     assert files == [
-        ItemLocator('1', "2022/03/01"),
-        ItemLocator('2', "2022/03/01"),
-        ItemLocator('3', "2022/03/01"),
+        ItemLocator(item_id='1', partition_key="2022/03/01"),
+        ItemLocator(item_id='2', partition_key="2022/03/01"),
+        ItemLocator(item_id='3', partition_key="2022/03/01"),
     ]
 
     files = await fs.list_objects(wildcard="**/**/**/1*")
     assert files == [
-        ItemLocator('1', "2022/03/01")
+        ItemLocator(item_id='1', partition_key="2022/03/01")
     ]

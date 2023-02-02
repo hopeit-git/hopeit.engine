@@ -21,7 +21,7 @@ async def __service__(context: EventContext) -> Spawn[SomethingParams]:
     i = 1
     while True:
         logger.info(context, f"Generating something event {i}...")
-        yield SomethingParams(f"id{i}", f"user{i}")
+        yield SomethingParams(id=f"id{i}", user=f"user{i}")
         i += 1
         await asyncio.sleep(random.random() * 10.0)
 

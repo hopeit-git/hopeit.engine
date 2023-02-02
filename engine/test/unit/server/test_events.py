@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import pytest
 
 from hopeit.app.config import Compression, EventLoggingConfig, EventStreamConfig, Serialization
@@ -86,23 +85,23 @@ async def mock_handle_spawn_event(app_config, *, payload, expected, stream_name)
 @pytest.mark.asyncio
 async def test_handle_async_event_ok_case(mock_app_config):  # noqa: F811
     await mock_handle_request_response_event(
-        mock_app_config, payload=MockData("ok"), expected=MockResult("ok: ok")
+        mock_app_config, payload=MockData(value="ok"), expected=MockResult(value="ok: ok")
     )
 
 
 @pytest.mark.asyncio
 async def test_handle_async_event_special_case(mock_app_config):  # noqa: F811
     await mock_handle_request_response_event(
-        mock_app_config, payload=MockData("no-ok"), expected=MockResult("None")
+        mock_app_config, payload=MockData(value="no-ok"), expected=MockResult(value="None")
     )
 
 
 @pytest.mark.asyncio
 async def test_handle_spawn_event(monkeypatch, mock_app_config):  # noqa: F811
-    expected_prefix = MockData("stream: ok.")
+    expected_prefix = MockData(value="stream: ok.")
     monkeypatch.setattr(MockStreamManager, 'test_payload', expected_prefix)
     await mock_handle_spawn_event(
-        mock_app_config, payload=MockData("ok"),
+        mock_app_config, payload=MockData(value="ok"),
         expected=expected_prefix, stream_name='mock_write_stream_event'
     )
 
@@ -111,7 +110,7 @@ async def test_handle_spawn_event(monkeypatch, mock_app_config):  # noqa: F811
 async def test_postprocess(mock_plugin_config):  # noqa: F811
     await mock_handle_postprocess(
         mock_plugin_config,
-        payload=MockData("ok"),
+        payload=MockData(value="ok"),
         expected="PluginEvent.postprocess",
         expected_response={
             'cookies': {'PluginCookie': ('PluginCookieValue', tuple(), {})},
@@ -122,13 +121,11 @@ async def test_postprocess(mock_plugin_config):  # noqa: F811
 
 
 @dataobject
-@dataclass
 class CustomSetting:
     custom: str
 
 
 @dataobject
-@dataclass
 class CustomEventSettings:
     custom_setting: CustomSetting
 

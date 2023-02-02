@@ -3,19 +3,16 @@ Visualization metadata
 """
 from hopeit.app.context import EventContext
 from typing import Dict, Any, Optional
-from dataclasses import dataclass, field
 
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataobject, Field
 
 
 @dataobject
-@dataclass
 class CytoscapeGraph:
-    data: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    data: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
 
 
 @dataobject
-@dataclass
 class VisualizationOptions:
     app_prefix: str = ''
     host_filter: str = ''

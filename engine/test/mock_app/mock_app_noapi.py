@@ -14,4 +14,4 @@ __steps__ = ['entry_point']
 
 def entry_point(payload: None, context: EventContext, arg1: Optional[int] = None) -> MockData:
     logger.info(context, "mock_app_noapi.entry_point")
-    return MockData(f"get-{arg1}")
+    return MockData(value=f"get-{arg1}")

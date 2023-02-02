@@ -35,8 +35,8 @@ class MockAppEngine(AppEngine):
 
 class MockEventHandler(EventHandler):
     input_query_args = {"query_arg1": "ok"}
-    input_payload = MockData("ok")
-    expected_result = MockResult("ok: ok", processed=True)
+    input_payload = MockData(value="ok")
+    expected_result = MockResult(value="ok: ok", processed=True)
     test_track_ids = {
         'track.operation_id': 'test_operation_id',
         'track.request_id': 'test_request_id',
@@ -83,7 +83,7 @@ class MockEventHandler(EventHandler):
 
 class MockStreamManager(StreamManager):
     test_queue = StreamQueue.AUTO
-    test_payload = MockResult("ok: ok", processed=True)
+    test_payload = MockResult(value="ok: ok", processed=True)
     test_track_ids = {
         'track.request_id': 'test_request_id',
         'track.request_ts': '2020-02-05T17:07:37.771396+00:00',

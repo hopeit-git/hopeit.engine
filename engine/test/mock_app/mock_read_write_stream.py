@@ -13,4 +13,4 @@ async def consume_stream(payload: MockData, context: EventContext) -> Optional[M
     logger.info(context, "consuming message", extra=extra(value=payload.value))
     if payload.value == 'fail':
         raise AssertionError("Test for error")
-    return MockResult("ok: " + payload.value)
+    return MockResult(value="ok: " + payload.value)

@@ -13,7 +13,7 @@ logger, extra = app_extra_logger()
 async def produce_messages(payload: str, context: EventContext) -> Spawn[MockData]:
     logger.info(context, "producing message")
     for i in range(3):
-        yield MockData(f"stream.{payload}.{i}")
+        yield MockData(value=f"stream.{payload}.{i}")
 
 
 async def consume_stream(payload: MockData, context: EventContext) -> Optional[MockResult]:
@@ -23,9 +23,9 @@ async def consume_stream(payload: MockData, context: EventContext) -> Optional[M
         raise AssertionError("Test for error")
     if data == 'none':
         return None
-    return MockResult("ok: " + data + '.' + occ)
+    return MockResult(value="ok: " + data + '.' + occ)
 
 
 async def generate_default(payload: None, context: EventContext) -> MockResult:
     logger.info(context, "creating default result")
-    return MockResult("default")
+    return MockResult(value="default")

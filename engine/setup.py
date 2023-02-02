@@ -102,8 +102,7 @@ setuptools.setup(
         "deepdiff",
         "typing-inspect",
         "multidict",
-        "dataclasses-jsonschema[fast-validation]",
-        "fastjsonschema"
+        "pydantic",
     ]],
     extras_require={
         "web": [ f"{lib}>={libversion(lib)}" for lib in [

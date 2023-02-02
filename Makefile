@@ -19,7 +19,7 @@ locked-deps:
 	pip install --force-reinstall -r requirements.lock && \
 	pip install -U -r requirements-dev.txt
 
-lock-requirements: clean dev-deps
+lock-requirements: clean deps
 	cd engine && \
 	pip freeze > requirements.lock
 
@@ -51,6 +51,10 @@ install:
 	pip install -U -e . --no-deps && \
 	pip install -U -e ".[web]" --no-deps && \
 	pip install -U -e ".[cli]" --no-deps
+
+ci-install: locked-deps
+	cd engine && \
+	pip install -U -e . --no-deps
 
 install-app:
 	cd $(APPFOLDER) && \

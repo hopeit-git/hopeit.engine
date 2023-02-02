@@ -93,7 +93,7 @@ class PostprocessStreamResponseHook():
 
 class TestingResp:
     def __init__(self):
-        self.headers = MultiDict()
+        self.headers: MultiDict = MultiDict()
         self.data = b''
 
 

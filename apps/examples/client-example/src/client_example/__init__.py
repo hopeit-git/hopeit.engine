@@ -1,11 +1,10 @@
 """
 Client example module schemas
 """
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataobject
 
 
 @dataobject
-@dataclass
 class CountAndSaveResult:
     count: int
     save_path: str

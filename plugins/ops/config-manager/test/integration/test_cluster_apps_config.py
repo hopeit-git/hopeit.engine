@@ -17,7 +17,6 @@ async def test_cluster_apps_config(monkeypatch, cluster_apps_response,
         app_config=plugin_config, event_name="cluster_apps_config", payload=None,
         mocks=[apply_mock_client], hosts="http://test-server1,http://test-server2"
     )
-
     assert result == cluster_apps_response
 
 
