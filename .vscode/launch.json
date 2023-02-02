@@ -14,7 +14,20 @@
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
-        },        
+        },
+        {
+            "name": "fastapi",
+            "type": "python",
+            "request": "launch",
+            "module": "hopeit.server.fastapi",
+            "args": [
+                "--port=8020",
+                "--config-files=engine/config/dev-noauth.json,apps/examples/simple-example/config/fastapi.json"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },       
         {
             "name": "client-example",
             "type": "python",

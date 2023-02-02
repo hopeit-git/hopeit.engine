@@ -12,3 +12,4 @@ multidict
 typing_inspect
 watchdog
 pydantic
+fastapi

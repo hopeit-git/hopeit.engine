@@ -106,6 +106,7 @@ setuptools.setup(
     ]],
     extras_require={
         "web": [ f"{lib}>={libversion(lib)}" for lib in [
+            "fastapi",
             "aiohttp",
             "aiohttp-cors",
             "aiohttp-swagger3"

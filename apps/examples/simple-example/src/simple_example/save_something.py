@@ -3,31 +3,56 @@ Simple Example: Save Something
 --------------------------------------------------------------------
 Creates and saves Something
 """
+from functools import partial
 from typing import Optional, Union
+import inspect
 
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
 from hopeit.fs_storage import FileStorage, FileStorageSettings
+from hopeit.testing.apps import create_test_context
 
 from model import Something, User, SomethingParams
 from common.validation import validate
 
+from fastapi import APIRouter
 
-__steps__ = ['create_something', 'save']
-
-__api__ = event_api(
-    summary="Simple Example: Save Something",
-    payload=(SomethingParams, "provide `id` and `user` to create Something"),
-    responses={
-        200: (str, 'path where object is saved'),
-        400: (str, 'bad request reason')
-    }
-)
-
+api = APIRouter()
 
 logger, extra = app_extra_logger()
 fs: Optional[FileStorage] = None
+
+__steps__ = ["create_something", "save"]
+
+
+def steps(*steps):
+    def wrap(func):
+        print("Register events with engine steps", steps)
+        f = partial(wrapper, steps)
+        f.__doc__ = func.__doc__
+        f.__name__ = func.__name__
+        module = inspect.getmodule(func)
+        setattr(module, "__steps__", steps)
+        return f
+    return wrap
+
+
+def wrapper(steps, payload: SomethingParams) -> str:
+    print("Executing steps", steps)
+    return "PEPE"
+
+
+def post(**kwargs):
+    def wrap(func):
+        return api.post("/" + func.__name__, **kwargs)(func)
+    return wrap
+
+
+@post()
+@steps("create_something", "save")
+async def xxx(payload: SomethingParams) -> str:
+    """Creo que esto documenta"""
 
 
 async def __init_event__(context):

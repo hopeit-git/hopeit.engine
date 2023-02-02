@@ -1,0 +1,74 @@
+{
+  "app": {
+    "name": "simple-example",
+    "version": "${HOPEIT_APPS_API_VERSION}"
+  },
+  "plugins": [
+  ],
+  "engine" : {
+    "import_modules": ["simple_example"],
+    "read_stream_timeout": 1000,
+    "read_stream_interval": 1000,
+    "track_headers": ["caller", "session_id"],
+    "cors_origin": "*"
+  },
+  "env" : {
+    "storage": {
+      "base_path": "/tmp/hopeit/"
+    },
+    "upload_something": {
+      "save_path": "{env.storage.base_path}/{auto}/",
+      "chunk_size": 16384
+    }
+  },
+  "settings": {
+    "{events.streams.something_event.write_stream.name}": {
+      "target_max_len": 1000,
+      "throttle_ms": 10,
+      "batch_size": 5
+    },
+    "streams.something_event": {
+      "logging": {
+        "extra_fields": ["something_id"]
+      }
+    },
+    "streams.process_events": {
+      "logging": {
+        "stream_fields": ["name", "msg_id", "consumer_group", "event_id", "event_ts", "submit_ts", "read_ts"],
+        "extra_fields": ["something_id"]
+      }
+    },
+    "collector.collect_spawn": {
+      "logging": {
+        "extra_fields": ["something_id"]
+      }
+    },
+    "shuffle.spawn_event": {
+      "logging": {
+        "extra_fields": ["something_id"]
+      }
+    },
+    "shuffle.parallelize_event": {
+      "logging": {
+        "extra_fields": ["something_id"]
+      }
+    },
+    "fs_storage": {
+      "path": "{env.storage.base_path}/{auto}",
+      "partition_dateformat": "%Y/%m/%d/%H/"
+    },
+    "storage.save_events_fs": {
+      "path": "{env.storage.base_path}/{auto}",
+      "partition_dateformat": "%Y/%m/%d/%H/",
+      "flush_seconds": 60.0,
+      "flush_max_size": 100
+    }
+  },
+  "events": {
+    "save_something" : {
+      "type": "POST",
+      "setting_keys": ["fs_storage"],
+      "group": "g2"
+    }
+  }
+}
