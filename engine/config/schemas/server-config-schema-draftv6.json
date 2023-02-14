@@ -38,7 +38,7 @@
     },
     "engine_version": {
       "type": "string",
-      "default": "0.16.7"
+      "default": "0.16.8"
     }
   },
   "description": "\n    Server configuration\n    ",

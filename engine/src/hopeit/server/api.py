@@ -11,7 +11,7 @@ from datetime import date, datetime
 
 from aiohttp import web
 from aiohttp_swagger3 import RapiDocUiSettings  # type: ignore
-from aiohttp_swagger3.swagger import Swagger  # type: ignore
+from aiohttp_swagger3.swagger import Swagger, _handle_swagger_call  # type: ignore
 from aiohttp_swagger3.exceptions import ValidatorError  # type: ignore
 from aiohttp_swagger3 import validators  # type: ignore
 from aiohttp_swagger3.validators import MISSING, _MissingType  # type: ignore
@@ -338,7 +338,7 @@ def add_route(method: str,
     method_lower = method.lower()
     if method_lower in spec["paths"].get(path, {}):
         route = SwaggerRoute(method_lower, path, handler, swagger=swagger)
-        api_handler = partial(swagger._handle_swagger_call, route)  # pylint: disable=protected-access
+        api_handler = partial(_handle_swagger_call, route)  # pylint: disable=protected-access
         return api_handler
     logger.warning(__name__, f"No API Spec defined for path={path}")
     return handler
