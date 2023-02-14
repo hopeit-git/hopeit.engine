@@ -30,3 +30,5 @@ typing_extensions==4.4.0
 watchdog==2.2.1
 yarl==1.8.2
 fastapi==0.89.1
+uvicorn==0.20.0
+h11==0.14.0

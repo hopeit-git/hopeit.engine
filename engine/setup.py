@@ -102,11 +102,12 @@ setuptools.setup(
         "deepdiff",
         "typing-inspect",
         "multidict",
-        "pydantic",
+        "pydantic"
     ]],
     extras_require={
         "web": [ f"{lib}>={libversion(lib)}" for lib in [
             "fastapi",
+            "uvicorn",
             "aiohttp",
             "aiohttp-cors",
             "aiohttp-swagger3"

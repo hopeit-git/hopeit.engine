@@ -13,3 +13,4 @@ typing_inspect
 watchdog
 pydantic
 fastapi
+uvicorn
