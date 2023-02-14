@@ -1,9 +1,11 @@
 """
 Events handling
 """
+from contextvars import ContextVar
+import inspect
 from typing import AsyncGenerator, Type, TypeVar
 
-from hopeit.dataobjects import EventPayloadType
+from hopeit.dataobjects import EventPayload, EventPayloadType
 from hopeit.server.collector import Collector
 from hopeit.server.steps import SHUFFLE, CollectorStepsDescriptor
 
@@ -76,3 +78,37 @@ def collector_step(*, payload: Type[EventPayloadType]) -> CollectorStepsDescript
     Please check the sequence your code is accessing/awaiting results from the collector to avoid cycles.
     """
     return CollectorStepsDescriptor(payload)
+
+##### NEW ###############
+
+from fastapi import APIRouter
+from functools import partial
+from hopeit.dataobjects import EventPayload
+
+api: ContextVar[APIRouter] = ContextVar("api", default=APIRouter())
+
+
+def post(path: str, **kwargs):
+    def wrap(func):
+        router = api.get()
+        return router.post(path, **kwargs)(func)
+    return wrap
+
+
+def steps(*steps, **kwargs):
+    def wrap(func):
+        print("Register events with engine steps", steps)
+        f = partial(wrapper, steps)
+        f.__doc__ = func.__doc__
+        f.__name__ = func.__name__
+        print(inspect.signature(func))
+        f.__signature__ = inspect.signature(func)
+        module = inspect.getmodule(func)
+        setattr(module, "__steps__", steps)
+        path = module.__name__
+        return api.get().post("/" + path, **kwargs)(f)
+    return wrap
+
+def wrapper(steps, payload: EventPayload) -> EventPayload:
+    print("Executing steps", steps)
+    return "PEPE"

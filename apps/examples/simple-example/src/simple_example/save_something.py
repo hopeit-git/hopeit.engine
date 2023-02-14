@@ -6,6 +6,7 @@ Creates and saves Something
 from functools import partial
 from typing import Optional, Union, Callable
 import inspect
+from contextvars import ContextVar
 
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
@@ -18,9 +19,7 @@ from hopeit.testing.apps import create_test_context
 from model import Something, User, SomethingParams
 from common.validation import validate
 
-from fastapi import APIRouter
-
-api = APIRouter()
+from hopeit.app.events import api, steps
 
 logger, extra = app_extra_logger()
 fs: Optional[FileStorage] = None
@@ -28,44 +27,11 @@ fs: Optional[FileStorage] = None
 __steps__ = ["create_something", "save"]
 
 
-def steps(*steps):
-    def wrap(func):
-        print("Register events with engine steps", steps)
-        f = partial(wrapper, steps)
-        f.__doc__ = func.__doc__
-        f.__name__ = func.__name__
-        module = inspect.getmodule(func)
-        setattr(module, "__steps__", steps)
-        return f
-    return wrap
-
-
-def wrapper(steps, payload: SomethingParams) -> str:
-    print("Executing steps", steps)
-    return "PEPE"
-
-
-def endpoint_name():
-    return inspect.getmodulename(__file__)
-
-def post(**kwargs):
-    def wrap(func):
-        return api.post("/" + endpoint_name(), **kwargs)(func)
-    return wrap
-
-# async def execute_steps(payload: EventPayload, *steps: Callable[[EventPayload], EventPayload]):
-#     context = None
-#     await __init_event__(context)
-#     for step in steps:
-#         payload = await step(payload, context)
-#     # return Payload.to_obj(payload)
-#     return payload
-
-
-@post()
 @steps("create_something", "save")
 async def handler(payload: SomethingParams) -> str:
     """Creo que esto documenta"""
+    print("esto")
+    return "ESTO"
 
 
 async def __init_event__(context):

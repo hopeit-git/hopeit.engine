@@ -112,7 +112,7 @@ async def app_startup_hook(config: AppConfig, enabled_groups: List[str], *args, 
     app_engine = await runtime.server.start_app(app_config=config, enabled_groups=enabled_groups)
     for event_name, event_info in config.events.items():
         impl = find_event_handler(app_config=config, event_name=event_name, event_info=event_info)
-        router = getattr(impl, "api")
+        router = getattr(impl, "api").get()
         app.include_router(router)
 
 
@@ -133,18 +133,6 @@ async def stream_startup_hook(app_config: AppConfig, *args, **kwargs):
             logger.info(
                 __name__, f"SERVICE start event_name={event_name}")
             asyncio.create_task(app_engine.service_loop(event_name=event_name))
-
-
-def _effective_events(app_engine: AppEngine, plugin: Optional[AppEngine] = None):
-    if plugin is None:
-        return {
-            k: v for k, v in app_engine.effective_events.items()
-            if v.plug_mode == EventPlugMode.STANDALONE
-        }
-    return {
-        k: v for k, v in plugin.effective_events.items()
-        if v.plug_mode == EventPlugMode.ON_APP
-    }
 
 
 def _load_engine_config(path: str):
