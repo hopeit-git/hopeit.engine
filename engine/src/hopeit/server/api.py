@@ -439,7 +439,7 @@ def _update_server_default_auth_methods(server_config: ServerConfig):
 
 def _update_api_schemas(app_config: AppConfig):
     """
-    Generate schemas for @dataobject annotated dataclasses discovered in event implementation modules
+    Generate schemas for @dataobject annotated classes discovered in event implementation modules
     """
     assert spec is not None
     schemas = spec['components'].get('schemas', {})

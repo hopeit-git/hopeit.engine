@@ -63,7 +63,7 @@ def effective_steps(event_name: str,
     i = 0
     steps: StepExecutionList = []
     _, from_step = event_and_step(event_name)
-    found = (from_step is None)
+    found = from_step is None
     for step_name, step_info in module_steps:
         if found:
             if step_name == SHUFFLE:

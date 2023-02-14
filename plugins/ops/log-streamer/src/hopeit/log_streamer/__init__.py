@@ -1,5 +1,5 @@
 """
-Log Stramer dataclasses and file handler implementation based on watchdog library
+Log Streamer dataobject and file handler implementation based on watchdog library
 """
 import asyncio
 from typing import Dict, List, TextIO

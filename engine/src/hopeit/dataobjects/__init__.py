@@ -1,9 +1,10 @@
 """
 Data Objects type abstractions.
-A Dataobject is basically any object wrapped in a Dataclass and that is able
-to be stored, retrieved, serialized and deserialized by the platform toolkit.
+A Dataobject is basically any object like a regular dataclass but adapted to implement
+pydantic.BaseModel functionallity plus specific hopeit.engine functionallity to make it
+able to be stored, retrieved, serialized and deserialized by the platform toolkit.
 
-Annotate dataclasses with @dataobject annotation to make it support:
+Annotate classes with `@dataobject` annotation to make it support:
     - JSON schema generation, validation and serialization/deserialization
     - Compression and Serialization using different mechanisms
 
@@ -111,7 +112,7 @@ def dataobject(
         event_ts: Optional[str] = None,
         schema: bool = True):
     """
-    Decorator for dataclasses intended to be used in API and/or streams. This decorated mainly implements
+    Decorator for classes intended to be used in API and/or streams. This decorated mainly implements
     pydantic.BaseModel adding dataclass functionality to:
         * Generate Json Schema for Open API definition
         * Parse and convert from and to json
@@ -119,14 +120,14 @@ def dataobject(
         * Detect incompatibilities between API specification and payload structures
         * Detect undocumented API changes early (i.e. fields added or changed)
 
-    In general, all dataclasses that are to be exchanged using API endpoints (payload and responses),
+    In general, all dataobjects that are to be exchanged using API endpoints (payload and responses),
     or write and read from streams, need to implement @dataobject decorator.
 
     In order to publish instances to streams, an event id and event timestamp
     can be extracted. StreamManager does that automatically for classes defining
     event_id() and event_ts() methods.
 
-    This decorator, adds these two methods to a dataclass:
+    This decorator, adds these two methods to a class:
     `event_id()`: str, extract the id of the object from a given dot notation expression
     `event_ts()`: Optional[datetime], extract timestamp from a given dot notation expression
 

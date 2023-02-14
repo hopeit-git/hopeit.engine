@@ -22,7 +22,7 @@ from model import ItemsInfo, Something, SomethingNotFound
 @dataobject
 class ItemsCollected:
     """
-    Collected items. Need a dataclass in order to publish to stream
+    Collected items. Need a dataobject in order to publish to stream
     """
     items: List[Something]
 

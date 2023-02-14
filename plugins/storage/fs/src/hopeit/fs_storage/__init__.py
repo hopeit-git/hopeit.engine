@@ -102,7 +102,7 @@ class FileStorage(Generic[DataObject]):
         Retrieves value under specified key, converted to datatype
 
         :param key: str
-        :param datatype: dataclass implementing @dataobject (@see DataObject)
+        :param datatype: class implementing @dataobject (@see DataObject)
         :param parition_key: partition path to be appended to base path
         :return: instance of datatype or None if not found
         """
@@ -117,7 +117,7 @@ class FileStorage(Generic[DataObject]):
         Stores value under specified key
 
         :param key: str
-        :param value: DataObject, instance of dataclass annotated with @dataobject
+        :param value: DataObject, object annotated with @dataobject
         :return: str, path where the object was stored
         """
         payload_str = Payload.to_json(value)

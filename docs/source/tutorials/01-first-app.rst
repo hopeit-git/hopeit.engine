@@ -61,23 +61,20 @@ Step 4: Create the event handler
 2. In the same folder, ``my_app``, now create a python file
    ``sample_endpoint.py`` with the following code
 
-.. code:: python
-
-    from dataclasses import dataclass
+.. code:: ipython3
 
     from hopeit.app.context import EventContext
     from hopeit.dataobjects import dataobject
-
+    
     __steps__ = ['step1']
-
-
+    
+    
     @dataobject
-    @dataclass
     class MyObject:
         text: str
         length: int
-
-
+    
+    
     async def step1(payload: str, context: EventContext) -> MyObject:
         """
         Receives a string and returns MyObject where name is the received string
@@ -107,10 +104,10 @@ Server should be running and listening on port 8020:
 
 ::
 
-   2020-06-25 16:35:52,120 | INFO | hopeit.engine 0.1.0 engine hostname 15394 | [hopeit.server.engine] Starting engine... |
+   2020-06-25 16:35:52,120 | INFO | hopeit.engine 0.1.0 engine hostname 15394 | [hopeit.server.engine] Starting engine... | 
    ...
-   2020-06-25 16:35:52,148 | INFO | hopeit.engine 0.1.0 engine hostname 15394 | [hopeit.server.engine] Starting app=my_app.1x0... |
-   2020-06-25 16:35:52,150 | INFO | hopeit.engine 0.1.0 engine hostname 15394 | [hopeit.server.web] GET path=/api/my-app/1x0/sample-endpoint |
+   2020-06-25 16:35:52,148 | INFO | hopeit.engine 0.1.0 engine hostname 15394 | [hopeit.server.engine] Starting app=my_app.1x0... | 
+   2020-06-25 16:35:52,150 | INFO | hopeit.engine 0.1.0 engine hostname 15394 | [hopeit.server.web] GET path=/api/my-app/1x0/sample-endpoint | 
    ======== Running on http://0.0.0.0:8020 ========
    (Press CTRL+C to quit)
 

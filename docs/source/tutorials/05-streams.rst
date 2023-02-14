@@ -31,13 +31,6 @@ https://redis.io/topics/quickstart
 We assume in this tutorial that redis will be accessible under
 ``redis://localhost:6379``
 
-We also need to install hopeit.engine using [redis-streams] extra plugin:
-
-.. code-block:: bash
-
- pip install "hopeit.engine[redis-streams]"
-
-
 Step 3: Create App configuration json file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -93,7 +86,6 @@ everything to the console. We also specify a connection string to Redis.
            "log_level": "DEBUG"
        },
        "streams": {
-           "stream_manager": "hopeit.redis_streams.RedisStreamManager",
            "connection_str": "redis://localhost:6379"
        },
        "api": {
@@ -116,31 +108,28 @@ Step 5: Create the event handlers
 2. In the same folder, ``my_streaming_app``, now create a python file
    ``data_model.py`` with the following code
 
-.. code:: python
+.. code:: ipython3
 
     """
     Data Model for my_app
     """
-    from dataclasses import dataclass
     from enum import Enum
-
+    
     from hopeit.dataobjects import dataobject
-
-
+    
+    
     @dataobject
-    @dataclass
     class MyData:
         text: str
-
-
+    
+    
     class Status(Enum):
         NEW = 'NEW'
         VALID = 'VALID'
         PROCESSED = 'PROCESSED'
-
-
+    
+    
     @dataobject
-    @dataclass
     class MyMessage:
         text: str
         status: Status
@@ -149,7 +138,7 @@ Step 5: Create the event handlers
 3. In the same folder, ``my_streaming_app``, now create a python file
    ``send_message.py`` with the following code
 
-.. code:: python
+.. code:: ipython3
 
     """
     Send Message:
@@ -157,17 +146,17 @@ Step 5: Create the event handlers
     Sends a message to be processed asynchronously
     """
     from typing import Optional, Union
-
+    
     from hopeit.app.context import EventContext, PostprocessHook
     from hopeit.app.api import event_api
     from hopeit.app.logger import app_extra_logger
-
+    
     from .data_model import MyData, Status, MyMessage
-
+    
     logger, extra = app_extra_logger()
-
+    
     __steps__ = ['create_message', 'validate']
-
+    
     __api__ = event_api(
         payload=(MyData, "data received"),
         responses={
@@ -175,8 +164,8 @@ Step 5: Create the event handlers
             400: (str, "invalid message error")
         }
     )
-
-
+    
+    
     async def create_message(payload: MyData, context: EventContext) -> MyMessage:
         """
         Creates MyMessage objects from the received text in MyData payload
@@ -184,8 +173,8 @@ Step 5: Create the event handlers
         logger.info(context, "Received data", extra=extra(length=len(payload.text)))
         message = MyMessage(payload.text, Status.NEW)
         return message
-
-
+    
+    
     async def validate(message: MyMessage, context: EventContext) -> Optional[MyMessage]:
         """
         Validates the lenght of the text is at least 3 characters, then set status to VALID
@@ -196,8 +185,8 @@ Step 5: Create the event handlers
             return None
         message.status = Status.VALID
         return message
-
-
+    
+    
     async def __postprocess__(message: Optional[MyMessage], context: EventContext,
                               response: PostprocessHook) -> Union[MyMessage, str]:
         """
@@ -241,7 +230,7 @@ Notice that we’ve introduced several new concepts:
 4. In the same folder, ``my_streaming_app``, now create a python file
    ``process_message.py`` with the following code
 
-.. code:: python
+.. code:: ipython3
 
     """
     Process Message:
@@ -250,20 +239,20 @@ Notice that we’ve introduced several new concepts:
     """
     import uuid
     from typing import Optional, Union
-
+    
     from hopeit.app.context import EventContext
     from hopeit.app.logger import app_extra_logger
-    from hopeit.fs_storage import FileStorage
-
+    from hopeit.toolkit.storage.fs import FileStorage
+    
     from .data_model import Status, MyMessage
-
+    
     logger, extra = app_extra_logger()
-
+    
     __steps__ = ['save_message']
-
+    
     output: FileStorage = None
-
-
+    
+    
     async def __init_event__(context: EventContext):
         """
         Initializes output data saver using path configured in config.json
@@ -273,8 +262,8 @@ Notice that we’ve introduced several new concepts:
             save_path = context.env['process_message']['save_path']
             logger.info(context, "Initializing FileStorage...", extra=extra(path=save_path))
             output = FileStorage(path=save_path)
-
-
+    
+    
     async def save_message(message: MyMessage, context: EventContext) -> MyMessage:
         """
         Receives `MyMessage` from stream, updates status and saves to disk.
@@ -334,16 +323,16 @@ Server should be running and listening on port 8020:
 
 ::
 
-   2020-07-02 16:36:56,288 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.engine] Starting engine... |
+   2020-07-02 16:36:56,288 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.engine] Starting engine... | 
    ...
-   2020-07-02 16:36:56,357 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.engine] Starting app=my_streaming_app.1x0... |
-   2020-07-02 16:36:56,358 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.streams] Connecting address=redis://localhost:6379... |
-   2020-07-02 16:36:56,361 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.web] POST path=/api/my-streaming-app/1x0/send-message input=<class 'my_streaming_app.data_model.MyData'> |
-   2020-07-02 16:36:56,361 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.web] STREAM path=/mgmt/my-streaming-app/1x0/process-message/[start|stop] |
-   2020-07-02 16:36:56,361 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.web] STREAM start event_name=process-message read_stream=my-stream |
+   2020-07-02 16:36:56,357 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.engine] Starting app=my_streaming_app.1x0... | 
+   2020-07-02 16:36:56,358 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.streams] Connecting address=redis://localhost:6379... | 
+   2020-07-02 16:36:56,361 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.web] POST path=/api/my-streaming-app/1x0/send-message input=<class 'my_streaming_app.data_model.MyData'> | 
+   2020-07-02 16:36:56,361 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.web] STREAM path=/mgmt/my-streaming-app/1x0/process-message/[start|stop] | 
+   2020-07-02 16:36:56,361 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.web] STREAM start event_name=process-message read_stream=my-stream | 
    2020-07-02 16:36:56,361 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.engine] Starting reading stream... | stream.app_key=my_streaming_app.1x0 | stream.event_name=process-message
-   2020-07-02 16:36:56,361 | DEBUG | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.web] Performing forced garbage collection... |
-   2020-07-02 16:36:56,368 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.streams] Consumer_group already exists read_stream=my-stream consumer_group=process-message-group |
+   2020-07-02 16:36:56,361 | DEBUG | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.web] Performing forced garbage collection... | 
+   2020-07-02 16:36:56,368 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.streams] Consumer_group already exists read_stream=my-stream consumer_group=process-message-group | 
    2020-07-02 16:36:56,369 | INFO | hopeit.engine 0.1.0 engine hostname 46299 | [hopeit.server.engine] Consuming stream... | stream.app_key=my_streaming_app.1x0 | stream.event_name=process-message | stream.name=my-stream | stream.consumer_group=process-message-group
    ======== Running on http://0.0.0.0:8020 ========
    (Press CTRL+C to quit)
@@ -428,3 +417,4 @@ And you can restart execution using
 When restarting execution, all unconsumed events in Redis will be
 processed. Activity about stopping and starting stream process will be
 logged.
+

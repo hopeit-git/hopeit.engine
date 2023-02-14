@@ -9,7 +9,7 @@ class AppsVisualizerSettings:
     """
     Apps visualizer settings.
 
-    Helper dataclasses to load "apps-visualizer" env section from plugin config.
+    Helper dataobject to load "apps-visualizer" env section from plugin config.
 
     :field: hosts, str: comma-separated list of `http://host:port` entries to contact to query
         config-manager plugin for running apps layout
