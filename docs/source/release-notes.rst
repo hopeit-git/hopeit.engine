@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+Version 0.16.8
+______________
+- Update dependencies
+- Fix api handling on newer version of `aiohttp_swagger3`
+
+
 Version 0.16.7
 ______________
 - Update dependencies
