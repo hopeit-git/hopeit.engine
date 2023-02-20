@@ -1,31 +1,81 @@
 version: '2'
 services:
-
-  # Redis cluster needed for STREAM events (Single node, development only)
+  # Redis needed for STREAM events
   redis:
-    image: 'redis:6.0'
-    environment:
-      # ALLOW_EMPTY_PASSWORD is recommended only for development.
-      - ALLOW_EMPTY_PASSWORD=yes
-      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
-    volumes:
-      - ./conf/redis01:/opt/redis-conf
-      - ./data/redis01:/data
+    image: 'redis'    
     ports:
       - '6379:6379'
 
-  # Simple Example application with HAProxy load balancer (Development only)
-  # WARNING: local filesystem is mounted into docker image to help development and debugging
-  # for production use `make dist`, copy and install engine and apps with pip from DockerFile.
-  simple-example:
+  simple-example-a:
     build: engine
+    image: hopeit.engine
     volumes:
-      - ./engine/config/haproxy.cfg:/etc/haproxy/haproxy.cfg
-      - ./engine/config/supervisord.conf:/etc/supervisord.conf
-      - ./engine/config/bootstrap.sh:/opt/hopeit.engine/bootstrap.sh
-      - ../engine:/opt/hopeit.engine/engine
-      - ../apps:/opt/hopeit.engine/apps
-      - ../plugins:/opt/hopeit.engine/plugins
+      - hopeit-data:/tmp/hopeit
+      - hopeit-logs:/hopeit.engine/work/logs      
+      - hopeit-secrets:/hopeit.engine/.secrets
+    depends_on:
+      - redis
     ports:
-      - '80:80'
-      - '443:443'
+      - '8020:8020'
+  
+  simple-example-b:
+    image: hopeit.engine
+    depends_on:
+      - simple-example-a
+    volumes:
+      - hopeit-data:/tmp/hopeit
+      - hopeit-logs:/hopeit.engine/work/logs
+      - hopeit-secrets:/hopeit.engine/.secrets
+    environment:
+      - PORT=8021
+    ports:
+      - '8021:8021'  
+  
+  client-example:
+    image: hopeit.engine
+    depends_on:
+      - simple-example-a
+    volumes:
+      - hopeit-logs:/hopeit.engine/work/logs
+      - hopeit-secrets:/hopeit.engine/.secrets
+    environment:
+      - HOSTS=http://simple-example-a:8020,http://simple-example-b:8021
+      - APP=run-client-example
+      - PORT=8030
+    ports:
+      - '8030:8030'
+  
+  apps-visualizer:
+    image: hopeit.engine
+    depends_on:
+      - simple-example-a
+    volumes:
+      - hopeit-logs:/hopeit.engine/work/logs
+    environment:
+      - HOSTS=http://simple-example-a:8020,http://simple-example-b:8021,http://client-example:8030,http://apps-visualizer:8098,http://log-streamer:8099
+      - APP=run-apps-visualizer
+      - PORT=8098
+    ports:
+      - '8098:8098'
+
+  log-streamer:
+    image: hopeit.engine
+    depends_on:
+      - redis
+    volumes:
+      - hopeit-logs:/hopeit.engine/work/logs
+    environment:
+      - APP=run-log-streamer
+      - PORT=8099
+    ports:
+      - '8099:8099'
+
+volumes:
+     hopeit-data:
+     hopeit-logs:
+     hopeit-secrets:
+     
+
+networks:
+   hopeit-network:
+    external: true
