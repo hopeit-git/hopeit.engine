@@ -10,7 +10,8 @@ services:
     build: engine
     image: hopeit.engine
     volumes:
-      - hopeit-logs:/hopeit.engine/work/logs
+      - hopeit-data:/tmp/hopeit
+      - hopeit-logs:/hopeit.engine/work/logs      
       - hopeit-secrets:/hopeit.engine/.secrets
     depends_on:
       - redis
@@ -22,6 +23,7 @@ services:
     depends_on:
       - simple-example-a
     volumes:
+      - hopeit-data:/tmp/hopeit
       - hopeit-logs:/hopeit.engine/work/logs
       - hopeit-secrets:/hopeit.engine/.secrets
     environment:
@@ -69,8 +71,10 @@ services:
       - '8099:8099'
 
 volumes:
+     hopeit-data:
      hopeit-logs:
      hopeit-secrets:
+     
 
 networks:
    hopeit-network:
