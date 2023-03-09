@@ -5,7 +5,7 @@ import sys
 
 try:
     import click
-    from hopeit.server import web
+    from hopeit.server import wsgi
 except ModuleNotFoundError:
     print("ERROR: Missing dependencies."
           "\n       To use hopeit_server command line tool"
@@ -30,17 +30,13 @@ def server():
               help="Optional comma-separated group labels to start. If no group is specified, all events will be"
               " started. Events with no group or 'DEFAULT' group label will always be started. 'DEFAULT' group label"
               " can also be used explicitly to start only events with no group or 'DEFAULT' group label.")
-def run(config_files: str, api_file: str, host: str, port: int, path: str, start_streams: bool, enabled_groups: str):
+@click.option('--workers', default=1, help="Number of workeres to start.")
+def run(config_files: str, api_file: str, host: str, port: int, path: str,
+        start_streams: bool, enabled_groups: str, workers: int):
     """
     Runs web server hosting apps specified in config files.
     """
-    web.prepare_engine(
-        config_files=config_files.split(','),
-        api_file=api_file,
-        enabled_groups=enabled_groups.split(',') if enabled_groups else [],
-        start_streams=start_streams,
-    )
-    web.serve(host=host, path=path, port=port)
+    wsgi.run_app(host, port, config_files, api_file, start_streams, enabled_groups, workers)
 
 
 cli = click.CommandCollection(sources=[server])

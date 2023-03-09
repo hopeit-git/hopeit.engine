@@ -27,4 +27,5 @@ __all__ = ['config',
            'names',
            'steps',
            'web',
+           'wsgi',
            'api']
