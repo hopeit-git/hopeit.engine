@@ -36,7 +36,14 @@ def run(config_files: str, api_file: str, host: str, port: int, path: str,
     """
     Runs web server hosting apps specified in config files.
     """
-    wsgi.run_app(host, port, config_files, api_file, start_streams, enabled_groups, workers)
+    wsgi.run_app(
+        host=host,
+        port=port,
+        config_files=config_files.split(','),
+        api_file=api_file,
+        start_streams=start_streams,
+        enabled_groups=enabled_groups.split(','),
+        workers=workers)
 
 
 cli = click.CommandCollection(sources=[server])

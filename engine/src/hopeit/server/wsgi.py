@@ -1,13 +1,16 @@
 """
 Webrunner module based on gunicorn
 """
-from typing import List, Optional
+from typing import List
+from abc import abstractmethod
 from dataclasses import dataclass
 import multiprocessing
+
 from aiohttp import web
-import gunicorn.app.base
+import gunicorn.app.base   # type: ignore
 
 from hopeit.server.web import init_web_server
+
 
 @dataclass
 class AppConfig():
@@ -16,7 +19,8 @@ class AppConfig():
     enabled_groups: List[str]
     start_streams: bool
 
-app_config: Optional[AppConfig] = None
+
+app_config: AppConfig
 
 
 def number_of_workers():
@@ -25,16 +29,17 @@ def number_of_workers():
 
 async def wsgi_app() -> web.Application:
     return init_web_server(
-            app_config.config_files,
-            app_config.api_file,
-            app_config.enabled_groups,
-            app_config.start_streams)
+        config_files=app_config.config_files,
+        api_file=app_config.api_file,
+        enabled_groups=app_config.enabled_groups,
+        start_streams=app_config.start_streams)
 
 
 class WSGIApplication(gunicorn.app.base.BaseApplication):
     """
-    WSGI HTTP Server 
+    WSGI HTTP Server
     """
+    @abstractmethod
     def __init__(self, app, options=None):
         self.options = options or {}
         self.application = app
@@ -50,13 +55,17 @@ class WSGIApplication(gunicorn.app.base.BaseApplication):
         return self.application
 
 
-def run_app(host: str, port: int, config_files: str, api_file: str, start_streams: bool,
-            enabled_groups: str, workers: int):
+def run_app(host: str, port: int, config_files: List[str], api_file: str, start_streams: bool,
+            enabled_groups: List[str], workers: int):
     """
     Gunicorn Web Runner
     """
     global app_config
-    app_config = AppConfig(config_files.split(","), api_file, enabled_groups, start_streams)
+    app_config = AppConfig(
+        config_files=config_files,
+        api_file=api_file,
+        enabled_groups=enabled_groups,
+        start_streams=start_streams)
 
     workerclass = 'aiohttp.GunicornWebWorker'
     # workerclass = 'aiohttp.GunicornUVLoopWebWorker'
@@ -67,11 +76,8 @@ def run_app(host: str, port: int, config_files: str, api_file: str, start_stream
         'workers': workers,
         'worker_class': workerclass,
         'max_requests': 0,
-        # 'worker_connections': 1000000,
         'proc_name': 'hopeit.engine',
         'graceful_timeout': 60,
-        # 'preload_app': True,
-        # 'daemon': True
     }
 
     WSGIApplication(wsgi_app, options).run()

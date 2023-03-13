@@ -50,6 +50,7 @@ from hopeit.server.logger import (
 from hopeit.server.metrics import metrics
 from hopeit.server.names import route_name
 from hopeit.server.steps import find_datatype_handler
+
 from hopeit.toolkit import auth
 
 __all__ = ['parse_args',
@@ -137,6 +138,7 @@ async def server_startup_hook(config: ServerConfig, *args, **kwargs):
 async def stop_server():
     await runtime.server.stop()
     await web_server.shutdown()
+    await web_server.cleanup()
 
 
 async def app_startup_hook(config: AppConfig, enabled_groups: List[str], *args, **kwargs):
@@ -772,10 +774,9 @@ def parse_args(args) -> ParsedArgs:
     port = int(parsed_args.port) if parsed_args.port else 8020 if parsed_args.path is None else None
     config_files = parsed_args.config_files.split(',')
     enabled_groups = parsed_args.enabled_groups.split(',') if parsed_args.enabled_groups else []
-    host = parsed_args.host if parsed_args.host else 'localhost'
 
     return ParsedArgs(
-        host=host,
+        host=parsed_args.host,
         port=port,
         path=parsed_args.path,
         start_streams=bool(parsed_args.start_streams),
@@ -786,7 +787,7 @@ def parse_args(args) -> ParsedArgs:
 
 
 def init_web_server(config_files: List[str], api_file: str, enabled_groups: List[str],
-        start_streams: bool = False) -> web.Application:
+        start_streams: bool) -> web.Application:
     """
     Init Web Server
     """

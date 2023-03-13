@@ -1,12 +1,13 @@
 import asyncio
+import pytest
 from typing import List, Any
 from unittest.mock import MagicMock
 
 import nest_asyncio  # type: ignore
 from aiohttp.web_runner import GracefulExit
-import pytest
+from aiohttp.web import run_app, Application
 
-from hopeit.server import web
+from hopeit.server import web, runtime, engine
 from hopeit.server.web import parse_args
 
 
@@ -82,6 +83,11 @@ async def _stream_startup_hook(*args, **kwargs):
     )
 
 
+def _cleanup_runtime():
+    runtime.server = engine.Server()
+    web.web_server = Application()
+
+
 @pytest.mark.asyncio
 async def test_server_initialization(monkeypatch):
     async def _shutdown(*args, **kwargs):
@@ -89,14 +95,15 @@ async def test_server_initialization(monkeypatch):
         raise GracefulExit
 
     def _serve():
-        web.prepare_engine(
+        _cleanup_runtime()
+        web.init_web_server(
             config_files=['test_server_file.json', 'test_app_file.json', 'test_app_file2.json'],
             api_file='test_api_file.json',
             enabled_groups=[],
-            start_streams=True,
+            start_streams=True
         )
         web.web_server.on_startup.append(_shutdown)
-        web.serve(host='localhost', port=8020, path=None)
+        run_app(web.web_server, host='localhost', port=8020, path=None)
 
     nest_asyncio.apply()
 
