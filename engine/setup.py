@@ -110,7 +110,8 @@ setuptools.setup(
             "aiohttp",
             "aiohttp-cors",
             "aiohttp-swagger3",
-            "gunicorn"
+            "gunicorn",
+            "uvloop"
         ]],
         "cli": [ f"{lib}>={libversion(lib)}" for lib in [
             "click"

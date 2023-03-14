@@ -2,6 +2,7 @@
 CLI server commands
 """
 import sys
+from typing import List
 
 try:
     import click
@@ -30,20 +31,27 @@ def server():
               help="Optional comma-separated group labels to start. If no group is specified, all events will be"
               " started. Events with no group or 'DEFAULT' group label will always be started. 'DEFAULT' group label"
               " can also be used explicitly to start only events with no group or 'DEFAULT' group label.")
-@click.option('--workers', default=1, help="Number of workeres to start.")
+@click.option('--workers', default=1, help="Number of workeres to start. Max number of workers is (cpu_count * 2) + 1")
+@click.option('--worker-class', type=click.Choice(['GunicornWebWorker', 'GunicornUVLoopWebWorker']),
+              default="GunicornWebWorker", help="Gunicorn aiohttp worker class. The default is GunicornWebWorker.")
 def run(config_files: str, api_file: str, host: str, port: int, path: str,
-        start_streams: bool, enabled_groups: str, workers: int):
+        start_streams: bool, enabled_groups: str, workers: int, worker_class: str):
     """
     Runs web server hosting apps specified in config files.
     """
+    groups: List[str] = [] if enabled_groups == "" else enabled_groups.split(',')
+    files: List[str] = config_files.split(',')
+
     wsgi.run_app(
         host=host,
         port=port,
-        config_files=config_files.split(','),
+        path=path,
+        config_files=files,
         api_file=api_file,
         start_streams=start_streams,
-        enabled_groups=enabled_groups.split(','),
-        workers=workers)
+        enabled_groups=groups,
+        workers=workers,
+        worker_class=worker_class)
 
 
 cli = click.CommandCollection(sources=[server])

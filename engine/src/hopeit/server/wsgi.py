@@ -1,7 +1,7 @@
 """
 Webrunner module based on gunicorn
 """
-from typing import List
+from typing import List, Optional
 from abc import abstractmethod
 from dataclasses import dataclass
 import multiprocessing
@@ -23,11 +23,12 @@ class AppConfig():
 app_config: AppConfig
 
 
-def number_of_workers():
+def number_of_workers() -> int:
     return (multiprocessing.cpu_count() * 2) + 1
 
 
 async def wsgi_app() -> web.Application:
+    print(app_config.config_files)
     return init_web_server(
         config_files=app_config.config_files,
         api_file=app_config.api_file,
@@ -55,11 +56,14 @@ class WSGIApplication(gunicorn.app.base.BaseApplication):
         return self.application
 
 
-def run_app(host: str, port: int, config_files: List[str], api_file: str, start_streams: bool,
-            enabled_groups: List[str], workers: int):
+def run_app(host: str, port: int, path: Optional[str], config_files: List[str], api_file: str, start_streams: bool,
+            enabled_groups: List[str], workers: int, worker_class: str):
     """
     Gunicorn Web Runner
     """
+
+    workers = max(1, min(workers, number_of_workers()))
+
     global app_config
     app_config = AppConfig(
         config_files=config_files,
@@ -67,17 +71,16 @@ def run_app(host: str, port: int, config_files: List[str], api_file: str, start_
         enabled_groups=enabled_groups,
         start_streams=start_streams)
 
-    workerclass = 'aiohttp.GunicornWebWorker'
-    # workerclass = 'aiohttp.GunicornUVLoopWebWorker'
-    bind = f"{host if host else '127.0.0.1'}:{port}"
-
+    bind = f"{host if host else '0.0.0.0'}:{port}"
+    print(bind)
     options = {
         'bind': bind,
         'workers': workers,
-        'worker_class': workerclass,
-        'max_requests': 0,
+        'worker_class': f'aiohttp.{worker_class}',
         'proc_name': 'hopeit.engine',
-        'graceful_timeout': 60,
+        'logfile': './logfile.log'
     }
+    if path:
+        options['bind'] = f'unix:{path}'
 
     WSGIApplication(wsgi_app, options).run()
