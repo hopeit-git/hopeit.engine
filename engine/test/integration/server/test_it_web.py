@@ -518,14 +518,14 @@ async def call_stop_service(client):
     assert res.status == 200
 
 
-def _cleanup_runtime():
+async def stop_test_server():
+    await stop_server()
     runtime.server = engine.Server()
     web.web_server = Application()
 
 
 async def start_test_server(mock_app_config, mock_plugin_config,  # noqa: F811
                             streams: bool, enabled_groups: List[str]):
-    _cleanup_runtime()
     await server_startup_hook(mock_app_config.server)
     await app_startup_hook(mock_plugin_config, enabled_groups)
     await app_startup_hook(mock_app_config, enabled_groups)
@@ -617,7 +617,7 @@ async def test_endpoints(monkeypatch,
         logger.debug("Running web test %s...", test_func)
         await test_func(test_client)
 
-    await stop_server()
+    await stop_test_server()
 
 
 @pytest.mark.order(2)
@@ -630,4 +630,4 @@ async def test_start_streams_on_startup(monkeypatch,
                                aiohttp_client, True, [])
     await call_stop_stream(test_client)
     await call_stop_service(test_client)
-    await stop_server()
+    await stop_test_server()

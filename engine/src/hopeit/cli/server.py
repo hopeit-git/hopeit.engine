@@ -20,11 +20,11 @@ def server():
 
 
 @server.command()
-@click.option('--config-files', prompt='Config files',
+@click.option('--config-files', required=True,
               help='Comma-separated config file paths, starting with server config, then plugins, then apps.')
-@click.option('--api-file', help='Path to openapi complaint json specification.')
+@click.option('--api-file', default=None, help='Path to openapi complaint json specification.')
 @click.option('--host', default='0.0.0.0', help='Server host address or name.')
-@click.option('--port', default='8020', help='TCP/IP port to listen.')
+@click.option('--port', default=8020, help='TCP/IP port to listen.')
 @click.option('--path', help='POSIX complaint socket name.')
 @click.option('--start-streams', is_flag=True, default=False, help='Auto start reading stream events.')
 @click.option('--enabled-groups', default='',

@@ -5,9 +5,9 @@ from unittest.mock import MagicMock
 
 import nest_asyncio  # type: ignore
 from aiohttp.web_runner import GracefulExit
-from aiohttp.web import run_app, Application
+from aiohttp.web import run_app
 
-from hopeit.server import web, runtime, engine
+from hopeit.server import web
 from hopeit.server.web import parse_args
 
 
@@ -83,11 +83,6 @@ async def _stream_startup_hook(*args, **kwargs):
     )
 
 
-def _cleanup_runtime():
-    runtime.server = engine.Server()
-    web.web_server = Application()
-
-
 @pytest.mark.asyncio
 async def test_server_initialization(monkeypatch):
     async def _shutdown(*args, **kwargs):
@@ -95,7 +90,6 @@ async def test_server_initialization(monkeypatch):
         raise GracefulExit
 
     def _serve():
-        _cleanup_runtime()
         web.init_web_server(
             config_files=['test_server_file.json', 'test_app_file.json', 'test_app_file2.json'],
             api_file='test_api_file.json',
