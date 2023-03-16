@@ -229,7 +229,7 @@
         ],
         "responses": {
           "200": {
-            "description": "List",
+            "description": "list of Something objects",
             "content": {
               "application/json": {
                 "schema": {
