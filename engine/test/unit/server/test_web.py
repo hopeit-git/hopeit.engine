@@ -5,10 +5,15 @@ from unittest.mock import MagicMock
 
 import nest_asyncio  # type: ignore
 from aiohttp.web_runner import GracefulExit
-from aiohttp.web import run_app
+from aiohttp.web import run_app, Application
 
-from hopeit.server import web
+from hopeit.server import web, runtime, engine
 from hopeit.server.web import parse_args
+
+
+async def cleanup_test_server():
+    runtime.server = engine.Server()
+    web.web_server = Application()
 
 
 def test_port_path():
@@ -120,6 +125,7 @@ async def test_server_initialization(monkeypatch):
 
     try:
         _serve()
+        await cleanup_test_server()
     except Exception as e:
         raise e  # Unexpected error
     finally:

@@ -1,18 +1,19 @@
-import subprocess
-from time import sleep
-from typing import Optional, List
 import logging
+import subprocess
+import sys
+import os
+from time import sleep
+from typing import List, Optional
+
 import pytest
 from click.testing import CliRunner
-from hopeit.server import wsgi
 from hopeit.cli.server import run
+from hopeit.server import wsgi
 
 
-class MockHopeitWeb:
-    @staticmethod
-    def run_app(host: str, port: int, path: Optional[str], config_files: List[str], api_file: str,
-                start_streams: bool, enabled_groups: List[str], workers: int, worker_class: str):
-        print(f"Server running on port {port}")
+def run_app(host: str, port: int, path: Optional[str], config_files: List[str], api_file: str,
+            start_streams: bool, enabled_groups: List[str], workers: int, worker_class: str):
+    print(f"Listening at: http://{host}:{port}")
 
 
 class MockBaseAppliction:
@@ -21,12 +22,16 @@ class MockBaseAppliction:
 
     @staticmethod
     def run():
-        print("Server running on port 8021")
+        print("Listening at: http://localhost:8021")
 
 
-def test_full_signatre(monkeypatch):
+async def test_full_signatre(monkeypatch):
+    sys.path.append("plugins/auth/basic-auth/src/")
+    sys.path.append("apps/examples/simple-example/src/")
+    sys.path.append("plugins/storage/fs/src/")
+    sys.path.append("plugins/ops/config-manager/src/")
+
     runner = CliRunner()
-
     wsgi.WSGIApplication = MockBaseAppliction
     result = runner.invoke(run, [
         "--port=8021",
@@ -37,33 +42,44 @@ def test_full_signatre(monkeypatch):
         "--api-file=apps/examples/simple-example/api/openapi.json",
         "--enabled-groups=g1,g2"])
     assert result.exit_code == 0
-    assert result.output == "Server running on port 8021\n"
+    assert result.output == "Listening at: http://localhost:8021\n"
 
 
 def test_missing_config_files(monkeypatch):
     runner = CliRunner()
-    wsgi.WSGIApplication = MockBaseAppliction
     result = runner.invoke(run, ["--port=8021",
                                  "--api-file=apps/examples/simple-example/api/openapi.json",
                                  "--enabled-groups=g1,g2"])
     assert result.exit_code == 2
+    assert result.output == "Usage: run [OPTIONS]\nTry 'run --help' for help.\n\n" \
+                            "Error: Missing option '--config-files'.\n"
 
 
 def test_empty_config_files(monkeypatch):
     runner = CliRunner()
-    monkeypatch.setattr(wsgi, "run_app", MockHopeitWeb.run_app)
     result = runner.invoke(run, ["--port=8021",
-                                 "--condig-files"])
+                                 "--config-files"])
     assert result.exit_code == 2
+    assert result.output == "Error: Option '--config-files' requires an argument.\n"
 
 
-def test_default_port(monkeypatch):
+def test_default_host_port(monkeypatch):
     runner = CliRunner()
-    monkeypatch.setattr(wsgi, 'run_app', MockHopeitWeb.run_app)
+    monkeypatch.setattr(wsgi, 'run_app', run_app)
     result = runner.invoke(run, ["--config-files=engine/config/dev-local.json"
                                  ",plugins/auth/basic-auth/config/plugin-config.json"])
     assert result.exit_code == 0
-    assert result.output == "Server running on port 8020\n"
+    assert result.output == "Listening at: http://0.0.0.0:8020\n"
+
+
+def test_custom_host_port(monkeypatch):
+    runner = CliRunner()
+    monkeypatch.setattr(wsgi, 'run_app', run_app)
+    result = runner.invoke(run, ["--port=8888", "--host=myhost.mydomain",
+                                 "--config-files=engine/config/dev-local.json"
+                                 ",plugins/auth/basic-auth/config/plugin-config.json"])
+    assert result.exit_code == 0
+    assert result.output == "Listening at: http://myhost.mydomain:8888\n"
 
 
 @pytest.mark.parametrize("worker_class", ["GunicornWebWorker", "GunicornUVLoopWebWorker"])
@@ -78,12 +94,15 @@ def test_hopeit_server(worker_class):
     hopeit_proc = None
     proc_output = None
 
-    args = ["hopeit_server", "run",
+    args = ["python", "-m", "hopeit.cli.server", "run",
             "--config-files=engine/config/dev-local.json"
             ",plugins/auth/basic-auth/config/plugin-config.json",
             f"--worker-class={worker_class}"]
 
-    hopeit_proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    mock_env = os.environ.copy()
+    mock_env["PYTHONPATH"] = "plugins/auth/basic-auth/src/:" + mock_env["PYTHONPATH"]
+
+    hopeit_proc = subprocess.Popen(args, env=mock_env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     sleep(2)
     hopeit_proc.terminate()
 
