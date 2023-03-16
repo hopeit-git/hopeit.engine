@@ -33,7 +33,7 @@ def server():
               " can also be used explicitly to start only events with no group or 'DEFAULT' group label.")
 @click.option('--workers', default=1, help="Number of workeres to start. Max number of workers is (cpu_count * 2) + 1")
 @click.option('--worker-class', type=click.Choice(['GunicornWebWorker', 'GunicornUVLoopWebWorker']),
-              default="GunicornWebWorker", help="Gunicorn aiohttp worker class. The default is GunicornWebWorker.")
+              default="GunicornWebWorker", help="Gunicorn aiohttp worker class. Default value is GunicornWebWorker.")
 def run(config_files: str, api_file: str, host: str, port: int, path: str,
         start_streams: bool, enabled_groups: str, workers: int, worker_class: str):
     """
