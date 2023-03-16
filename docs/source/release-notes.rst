@@ -3,7 +3,19 @@ Release Notes
 
 Version 0.17.0
 ______________
-- 
+- Engine:
+
+  - Significant performance improvements by executing `hopeit_server` using `gunicorn`
+    in multicore environments`
+  - `hopeit_server` command have new `--workers` and `--worker-class` params: 
+
+    - Setting `--workers=2` allows to start `hopeit.engine` with 2 engine workers to respond 
+      requests from the same port. This feature was implemented with `gunicorn`.
+      Default value is `--workers=1`
+    - To set `--worker-class` there are two possible options: `GunicornWebWorker`, `GunicornUVLoopWebWorker`. 
+      Refer to `aiohttp <https://docs.aiohttp.org/en/stable/deployment.html#start-gunicorn>` 
+      docs for more details.
+      Default value is `--worker-class=GunicornWebWorker`
 
 
 Version 0.16.8
