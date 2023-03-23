@@ -228,7 +228,7 @@ class MockRedisPool():
         self.xgroup_exists = False
         self.xread_consumername = None
         self.xack_msg_id = None
-        self.closing = False
+        self.closed = False
 
     @staticmethod
     def from_url(url):
@@ -269,9 +269,5 @@ class MockRedisPool():
         self.xack_msg_id = id
         return 1
 
-    def close(self):
-        self.closing = True
-
-    async def wait_closed(self):
-        assert self.closing is True
-        self.closing = False
+    async def close(self):
+        self.closed = True

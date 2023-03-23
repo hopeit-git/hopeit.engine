@@ -19,7 +19,7 @@ __api__ = event_api(
         ('wildcard', Optional[str], "Wildcard to filter objects by name")
     ],
     responses={
-        200: List[Something]
+        200: (List[Something], 'list of Something objects'),
     }
 )
 

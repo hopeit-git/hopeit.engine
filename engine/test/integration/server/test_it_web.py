@@ -3,14 +3,13 @@ import os
 import uuid
 import asyncio
 import logging
-from typing import Optional, List
+from typing import List
 import aiohttp
 import pytest
 from aiohttp import ClientResponse
-# from pytest_aiohttp import aiohttp_client  # type: ignore  # noqa: F401
+from aiohttp.web import Application
 
-import hopeit.server.web
-from hopeit.server import api
+from hopeit.server import api, runtime, engine, web
 from hopeit.server.web import server_startup_hook, stop_server, app_startup_hook, stream_startup_hook
 
 from mock_engine import MockStreamManager, MockEventHandler
@@ -519,6 +518,12 @@ async def call_stop_service(client):
     assert res.status == 200
 
 
+async def stop_test_server():
+    await stop_server()
+    runtime.server = engine.Server()
+    web.web_server = Application()
+
+
 async def start_test_server(mock_app_config, mock_plugin_config,  # noqa: F811
                             streams: bool, enabled_groups: List[str]):
     await server_startup_hook(mock_app_config.server)
@@ -526,7 +531,7 @@ async def start_test_server(mock_app_config, mock_plugin_config,  # noqa: F811
     await app_startup_hook(mock_app_config, enabled_groups)
     if streams:
         await stream_startup_hook(mock_app_config, enabled_groups)
-    print('Test engine started.', hopeit.server.web.web_server)
+    print('Test engine started.', web.web_server)
     await asyncio.sleep(5)
 
 
@@ -534,8 +539,8 @@ async def _setup(monkeypatch,
                  mock_app_config,  # noqa: F811
                  mock_plugin_config,  # noqa: F811
                  aiohttp_client,  # noqa: F811
-                 streams=None,
-                 enabled_groups: Optional[List[str]] = None):
+                 streams: bool,
+                 enabled_groups: List[str]):
     stream_event = MockResult("ok: ok")
     monkeypatch.setattr(MockStreamManager, 'test_payload', stream_event)
     monkeypatch.setattr(MockEventHandler, 'test_track_ids', None)
@@ -544,7 +549,7 @@ async def _setup(monkeypatch,
     if enabled_groups is None:
         enabled_groups = []
     await start_test_server(mock_app_config, mock_plugin_config, streams, enabled_groups)
-    return await aiohttp_client(hopeit.server.web.web_server)
+    return await aiohttp_client(web.web_server)
 
 
 @pytest.fixture
@@ -567,7 +572,7 @@ async def test_endpoints(monkeypatch,
                          mock_plugin_config,  # noqa: F811
                          aiohttp_client):  # noqa: F811
     test_client = await _setup(monkeypatch, mock_app_config, mock_plugin_config,
-                               aiohttp_client, [])
+                               aiohttp_client, False, [])
 
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
@@ -612,7 +617,7 @@ async def test_endpoints(monkeypatch,
         logger.debug("Running web test %s...", test_func)
         await test_func(test_client)
 
-    await stop_server()
+    await stop_test_server()
 
 
 @pytest.mark.order(2)
@@ -622,7 +627,7 @@ async def test_start_streams_on_startup(monkeypatch,
                                         mock_plugin_config,  # noqa: F811
                                         aiohttp_client):  # noqa: F811
     test_client = await _setup(monkeypatch, mock_app_config, mock_plugin_config,
-                               aiohttp_client, streams=True)
+                               aiohttp_client, True, [])
     await call_stop_stream(test_client)
     await call_stop_service(test_client)
-    await stop_server()
+    await stop_test_server()

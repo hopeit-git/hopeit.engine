@@ -88,7 +88,7 @@ class AppEngine:
             if running.locked():
                 await self.stop_event(event_name)
         if self.stream_manager:
-            await asyncio.sleep(self.app_config.engine.read_stream_timeout + 5)
+            await asyncio.sleep((self.app_config.engine.read_stream_timeout + 5000) / 1000)
             await self.stream_manager.close()
         await stop_app_connections(self.app_key)
         logger.info(__name__, f"Stopped app={self.app_key}")
@@ -518,7 +518,7 @@ class AppEngine:
                     )
                     logger.done(context, extra=extra(prefix='service.', **log_info))
                     if not self._running[event_name].locked():
-                        logger.info(__name__, "Stopped service.", extra=extra(prefix='service.', **log_info))
+                        logger.info(__name__, "Stopping service loop...", extra=extra(prefix='service.', **log_info))
                         break
                 except CancelledError as e:
                     logger.error(context, 'Cancelled', extra=extra(prefix='service.', **log_info))

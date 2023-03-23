@@ -61,8 +61,7 @@ class RedisStreamManager(StreamManager):
 
         async def _close(pool) -> None:
             if pool:
-                pool.close()
-                await pool.wait_closed()
+                await pool.close()
             return None
 
         self._read_pool = await _close(self._read_pool)

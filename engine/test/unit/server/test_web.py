@@ -1,13 +1,19 @@
 import asyncio
+import pytest
 from typing import List, Any
 from unittest.mock import MagicMock
 
 import nest_asyncio  # type: ignore
 from aiohttp.web_runner import GracefulExit
-import pytest
+from aiohttp.web import run_app, Application
 
-from hopeit.server import web
+from hopeit.server import web, runtime, engine
 from hopeit.server.web import parse_args
+
+
+async def cleanup_test_server():
+    runtime.server = engine.Server()
+    web.web_server = Application()
 
 
 def test_port_path():
@@ -89,14 +95,14 @@ async def test_server_initialization(monkeypatch):
         raise GracefulExit
 
     def _serve():
-        web.prepare_engine(
+        web.init_web_server(
             config_files=['test_server_file.json', 'test_app_file.json', 'test_app_file2.json'],
             api_file='test_api_file.json',
             enabled_groups=[],
-            start_streams=True,
+            start_streams=True
         )
         web.web_server.on_startup.append(_shutdown)
-        web.serve(host='localhost', port=8020, path=None)
+        run_app(web.web_server, host='localhost', port=8020, path=None)
 
     nest_asyncio.apply()
 
@@ -119,6 +125,7 @@ async def test_server_initialization(monkeypatch):
 
     try:
         _serve()
+        await cleanup_test_server()
     except Exception as e:
         raise e  # Unexpected error
     finally:

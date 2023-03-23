@@ -41,7 +41,7 @@ from hopeit.server.api import app_route_name
 from hopeit.server.config import (
     AuthType, ServerConfig, parse_server_config_json
 )
-from hopeit.server.engine import AppEngine, Server
+from hopeit.server.engine import AppEngine
 from hopeit.server.errors import ErrorInfo
 from hopeit.server.events import get_event_settings
 from hopeit.server.logger import (
@@ -50,6 +50,7 @@ from hopeit.server.logger import (
 from hopeit.server.metrics import metrics
 from hopeit.server.names import route_name
 from hopeit.server.steps import find_datatype_handler
+
 from hopeit.toolkit import auth
 
 __all__ = ['parse_args',
@@ -110,13 +111,15 @@ def prepare_engine(*, config_files: List[str], api_file: Optional[str], enabled_
                 partial(stream_startup_hook, config)
             )
 
+    web_server.on_shutdown.append(_shutdown_hook)
     logger.debug(__name__, "Performing forced garbage collection...")
     gc.collect()
 
 
-def serve(*, host: str, path: str, port: int):
-    logger.info(__name__, f"Starting web server host: {host} port: {port} socket: {path}...")
-    web.run_app(web_server, host=host, path=path, port=port)
+async def _shutdown_hook(app):
+    logger.debug(__name__, "Calling shutdown hook...")
+    await runtime.server.stop()
+    logger.debug(__name__, "Done shutdown hook...")
 
 
 def init_logger():
@@ -133,11 +136,9 @@ async def server_startup_hook(config: ServerConfig, *args, **kwargs):
 
 
 async def stop_server():
-    global web_server
     await runtime.server.stop()
     await web_server.shutdown()
-    runtime.server = Server()
-    web_server = web.Application()
+    await web_server.cleanup()
 
 
 async def app_startup_hook(config: AppConfig, enabled_groups: List[str], *args, **kwargs):
@@ -785,12 +786,38 @@ def parse_args(args) -> ParsedArgs:
     )
 
 
+def init_web_server(config_files: List[str], api_file: str, enabled_groups: List[str],
+        start_streams: bool) -> web.Application:
+    """
+    Init Web Server
+    """
+    if enabled_groups is None:
+        enabled_groups = []
+    prepare_engine(
+        config_files=config_files,
+        api_file=api_file,
+        start_streams=start_streams,
+        enabled_groups=enabled_groups
+    )
+    return web_server
+
+
+def serve(host: str, path: str, port: int, config_files:List[str], api_file: str, start_streams:bool,
+          enabled_groups:List[str]):
+    """
+    Serve hopeit.engine
+    """
+    web_app = init_web_server(config_files, api_file, enabled_groups, start_streams)
+    logger.info(__name__, f"Starting web server host: {host} port: {port} socket: {path}...")
+    web.run_app(web_app, host=host, path=path, port=port)
+
+
 if __name__ == "__main__":
     sys_args = parse_args(sys.argv[1:])
-    prepare_engine(
+    serve(host=sys_args.host,
+        path=sys_args.path,
+        port=sys_args.port,
         config_files=sys_args.config_files,
         api_file=sys_args.api_file,
         start_streams=sys_args.start_streams,
-        enabled_groups=sys_args.enabled_groups
-    )
-    serve(host=sys_args.host, path=sys_args.path, port=sys_args.port)
+        enabled_groups=sys_args.enabled_groups)
