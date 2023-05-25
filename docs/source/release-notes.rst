@@ -1,9 +1,22 @@
 Release Notes
 =============
 
+Version 0.18.0
+______________
+- Engine:
+
+  - `hopeit_server` command have new `--api-auto` param:
+    
+    - Setting: when `--api-file` is not defined, `--api-auto=version;title;description` allows to start `hopeit.engine`
+      with openapi enabled. You have to define `--api-auto=0.17;Simple Example;Simple Example OpenAPI specs` 
+      to define API General Info.
+      Default value is `None`.
+
+
 Version 0.17.1
 ______________
 - Engine:
+
   - `hopeit_server` command have new `--workers-timeout` param: 
 
     - Setting `--workers-timeout=N`` a worker not responding for more than N seconds will be killed and restarted. 

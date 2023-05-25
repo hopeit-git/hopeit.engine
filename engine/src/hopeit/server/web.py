@@ -758,7 +758,7 @@ def parse_args(args) -> ParsedArgs:
     --config-files, is a comma-separated list of hopeit apps config files relative or full paths
     --api-file, optional path to openapi.json file with at least openapi and info sections
     --api-auto, optional when api_file is not defined, specify a semicolons-separated 
-              `version;title;description` for automatic generated OpenAPI specs
+              `version;title;description` to define API General Info and enable OpenAPI
     --enabled-groups, optional list of group label to be started
     Example::
 
