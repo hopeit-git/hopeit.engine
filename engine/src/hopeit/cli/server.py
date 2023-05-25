@@ -23,6 +23,8 @@ def server():
 @click.option('--config-files', required=True,
               help='Comma-separated config file paths, starting with server config, then plugins, then apps.')
 @click.option('--api-file', default=None, help='Path to openapi complaint json specification.')
+@click.option('--api-auto', default=None, help='When api_file is not defined, specify a comma-separated '
+              '`title,description` for automatic generated OpenAPI specs.')
 @click.option('--host', default='0.0.0.0', help='Server host address or name.')
 @click.option('--port', default=8020, help='TCP/IP port to listen.')
 @click.option('--path', help='POSIX complaint socket name.')
@@ -38,12 +40,13 @@ def server():
               "restarted. Value is a positive number or 0. Setting it to 0 has the effect of infinite timeouts "
               "by disabling timeouts for all workers entirely.")
 def run(config_files: str, api_file: str, host: str, port: int, path: str, start_streams: bool,
-        enabled_groups: str, workers: int, worker_class: str, worker_timeout: int):
+        enabled_groups: str, workers: int, worker_class: str, worker_timeout: int, api_auto: str):
     """
     Runs web server hosting apps specified in config files.
     """
     groups: List[str] = [] if enabled_groups == "" else enabled_groups.split(',')
     files: List[str] = config_files.split(',')
+    api_spec = [] if api_auto is None else api_auto.split(';')
 
     wsgi.run_app(
         host=host,
@@ -51,6 +54,7 @@ def run(config_files: str, api_file: str, host: str, port: int, path: str, start
         path=path,
         config_files=files,
         api_file=api_file,
+        api_auto=api_spec,
         start_streams=start_streams,
         enabled_groups=groups,
         workers=workers,

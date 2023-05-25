@@ -85,7 +85,6 @@ class APIConfig:
     Config for Open API docs page
     """
     docs_path: Optional[str] = None
-    api_file: Optional[str] = None
 
 
 @dataobject

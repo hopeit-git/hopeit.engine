@@ -11,7 +11,7 @@ from hopeit.cli.server import run
 from hopeit.server import wsgi
 
 
-def run_app(host: str, port: int, path: Optional[str], config_files: List[str], api_file: str,
+def run_app(host: str, port: int, path: Optional[str], config_files: List[str], api_file: str, api_auto: List[str],
             start_streams: bool, enabled_groups: List[str], workers: int, worker_class: str, worker_timeout: int):
     print(f"Listening at: http://{host}:{port}")
 

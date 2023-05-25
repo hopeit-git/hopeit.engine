@@ -19,49 +19,49 @@ async def cleanup_test_server():
 def test_port_path():
     args = ['--port=8080', '--path=/tmp/test', '--config-files=engine.json,test.json']
     result = parse_args(args)
-    assert result == (None, 8080, '/tmp/test', False, ['engine.json', 'test.json'], None, [])
+    assert result == (None, 8080, '/tmp/test', False, ['engine.json', 'test.json'], None, [], [])
 
 
 def test_stream_start():
     args = ['--start-streams', '--config-files=test.json']
     result = parse_args(args)
-    assert result == (None, 8020, None, True, ['test.json'], None, [])
+    assert result == (None, 8020, None, True, ['test.json'], None, [], [])
 
 
 def test_port_only():
     args = ['--port=8020', '--config-files=test.json']
     result = parse_args(args)
-    assert result == (None, 8020, None, False, ['test.json'], None, [])
+    assert result == (None, 8020, None, False, ['test.json'], None, [], [])
 
 
 def test_path_only():
     args = ['--path=/tmp/test', '--config-files=test.json']
     result = parse_args(args)
-    assert result == (None, None, '/tmp/test', False, ['test.json'], None, [])
+    assert result == (None, None, '/tmp/test', False, ['test.json'], None, [], [])
 
 
 def test_rest_config_only():
     args = ['--config-files=test.json']
     result = parse_args(args)
-    assert result == (None, 8020, None, False, ['test.json'], None, [])
+    assert result == (None, 8020, None, False, ['test.json'], None, [], [])
 
 
 def test_rest_config_with_host():
     args = ['--host=127.0.0.1', '--config-files=test.json']
     result = parse_args(args)
-    assert result == ('127.0.0.1', 8020, None, False, ['test.json'], None, [])
+    assert result == ('127.0.0.1', 8020, None, False, ['test.json'], None, [], [])
 
 
 def test_config_with_api_file():
     args = ['--config-files=test.json', '--api-file=openapi.json']
     result = parse_args(args)
-    assert result == (None, 8020, None, False, ['test.json'], 'openapi.json', [])
+    assert result == (None, 8020, None, False, ['test.json'], 'openapi.json', [], [])
 
 
 def test_config_with_groups():
     args = ['--config-files=test.json', '--api-file=openapi.json', '--enabled-groups=g1,g2']
     result = parse_args(args)
-    assert result == (None, 8020, None, False, ['test.json'], 'openapi.json', ['g1', 'g2'])
+    assert result == (None, 8020, None, False, ['test.json'], 'openapi.json', [], ['g1', 'g2'])
 
 
 class MockHooks:
@@ -98,6 +98,7 @@ async def test_server_initialization(monkeypatch):
         web.init_web_server(
             config_files=['test_server_file.json', 'test_app_file.json', 'test_app_file2.json'],
             api_file='test_api_file.json',
+            api_auto=[],
             enabled_groups=[],
             start_streams=True
         )
