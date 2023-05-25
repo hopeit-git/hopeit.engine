@@ -78,6 +78,7 @@ def prepare_engine(*, config_files: List[str], api_file: Optional[str], enabled_
     """
     logger.info("Loading engine config file=%s...", config_files[0])  # type: ignore
     server_config: ServerConfig = _load_engine_config(config_files[0])
+    server_config.api.api_file = api_file
 
     # Add startup hook to start engine
     web_server.on_startup.append(
@@ -85,8 +86,9 @@ def prepare_engine(*, config_files: List[str], api_file: Optional[str], enabled_
     )
     if server_config.auth.domain:
         auth_info_default['domain'] = server_config.auth.domain
-    if api_file is not None:
-        api.load_api_file(api_file)
+
+    if server_config.api.api_file is not None:
+        api.load_api_file(server_config.api.api_file)
         api.register_server_config(server_config)
 
     apps_config = []

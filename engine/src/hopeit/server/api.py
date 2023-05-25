@@ -120,12 +120,16 @@ def load_api_file(path: Union[str, Path]):
     @param path: path to json file
     """
     global spec, static_spec
-    logger.info(__name__, f"Loading api spec from api_file={path}...")
-    with open(path, 'r', encoding="utf-8") as f:
-        spec = json.loads(f.read())
-        assert spec is not None
-        logger.info(__name__, f"API: openapi={spec['openapi']}, API version={spec['info']['version']}")
-        static_spec = deepcopy(spec)
+    if path == 'AUTO':
+        logger.info(__name__, f"On the fly api specs when api_file={path}...")
+        init_empty_spec(OPEN_API_VERSION, "Auto generated OpenAPI", "OpenAPI definition")
+    else:
+        logger.info(__name__, f"Loading api spec from api_file={path}...")
+        with open(path, 'r', encoding="utf-8") as f:
+            spec = json.loads(f.read())
+            assert spec is not None
+            logger.info(__name__, f"API: openapi={spec['openapi']}, API version={spec['info']['version']}")
+            static_spec = deepcopy(spec)
 
 
 def save_api_file(path: Union[str, Path], api_version: str):
@@ -153,11 +157,14 @@ def register_server_config(server_config: ServerConfig):
     """
     Register API definitions from server configuration. This consists of allowed and default authentication methods.
     """
+    global static_spec
     if spec is not None:
         if 'components' not in spec:
             spec['components'] = {'schemas': {}}
         _update_auth_methods()
         _update_server_default_auth_methods(server_config)
+        if server_config.api.api_file == 'AUTO':
+            static_spec = spec
 
 
 def register_apps(apps_config: List[AppConfig]):
@@ -280,7 +287,7 @@ def enable_swagger(server_config: ServerConfig, app: web.Application):
     if spec is None:
         logger.warning(__name__, "No api-file loaded. OpenAPI docs and validation disabled.")
         return
-    if diff_specs():
+    if server_config.api.api_file != "AUTO" and diff_specs():
         err = APIError("Cannot enable OpenAPI. Differences found between api-file and running apps. "
                        "Run `hopeit openapi diff` to check and `hopeit openapi update` to generate spec file")
         logger.error(__name__, err)
