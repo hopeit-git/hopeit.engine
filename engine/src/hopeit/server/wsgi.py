@@ -47,7 +47,8 @@ def run_app(host: str, port: int, path: Optional[str], config_files: List[str], 
         'workers': workers,
         'worker_class': f'aiohttp.{worker_class}',
         'proc_name': 'hopeit.engine',
-        'logfile': './logfile.log'
+        'logfile': './logfile.log',
+        'timeout': 0
     }
     if path:
         options['bind'] = f'unix:{path}'
