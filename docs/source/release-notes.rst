@@ -1,6 +1,18 @@
 Release Notes
 =============
 
+Version 0.17.1
+______________
+- Engine:
+  - `hopeit_server` command have new `--workers-timeout` param: 
+
+    - Setting `--workers-timeout=N`` a worker not responding for more than N seconds will be killed and restarted. 
+      Setting N to 0 disables the timeout completely. 
+      Note that this is only the gunicorn worker timeout and does not affect endpoints and stream timeouts. 
+      Recommended value of N is above the maximum endpoint or stream timeouts in the application. 
+      Default value is 0.
+
+
 Version 0.17.0
 ______________
 - Engine:

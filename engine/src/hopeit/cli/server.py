@@ -34,8 +34,11 @@ def server():
 @click.option('--workers', default=1, help="Number of workeres to start. Max number of workers is (cpu_count * 2) + 1")
 @click.option('--worker-class', type=click.Choice(['GunicornWebWorker', 'GunicornUVLoopWebWorker']),
               default="GunicornWebWorker", help="Gunicorn aiohttp worker class. Default value is GunicornWebWorker.")
-def run(config_files: str, api_file: str, host: str, port: int, path: str,
-        start_streams: bool, enabled_groups: str, workers: int, worker_class: str):
+@click.option('--worker-timeout', default=0, help="Workers silent for more than this many seconds are killed and "
+              "restarted. Value is a positive number or 0. Setting it to 0 has the effect of infinite timeouts "
+              "by disabling timeouts for all workers entirely.")
+def run(config_files: str, api_file: str, host: str, port: int, path: str, start_streams: bool,
+        enabled_groups: str, workers: int, worker_class: str, worker_timeout: int):
     """
     Runs web server hosting apps specified in config files.
     """
@@ -51,7 +54,8 @@ def run(config_files: str, api_file: str, host: str, port: int, path: str,
         start_streams=start_streams,
         enabled_groups=groups,
         workers=workers,
-        worker_class=worker_class)
+        worker_class=worker_class,
+        worker_timeout=worker_timeout)
 
 
 cli = click.CommandCollection(sources=[server])

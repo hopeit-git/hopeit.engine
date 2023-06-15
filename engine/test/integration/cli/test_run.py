@@ -12,7 +12,7 @@ from hopeit.server import wsgi
 
 
 def run_app(host: str, port: int, path: Optional[str], config_files: List[str], api_file: str,
-            start_streams: bool, enabled_groups: List[str], workers: int, worker_class: str):
+            start_streams: bool, enabled_groups: List[str], workers: int, worker_class: str, worker_timeout: int):
     print(f"Listening at: http://{host}:{port}")
 
 
