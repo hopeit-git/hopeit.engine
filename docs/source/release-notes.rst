@@ -6,12 +6,11 @@ ______________
 - Engine:
   - `hopeit_server` command have new `--workers-timeout` param: 
 
-    - By setting `--workers-timeout=30` a workers silent for more than this many seconds are killed and restarted. 
-      Value is a positive number or 0. Default value is 0 and has the effect of infinite timeouts by disabling 
-      timeouts for all workers entirely. Anyway this setting only applies for the worker itself, the tiemout settings 
-      of apis and streams will still be respected.
-      When setting set a timeout it is recommended to set a higher value than the timeout setting of 
-      any api, service or stream to avoid unexpected restarts.
+    - Setting `--workers-timeout=N`` a worker not responding for more than N seconds will be killed and restarted. 
+      Setting N to 0 disables the timeout completely. 
+      Note that this is only the gunicorn worker timeout and does not affect endpoints and stream timeouts. 
+      Recommended value of N is above the maximum endpoint or stream timeouts in the application. 
+      Default value is 0.
 
 
 Version 0.17.0

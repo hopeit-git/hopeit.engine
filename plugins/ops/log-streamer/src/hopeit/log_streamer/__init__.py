@@ -5,8 +5,8 @@ import asyncio
 from typing import Dict, List, TextIO
 from datetime import datetime, timezone
 
-from watchdog.observers import Observer  # type: ignore
-from watchdog.events import FileSystemEventHandler  # type: ignore
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 from hopeit.dataobjects import dataobject, dataclass
 from hopeit.app.context import EventContext
