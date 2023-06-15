@@ -1,6 +1,19 @@
 Release Notes
 =============
 
+Version 0.17.1
+______________
+- Engine:
+  - `hopeit_server` command have new `--workers-timeout` param: 
+
+    - By setting `--workers-timeout=30` a workers silent for more than this many seconds are killed and restarted. 
+      Value is a positive number or 0. Default value is 0 and has the effect of infinite timeouts by disabling 
+      timeouts for all workers entirely. Anyway this setting only applies for the worker itself, the tiemout settings 
+      of apis and streams will still be respected.
+      When setting set a timeout it is recommended to set a higher value than the timeout setting of 
+      any api, service or stream to avoid unexpected restarts.
+
+
 Version 0.17.0
 ______________
 - Engine:

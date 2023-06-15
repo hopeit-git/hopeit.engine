@@ -33,8 +33,8 @@ class WSGIApplication(gunicorn.app.base.BaseApplication):
         return self.application
 
 
-def run_app(host: str, port: int, path: Optional[str], config_files: List[str], api_file: str,
-            start_streams: bool, enabled_groups: List[str], workers: int, worker_class: str):
+def run_app(host: str, port: int, path: Optional[str], config_files: List[str], api_file: str, start_streams: bool,
+            enabled_groups: List[str], workers: int, worker_class: str, worker_timeout: int):
     """
     Gunicorn Web Runner
     """
@@ -46,9 +46,8 @@ def run_app(host: str, port: int, path: Optional[str], config_files: List[str], 
         'bind': bind,
         'workers': workers,
         'worker_class': f'aiohttp.{worker_class}',
-        'proc_name': 'hopeit.engine',
-        'logfile': './logfile.log',
-        'timeout': 0
+        'proc_name': 'hopeit_server',
+        'timeout': worker_timeout
     }
     if path:
         options['bind'] = f'unix:{path}'
