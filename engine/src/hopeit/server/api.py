@@ -54,6 +54,8 @@ _options = {
 
 OPEN_API_VERSION = '3.0.3'
 
+OPEN_API_DEFAULTS = ["hopeit.engine automatic OpenAPI title", "hopeit.engine automatic OpenAPI description"]
+
 METHOD_MAPPING = {
     EventType.GET: 'get',
     EventType.POST: 'post',

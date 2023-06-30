@@ -37,7 +37,7 @@ from hopeit.app.errors import BadRequest, Unauthorized
 from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType
 from hopeit.dataobjects.payload import Payload
 from hopeit.server import api, runtime
-from hopeit.server.api import app_route_name
+from hopeit.server.api import app_route_name, OPEN_API_DEFAULTS
 from hopeit.server.config import (
     AuthType, ServerConfig, parse_server_config_json
 )
@@ -92,6 +92,10 @@ def prepare_engine(*, config_files: List[str], api_file: Optional[str], api_auto
         api.register_server_config(server_config)
 
     if api_file is None and api_auto:
+        if len(api_auto) < 3:
+            api_auto.extend(OPEN_API_DEFAULTS[len(api_auto) - 3:])
+        else:
+            api_auto = api_auto[:3]
         api.init_auto_api(api_auto[0], api_auto[1], api_auto[2])
         api.register_server_config(server_config)
 
