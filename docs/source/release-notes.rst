@@ -12,6 +12,8 @@ ______________
       to define API General Info.
       Default value is `None`.
 
+- Added test build for Python 3.11
+
 
 Version 0.17.1
 ______________

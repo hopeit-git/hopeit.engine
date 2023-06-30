@@ -19,7 +19,7 @@ setuptools.setup(
     package_data={
         "hopeit.basic_auth": ["py.typed"]
     },
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     install_requires=[
         f"hopeit.engine=={version['ENGINE_VERSION']}",
         "PyJWT[crypto]>=2.4.0,<3"
