@@ -5,14 +5,14 @@ Version 0.18.0
 ______________
 - Engine:
 
-  - `hopeit_server` command have new `--api-auto` param:
+  - `hopeit_server` command now supports the `--api-auto` parameter:
     
-    - Setting: when `--api-file` is not defined, `--api-auto=version;title;description` allows to start `hopeit.engine`
-      with openapi enabled. You have to define `--api-auto=0.17;Simple Example;Simple Example OpenAPI specs` 
-      to define API General Info.
-      Default value is `None`.
-
-- Added test build for Python 3.11
+    - Setting: When the `--api-file` is not specified, using `--api-auto=version;title;description`
+      enables the OpenAPI feature in hopeit.engine.
+      To define the API General Info, use `--api-auto=0.17;Simple Example;Simple Example OpenAPI specs`.
+      The default value is `None`.
+    
+- Test build for Python 3.11 has been added.
 
 
 Version 0.17.1
