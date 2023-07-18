@@ -94,7 +94,11 @@ async def _stream_startup_hook(*args, **kwargs):
     )
 
 
-@pytest.mark.parametrize("api_file,api_auto", [('test_api_file.json', []), (None, ['0.18']), (None, None)])
+@pytest.mark.parametrize("api_file,api_auto", [
+    ('test_api_file.json', []),
+    (None, ['0.18', 'Title', 'Description']),
+    (None, ['0.18']),
+    (None, None)])
 @pytest.mark.asyncio
 async def test_server_initialization(monkeypatch, api_file, api_auto):
     async def _shutdown(*args, **kwargs):
@@ -115,16 +119,14 @@ async def test_server_initialization(monkeypatch, api_file, api_auto):
     nest_asyncio.apply()
 
     _load_engine_config = MagicMock()
-    if api_file:
-        _load_api_file = MagicMock()
+    _load_api_file = MagicMock()
     _enable_swagger = MagicMock()
     _register_server_config = MagicMock()
     _register_apps = MagicMock()
     _load_app_config = MagicMock()
 
     monkeypatch.setattr(web, '_load_engine_config', _load_engine_config)
-    if api_file:
-        monkeypatch.setattr(web.api, 'load_api_file', _load_api_file)
+    monkeypatch.setattr(web.api, 'load_api_file', _load_api_file)
     monkeypatch.setattr(web.api, 'register_server_config', _register_server_config)
     monkeypatch.setattr(web.api, 'register_apps', _register_apps)
     monkeypatch.setattr(web.api, 'enable_swagger', _enable_swagger)
