@@ -148,8 +148,7 @@ async def test_server_initialization(monkeypatch, api_file, api_auto):
         assert _load_engine_config.call_args[0] == ('test_server_file.json',)
         if api_file:
             assert _load_api_file.call_args[0] == ('test_api_file.json',)
-        if api_file or api_auto:
-            assert _register_server_config.call_count == 1
+        assert _register_server_config.call_count == (1 if api_file or api_auto else 0)
         assert _load_app_config.call_args_list[0][0] == ('test_app_file.json',)
         assert _load_app_config.call_args_list[1][0] == ('test_app_file2.json',)
         assert _register_apps.call_count == 1
