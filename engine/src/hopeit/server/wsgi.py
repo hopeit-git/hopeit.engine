@@ -33,8 +33,8 @@ class WSGIApplication(gunicorn.app.base.BaseApplication):
         return self.application
 
 
-def run_app(host: str, port: int, path: Optional[str], config_files: List[str], api_file: str, start_streams: bool,
-            enabled_groups: List[str], workers: int, worker_class: str, worker_timeout: int):
+def run_app(host: str, port: int, path: Optional[str], config_files: List[str], api_file: str, api_auto: List[str],
+            start_streams: bool, enabled_groups: List[str], workers: int, worker_class: str, worker_timeout: int):
     """
     Gunicorn Web Runner
     """
@@ -55,6 +55,7 @@ def run_app(host: str, port: int, path: Optional[str], config_files: List[str], 
     app = init_web_server(
             config_files=config_files,
             api_file=api_file,
+            api_auto=api_auto,
             enabled_groups=enabled_groups,
             start_streams=start_streams)
 

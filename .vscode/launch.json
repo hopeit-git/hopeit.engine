@@ -14,7 +14,21 @@
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
-        },        
+        },
+        {
+            "name": "simple-example-auto",
+            "type": "python",
+            "request": "launch",
+            "module": "hopeit.server.web",
+            "args": [
+                "--port=8020",
+                "--start-streams",
+                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--api-auto=0.18;Simple Example;Simple Example OpenAPI specs"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
         {
             "name": "client-example",
             "type": "python",

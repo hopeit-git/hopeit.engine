@@ -54,6 +54,8 @@ _options = {
 
 OPEN_API_VERSION = '3.0.3'
 
+OPEN_API_DEFAULTS = ["hopeit.engine automatic OpenAPI title", "hopeit.engine automatic OpenAPI description"]
+
 METHOD_MAPPING = {
     EventType.GET: 'get',
     EventType.POST: 'post',
@@ -112,6 +114,13 @@ def init_empty_spec(api_version: str, title: str, description: str):
     }
     logger.info(__name__, f"API: openapi={spec['openapi']}, API version={spec['info']['version']}")
     static_spec = deepcopy(spec)
+
+
+def init_auto_api(version: str, title: str, description: str):
+    global static_spec
+    logger.info(__name__, "On the fly api specs.")
+    init_empty_spec(version, title, description)
+    static_spec = None
 
 
 def load_api_file(path: Union[str, Path]):
@@ -280,7 +289,7 @@ def enable_swagger(server_config: ServerConfig, app: web.Application):
     if spec is None:
         logger.warning(__name__, "No api-file loaded. OpenAPI docs and validation disabled.")
         return
-    if diff_specs():
+    if static_spec is not None and diff_specs():
         err = APIError("Cannot enable OpenAPI. Differences found between api-file and running apps. "
                        "Run `hopeit openapi diff` to check and `hopeit openapi update` to generate spec file")
         logger.error(__name__, err)

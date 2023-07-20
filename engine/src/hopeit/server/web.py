@@ -37,7 +37,7 @@ from hopeit.app.errors import BadRequest, Unauthorized
 from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType
 from hopeit.dataobjects.payload import Payload
 from hopeit.server import api, runtime
-from hopeit.server.api import app_route_name
+from hopeit.server.api import app_route_name, OPEN_API_DEFAULTS
 from hopeit.server.config import (
     AuthType, ServerConfig, parse_server_config_json
 )
@@ -71,7 +71,8 @@ web_server = web.Application()
 auth_info_default = {}
 
 
-def prepare_engine(*, config_files: List[str], api_file: Optional[str], enabled_groups: List[str], start_streams: bool):
+def prepare_engine(*, config_files: List[str], api_file: Optional[str], api_auto: List[str],
+                   enabled_groups: List[str], start_streams: bool):
     """
     Load configuration files and add hooks to setup engine server and apps,
     start streams and services.
@@ -85,8 +86,17 @@ def prepare_engine(*, config_files: List[str], api_file: Optional[str], enabled_
     )
     if server_config.auth.domain:
         auth_info_default['domain'] = server_config.auth.domain
+
     if api_file is not None:
         api.load_api_file(api_file)
+        api.register_server_config(server_config)
+
+    if api_file is None and api_auto:
+        if len(api_auto) < 3:
+            api_auto.extend(OPEN_API_DEFAULTS[len(api_auto) - 3:])
+        else:
+            api_auto = api_auto[:3]
+        api.init_auto_api(api_auto[0], api_auto[1], api_auto[2])
         api.register_server_config(server_config)
 
     apps_config = []
@@ -739,7 +749,7 @@ async def _handle_event_stop_invocation(
 
 
 ParsedArgs = namedtuple("ParsedArgs", ["host", "port", "path", "start_streams",
-                                       "config_files", "api_file", "enabled_groups"])
+                                       "config_files", "api_file", "api_auto", "enabled_groups"])
 
 
 def parse_args(args) -> ParsedArgs:
@@ -751,6 +761,8 @@ def parse_args(args) -> ParsedArgs:
     --start-streams, optional True if to auto start all events of STREAM type
     --config-files, is a comma-separated list of hopeit apps config files relative or full paths
     --api-file, optional path to openapi.json file with at least openapi and info sections
+    --api-auto, optional when api_file is not defined, specify a semicolons-separated 
+              `version;title;description` to define API General Info and enable OpenAPI
     --enabled-groups, optional list of group label to be started
     Example::
 
@@ -768,12 +780,14 @@ def parse_args(args) -> ParsedArgs:
     parser.add_argument('--start-streams', action='store_true')
     parser.add_argument('--config-files')
     parser.add_argument('--api-file')
+    parser.add_argument('--api-auto')
     parser.add_argument('--enabled-groups')
 
     parsed_args = parser.parse_args(args=args)
     port = int(parsed_args.port) if parsed_args.port else 8020 if parsed_args.path is None else None
     config_files = parsed_args.config_files.split(',')
     enabled_groups = parsed_args.enabled_groups.split(',') if parsed_args.enabled_groups else []
+    api_auto = [] if parsed_args.api_auto is None else parsed_args.api_auto.split(';')
 
     return ParsedArgs(
         host=parsed_args.host,
@@ -782,11 +796,12 @@ def parse_args(args) -> ParsedArgs:
         start_streams=bool(parsed_args.start_streams),
         config_files=config_files,
         api_file=parsed_args.api_file,
+        api_auto=api_auto,
         enabled_groups=enabled_groups
     )
 
 
-def init_web_server(config_files: List[str], api_file: str, enabled_groups: List[str],
+def init_web_server(config_files: List[str], api_file: str, api_auto: List[str], enabled_groups: List[str],
         start_streams: bool) -> web.Application:
     """
     Init Web Server
@@ -796,18 +811,19 @@ def init_web_server(config_files: List[str], api_file: str, enabled_groups: List
     prepare_engine(
         config_files=config_files,
         api_file=api_file,
+        api_auto=api_auto,
         start_streams=start_streams,
         enabled_groups=enabled_groups
     )
     return web_server
 
 
-def serve(host: str, path: str, port: int, config_files:List[str], api_file: str, start_streams:bool,
-          enabled_groups:List[str]):
+def serve(host: str, path: str, port: int, config_files:List[str], api_file: str, api_auto: List[str],
+          start_streams:bool, enabled_groups:List[str]):
     """
     Serve hopeit.engine
     """
-    web_app = init_web_server(config_files, api_file, enabled_groups, start_streams)
+    web_app = init_web_server(config_files, api_file, api_auto, enabled_groups, start_streams)
     logger.info(__name__, f"Starting web server host: {host} port: {port} socket: {path}...")
     web.run_app(web_app, host=host, path=path, port=port)
 
@@ -819,5 +835,6 @@ if __name__ == "__main__":
         port=sys_args.port,
         config_files=sys_args.config_files,
         api_file=sys_args.api_file,
+        api_auto=sys_args.api_auto,
         start_streams=sys_args.start_streams,
         enabled_groups=sys_args.enabled_groups)

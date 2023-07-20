@@ -18,10 +18,10 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Intended Audience :: Developers",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Development Status :: 4 - Beta",
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X",
@@ -54,7 +54,7 @@ setuptools.setup(
         "hopeit.apps_visualizer.site": ["*.html", "py.typed"]
     },
     include_package_data=True,
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     install_requires=[
         f"hopeit.engine[web,log-streamer,config-manager]=={version['ENGINE_VERSION']}"
     ],
