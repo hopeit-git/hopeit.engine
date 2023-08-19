@@ -66,7 +66,6 @@ extra = extra_logger()
 
 ResponseType = Union[web.Response, web.FileResponse, web.StreamResponse]
 
-# server = Server()
 web_server = web.Application()
 auth_info_default = {}
 

@@ -3,9 +3,12 @@ Events handling
 """
 from typing import AsyncGenerator, Type, TypeVar
 
+from hopeit.app.context import EventContext
 from hopeit.dataobjects import EventPayloadType
 from hopeit.server.collector import Collector
+from hopeit.server.engine import AppEngine
 from hopeit.server.steps import SHUFFLE, CollectorStepsDescriptor
+from hopeit.server.runtime import server
 
 __all__ = ['Spawn', 'SHUFFLE', 'collector_step', 'Collector']
 
@@ -76,3 +79,24 @@ def collector_step(*, payload: Type[EventPayloadType]) -> CollectorStepsDescript
     Please check the sequence your code is accessing/awaiting results from the collector to avoid cycles.
     """
     return CollectorStepsDescriptor(payload)
+
+
+def service_running(context: EventContext) -> bool:
+    """
+    Checks if a service associated with the context is currently running.
+    :param: context EventContext
+    :return: bool Returns True if the service is running, False otherwise.
+
+    Usage example:
+
+    async def __service__(context: EventContext) -> Spawn[str]:
+    i = 1
+    while service_running(context):
+        yield f"id{i}", f"user{i}")
+        i += 1
+        await asyncio.sleep(random.random() * 10.0)
+    logger.info(context, "Service seamlessly exit")
+
+    """
+    app_engine: AppEngine = server.app_engines[context.app_key]
+    return app_engine.is_running(context.event_name)
