@@ -19,7 +19,7 @@ def server():
     pass
 
 
-@server.command()
+@server.command()  # type: ignore
 @click.option('--config-files', required=True,
               help='Comma-separated config file paths, starting with server config, then plugins, then apps.')
 @click.option('--api-file', default=None, help='Path to openapi complaint json specification.')
