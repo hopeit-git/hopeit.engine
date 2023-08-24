@@ -8,7 +8,7 @@ import pytest  # type: ignore
 
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHeaders, PreprocessHook
 from hopeit.server.config import AuthType
-from hopeit.testing.apps import config, server_config, create_test_context, execute_event, execute_service
+from hopeit.testing.apps import config, server_config, create_test_context, execute_event, execute_service, TestingException
 from mock_app import mock_app_config, MockData, mock_event, MockResult  # noqa: F401
 
 
@@ -86,6 +86,11 @@ async def test_execute_service(mock_app_config):  # noqa: F811
     assert result == [MockData(value='stream: service.0'),
                       MockData(value='stream: service.1'),
                       MockData(value='stream: service.2')]
+
+@pytest.mark.asyncio
+async def test_execute_service_unhappy(mock_app_config):  # noqa: F811
+    with pytest.raises(TestingException):
+        await execute_service(mock_app_config, 'mock_service_event_unhappy', max_events=3)
 
 
 @pytest.mark.asyncio

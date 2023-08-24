@@ -92,7 +92,7 @@ def service_running(context: EventContext) -> bool:
     async def __service__(context: EventContext) -> Spawn[str]:
     i = 1
     while service_running(context):
-        yield f"id{i}", f"user{i}")
+        yield f"id{i} user{i}"
         i += 1
         await asyncio.sleep(random.random() * 10.0)
     logger.info(context, "Service seamlessly exit")
