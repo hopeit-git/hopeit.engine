@@ -762,7 +762,7 @@ async def test_start_multiple_groups(monkeypatch, mock_app_config, mock_plugin_c
         plugin=mock_plugin_config,
         enabled_groups=['GROUP_A', 'GROUP_B']
     )
-    assert len(engine.effective_events) == 27
+    assert len(engine.effective_events) == 28
     assert all(
         event_name in engine.effective_events
         for event_name in [

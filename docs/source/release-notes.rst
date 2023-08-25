@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+Version 0.18.1
+______________
+- Engine:
+
+  - SERVICE events for continuously running processes now provides a `service_running`
+    helper method. This method can be used to create a loop in which the service is executed 
+    allowing it to be gracefully stopped when the service or server is stopped.
+
+
 Version 0.18.0
 ______________
 - Engine:
