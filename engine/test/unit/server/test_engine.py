@@ -745,7 +745,7 @@ async def test_start_single_group(monkeypatch, mock_app_config, mock_plugin_conf
         plugin=mock_plugin_config,
         enabled_groups=['GROUP_A']
     )
-    assert len(engine.effective_events) == 25
+    assert len(engine.effective_events) == 26
     assert all(
         event_name in engine.effective_events
         for event_name in ['mock_event', 'mock_post_event', 'mock_event_logging', 'mock_stream_event']
@@ -789,7 +789,7 @@ async def test_start_default_group(monkeypatch, mock_app_config, mock_plugin_con
         enabled_groups=['DEFAULT']
     )
     # Checking count it should be 19 events + 2 split events == 21
-    assert len(engine.effective_events) == 21
+    assert len(engine.effective_events) == 22
     assert all(
         event_name not in engine.effective_events
         for event_name in ['mock_event', 'mock_post_event', 'mock_event_logging', 'mock_stream_event']

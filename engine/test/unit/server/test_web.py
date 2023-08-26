@@ -59,9 +59,9 @@ def test_config_with_api_file():
 
 
 def test_config_with_api_auto():
-    args = ['--config-files=test.json', '--api-auto=0.18;Title;Description']
+    args = ['--config-files=test.json', '--api-auto=0.1;Title;Description']
     result = parse_args(args)
-    assert result == (None, 8020, None, False, ['test.json'], None, ['0.18', 'Title', 'Description'], [])
+    assert result == (None, 8020, None, False, ['test.json'], None, ['0.1', 'Title', 'Description'], [])
 
 
 def test_config_with_groups():
@@ -96,8 +96,8 @@ async def _stream_startup_hook(*args, **kwargs):
 
 @pytest.mark.parametrize("api_file,api_auto", [
     ('test_api_file.json', []),
-    (None, ['0.18', 'Title', 'Description']),
-    (None, ['0.18']),
+    (None, ['0.1', 'Title', 'Description']),
+    (None, ['0.1']),
     (None, None)])
 @pytest.mark.asyncio
 async def test_server_initialization(monkeypatch, api_file, api_auto):
