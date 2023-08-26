@@ -330,7 +330,7 @@ class AppEngine:
         except StreamOSError as e:
             retry_in = self.app_config.engine.read_stream_interval // 1000
             retry_in += random.randint(1, max(3, min(30, retry_in)))
-            if type(e) != type(last_err):  # pylint: disable=unidiomatic-typecheck
+            if not isinstance(e, type(last_err)):
                 logger.error(__name__, e)
             logger.error(__name__, f"Cannot read stream for event={event_name}. Waiting seconds={int(retry_in)}...")
             last_err = e
