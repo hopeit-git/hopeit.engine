@@ -1,7 +1,7 @@
 """
 Config Manager Client
 """
-from typing import Dict, Union, Tuple, Optional
+from typing import Dict, Union, Tuple
 import asyncio
 import random
 
@@ -9,6 +9,7 @@ import aiohttp
 
 from hopeit.server.version import APPS_ROUTE_VERSION
 from hopeit.app.context import EventContext
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.logger import engine_extra_logger
 
 from hopeit.config_manager import RuntimeAppInfo, RuntimeApps, ServerStatus
@@ -17,7 +18,15 @@ from hopeit.config_manager.runtime import get_in_process_config
 logger, extra = engine_extra_logger()
 
 
-async def get_apps_config(hosts: str, context: Optional[EventContext] = None, **kwargs) -> RuntimeApps:
+@dataobject
+@dataclass
+class ClientSettings:
+    timeout: float
+
+
+async def get_apps_config(
+    hosts: str, context: EventContext, **kwargs
+) -> RuntimeApps:
     """
     Gathers RuntimeApps (runtime apps config) from a given list of hosts running
     `hopeit.config-manager` plugins and returns a combined RuntimeApps
@@ -29,10 +38,7 @@ async def get_apps_config(hosts: str, context: Optional[EventContext] = None, **
     :return: RuntimeApps, combined from all requested hosts
     """
     responses = await asyncio.gather(
-        *[
-            _get_host_config(host, context, **kwargs)
-            for host in hosts.split(',')
-        ]
+        *[_get_host_config(host, context, **kwargs) for host in hosts.split(",")]
     )
 
     apps: Dict[str, RuntimeAppInfo] = {}
@@ -40,41 +46,56 @@ async def get_apps_config(hosts: str, context: Optional[EventContext] = None, **
     for host, runtime_apps_response in responses:
         if isinstance(runtime_apps_response, RuntimeApps):
             _combine_apps(apps, runtime_apps_response)
-            server_status[host] = runtime_apps_response.server_status.get(host, ServerStatus.ALIVE)
+            server_status[host] = runtime_apps_response.server_status.get(
+                host, ServerStatus.ALIVE
+            )
         elif isinstance(runtime_apps_response, ServerStatus):
             server_status[host] = runtime_apps_response
 
     return RuntimeApps(apps=apps, server_status=server_status)
 
 
-async def _get_host_config(host: str,
-                           context: Optional[EventContext] = None,
-                           **kwargs) -> Tuple[str, Union[RuntimeApps, ServerStatus]]:
+async def _get_host_config(
+    host: str, context: EventContext, **kwargs
+) -> Tuple[str, Union[RuntimeApps, ServerStatus]]:
     """
     Invokes config-manager runtime-apps-config endpoint in a given host
     """
+    client_settings: ClientSettings = context.settings(
+        key="client", datatype=ClientSettings
+    )
+
     if host == "in-process":
         return host, get_in_process_config(host, **kwargs)
 
     # Random <1 sec pause to prevent network overload
     await asyncio.sleep(random.random())
 
-    url = f"{host}/api/config-manager/{APPS_ROUTE_VERSION}/runtime-apps-config?url={host}"
+    url = (
+        f"{host}/api/config-manager/{APPS_ROUTE_VERSION}/runtime-apps-config?url={host}"
+    )
     for k, v in kwargs.items():
         url += f"&{k}={v}".lower()
 
-    logger.info(context or __name__, "Invoking config-manager on host: %s...", host, extra=extra(
-        host=host, url=url
-    ))
+    logger.info(
+        context,
+        "Invoking config-manager on host: %s...",
+        host,
+        extra=extra(host=host, url=url),
+    )
 
     try:
-        async with aiohttp.ClientSession() as client:
+        timeout = aiohttp.ClientTimeout(total=client_settings.timeout)
+        async with aiohttp.ClientSession(timeout=timeout) as client:
             async with client.get(url) as response:
                 return host, RuntimeApps.from_dict(await response.json())  # type: ignore
     except Exception as e:  # pylint: disable=broad-except
-        logger.error(context or __name__, "Error contacting host: %s", host, extra=extra(
-            host=host, url=url, error=str(e)
-        ))
+        logger.error(
+            context,
+            "Error contacting host: %s",
+            host,
+            extra=extra(host=host, url=url, error=str(e)),
+        )
         return host, ServerStatus.ERROR
 
 
