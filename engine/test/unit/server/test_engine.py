@@ -11,8 +11,10 @@ from hopeit.streams import StreamOSError
 from hopeit.dataobjects import DataObject
 from hopeit.app.config import AppConfig, StreamQueueStrategy
 from hopeit.server.engine import AppEngine
+from hopeit.testing.apps import service_running_mock
 from mock_engine import MockEventHandler, MockStreamManager
 from mock_app import MockData, MockResult  # type: ignore
+from mock_app import mock_service_event
 from mock_app import mock_app_config  # type: ignore  # noqa: F401
 from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401
 
@@ -524,6 +526,7 @@ async def test_service_loop(monkeypatch, mock_app_config, mock_plugin_config):  
     monkeypatch.setattr(MockEventHandler, 'test_track_ids', None)
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
     monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    monkeypatch.setattr(mock_service_event, 'service_running', service_running_mock)
     res = await engine.service_loop(event_name='mock_service_event', test_mode=True)
     assert res == expected
     await engine.stop()
@@ -742,7 +745,7 @@ async def test_start_single_group(monkeypatch, mock_app_config, mock_plugin_conf
         plugin=mock_plugin_config,
         enabled_groups=['GROUP_A']
     )
-    assert len(engine.effective_events) == 25
+    assert len(engine.effective_events) == 26
     assert all(
         event_name in engine.effective_events
         for event_name in ['mock_event', 'mock_post_event', 'mock_event_logging', 'mock_stream_event']
@@ -762,7 +765,7 @@ async def test_start_multiple_groups(monkeypatch, mock_app_config, mock_plugin_c
         plugin=mock_plugin_config,
         enabled_groups=['GROUP_A', 'GROUP_B']
     )
-    assert len(engine.effective_events) == 27
+    assert len(engine.effective_events) == 28
     assert all(
         event_name in engine.effective_events
         for event_name in [
@@ -786,7 +789,7 @@ async def test_start_default_group(monkeypatch, mock_app_config, mock_plugin_con
         enabled_groups=['DEFAULT']
     )
     # Checking count it should be 19 events + 2 split events == 21
-    assert len(engine.effective_events) == 21
+    assert len(engine.effective_events) == 22
     assert all(
         event_name not in engine.effective_events
         for event_name in ['mock_event', 'mock_post_event', 'mock_event_logging', 'mock_stream_event']

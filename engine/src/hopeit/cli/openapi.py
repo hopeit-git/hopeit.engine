@@ -27,7 +27,7 @@ def openapi():
     pass
 
 
-@openapi.command()
+@openapi.command()  # type: ignore
 @click.option('--api-version', prompt='API Version', help='API Version string x.x.x.')
 @click.option('--title', prompt='API Title', help='API title string.')
 @click.option('--description', prompt='API Description', help='API description string.')
@@ -48,7 +48,7 @@ def create(api_version: str, title: str, description: str, config_files: str,
     api.save_api_file(output_file, api_version)
 
 
-@openapi.command()
+@openapi.command()  # type: ignore
 @click.option('--api-version',
               help='API Version string x.x.x. Needs to be incremented if there are spec changes during update.')
 @click.option('--config-files', help='Comma-separated list of server, plugins and app config files.')
@@ -67,7 +67,7 @@ def update(api_version: str, config_files: str, input_file: str, output_file: st
     api.save_api_file(output_file, api_version)
 
 
-@openapi.command()
+@openapi.command()  # type: ignore
 @click.option('--config-files', help='Comma-separated list of plugins and app config files.')
 @click.option('--input-file', help='Path to json api file to be loaded.')
 @click.option('--generate', is_flag=True, help='Indicates to generate paths for all events.')

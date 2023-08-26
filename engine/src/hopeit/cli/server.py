@@ -19,12 +19,12 @@ def server():
     pass
 
 
-@server.command()
+@server.command()  # type: ignore
 @click.option('--config-files', required=True,
               help='Comma-separated config file paths, starting with server config, then plugins, then apps.')
 @click.option('--api-file', default=None, help='Path to openapi complaint json specification.')
 @click.option('--api-auto', default=None, help='When `api_file` is not defined, specify a semicolons-separated'
-              ' `--api-auto=0.18;Simple Example;Simple Example OpenAPI specs` to define API General Info and'
+              ' `--api-auto=0.1;Simple Example;Simple Example OpenAPI specs` to define API General Info and'
               ' enable the OpenAPI.')
 @click.option('--host', default='0.0.0.0', help='Server host address or name.')
 @click.option('--port', default=8020, help='TCP/IP port to listen.')

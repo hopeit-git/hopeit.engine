@@ -28,6 +28,10 @@ __all__ = [
 logger = engine_logger()
 
 
+class TestingException(Exception):
+    pass
+
+
 def config(path: Union[str, Path]) -> AppConfig:
     if isinstance(path, str):
         path = Path(path)
@@ -211,11 +215,25 @@ async def execute_event(app_config: AppConfig,
     return list(on_queue)
 
 
-async def execute_service(app_config: AppConfig,
-                          event_name: str,
-                          max_events: int = 1,
-                          mocks: Optional[List[Callable[[ModuleType, EventContext], None]]] = None) \
-        -> List[Union[EventPayload, Exception]]:
+def service_running_mock(context: EventContext):
+    return True
+
+
+def apply_service_running_mock(module, context: EventContext):
+    if hasattr(module, "service_running"):
+        setattr(module, "service_running", service_running_mock)
+    else:
+        raise TestingException(
+            "Service must loop using `hopeit.app.events.service_running` method."
+        )
+
+
+async def execute_service(
+    app_config: AppConfig,
+    event_name: str,
+    max_events: int = 1,
+    mocks: Optional[List[Callable[[ModuleType, EventContext], None]]] = None
+) -> List[Union[EventPayload, Exception]]:
     """
     Executes __service__ handler of an event,
     and processes a maximum of `max_events`.
@@ -228,10 +246,17 @@ async def execute_service(app_config: AppConfig,
     context = create_test_context(app_config, event_name)
     event_info = app_config.events[event_name]
     impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
-    handler = getattr(impl, '__service__')
+    effective_events = {**split_event_stages(app_config.app, event_name, event_info, impl)}
+    handler = EventHandler(
+        app_config=app_config, plugins=[],
+        effective_events=effective_events,
+        settings=app_config.effective_settings  # type: ignore
+    )
+    _apply_mocks(context, handler, event_name, effective_events, None, None, [apply_service_running_mock])
+    service_handler = getattr(impl, '__service__')
     count = 0
     results = []
-    async for payload in handler(context):
+    async for payload in service_handler(context):
         results.append(await execute_event(app_config, event_name, payload, mocks))
         count += 1
         if count >= max_events:

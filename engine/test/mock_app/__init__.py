@@ -83,6 +83,13 @@ def mock_app_config():
                     "batch_size": 2
                 }
             },
+            "mock_service_event_unhappy": {
+                "stream": {
+                    "target_max_len": 10,
+                    "throttle_ms": 100,
+                    "batch_size": 2
+                }
+            },
             "mock_service_timeout": {
                 "response_timeout": 2.0
             },
@@ -164,6 +171,12 @@ def mock_app_config():
                 )
             ),
             "mock_service_event": EventDescriptor(
+                type=EventType.SERVICE,
+                write_stream=WriteStreamDescriptor(
+                    name='mock_write_stream_event'
+                )
+            ),
+            "mock_service_event_unhappy": EventDescriptor(
                 type=EventType.SERVICE,
                 write_stream=WriteStreamDescriptor(
                     name='mock_write_stream_event'

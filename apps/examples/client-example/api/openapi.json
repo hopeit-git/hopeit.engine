@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.18",
+    "version": "0.19",
     "title": "Client Example",
     "description": "Client Example"
   },
   "paths": {
-    "/api/config-manager/0x18/runtime-apps-config": {
+    "/api/config-manager/0x19/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -62,11 +62,11 @@
           }
         },
         "tags": [
-          "config_manager.0x18"
+          "config_manager.0x19"
         ]
       }
     },
-    "/api/config-manager/0x18/cluster-apps-config": {
+    "/api/config-manager/0x19/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -122,11 +122,11 @@
           }
         },
         "tags": [
-          "config_manager.0x18"
+          "config_manager.0x19"
         ]
       }
     },
-    "/api/client-example/0x18/count-and-save": {
+    "/api/client-example/0x19/count-and-save": {
       "get": {
         "summary": "Client Example: Count Objects and Save new one",
         "description": "Count all available Something objects connecting to simple-example app",
@@ -193,7 +193,7 @@
           }
         },
         "tags": [
-          "client_example.0x18"
+          "client_example.0x19"
         ],
         "security": [
           {
@@ -202,7 +202,7 @@
         ]
       }
     },
-    "/api/client-example/0x18/handle-responses": {
+    "/api/client-example/0x19/handle-responses": {
       "get": {
         "summary": "Client Example: Handle Responses",
         "description": "Non default responses and UnhandledResponse exception\n\nTo manage different types of responses from the same endpoint we can use the `responses` parameter where we list the\nhttp response status codes expected and the corresponding data type for each one. In this example `app_call` expect\nand handle, 200 and 404 responses.\n\nAlso in the code you can see how to handle an expection of type `UnhandledResponse` and log as warining.",
@@ -287,7 +287,7 @@
           }
         },
         "tags": [
-          "client_example.0x18"
+          "client_example.0x19"
         ],
         "security": [
           {
@@ -757,7 +757,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.18.0"
+            "default": "0.19.0"
           }
         },
         "x-module-name": "hopeit.server.config",
