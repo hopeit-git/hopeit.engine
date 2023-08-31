@@ -1,22 +1,38 @@
 {
-    "app" : {
-      "name": "config-manager",
-      "version": "${HOPEIT_APPS_API_VERSION}"
+  "app": {
+    "name": "config-manager",
+    "version": "${HOPEIT_APPS_API_VERSION}"
+  },
+  "engine": {
+    "import_modules": [
+      "hopeit.config_manager"
+    ]
+  },
+  "settings": {
+    "config_manager_client": {
+      "client_timeout": 10
+    }
+  },
+  "events": {
+    "runtime_apps_config": {
+      "type": "GET",
+      "plug_mode": "Standalone",
+      "setting_keys": [
+        "config_manager_client"
+      ],
+      "auth": [
+        "Unsecured"
+      ]
     },
-    "engine": {
-      "import_modules": ["hopeit.config_manager"]
-    },
-    "events": {
-      "runtime_apps_config" : {
-        "type": "GET",
-        "plug_mode": "Standalone",
-        "auth": ["Unsecured"]
-      },
-      "cluster_apps_config" : {
-        "type": "GET",
-        "plug_mode": "Standalone",
-        "auth": ["Unsecured"]
-      }
+    "cluster_apps_config": {
+      "type": "GET",
+      "plug_mode": "Standalone",
+      "setting_keys": [
+        "config_manager_client"
+      ],
+      "auth": [
+        "Unsecured"
+      ]
     }
   }
-  
+}

@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+Version 0.19.1
+______________
+- Plugins:
+
+  - config_manager: add `client_timeout` setting to `config_manager`` to prevent the server from waiting indefinitely for a response.
+  - apps-visualizer: using `config_manager` `client_timeout` setting preventing UI from blocking.
+
+
 Version 0.19.0
 ______________
 - Engine:
