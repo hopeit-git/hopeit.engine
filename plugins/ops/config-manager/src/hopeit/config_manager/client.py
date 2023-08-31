@@ -20,13 +20,11 @@ logger, extra = engine_extra_logger()
 
 @dataobject
 @dataclass
-class ClientSettings:
-    timeout: float
+class ConfigManagerSettings:
+    client_timeout: float
 
 
-async def get_apps_config(
-    hosts: str, context: EventContext, **kwargs
-) -> RuntimeApps:
+async def get_apps_config(hosts: str, context: EventContext, **kwargs) -> RuntimeApps:
     """
     Gathers RuntimeApps (runtime apps config) from a given list of hosts running
     `hopeit.config-manager` plugins and returns a combined RuntimeApps
@@ -61,8 +59,12 @@ async def _get_host_config(
     """
     Invokes config-manager runtime-apps-config endpoint in a given host
     """
-    client_settings: ClientSettings = context.settings(
-        key="client", datatype=ClientSettings
+
+    print("")
+    settings: ConfigManagerSettings = (
+        context.settings(key="config_manager", datatype=ConfigManagerSettings)
+        if hasattr(context.settings.extras, "config_manager")
+        else ConfigManagerSettings(client_timeout=60.0)
     )
 
     if host == "in-process":
@@ -85,10 +87,18 @@ async def _get_host_config(
     )
 
     try:
-        timeout = aiohttp.ClientTimeout(total=client_settings.timeout)
+        timeout = aiohttp.ClientTimeout(total=settings.client_timeout)
         async with aiohttp.ClientSession(timeout=timeout) as client:
             async with client.get(url) as response:
                 return host, RuntimeApps.from_dict(await response.json())  # type: ignore
+    except TimeoutError as e:  # pylint: disable=broad-except
+        logger.error(
+            context,
+            "Timeout contacting host: %s",
+            host,
+            extra=extra(host=host, url=url, error=str(e)),
+        )
+        return host, ServerStatus.ERROR
     except Exception as e:  # pylint: disable=broad-except
         logger.error(
             context,

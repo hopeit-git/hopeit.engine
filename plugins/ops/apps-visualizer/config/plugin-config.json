@@ -13,6 +13,9 @@
             "refresh_hosts_seconds": 60,
             "live_recent_treshold_seconds": 10,
             "live_active_treshold_seconds": 60
+        },
+        "config_manager": {
+            "client_timeout" : 10
         }
     },
     "events": {
@@ -20,12 +23,12 @@
             "type": "GET",
             "auth": ["Unsecured"],
             "route": "/ops/apps-visualizer",
-            "setting_keys": ["apps_visualizer"]
+            "setting_keys": ["apps_visualizer", "config_manager"]
         },
         "apps.events-graph": {
             "type": "GET",
             "auth": ["Unsecured"],
-            "setting_keys": ["apps_visualizer"]
+            "setting_keys": ["apps_visualizer", "config_manager"]
         },
         "event-stats.collect": {
             "type": "STREAM",
@@ -37,7 +40,7 @@
         "event-stats.live": {
             "type": "GET",
             "auth": ["Unsecured"],
-            "setting_keys": ["apps_visualizer"]
+            "setting_keys": ["apps_visualizer", "config_manager"]
         }
     }
 }
