@@ -460,7 +460,9 @@ class AppConfig:
             if event_name in self.settings:
                 extras['_'] = self.settings[event_name]
             for key in event_info.setting_keys:
-                extras[key] = self.settings[key]
+                value = self.settings.get(key)
+                if value is not None:
+                    extras[key] = value
             self.effective_settings[event_name]['extras'] = extras
 
 

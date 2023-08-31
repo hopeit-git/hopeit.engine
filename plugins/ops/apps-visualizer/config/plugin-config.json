@@ -3,8 +3,10 @@
         "name": "apps-visualizer",
         "version": "${HOPEIT_APPS_API_VERSION}"
     },
-    "engine" : {
-        "import_modules": ["hopeit.apps_visualizer"],
+    "engine": {
+        "import_modules": [
+            "hopeit.apps_visualizer"
+        ],
         "cors_origin": "http://localhost:8020"
     },
     "settings": {
@@ -14,21 +16,31 @@
             "live_recent_treshold_seconds": 10,
             "live_active_treshold_seconds": 60
         },
-        "config_manager": {
-            "client_timeout" : 10
+        "config_manager_client": {
+            "client_timeout": 11
         }
     },
     "events": {
         "site.main": {
             "type": "GET",
-            "auth": ["Unsecured"],
+            "auth": [
+                "Unsecured"
+            ],
             "route": "/ops/apps-visualizer",
-            "setting_keys": ["apps_visualizer", "config_manager"]
+            "setting_keys": [
+                "apps_visualizer",
+                "config_manager_client"
+            ]
         },
         "apps.events-graph": {
             "type": "GET",
-            "auth": ["Unsecured"],
-            "setting_keys": ["apps_visualizer", "config_manager"]
+            "auth": [
+                "Unsecured"
+            ],
+            "setting_keys": [
+                "apps_visualizer",
+                "config_manager_client"
+            ]
         },
         "event-stats.collect": {
             "type": "STREAM",
@@ -39,8 +51,13 @@
         },
         "event-stats.live": {
             "type": "GET",
-            "auth": ["Unsecured"],
-            "setting_keys": ["apps_visualizer", "config_manager"]
+            "auth": [
+                "Unsecured"
+            ],
+            "setting_keys": [
+                "apps_visualizer",
+                "config_manager_client"
+            ]
         }
     }
 }

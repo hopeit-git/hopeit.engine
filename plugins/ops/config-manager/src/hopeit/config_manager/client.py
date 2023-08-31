@@ -20,8 +20,8 @@ logger, extra = engine_extra_logger()
 
 @dataobject
 @dataclass
-class ConfigManagerSettings:
-    client_timeout: float
+class ConfigManagerClientSettings:
+    client_timeout: float = 10.0
 
 
 async def get_apps_config(hosts: str, context: EventContext, **kwargs) -> RuntimeApps:
@@ -60,11 +60,8 @@ async def _get_host_config(
     Invokes config-manager runtime-apps-config endpoint in a given host
     """
 
-    print("")
-    settings: ConfigManagerSettings = (
-        context.settings(key="config_manager", datatype=ConfigManagerSettings)
-        if hasattr(context.settings.extras, "config_manager")
-        else ConfigManagerSettings(client_timeout=60.0)
+    settings: ConfigManagerClientSettings = context.settings(
+        key="config_manager_client", datatype=ConfigManagerClientSettings
     )
 
     if host == "in-process":

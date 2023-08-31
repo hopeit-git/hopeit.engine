@@ -9,16 +9,16 @@
     ]
   },
   "settings": {
-    "config_manager": {
-      "client_timeout" : 10
-  }
+    "config_manager_client": {
+      "client_timeout": 10
+    }
   },
   "events": {
     "runtime_apps_config": {
       "type": "GET",
       "plug_mode": "Standalone",
       "setting_keys": [
-        "config_manager"
+        "config_manager_client"
       ],
       "auth": [
         "Unsecured"
@@ -28,7 +28,7 @@
       "type": "GET",
       "plug_mode": "Standalone",
       "setting_keys": [
-        "config_manager"
+        "config_manager_client"
       ],
       "auth": [
         "Unsecured"

@@ -112,7 +112,7 @@ def mock_context(event_name: str, timeout: Optional[float] = None) -> EventConte
     plugin_config = config("plugins/ops/config-manager/config/plugin-config.json")
     event_settings = get_event_settings(plugin_config.effective_settings, "cluster_apps_config")  # type: ignore
     if timeout:
-        event_settings.extras["client"]["timeout"] = timeout
+        event_settings.extras["config_manager_client"]["client_timeout"] = timeout
     return EventContext(
         app_config=app_config(),
         event_name=event_name,
