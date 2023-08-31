@@ -21,6 +21,12 @@ logger, extra = engine_extra_logger()
 @dataobject
 @dataclass
 class ConfigManagerClientSettings:
+    """
+    File storage plugin config
+
+
+    :field: client_timeout, float: client timeout in seconds, defults to 10.0
+    """
     client_timeout: float = 10.0
 
 
