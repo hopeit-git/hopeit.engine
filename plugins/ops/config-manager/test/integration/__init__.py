@@ -43,7 +43,7 @@ class MockResponse:
 
 class MockClientSession:
     responses: Dict[str, RuntimeApps] = {}
-    timeout: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=10.0)
+    # timeout: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=10.0)
 
     @classmethod
     def setup(cls, responses: Dict[str, RuntimeApps]):
@@ -79,8 +79,7 @@ def mock_client(
     monkeypatch,
     server1_apps_response,
     server2_apps_response,
-    effective_events=None,
-    timeout: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=10.0),
+    effective_events=None
 ):
     expand_events = str(effective_events is not None).lower()
     url_pattern = "{}/api/config-manager/{}/runtime-apps-config?url={}&expand_events={}"
@@ -99,7 +98,7 @@ def mock_client(
     monkeypatch.setattr(
         module.aiohttp,
         "ClientSession",
-        MockClientSession(timeout=timeout).setup(
+        MockClientSession.setup(
             responses={
                 url1: mock_effective_events(server1_apps_response, effective_events),
                 url2: mock_effective_events(server2_apps_response, effective_events),
@@ -110,9 +109,9 @@ def mock_client(
 
 def mock_context(event_name: str, timeout: Optional[float] = None) -> EventContext:
     plugin_config = config("plugins/ops/config-manager/config/plugin-config.json")
-    event_settings = get_event_settings(plugin_config.effective_settings, "cluster_apps_config")  # type: ignore
     if timeout:
-        event_settings.extras["config_manager_client"]["client_timeout"] = timeout
+        plugin_config.settings["config_manager_client"]["client_timeout"] = timeout
+    event_settings = get_event_settings(plugin_config.effective_settings, event_name)  # type: ignore
     return EventContext(
         app_config=app_config(),
         event_name=event_name,
