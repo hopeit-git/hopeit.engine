@@ -136,7 +136,7 @@ We should get as response a JSON object representing and instance of
    Content-Length: 31
    Date: Sat, 20 Jun 2020 22:02:10 GMT
 
-   {"name": "HOPEIT", "number": 6}%
+   {"text": "HOPEIT", "length": 6}%
 
 We should see in the logs information about how the request was served
 successfully:
