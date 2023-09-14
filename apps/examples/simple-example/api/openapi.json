@@ -1024,6 +1024,87 @@
         ]
       }
     },
+    "/api/simple-example/0x19/streams/consume-something": {
+      "get": {
+        "summary": "Simple Example: Consume Something",
+        "description": "Loads Something from disk",
+        "parameters": [
+          {
+            "name": "consumer_group",
+            "in": "query",
+            "required": false,
+            "description": "Consumer group name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Something object returned when consumed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Something"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nothing to consume",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SomethingNotFound"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.0x19"
+        ]
+      }
+    },
     "/api/simple-example/0x19/collector/query-concurrently": {
       "post": {
         "summary": "Simple Example: Query Concurrently",

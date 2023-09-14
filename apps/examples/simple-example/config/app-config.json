@@ -123,6 +123,15 @@
       },
       "setting_keys": ["fs_storage"]
     },
+    "streams.consume_something": {
+      "type": "GET",
+      "read_stream": {
+        "name": "{events.streams.something_event.write_stream.name}",
+        "consumer_group": "{auto}"
+      },
+      "_impl": "hopeit.streams.consumer_event",
+      "auth": ["Unsecured"]
+    },
     "collector.query_concurrently": {
       "type": "POST",
       "setting_keys": ["fs_storage"]
