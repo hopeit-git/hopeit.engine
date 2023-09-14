@@ -32,7 +32,7 @@ logger, extra = app_extra_logger()
 
 async def consume(
     payload: None, context: EventContext, *, consumer_group: Optional[str] = None
-) -> Something | SomethingNotFound:
+) -> Union[Something, SomethingNotFound]:
     
     app_engine: AppEngine = runtime.server.app_engines[context.app_key]
     
@@ -65,10 +65,10 @@ async def consume(
 
 
 async def __postprocess__(
-    payload: Something | SomethingNotFound,
+    payload: Union[Something, SomethingNotFound],
     context: EventContext,
     response: PostprocessHook,
-) -> Something | SomethingNotFound:
+) -> Union[Something, SomethingNotFound]:
     if isinstance(payload, SomethingNotFound):
         response.status = 404
     return payload
