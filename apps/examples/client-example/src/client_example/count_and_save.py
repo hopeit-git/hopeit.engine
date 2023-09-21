@@ -65,18 +65,6 @@ async def count_objects(options: ListOptions, context: EventContext) -> int:
         event="list_somethings", datatype=Something,
         payload=None, context=context, wildcard=options.wildcard
     )
-
-    try:
-        unsecured_response: List[Something] = await app_call_list(
-            "simple_example_conn_unsecured",
-            event="list_somethings_unsecured", datatype=Something,
-            payload=None, context=context, wildcard=options.wildcard
-        )
-        logger.info(context, "Unsecured response")
-
-    except Exception as e:
-        logger.info(context, "Unsecured response", extra=extra(error=e))
-
     return len(response)
 
 

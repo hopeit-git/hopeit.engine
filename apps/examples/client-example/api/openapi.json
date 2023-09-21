@@ -126,6 +126,71 @@
         ]
       }
     },
+    "/api/client-example/0x19/call-unsecured": {
+      "get": {
+        "summary": "Client Example: Call Unsecured",
+        "description": "List all available Something objects connecting to simple-example app",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List Something objects returned by simple-example call",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Something"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "client_example.0x19"
+        ]
+      }
+    },
     "/api/client-example/0x19/count-and-save": {
       "get": {
         "summary": "Client Example: Count Objects and Save new one",
@@ -882,6 +947,76 @@
         },
         "x-module-name": "hopeit.config_manager",
         "description": "\n    Combined App Config and Server Status information for running apps\n    "
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "x-module-name": "model",
+        "description": "User information"
+      },
+      "Status": {
+        "type": "object",
+        "required": [
+          "ts",
+          "type"
+        ],
+        "properties": {
+          "ts": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "NEW",
+              "LOADED",
+              "SUBMITTED",
+              "PROCESSED"
+            ],
+            "x-enum-name": "StatusType",
+            "x-module-name": "model"
+          }
+        },
+        "x-module-name": "model",
+        "description": "Status change"
+      },
+      "Something": {
+        "type": "object",
+        "required": [
+          "id",
+          "user"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Status"
+            },
+            "default": []
+          }
+        },
+        "x-module-name": "model",
+        "description": "Example Something event"
       },
       "CountAndSaveResult": {
         "type": "object",
