@@ -18,7 +18,7 @@ __steps__ = ["list_something"]
 
 __api__ = event_api(
     summary="Client Example: Call Unsecured",
-    query_args=[],
+    query_args=[("wildcard", Optional[str], "Wildcard to filter objects by name")],
     responses={
         200: (List[Something], "List Something objects returned by simple-example call")
     },
@@ -27,13 +27,14 @@ __api__ = event_api(
 logger, extra = app_extra_logger()
 
 
-async def list_something(payload: None, context: EventContext) -> List[Something]:
+async def list_something(payload: None, context: EventContext, wildcard: str) -> List[Something]:
     response: List[Something] = await app_call_list(
         "simple_example_conn_unsecured",
         event="list_somethings_unsecured",
         datatype=Something,
         payload=None,
-        context=context
+        context=context,
+        wildcard=wildcard
     )
 
     return response

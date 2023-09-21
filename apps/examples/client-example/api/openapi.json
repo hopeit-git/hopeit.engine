@@ -132,6 +132,15 @@
         "description": "List all available Something objects connecting to simple-example app",
         "parameters": [
           {
+            "name": "wildcard",
+            "in": "query",
+            "required": false,
+            "description": "Wildcard to filter objects by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "X-Track-Request-Id",
             "in": "header",
             "required": false,
@@ -822,7 +831,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.19.1"
+            "default": "0.19.2"
           }
         },
         "x-module-name": "hopeit.server.config",

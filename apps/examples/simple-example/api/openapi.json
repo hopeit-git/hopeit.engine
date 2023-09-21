@@ -254,7 +254,7 @@
     },
     "/api/simple-example/0x19/list-somethings-unsecured": {
       "get": {
-        "summary": "Simple Example: List Objects",
+        "summary": "Simple Example: List Objects Unsecured",
         "description": "Lists all available Something objects",
         "parameters": [
           {
@@ -2129,7 +2129,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.19.1"
+            "default": "0.19.2"
           }
         },
         "x-module-name": "hopeit.server.config",
