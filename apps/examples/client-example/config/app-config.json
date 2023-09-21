@@ -19,6 +19,11 @@
             "name": "simple-example",
             "version": "${HOPEIT_APPS_API_VERSION}",
             "client": "hopeit.apps_client.AppsClient"
+        },
+        "simple_example_conn_unsecured": {
+            "name": "simple-example",
+            "version": "${HOPEIT_APPS_API_VERSION}",
+            "client": "hopeit.apps_client.AppsClient"
         }
 
     },
@@ -44,6 +49,12 @@
             "routes_override": {
                 "__list-somethings": "simple-example/${HOPEIT_APPS_ROUTE_VERSION}/list-somethings"
             }
+        },
+        "simple_example_conn_unsecured": {
+            "connection_str": "${HOPEIT_SIMPLE_EXAMPLE_HOSTS}",
+            "auth_strategy": "UNSECURED",
+            "retries": 2,
+            "retry_backoff_ms": 10
         }
     },
     "events": {
@@ -64,6 +75,11 @@
                     "app_connection": "simple_example_conn",
                     "event": "save_something",
                     "type": "POST"
+                },
+                {
+                    "app_connection": "simple_example_conn_unsecured",
+                    "event": "list_somethings_unsecured",
+                    "type": "GET"
                 }
             ],
             "auth": ["Basic"]

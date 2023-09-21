@@ -35,9 +35,12 @@ class ClientAuthStrategy(str, Enum):
         side, client app public key must be available for the called app.
     FORWARDS_CONTEXT: Build Authorization header based on what's available in event context auth_info.
         This strategy can be used to propagate Basic auth from client to called service.
+    UNSECURED: This strategy provides no authentication or security mechanisms.
+        Can be used to access to open endpoints.
     """
     CLIENT_APP_PUBLIC_KEY = "CLIENT_APP_PUBLIC_KEY"
     FORWARD_CONTEXT = "FORWARD_CONTEXT"
+    UNSECURED = "UNSECURED"
 
 
 @dataobject
@@ -393,6 +396,7 @@ class AppsClient(Client):
                 "authorization": f"{context.auth_info['auth_type'].value} {context.auth_info['payload']}"
             }
 
+        # This case handles UNSECURED
         return {}
 
     async def _parse_response(self, response, context: EventContext,

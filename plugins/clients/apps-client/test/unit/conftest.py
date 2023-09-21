@@ -30,6 +30,13 @@ def mock_client_app_config():
                 client="hopeit.apps_client.AppsClient",
                 plugin_name="test_plugin",
                 plugin_version=APPS_API_VERSION
+            ),
+            "test_app_plugin_unsecured": AppConnection(
+                name="test_app",
+                version=APPS_API_VERSION,
+                client="hopeit.apps_client.AppsClient",
+                plugin_name="test_plugin",
+                plugin_version=APPS_API_VERSION
             )
         },
         settings={
@@ -39,6 +46,10 @@ def mock_client_app_config():
             "test_app_plugin_connection": Payload.to_obj(AppsClientSettings(
                 connection_str="http://test-host1,http://test-host2",
                 auth_strategy=ClientAuthStrategy.FORWARD_CONTEXT
+            )),
+            "test_app_plugin_unsecured": Payload.to_obj(AppsClientSettings(
+                connection_str="http://test-host1,http://test-host2",
+                auth_strategy=ClientAuthStrategy.UNSECURED
             ))
         },
         events={
@@ -57,6 +68,11 @@ def mock_client_app_config():
                     ),
                     EventConnection(
                         app_connection="test_app_plugin_connection",
+                        event="test_event_plugin",
+                        type=EventConnectionType.GET
+                    ),
+                    EventConnection(
+                        app_connection="test_app_plugin_unsecured",
                         event="test_event_plugin",
                         type=EventConnectionType.GET
                     )

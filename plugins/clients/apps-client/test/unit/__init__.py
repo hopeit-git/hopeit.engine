@@ -219,3 +219,21 @@ async def init_mock_client_app_plugin(module, monkeypatch, mock_auth, app_config
 
     ))
     await engine.AppEngine(app_config=app_config, plugins=[], enabled_groups=[], streams_enabled=False).start()
+
+async def init_mock_client_app_unsecured(module, monkeypatch, mock_auth, app_config, plugin_name, event_name, response):
+    monkeypatch.setattr(engine, "auth", mock_auth)
+    monkeypatch.setattr(module, "auth", mock_auth)
+    url_pattern = "{}/api/test-app/{}/{}/{}/{}"
+    url1 = url_pattern.format("http://test-host1", APPS_ROUTE_VERSION, plugin_name, APPS_ROUTE_VERSION, event_name)
+    url2 = url_pattern.format("http://test-host2", APPS_ROUTE_VERSION, plugin_name, APPS_ROUTE_VERSION, event_name)
+    monkeypatch.setattr(module.aiohttp, 'ClientSession', MockClientSession.setup(
+        responses={
+            url1: response,
+            url2: response
+        },
+        headers={
+        }
+
+    ))
+    await engine.AppEngine(app_config=app_config, plugins=[], enabled_groups=[], streams_enabled=False).start()
+
