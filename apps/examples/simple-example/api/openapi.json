@@ -252,6 +252,80 @@
         ]
       }
     },
+    "/api/simple-example/0x19/list-somethings-unsecured": {
+      "get": {
+        "summary": "Simple Example: List Objects Unsecured",
+        "description": "Lists all available Something objects",
+        "parameters": [
+          {
+            "name": "wildcard",
+            "in": "query",
+            "required": false,
+            "description": "Wildcard to filter objects by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list of Something objects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Something"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.0x19"
+        ]
+      }
+    },
     "/api/simple-example/0x19/query-something": {
       "get": {
         "summary": "Simple Example: Query Something",
@@ -2055,7 +2129,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.19.1"
+            "default": "0.19.2"
           }
         },
         "x-module-name": "hopeit.server.config",

@@ -58,6 +58,8 @@ async def custom_app_call_list(app_connection: str,
             Something(id="test1", user=User(id="test", name="test")),
             Something(id="test2", user=User(id="test", name="test")),
         ]
+    if app_connection == "simple_example_conn_unsecured" and event == "list_somethings_unsecured":
+        return [Something(id="test", user=User(id="user", name="test"))]
     raise NotImplementedError("Test case not implemented in mock_app_call")
 
 
@@ -151,3 +153,24 @@ async def test_handle_responses_something_not_found(monkeypatch, client_app_conf
         partition_key="YYYY/MM/DD/HH")
 
     assert result == "Got 404 response with: 'SomethingNotFound(path='', id='id_not_found')'"
+
+
+@pytest.mark.asyncio
+async def test_call_unsecure(monkeypatch, client_app_config):  # noqa: F811
+
+    def mock_client_calls(module, context: EventContext):
+        monkeypatch.setattr(module, "app_call_list", custom_app_call_list)
+
+    context = create_test_context(
+        client_app_config, "call_unsecured"
+    )
+
+    result = await execute_event(
+        app_config=client_app_config,
+        event_name='call_unsecured',
+        payload=None,
+        context=context,
+        mocks=[mock_client_calls],
+        wildcard="*")
+
+    assert result == [Something(id="test", user=User(id="user", name="test"))]

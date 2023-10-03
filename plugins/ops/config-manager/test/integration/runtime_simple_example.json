@@ -1,1228 +1,1314 @@
 {
   "apps": {
-    "simple_example.${APPS_ROUTE_VERSION}": {
-      "servers": [
-        {
-          "host_name": "${HOST_NAME}",
-          "pid": "${PID}",
-          "url": "${URL}"
-        }
-      ],
-      "app_config": {
-        "app": {
-          "name": "simple-example",
-          "version": "${APPS_API_VERSION}"
-        },
-        "engine": {
-          "import_modules": [
-            "simple_example"
+      "simple_example.${APPS_ROUTE_VERSION}": {
+          "servers": [
+              {
+                  "host_name": "${HOST_NAME}",
+                  "pid": "${PID}",
+                  "url": "${URL}"
+              }
           ],
-          "read_stream_timeout": 1000,
-          "read_stream_interval": 1000,
-          "default_stream_compression": "lz4",
-          "default_stream_serialization": "json+base64",
-          "track_headers": [
-            "track.request_id",
-            "track.request_ts",
-            "track.caller",
-            "track.session_id"
-          ],
-          "cors_origin": "*"
-        },
-        "app_connections": {},
-        "env": {
-          "storage": {
-            "base_path": "/tmp/hopeit/"
-          },
-          "upload_something": {
-            "save_path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.upload_something.save_path/",
-            "chunk_size": 16384
-          }
-        },
-        "events": {
-          "list_somethings": {
-            "type": "GET",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "auth": [],
-            "setting_keys": [
-              "fs_storage"
-            ],
-            "dataobjects": []
-          },
-          "query_something": {
-            "type": "GET",
-            "plug_mode": "Standalone",
-            "route": "simple-example/${APPS_API_VERSION}/query_something",
-            "connections": [],
-            "auth": [],
-            "setting_keys": [
-              "fs_storage"
-            ],
-            "dataobjects": []
-          },
-          "query_something_extended": {
-            "type": "POST",
-            "plug_mode": "Standalone",
-            "route": "simple-example/${APPS_API_VERSION}/query_something",
-            "connections": [],
-            "auth": [],
-            "setting_keys": [
-              "fs_storage"
-            ],
-            "dataobjects": []
-          },
-          "save_something": {
-            "type": "POST",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "auth": [],
-            "setting_keys": [
-              "fs_storage"
-            ],
-            "dataobjects": [],
-            "group": "g2"
-          },
-          "download_something": {
-            "type": "GET",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "auth": [],
-            "setting_keys": [],
-            "dataobjects": []
-          },
-          "download_something_streamed": {
-            "type": "GET",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "auth": [
-              "Unsecured"
-            ],
-            "setting_keys": [],
-            "dataobjects": []
-          },
-          "upload_something": {
-            "type": "MULTIPART",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "auth": [],
-            "setting_keys": [],
-            "dataobjects": [],
-            "group": "g1"
-          },
-          "service.something_generator": {
-            "type": "SERVICE",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "write_stream": {
-              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-              "queues": [
-                "AUTO"
-              ],
-              "queue_strategy": "DROP"
-            },
-            "auth": [],
-            "setting_keys": [],
-            "dataobjects": []
-          },
-          "streams.something_event": {
-            "type": "POST",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "write_stream": {
-              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-              "queues": [
-                "high-prio"
-              ],
-              "queue_strategy": "DROP"
-            },
-            "auth": [],
-            "setting_keys": [],
-            "dataobjects": []
-          },
-          "streams.process_events": {
-            "type": "STREAM",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "read_stream": {
-              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-              "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
-              "queues": [
-                "high-prio",
-                "AUTO"
-              ]
-            },
-            "auth": [],
-            "setting_keys": [
-              "fs_storage"
-            ],
-            "dataobjects": []
-          },
-          "collector.query_concurrently": {
-            "type": "POST",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "auth": [],
-            "setting_keys": [
-              "fs_storage"
-            ],
-            "dataobjects": []
-          },
-          "collector.collect_spawn": {
-            "type": "POST",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "write_stream": {
-              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-              "queues": [
-                "AUTO"
-              ],
-              "queue_strategy": "DROP"
-            },
-            "auth": [],
-            "setting_keys": [
-              "fs_storage"
-            ],
-            "dataobjects": []
-          },
-          "shuffle.spawn_event": {
-            "type": "POST",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "write_stream": {
-              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-              "queues": [
-                "AUTO"
-              ],
-              "queue_strategy": "DROP"
-            },
-            "auth": [],
-            "setting_keys": [
-              "fs_storage"
-            ],
-            "dataobjects": []
-          },
-          "shuffle.parallelize_event": {
-            "type": "POST",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "write_stream": {
-              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-              "queues": [
-                "AUTO"
-              ],
-              "queue_strategy": "DROP"
-            },
-            "auth": [],
-            "setting_keys": [
-              "fs_storage"
-            ],
-            "dataobjects": []
-          },
-          "storage.save_events_fs": {
-            "type": "STREAM",
-            "plug_mode": "Standalone",
-            "impl": "hopeit.fs_storage.events.stream_batch_storage",
-            "connections": [],
-            "read_stream": {
-              "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-              "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs",
-              "queues": [
-                "high-prio",
-                "AUTO"
-              ]
-            },
-            "auth": [],
-            "setting_keys": [],
-            "dataobjects": [
-              "model.Something"
-            ]
-          }
-        },
-        "server": {
-          "streams": {
-            "stream_manager": "hopeit.streams.NoStreamManager",
-            "connection_str": "<<NoStreamManager>>",
-            "delay_auto_start_seconds": 3
-          },
-          "logging": {
-            "log_level": "DEBUG",
-            "log_path": "logs/"
-          },
-          "auth": {
-            "secrets_location": ".secrets/",
-            "auth_passphrase": "",
-            "enabled": false,
-            "create_keys": false,
-            "encryption_algorithm": "RS256",
-            "default_auth_methods": [
-              "Unsecured"
-            ]
-          },
-          "api": {},
-          "engine_version": "${ENGINE_VERSION}"
-        },
-        "plugins": [
-          {
-            "name": "basic-auth",
-            "version": "${APPS_API_VERSION}"
-          }
-        ],
-        "settings": {
-          "streams.something_event": {
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ]
-            }
-          },
-          "streams.process_events": {
-            "logging": {
-              "stream_fields": [
-                "name",
-                "msg_id",
-                "consumer_group",
-                "event_id",
-                "event_ts",
-                "submit_ts",
-                "read_ts"
-              ],
-              "extra_fields": [
-                "something_id"
-              ]
-            }
-          },
-          "collector.collect_spawn": {
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ]
-            }
-          },
-          "shuffle.spawn_event": {
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ]
-            }
-          },
-          "shuffle.parallelize_event": {
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ]
-            }
-          },
-          "fs_storage": {
-            "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
-            "partition_dateformat": "%Y/%m/%d/%H/"
-          },
-          "storage.save_events_fs": {
-            "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs.path",
-            "partition_dateformat": "%Y/%m/%d/%H/",
-            "flush_seconds": 60.0,
-            "flush_max_size": 100
-          },
-          "simple_example.${APPS_ROUTE_VERSION}.streams.something_event": {
-            "target_max_len": 1000,
-            "throttle_ms": 10,
-            "batch_size": 5
-          }
-        },
-        "effective_settings": {
-          "list_somethings": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "fs_storage": {
-                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
-                "partition_dateformat": "%Y/%m/%d/%H/"
-              }
-            }
-          },
-          "query_something": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "fs_storage": {
-                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
-                "partition_dateformat": "%Y/%m/%d/%H/"
-              }
-            }
-          },
-          "query_something_extended": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "fs_storage": {
-                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
-                "partition_dateformat": "%Y/%m/%d/%H/"
-              }
-            }
-          },
-          "save_something": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "fs_storage": {
-                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
-                "partition_dateformat": "%Y/%m/%d/%H/"
-              }
-            }
-          },
-          "download_something": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {}
-          },
-          "download_something_streamed": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {}
-          },
-          "upload_something": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {}
-          },
-          "service.something_generator": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 1000,
-              "throttle_ms": 10,
-              "step_delay": 0,
-              "batch_size": 5,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {}
-          },
-          "streams.something_event": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 1000,
-              "throttle_ms": 10,
-              "step_delay": 0,
-              "batch_size": 5,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "_": {
-                "logging": {
-                  "extra_fields": [
-                    "something_id"
-                  ]
-                }
-              }
-            }
-          },
-          "streams.process_events": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group",
-                "stream.event_id",
-                "stream.event_ts",
-                "stream.submit_ts",
-                "stream.read_ts"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 1000,
-              "throttle_ms": 10,
-              "step_delay": 0,
-              "batch_size": 5,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "_": {
-                "logging": {
-                  "stream_fields": [
-                    "name",
-                    "msg_id",
-                    "consumer_group",
-                    "event_id",
-                    "event_ts",
-                    "submit_ts",
-                    "read_ts"
+          "app_config": {
+              "app": {
+                  "name": "simple-example",
+                  "version": "${APPS_API_VERSION}"
+              },
+              "engine": {
+                  "import_modules": [
+                      "simple_example"
                   ],
-                  "extra_fields": [
-                    "something_id"
-                  ]
-                }
+                  "read_stream_timeout": 1000,
+                  "read_stream_interval": 1000,
+                  "default_stream_compression": "lz4",
+                  "default_stream_serialization": "json+base64",
+                  "track_headers": [
+                      "track.request_id",
+                      "track.request_ts",
+                      "track.caller",
+                      "track.session_id"
+                  ],
+                  "cors_origin": "*"
               },
-              "fs_storage": {
-                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
-                "partition_dateformat": "%Y/%m/%d/%H/"
-              }
-            }
-          },
-          "collector.query_concurrently": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "fs_storage": {
-                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
-                "partition_dateformat": "%Y/%m/%d/%H/"
-              }
-            }
-          },
-          "collector.collect_spawn": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [
-                "something_id"
+              "app_connections": {},
+              "env": {
+                  "storage": {
+                      "base_path": "/tmp/hopeit/"
+                  },
+                  "upload_something": {
+                      "save_path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.upload_something.save_path/",
+                      "chunk_size": 16384
+                  }
+              },
+              "events": {
+                  "list_somethings": {
+                      "type": "GET",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "auth": [],
+                      "setting_keys": [
+                          "fs_storage"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "list_somethings_unsecured": {
+                      "type": "GET",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "auth": [
+                          "Unsecured"
+                      ],
+                      "setting_keys": [
+                          "fs_storage"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "query_something": {
+                      "type": "GET",
+                      "plug_mode": "Standalone",
+                      "route": "simple-example/${APPS_API_VERSION}/query_something",
+                      "connections": [],
+                      "auth": [],
+                      "setting_keys": [
+                          "fs_storage"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "query_something_extended": {
+                      "type": "POST",
+                      "plug_mode": "Standalone",
+                      "route": "simple-example/${APPS_API_VERSION}/query_something",
+                      "connections": [],
+                      "auth": [],
+                      "setting_keys": [
+                          "fs_storage"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "save_something": {
+                      "type": "POST",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "auth": [],
+                      "setting_keys": [
+                          "fs_storage"
+                      ],
+                      "dataobjects": [],
+                      "group": "g2"
+                  },
+                  "download_something": {
+                      "type": "GET",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "auth": [],
+                      "setting_keys": [],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "download_something_streamed": {
+                      "type": "GET",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "auth": [
+                          "Unsecured"
+                      ],
+                      "setting_keys": [],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "upload_something": {
+                      "type": "MULTIPART",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "auth": [],
+                      "setting_keys": [],
+                      "dataobjects": [],
+                      "group": "g1"
+                  },
+                  "service.something_generator": {
+                      "type": "SERVICE",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "write_stream": {
+                          "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                          "queues": [
+                              "AUTO"
+                          ],
+                          "queue_strategy": "DROP"
+                      },
+                      "auth": [],
+                      "setting_keys": [],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "streams.something_event": {
+                      "type": "POST",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "write_stream": {
+                          "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                          "queues": [
+                              "high-prio"
+                          ],
+                          "queue_strategy": "DROP"
+                      },
+                      "auth": [],
+                      "setting_keys": [],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "streams.process_events": {
+                      "type": "STREAM",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "read_stream": {
+                          "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                          "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
+                          "queues": [
+                              "high-prio",
+                              "AUTO"
+                          ]
+                      },
+                      "auth": [],
+                      "setting_keys": [
+                          "fs_storage"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "collector.query_concurrently": {
+                      "type": "POST",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "auth": [],
+                      "setting_keys": [
+                          "fs_storage"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "collector.collect_spawn": {
+                      "type": "POST",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "write_stream": {
+                          "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                          "queues": [
+                              "AUTO"
+                          ],
+                          "queue_strategy": "DROP"
+                      },
+                      "auth": [],
+                      "setting_keys": [
+                          "fs_storage"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "shuffle.spawn_event": {
+                      "type": "POST",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "write_stream": {
+                          "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                          "queues": [
+                              "AUTO"
+                          ],
+                          "queue_strategy": "DROP"
+                      },
+                      "auth": [],
+                      "setting_keys": [
+                          "fs_storage"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "shuffle.parallelize_event": {
+                      "type": "POST",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "write_stream": {
+                          "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                          "queues": [
+                              "AUTO"
+                          ],
+                          "queue_strategy": "DROP"
+                      },
+                      "auth": [],
+                      "setting_keys": [
+                          "fs_storage"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "storage.save_events_fs": {
+                      "type": "STREAM",
+                      "plug_mode": "Standalone",
+                      "impl": "hopeit.fs_storage.events.stream_batch_storage",
+                      "connections": [],
+                      "read_stream": {
+                          "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                          "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs",
+                          "queues": [
+                              "high-prio",
+                              "AUTO"
+                          ]
+                      },
+                      "auth": [],
+                      "setting_keys": [],
+                      "dataobjects": [
+                          "model.Something"
+                      ],
+                      "group": "DEFAULT"
+                  }
+              },
+              "server": {
+                  "streams": {
+                      "stream_manager": "hopeit.streams.NoStreamManager",
+                      "connection_str": "<<NoStreamManager>>",
+                      "delay_auto_start_seconds": 3
+                  },
+                  "logging": {
+                      "log_level": "DEBUG",
+                      "log_path": "logs/"
+                  },
+                  "auth": {
+                      "secrets_location": ".secrets/",
+                      "auth_passphrase": "",
+                      "enabled": false,
+                      "create_keys": false,
+                      "encryption_algorithm": "RS256",
+                      "default_auth_methods": [
+                          "Unsecured"
+                      ]
+                  },
+                  "api": {},
+                  "engine_version": "${APPS_API_VERSION}.2"
+              },
+              "plugins": [
+                  {
+                      "name": "basic-auth",
+                      "version": "${APPS_API_VERSION}"
+                  }
               ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 1000,
-              "throttle_ms": 10,
-              "step_delay": 0,
-              "batch_size": 5,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "_": {
-                "logging": {
-                  "extra_fields": [
-                    "something_id"
-                  ]
-                }
+              "settings": {
+                  "streams.something_event": {
+                      "logging": {
+                          "extra_fields": [
+                              "something_id"
+                          ]
+                      }
+                  },
+                  "streams.process_events": {
+                      "logging": {
+                          "stream_fields": [
+                              "name",
+                              "msg_id",
+                              "consumer_group",
+                              "event_id",
+                              "event_ts",
+                              "submit_ts",
+                              "read_ts"
+                          ],
+                          "extra_fields": [
+                              "something_id"
+                          ]
+                      }
+                  },
+                  "collector.collect_spawn": {
+                      "logging": {
+                          "extra_fields": [
+                              "something_id"
+                          ]
+                      }
+                  },
+                  "shuffle.spawn_event": {
+                      "logging": {
+                          "extra_fields": [
+                              "something_id"
+                          ]
+                      }
+                  },
+                  "shuffle.parallelize_event": {
+                      "logging": {
+                          "extra_fields": [
+                              "something_id"
+                          ]
+                      }
+                  },
+                  "fs_storage": {
+                      "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                      "partition_dateformat": "%Y/%m/%d/%H/"
+                  },
+                  "storage.save_events_fs": {
+                      "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs.path",
+                      "partition_dateformat": "%Y/%m/%d/%H/",
+                      "flush_seconds": 60.0,
+                      "flush_max_size": 100
+                  },
+                  "simple_example.${APPS_ROUTE_VERSION}.streams.something_event": {
+                      "target_max_len": 1000,
+                      "throttle_ms": 10,
+                      "batch_size": 5
+                  }
               },
-              "fs_storage": {
-                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
-                "partition_dateformat": "%Y/%m/%d/%H/"
+              "effective_settings": {
+                  "list_somethings": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "fs_storage": {
+                              "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                              "partition_dateformat": "%Y/%m/%d/%H/"
+                          }
+                      }
+                  },
+                  "list_somethings_unsecured": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "fs_storage": {
+                              "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                              "partition_dateformat": "%Y/%m/%d/%H/"
+                          }
+                      }
+                  },
+                  "query_something": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "fs_storage": {
+                              "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                              "partition_dateformat": "%Y/%m/%d/%H/"
+                          }
+                      }
+                  },
+                  "query_something_extended": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "fs_storage": {
+                              "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                              "partition_dateformat": "%Y/%m/%d/%H/"
+                          }
+                      }
+                  },
+                  "save_something": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "fs_storage": {
+                              "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                              "partition_dateformat": "%Y/%m/%d/%H/"
+                          }
+                      }
+                  },
+                  "download_something": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {}
+                  },
+                  "download_something_streamed": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {}
+                  },
+                  "upload_something": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {}
+                  },
+                  "service.something_generator": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 1000,
+                          "throttle_ms": 10,
+                          "step_delay": 0,
+                          "batch_size": 5,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {}
+                  },
+                  "streams.something_event": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [
+                              "something_id"
+                          ],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 1000,
+                          "throttle_ms": 10,
+                          "step_delay": 0,
+                          "batch_size": 5,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "_": {
+                              "logging": {
+                                  "extra_fields": [
+                                      "something_id"
+                                  ]
+                              }
+                          }
+                      }
+                  },
+                  "streams.process_events": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [
+                              "something_id"
+                          ],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group",
+                              "stream.event_id",
+                              "stream.event_ts",
+                              "stream.submit_ts",
+                              "stream.read_ts"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 1000,
+                          "throttle_ms": 10,
+                          "step_delay": 0,
+                          "batch_size": 5,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "_": {
+                              "logging": {
+                                  "stream_fields": [
+                                      "name",
+                                      "msg_id",
+                                      "consumer_group",
+                                      "event_id",
+                                      "event_ts",
+                                      "submit_ts",
+                                      "read_ts"
+                                  ],
+                                  "extra_fields": [
+                                      "something_id"
+                                  ]
+                              }
+                          },
+                          "fs_storage": {
+                              "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                              "partition_dateformat": "%Y/%m/%d/%H/"
+                          }
+                      }
+                  },
+                  "collector.query_concurrently": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "fs_storage": {
+                              "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                              "partition_dateformat": "%Y/%m/%d/%H/"
+                          }
+                      }
+                  },
+                  "collector.collect_spawn": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [
+                              "something_id"
+                          ],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 1000,
+                          "throttle_ms": 10,
+                          "step_delay": 0,
+                          "batch_size": 5,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "_": {
+                              "logging": {
+                                  "extra_fields": [
+                                      "something_id"
+                                  ]
+                              }
+                          },
+                          "fs_storage": {
+                              "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                              "partition_dateformat": "%Y/%m/%d/%H/"
+                          }
+                      }
+                  },
+                  "shuffle.spawn_event": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [
+                              "something_id"
+                          ],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 1000,
+                          "throttle_ms": 10,
+                          "step_delay": 0,
+                          "batch_size": 5,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "_": {
+                              "logging": {
+                                  "extra_fields": [
+                                      "something_id"
+                                  ]
+                              }
+                          },
+                          "fs_storage": {
+                              "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                              "partition_dateformat": "%Y/%m/%d/%H/"
+                          }
+                      }
+                  },
+                  "shuffle.parallelize_event": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [
+                              "something_id"
+                          ],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 1000,
+                          "throttle_ms": 10,
+                          "step_delay": 0,
+                          "batch_size": 5,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "_": {
+                              "logging": {
+                                  "extra_fields": [
+                                      "something_id"
+                                  ]
+                              }
+                          },
+                          "fs_storage": {
+                              "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
+                              "partition_dateformat": "%Y/%m/%d/%H/"
+                          }
+                      }
+                  },
+                  "storage.save_events_fs": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 1000,
+                          "throttle_ms": 10,
+                          "step_delay": 0,
+                          "batch_size": 5,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "_": {
+                              "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs.path",
+                              "partition_dateformat": "%Y/%m/%d/%H/",
+                              "flush_seconds": 60.0,
+                              "flush_max_size": 100
+                          }
+                      }
+                  }
               }
-            }
           },
-          "shuffle.spawn_event": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 1000,
-              "throttle_ms": 10,
-              "step_delay": 0,
-              "batch_size": 5,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "_": {
-                "logging": {
-                  "extra_fields": [
-                    "something_id"
-                  ]
-                }
+          "effective_events": {
+              "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login": {
+                  "type": "GET",
+                  "plug_mode": "OnApp",
+                  "connections": [],
+                  "auth": [
+                      "Basic"
+                  ],
+                  "setting_keys": [
+                      "auth"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
               },
-              "fs_storage": {
-                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
-                "partition_dateformat": "%Y/%m/%d/%H/"
-              }
-            }
-          },
-          "shuffle.parallelize_event": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [
-                "something_id"
-              ],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 1000,
-              "throttle_ms": 10,
-              "step_delay": 0,
-              "batch_size": 5,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "_": {
-                "logging": {
-                  "extra_fields": [
-                    "something_id"
-                  ]
-                }
+              "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh": {
+                  "type": "GET",
+                  "plug_mode": "OnApp",
+                  "connections": [],
+                  "auth": [
+                      "Refresh"
+                  ],
+                  "setting_keys": [
+                      "auth"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
               },
-              "fs_storage": {
-                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.fs_storage.path",
-                "partition_dateformat": "%Y/%m/%d/%H/"
+              "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout": {
+                  "type": "GET",
+                  "plug_mode": "OnApp",
+                  "connections": [],
+                  "auth": [
+                      "Refresh"
+                  ],
+                  "setting_keys": [
+                      "auth"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.list_somethings": {
+                  "type": "GET",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "auth": [],
+                  "setting_keys": [
+                      "fs_storage"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.list_somethings_unsecured": {
+                  "type": "GET",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "auth": [
+                      "Unsecured"
+                  ],
+                  "setting_keys": [
+                      "fs_storage"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.query_something": {
+                  "type": "GET",
+                  "plug_mode": "Standalone",
+                  "route": "simple-example/${APPS_API_VERSION}/query_something",
+                  "connections": [],
+                  "auth": [],
+                  "setting_keys": [
+                      "fs_storage"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.query_something_extended": {
+                  "type": "POST",
+                  "plug_mode": "Standalone",
+                  "route": "simple-example/${APPS_API_VERSION}/query_something",
+                  "connections": [],
+                  "auth": [],
+                  "setting_keys": [
+                      "fs_storage"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.save_something": {
+                  "type": "POST",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "auth": [],
+                  "setting_keys": [
+                      "fs_storage"
+                  ],
+                  "dataobjects": [],
+                  "group": "g2"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.download_something": {
+                  "type": "GET",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "auth": [],
+                  "setting_keys": [],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.download_something_streamed": {
+                  "type": "GET",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "auth": [
+                      "Unsecured"
+                  ],
+                  "setting_keys": [],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.upload_something": {
+                  "type": "MULTIPART",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "auth": [],
+                  "setting_keys": [],
+                  "dataobjects": [],
+                  "group": "g1"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.service.something_generator": {
+                  "type": "SERVICE",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "write_stream": {
+                      "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                      "queues": [
+                          "AUTO"
+                      ],
+                      "queue_strategy": "DROP"
+                  },
+                  "auth": [],
+                  "setting_keys": [],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.streams.something_event": {
+                  "type": "POST",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "write_stream": {
+                      "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                      "queues": [
+                          "high-prio"
+                      ],
+                      "queue_strategy": "DROP"
+                  },
+                  "auth": [],
+                  "setting_keys": [],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.streams.process_events": {
+                  "type": "STREAM",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "read_stream": {
+                      "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                      "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
+                      "queues": [
+                          "high-prio",
+                          "AUTO"
+                      ]
+                  },
+                  "auth": [],
+                  "setting_keys": [
+                      "fs_storage"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently": {
+                  "type": "POST",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "auth": [],
+                  "setting_keys": [
+                      "fs_storage"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn": {
+                  "type": "POST",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "write_stream": {
+                      "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                      "queues": [
+                          "AUTO"
+                      ],
+                      "queue_strategy": "DROP"
+                  },
+                  "auth": [],
+                  "setting_keys": [
+                      "fs_storage"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event": {
+                  "type": "POST",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "write_stream": {
+                      "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                      "queues": [
+                          "AUTO"
+                      ],
+                      "queue_strategy": "DROP"
+                  },
+                  "auth": [],
+                  "setting_keys": [
+                      "fs_storage"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event": {
+                  "type": "POST",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "write_stream": {
+                      "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                      "queues": [
+                          "AUTO"
+                      ],
+                      "queue_strategy": "DROP"
+                  },
+                  "auth": [],
+                  "setting_keys": [
+                      "fs_storage"
+                  ],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              },
+              "simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs": {
+                  "type": "STREAM",
+                  "plug_mode": "Standalone",
+                  "impl": "hopeit.fs_storage.events.stream_batch_storage",
+                  "connections": [],
+                  "read_stream": {
+                      "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
+                      "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs",
+                      "queues": [
+                          "high-prio",
+                          "AUTO"
+                      ]
+                  },
+                  "auth": [],
+                  "setting_keys": [],
+                  "dataobjects": [
+                      "model.Something"
+                  ],
+                  "group": "DEFAULT"
               }
-            }
-          },
-          "storage.save_events_fs": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 1000,
-              "throttle_ms": 10,
-              "step_delay": 0,
-              "batch_size": 5,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "_": {
-                "path": "/tmp/hopeit//simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs.path",
-                "partition_dateformat": "%Y/%m/%d/%H/",
-                "flush_seconds": 60.0,
-                "flush_max_size": 100
-              }
-            }
           }
-        }
       },
-      "effective_events": {
-        "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.login": {
-          "type": "GET",
-          "plug_mode": "OnApp",
-          "connections": [],
-          "auth": [
-            "Basic"
+      "basic_auth.${APPS_ROUTE_VERSION}": {
+          "servers": [
+              {
+                  "host_name": "${HOST_NAME}",
+                  "pid": "${PID}",
+                  "url": "${URL}"
+              }
           ],
-          "setting_keys": [
-            "auth"
-          ],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.refresh": {
-          "type": "GET",
-          "plug_mode": "OnApp",
-          "connections": [],
-          "auth": [
-            "Refresh"
-          ],
-          "setting_keys": [
-            "auth"
-          ],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.basic_auth.${APPS_ROUTE_VERSION}.logout": {
-          "type": "GET",
-          "plug_mode": "OnApp",
-          "connections": [],
-          "auth": [
-            "Refresh"
-          ],
-          "setting_keys": [
-            "auth"
-          ],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.list_somethings": {
-          "type": "GET",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "auth": [],
-          "setting_keys": [
-            "fs_storage"
-          ],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.query_something": {
-          "type": "GET",
-          "plug_mode": "Standalone",
-          "route": "simple-example/${APPS_API_VERSION}/query_something",
-          "connections": [],
-          "auth": [],
-          "setting_keys": [
-            "fs_storage"
-          ],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.query_something_extended": {
-          "type": "POST",
-          "plug_mode": "Standalone",
-          "route": "simple-example/${APPS_API_VERSION}/query_something",
-          "connections": [],
-          "auth": [],
-          "setting_keys": [
-            "fs_storage"
-          ],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.save_something": {
-          "type": "POST",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "auth": [],
-          "setting_keys": [
-            "fs_storage"
-          ],
-          "dataobjects": [],
-          "group": "g2"
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.download_something": {
-          "type": "GET",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "auth": [],
-          "setting_keys": [],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.download_something_streamed": {
-          "type": "GET",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "auth": [
-            "Unsecured"
-          ],
-          "setting_keys": [],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.upload_something": {
-          "type": "MULTIPART",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "auth": [],
-          "setting_keys": [],
-          "dataobjects": [],
-          "group": "g1"
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.service.something_generator": {
-          "type": "SERVICE",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "write_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-            "queues": [
-              "AUTO"
-            ],
-            "queue_strategy": "DROP"
+          "app_config": {
+              "app": {
+                  "name": "basic-auth",
+                  "version": "${APPS_API_VERSION}"
+              },
+              "engine": {
+                  "import_modules": [
+                      "hopeit.basic_auth"
+                  ],
+                  "read_stream_timeout": 1000,
+                  "read_stream_interval": 1000,
+                  "default_stream_compression": "lz4",
+                  "default_stream_serialization": "json+base64",
+                  "track_headers": [
+                      "track.request_id",
+                      "track.request_ts"
+                  ],
+                  "cors_origin": "http://localhost:8020"
+              },
+              "app_connections": {},
+              "env": {},
+              "events": {
+                  "login": {
+                      "type": "GET",
+                      "plug_mode": "OnApp",
+                      "connections": [],
+                      "auth": [
+                          "Basic"
+                      ],
+                      "setting_keys": [
+                          "auth"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "refresh": {
+                      "type": "GET",
+                      "plug_mode": "OnApp",
+                      "connections": [],
+                      "auth": [
+                          "Refresh"
+                      ],
+                      "setting_keys": [
+                          "auth"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "logout": {
+                      "type": "GET",
+                      "plug_mode": "OnApp",
+                      "connections": [],
+                      "auth": [
+                          "Refresh"
+                      ],
+                      "setting_keys": [
+                          "auth"
+                      ],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  },
+                  "decode": {
+                      "type": "GET",
+                      "plug_mode": "Standalone",
+                      "connections": [],
+                      "auth": [
+                          "Bearer"
+                      ],
+                      "setting_keys": [],
+                      "dataobjects": [],
+                      "group": "DEFAULT"
+                  }
+              },
+              "server": {
+                  "streams": {
+                      "stream_manager": "hopeit.streams.NoStreamManager",
+                      "connection_str": "<<NoStreamManager>>",
+                      "delay_auto_start_seconds": 3
+                  },
+                  "logging": {
+                      "log_level": "DEBUG",
+                      "log_path": "logs/"
+                  },
+                  "auth": {
+                      "secrets_location": ".secrets/",
+                      "auth_passphrase": "",
+                      "enabled": false,
+                      "create_keys": false,
+                      "encryption_algorithm": "RS256",
+                      "default_auth_methods": [
+                          "Unsecured"
+                      ]
+                  },
+                  "api": {},
+                  "engine_version": "${APPS_API_VERSION}.2"
+              },
+              "plugins": [],
+              "settings": {
+                  "auth": {
+                      "access_token_expiration": 600,
+                      "refresh_token_expiration": 3600,
+                      "access_token_renew_window": 5
+                  }
+              },
+              "effective_settings": {
+                  "login": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "auth": {
+                              "access_token_expiration": 600,
+                              "refresh_token_expiration": 3600,
+                              "access_token_renew_window": 5
+                          }
+                      }
+                  },
+                  "refresh": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "auth": {
+                              "access_token_expiration": 600,
+                              "refresh_token_expiration": 3600,
+                              "access_token_renew_window": 5
+                          }
+                      }
+                  },
+                  "logout": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {
+                          "auth": {
+                              "access_token_expiration": 600,
+                              "refresh_token_expiration": 3600,
+                              "access_token_renew_window": 5
+                          }
+                      }
+                  },
+                  "decode": {
+                      "response_timeout": 60.0,
+                      "logging": {
+                          "extra_fields": [],
+                          "stream_fields": [
+                              "stream.name",
+                              "stream.msg_id",
+                              "stream.consumer_group"
+                          ]
+                      },
+                      "stream": {
+                          "timeout": 60.0,
+                          "target_max_len": 0,
+                          "throttle_ms": 0,
+                          "step_delay": 0,
+                          "batch_size": 100,
+                          "compression": "lz4",
+                          "serialization": "json+base64"
+                      },
+                      "extras": {}
+                  }
+              }
           },
-          "auth": [],
-          "setting_keys": [],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.streams.something_event": {
-          "type": "POST",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "write_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-            "queues": [
-              "high-prio"
-            ],
-            "queue_strategy": "DROP"
-          },
-          "auth": [],
-          "setting_keys": [],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.streams.process_events": {
-          "type": "STREAM",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "read_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.streams.process_events",
-            "queues": [
-              "high-prio",
-              "AUTO"
-            ]
-          },
-          "auth": [],
-          "setting_keys": [
-            "fs_storage"
-          ],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently": {
-          "type": "POST",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "auth": [],
-          "setting_keys": [
-            "fs_storage"
-          ],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.collector.collect_spawn": {
-          "type": "POST",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "write_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-            "queues": [
-              "AUTO"
-            ],
-            "queue_strategy": "DROP"
-          },
-          "auth": [],
-          "setting_keys": [
-            "fs_storage"
-          ],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.shuffle.spawn_event": {
-          "type": "POST",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "write_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-            "queues": [
-              "AUTO"
-            ],
-            "queue_strategy": "DROP"
-          },
-          "auth": [],
-          "setting_keys": [
-            "fs_storage"
-          ],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.shuffle.parallelize_event": {
-          "type": "POST",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "write_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-            "queues": [
-              "AUTO"
-            ],
-            "queue_strategy": "DROP"
-          },
-          "auth": [],
-          "setting_keys": [
-            "fs_storage"
-          ],
-          "dataobjects": []
-        },
-        "simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs": {
-          "type": "STREAM",
-          "plug_mode": "Standalone",
-          "impl": "hopeit.fs_storage.events.stream_batch_storage",
-          "connections": [],
-          "read_stream": {
-            "name": "simple_example.${APPS_ROUTE_VERSION}.streams.something_event",
-            "consumer_group": "simple_example.${APPS_ROUTE_VERSION}.storage.save_events_fs",
-            "queues": [
-              "high-prio",
-              "AUTO"
-            ]
-          },
-          "auth": [],
-          "setting_keys": [],
-          "dataobjects": [
-            "model.Something"
-          ]
-        }
+          "effective_events": {
+              "basic_auth.${APPS_ROUTE_VERSION}.decode": {
+                  "type": "GET",
+                  "plug_mode": "Standalone",
+                  "connections": [],
+                  "auth": [
+                      "Bearer"
+                  ],
+                  "setting_keys": [],
+                  "dataobjects": [],
+                  "group": "DEFAULT"
+              }
+          }
       }
-    },
-    "basic_auth.${APPS_ROUTE_VERSION}": {
-      "servers": [
-        {
-          "host_name": "${HOST_NAME}",
-          "pid": "${PID}",
-          "url": "${URL}"
-        }
-      ],
-      "app_config": {
-        "app": {
-          "name": "basic-auth",
-          "version": "${APPS_API_VERSION}"
-        },
-        "engine": {
-          "import_modules": [
-            "hopeit.basic_auth"
-          ],
-          "read_stream_timeout": 1000,
-          "read_stream_interval": 1000,
-          "default_stream_compression": "lz4",
-          "default_stream_serialization": "json+base64",
-          "track_headers": [
-            "track.request_id",
-            "track.request_ts"
-          ],
-          "cors_origin": "http://localhost:8020"
-        },
-        "app_connections": {},
-        "env": {},
-        "events": {
-          "login": {
-            "type": "GET",
-            "plug_mode": "OnApp",
-            "connections": [],
-            "auth": [
-              "Basic"
-            ],
-            "setting_keys": [
-              "auth"
-            ],
-            "dataobjects": []
-          },
-          "refresh": {
-            "type": "GET",
-            "plug_mode": "OnApp",
-            "connections": [],
-            "auth": [
-              "Refresh"
-            ],
-            "setting_keys": [
-              "auth"
-            ],
-            "dataobjects": []
-          },
-          "logout": {
-            "type": "GET",
-            "plug_mode": "OnApp",
-            "connections": [],
-            "auth": [
-              "Refresh"
-            ],
-            "setting_keys": [
-              "auth"
-            ],
-            "dataobjects": []
-          },
-          "decode": {
-            "type": "GET",
-            "plug_mode": "Standalone",
-            "connections": [],
-            "auth": [
-              "Bearer"
-            ],
-            "setting_keys": [],
-            "dataobjects": []
-          }
-        },
-        "server": {
-          "streams": {
-            "stream_manager": "hopeit.streams.NoStreamManager",
-            "connection_str": "<<NoStreamManager>>",
-            "delay_auto_start_seconds": 3
-          },
-          "logging": {
-            "log_level": "DEBUG",
-            "log_path": "logs/"
-          },
-          "auth": {
-            "secrets_location": ".secrets/",
-            "auth_passphrase": "",
-            "enabled": false,
-            "create_keys": false,
-            "encryption_algorithm": "RS256",
-            "default_auth_methods": [
-              "Unsecured"
-            ]
-          },
-          "api": {},
-          "engine_version": "${ENGINE_VERSION}"
-        },
-        "plugins": [],
-        "settings": {
-          "auth": {
-            "access_token_expiration": 600,
-            "refresh_token_expiration": 3600,
-            "access_token_renew_window": 5
-          }
-        },
-        "effective_settings": {
-          "login": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "auth": {
-                "access_token_expiration": 600,
-                "refresh_token_expiration": 3600,
-                "access_token_renew_window": 5
-              }
-            }
-          },
-          "refresh": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "auth": {
-                "access_token_expiration": 600,
-                "refresh_token_expiration": 3600,
-                "access_token_renew_window": 5
-              }
-            }
-          },
-          "logout": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {
-              "auth": {
-                "access_token_expiration": 600,
-                "refresh_token_expiration": 3600,
-                "access_token_renew_window": 5
-              }
-            }
-          },
-          "decode": {
-            "response_timeout": 60.0,
-            "logging": {
-              "extra_fields": [],
-              "stream_fields": [
-                "stream.name",
-                "stream.msg_id",
-                "stream.consumer_group"
-              ]
-            },
-            "stream": {
-              "timeout": 60.0,
-              "target_max_len": 0,
-              "throttle_ms": 0,
-              "step_delay": 0,
-              "batch_size": 100,
-              "compression": "lz4",
-              "serialization": "json+base64"
-            },
-            "extras": {}
-          }
-        }
-      },
-      "effective_events": {
-        "basic_auth.${APPS_ROUTE_VERSION}.decode": {
-          "type": "GET",
-          "plug_mode": "Standalone",
-          "connections": [],
-          "auth": [
-            "Bearer"
-          ],
-          "setting_keys": [],
-          "dataobjects": []
-        }
-      }
-    }
   },
   "server_status": {
-    "${URL}": "ALIVE"
+      "${URL}": "ALIVE"
   }
 }

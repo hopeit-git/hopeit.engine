@@ -31,14 +31,16 @@ class MockAppEngine:
 
 class MockServer:
     def __init__(self, *app_config: AppConfig):
-        self.app_engines = {
-            cfg.app_key(): MockAppEngine(cfg)
-            for cfg in app_config
-        }
+        self.app_engines = {cfg.app_key(): MockAppEngine(cfg) for cfg in app_config}
 
 
-class MockResponse():
-    def __init__(self, status: int, response: Union[MockResponseData, str], content_type: str = "application/json"):
+class MockResponse:
+    def __init__(
+        self,
+        status: int,
+        response: Union[MockResponseData, str],
+        content_type: str = "application/json",
+    ):
         self.status = status
         self.response = response
         self.content_type = content_type
@@ -56,8 +58,13 @@ class MockResponse():
         return str(self.response)
 
 
-class MockResponseList():
-    def __init__(self, status: int, items: List[MockResponseData], content_type: str = "application/json"):
+class MockResponseList:
+    def __init__(
+        self,
+        status: int,
+        items: List[MockResponseData],
+        content_type: str = "application/json",
+    ):
         self.status = status
         self.items = items
         self.content_type = content_type
@@ -75,7 +82,7 @@ class MockResponseList():
         return f"status {self.status}"
 
 
-class MockClientSession():
+class MockClientSession:
     lock = asyncio.Lock()
     session_open = False
     responses: Dict[str, str] = {}
@@ -89,9 +96,7 @@ class MockClientSession():
     def setup(cls, responses: Dict[str, str], headers: Dict[str, str]):
         cls.responses = responses
         cls.headers = headers
-        cls.failure = {
-            cls._host(url): 0 for url in responses.keys()
-        }
+        cls.failure = {cls._host(url): 0 for url in responses.keys()}
         cls.call_log = defaultdict(int)
         cls.session_open = False
         return cls
@@ -102,7 +107,9 @@ class MockClientSession():
         return cls
 
     @classmethod
-    def set_alternate_response(cls, host: str, status: int, content_type: str = "application/json"):
+    def set_alternate_response(
+        cls, host: str, status: int, content_type: str = "application/json"
+    ):
         cls.alternate[cls._host(host)] = status
         cls.content_type = content_type
         return cls
@@ -123,7 +130,7 @@ class MockClientSession():
 
     @staticmethod
     def _host(url: str):
-        return '/'.join(url.split('/')[0:3])
+        return "/".join(url.split("/")[0:3])
 
     def _check_headers(self, headers: dict):
         for k, v in self.headers.items():
@@ -134,88 +141,150 @@ class MockClientSession():
         host = self._host(url)
         self.call_log[host] += 1
         if self.failure.get(host):
-            return MockResponse(
-                self.failure.get(host, 0), "Mock server error"
-            )
+            return MockResponse(self.failure.get(host, 0), "Mock server error")
         if self.alternate.get(host):
             status = self.alternate.get(host)
             assert status
-            return MockResponse(status, MockResponseData(
-                value=self.responses[url],
-                param=str(params.get("test_param", "")),
-                host=host,
-                log=dict(self.call_log)), self.content_type)
+            return MockResponse(
+                status,
+                MockResponseData(
+                    value=self.responses[url],
+                    param=str(params.get("test_param", "")),
+                    host=host,
+                    log=dict(self.call_log),
+                ),
+                self.content_type,
+            )
         if url in self.responses:
-            return MockResponse(200, MockResponseData(
-                value=self.responses[url],
-                param=str(params.get("test_param", "")),
-                host=host,
-                log=dict(self.call_log)
-            ))
+            return MockResponse(
+                200,
+                MockResponseData(
+                    value=self.responses[url],
+                    param=str(params.get("test_param", "")),
+                    host=host,
+                    log=dict(self.call_log),
+                ),
+            )
         raise IOError("Test error")
 
-    def post(self, url: str, data: str, headers: dict,
-             params: dict) -> Union[MockResponseList, MockResponse]:
+    def post(
+        self, url: str, data: str, headers: dict, params: dict
+    ) -> Union[MockResponseList, MockResponse]:
         self._check_headers(headers)
         host = self._host(url)
         self.call_log[host] += 1
         if self.failure.get(host):
-            return MockResponse(
-                self.failure.get(host, 0), "Mock server error"
-            )
+            return MockResponse(self.failure.get(host, 0), "Mock server error")
         if self.alternate.get(host):
             status = self.alternate.get(host)
             assert status
             payload = Payload.from_json(data, MockPayloadData)
-            return MockResponseList(status, items=[MockResponseData(
-                value=f"{payload.value} {self.responses[url]}",
-                param=str(params.get("test_param", "")),
-                host=host,
-                log=self.call_log
-            )])
+            return MockResponseList(
+                status,
+                items=[
+                    MockResponseData(
+                        value=f"{payload.value} {self.responses[url]}",
+                        param=str(params.get("test_param", "")),
+                        host=host,
+                        log=self.call_log,
+                    )
+                ],
+            )
         if url in self.responses:
             payload = Payload.from_json(data, MockPayloadData)
-            return MockResponseList(200, items=[MockResponseData(
-                value=f"{payload.value} {self.responses[url]}",
-                param=str(params.get("test_param", "")),
-                host=host,
-                log=self.call_log
-            )])
+            return MockResponseList(
+                200,
+                items=[
+                    MockResponseData(
+                        value=f"{payload.value} {self.responses[url]}",
+                        param=str(params.get("test_param", "")),
+                        host=host,
+                        log=self.call_log,
+                    )
+                ],
+            )
         raise IOError("Test error")
 
 
-async def init_mock_client_app(module, monkeypatch, mock_auth, app_config, event_name, response):
+async def init_mock_client_app(
+    module, monkeypatch, mock_auth, app_config, event_name, response
+):
     monkeypatch.setattr(engine, "auth", mock_auth)
     monkeypatch.setattr(module, "auth", mock_auth)
     url_pattern = "{}/api/test-app/{}/{}"
     url1 = url_pattern.format("http://test-host1", APPS_ROUTE_VERSION, event_name)
     url2 = url_pattern.format("http://test-host2", APPS_ROUTE_VERSION, event_name)
-    monkeypatch.setattr(module.aiohttp, 'ClientSession', MockClientSession.setup(
-        responses={
-            url1: response,
-            url2: response
-        },
-        headers={
-            "authorization": "Bearer test-token"
-        }
-    ))
-    await engine.AppEngine(app_config=app_config, plugins=[], enabled_groups=[], streams_enabled=False).start()
+    monkeypatch.setattr(
+        module.aiohttp,
+        "ClientSession",
+        MockClientSession.setup(
+            responses={url1: response, url2: response},
+            headers={"authorization": "Bearer test-token"},
+        ),
+    )
+    await engine.AppEngine(
+        app_config=app_config, plugins=[], enabled_groups=[], streams_enabled=False
+    ).start()
 
 
-async def init_mock_client_app_plugin(module, monkeypatch, mock_auth, app_config, plugin_name, event_name, response):
+async def init_mock_client_app_plugin(
+    module, monkeypatch, mock_auth, app_config, plugin_name, event_name, response
+):
     monkeypatch.setattr(engine, "auth", mock_auth)
     monkeypatch.setattr(module, "auth", mock_auth)
     url_pattern = "{}/api/test-app/{}/{}/{}/{}"
-    url1 = url_pattern.format("http://test-host1", APPS_ROUTE_VERSION, plugin_name, APPS_ROUTE_VERSION, event_name)
-    url2 = url_pattern.format("http://test-host2", APPS_ROUTE_VERSION, plugin_name, APPS_ROUTE_VERSION, event_name)
-    monkeypatch.setattr(module.aiohttp, 'ClientSession', MockClientSession.setup(
-        responses={
-            url1: response,
-            url2: response
-        },
-        headers={
-            "authorization": "Basic user:pass"
-        }
+    url1 = url_pattern.format(
+        "http://test-host1",
+        APPS_ROUTE_VERSION,
+        plugin_name,
+        APPS_ROUTE_VERSION,
+        event_name,
+    )
+    url2 = url_pattern.format(
+        "http://test-host2",
+        APPS_ROUTE_VERSION,
+        plugin_name,
+        APPS_ROUTE_VERSION,
+        event_name,
+    )
+    monkeypatch.setattr(
+        module.aiohttp,
+        "ClientSession",
+        MockClientSession.setup(
+            responses={url1: response, url2: response},
+            headers={"authorization": "Basic user:pass"},
+        ),
+    )
+    await engine.AppEngine(
+        app_config=app_config, plugins=[], enabled_groups=[], streams_enabled=False
+    ).start()
 
-    ))
-    await engine.AppEngine(app_config=app_config, plugins=[], enabled_groups=[], streams_enabled=False).start()
+
+async def init_mock_client_app_unsecured(
+    module, monkeypatch, mock_auth, app_config, plugin_name, event_name, response
+):
+    monkeypatch.setattr(engine, "auth", mock_auth)
+    monkeypatch.setattr(module, "auth", mock_auth)
+    url_pattern = "{}/api/test-app/{}/{}/{}/{}"
+    url1 = url_pattern.format(
+        "http://test-host1",
+        APPS_ROUTE_VERSION,
+        plugin_name,
+        APPS_ROUTE_VERSION,
+        event_name,
+    )
+    url2 = url_pattern.format(
+        "http://test-host2",
+        APPS_ROUTE_VERSION,
+        plugin_name,
+        APPS_ROUTE_VERSION,
+        event_name,
+    )
+    monkeypatch.setattr(
+        module.aiohttp,
+        "ClientSession",
+        MockClientSession.setup(responses={url1: response, url2: response}, headers={}),
+    )
+    await engine.AppEngine(
+        app_config=app_config, plugins=[], enabled_groups=[], streams_enabled=False
+    ).start()

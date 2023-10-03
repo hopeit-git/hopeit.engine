@@ -11,7 +11,7 @@ from hopeit.server.config import AuthType
 from hopeit.testing.apps import create_test_context
 
 from . import MockClientSession, MockPayloadData, MockResponseData, \
-    init_mock_client_app, init_mock_client_app_plugin
+    init_mock_client_app, init_mock_client_app_plugin, init_mock_client_app_unsecured
 
 
 @pytest.mark.asyncio
@@ -47,6 +47,30 @@ async def test_client_app_plugin(monkeypatch, mock_client_app_config, mock_auth)
         }
         result = await app_call(
             "test_app_plugin_connection", event="test_event_plugin",
+            datatype=MockResponseData, payload=None, context=context,
+            test_param="test_param_value"
+        )
+        assert result == MockResponseData(
+            value="ok", param="test_param_value",
+            host="http://test-host1",
+            log={"http://test-host1": 1}
+        )
+
+
+@pytest.mark.asyncio
+async def test_client_app_unsecured(monkeypatch, mock_client_app_config, mock_auth):
+    async with MockClientSession.lock:
+        await init_mock_client_app_unsecured(
+            apps_client_module, monkeypatch, mock_auth, mock_client_app_config,
+            "test-plugin", "test-event-plugin", "ok"
+        )
+        context = create_test_context(mock_client_app_config, "mock_client_event")
+        # context.auth_info = {
+        #     "auth_type": AuthType.BASIC,
+        #     "payload": "user:pass"
+        # }
+        result = await app_call(
+            "test_app_plugin_unsecured", event="test_event_plugin",
             datatype=MockResponseData, payload=None, context=context,
             test_param="test_param_value"
         )

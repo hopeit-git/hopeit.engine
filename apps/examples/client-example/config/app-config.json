@@ -1,12 +1,15 @@
 {
     "app": {
-      "name": "client-example",
-      "version": "${HOPEIT_APPS_API_VERSION}"
+        "name": "client-example",
+        "version": "${HOPEIT_APPS_API_VERSION}"
     },
-    "engine" : {
-        "track_headers": ["caller", "session_id"],
+    "engine": {
+        "track_headers": [
+            "caller",
+            "session_id"
+        ],
         "cors_origin": "*"
-    }, 
+    },
     "app_connections": {
         "simple_example_auth_conn": {
             "name": "simple-example",
@@ -19,8 +22,12 @@
             "name": "simple-example",
             "version": "${HOPEIT_APPS_API_VERSION}",
             "client": "hopeit.apps_client.AppsClient"
+        },
+        "simple_example_conn_unsecured": {
+            "name": "simple-example",
+            "version": "${HOPEIT_APPS_API_VERSION}",
+            "client": "hopeit.apps_client.AppsClient"
         }
-
     },
     "settings": {
         "simple_example_auth_conn": {
@@ -44,9 +51,28 @@
             "routes_override": {
                 "__list-somethings": "simple-example/${HOPEIT_APPS_ROUTE_VERSION}/list-somethings"
             }
+        },
+        "simple_example_conn_unsecured": {
+            "connection_str": "${HOPEIT_SIMPLE_EXAMPLE_HOSTS}",
+            "auth_strategy": "UNSECURED",
+            "retries": 2,
+            "retry_backoff_ms": 10
         }
     },
     "events": {
+        "call_unsecured": {
+            "type": "GET",
+            "connections": [
+                {
+                    "app_connection": "simple_example_conn_unsecured",
+                    "event": "list_somethings_unsecured",
+                    "type": "GET"
+                }
+            ],
+            "auth": [
+                "Unsecured"
+            ]
+        },
         "count_and_save": {
             "type": "GET",
             "connections": [
@@ -64,20 +90,29 @@
                     "app_connection": "simple_example_conn",
                     "event": "save_something",
                     "type": "POST"
+                },
+                {
+                    "app_connection": "simple_example_conn_unsecured",
+                    "event": "list_somethings_unsecured",
+                    "type": "GET"
                 }
             ],
-            "auth": ["Basic"]
+            "auth": [
+                "Basic"
+            ]
         },
         "handle_responses": {
             "type": "GET",
-            "connections": [                
+            "connections": [
                 {
                     "app_connection": "simple_example_conn",
                     "event": "query_something",
                     "type": "GET"
                 }
             ],
-            "auth": ["Basic"]
+            "auth": [
+                "Basic"
+            ]
         }
     }
 }

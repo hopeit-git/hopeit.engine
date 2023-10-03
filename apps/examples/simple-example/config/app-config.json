@@ -70,6 +70,11 @@
       "type": "GET",
       "setting_keys": ["fs_storage"]
     },
+    "list_somethings_unsecured": {
+      "type": "GET",
+      "setting_keys": ["fs_storage"],
+      "auth": ["Unsecured"]
+    },
     "query_something": {
       "type": "GET",
       "route": "{app.name}/{app.version}/query_something",
