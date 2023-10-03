@@ -21,7 +21,7 @@ class RedisStorage(Generic[DataObject]):
            redis_store = RedisStorage().connect(address="redis://hostname:6379")
            ```
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Setups Redis connection
         """

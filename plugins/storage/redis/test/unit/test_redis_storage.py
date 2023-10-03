@@ -1,3 +1,4 @@
+from typing import Any, Optional
 from uuid import uuid4
 from dataclasses import dataclass
 from fnmatch import fnmatch
@@ -84,11 +85,11 @@ async def connect():
 
 
 class MockRedisPool:
-    def __init__(self):
+    def __init__(self) -> None:
         self.items: dict = {test_key: payload_str}
-        self.set_called_with = None
+        self.set_called_with: Optional[dict[str, Any]] = None
 
-    async def get(self, key: str):
+    async def get(self, key: str) -> Optional[Any]:
         return self.items.get(key, None)
 
     async def set(self, key: str, payload: str, **kwargs):
