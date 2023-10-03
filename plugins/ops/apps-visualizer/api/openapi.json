@@ -6,7 +6,7 @@
     "description": "Simple Example"
   },
   "paths": {
-    "/api/config-manager/${APPS_ROUTE_VERSION}/runtime-apps-config": {
+    "/api/config-manager/0x19/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -62,11 +62,11 @@
           }
         },
         "tags": [
-          "config_manager.${APPS_ROUTE_VERSION}"
+          "config_manager.0x19"
         ]
       }
     },
-    "/api/config-manager/${APPS_ROUTE_VERSION}/cluster-apps-config": {
+    "/api/config-manager/0x19/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -122,7 +122,7 @@
           }
         },
         "tags": [
-          "config_manager.${APPS_ROUTE_VERSION}"
+          "config_manager.0x19"
         ]
       }
     },
@@ -209,11 +209,11 @@
           }
         },
         "tags": [
-          "apps_visualizer.${APPS_ROUTE_VERSION}"
+          "apps_visualizer.0x19"
         ]
       }
     },
-    "/api/apps-visualizer/${APPS_ROUTE_VERSION}/apps/events-graph": {
+    "/api/apps-visualizer/0x19/apps/events-graph": {
       "get": {
         "summary": "App Visualizer: Events Graph Data",
         "description": "App Visualizer: Events Graph Data",
@@ -287,11 +287,11 @@
           }
         },
         "tags": [
-          "apps_visualizer.${APPS_ROUTE_VERSION}"
+          "apps_visualizer.0x19"
         ]
       }
     },
-    "/api/apps-visualizer/${APPS_ROUTE_VERSION}/event-stats/live": {
+    "/api/apps-visualizer/0x19/event-stats/live": {
       "get": {
         "summary": "App Visualizer: Live Stats",
         "description": "App Visualizer: Live Stats",
@@ -365,7 +365,7 @@
           }
         },
         "tags": [
-          "apps_visualizer.${APPS_ROUTE_VERSION}"
+          "apps_visualizer.0x19"
         ]
       }
     }

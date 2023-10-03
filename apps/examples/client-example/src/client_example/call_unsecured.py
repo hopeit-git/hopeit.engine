@@ -25,14 +25,16 @@ __api__ = event_api(
 logger, extra = app_extra_logger()
 
 
-async def list_something(payload: None, context: EventContext, wildcard: str) -> List[Something]:
+async def list_something(
+    payload: None, context: EventContext, wildcard: str
+) -> List[Something]:
+    """Call simple-example endpoint and return list of Something"""
     response: List[Something] = await app_call_list(
         "simple_example_conn_unsecured",
         event="list_somethings_unsecured",
         datatype=Something,
         payload=None,
         context=context,
-        wildcard=wildcard
+        wildcard=wildcard,
     )
-
     return response
