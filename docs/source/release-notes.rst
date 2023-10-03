@@ -5,7 +5,7 @@ Version 0.19.2
 ______________
 - Plugins:
 
-  - apps-client: support `UNSECURED` authentication strategie.
+  - apps-client: support `UNSECURED` authentication strategy.
 
 
 Version 0.19.1

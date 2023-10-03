@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 from uuid import uuid4
 from dataclasses import dataclass
 from fnmatch import fnmatch
@@ -87,7 +87,7 @@ async def connect():
 class MockRedisPool:
     def __init__(self) -> None:
         self.items: dict = {test_key: payload_str}
-        self.set_called_with: Optional[dict[str, Any]] = None
+        self.set_called_with: Optional[Dict[str, Any]] = None
 
     async def get(self, key: str) -> Optional[Any]:
         return self.items.get(key, None)
