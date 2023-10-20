@@ -102,6 +102,19 @@ code+=$?
 python3 -m pylint plugins/ops/log-streamer/src/hopeit/log_streamer/
 code+=$?
 fi
+
+if [ "$1" == "" ] || [ "data/dataframes" = "$1" ] ; then
+echo "data/dataframes"
+export MYPYPATH=engine/src/:plugins/storage/fs/src/:plugins/data/dataframes/src/ && python3 -m mypy --namespace-packages -p hopeit.dataframes
+code+=$?
+export MYPYPATH=engine/src/:plugins/storage/fs/src/:plugins/data/dataframes/src/ && python3 -m mypy --namespace-packages plugins/data/dataframes/test/integration/
+code+=$?
+python3 -m flake8 --max-line-length=120 plugins/data/dataframes/src/hopeit/ plugins/data/dataframes/test/integration/
+code+=$?
+python3 -m pylint plugins/data/dataframes/src/hopeit/dataframes/
+code+=$?
+fi
+
 if [ $code -gt 0 ]
 then
   echo "[FAILED] CI STATIC ANALYSIS: PLUGINS"

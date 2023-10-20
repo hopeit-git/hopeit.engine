@@ -6,19 +6,20 @@ with open("../../../engine/src/hopeit/server/version.py") as fp:
     exec(fp.read(), version)
 
 setuptools.setup(
-    name="simple_example",
+    name="dataframes_example",
     version=version['ENGINE_VERSION'],
-    description="Hopeit.py Example App",
+    description="hopeit.engine dataframes example app",
     package_dir={
         "": "src"
     },
     packages=[
-        "common", "model", "simple_example"
+        "dataframes_example",
     ],
     include_package_data=True,
     python_requires=">=3.8",
     install_requires=[
-        f"hopeit.engine[web,cli,redis-streams,fs-storage]=={version['ENGINE_VERSION']}",
+        f"hopeit.engine[web,cli,redis-streams]=={version['ENGINE_VERSION']}",
+        f"hopeit.dataframes[fastparquet]=={version['ENGINE_VERSION']}"
     ],
     extras_require={
     },

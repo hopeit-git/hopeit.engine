@@ -561,12 +561,13 @@ async def _execute_setup_event(
         track_ids={},
         auth_info=auth_info_default,
     )
-
     logger.start(context)
+
     if plugin is None:
         await app_engine.execute(context=context, query_args=None, payload=None)
     else:
         await plugin.execute(context=context, query_args=None, payload=None)
+
     logger.done(context, extra=metrics(context))
 
 

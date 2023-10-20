@@ -136,6 +136,9 @@ setuptools.setup(
         ],
         "apps-client": [
             f"hopeit.apps-client=={version['ENGINE_VERSION']}"
+        ],
+        "dataframes": [
+            f"hopeit.dataframes=={version['ENGINE_VERSION']}"
         ]
     },
     entry_points={

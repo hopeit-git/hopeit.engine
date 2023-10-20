@@ -93,7 +93,7 @@ class RedisStreamManager(StreamManager):
         :return: number of successful written messages
         """
         try:
-            event_fields = self._encode_message(
+            event_fields = await self._encode_message(
                 payload, queue, track_ids, auth_info, compression, serialization
             )
             ok = await self._write_pool.xadd(
@@ -196,7 +196,7 @@ class RedisStreamManager(StreamManager):
                         stream_events.append(TypeError(err_msg))
                     else:
                         stream_events.append(
-                            self._decode_message(
+                            await self._decode_message(
                                 stream_name,
                                 msg,
                                 datatype,
@@ -235,7 +235,7 @@ class RedisStreamManager(StreamManager):
         except (OSError, RedisError, RedisConnectionError) as e:  # pragma: no cover
             raise StreamOSError(e) from e
 
-    def _encode_message(
+    async def _encode_message(
         self,
         payload: EventPayload,
         queue: str,
@@ -264,7 +264,7 @@ class RedisStreamManager(StreamManager):
             "auth_info": base64.b64encode(json.dumps(auth_info).encode()),
             "ser": serialization.value,
             "comp": compression.value,
-            "payload": serialize(payload, serialization, compression),
+            "payload": await serialize(payload, serialization, compression),
             "queue": queue.encode(),
         }
         event_ts = payload.event_ts()  # type: ignore
@@ -274,7 +274,7 @@ class RedisStreamManager(StreamManager):
             event_fields["event_ts"] = event_ts
         return event_fields
 
-    def _decode_message(
+    async def _decode_message(
         self,
         stream_name: str,
         msg: List[Union[bytes, Dict[bytes, bytes]]],
@@ -291,7 +291,7 @@ class RedisStreamManager(StreamManager):
         serialization = Serialization(msg[1][b"ser"].decode())
         return StreamEvent(
             msg_internal_id=msg[0],
-            payload=deserialize(
+            payload=await deserialize(
                 msg[1][b"payload"], serialization, compression, datatype
             ),  # type: ignore
             queue=msg[1]
