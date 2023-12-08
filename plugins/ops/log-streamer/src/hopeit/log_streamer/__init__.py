@@ -5,8 +5,9 @@ import asyncio
 from typing import Dict, List, TextIO
 from datetime import datetime, timezone
 
-from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
+from watchdog.utils import BaseThread
 
 from hopeit.dataobjects import dataobject, dataclass
 from hopeit.app.context import EventContext
@@ -243,7 +244,7 @@ class LogFileHandler(FileSystemEventHandler):
             return results
 
 
-def start_observer(event_handler: LogFileHandler, logs_path: str) -> Observer:
+def start_observer(event_handler: LogFileHandler, logs_path: str) -> BaseThread:
     observer = Observer()
     observer.schedule(event_handler, logs_path, recursive=False)
     observer.start()
