@@ -49,7 +49,7 @@ setuptools.setup(
     python_requires=">=3.8",
     install_requires=[
         f"hopeit.engine=={version['ENGINE_VERSION']}",
-        "redis>=4.4.0,<5"
+        "redis>=5.0.0"
     ],
     extras_require={
     },
