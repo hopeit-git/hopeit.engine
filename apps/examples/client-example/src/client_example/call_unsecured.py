@@ -3,20 +3,26 @@ Client Example: Call Unsecured
 --------------------------------------------------------------------
 List all available Something objects connecting to simple-example app
 """
-from typing import Optional, List
+from typing import List, Optional
 
 from hopeit.app.api import event_api
+from hopeit.app.client import app_call_list
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-from hopeit.app.client import app_call_list
 from model import Something
-
 
 __steps__ = ["list_something"]
 
 __api__ = event_api(
     summary="Client Example: Call Unsecured",
-    query_args=[("wildcard", Optional[str], "Wildcard to filter objects by name")],
+    query_args=[
+        (
+            "wildcard",
+            Optional[str],
+            "Wildcard to filter objects by name prefixed "
+            "by partition folder in format YYYY/MM/DD/HH/*",
+        )
+    ],
     responses={
         200: (List[Something], "List Something objects returned by simple-example call")
     },

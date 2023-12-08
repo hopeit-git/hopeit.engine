@@ -3,27 +3,31 @@ Client Example: Count Objects
 --------------------------------------------------------------------
 Count all available Something objects connecting to simple-example app
 """
-from typing import Optional, List
 from base64 import b64decode
+from typing import List, Optional
 
+from client_example import CountAndSaveResult
 from hopeit.app.api import event_api
+from hopeit.app.client import app_call, app_call_list
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-from hopeit.app.client import app_call, app_call_list
 from hopeit.basic_auth import AuthInfo
-from hopeit.dataobjects import dataobject, dataclass
-from hopeit.toolkit import auth
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.web import Unauthorized
-
+from hopeit.toolkit import auth
 from model import Something, SomethingParams
-from client_example import CountAndSaveResult
 
 __steps__ = ['ensure_login', 'count_objects', 'save_object']
 
 __api__ = event_api(
     summary="Client Example: Count Objects and Save new one",
     query_args=[
-        ('wildcard', Optional[str], "Wildcard to filter objects by name")
+        (
+            "wildcard",
+            Optional[str],
+            "Wildcard to filter objects by name prefixed "
+            "by partition folder in format YYYY/MM/DD/HH/*",
+        )
     ],
     responses={
         200: (CountAndSaveResult, "Count of Something objects returned by simple-example call")

@@ -3,7 +3,7 @@ Simple Example: List Objects
 --------------------------------------------------------------------
 Lists all available Something objects
 """
-from typing import Optional, List
+from typing import List, Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
@@ -16,7 +16,12 @@ __steps__ = ['load_all']
 __api__ = event_api(
     summary="Simple Example: List Objects",
     query_args=[
-        ('wildcard', Optional[str], "Wildcard to filter objects by name")
+        (
+            "wildcard",
+            Optional[str],
+            "Wildcard to filter objects by name prefixed "
+            "by partition folder in format YYYY/MM/DD/HH/*",
+        )
     ],
     responses={
         200: (List[Something], 'list of Something objects'),

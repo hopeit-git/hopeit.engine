@@ -1,6 +1,6 @@
-aiohttp>=3.8.1,<4
+aiohttp>=3.9.0,<4
 aiohttp-cors
-aiohttp-swagger3>=0.7.0,<0.8
+aiohttp-swagger3>=0.8.0
 dataclasses-jsonschema[fast-validation]>=2.15.0,<3
 fastjsonschema
 stringcase>=1.2.0,<2
