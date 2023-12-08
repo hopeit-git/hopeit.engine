@@ -22,6 +22,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Development Status :: 4 - Beta",
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X",
@@ -49,7 +50,7 @@ setuptools.setup(
     python_requires=">=3.8",
     install_requires=[
         f"hopeit.engine=={version['ENGINE_VERSION']}",
-        "redis>=4.4.0,<5"
+        "redis>=5.0.0"
     ],
     extras_require={
     },

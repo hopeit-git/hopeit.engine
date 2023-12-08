@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 import re
 
 from aiohttp import web
-from multidict import MultiDict, CIMultiDict, CIMultiDictProxy, istr
+from multidict import CIMultiDictProxy, MultiDict, CIMultiDict, MultiMapping, istr
 from stringcase import titlecase  # type: ignore
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventSettings, EventType
@@ -207,7 +207,7 @@ class BodyPartReaderProtocol(ABC):
 
     @property
     @abstractmethod
-    def headers(self) -> CIMultiDictProxy[str]:
+    def headers(self) -> MultiMapping[str]:
         ...
 
 
@@ -288,7 +288,7 @@ class PreprocessHeaders:
     """
     Wrapper to receive request headers in `__preprocess__` functions
     """
-    def __init__(self, request_headers: CIMultiDictProxy[str]) -> None:
+    def __init__(self, request_headers: MultiMapping[str]) -> None:
         self._headers = request_headers
 
     def __getitem__(self, key: str) -> Any:
@@ -310,7 +310,7 @@ class PreprocessHook(Generic[_MultipartReader]):
     Preprocess hook that handles information available in the request to be accessed
     from `__preprocess__(...)` event method when defined.
     """
-    def __init__(self, *, headers: CIMultiDictProxy[str],
+    def __init__(self, *, headers: MultiMapping[str],
                  payload_raw: Optional[bytes] = None,
                  multipart_reader: Optional[_MultipartReader] = None,
                  file_hook_factory: Callable = PreprocessFileHook):

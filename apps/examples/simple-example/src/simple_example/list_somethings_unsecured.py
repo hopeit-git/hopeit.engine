@@ -3,7 +3,7 @@ Simple Example: List Objects Unsecured
 --------------------------------------------------------------------
 Lists all available Something objects
 """
-from typing import Optional, List
+from typing import List, Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
@@ -11,16 +11,21 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import Something
 
-__steps__ = ['load_all']
+__steps__ = ["load_all"]
 
 __api__ = event_api(
     summary="Simple Example: List Objects Unsecured",
     query_args=[
-        ('wildcard', Optional[str], "Wildcard to filter objects by name")
+        (
+            "wildcard",
+            Optional[str],
+            "Wildcard to filter objects by name prefixed "
+            "by partition folder in format YYYY/MM/DD/HH/*",
+        )
     ],
     responses={
-        200: (List[Something], 'list of Something objects'),
-    }
+        200: (List[Something], "list of Something objects"),
+    },
 )
 
 logger, extra = app_extra_logger()
@@ -36,7 +41,9 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-async def load_all(payload: None, context: EventContext, wildcard: str = '*') -> List[Something]:
+async def load_all(
+    payload: None, context: EventContext, wildcard: str = "*"
+) -> List[Something]:
     """
     Load objects that match the given wildcard
     """
@@ -45,14 +52,20 @@ async def load_all(payload: None, context: EventContext, wildcard: str = '*') ->
     items: List[Something] = []
     for item_loc in await fs.list_objects(wildcard):
         something = await fs.get(
-            key=item_loc.item_id, datatype=Something, partition_key=item_loc.partition_key
+            key=item_loc.item_id,
+            datatype=Something,
+            partition_key=item_loc.partition_key,
         )
         if something is not None:
             items.append(something)
         else:
-            logger.warning(context, "Item not found", extra=extra(
-                path=fs.path,
-                partition_key=item_loc.partition_key,
-                item_id=item_loc.item_id
-            ))
+            logger.warning(
+                context,
+                "Item not found",
+                extra=extra(
+                    path=fs.path,
+                    partition_key=item_loc.partition_key,
+                    item_id=item_loc.item_id,
+                ),
+            )
     return items

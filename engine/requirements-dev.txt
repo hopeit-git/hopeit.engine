@@ -2,7 +2,7 @@ flake8
 pylint
 pytest
 pytest-cov
-pytest-aiohttp>=0.3,<1.0
+pytest-aiohttp>=1.0.5
 pytest-asyncio
 pytest-order
 pytest-mock
@@ -14,3 +14,9 @@ aiofiles
 types-aiofiles
 nest-asyncio
 types-redis
+black
+isort
+
+# Plugin dependencies
+redis
+watchdog

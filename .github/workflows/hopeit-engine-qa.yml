@@ -17,8 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11","3.10", "3.9", "3.8"]
-      max-parallel: 4
+        python-version: ["3.12", "3.11", "3.10", "3.9", "3.8"]
+      max-parallel: 5
 
     steps:
     - uses: actions/checkout@v2
