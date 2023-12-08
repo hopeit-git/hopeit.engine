@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+Version 0.20.0
+______________
+- Engine & Plugins:
+
+  - Added support for Python 3.12
+  - Updated minor dependencies version
+
+
 Version 0.19.2
 ______________
 - Plugins:
