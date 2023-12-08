@@ -16,3 +16,7 @@ nest-asyncio
 types-redis
 black
 isort
+
+# Plugin dependencies
+redis
+watchdog
