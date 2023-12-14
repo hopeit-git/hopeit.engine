@@ -6,7 +6,7 @@ Docs: https://hopeitengine.readthedocs.io/en/latest/
 ### Engine development README
 
 #### Install locally for apps or plugins development:
-- Install Python, you can use from 3.8 to 3.12
+- Install Python, versions from 3.8 to 3.12 are currently supported
 - Create and activate a virtual environment (recommended)
 - Run from hopeit.engine project root
 ```
@@ -17,7 +17,7 @@ Docs: https://hopeitengine.readthedocs.io/en/latest/
 
 #### Install from Python Package Index
 
-- Install Python, you can use from 3.8 to 3.12
+- Install Python, versions from 3.8 to 3.12 are currently supported
 - Create and activate a virtual environment (recommended)
 - Install hopeit.engine
 
