@@ -1,6 +1,6 @@
 ![hopeit.engine QA](https://github.com/hopeit-git/hopeit.engine/workflows/hopeit.engine%20QA/badge.svg)
 
-> - Tested on Python 3.8, 3.9, 3.10 and 3.11
+> - Tested on Python 3.8, 3.9, 3.10, 3.11 and 3.12
 > - Types and code style checks with [*mypy*](https://pypi.org/project/mypy/), [*flake*](https://pypi.org/project/flake8/) and [*pylint*](https://pypi.org/project/pylint/)
 > - *hopeit.engine* unit tested using [*pytest*](https://pypi.org/project/pytest/), required coverage > 90%
 > - HTTP server integration tests using [*pytest_aiohttp*](https://pypi.org/project/pytest-aiohttp/)
@@ -202,38 +202,6 @@ If an external request triggers a process that requires background tasks to run,
 
 *hopeit.engine* enforces your Apps implementation to be scalable. We mentioned that events are served concurrently using asyncio, but to achieve real parallelism, many instances of an App can run in the same or different server instances. Putting a load balancer (i.e: [NGINX](https://nginx.org/en/) or [HAProxy](http://www.haproxy.org/), in front of your API Server app instances, will ensure serving a high load of requests in parallel. The same scalability/load-balancing pattern applies to stream events processing. You can run many instances of Apps consuming Redis Streams. Using consumer groups, Redis will act as a load-balancer and each App instance will consume events from the stream in parallel. Apps created with *hopeit.engine* are also easy to deploy in containers, like [Docker](https://www.docker.com/). Only a Python runtime and a load-balancer is needed.
 
-## Current status and roadmap
-
-The framework is stable and running in production by early adopters with no major issues. 
-It's also being tested and used in new projects. Now we are focusing in bug-fixing,
-complete requested new features and optimize small pieces of the software.
-
-- **APRIL 2022**: `hopeit.engine` `0.15.0` adds support to persist data directly from streams with zero-code approach using 
-`hopeit.fs_storage` plugin. Initially it supports saving data in batches to the file system using folders as partitions.
-This can be easily extended to persist in databases or cloud storage services like S3 or GCS.
-
-- **JANUARY 2022**: `hopeit.engine` `0.13.0` ensures support for Python 3.10 and updates `aiohttp` to latest version. 
-`0.14.0` adds support to return `web.StreamResponse` in chunks. 
-
-- **AUGUST 2021**: `hopeit.engine` in `0.11.0` apps configuration is simplified by adding a `settings` section. General
-improvements in engine steps execution. `0.12.0` updates components and fixes dataobject issues.
-
-- **JULY 2021**: `hopeit.apps_client` plugin was created and `hopeit.engine` `0.9.0` released and improved in `0.10.0`. This plugin allows invoking
-GET/POST endpoints on other hopeit Apps, supporting common microservices patterns as retrying and circuit breaking.
-`hopeit.apps_visualizer` plugin now allows live monitoring of services activity on multiple servers since `0.7.0`, it was enhanced with
-live monitoring and interactive filters of apps and hosts in `0.8.0` and from `0.9.0` it can be
-used to visualize app dependencies either through streams or configured `app_connections` used by `apps_client`.
-
-- **JUNE 2021**: `hopeit.engine` version 0.4.0 introduced app-visualizer plugin, that allows viewing in a web browser the current running configuration and dependencies between apps and events of a deployment. Also, enhanced stream processing by adding support for multiple queues for the same stream. In version 0.5.0 we started adding more DevOps tools: the first one is `log-streamer` plugin, which allows to parse app logs and send data to a stream. This will be used to monitor applications and dump logs to persistent storage. Combining `log-streamer` with `apps-visualizer` plugins, live activity visualization of events execution and stream processing is possible since version 0.6.0.
-
-- **MAY 2021**: `hopeit.engine` version 0.3.0 released: we moved the modules redis-storage, readis-streams and fs-storage to independent plugins; Python 3.9 is now supported. Please check [release-notes](docs/source/release-notes.rst) for minor breaking changes made to configuration files.
-
-- **APRIL 2021**: `hopeit.engine` version 0.2.0 released with multipart uploads support, fixes and improvements over existing functionality.
-
-- **FEBRUARY 2021**: `hopeit.engine` version 0.1.5 is released on PyPI, enjoy!
-
-- **JULY 2020**: `hopeit.engine` version 0.1.0 is released as Open Source in github!
-    
 ## More info
 
 Please check the [docs](https://hopeitengine.readthedocs.io/en/latest/index.html).
