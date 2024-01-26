@@ -36,6 +36,9 @@ class StreamsConfig:
     stream_manager: str = "hopeit.streams.NoStreamManager"
     connection_str: str = '<<NoStreamManager>>'
     delay_auto_start_seconds: int = 3
+    initial_backoff_seconds: float = 1.0
+    max_backoff_seconds: float = 60.0
+    num_failures_open_circuit_breaker: int = 1
 
 
 @dataobject

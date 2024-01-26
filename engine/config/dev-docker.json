@@ -2,7 +2,10 @@
   "streams": {
     "stream_manager": "hopeit.redis_streams.RedisStreamManager",
     "connection_str": "redis://redis:6379",
-    "delay_auto_start_seconds": 10
+    "delay_auto_start_seconds": 10,
+    "initial_backoff_seconds": 1,
+    "max_backoff_seconds": 60,
+    "num_failures_to_open_circuit_breaker": 1
   },
   "logging": {
     "log_level": "DEBUG",

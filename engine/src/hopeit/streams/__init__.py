@@ -3,6 +3,7 @@ Streams module. Handles reading and writing to streams.
 Backed by Redis Streams
 """
 from abc import ABC
+import asyncio
 import os
 import socket
 from datetime import datetime, timezone
@@ -18,10 +19,7 @@ from hopeit.server.logger import engine_logger, extra_logger
 logger = engine_logger()
 extra = extra_logger()
 
-__all__ = ['StreamEvent',
-           'StreamManager',
-           'stream_auth_info',
-           'StreamOSError']
+__all__ = ["StreamEvent", "StreamManager", "stream_auth_info", "StreamOSError"]
 
 
 @dataclass
@@ -44,7 +42,7 @@ class StreamConfigError(Exception):
 def stream_auth_info(stream_event: StreamEvent):
     return {
         **stream_event.auth_info,
-        'auth_type': AuthType(stream_event.auth_info.get('auth_type', 'Unsecured')),
+        "auth_type": AuthType(stream_event.auth_info.get("auth_type", "Unsecured")),
     }
 
 
@@ -52,38 +50,48 @@ class StreamManager(ABC):
     """
     Base class to imeplement stream management of a Hopeit App
     """
+
     @staticmethod
-    def create(config: StreamsConfig):
-        sm_comps = config.stream_manager.split('.')
-        module_name, impl_name = '.'.join(sm_comps[:-1]), sm_comps[-1]
-        logger.info(__name__, f"Importing StreamManager module: {module_name} implementation: {impl_name}...")
+    def create(config: StreamsConfig) -> "StreamManager":
+        sm_comps = config.stream_manager.split(".")
+        module_name, impl_name = ".".join(sm_comps[:-1]), sm_comps[-1]
+        logger.info(
+            __name__,
+            f"Importing StreamManager module: {module_name} implementation: {impl_name}...",
+        )
         module = import_module(module_name)
         impl = getattr(module, impl_name)
-        logger.info(__name__, f"Creating {impl_name} with connection_str: {config.connection_str}...")
+        logger.info(
+            __name__,
+            f"Creating {impl_name} with connection_str: {config.connection_str}...",
+        )
         return impl(address=config.connection_str)
 
-    async def connect(self):
+    async def connect(self) -> None:
         """
         Connects to Redis using two connection pools, one to handle
         writing to stream and one for reading.
         """
         raise NotImplementedError()
 
-    async def close(self):
+    async def close(self) -> None:
         """
         Close connections to Redis
         """
         raise NotImplementedError()
 
-    async def write_stream(self, *,
-                           stream_name: str,
-                           queue: str,
-                           payload: EventPayload,
-                           track_ids: Dict[str, str],
-                           auth_info: Dict[str, Any],
-                           compression: Compression,
-                           serialization: Serialization,
-                           target_max_len: int = 0) -> int:
+    async def write_stream(
+        self,
+        *,
+        stream_name: str,
+        queue: str,
+        payload: EventPayload,
+        track_ids: Dict[str, str],
+        auth_info: Dict[str, Any],
+        compression: Compression,
+        serialization: Serialization,
+        target_max_len: int = 0,
+    ) -> int:
         """
         Writes event to a Redis stream using XADD
         :param stream_name: stream name or key used by Redis
@@ -97,9 +105,9 @@ class StreamManager(ABC):
         """
         raise NotImplementedError()
 
-    async def ensure_consumer_group(self, *,
-                                    stream_name: str,
-                                    consumer_group: str):
+    async def ensure_consumer_group(
+        self, *, stream_name: str, consumer_group: str
+    ) -> None:
         """
         Ensures a consumer_group exists for a given stream.
         If group does not exists, XGROUP_CREATE will be executed in Redis and consumer group
@@ -111,15 +119,18 @@ class StreamManager(ABC):
         """
         raise NotImplementedError()
 
-    async def read_stream(self, *,
-                          stream_name: str,
-                          consumer_group: str,
-                          datatypes: Dict[str, type],
-                          track_headers: List[str],
-                          offset: str,
-                          batch_size: int,
-                          timeout: int,
-                          batch_interval: int) -> List[Union[StreamEvent, Exception]]:
+    async def read_stream(
+        self,
+        *,
+        stream_name: str,
+        consumer_group: str,
+        datatypes: Dict[str, type],
+        track_headers: List[str],
+        offset: str,
+        batch_size: int,
+        timeout: int,
+        batch_interval: int,
+    ) -> List[Union[StreamEvent, Exception]]:
         """
         Attempts reading streams using a consumer group,
         blocks for `timeout` seconds
@@ -143,10 +154,9 @@ class StreamManager(ABC):
         """
         raise NotImplementedError()
 
-    async def ack_read_stream(self, *,
-                              stream_name: str,
-                              consumer_group: str,
-                              stream_event: StreamEvent):
+    async def ack_read_stream(
+        self, *, stream_name: str, consumer_group: str, stream_event: StreamEvent
+    ) -> None:
         """
         Acknowledges a read message to Redis streams.
         Acknowledged messages are removed from a pending list by Redis.
@@ -167,9 +177,10 @@ class StreamManager(ABC):
         :param payload: dataclass object decorated with `@dataobject`
         :return: same payload as received
         """
-        if not getattr(payload, '__data_object__', False):
+        if not getattr(payload, "__data_object__", False):
             raise NotImplementedError(
-                f"{type(payload)} must be decorated with `@dataobject` to be used in streams")
+                f"{type(payload)} must be decorated with `@dataobject` to be used in streams"
+            )
         return payload
 
     def _consumer_id(self) -> str:
@@ -191,6 +202,7 @@ class NoStreamManager(StreamManager):
     server config file. Applications using streams will fail to start a server if
     `stream_manager` is not properly specified in configuration file.
     """
+
     def __init__(self, *, address: str):
         raise StreamConfigError(
             "Cannot start engine StreamManager, "
@@ -202,3 +214,99 @@ class NoStreamManager(StreamManager):
             '"stream_manager": "hopeit.redis_streams.RedisStreamManager", '
             "\nCheck Plugins/ -> Streams docs section for available additional options."
         )
+
+
+class StreamCircuitBreaker(StreamManager):
+    """
+    Circuit breaker to handle stream server interruptions and recovery
+
+    > Initial State: closed (0)
+    > After 1 failure: semi-open (1), waits `initial_backoff`
+    > After Y failures: open (2), `backoff = 2 * backoff` and wait `backoff`
+    > After 1 success operation: closed
+    """
+
+    def __init__(
+        self,
+        stream_manager: StreamManager,
+        initial_backoff_seconds: float,
+        num_failures_open_circuit_breaker: int,
+        max_backoff_seconds: float,
+    ) -> None:
+        self.stream_manager = stream_manager
+        self.initial_backoff_seconds = initial_backoff_seconds
+        self.num_failures_open_circuit_breaker = num_failures_open_circuit_breaker
+        self.max_backoff_seconds = max_backoff_seconds
+
+        self.state: int = 0
+        self.num_failures: int = 0
+        self.backoff = 0
+        self.lock = asyncio.Lock()
+
+    async def connect(self) -> None:
+        await self.stream_manager.connect()
+
+    async def close(self) -> None:
+        await self.stream_manager.close()
+
+    async def write_stream(self, **kwargs) -> int:
+        try:
+            res = await self.stream_manager.write_stream(**kwargs)
+            self.recover()
+            return res
+        except StreamOSError as e:
+            self.handle_failure(e)
+            raise
+
+    async def read_stream(self, **kwargs) -> List[Union[StreamEvent, Exception]]:
+        await self.wait_backoff()
+        try:
+            res = await self.stream_manager.read_stream(**kwargs)
+            self.recover()
+            return res
+        except StreamOSError as e:
+            self.handle_failure(e)
+            return []
+
+    async def ensure_consumer_group(self, **kwargs) -> None:
+        await self.wait_backoff()
+        try:
+            await self.stream_manager.ensure_consumer_group(**kwargs)
+            self.recover()
+        except StreamOSError as e:
+            self.handle_failure(e)
+            raise
+
+    async def ack_read_stream(self, **kwargs) -> None:
+        await self.wait_backoff()
+        try:
+            await self.stream_manager.ack_read_stream(**kwargs)
+            self.recover()
+        except StreamOSError as e:
+            self.handle_failure(e)
+
+    def handle_failure(self, e: StreamOSError):
+        self.num_failures += 1
+        if self.state == 0:  # closed
+            self.state += 1
+            self.backoff = self.initial_backoff_seconds
+        elif self.state == 1:  # semi-open
+            if self.num_failures >= self.num_failures_open_circuit_breaker:
+                self.state += 1
+        else:
+            self.backoff = min(self.max_backoff_seconds, 2 * self.backoff)
+        # logger.error(__name__, e)
+
+    async def wait_backoff(self):
+        if self.backoff > 0:
+            async with self.lock:
+                logger.warning(
+                    __name__,
+                    f"StreamCircuitBreaker wait state={self.state} failures={self.num_failures} backoff={self.backoff} seconds...",
+                )
+                await asyncio.sleep(self.backoff)
+
+    def recover(self):
+        self.num_failures = 0
+        self.state = 0
+        self.backoff = 0

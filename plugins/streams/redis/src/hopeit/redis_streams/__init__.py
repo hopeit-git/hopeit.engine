@@ -11,6 +11,7 @@ from typing import Dict, List, Any, Union
 
 import redis.asyncio as redis
 from redis import RedisError, ResponseError
+from redis.exceptions import ConnectionError
 
 from hopeit.app.config import Compression, Serialization, StreamQueue
 from hopeit.dataobjects import EventPayload
@@ -50,7 +51,7 @@ class RedisStreamManager(StreamManager):
             self._write_pool = redis.from_url(self.address)
             self._read_pool = redis.from_url(self.address)
             return self
-        except (OSError, RedisError) as e:  # pragma: no cover
+        except (OSError, RedisError, ConnectionError) as e:  # pragma: no cover
             logger.error(__name__, e)
             raise StreamOSError(e) from e
 
@@ -88,12 +89,15 @@ class RedisStreamManager(StreamManager):
             default 0 will not send max_len to Redis.
         :return: number of successful written messages
         """
-        event_fields = self._encode_message(payload, queue, track_ids, auth_info, compression, serialization)
-        ok = await self._write_pool.xadd(
-            name=stream_name, fields=event_fields,
-            maxlen=target_max_len if target_max_len > 0 else None,
-            approximate=True)
-        return ok
+        try:
+            event_fields = self._encode_message(payload, queue, track_ids, auth_info, compression, serialization)
+            ok = await self._write_pool.xadd(
+                name=stream_name, fields=event_fields,
+                maxlen=target_max_len if target_max_len > 0 else None,
+                approximate=True)
+            return ok
+        except (OSError, RedisError, ConnectionError) as e:  # pragma: no cover
+            raise StreamOSError(e) from e
 
     async def ensure_consumer_group(self, *,
                                     stream_name: str,
@@ -118,6 +122,10 @@ class RedisStreamManager(StreamManager):
             logger.info(__name__,
                         "Consumer_group already exists " +
                         f"read_stream={stream_name} consumer_group={consumer_group}")
+        except (OSError, RedisError, ConnectionError) as e:  # pragma: no cover
+            logger.error(__name__, e)
+            raise StreamOSError(e) from e
+
 
     async def read_stream(self, *,
                           stream_name: str,
@@ -180,7 +188,7 @@ class RedisStreamManager(StreamManager):
             #  Wait some time if no messages to prevent race condition in connection pool
             await asyncio.sleep(batch_interval / 1000.0)
             return []
-        except (OSError, RedisError) as e:  # pragma: no cover
+        except (OSError, RedisError, ConnectionError) as e:  # pragma: no cover
             raise StreamOSError(e) from e
 
     async def ack_read_stream(self, *,
@@ -197,9 +205,12 @@ class RedisStreamManager(StreamManager):
         :param consumer_group: str, consumer group registered with Redis
         :param stream_event: StreamEvent, as provided by `read_stream(...)` method
         """
-        ack = await self._read_pool.xack(stream_name, consumer_group, stream_event.msg_internal_id)
-        assert ack == 1
-        return ack
+        try:
+            ack = await self._read_pool.xack(stream_name, consumer_group, stream_event.msg_internal_id)
+            assert ack == 1
+            return ack
+        except (OSError, RedisError, ConnectionError) as e:  # pragma: no cover
+            raise StreamOSError(e) from e
 
     def _encode_message(self, payload: EventPayload,
                         queue: str,
