@@ -2097,7 +2097,10 @@
             "default": {
               "stream_manager": "hopeit.streams.NoStreamManager",
               "connection_str": "<<NoStreamManager>>",
-              "delay_auto_start_seconds": 3
+              "delay_auto_start_seconds": 3,
+              "initial_backoff_seconds": 1.0,
+              "max_backoff_seconds": 60.0,
+              "num_failures_open_circuit_breaker": 1
             }
           },
           "logging": {
@@ -2149,6 +2152,18 @@
           "delay_auto_start_seconds": {
             "type": "integer",
             "default": 3
+          },
+          "initial_backoff_seconds": {
+            "type": "number",
+            "default": 1.0
+          },
+          "max_backoff_seconds": {
+            "type": "number",
+            "default": 60.0
+          },
+          "num_failures_open_circuit_breaker": {
+            "type": "integer",
+            "default": 1
           }
         },
         "x-module-name": "hopeit.server.config",

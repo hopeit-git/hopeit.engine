@@ -250,6 +250,8 @@ class StreamCircuitBreaker(StreamManager):
         await self.stream_manager.close()
 
     async def write_stream(self, **kwargs) -> int:
+        if self.lock.locked():
+            raise StreamOSError(f"Stream circuit breaker open. Cannot write to stream for {self.backoff} seconds")
         try:
             res = await self.stream_manager.write_stream(**kwargs)
             self.recover()

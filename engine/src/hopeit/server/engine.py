@@ -106,7 +106,7 @@ class AppEngine:
             self.stream_manager = StreamCircuitBreaker(
                 stream_manager=await mgr.connect(),
                 initial_backoff_seconds=stream_settings.initial_backoff_seconds,
-                num_failures_to_open=stream_settings.num_failures_open_circuit_breaker,
+                num_failures_open_circuit_breaker=stream_settings.num_failures_open_circuit_breaker,
                 max_backoff_seconds=stream_settings.max_backoff_seconds,
             )
         auth.init(self.app_key, self.app_config.server.auth)
