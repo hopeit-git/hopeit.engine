@@ -1,15 +1,18 @@
 from datetime import datetime, timezone
-from typing import Any, Coroutine, Dict, List, Union
-from hopeit.app.config import Compression, Serialization
+from typing import List
 
 import pytest
-from unittest.mock import MagicMock
 
-from hopeit.dataobjects import EventPayload, dataobject, dataclass
-from hopeit.streams import StreamCircuitBreaker, StreamEvent, StreamManager, StreamOSError
+from hopeit.dataobjects import dataobject, dataclass
+from hopeit.streams import (
+    StreamCircuitBreaker,
+    StreamEvent,
+    StreamManager,
+    StreamOSError,
+)
 
 
-@dataobject(event_id='value', event_ts='ts')
+@dataobject(event_id="value", event_ts="ts")
 @dataclass
 class MockData:
     value: str
@@ -22,10 +25,7 @@ class MockInvalidDataEvent:
 
 
 class MockStreamManager(StreamManager):
-
-    def __init__(
-            self
-    ) -> None:
+    def __init__(self) -> None:
         self.connected = True
 
     async def ensure_consumer_group(self, **kwargs) -> None:
@@ -33,16 +33,28 @@ class MockStreamManager(StreamManager):
             return
         else:
             raise StreamOSError()
-        
+
     async def read_stream(self, **kwargs) -> List[StreamEvent | Exception]:
         if self.connected:
             return [
-                MockData(value="mock1", ts=datetime(2020, 1, 1)),
-                MockData(value="mock2", ts=datetime(2020, 1, 1)),
+                StreamEvent(
+                    b"test1",
+                    "test-queue",
+                    payload=MockData(value="mock1", ts=datetime(2020, 1, 1)),
+                    track_ids={},
+                    auth_info={},
+                ),
+                StreamEvent(
+                    b"test1",
+                    "test-queue",
+                    payload=MockData(value="mock2", ts=datetime(2020, 1, 1)),
+                    track_ids={},
+                    auth_info={},
+                ),
             ]
         else:
             raise StreamOSError()
-        
+
     async def write_stream(self, **kwargs) -> int:
         if self.connected:
             return 1
@@ -57,6 +69,7 @@ def test_as_data_event():  # noqa: F811
         StreamManager.as_data_event(MockInvalidDataEvent("ok"))
 
 
+@pytest.mark.asyncio
 async def test_stream_circuit_breaker_ensure_consumer_group():
     stream_manager = MockStreamManager()
     stream_manager.connected = True
@@ -113,7 +126,7 @@ async def test_stream_circuit_breaker_ensure_consumer_group():
     # recover fully
     await check_result(state=0, backoff=0.0)
 
-
+@pytest.mark.asyncio
 async def test_stream_circuit_breaker_read_stream():
     stream_manager = MockStreamManager()
     stream_manager.connected = True
@@ -137,7 +150,6 @@ async def test_stream_circuit_breaker_read_stream():
         assert isinstance(res[0], StreamOSError)
         assert circuit_breaker.state == state
         assert circuit_breaker.backoff == backoff
-
 
     # circuit breakes is closed (0)
     await check_result(state=0, backoff=0.0)
@@ -174,6 +186,7 @@ async def test_stream_circuit_breaker_read_stream():
     await check_result(state=0, backoff=0.0)
 
 
+@pytest.mark.asyncio
 async def test_stream_circuit_breaker_write_stream():
     stream_manager = MockStreamManager()
     stream_manager.connected = True
@@ -191,13 +204,11 @@ async def test_stream_circuit_breaker_write_stream():
         assert circuit_breaker.state == state
         assert circuit_breaker.backoff == backoff
 
-
     async def check_exception(state: int, backoff: float):
         with pytest.raises(StreamOSError):
             await circuit_breaker.write_stream()
         assert circuit_breaker.state == state
         assert circuit_breaker.backoff == backoff
-
 
     # circuit breakes is closed (0)
     await check_result(state=0, backoff=0.0)

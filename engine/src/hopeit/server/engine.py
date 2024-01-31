@@ -503,7 +503,7 @@ class AppEngine:
                             consumer_group=stream_info.consumer_group,
                         )
                         break  # success, do not try anymoere
-                    except StreamOSError as e:
+                    except StreamOSError:
                         pass  # Will retry when circuit breaker opens
 
             datatypes = self._find_stream_datatype_handlers(event_name, event_config)
@@ -607,7 +607,8 @@ class AppEngine:
         event_name: str,
         event_settings: EventSettings,
         previous_context: Optional[EventContext] = None,
-    ):
+    ) -> EventContext:
+        """Creates context for a service event"""
         if previous_context is None:
             track_ids = {
                 "track.request_id": str(uuid.uuid4()),

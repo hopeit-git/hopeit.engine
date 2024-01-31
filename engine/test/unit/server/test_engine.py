@@ -6,7 +6,7 @@ from typing import Dict, Optional, List
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.server.config import AuthType
 from hopeit.server.events import EventHandler, get_event_settings
-from hopeit.streams import StreamOSError
+from hopeit.streams import StreamCircuitBreaker, StreamOSError
 
 from hopeit.dataobjects import DataObject
 from hopeit.app.config import AppConfig, StreamQueueStrategy
@@ -623,7 +623,19 @@ async def test_read_stream_stop_and_recover(monkeypatch, mock_app_config, mock_p
     monkeypatch.setattr(MockStreamManager, 'test_payload', payload)
     monkeypatch.setattr(MockStreamManager, 'error_pattern', [None, TypeError(), None, StreamOSError(), None])
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
-    monkeypatch.setattr(engine, 'stream_manager', MockStreamManager(address='test'))
+    stream_manager = StreamCircuitBreaker(
+        stream_manager=MockStreamManager(address='test'),
+        initial_backoff_seconds=0.1,
+        max_backoff_seconds=0.2,
+        num_failures_open_circuit_breaker=1,
+    )
+    monkeypatch.setattr(engine, 'stream_manager', stream_manager)
+
+    # StreamOSError is produced
+    res = await engine.read_stream(event_name='mock_stream_event', test_mode=True)
+    assert res is None  # Exit in test mode after 1 cycle before recovery
+
+    # Force a second cycle
     res = await engine.read_stream(event_name='mock_stream_event', test_mode=True)
     assert res == expected
     await engine.stop()
