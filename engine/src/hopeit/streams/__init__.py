@@ -251,13 +251,14 @@ class StreamCircuitBreaker(StreamManager):
 
     async def write_stream(self, **kwargs) -> int:
         if self.lock.locked():
-            raise StreamOSError(f"Stream circuit breaker open. Cannot write to stream for {self.backoff} seconds")
+            raise StreamOSError("Stream circuit breaker open. Cannot write to stream.")
         try:
             res = await self.stream_manager.write_stream(**kwargs)
             self.recover()
             return res
         except StreamOSError as e:
             self.handle_failure(e)
+            asyncio.create_task(self.start_backoff_wait())
             raise
 
     async def read_stream(self, **kwargs) -> List[Union[StreamEvent, Exception]]:
@@ -268,7 +269,8 @@ class StreamCircuitBreaker(StreamManager):
             return res
         except StreamOSError as e:
             self.handle_failure(e)
-            return []
+            asyncio.create_task(self.start_backoff_wait())
+            return [e]
 
     async def ensure_consumer_group(self, **kwargs) -> None:
         await self.wait_backoff()
@@ -277,6 +279,7 @@ class StreamCircuitBreaker(StreamManager):
             self.recover()
         except StreamOSError as e:
             self.handle_failure(e)
+            asyncio.create_task(self.start_backoff_wait())
             raise
 
     async def ack_read_stream(self, **kwargs) -> None:
@@ -286,29 +289,38 @@ class StreamCircuitBreaker(StreamManager):
             self.recover()
         except StreamOSError as e:
             self.handle_failure(e)
+            asyncio.create_task(self.start_backoff_wait())
 
     def handle_failure(self, e: StreamOSError):
-        self.num_failures += 1
         if self.state == 0:  # closed
+            self.num_failures += 1
             self.state += 1
             self.backoff = self.initial_backoff_seconds
         elif self.state == 1:  # semi-open
+            self.num_failures += 1
             if self.num_failures >= self.num_failures_open_circuit_breaker:
                 self.state += 1
         else:
             self.backoff = min(self.max_backoff_seconds, 2 * self.backoff)
-        # logger.error(__name__, e)
+
+        logger.error(__name__, e)
+
+    async def start_backoff_wait(self):
+        # Starts backoff wait
+        async with self.lock:
+            if self.backoff > 0:
+                await asyncio.sleep(self.backoff)
 
     async def wait_backoff(self):
         if self.backoff > 0:
+            logger.warning(
+                __name__,
+                f"StreamCircuitBreaker waiting state={self.state} failures={self.num_failures} backoff={self.backoff} seconds...",
+            )
             async with self.lock:
-                logger.warning(
-                    __name__,
-                    f"StreamCircuitBreaker wait state={self.state} failures={self.num_failures} backoff={self.backoff} seconds...",
-                )
-                await asyncio.sleep(self.backoff)
+                pass
 
     def recover(self):
-        self.num_failures = 0
-        self.state = 0
-        self.backoff = 0
+        self.state = max(0, self.state - 1)  # Back from open to semi-open and later to closed
+        self.num_failures = 0 if self.state == 0 else self.num_failures - 1
+        self.backoff = 0 if self.state == 0 else self.initial_backoff_seconds
