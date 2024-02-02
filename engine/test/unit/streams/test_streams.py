@@ -126,6 +126,7 @@ async def test_stream_circuit_breaker_ensure_consumer_group():
     # recover fully
     await check_result(state=0, backoff=0.0)
 
+
 @pytest.mark.asyncio
 async def test_stream_circuit_breaker_read_stream():
     stream_manager = MockStreamManager()

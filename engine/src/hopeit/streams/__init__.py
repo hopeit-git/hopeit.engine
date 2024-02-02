@@ -157,7 +157,7 @@ class StreamManager(ABC):
     ) -> None:
         """
         Acknowledges a read message to stream service
-        Acknowledged messages are usually removed from a pending list by 
+        Acknowledged messages are usually removed from a pending list by
         some stream services, or might not do any operation if it is not supported.
         This method should be called for every message that is properly
         received and processed with no errors.
