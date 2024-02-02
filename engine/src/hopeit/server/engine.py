@@ -360,7 +360,6 @@ class AppEngine:
 
         last_res, last_context = None, None
 
-        # try:
         batch: List[Awaitable[Union[EventPayload, Exception]]] = []
 
         for queue in stream_info.queues:
@@ -423,17 +422,7 @@ class AppEngine:
             self._running[event_name].release()
         if last_err is not None:
             logger.warning(__name__, f"Recovered read stream for event={event_name}.")
-            # retry_in = self.app_config.engine.read_stream_interval // 1000
             last_err = None
-
-        # except StreamOSError as e:
-        #     retry_in = self.app_config.engine.read_stream_interval // 1000
-        #     retry_in += random.randint(10, max(10, min(60, retry_in)))
-        #     # if not isinstance(e, type(last_err)):
-        #     #     logger.error(__name__, e)
-        #     logger.error(__name__, f"Cannot read stream for event={event_name}. Waiting seconds={int(retry_in)}...")
-        #     last_err = e
-        #     # await asyncio.sleep(retry_in)  # TODO: Replace with circuit breaker
 
         return last_res, last_context, last_err
 
