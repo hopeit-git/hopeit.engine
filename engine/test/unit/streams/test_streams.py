@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Union
 
 import pytest
 
@@ -34,7 +34,7 @@ class MockStreamManager(StreamManager):
         else:
             raise StreamOSError()
 
-    async def read_stream(self, **kwargs) -> List[StreamEvent | Exception]:
+    async def read_stream(self, **kwargs) -> List[Union[StreamEvent, Exception]]:
         if self.connected:
             return [
                 StreamEvent(
