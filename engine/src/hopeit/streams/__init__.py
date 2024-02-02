@@ -1,6 +1,5 @@
 """
 Streams module. Handles reading and writing to streams.
-Backed by Redis Streams
 """
 from abc import ABC
 import asyncio
@@ -70,14 +69,13 @@ class StreamManager(ABC):
 
     async def connect(self) -> None:
         """
-        Connects to Redis using two connection pools, one to handle
-        writing to stream and one for reading.
+        Connects to streams service
         """
         raise NotImplementedError()
 
     async def close(self) -> None:
         """
-        Close connections to Redis
+        Close connections to stream service
         """
         raise NotImplementedError()
 
@@ -94,14 +92,14 @@ class StreamManager(ABC):
         target_max_len: int = 0,
     ) -> int:
         """
-        Writes event to a Redis stream using XADD
-        :param stream_name: stream name or key used by Redis
+        Writes event to a stream
+        :param stream_name: stream name or key used
         :param payload: EventPayload, a special type of dataclass object decorated with `@dataobject`
         :param track_ids: dict with key and id values to track in stream event
         :param auth_info: dict with auth info to be tracked as part of stream event
         :param compression: Compression, supported compression algorithm from enum
-        :param target_max_len: int, max_len to indicate approx. target collection size to Redis,
-            default 0 will not send max_len to Redis.
+        :param target_max_len: int, max_len to indicate approx. target collection size
+            default 0 will not send max_len to stream service.
         :return: number of successful written messages
         """
         raise NotImplementedError()
@@ -111,12 +109,11 @@ class StreamManager(ABC):
     ) -> None:
         """
         Ensures a consumer_group exists for a given stream.
-        If group does not exists, XGROUP_CREATE will be executed in Redis and consumer group
-        created to consume event from beginning of stream (from id=0)
-        If group already exists a message will be logged and no action performed.
-        If stream does not exists and empty stream will be created.
-        :param stream_name: str, stream name or key used by Redis
-        :param consumer_group: str, consumer group passed to Redis
+        If group does not exists, consumer groups must be registered
+        to consume events from beginning of stream (from id=0)
+        If stream does not exists and empty stream needs to be created.
+        :param stream_name: str, stream name or key
+        :param consumer_group: str, consumer group name
         """
         raise NotImplementedError()
 
@@ -139,8 +136,8 @@ class StreamManager(ABC):
         In case timeout is reached, nothing is yielded
         and read_stream must be called again,
         usually in an infinite loop while app is running.
-        :param stream_name: str, stream name or key used by Redis
-        :param consumer_group: str, consumer group registered in Redis
+        :param stream_name: str, stream name or key
+        :param consumer_group: str, consumer group name
         :param datatypes: Dict[str, type] supported datatypes name: type to be extracted from stream.
             Types need to support json deserialization using `@dataobject` annotation
         :param track_headers: list of headers/id fields to extract from message if available
@@ -159,13 +156,14 @@ class StreamManager(ABC):
         self, *, stream_name: str, consumer_group: str, stream_event: StreamEvent
     ) -> None:
         """
-        Acknowledges a read message to Redis streams.
-        Acknowledged messages are removed from a pending list by Redis.
+        Acknowledges a read message to stream service
+        Acknowledged messages are usually removed from a pending list by 
+        some stream services, or might not do any operation if it is not supported.
         This method should be called for every message that is properly
         received and processed with no errors.
         With this mechanism, messages not acknowledged can be retried.
-        :param stream_name: str, stream name or key used by Redis
-        :param consumer_group: str, consumer group registered with Redis
+        :param stream_name: str, stream name or key
+        :param consumer_group: str, consumer group registered with stream service
         :param stream_event: StreamEvent, as provided by `read_stream(...)` method
         """
         raise NotImplementedError()
