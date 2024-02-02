@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.20",
+    "version": "0.21",
     "title": "Simple Example",
     "description": "Simple Example"
   },
   "paths": {
-    "/api/config-manager/0x20/runtime-apps-config": {
+    "/api/config-manager/0x21/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -62,11 +62,11 @@
           }
         },
         "tags": [
-          "config_manager.0x20"
+          "config_manager.0x21"
         ]
       }
     },
-    "/api/config-manager/0x20/cluster-apps-config": {
+    "/api/config-manager/0x21/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -122,7 +122,7 @@
           }
         },
         "tags": [
-          "config_manager.0x20"
+          "config_manager.0x21"
         ]
       }
     },
@@ -209,11 +209,11 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x20"
+          "apps_visualizer.0x21"
         ]
       }
     },
-    "/api/apps-visualizer/0x20/apps/events-graph": {
+    "/api/apps-visualizer/0x21/apps/events-graph": {
       "get": {
         "summary": "App Visualizer: Events Graph Data",
         "description": "App Visualizer: Events Graph Data",
@@ -287,11 +287,11 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x20"
+          "apps_visualizer.0x21"
         ]
       }
     },
-    "/api/apps-visualizer/0x20/event-stats/live": {
+    "/api/apps-visualizer/0x21/event-stats/live": {
       "get": {
         "summary": "App Visualizer: Live Stats",
         "description": "App Visualizer: Live Stats",
@@ -365,7 +365,7 @@
           }
         },
         "tags": [
-          "apps_visualizer.0x20"
+          "apps_visualizer.0x21"
         ]
       }
     }
@@ -798,7 +798,10 @@
             "default": {
               "stream_manager": "hopeit.streams.NoStreamManager",
               "connection_str": "<<NoStreamManager>>",
-              "delay_auto_start_seconds": 3
+              "delay_auto_start_seconds": 3,
+              "initial_backoff_seconds": 1.0,
+              "max_backoff_seconds": 60.0,
+              "num_failures_open_circuit_breaker": 1
             }
           },
           "logging": {
@@ -830,7 +833,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.20.0"
+            "default": "0.21.0"
           }
         },
         "x-module-name": "hopeit.server.config",
@@ -850,10 +853,22 @@
           "delay_auto_start_seconds": {
             "type": "integer",
             "default": 3
+          },
+          "initial_backoff_seconds": {
+            "type": "number",
+            "default": 1.0
+          },
+          "max_backoff_seconds": {
+            "type": "number",
+            "default": 60.0
+          },
+          "num_failures_open_circuit_breaker": {
+            "type": "integer",
+            "default": 1
           }
         },
         "x-module-name": "hopeit.server.config",
-        "description": "\n    :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    "
+        "description": "\n    :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n        if using redis stream manager plugin to connect locally\n    "
       },
       "LoggingConfig": {
         "type": "object",

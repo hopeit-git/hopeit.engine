@@ -32,10 +32,14 @@ ConfigType = TypeVar("ConfigType")  # pylint: disable=invalid-name
 class StreamsConfig:
     """
     :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379
+        if using redis stream manager plugin to connect locally
     """
     stream_manager: str = "hopeit.streams.NoStreamManager"
     connection_str: str = '<<NoStreamManager>>'
     delay_auto_start_seconds: int = 3
+    initial_backoff_seconds: float = 1.0
+    max_backoff_seconds: float = 60.0
+    num_failures_open_circuit_breaker: int = 1
 
 
 @dataobject

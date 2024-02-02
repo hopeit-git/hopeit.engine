@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.20",
+    "version": "0.21",
     "title": "Client Example",
     "description": "Client Example"
   },
   "paths": {
-    "/api/config-manager/0x20/runtime-apps-config": {
+    "/api/config-manager/0x21/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -62,11 +62,11 @@
           }
         },
         "tags": [
-          "config_manager.0x20"
+          "config_manager.0x21"
         ]
       }
     },
-    "/api/config-manager/0x20/cluster-apps-config": {
+    "/api/config-manager/0x21/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -122,11 +122,11 @@
           }
         },
         "tags": [
-          "config_manager.0x20"
+          "config_manager.0x21"
         ]
       }
     },
-    "/api/client-example/0x20/call-unsecured": {
+    "/api/client-example/0x21/call-unsecured": {
       "get": {
         "summary": "Client Example: Call Unsecured",
         "description": "List all available Something objects connecting to simple-example app",
@@ -196,11 +196,11 @@
           }
         },
         "tags": [
-          "client_example.0x20"
+          "client_example.0x21"
         ]
       }
     },
-    "/api/client-example/0x20/count-and-save": {
+    "/api/client-example/0x21/count-and-save": {
       "get": {
         "summary": "Client Example: Count Objects and Save new one",
         "description": "Count all available Something objects connecting to simple-example app",
@@ -267,7 +267,7 @@
           }
         },
         "tags": [
-          "client_example.0x20"
+          "client_example.0x21"
         ],
         "security": [
           {
@@ -276,7 +276,7 @@
         ]
       }
     },
-    "/api/client-example/0x20/handle-responses": {
+    "/api/client-example/0x21/handle-responses": {
       "get": {
         "summary": "Client Example: Handle Responses",
         "description": "Non default responses and UnhandledResponse exception\n\nTo manage different types of responses from the same endpoint we can use the `responses` parameter where we list the\nhttp response status codes expected and the corresponding data type for each one. In this example `app_call` expect\nand handle, 200 and 404 responses.\n\nAlso in the code you can see how to handle an expection of type `UnhandledResponse` and log as warining.",
@@ -361,7 +361,7 @@
           }
         },
         "tags": [
-          "client_example.0x20"
+          "client_example.0x21"
         ],
         "security": [
           {
@@ -799,7 +799,10 @@
             "default": {
               "stream_manager": "hopeit.streams.NoStreamManager",
               "connection_str": "<<NoStreamManager>>",
-              "delay_auto_start_seconds": 3
+              "delay_auto_start_seconds": 3,
+              "initial_backoff_seconds": 1.0,
+              "max_backoff_seconds": 60.0,
+              "num_failures_open_circuit_breaker": 1
             }
           },
           "logging": {
@@ -831,7 +834,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.20.0"
+            "default": "0.21.0"
           }
         },
         "x-module-name": "hopeit.server.config",
@@ -851,10 +854,22 @@
           "delay_auto_start_seconds": {
             "type": "integer",
             "default": 3
+          },
+          "initial_backoff_seconds": {
+            "type": "number",
+            "default": 1.0
+          },
+          "max_backoff_seconds": {
+            "type": "number",
+            "default": 60.0
+          },
+          "num_failures_open_circuit_breaker": {
+            "type": "integer",
+            "default": 1
           }
         },
         "x-module-name": "hopeit.server.config",
-        "description": "\n    :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    "
+        "description": "\n    :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n        if using redis stream manager plugin to connect locally\n    "
       },
       "LoggingConfig": {
         "type": "object",

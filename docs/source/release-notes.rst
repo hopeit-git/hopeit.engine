@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+Version 0.21.0
+______________
+- Engine:
+
+  - STREAMS: Added StreamCircuitBreaker to handle stream server interruptions and recovery:
+
+    - Initial State: closed (0), After 1 failure: semi-open (1), After a configurable number of failures: open (2)
+      with exponential backoff.
+
+
 Version 0.20.0
 ______________
 - Engine & Plugins:
