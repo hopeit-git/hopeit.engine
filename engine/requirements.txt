@@ -12,4 +12,3 @@ deepdiff
 multidict
 typing_inspect
 gunicorn
-uvloop
