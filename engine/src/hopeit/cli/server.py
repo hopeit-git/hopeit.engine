@@ -36,7 +36,8 @@ def server():
               " can also be used explicitly to start only events with no group or 'DEFAULT' group label.")
 @click.option('--workers', default=1, help="Number of workeres to start. Max number of workers is (cpu_count * 2) + 1")
 @click.option('--worker-class', type=click.Choice(['GunicornWebWorker', 'GunicornUVLoopWebWorker']),
-              default="GunicornWebWorker", help="Gunicorn aiohttp worker class. Default value is GunicornWebWorker.")
+              default="GunicornWebWorker", help="Gunicorn aiohttp worker class. Default value is GunicornWebWorker. "
+              "GunicornUVLoopWebWorker requires `pip install uvloop`")
 @click.option('--worker-timeout', default=0, help="Workers silent for more than this many seconds are killed and "
               "restarted. Value is a positive number or 0. Setting it to 0 has the effect of infinite timeouts "
               "by disabling timeouts for all workers entirely.")

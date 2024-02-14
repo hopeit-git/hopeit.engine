@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 0.21.2
+______________
+- Engine:
+
+- Fix: Remove `uvloop` library requirement
+
+
 Version 0.21.1
 ______________
 - Engine:

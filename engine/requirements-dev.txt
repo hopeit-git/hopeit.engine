@@ -20,3 +20,4 @@ isort
 # Plugin dependencies
 redis
 watchdog
+uvloop

@@ -1,4 +1,3 @@
-import sys
 import setuptools
 
 version = {}
@@ -112,8 +111,7 @@ setuptools.setup(
             "aiohttp",
             "aiohttp-cors",
             "aiohttp-swagger3",
-            "gunicorn",
-            *(["uvloop"] if sys.platform != "win32" else [])
+            "gunicorn"
         ]],
         "cli": [ f"{lib}>={libversion(lib)}" for lib in [
             "click"
