@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 0.21.1
+______________
+- Engine:
+
+- Fix: Excluded the uvloop library requirement on Windows OS to enhance compatibility with that operating system
+
+
 Version 0.21.0
 ______________
 - Engine:
