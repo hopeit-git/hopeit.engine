@@ -67,8 +67,7 @@
   },
   "events": {
     "setup_something": {
-      "type": "SETUP",
-      "setting_keys": ["fs_storage"]
+      "type": "SETUP"
     },
     "list_somethings": {
       "type": "GET",

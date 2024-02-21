@@ -55,6 +55,13 @@
       },
       "classes": "EVENT"
   },
+  "simple_example.${APPS_ROUTE_VERSION}.setup_something": {
+    "data": {
+        "id": "simple_example.${APPS_ROUTE_VERSION}.setup_something",
+        "content": "simple_example.${APPS_ROUTE_VERSION}\nsetup_something"
+    },
+    "classes": "EVENT"
+},
   "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET": {
       "data": {
           "id": "simple_example.${APPS_ROUTE_VERSION}.list_somethings.GET",

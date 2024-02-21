@@ -40,6 +40,15 @@
                   }
               },
               "events": {
+                "setup_something": {
+                    "type": "SETUP",
+                    "plug_mode": "Standalone",
+                    "connections": [],
+                    "auth": [],
+                    "setting_keys": [],
+                    "dataobjects": [],
+                    "group": "DEFAULT"
+                },
                   "list_somethings": {
                       "type": "GET",
                       "plug_mode": "Standalone",
@@ -356,7 +365,28 @@
                   }
               },
               "effective_settings": {
-                  "list_somethings": {
+                 "setup_something": {
+                    "response_timeout": 60.0,
+                    "logging": {
+                        "extra_fields": [],
+                        "stream_fields": [
+                            "stream.name",
+                            "stream.msg_id",
+                            "stream.consumer_group"
+                        ]
+                    },
+                    "stream": {
+                        "timeout": 60.0,
+                        "target_max_len": 0,
+                        "throttle_ms": 0,
+                        "step_delay": 0,
+                        "batch_size": 100,
+                        "compression": "lz4",
+                        "serialization": "json+base64"
+                    },
+                    "extras": {}
+                },
+                "list_somethings": {
                       "response_timeout": 60.0,
                       "logging": {
                           "extra_fields": [],
@@ -850,6 +880,15 @@
                   "dataobjects": [],
                   "group": "DEFAULT"
               },
+              "simple_example.${APPS_ROUTE_VERSION}.setup_something": {
+                "type": "SETUP",
+                "plug_mode": "Standalone",
+                "connections": [],
+                "auth": [],
+                "setting_keys": [],
+                "dataobjects": [],
+                "group": "DEFAULT"
+            },
               "simple_example.${APPS_ROUTE_VERSION}.list_somethings": {
                   "type": "GET",
                   "plug_mode": "Standalone",
@@ -1161,7 +1200,10 @@
                   "streams": {
                       "stream_manager": "hopeit.streams.NoStreamManager",
                       "connection_str": "<<NoStreamManager>>",
-                      "delay_auto_start_seconds": 3
+                      "delay_auto_start_seconds": 3,
+                      "initial_backoff_seconds": 1.0,
+                      "max_backoff_seconds": 60.0,
+                      "num_failures_open_circuit_breaker": 1
                   },
                   "logging": {
                       "log_level": "DEBUG",

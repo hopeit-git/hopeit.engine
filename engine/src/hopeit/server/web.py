@@ -253,7 +253,9 @@ def _enable_cors(prefix: str, cors: CorsConfig):
             cors.add(route)
 
 
-async def _setup_app_event_routes(app_engine: AppEngine, plugin: Optional[AppEngine] = None):
+async def _setup_app_event_routes(
+    app_engine: AppEngine, plugin: Optional[AppEngine] = None
+):
     """
     Setup http routes for existing events in app,
     in existing web_server global instance.
@@ -546,7 +548,7 @@ async def _execute_setup_event(
     app_engine: AppEngine,
     plugin: Optional[AppEngine],
     event_name: str,
-) -> EventContext:
+) -> Optional[EventPayload]:
     """
     Executes event of SETUP type, on server start
     """
@@ -570,10 +572,11 @@ async def _execute_setup_event(
     return res
 
 
-def _request_start(app_engine: AppEngine,
-                   plugin: AppEngine,
-                   event_name: str,
-                   event_settings: EventSettings,
+def _request_start(
+    app_engine: AppEngine,
+    plugin: AppEngine,
+    event_name: str,
+    event_settings: EventSettings,
     request: web.Request,
 ) -> EventContext:
     """
@@ -585,7 +588,7 @@ def _request_start(app_engine: AppEngine,
         event_name=event_name,
         settings=event_settings,
         track_ids=_track_ids(request),
-        auth_info=auth_info_default
+        auth_info=auth_info_default,
     )
     logger.start(context)
     return context
@@ -595,12 +598,14 @@ def _extract_auth_header(request: web.Request, context: EventContext) -> Optiona
     return request.headers.get("Authorization")
 
 
-def _extract_refresh_cookie(request: web.Request, context: EventContext) -> Optional[str]:
+def _extract_refresh_cookie(
+    request: web.Request, context: EventContext
+) -> Optional[str]:
     return request.cookies.get(f"{context.app_key}.refresh")
 
 
 def _ignore_auth(request: web.Request, context: EventContext) -> str:
-    return 'Unsecured -'
+    return "Unsecured -"
 
 
 AUTH_HEADER_EXTRACTORS = {

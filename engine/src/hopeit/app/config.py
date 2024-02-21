@@ -61,7 +61,7 @@ class EventType(str, Enum):
     STREAM: event triggered read events from stream. Can be started and stopped.
     SERVICE: event executed on demand or continuously. Long lived. Can be started and stopped.
     MULTIPART: event triggered from api postform-multipart request via endpoint.
-    SETUP: event that is executed once when service is starting    
+    SETUP: event that is executed once when service is starting
     """
     GET = 'GET'
     POST = 'POST'
