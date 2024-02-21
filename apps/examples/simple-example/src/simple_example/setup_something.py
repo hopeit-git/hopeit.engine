@@ -1,7 +1,7 @@
 """
 Simple Example: Setup Something
 --------------------------------------------------------------------
-Setup run before initialize endpoints streams and services
+SETUP EventType runs before initializing endpoints, streams, and services.
 """
 
 from pathlib import Path
@@ -18,7 +18,7 @@ logger, extra = app_extra_logger()
 
 async def run_once(payload: None, context: EventContext):
     """
-    Load objects that match the given wildcard
+    This method initializes the environment.
     """
     logger.info(context, "Setup done")
-    Path("/tmp/hopeit.initializead").touch()
+    Path("/tmp/hopeit.initialized").touch()
