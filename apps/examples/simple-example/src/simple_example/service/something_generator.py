@@ -19,6 +19,10 @@ logger, extra = app_extra_logger()
 
 
 async def __service__(context: EventContext) -> Spawn[SomethingParams]:
+    """
+    Generate SomethingParams asynchronously in a loop until the service is stopped.
+    """
+
     i = 1
     if not os.path.exists("/tmp/hopeit.initialized"):
         raise RuntimeError(
@@ -37,6 +41,7 @@ async def __service__(context: EventContext) -> Spawn[SomethingParams]:
 async def create_something(
     payload: SomethingParams, context: EventContext
 ) -> Something:
+    """Create a Something object asynchronously."""
     logger.info(
         context,
         "Creating something...",
