@@ -66,6 +66,10 @@
     }
   },
   "events": {
+    "setup_something": {
+      "type": "SETUP",
+      "setting_keys": ["fs_storage"]
+    },
     "list_somethings": {
       "type": "GET",
       "setting_keys": ["fs_storage"]
