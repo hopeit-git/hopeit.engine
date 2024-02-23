@@ -4,6 +4,7 @@ Storage/persistence asynchronous stores and gets dataobjects from filesystem.
 """
 from dataclasses import dataclass
 import os
+import shutil
 from glob import glob
 from pathlib import Path
 import uuid
@@ -166,5 +167,5 @@ class FileStorage(Generic[DataObject]):
         async with aiofiles.open(tmp_path, 'w') as f:  # type: ignore
             await f.write(payload_str)
             await f.flush()
-        os.rename(str(tmp_path), str(file_path))
+        shutil.move(str(tmp_path), str(file_path))
         return str(file_path)
