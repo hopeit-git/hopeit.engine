@@ -1,11 +1,18 @@
 Release Notes
 =============
 
+Version 0.22.0
+______________
+- Engine:
+  
+  - SETUP: new EventType, runs before initializing endpoints, streams, and services
+
+
 Version 0.21.3
 ______________
 - Plugin:
   
-  fs-storage: Resolved compatibility issues with long file names on Windows
+  - fs-storage: Resolved compatibility issues with long file names on Windows
 
 
 Version 0.21.2

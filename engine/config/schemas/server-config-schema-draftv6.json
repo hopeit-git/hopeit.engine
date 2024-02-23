@@ -41,7 +41,7 @@
     },
     "engine_version": {
       "type": "string",
-      "default": "0.21.0"
+      "default": "0.22.0"
     }
   },
   "description": "\n    Server configuration\n    ",
@@ -75,7 +75,7 @@
           "default": 1
         }
       },
-      "description": "\n    :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    "
+      "description": "\n    :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n        if using redis stream manager plugin to connect locally\n    "
     },
     "LoggingConfig": {
       "type": "object",
