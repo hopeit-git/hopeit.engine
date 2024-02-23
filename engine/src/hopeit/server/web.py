@@ -548,7 +548,7 @@ async def _execute_setup_event(
     app_engine: AppEngine,
     plugin: Optional[AppEngine],
     event_name: str,
-) -> Optional[EventPayload]:
+) -> None:
     """
     Executes event of SETUP type, on server start
     """
@@ -564,12 +564,10 @@ async def _execute_setup_event(
 
     logger.start(context)
     if plugin is None:
-        res = await app_engine.execute(context=context, query_args=None, payload=None)
+        await app_engine.execute(context=context, query_args=None, payload=None)
     else:
-        res = await plugin.execute(context=context, query_args=None, payload=None)
+        await plugin.execute(context=context, query_args=None, payload=None)
     logger.done(context, extra=metrics(context))
-
-    return res
 
 
 def _request_start(

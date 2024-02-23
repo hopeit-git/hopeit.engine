@@ -13,7 +13,7 @@ from hopeit.server import api, runtime, engine, web
 from hopeit.server.web import server_startup_hook, stop_server, app_startup_hook, stream_startup_hook
 
 from mock_engine import MockStreamManager, MockEventHandler
-from mock_app import MockResult, mock_app_config  # type: ignore  # noqa: F401
+from mock_app import MockResult, mock_app_config, mock_event_setup  # type: ignore  # noqa: F401
 from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401
 
 
@@ -490,6 +490,10 @@ async def call_get_plugin_event_on_app(client):
     assert result == '{"plugin_event": "PluginEvent.postprocess"}'
 
 
+async def check_setup_event_on_start(client):
+    assert mock_event_setup.initialized
+    
+
 async def call_start_stream(client):
     res = await client.get(
         '/mgmt/mock-app/test/mock-stream-event/start'
@@ -580,6 +584,7 @@ async def test_endpoints(monkeypatch,
     logger.addHandler(ch)
 
     test_list = [
+        check_setup_event_on_start,
         call_get_mock_event,
         call_get_mock_event_cors_allowed,
         call_get_mock_event_cors_unknown,
