@@ -20,5 +20,5 @@ async def run_once(payload: None, context: EventContext):
     """
     This method initializes the environment.
     """
-    logger.info(context, "Setup done")
     Path("/tmp/hopeit.initialized").touch()
+    logger.info(context, "Setup done")
