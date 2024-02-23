@@ -61,12 +61,14 @@ class EventType(str, Enum):
     STREAM: event triggered read events from stream. Can be started and stopped.
     SERVICE: event executed on demand or continuously. Long lived. Can be started and stopped.
     MULTIPART: event triggered from api postform-multipart request via endpoint.
+    SETUP: event that is executed once when service is starting
     """
     GET = 'GET'
     POST = 'POST'
     STREAM = 'STREAM'
     SERVICE = 'SERVICE'
     MULTIPART = 'MULTIPART'
+    SETUP = 'SETUP'
 
 
 class StreamQueue:
@@ -299,7 +301,7 @@ class EventDescriptor:
     """
     Event Descriptor: configures event implementation
 
-    :field: type, EventType: type of event i.e.: GET, POST, MULTIPART, STREAM, SERVICE
+    :field: type, EventType: type of event i.e.: GET, POST, MULTIPART, STREAM, SERVICE, SETUP
     :field: plug_mode, EventPlugMode: defines whether an event defined in a plugin is created in the
         current app (ON_APP) or it will be created in the original plugin (STANDALONE, default)
     :field: route, optional str: custom route for endpoint. If not specified route will be derived

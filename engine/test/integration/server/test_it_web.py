@@ -10,339 +10,360 @@ from aiohttp import ClientResponse
 from aiohttp.web import Application
 
 from hopeit.server import api, runtime, engine, web
-from hopeit.server.web import server_startup_hook, stop_server, app_startup_hook, stream_startup_hook
+from hopeit.server.web import (
+    server_startup_hook,
+    stop_server,
+    app_startup_hook,
+    stream_startup_hook,
+)
 
 from mock_engine import MockStreamManager, MockEventHandler
-from mock_app import MockResult, mock_app_config  # type: ignore  # noqa: F401
-from mock_plugin import mock_plugin_config  # type: ignore  # noqa: F401
+from mock_app import MockResult, mock_app_config, mock_event_setup  # type: ignore  # noqa: F401
+from mock_plugin import mock_plugin_config, plugin_setup  # type: ignore  # noqa: F401
 
 
 async def call_get_mock_event(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-event-test',
-        params={'query_arg1': 'ok'},
-        headers={'X-Track-Session-Id': 'test_session_id'}
+        "/api/mock-app/test/mock-event-test",
+        params={"query_arg1": "ok"},
+        headers={"X-Track-Session-Id": "test_session_id"},
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id')
-    assert res.headers.get('X-Track-Request-Ts')
-    assert res.headers.get('X-Status') == 'ok'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id")
+    assert res.headers.get("X-Track-Request-Ts")
+    assert res.headers.get("X-Status") == "ok"
     result = (await res.read()).decode()
     assert result == '{"mock_event": "ok: ok"}'
 
 
 async def call_get_mock_event_cors_allowed(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-event-test',
-        params={'query_arg1': 'ok'},
+        "/api/mock-app/test/mock-event-test",
+        params={"query_arg1": "ok"},
         headers={
-            'X-Track-Session-Id': 'test_session_id',
-            'Origin': 'http://test',
-            'Host': 'test'
-        }
+            "X-Track-Session-Id": "test_session_id",
+            "Origin": "http://test",
+            "Host": "test",
+        },
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id')
-    assert res.headers.get('X-Track-Request-Ts')
-    assert res.headers.get('Access-Control-Allow-Origin') == 'http://test'
-    assert res.headers.get('Access-Control-Allow-Credentials') == 'true'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id")
+    assert res.headers.get("X-Track-Request-Ts")
+    assert res.headers.get("Access-Control-Allow-Origin") == "http://test"
+    assert res.headers.get("Access-Control-Allow-Credentials") == "true"
     result = (await res.read()).decode()
     assert result == '{"mock_event": "ok: ok"}'
 
 
 async def call_get_mock_event_cors_unknown(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-event-test',
-        params={'query_arg1': 'ok'},
+        "/api/mock-app/test/mock-event-test",
+        params={"query_arg1": "ok"},
         headers={
-            'X-Track-Session-Id': 'test_session_id',
-            'Origin': 'http://unknown',
-            'Host': 'test'
-        }
+            "X-Track-Session-Id": "test_session_id",
+            "Origin": "http://unknown",
+            "Host": "test",
+        },
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id')
-    assert res.headers.get('X-Track-Request-Ts')
-    assert res.headers.get('Access-Control-Allow-Origin') is None
-    assert res.headers.get('Access-Control-Allow-Credentials') is None
-    assert res.cookies.get('Test-Cookie').value == 'ok'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id")
+    assert res.headers.get("X-Track-Request-Ts")
+    assert res.headers.get("Access-Control-Allow-Origin") is None
+    assert res.headers.get("Access-Control-Allow-Credentials") is None
+    assert res.cookies.get("Test-Cookie").value == "ok"
     result = (await res.read()).decode()
     assert result == '{"mock_event": "ok: ok"}'
 
 
 async def call_get_mock_event_special_case(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-event-test',
-        params={'query_arg1': 'no-ok'},
-        headers={'x-track-session-id': 'test_session_id'}
+        "/api/mock-app/test/mock-event-test",
+        params={"query_arg1": "no-ok"},
+        headers={"x-track-session-id": "test_session_id"},
     )
     assert res.status == 400
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id')
-    assert res.headers.get('X-Track-Request-Ts')
-    assert res.cookies.get('Test-Cookie').value == ''
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id")
+    assert res.headers.get("X-Track-Request-Ts")
+    assert res.cookies.get("Test-Cookie").value == ""
     result = (await res.read()).decode()
     assert result == '{"mock_event": "not-ok: None"}'
 
 
 async def call_get_fail_request(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-event-test',
-        params={'query_arg1': 'fail'},
-        headers={
-            'X-Track-Session-Id': 'test_session_id'
-        }
+        "/api/mock-app/test/mock-event-test",
+        params={"query_arg1": "fail"},
+        headers={"X-Track-Session-Id": "test_session_id"},
     )
     assert res.status == 500
     result = (await res.read()).decode()
-    assert result == '{"msg": "Test for error", "tb": ["AssertionError: Test for error\\n"]}'
+    assert (
+        result
+        == '{"msg": "Test for error", "tb": ["AssertionError: Test for error\\n"]}'
+    )
 
 
 async def call_post_mock_event(client):
     res: ClientResponse = await client.post(
-        '/api/mock-app/test/mock-event-test',
-        params={'query_arg1': 'ok'},
+        "/api/mock-app/test/mock-event-test",
+        params={"query_arg1": "ok"},
         data='{"value": "ok"}',
         headers={
-            'X-Track-Request-Id': 'test_request_id',
-            'X-Track-Session-Id': 'test_session_id'
-        }
+            "X-Track-Request-Id": "test_request_id",
+            "X-Track-Session-Id": "test_session_id",
+        },
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
     assert result == '{"value": "ok: ok", "processed": true}'
 
 
 async def call_post_mock_event_preprocess(client):
     res: ClientResponse = await client.post(
-        '/api/mock-app/test/mock-post-preprocess',
-        params={'query_arg1': 'ok'},
+        "/api/mock-app/test/mock-post-preprocess",
+        params={"query_arg1": "ok"},
         data='{"value": "ok"}',
         headers={
-            'X-Track-Request-Id': 'test_request_id',
-            'X-Track-Session-Id': 'test_session_id'
-        }
+            "X-Track-Request-Id": "test_request_id",
+            "X-Track-Session-Id": "test_session_id",
+        },
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
     assert result == '{"value": "ok: test_request_id"}'
 
 
 async def call_post_mock_event_preprocess_no_datatype(client):
     res: ClientResponse = await client.post(
-        '/api/mock-app/test/mock-post-preprocess-no-datatype',
-        params={'query_arg1': 'ok'},
-        data='OK\n',
+        "/api/mock-app/test/mock-post-preprocess-no-datatype",
+        params={"query_arg1": "ok"},
+        data="OK\n",
         headers={
-            'X-Track-Request-Id': 'test_request_id',
-            'X-Track-Session-Id': 'test_session_id'
-        }
+            "X-Track-Request-Id": "test_request_id",
+            "X-Track-Session-Id": "test_session_id",
+        },
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
     assert result == '{"value": "ok: test_request_id"}'
 
 
 async def call_multipart_mock_event(client):
-    os.makedirs('/tmp/call_multipart_mock_event/', exist_ok=True)
-    with open('/tmp/call_multipart_mock_event/test_attachment', 'wb') as f:
-        f.write(b'testdata')
+    os.makedirs("/tmp/call_multipart_mock_event/", exist_ok=True)
+    with open("/tmp/call_multipart_mock_event/test_attachment", "wb") as f:
+        f.write(b"testdata")
 
-    attachment = open('/tmp/call_multipart_mock_event/test_attachment', 'rb')
+    attachment = open("/tmp/call_multipart_mock_event/test_attachment", "rb")
     with aiohttp.MultipartWriter("form-data", boundary=":") as mp:
-        mp.append("value1", headers={
-            'Content-Disposition': 'form-data; name="field1"'
-        })
-        mp.append_json({"value": "value2"}, headers={
-            'Content-Disposition': 'form-data; name="field2"'
-        })
-        mp.append(attachment, headers={
-            'Content-Disposition': 'attachments; name="attachment"; filename="test_attachment"'
-        })
+        mp.append("value1", headers={"Content-Disposition": 'form-data; name="field1"'})
+        mp.append_json(
+            {"value": "value2"},
+            headers={"Content-Disposition": 'form-data; name="field2"'},
+        )
+        mp.append(
+            attachment,
+            headers={
+                "Content-Disposition": 'attachments; name="attachment"; filename="test_attachment"'
+            },
+        )
 
         res: ClientResponse = await client.post(
-            '/api/mock-app/test/mock-multipart-event-test',
-            params={'query_arg1': 'ok'},
+            "/api/mock-app/test/mock-multipart-event-test",
+            params={"query_arg1": "ok"},
             data=mp,
             headers={
-                'X-Track-Request-Id': 'test_request_id',
-                'X-Track-Session-Id': 'test_session_id',
-                'Content-Type': 'multipart/form-data; boundary=":"'}
-                )
+                "X-Track-Request-Id": "test_request_id",
+                "X-Track-Session-Id": "test_session_id",
+                "Content-Type": 'multipart/form-data; boundary=":"',
+            },
+        )
         assert res.status == 200
-        assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-        assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+        assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+        assert res.headers.get("X-Track-Request-Id") == "test_request_id"
         result = (await res.read()).decode()
-        assert result == '{"value": "field1=value1 field2=value2 attachment=test_attachment ok"}'
+        assert (
+            result
+            == '{"value": "field1=value1 field2=value2 attachment=test_attachment ok"}'
+        )
 
 
 async def call_multipart_mock_event_plain_text_json(client):
-    os.makedirs('/tmp/call_multipart_mock_event/', exist_ok=True)
-    with open('/tmp/call_multipart_mock_event/test_attachment', 'wb') as f:
-        f.write(b'testdata')
+    os.makedirs("/tmp/call_multipart_mock_event/", exist_ok=True)
+    with open("/tmp/call_multipart_mock_event/test_attachment", "wb") as f:
+        f.write(b"testdata")
 
-    attachment = open('/tmp/call_multipart_mock_event/test_attachment', 'rb')
+    attachment = open("/tmp/call_multipart_mock_event/test_attachment", "rb")
     with aiohttp.MultipartWriter("form-data", boundary=":") as mp:
-        mp.append("value1", headers={
-            'Content-Disposition': 'form-data; name="field1"'
-        })
-        mp.append('{"value": "value2"}', headers={
-            'Content-Disposition': 'form-data; name="field2"'
-        })
-        mp.append(attachment, headers={
-            'Content-Disposition': 'attachments; name="attachment"; filename="test_attachment"'
-        })
+        mp.append("value1", headers={"Content-Disposition": 'form-data; name="field1"'})
+        mp.append(
+            '{"value": "value2"}',
+            headers={"Content-Disposition": 'form-data; name="field2"'},
+        )
+        mp.append(
+            attachment,
+            headers={
+                "Content-Disposition": 'attachments; name="attachment"; filename="test_attachment"'
+            },
+        )
 
         res: ClientResponse = await client.post(
-            '/api/mock-app/test/mock-multipart-event-test',
-            params={'query_arg1': 'ok'},
+            "/api/mock-app/test/mock-multipart-event-test",
+            params={"query_arg1": "ok"},
             data=mp,
             headers={
-                'X-Track-Request-Id': 'test_request_id',
-                'X-Track-Session-Id': 'test_session_id',
-                'Content-Type': 'multipart/form-data; boundary=":"'}
-                )
+                "X-Track-Request-Id": "test_request_id",
+                "X-Track-Session-Id": "test_session_id",
+                "Content-Type": 'multipart/form-data; boundary=":"',
+            },
+        )
         assert res.status == 200
-        assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-        assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+        assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+        assert res.headers.get("X-Track-Request-Id") == "test_request_id"
         result = (await res.read()).decode()
-        assert result == '{"value": "field1=value1 field2=value2 attachment=test_attachment ok"}'
+        assert (
+            result
+            == '{"value": "field1=value1 field2=value2 attachment=test_attachment ok"}'
+        )
 
 
 async def call_multipart_mock_event_bad_request(client):
     with aiohttp.MultipartWriter("form-data", boundary=":") as mp:
-        mp.append("value1", headers={'Content-Disposition': 'form-data; name="field1"'})
-        mp.append("value2", headers={'Content-Disposition': 'form-data; name="field2"'})
+        mp.append("value1", headers={"Content-Disposition": 'form-data; name="field1"'})
+        mp.append("value2", headers={"Content-Disposition": 'form-data; name="field2"'})
 
         res: ClientResponse = await client.post(
-            '/api/mock-app/test/mock-multipart-event-test',
+            "/api/mock-app/test/mock-multipart-event-test",
             data=mp,
-            params={'query_arg1': 'bad form'},
+            params={"query_arg1": "bad form"},
             headers={
-                'X-Track-Request-Id': 'test_request_id',
-                'X-Track-Session-Id': 'test_session_id',
-                'Content-Type': 'multipart/form-data; boundary=":"'}
-                )
+                "X-Track-Request-Id": "test_request_id",
+                "X-Track-Session-Id": "test_session_id",
+                "Content-Type": 'multipart/form-data; boundary=":"',
+            },
+        )
         assert res.status == 400
 
 
 async def call_post_nopayload(client):
     res: ClientResponse = await client.post(
-        '/api/mock-app/test/mock-post-nopayload',
-        params={'query_arg1': 'ok'},
+        "/api/mock-app/test/mock-post-nopayload",
+        params={"query_arg1": "ok"},
         headers={
-            'X-Track-Request-Id': 'test_request_id',
-            'X-Track-Session-Id': 'test_session_id'
-        }
+            "X-Track-Request-Id": "test_request_id",
+            "X-Track-Session-Id": "test_session_id",
+        },
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
     assert result == '{"mock_post_nopayload": "ok: nopayload ok"}'
 
 
 async def call_post_invalid_payload(client):
     res: ClientResponse = await client.post(
-        '/api/mock-app/test/mock-event-test',
-        params={'query_arg1': 'ok'},
+        "/api/mock-app/test/mock-event-test",
+        params={"query_arg1": "ok"},
         data='{"value": invalid_json}',
-        headers={
-            'X-Track-Session-Id': 'test_session_id'
-        }
+        headers={"X-Track-Session-Id": "test_session_id"},
     )
     assert res.status == 400
     result = (await res.read()).decode()
-    assert result == \
-        '{"msg": "Expecting value: line 1 column 11 (char 10)", "tb": ' \
+    assert (
+        result == '{"msg": "Expecting value: line 1 column 11 (char 10)", "tb": '
         '["hopeit.app.errors.BadRequest: Expecting value: line 1 column 11 (char 10)\\n"]}'
+    )
 
 
 async def call_post_fail_request(client):
     res: ClientResponse = await client.post(
-        '/api/mock-app/test/mock-event-test',
-        params={'query_arg1': 'fail'},
+        "/api/mock-app/test/mock-event-test",
+        params={"query_arg1": "fail"},
         data='{"value": "ok"}',
-        headers={
-            'X-Track-Session-Id': 'test_session_id'
-        }
+        headers={"X-Track-Session-Id": "test_session_id"},
     )
     assert res.status == 500
     result = (await res.read()).decode()
-    assert result == '{"msg": "Test for error", "tb": ["AssertionError: Test for error\\n"]}'
+    assert (
+        result
+        == '{"msg": "Test for error", "tb": ["AssertionError: Test for error\\n"]}'
+    )
 
 
 async def call_post_mock_collector(client):
     res: ClientResponse = await client.post(
-        '/api/mock-app/test/mock-collector',
+        "/api/mock-app/test/mock-collector",
         params={},
         data='{"value": "ok"}',
         headers={
-            'X-Track-Request-Id': 'test_request_id',
-            'X-Track-Session-Id': 'test_session_id'
-        }
+            "X-Track-Request-Id": "test_request_id",
+            "X-Track-Session-Id": "test_session_id",
+        },
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
-    assert result == '{"value": ' \
-        '"((ok+mock_collector+step1)&(ok+mock_collector+step2)+mock_collector+step3)", ' \
+    assert (
+        result == '{"value": '
+        '"((ok+mock_collector+step1)&(ok+mock_collector+step2)+mock_collector+step3)", '
         '"processed": true}'
+    )
 
 
 async def call_get_mock_spawn_event(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-spawn-event',
-        params={'payload': 'ok'},
+        "/api/mock-app/test/mock-spawn-event",
+        params={"payload": "ok"},
         data=None,
         headers={
-            'X-Track-Request-Id': 'test_request_id',
-            'X-Track-Session-Id': 'test_session_id'
-        }
+            "X-Track-Request-Id": "test_request_id",
+            "X-Track-Session-Id": "test_session_id",
+        },
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
     assert result == '{"value": "stream: ok.2"}'
 
 
 async def call_get_mock_timeout_ok(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-timeout',
-        params={'delay': 1},
+        "/api/mock-app/test/mock-timeout",
+        params={"delay": 1},
         data=None,
         headers={
-            'X-Track-Request-Id': 'test_request_id',
-            'X-Track-Session-Id': 'test_session_id'
-        }
+            "X-Track-Request-Id": "test_request_id",
+            "X-Track-Session-Id": "test_session_id",
+        },
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id') == 'test_request_id'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
     assert result == '{"mock_timeout": "ok"}'
 
 
 async def call_get_mock_timeout_exceeded(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-timeout',
-        params={'delay': 5},
+        "/api/mock-app/test/mock-timeout",
+        params={"delay": 5},
         data=None,
         headers={
-            'X-Track-Request-Id': 'test_request_id',
-            'X-Track-Session-Id': 'test_session_id'
-        }
+            "X-Track-Request-Id": "test_request_id",
+            "X-Track-Session-Id": "test_session_id",
+        },
     )
     assert res.status == 500
     result = (await res.read()).decode()
@@ -350,171 +371,179 @@ async def call_get_mock_timeout_exceeded(client):
 
 
 async def call_get_file_response(client):
-    file_name = str(uuid.uuid4()) + '.txt'
+    file_name = str(uuid.uuid4()) + ".txt"
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-file-response',
-        params={'file_name': file_name},
-        headers={'X-Track-Session-Id': 'test_session_id'}
+        "/api/mock-app/test/mock-file-response",
+        params={"file_name": file_name},
+        headers={"X-Track-Session-Id": "test_session_id"},
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id')
-    assert res.headers.get('X-Track-Request-Ts')
-    assert res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
-    assert res.headers.get("Content-Type") == 'text/plain'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id")
+    assert res.headers.get("X-Track-Request-Ts")
+    assert (
+        res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
+    )
+    assert res.headers.get("Content-Type") == "text/plain"
     result = (await res.read()).decode()
-    assert result == 'mock_file_response test file_response'
+    assert result == "mock_file_response test file_response"
 
 
 async def call_get_stream_response(client):
-    file_name = str(uuid.uuid4()) + '.txt'
+    file_name = str(uuid.uuid4()) + ".txt"
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-stream-response',
-        params={'file_name': file_name},
-        headers={'X-Track-Session-Id': 'test_session_id'}
+        "/api/mock-app/test/mock-stream-response",
+        params={"file_name": file_name},
+        headers={"X-Track-Session-Id": "test_session_id"},
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id')
-    assert res.headers.get('X-Track-Request-Ts')
-    assert res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
-    assert res.headers.get("Content-Type") == 'application/octet-stream'
-    assert res.headers.get("Content-length") == '48'
-    result = (await res.read())
-    assert result == b'TestDataTestDataTestDataTestDataTestDataTestData'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id")
+    assert res.headers.get("X-Track-Request-Ts")
+    assert (
+        res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
+    )
+    assert res.headers.get("Content-Type") == "application/octet-stream"
+    assert res.headers.get("Content-length") == "48"
+    result = await res.read()
+    assert result == b"TestDataTestDataTestDataTestDataTestDataTestData"
 
 
 async def call_get_file_response_content_type(client):
     file_name = "binary.png"
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-file-response_content_type',
-        params={'file_name': file_name},
-        headers={'X-Track-Session-Id': 'test_session_id'}
+        "/api/mock-app/test/mock-file-response_content_type",
+        params={"file_name": file_name},
+        headers={"X-Track-Session-Id": "test_session_id"},
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id')
-    assert res.headers.get('X-Track-Request-Ts')
-    assert res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
-    assert res.headers.get("Content-Type") == 'image/png'
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id")
+    assert res.headers.get("X-Track-Request-Ts")
+    assert (
+        res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
+    )
+    assert res.headers.get("Content-Type") == "image/png"
     result = (await res.read()).decode()
     assert result == file_name
 
 
 async def call_get_mock_auth_event(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-auth',
+        "/api/mock-app/test/mock-auth",
         headers={
-            'X-Track-Session-Id': 'test_session_id',
-            'Authorization': 'Basic 1234567890=='
-        }
+            "X-Track-Session-Id": "test_session_id",
+            "Authorization": "Basic 1234567890==",
+        },
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id')
-    assert res.headers.get('X-Track-Request-Ts')
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id")
+    assert res.headers.get("X-Track-Request-Ts")
     result = (await res.read()).decode()
     assert result == '{"mock_auth": "ok"}'
 
 
 async def call_get_mock_auth_event_malformed_authorization(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-auth',
+        "/api/mock-app/test/mock-auth",
         headers={
-            'X-Track-Session-Id': 'test_session_id',
-            'Authorization': 'BAD_AUTHORIZATION'
-        }
+            "X-Track-Session-Id": "test_session_id",
+            "Authorization": "BAD_AUTHORIZATION",
+        },
     )
     assert res.status == 400
     result = (await res.read()).decode()
     assert json.loads(result) == {
         "msg": "Malformed Authorization",
-        "tb": ["hopeit.app.errors.BadRequest: Malformed Authorization\n"]
+        "tb": ["hopeit.app.errors.BadRequest: Malformed Authorization\n"],
     }
 
 
 async def call_get_mock_auth_event_unauthorized(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-auth',
-        headers={
-            'X-Track-Session-Id': 'test_session_id'
-        }
+        "/api/mock-app/test/mock-auth",
+        headers={"X-Track-Session-Id": "test_session_id"},
     )
     assert res.status == 401
     result = (await res.read()).decode()
-    assert result == '{"msg": "Unsecured", "tb": ["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
+    assert (
+        result
+        == '{"msg": "Unsecured", "tb": ["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
+    )
 
 
 async def call_post_mock_auth_event(client):
     res: ClientResponse = await client.post(
-        '/api/mock-app/test/mock-post-auth',
+        "/api/mock-app/test/mock-post-auth",
         data='{"value": "test_data"}',
         headers={
-            'X-Track-Session-Id': 'test_session_id',
-            'Authorization': 'Basic 1234567890=='
-        }
+            "X-Track-Session-Id": "test_session_id",
+            "Authorization": "Basic 1234567890==",
+        },
     )
     assert res.status == 200
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id')
-    assert res.headers.get('X-Track-Request-Ts')
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id")
+    assert res.headers.get("X-Track-Request-Ts")
     result = (await res.read()).decode()
     assert result == '{"mock_post_auth": "ok: test_data"}'
 
 
 async def call_post_mock_auth_event_unauthorized(client):
     res: ClientResponse = await client.post(
-        '/api/mock-app/test/mock-post-auth',
+        "/api/mock-app/test/mock-post-auth",
         data='{"value": "test_data"}',
-        headers={
-            'X-Track-Session-Id': 'test_session_id'
-        }
+        headers={"X-Track-Session-Id": "test_session_id"},
     )
     assert res.status == 401
     result = (await res.read()).decode()
-    assert result == '{"msg": "Unsecured", "tb": ["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
+    assert (
+        result
+        == '{"msg": "Unsecured", "tb": ["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
+    )
 
 
 async def call_get_plugin_event_on_app(client):
     res: ClientResponse = await client.get(
-        '/api/mock-app/test/mock-plugin/test/plugin-event',
-        headers={'X-Track-Session-Id': 'test_session_id'}
+        "/api/mock-app/test/mock-plugin/test/plugin-event",
+        headers={"X-Track-Session-Id": "test_session_id"},
     )
     assert res.status == 999
-    assert res.headers.get('X-Track-Session-Id') == 'test_session_id'
-    assert res.headers.get('X-Track-Request-Id')
-    assert res.headers.get('X-Track-Request-Ts')
-    assert res.headers.get('PluginHeader') == 'PluginHeaderValue'
-    assert res.cookies.get('PluginCookie').value == "PluginCookieValue"
+    assert res.headers.get("X-Track-Session-Id") == "test_session_id"
+    assert res.headers.get("X-Track-Request-Id")
+    assert res.headers.get("X-Track-Request-Ts")
+    assert res.headers.get("PluginHeader") == "PluginHeaderValue"
+    assert res.cookies.get("PluginCookie").value == "PluginCookieValue"
     result = (await res.read()).decode()
     assert result == '{"plugin_event": "PluginEvent.postprocess"}'
 
 
+async def check_setup_event_on_start(client):
+    assert mock_event_setup.initialized
+
+
+async def check_plugin_setup_event_on_start(client):
+    assert plugin_setup.initialized
+
+
 async def call_start_stream(client):
-    res = await client.get(
-        '/mgmt/mock-app/test/mock-stream-event/start'
-    )
+    res = await client.get("/mgmt/mock-app/test/mock-stream-event/start")
     assert res.status == 200
 
 
 async def call_start_service(client):
-    res = await client.get(
-        '/mgmt/mock-app/test/mock-service-event/start'
-    )
+    res = await client.get("/mgmt/mock-app/test/mock-service-event/start")
     assert res.status == 200
 
 
 async def call_stop_stream(client):
-    res = await client.get(
-        '/mgmt/mock-app/test/mock-stream-event/stop'
-    )
+    res = await client.get("/mgmt/mock-app/test/mock-stream-event/stop")
     assert res.status == 200
 
 
 async def call_stop_service(client):
-    res = await client.get(
-        '/mgmt/mock-app/test/mock-service-event/stop'
-    )
+    res = await client.get("/mgmt/mock-app/test/mock-service-event/stop")
     assert res.status == 200
 
 
@@ -524,31 +553,39 @@ async def stop_test_server():
     web.web_server = Application()
 
 
-async def start_test_server(mock_app_config, mock_plugin_config,  # noqa: F811
-                            streams: bool, enabled_groups: List[str]):
+async def start_test_server(
+    mock_app_config,  # noqa: F811
+    mock_plugin_config,  # noqa: F811
+    streams: bool,
+    enabled_groups: List[str],
+):
     await server_startup_hook(mock_app_config.server)
     await app_startup_hook(mock_plugin_config, enabled_groups)
     await app_startup_hook(mock_app_config, enabled_groups)
     if streams:
         await stream_startup_hook(mock_app_config, enabled_groups)
-    print('Test engine started.', web.web_server)
+    print("Test engine started.", web.web_server)
     await asyncio.sleep(5)
 
 
-async def _setup(monkeypatch,
-                 mock_app_config,  # noqa: F811
-                 mock_plugin_config,  # noqa: F811
-                 aiohttp_client,  # noqa: F811
-                 streams: bool,
-                 enabled_groups: List[str]):
+async def _setup(
+    monkeypatch,
+    mock_app_config,  # noqa: F811
+    mock_plugin_config,  # noqa: F811
+    aiohttp_client,  # noqa: F811
+    streams: bool,
+    enabled_groups: List[str],
+):
     stream_event = MockResult("ok: ok")
-    monkeypatch.setattr(MockStreamManager, 'test_payload', stream_event)
-    monkeypatch.setattr(MockEventHandler, 'test_track_ids', None)
+    monkeypatch.setattr(MockStreamManager, "test_payload", stream_event)
+    monkeypatch.setattr(MockEventHandler, "test_track_ids", None)
 
     api.clear()
     if enabled_groups is None:
         enabled_groups = []
-    await start_test_server(mock_app_config, mock_plugin_config, streams, enabled_groups)
+    await start_test_server(
+        mock_app_config, mock_plugin_config, streams, enabled_groups
+    )
     return await aiohttp_client(web.web_server)
 
 
@@ -567,12 +604,15 @@ def loop():
 
 @pytest.mark.order(1)
 @pytest.mark.asyncio
-async def test_endpoints(monkeypatch,
-                         mock_app_config,  # noqa: F811
-                         mock_plugin_config,  # noqa: F811
-                         aiohttp_client):  # noqa: F811
-    test_client = await _setup(monkeypatch, mock_app_config, mock_plugin_config,
-                               aiohttp_client, False, [])
+async def test_endpoints(
+    monkeypatch,
+    mock_app_config,  # noqa: F811
+    mock_plugin_config,  # noqa: F811
+    aiohttp_client,
+):  # noqa: F811
+    test_client = await _setup(
+        monkeypatch, mock_app_config, mock_plugin_config, aiohttp_client, False, []
+    )
 
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
@@ -580,6 +620,8 @@ async def test_endpoints(monkeypatch,
     logger.addHandler(ch)
 
     test_list = [
+        check_setup_event_on_start,
+        check_plugin_setup_event_on_start,
         call_get_mock_event,
         call_get_mock_event_cors_allowed,
         call_get_mock_event_cors_unknown,
@@ -622,12 +664,15 @@ async def test_endpoints(monkeypatch,
 
 @pytest.mark.order(2)
 @pytest.mark.asyncio
-async def test_start_streams_on_startup(monkeypatch,
-                                        mock_app_config,  # noqa: F811
-                                        mock_plugin_config,  # noqa: F811
-                                        aiohttp_client):  # noqa: F811
-    test_client = await _setup(monkeypatch, mock_app_config, mock_plugin_config,
-                               aiohttp_client, True, [])
+async def test_start_streams_on_startup(
+    monkeypatch,
+    mock_app_config,  # noqa: F811
+    mock_plugin_config,  # noqa: F811
+    aiohttp_client,
+):  # noqa: F811
+    test_client = await _setup(
+        monkeypatch, mock_app_config, mock_plugin_config, aiohttp_client, True, []
+    )
     await call_stop_stream(test_client)
     await call_stop_service(test_client)
     await stop_test_server()

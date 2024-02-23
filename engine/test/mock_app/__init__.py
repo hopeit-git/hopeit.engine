@@ -116,6 +116,9 @@ def mock_app_config():
             }
         },
         events={
+            "mock_event_setup": EventDescriptor(
+                type=EventType.SETUP,
+            ),
             "mock_event": EventDescriptor(
                 type=EventType.GET,
                 route='mock-app/test/mock-event-test',
