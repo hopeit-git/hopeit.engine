@@ -108,6 +108,7 @@ pypi-test-plugin:
 update-examples-api: install-examples
 	bash apps/examples/simple-example/api/create_openapi_file.sh && \
 	bash apps/examples/client-example/api/create_openapi_file.sh && \
+	bash apps/examples/dataframes-example/api/create_openapi_file.sh && \
 	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
 
 install-examples:

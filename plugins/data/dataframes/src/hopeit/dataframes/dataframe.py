@@ -15,15 +15,7 @@ Example:
 
 from dataclasses import dataclass, fields
 from datetime import date, datetime, timezone
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generic,
-    Optional,
-    Type,
-    TypeVar,
-)
+from typing import Any, Callable, Dict, Generic, Optional, Type, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -106,9 +98,6 @@ class DataFrameMixin(Generic[DataFrameType]):
         return self.from_df(self.__df[key])
 
     def dataset(self) -> Dataset:
-        # return self.__dataframe__.storage.save(
-        #         self
-        #     )
         ret = getattr(self, "__dataset", None)
         if ret is None:
             raise RuntimeError("Dataframe must be stored as `Dataset` to be returned")
@@ -117,7 +106,8 @@ class DataFrameMixin(Generic[DataFrameType]):
     def to_json(self, *args, **kwargs) -> str:
         return self.dataset().to_json(*args, **kwargs)
 
-    def json_schema(*args, **kwargs) -> Dict[str, Any]:
+    @classmethod
+    def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
         return Dataset.json_schema(*args, **kwargs)
 
     def event_id(*args, **kwargs) -> None:
@@ -125,13 +115,6 @@ class DataFrameMixin(Generic[DataFrameType]):
 
     def event_ts(*args, **kwargs) -> None:
         return datetime.now(tz=timezone.utc)
-
-    # @classmethod
-    # def from_json(
-    #     cls, json_str: Union[str, bytes], validate: bool = True
-    # ) -> DataFrameType:
-    #     dataset = Dataset.from_json(json_str)
-    #     return cls.__dataframe__.storage.load(dataset)
 
     def __getattribute__(self, name: str) -> Any:
         if name[:2] == "__":

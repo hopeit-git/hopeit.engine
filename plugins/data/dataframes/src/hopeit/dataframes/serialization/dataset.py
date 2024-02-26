@@ -13,9 +13,9 @@ class Dataset:
     location: str
     datatype: str
 
-    def __call__(self) -> DataFrameType:
-        impl = find_protocol_impl(self.protocol)
-        return impl.load(self)
+    # async def __call__(self) -> DataFrameType:
+    #     impl = find_protocol_impl(self.protocol)
+    #     return await impl.load(self)
 
 
 @dataclass

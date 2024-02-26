@@ -16,17 +16,20 @@
     },
     "settings": {
         "data_storage": {
-            "ingest_data_path": "apps/examples/dataframes-example/data/raw",
-            "data_storage_path": "apps/examples/dataframes-example/data/storage"
+            "ingest_data_path": "apps/examples/dataframes-example/data/raw"
         },
         "model_storage": {
-            "model_storage_path": "apps/examples/dataframes-example/data/models"
+            "model_storage_path": "apps/examples/dataframes-example/data/{auto}"
+        },
+        "experiment_storage": {
+            "path": "apps/examples/dataframes-example/data/{auto}",
+            "partition_dateformat": "%Y/%m/%d/%H/"
         }
     },
     "events": {
         "training_pipeline": {
             "type": "GET",
-            "setting_keys": ["data_storage", "model_storage"]
+            "setting_keys": ["data_storage", "model_storage", "experiment_storage"]
         },
         "predict": {
             "type": "POST",

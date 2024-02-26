@@ -2,6 +2,7 @@ from functools import partial
 
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_logger
+from hopeit.dataframes.dataframeobject import DataframeObjectMixin
 from hopeit.dataframes.serialization.dataset import find_protocol_impl
 from hopeit.dataframes.serialization.settings import DatasetSerialization
 from hopeit.server import serialization
@@ -9,10 +10,6 @@ from hopeit.server import serialization
 logger = app_logger()
 
 __steps__ = ["register_serialization"]
-
-# async def __service__(context: EventContext) -> Spawn[bool]:
-#     logger.info(context, "Starting dataframes support service...")
-#     yield True
 
 
 def register_serialization(payload: None, context: EventContext) -> None:
@@ -24,6 +21,7 @@ def register_serialization(payload: None, context: EventContext) -> None:
     impl = find_protocol_impl(settings.protocol)
 
     storage = impl(protocol=settings.protocol, location=settings.location)
+    setattr(DataframeObjectMixin, "_DataframeObjectMixin__storage", storage)
 
     serdeser_wrappers = {}
     for serdeser, methods in serialization._SERDESER.items():

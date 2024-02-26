@@ -34,7 +34,8 @@ class DatasetFsStorage(Generic[DataFrameType]):
         setattr(dataframe, "__dataset", dataset)
         return dataset
 
-    async def load(self, dataset: Dataset) -> DataFrameType:
+    @staticmethod
+    async def load(dataset: Dataset) -> DataFrameType:
         datatype = find_dataframe_type(dataset.datatype)
         async with aiofiles.open(dataset.location, "rb") as f:
             df = pd.read_parquet(io.BytesIO(await f.read()), engine="pyarrow")
@@ -46,6 +47,8 @@ class DatasetFsStorage(Generic[DataFrameType]):
         data: Union[EventPayloadType, DataFrameType],
         level: int,
     ) -> bytes:
+        if hasattr(data, "__dataframeobject__"):
+            data = await data.serialize()
         if hasattr(data, "__dataframe__"):
             data = await self.save(data)
         return await base_serialization(data, level)
@@ -56,10 +59,15 @@ class DatasetFsStorage(Generic[DataFrameType]):
         data: bytes,
         datatype: Type[EventPayloadType],
     ) -> EventPayloadType:
+        if hasattr(datatype, "__dataframeobject__"):
+            dataset = await base_deserialization(
+                data, datatype.__dataframeobject__.serialized_type
+            )
+            return await datatype.deserialize(dataset)
         if hasattr(datatype, "__dataframe__"):
             dataset = await base_deserialization(data, Dataset)
             return await self.load(dataset)
-        return await base_deserialization(data)
+        return await base_deserialization(data, datatype)
 
 
 def find_dataframe_type(qual_type_name: str) -> Type[DataFrameType]:
