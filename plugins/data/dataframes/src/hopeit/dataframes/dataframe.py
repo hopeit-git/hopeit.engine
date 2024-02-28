@@ -108,7 +108,9 @@ class DataFrameMixin(Generic[DataFrameType]):
 
     @classmethod
     def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
-        return Dataset.json_schema(*args, **kwargs)
+        schema = Dataset.json_schema(*args, **kwargs)
+        schema[cls.__name__] = schema["Dataset"]
+        return schema
 
     def event_id(*args, **kwargs) -> None:
         return ""

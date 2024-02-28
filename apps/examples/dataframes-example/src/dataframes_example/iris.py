@@ -1,0 +1,56 @@
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Optional
+from hopeit.dataframes import dataframe, dataframeobject
+from hopeit.dataobjects import dataobject
+
+
+@dataframe
+@dataclass
+class Iris:
+    sepal_length: float = field(metadata={"source_field_name": "sepal length (cm)"})
+    sepal_width: float = field(metadata={"source_field_name": "sepal width (cm)"})
+    petal_length: float = field(metadata={"source_field_name": "petal length (cm)"})
+    petal_width: float = field(metadata={"source_field_name": "petal width (cm)"})
+    variety: int = field(metadata={"source_field_name": "target"})
+
+
+@dataframe
+@dataclass
+class IrisFeatures:
+    sepal_length: float
+    sepal_width: float
+    petal_length: float
+    petal_width: float
+
+
+@dataframe
+@dataclass
+class IrisLabels:
+    variety: int
+
+
+@dataobject
+@dataclass
+class EvalMetrics:
+    accuracy_score: float
+
+
+@dataframeobject
+@dataclass
+class InputData:
+    iris: Iris
+
+
+@dataframeobject
+@dataclass
+class Experiment:
+    experiment_id: str
+    experiment_dt: datetime
+    input_data: Iris
+    train_features: Optional[Iris] = None
+    train_labels: Optional[Iris] = None
+    test_features: Optional[Iris] = None
+    test_labels: Optional[Iris] = None
+    model_location: Optional[str] = None
+    eval_metrics: Optional[EvalMetrics] = None

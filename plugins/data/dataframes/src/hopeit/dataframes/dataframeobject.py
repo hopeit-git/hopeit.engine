@@ -5,8 +5,9 @@ Datasets behaves as DataObject so they can be used as payload
 for endpoints and streams.
 """
 
-from dataclasses import dataclass, fields, make_dataclass
-from typing import Any, Callable, Dict, Generic, Type, TypeVar
+from dataclasses import Field, dataclass, fields, make_dataclass
+from types import NoneType
+from typing import Any, Callable, Dict, Generic, Optional, Type, TypeVar, Union, get_args, get_origin
 
 from hopeit.dataframes.serialization.dataset import Dataset
 from hopeit.dataobjects import (
@@ -37,12 +38,12 @@ class DataframeObjectMixin(Generic[DataFrameType]):
             "DataframeObjectMixin() should not be called directly. Use `@dataframeobject` annotation"
         )
 
-    async def serialize(self):
+    async def serialize(self) -> Optional[DataObject]:
         datasets = {}
         for field in fields(self):
-            if hasattr(field.type, "__dataframe__"):
+            if _is_dataframe_field(field):
                 dataframe = getattr(self, field.name)
-                dataset = await self.__storage.save(dataframe)
+                dataset = None if dataframe is None else await self.__storage.save(dataframe)
                 datasets[field.name] = dataset
             else:
                 datasets[field.name] = getattr(self, field.name)
@@ -52,9 +53,9 @@ class DataframeObjectMixin(Generic[DataFrameType]):
     async def deserialize(cls, serialized: DataObject):
         dataframes = {}
         for field in fields(cls):
-            if hasattr(field.type, "__dataframe__"):
+            if _is_dataframe_field(field):
                 dataset = getattr(serialized, field.name)
-                dataframe = await cls.__storage.load(dataset)
+                dataframe = None if dataset is None else await cls.__storage.load(dataset)
                 dataframes[field.name] = dataframe
             else:
                 dataframes[field.name] = getattr(serialized, field.name)
@@ -71,6 +72,28 @@ class DataframeObjectMixin(Generic[DataFrameType]):
             f"`{type(self).__name__}` `@dataframeobject` cannot be converted to json directly. "
              "i.e. use `return await payload.serialize()` to return it as a reponse."
         )
+
+
+def _is_dataframe_field(field: Field) -> bool:
+    return any(
+        hasattr(field_type, "__dataframe__")
+        for field_type in [field.type, *get_args(field.type)]
+    )
+
+
+def _serialized_field_type(field: Field) -> Type:
+    if hasattr(field.type, "__dataframe__"):
+        return Dataset
+    if get_origin(field.type) is Union:
+        args = get_args(field.type)
+        if (
+            len(args) == 2 and any(hasattr(field_type, "__dataframe__") for field_type in args)
+            and any(field_type is NoneType for field_type in args)
+        ):
+            return Optional[Dataset]
+    if _is_dataframe_field(field):
+        raise TypeError(f"field {field.name}: only `DataframeType` or `Optional[DataFrameType]` are supported")
+    return field.type
 
 
 def dataframeobject(
@@ -93,11 +116,11 @@ def dataframeobject(
 
     def add_dataframeobject_metadata(cls):
         serialized_fiels = [
-            (field.name, Dataset if hasattr(field.type, "__dataframe__") else field.type)
+            (field.name, _serialized_field_type(field))
             for field in fields(cls)
         ]
         serialized_type = make_dataclass(cls.__name__ + "_", serialized_fiels)
-        serialized_type = dataobject(serialized_type)
+        serialized_type = dataobject(serialized_type, unsafe=True)
 
         setattr(
             cls,

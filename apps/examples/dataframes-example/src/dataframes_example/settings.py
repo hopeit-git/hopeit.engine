@@ -12,4 +12,4 @@ class DataStorage:
 @dataobject
 @dataclass
 class ModelStorage:
-    model_storage_path: str
+    path: str

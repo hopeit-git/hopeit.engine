@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
 import io
 from importlib import import_module
+import os
 from pathlib import Path
-from typing import Callable, Generic, Type, TypeVar, Union
+from typing import Callable, Generic, Optional, Type, TypeVar, Union
 from uuid import uuid4
 
 import aiofiles
@@ -16,13 +18,15 @@ DataFrameType = TypeVar("DataFrameType")
 
 class DatasetFsStorage(Generic[DataFrameType]):
 
-    def __init__(self, *, location: str, **kwargs):
+    def __init__(self, *, location: str, partition_dateformat: Optional[str], **kwargs):
         self.base_path = Path(location)
+        self.partition_dateformat = partition_dateformat or "%Y/%m/%d/%H/"
 
     async def save(self, dataframe: DataFrameType) -> Dataset:
-        key = uuid4()
         datatype = type(dataframe)
-        location = self.base_path / datatype.__qualname__.lower() / f"{key}.parquet"
+        path = self.base_path / _get_partition_key(self.partition_dateformat)
+        os.makedirs(path.resolve().as_posix(), exist_ok=True)
+        location = path / f"{datatype.__qualname__.lower()}_{uuid4()}.parquet"
         async with aiofiles.open(location, "wb") as f:
             await f.write(dataframe.df.to_parquet(engine="pyarrow"))
 
@@ -81,3 +85,7 @@ def find_dataframe_type(qual_type_name: str) -> Type[DataFrameType]:
         datatype, "__dataframe__"
     ), f"Type {qual_type_name} must be annotated with `@dataframe`."
     return datatype
+
+
+def _get_partition_key(partition_dateformat: str) -> str:
+    return datetime.now(tz=timezone.utc).strftime(partition_dateformat.strip('/')) + '/'

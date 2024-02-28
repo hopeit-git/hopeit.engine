@@ -6,6 +6,7 @@ Webserver module based on aiohttp to handle web/api requests
 # pylint: disable=wrong-import-position, wrong-import-order
 from collections import namedtuple
 import aiohttp
+from hopeit.server.serialization import deserialize
 
 setattr(aiohttp.http, "SERVER_SOFTWARE", "")
 
@@ -28,10 +29,12 @@ from stringcase import snakecase, titlecase  # type: ignore
 
 from hopeit.app.config import (
     AppConfig,
+    Compression,
     EventDescriptor,
     EventPlugMode,
     EventSettings,
     EventType,
+    Serialization,
     parse_app_config_json,
 )
 from hopeit.app.context import (
@@ -715,7 +718,10 @@ async def _request_process_payload(
     try:
         payload_raw = await request.read()
         if datatype is not None:
-            return Payload.from_json(payload_raw, datatype), payload_raw  # type: ignore
+            try:
+                return Payload.from_json(payload_raw, datatype), payload_raw  # type: ignore
+            except AttributeError as e:
+                return await deserialize(payload_raw, Serialization.JSON_UTF8, Compression.NONE, datatype), payload_raw
         return None, payload_raw
     except ValueError as e:
         logger.error(context, e)

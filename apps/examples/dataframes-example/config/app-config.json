@@ -19,7 +19,7 @@
             "ingest_data_path": "apps/examples/dataframes-example/data/raw"
         },
         "model_storage": {
-            "model_storage_path": "apps/examples/dataframes-example/data/{auto}"
+            "path": "apps/examples/dataframes-example/data/{auto}"
         },
         "experiment_storage": {
             "path": "apps/examples/dataframes-example/data/{auto}",
@@ -27,8 +27,12 @@
         }
     },
     "events": {
-        "training_pipeline": {
+        "prepare_data": {
             "type": "GET",
+            "setting_keys": ["data_storage"]
+        },
+        "train_model": {
+            "type": "POST",
             "setting_keys": ["data_storage", "model_storage", "experiment_storage"]
         },
         "predict": {

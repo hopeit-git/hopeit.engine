@@ -19,7 +19,8 @@ setuptools.setup(
     python_requires=">=3.8",
     install_requires=[
         f"hopeit.engine[web,cli,redis-streams]=={version['ENGINE_VERSION']}",
-        f"hopeit.dataframes[fastparquet]=={version['ENGINE_VERSION']}"
+        f"hopeit.dataframes[pyarrow]=={version['ENGINE_VERSION']}",
+        f"scikit-learn",
     ],
     extras_require={
     },

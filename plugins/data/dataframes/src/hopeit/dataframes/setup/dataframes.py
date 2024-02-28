@@ -20,7 +20,11 @@ def register_serialization(payload: None, context: EventContext) -> None:
     )
     impl = find_protocol_impl(settings.protocol)
 
-    storage = impl(protocol=settings.protocol, location=settings.location)
+    storage = impl(
+        protocol=settings.protocol,
+        location=settings.location,
+        partition_dateformat=settings.partition_dateformat,
+    )
     setattr(DataframeObjectMixin, "_DataframeObjectMixin__storage", storage)
 
     serdeser_wrappers = {}
@@ -34,4 +38,3 @@ def register_serialization(payload: None, context: EventContext) -> None:
     for serdeser, methods in serdeser_wrappers.items():
         serialization._SERDESER[serdeser] = methods
 
-    return None

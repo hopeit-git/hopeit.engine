@@ -9,7 +9,8 @@
   "settings" : {
     "dataset_serialization": {
       "protocol": "hopeit.dataframes.serialization.fs.DatasetFsStorage",
-      "location": "apps/examples/dataframes-example/data/storage/"
+      "location": "apps/examples/dataframes-example/data/{auto}",
+      "partition_dateformat": "%Y/%m/%d/%H/"
     }
   },
   "events": {
