@@ -1,5 +1,6 @@
 from dataclasses import asdict
 from typing import Optional
+
 from dataframes_example.iris import Experiment
 from hopeit.app.context import EventContext
 from hopeit.fs_storage import FileStorage, FileStorageSettings
@@ -25,6 +26,7 @@ async def init_experiment_storage(context: EventContext):
 
 
 async def save_experiment(experiment: Experiment, context: EventContext) -> str:
+    assert fs is not None
     return await fs.store(
         key=experiment.experiment_id,
         value=await experiment.serialize(),

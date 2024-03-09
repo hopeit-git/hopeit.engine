@@ -1,6 +1,5 @@
 import setuptools
 
-
 version = {}
 with open("../../../engine/src/hopeit/server/version.py") as fp:
     exec(fp.read(), version)

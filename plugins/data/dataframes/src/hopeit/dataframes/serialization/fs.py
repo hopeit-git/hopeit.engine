@@ -1,19 +1,19 @@
-from datetime import datetime, timezone
 import io
-from importlib import import_module
 import os
+from datetime import datetime, timezone
+from importlib import import_module
 from pathlib import Path
 from typing import Callable, Generic, Optional, Type, TypeVar, Union
 from uuid import uuid4
 
 import aiofiles
 import pandas as pd
-from hopeit.dataframes import serialization
+from hopeit.dataframes.dataframe import DataFrameMixin
 from hopeit.dataframes.serialization.dataset import Dataset
 from hopeit.dataobjects import DataObject, EventPayloadType
 from hopeit.dataobjects.payload import Payload
 
-DataFrameType = TypeVar("DataFrameType")
+DataFrameType = TypeVar("DataFrameType", bound=DataFrameMixin)
 
 
 class DatasetFsStorage(Generic[DataFrameType]):
@@ -35,12 +35,11 @@ class DatasetFsStorage(Generic[DataFrameType]):
             location=location.as_posix(),
             datatype=f"{datatype.__module__}.{datatype.__qualname__}",
         )
-        setattr(dataframe, "__dataset", dataset)
         return dataset
 
     @staticmethod
-    async def load(dataset: Dataset) -> DataFrameType:
-        datatype = find_dataframe_type(dataset.datatype)
+    async def load(dataset: Dataset) -> EventPayloadType:
+        datatype: Type[DataFrameType] = find_dataframe_type(dataset.datatype)
         async with aiofiles.open(dataset.location, "rb") as f:
             df = pd.read_parquet(io.BytesIO(await f.read()), engine="pyarrow")
             return datatype.from_df(df)
@@ -52,22 +51,22 @@ class DatasetFsStorage(Generic[DataFrameType]):
         level: int,
     ) -> bytes:
         if hasattr(data, "__dataframeobject__"):
-            data = await data.serialize()
+            data = await data.serialize()  # type: ignore
         if hasattr(data, "__dataframe__"):
-            data = await self.save(data)
+            data = await self.save(data)  # type: ignore
         return await base_serialization(data, level)
 
     async def deser_wrapper(
         self,
         base_deserialization: Callable,
         data: bytes,
-        datatype: Type[EventPayloadType],
-    ) -> EventPayloadType:
+        datatype: Union[Type[EventPayloadType], Type[DataFrameType]],
+    ) -> Union[EventPayloadType, DataFrameType]:
         if hasattr(datatype, "__dataframeobject__"):
             dataset = await base_deserialization(
-                data, datatype.__dataframeobject__.serialized_type
+                data, datatype.__dataframeobject__.serialized_type  # type: ignore
             )
-            return await datatype.deserialize(dataset)
+            return await datatype.deserialize(dataset)  # type: ignore
         if hasattr(datatype, "__dataframe__"):
             dataset = await base_deserialization(data, Dataset)
             return await self.load(dataset)
@@ -88,4 +87,4 @@ def find_dataframe_type(qual_type_name: str) -> Type[DataFrameType]:
 
 
 def _get_partition_key(partition_dateformat: str) -> str:
-    return datetime.now(tz=timezone.utc).strftime(partition_dateformat.strip('/')) + '/'
+    return datetime.now(tz=timezone.utc).strftime(partition_dateformat.strip("/")) + "/"

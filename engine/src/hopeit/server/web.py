@@ -995,6 +995,8 @@ def serve(
     """
     Serve hopeit.engine
     """
+    init_logger()
+
     web_app = init_web_server(
         config_files, api_file, api_auto, enabled_groups, start_streams
     )

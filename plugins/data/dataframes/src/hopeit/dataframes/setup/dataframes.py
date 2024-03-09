@@ -37,4 +37,3 @@ def register_serialization(payload: None, context: EventContext) -> None:
 
     for serdeser, methods in serdeser_wrappers.items():
         serialization._SERDESER[serdeser] = methods
-

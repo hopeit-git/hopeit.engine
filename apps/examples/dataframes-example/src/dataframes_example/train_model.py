@@ -1,27 +1,23 @@
-from datetime import datetime, timezone
 import uuid
-from dataframes_example import model_storage
-
-from hopeit.app.api import event_api
-from hopeit.app.logger import app_extra_logger
-from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.server.steps import SHUFFLE
+from datetime import datetime, timezone
 
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score
-
+from dataframes_example import experiment_storage, model_storage
 from dataframes_example.iris import (
+    EvalMetrics,
+    Experiment,
     InputData,
     Iris,
     IrisFeatures,
     IrisLabels,
-    Experiment,
-    EvalMetrics,
 )
-from dataframes_example import experiment_storage
-
+from hopeit.app.api import event_api
+from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.logger import app_extra_logger
+from hopeit.server.steps import SHUFFLE
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
 
 logger, extra = app_extra_logger()
 
@@ -45,11 +41,6 @@ __api__ = event_api(
 )
 
 
-async def __init_event__(context):
-    await experiment_storage.init_experiment_storage(context)
-    await model_storage.init_model_storage(context)
-
-
 def prepare_experiment(input_data: InputData, context: EventContext) -> Experiment:
     experiment_id = str(uuid.uuid4())
 
@@ -60,17 +51,21 @@ def prepare_experiment(input_data: InputData, context: EventContext) -> Experime
     return Experiment(
         experiment_id=experiment_id,
         experiment_dt=datetime.now(tz=timezone.utc),
-        input_data=input_data.iris
+        input_data=input_data.iris,
     )
 
 
-def __postprocess__(experiment: Experiment, context: EventContext, response: PostprocessHook) -> Experiment:
+def __postprocess__(
+    experiment: Experiment, context: EventContext, response: PostprocessHook
+) -> Experiment:
     return experiment.serialize()
 
 
 def prepare_datasets(experiment: Experiment, context: EventContext) -> Experiment:
     logger.info(
-        context, "Preparing feature and label datasets", extra=extra(experiment_id=experiment.experiment_id)
+        context,
+        "Preparing feature and label datasets",
+        extra=extra(experiment_id=experiment.experiment_id),
     )
 
     X = IrisFeatures.from_df(experiment.input_data.df)
@@ -80,10 +75,10 @@ def prepare_datasets(experiment: Experiment, context: EventContext) -> Experimen
         X.df, y.df, test_size=0.2, random_state=42
     )
 
-    experiment.train_features=IrisFeatures.from_df(X_train)
-    experiment.train_labels=IrisLabels.from_df(y_train)
-    experiment.test_features=IrisFeatures.from_df(X_test)
-    experiment.test_labels=IrisLabels.from_df(y_test)
+    experiment.train_features = IrisFeatures.from_df(X_train)
+    experiment.train_labels = IrisLabels.from_df(y_train)
+    experiment.test_features = IrisFeatures.from_df(X_test)
+    experiment.test_labels = IrisLabels.from_df(y_test)
 
     return experiment
 
@@ -106,7 +101,9 @@ async def train_model(experiment: Experiment, context: EventContext) -> Experime
             experiment_id=experiment.experiment_id,
         ),
     )
-    experiment.model_location = await model_storage.save_model(clf, experiment.experiment_id, context)
+    experiment.model_location = await model_storage.save_model(
+        clf, experiment.experiment_id, context
+    )
 
     return experiment
 
@@ -121,7 +118,9 @@ async def evaluate_model(experiment: Experiment, context: EventContext) -> Exper
         ),
     )
 
-    clf: DecisionTreeClassifier = await model_storage.load_model(experiment.model_location, context)
+    clf: DecisionTreeClassifier = await model_storage.load_model(
+        experiment.model_location, context
+    )
 
     logger.info(
         context,
@@ -145,7 +144,7 @@ async def save_experiment(experiment: Experiment, context: EventContext) -> Expe
     )
 
     location = await experiment_storage.save_experiment(experiment, context)
-    
+
     logger.info(
         context,
         "Experiment saved.",

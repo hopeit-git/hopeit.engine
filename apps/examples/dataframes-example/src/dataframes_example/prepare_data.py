@@ -1,13 +1,10 @@
-
 from dataclasses import asdict, fields
+
 from dataframes_example.iris import InputData, Iris
 from dataframes_example.settings import DataStorage
-
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-from hopeit.server.steps import SHUFFLE
-
 from sklearn import datasets
 
 logger, extra = app_extra_logger()
@@ -42,6 +39,4 @@ async def save_raw_data(iris: Iris, context: EventContext) -> InputData:
 
     logger.info(context, "Saving input data..", extra=extra(**asdict(settings)))
 
-    return await InputData(
-        iris=iris
-    ).serialize()
+    return await InputData(iris=iris).serialize()

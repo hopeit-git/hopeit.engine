@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
+
 from hopeit.dataframes import dataframe, dataframeobject
 from hopeit.dataobjects import dataobject
 
@@ -54,3 +55,29 @@ class Experiment:
     test_labels: Optional[Iris] = None
     model_location: Optional[str] = None
     eval_metrics: Optional[EvalMetrics] = None
+
+
+@dataobject(unsafe=True)
+@dataclass
+class IrisPredictionRequest:
+    prediction_id: str
+    features: IrisFeatures
+
+
+@dataobject(unsafe=True)
+@dataclass
+class IrisBatchPredictionRequest:
+    items: List[IrisPredictionRequest]
+
+
+@dataobject(unsafe=True)
+@dataclass
+class IrisPredictionResponse:
+    prediction_id: str
+    prediction: IrisLabels
+
+
+@dataobject(unsafe=True)
+@dataclass
+class IrisBatchPredictionResponse:
+    items: List[IrisPredictionResponse]

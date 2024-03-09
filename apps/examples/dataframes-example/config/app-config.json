@@ -27,17 +27,20 @@
         }
     },
     "events": {
+        "setup_storage": {
+            "type": "SETUP",
+            "setting_keys": ["model_storage", "experiment_storage"]
+        },
         "prepare_data": {
             "type": "GET",
             "setting_keys": ["data_storage"]
         },
         "train_model": {
             "type": "POST",
-            "setting_keys": ["data_storage", "model_storage", "experiment_storage"]
+            "setting_keys": ["data_storage"]
         },
         "predict": {
-            "type": "POST",
-            "setting_keys": ["model_storage"]
+            "type": "POST"
         }
     }
 }

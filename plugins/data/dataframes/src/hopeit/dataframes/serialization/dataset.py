@@ -1,7 +1,7 @@
 from importlib import import_module
 from typing import Any, Generic, List, Type, TypeVar
 
-from hopeit.dataobjects import dataclass, dataobject
+from hopeit.dataobjects import DataObject, dataclass, dataobject
 
 DataFrameType = TypeVar("DataFrameType")
 
@@ -12,15 +12,6 @@ class Dataset:
     protocol: str
     location: str
     datatype: str
-
-    # async def __call__(self) -> DataFrameType:
-    #     impl = find_protocol_impl(self.protocol)
-    #     return await impl.load(self)
-
-
-@dataclass
-class DataFrameMetadata:
-    columns: List[str]
 
 
 def find_protocol_impl(qual_type_name: str) -> Type:
