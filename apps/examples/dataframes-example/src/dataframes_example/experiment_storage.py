@@ -3,6 +3,7 @@ from typing import Optional
 
 from dataframes_example.iris import Experiment
 from hopeit.app.context import EventContext
+from hopeit.dataframes import DataFrames
 from hopeit.fs_storage import FileStorage, FileStorageSettings
 from hopeit.server.logger import engine_extra_logger
 
@@ -29,5 +30,5 @@ async def save_experiment(experiment: Experiment, context: EventContext) -> str:
     assert fs is not None
     return await fs.store(
         key=experiment.experiment_id,
-        value=await experiment.serialize(),
+        value=await DataFrames.serialize(experiment),
     )

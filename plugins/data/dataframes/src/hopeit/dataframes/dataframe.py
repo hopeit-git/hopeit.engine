@@ -87,7 +87,7 @@ class DataFrameMixin(Generic[DataFrameType, DataObject]):
             self._coerce_datatypes()
 
     @classmethod
-    def from_df(cls, df: pd.DataFrame, **series: Any) -> DataFrameType:
+    def _from_df(cls, df: pd.DataFrame, **series: Any) -> DataFrameType:
         df = df if cls.__data_object__["unsafe"] else pd.DataFrame(df)
         # for col, values in series.items():
         #     df[col] = values
@@ -95,12 +95,12 @@ class DataFrameMixin(Generic[DataFrameType, DataObject]):
         return obj  # type: ignore
 
     @classmethod
-    def from_array(cls, array: np.ndarray) -> DataFrameType:
-        return cls.from_df(pd.DataFrame(array, columns=cls.__dataframe__.columns))
+    def _from_array(cls, array: np.ndarray) -> DataFrameType:
+        return cls._from_df(pd.DataFrame(array, columns=cls.__dataframe__.columns))
 
     @classmethod
-    def from_dataobjects(cls, items: Iterator[DataObject]) -> DataFrameType:
-        return cls.from_df(pd.DataFrame(asdict(item) for item in items))  # type: ignore
+    def _from_dataobjects(cls, items: Iterator[DataObject]) -> DataFrameType:
+        return cls._from_df(pd.DataFrame(asdict(item) for item in items))  # type: ignore
 
     @classmethod
     def _from_df_unsafe(cls, df: pd.DataFrame, **series: pd.Series) -> DataFrameType:
@@ -110,13 +110,13 @@ class DataFrameMixin(Generic[DataFrameType, DataObject]):
         return obj  # type: ignore
 
     @property
-    def df(self) -> pd.DataFrame:
+    def _df(self) -> pd.DataFrame:
         return getattr(self, "__df")
 
     def __getitem__(self, key) -> "DataFrameType":
-        return self.from_df(self.__df[key])
+        return self._from_df(self.__df[key])
 
-    def to_dataobjects(self) -> List[DataObject]:
+    def _to_dataobjects(self) -> List[DataObject]:
         return [
             self.__dataframe__.serialized_type(**fields)
             for fields in self.__df.to_dict(orient="records")
@@ -244,6 +244,6 @@ def dataframe(
     return wrap(decorated_class)  # type: ignore
 
 
-class DataFrame(DataFrameMixin, Generic[DataFrameType]):
-    def __new__(cls, obj: DataFrameType):
-        return obj
+# class DataFrame(DataFrameMixin, Generic[DataFrameType]):
+#     def __new__(cls, obj: DataFrameType):
+#         return obj

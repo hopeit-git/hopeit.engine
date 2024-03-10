@@ -5,7 +5,8 @@ from dataframes_example.settings import DataStorage
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-from sklearn import datasets
+from hopeit.dataframes import DataFrames
+from sklearn import datasets  # type: ignore
 
 logger, extra = app_extra_logger()
 
@@ -22,7 +23,7 @@ def download_data(payload: None, context: EventContext) -> Iris:
 
     raw = datasets.load_iris(as_frame=True)
 
-    iris = Iris.from_df(
+    iris = DataFrames.from_df(Iris,
         raw.frame.rename(
             columns={
                 field.metadata["source_field_name"]: field.name
@@ -39,4 +40,4 @@ async def save_raw_data(iris: Iris, context: EventContext) -> InputData:
 
     logger.info(context, "Saving input data..", extra=extra(**asdict(settings)))
 
-    return await InputData(iris=iris).serialize()
+    return await DataFrames.serialize(InputData(iris=iris))

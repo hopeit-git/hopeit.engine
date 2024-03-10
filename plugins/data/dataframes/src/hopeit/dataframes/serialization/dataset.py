@@ -10,7 +10,8 @@ DataFrameType = TypeVar("DataFrameType")
 @dataclass
 class Dataset:
     protocol: str
-    location: str
+    partition_key: str
+    key: str
     datatype: str
 
 

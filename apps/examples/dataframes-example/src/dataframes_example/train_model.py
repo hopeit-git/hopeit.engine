@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timezone
+from hopeit.dataframes import DataFrames
 
 import pandas as pd
 from dataframes_example import experiment_storage, model_storage
@@ -15,9 +16,9 @@ from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.logger import app_extra_logger
 from hopeit.server.steps import SHUFFLE
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score  # type: ignore
+from sklearn.model_selection import train_test_split  # type: ignore
+from sklearn.tree import DecisionTreeClassifier  # type: ignore
 
 logger, extra = app_extra_logger()
 
@@ -55,10 +56,10 @@ def prepare_experiment(input_data: InputData, context: EventContext) -> Experime
     )
 
 
-def __postprocess__(
+async def __postprocess__(
     experiment: Experiment, context: EventContext, response: PostprocessHook
 ) -> Experiment:
-    return experiment.serialize()
+    return await DataFrames.serialize(experiment)
 
 
 def prepare_datasets(experiment: Experiment, context: EventContext) -> Experiment:
@@ -68,17 +69,17 @@ def prepare_datasets(experiment: Experiment, context: EventContext) -> Experimen
         extra=extra(experiment_id=experiment.experiment_id),
     )
 
-    X = IrisFeatures.from_df(experiment.input_data.df)
-    y = IrisLabels.from_df(experiment.input_data.df)
+    X = DataFrames.from_dataframe(IrisFeatures, experiment.input_data)
+    y = DataFrames.from_dataframe(IrisLabels, experiment.input_data)
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X.df, y.df, test_size=0.2, random_state=42
+        DataFrames.df(X), DataFrames.df(y), test_size=0.2, random_state=42
     )
 
-    experiment.train_features = IrisFeatures.from_df(X_train)
-    experiment.train_labels = IrisLabels.from_df(y_train)
-    experiment.test_features = IrisFeatures.from_df(X_test)
-    experiment.test_labels = IrisLabels.from_df(y_test)
+    experiment.train_features = DataFrames.from_df(IrisFeatures, X_train)
+    experiment.train_labels = DataFrames.from_df(IrisLabels, y_train)
+    experiment.test_features = DataFrames.from_df(IrisFeatures, X_test)
+    experiment.test_labels = DataFrames.from_df(IrisLabels, y_test)
 
     return experiment
 
@@ -92,7 +93,7 @@ async def train_model(experiment: Experiment, context: EventContext) -> Experime
     )
 
     clf = DecisionTreeClassifier(random_state=42)
-    clf.fit(experiment.train_features.df, experiment.train_labels.df)
+    clf.fit(DataFrames.df(experiment.train_features), DataFrames.df(experiment.train_labels))
 
     logger.info(
         context,
@@ -118,6 +119,8 @@ async def evaluate_model(experiment: Experiment, context: EventContext) -> Exper
         ),
     )
 
+    assert experiment.model_location is not None
+
     clf: DecisionTreeClassifier = await model_storage.load_model(
         experiment.model_location, context
     )
@@ -128,9 +131,9 @@ async def evaluate_model(experiment: Experiment, context: EventContext) -> Exper
         extra=extra(experiment_id=experiment.experiment_id),
     )
 
-    y = clf.predict(experiment.test_features.df)
+    y = clf.predict(DataFrames.df(experiment.test_features))
     pred_labels = IrisLabels(variety=pd.Series(y))
-    accuracy = accuracy_score(experiment.test_labels.df, pred_labels.df)
+    accuracy = accuracy_score(DataFrames.df(experiment.test_labels), DataFrames.df(pred_labels))
 
     experiment.eval_metrics = EvalMetrics(accuracy_score=accuracy)
     return experiment

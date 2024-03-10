@@ -49,10 +49,10 @@ class Experiment:
     experiment_id: str
     experiment_dt: datetime
     input_data: Iris
-    train_features: Optional[Iris] = None
-    train_labels: Optional[Iris] = None
-    test_features: Optional[Iris] = None
-    test_labels: Optional[Iris] = None
+    train_features: Optional[IrisFeatures] = None
+    train_labels: Optional[IrisLabels] = None
+    test_features: Optional[IrisFeatures] = None
+    test_labels: Optional[IrisLabels] = None
     model_location: Optional[str] = None
     eval_metrics: Optional[EvalMetrics] = None
 

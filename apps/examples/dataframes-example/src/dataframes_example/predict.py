@@ -1,5 +1,6 @@
 from dataclasses import asdict, fields
 from typing import List
+from hopeit.dataframes import DataFrames
 
 import pandas as pd
 from dataframes_example.iris import (
@@ -12,7 +13,7 @@ from dataframes_example.iris import (
 from dataframes_example.model_storage import load_experiment_model
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier  # type: ignore
 
 __steps__ = ["predict"]
 
@@ -30,11 +31,11 @@ async def predict(
 ) -> IrisBatchPredictionResponse:
     model: DecisionTreeClassifier = await load_experiment_model(experiment_id, context)
 
-    features = IrisFeatures.from_dataobjects(item.features for item in request.items)
+    features = DataFrames.from_dataobjects(IrisFeatures, (item.features for item in request.items))
 
-    model_predictions = model.predict(features.df)
+    model_predictions = model.predict(DataFrames.df(features))
 
-    predictions = IrisLabels.from_array(model_predictions)
+    predictions = DataFrames.from_array(IrisLabels, model_predictions)
 
     return IrisBatchPredictionResponse(
         items=[
@@ -42,6 +43,6 @@ async def predict(
                 prediction_id=request.prediction_id,
                 prediction=prediction,
             )
-            for request, prediction in zip(request.items, predictions.to_dataobjects())
+            for request, prediction in zip(request.items, DataFrames.to_dataobjects(predictions))
         ]
     )
