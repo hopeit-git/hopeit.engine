@@ -2,7 +2,9 @@
 Storage/persistence asynchronous stores and gets dataobjects from filesystem.
 
 """
+
 from dataclasses import dataclass
+import io
 import os
 import shutil
 from glob import glob
@@ -10,17 +12,16 @@ from pathlib import Path
 import uuid
 from typing import Optional, Type, Generic, List
 
-import aiofiles  # type: ignore
-import aiofiles.os  # type: ignore
+import aiofiles
+import aiofiles.os
 
 from hopeit.dataobjects import dataobject, DataObject
 from hopeit.dataobjects.payload import Payload
 from hopeit.fs_storage.partition import get_partition_key
 
-__all__ = ['FileStorage',
-           'FileStorageSettings']
+__all__ = ["FileStorage", "FileStorageSettings"]
 
-SUFFIX = '.json'
+SUFFIX = ".json"
 
 
 @dataobject
@@ -38,6 +39,7 @@ class FileStorageSettings:
     :field: fllush_max_size: max number of elements to keep in a partition before forcing a flush.
         Default 1. A value of 0 will disable flushing by partition size.
     """
+
     path: str
     partition_dateformat: Optional[str] = None
     flush_seconds: float = 0.0
@@ -51,10 +53,18 @@ class ItemLocator:
     partition_key: Optional[str] = None
 
 
+@dataobject
+@dataclass
+class FileLocator:
+    file_name: str
+    partition_key: Optional[str] = None
+
+
 class FileStorage(Generic[DataObject]):
     """
-        Stores and retrieves dataobjects from filesystem
+    Stores and retrieves dataobjects from filesystem
     """
+
     def __init__(self, *, path: str, partition_dateformat: Optional[str] = None):
         """
         Setups a file storage
@@ -63,44 +73,20 @@ class FileStorage(Generic[DataObject]):
         """
         self.path: Path = Path(path)
         os.makedirs(self.path.resolve().as_posix(), exist_ok=True)
-        self.partition_dateformat = (partition_dateformat or '').strip('/')
+        self.partition_dateformat = (partition_dateformat or "").strip("/")
 
     @classmethod
     def with_settings(cls, settings: FileStorageSettings) -> "FileStorage":
         return cls(
-            path=settings.path,
-            partition_dateformat=settings.partition_dateformat
-        )
-
-    async def list_objects(self, wildcard: str = '*') -> List[ItemLocator]:
-        """
-        Retrieves list of objects keys from the file storage
-
-        :param wilcard: allow filter the listing of objects
-        :return: List of objects key
-        """
-        base_path = str(self.path.resolve())
-        path = base_path + '/' + wildcard + SUFFIX
-        n_part_comps = len(self.partition_dateformat.split('/'))
-        return [
-            self._get_item_locator(item_path, n_part_comps) for item_path in glob(path)
-        ]
-
-    def _get_item_locator(self, item_path: str, n_part_comps: int) -> ItemLocator:
-        comps = item_path.split("/")
-        if self.partition_dateformat:
-            partition_key = '/'.join(comps[-n_part_comps - 1:-1])
-        else:
-            partition_key = None
-        return ItemLocator(
-            item_id=comps[-1][:-len(SUFFIX)],
-            partition_key=partition_key
+            path=settings.path, partition_dateformat=settings.partition_dateformat
         )
 
     async def get(
-        self, key: str,
-        *, datatype: Type[DataObject],
-        partition_key: Optional[str] = None
+        self,
+        key: str,
+        *,
+        datatype: Type[DataObject],
+        partition_key: Optional[str] = None,
     ) -> Optional[DataObject]:
         """
         Retrieves value under specified key, converted to datatype
@@ -115,6 +101,24 @@ class FileStorage(Generic[DataObject]):
         if payload_str:
             return Payload.from_json(payload_str, datatype)
         return None
+
+    async def get_file(
+        self,
+        file_name: str,
+        *,
+        partition_key: Optional[str] = None,
+    ) -> bytes:
+        """
+        Retrieves bytes for the specified file_name.
+
+        :param file_name: str
+        :param parition_key: Optional[str] partition path to be appended to base path
+        :return: an async context manager that yields a file-like object.
+        """
+        path = self.path / partition_key if partition_key else self.path
+        file_path = path / file_name
+        async with aiofiles.open(file_path, "rb") as file:
+            return await file.read()
 
     async def store(self, key: str, value: DataObject) -> str:
         """
@@ -131,6 +135,39 @@ class FileStorage(Generic[DataObject]):
             os.makedirs(path.resolve().as_posix(), exist_ok=True)
         return await self._save_file(payload_str, path=path, file_name=key + SUFFIX)
 
+    async def store_file(self, file_name: str, value: io.BytesIO) -> str:
+        """
+        Stores a file-like object.
+
+        :param file_name: str
+        :return: str file location
+
+        """
+        path = self.path
+        partition_key = ""
+        if self.partition_dateformat:
+            partition_key = get_partition_key(None, self.partition_dateformat)
+            path = path / partition_key
+            os.makedirs(path.resolve().as_posix(), exist_ok=True)
+        file_path = path / file_name
+        async with aiofiles.open(file_path, "wb") as f:
+            await f.write(value.read())
+            return partition_key + file_name
+
+    async def list_objects(self, wildcard: str = "*") -> List[ItemLocator]:
+        """
+        Retrieves list of objects keys from the file storage
+
+        :param wilcard: allow filter the listing of objects
+        :return: List of objects key
+        """
+        base_path = str(self.path.resolve())
+        path = base_path + "/" + wildcard + SUFFIX
+        n_part_comps = len(self.partition_dateformat.split("/"))
+        return [
+            self._get_item_locator(item_path, n_part_comps) for item_path in glob(path)
+        ]
+
     async def delete(self, *keys: str, partition_key: Optional[str] = None):
         """
         Delete specified keys
@@ -140,6 +177,19 @@ class FileStorage(Generic[DataObject]):
         path = self.path / partition_key if partition_key else self.path
         for key in keys:
             await aiofiles.os.remove(path / (key + SUFFIX))
+
+    def partition_key(self, path: str) -> str:
+        """
+        Get the partition key for a given path.
+
+        :param path: str
+        :return str, the extracted partition key.
+        """
+        partition_key = ""
+        dir_name = os.path.dirname(path)
+        if self.partition_dateformat:
+            partition_key = dir_name.replace(self.path.as_posix(), "", 1).lstrip("/")
+        return partition_key
 
     @staticmethod
     async def _load_file(*, path: Path, file_name: str) -> Optional[str]:
@@ -164,8 +214,18 @@ class FileStorage(Generic[DataObject]):
         """
         file_path = path / file_name
         tmp_path = path / str(f".{uuid.uuid4()}")
-        async with aiofiles.open(tmp_path, 'w') as f:  # type: ignore
+        async with aiofiles.open(tmp_path, "w") as f:  # type: ignore
             await f.write(payload_str)
             await f.flush()
         shutil.move(str(tmp_path), str(file_path))
         return str(file_path)
+
+    def _get_item_locator(self, item_path: str, n_part_comps: int) -> ItemLocator:
+        comps = item_path.split("/")
+        if self.partition_dateformat:
+            partition_key = "/".join(comps[-n_part_comps - 1: -1])
+        else:
+            partition_key = None
+        return ItemLocator(
+            item_id=comps[-1][: -len(SUFFIX)], partition_key=partition_key
+        )
