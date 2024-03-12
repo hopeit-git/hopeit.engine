@@ -107,7 +107,7 @@ class FileStorage(Generic[DataObject]):
         file_name: str,
         *,
         partition_key: Optional[str] = None,
-    ) -> bytes:
+    ) -> Optional[bytes]:
         """
         Retrieves bytes for the specified file_name.
 
@@ -117,8 +117,11 @@ class FileStorage(Generic[DataObject]):
         """
         path = self.path / partition_key if partition_key else self.path
         file_path = path / file_name
-        async with aiofiles.open(file_path, "rb") as file:
-            return await file.read()
+        try:
+            async with aiofiles.open(file_path, "rb") as file:
+                return await file.read()
+        except FileNotFoundError:
+            return None
 
     async def store(self, key: str, value: DataObject) -> str:
         """
@@ -165,6 +168,21 @@ class FileStorage(Generic[DataObject]):
         path = base_path + "/" + wildcard + SUFFIX
         n_part_comps = len(self.partition_dateformat.split("/"))
         return [
+            self._get_item_locator(item_path, n_part_comps, SUFFIX)
+            for item_path in glob(path)
+        ]
+
+    async def list_files(self, wildcard: str = "*") -> List[ItemLocator]:
+        """
+        Retrieves list of objects keys from the file storage
+
+        :param wildcard: allow filter the listing of objects
+        :return: List of objects key
+        """
+        base_path = str(self.path.resolve())
+        path = base_path + "/" + wildcard
+        n_part_comps = len(self.partition_dateformat.split("/"))
+        return [
             self._get_item_locator(item_path, n_part_comps) for item_path in glob(path)
         ]
 
@@ -177,6 +195,16 @@ class FileStorage(Generic[DataObject]):
         path = self.path / partition_key if partition_key else self.path
         for key in keys:
             await aiofiles.os.remove(path / (key + SUFFIX))
+
+    async def delete_files(self, *file_names: str, partition_key: Optional[str] = None):
+        """
+        Delete specified file_names
+
+        :param file_names: str, file names to be deleted
+        """
+        path = self.path / partition_key if partition_key else self.path
+        for file in file_names:
+            await aiofiles.os.remove(path / file)
 
     def partition_key(self, path: str) -> str:
         """
@@ -220,13 +248,15 @@ class FileStorage(Generic[DataObject]):
         shutil.move(str(tmp_path), str(file_path))
         return str(file_path)
 
-    def _get_item_locator(self, item_path: str, n_part_comps: int) -> ItemLocator:
+    def _get_item_locator(
+        self, item_path: str, n_part_comps: int, suffix: Optional[str] = None
+    ) -> ItemLocator:
+        """This method generates an `ItemLocator` object from a given `item_path`"""
         comps = item_path.split("/")
         partition_key = (
             "/".join(comps[-n_part_comps - 1: -1])
             if self.partition_dateformat
             else None
         )
-        return ItemLocator(
-            item_id=comps[-1][: -len(SUFFIX)], partition_key=partition_key
-        )
+        item_id = comps[-1][: -len(suffix)] if suffix else comps[-1]
+        return ItemLocator(item_id=item_id, partition_key=partition_key)

@@ -21,6 +21,12 @@ class FsMockData:
     ts: Optional[datetime] = None
 
 
+@dataobject
+@dataclass
+class FsMockDataNoTs:
+    test: str
+
+
 payload_str = """{"test":"test_fs"}"""
 test_fs = FsMockData(test="test_fs")
 
@@ -28,6 +34,7 @@ payload_str_with_ts = """{"test":"test_fs", "ts":"2022-03-01T00:00:00+00:00"}"""
 test_fs_with_ts = FsMockData(
     test="test_fs", ts=datetime(2022, 3, 1, tzinfo=timezone.utc)
 )
+test_fs_without_ts = FsMockDataNoTs(test="test_fs")
 
 binary_file = b"Binary file content"
 
@@ -45,14 +52,18 @@ async def save_and_load_file():
 async def delete_files():
     key1 = "VALIDFILE1"
     key2 = "VALIDFILE2"
+    key3 = "BINARY.FILE"
     fs = FileStorage(path="/tmp/DELETE/")
     assert await fs.store(key1, test_fs) is not None
     assert await fs.store(key2, test_fs) is not None
+    assert await fs.store_file(key3, io.BytesIO(binary_file)) is not None
     assert await fs.get(key1, datatype=FsMockData) == test_fs
     assert await fs.get(key2, datatype=FsMockData) == test_fs
     await fs.delete(key1, key2)
+    await fs.delete_files(key3)
     assert await fs.get(key1, datatype=FsMockData) is None
     assert await fs.get(key2, datatype=FsMockData) is None
+    assert await fs.get_file(key3) is None
 
 
 async def delete_files_in_partition():
@@ -81,6 +92,17 @@ async def save_and_load_file_in_partition():
     loaded = await fs.get(key, datatype=FsMockData, partition_key="2022/03/01")
     assert loaded == test_fs_with_ts
     assert type(loaded) is FsMockData
+
+
+async def save_and_load_file_in_partition_without_ts():
+    key = "VALIDFILEWITHTS"
+    fs = FileStorage(path=f"/tmp/{key}/", partition_dateformat="%Y/%m/%d")
+    path = await fs.store(key, test_fs_without_ts)
+    partition_key = datetime.now(tz=timezone.utc).strftime("%Y/%m/%d")
+    assert path == f"/tmp/{key}/{partition_key}/{key}.json"
+    loaded = await fs.get(key, datatype=FsMockDataNoTs, partition_key="2022/03/01")
+    assert loaded == test_fs_without_ts
+    assert type(loaded) is FsMockDataNoTs
 
 
 async def save_and_load_file_in_partition_default_ts():
@@ -168,6 +190,10 @@ def mock_glob(wc: str) -> List[str]:
         return ["/path/1.json", "/path/2.json", "/path/3.json"]
     elif wc == "/path/1*.json":
         return ["/path/1.json"]
+    elif wc == "/path/*":
+        return ["/path/1.json", "/path/2.json", "/path/3.json"]
+    elif wc == "/path/1*":
+        return ["/path/1.json"]
     raise ValueError(f"glob received unexpected wildcard: {wc}")
 
 
@@ -211,6 +237,7 @@ async def test_save_load_file_in_partition(monkeypatch):
     monkeypatch.setattr(os.path, "exists", MockPath.exists)
     monkeypatch.setattr(os, "rename", MockOs.rename)
     await save_and_load_file_in_partition()
+    await save_and_load_file_in_partition_without_ts()
 
 
 @pytest.mark.asyncio
@@ -234,16 +261,29 @@ async def test_list_objects(monkeypatch):
     monkeypatch.setattr(fs_module, "glob", mock_glob)
     fs = FileStorage(path="/path")
 
-    files = await fs.list_objects()
-    assert files == [
+    objects = await fs.list_objects()
+    assert objects == [
         ItemLocator("1", None),
         ItemLocator("2", None),
         ItemLocator("3", None),
     ]
 
-    files = await fs.list_objects(wildcard="1*")
-    assert files == [
+    objects = await fs.list_objects(wildcard="1*")
+    assert objects == [
         ItemLocator("1", None),
+    ]
+
+    files = await fs.list_files()
+    print(files)
+    assert files == [
+        ItemLocator("1.json", None),
+        ItemLocator("2.json", None),
+        ItemLocator("3.json", None),
+    ]
+
+    files = await fs.list_files(wildcard="1*")
+    assert files == [
+        ItemLocator("1.json", None),
     ]
 
 
@@ -270,7 +310,6 @@ async def test_list_objects_within_partitions(monkeypatch):
 @pytest.mark.asyncio
 async def test_get_store_file():
     key = "BINARYFILE"
-
     fs = FileStorage(path=f"/tmp/{key}/")
     file_obj = io.BytesIO(binary_file)
     location = await fs.store_file(key, file_obj)
