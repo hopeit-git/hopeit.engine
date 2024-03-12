@@ -5,7 +5,7 @@ Version 0.23.0
 ______________
 - Plugin:
   
-  - fs-storage: add `store_file` and `get_file` features
+  - fs-storage: add `store_file`, `get_file`, `delete_files` and `list_files` methods
 
 
 Version 0.22.0

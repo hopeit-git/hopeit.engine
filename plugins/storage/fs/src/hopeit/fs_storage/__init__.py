@@ -36,7 +36,7 @@ class FileStorageSettings:
         will store each files in a folder `base_path/year/month/day/`
     :field: flush_seconds, float: number of seconds to trigger a flush event to save all current
         buffered partitions. Default 0 means flush is not triggered by time.
-    :field: fllush_max_size: max number of elements to keep in a partition before forcing a flush.
+    :field: flush_max_size: max number of elements to keep in a partition before forcing a flush.
         Default 1. A value of 0 will disable flushing by partition size.
     """
 
