@@ -270,10 +270,11 @@ async def test_list_objects_within_partitions(monkeypatch):
 @pytest.mark.asyncio
 async def test_get_store_file():
     key = "BINARYFILE"
+
     fs = FileStorage(path=f"/tmp/{key}/")
     file_obj = io.BytesIO(binary_file)
     location = await fs.store_file(key, file_obj)
-    assert location == key
+    assert location == str(fs.path / key)
     loaded = await fs.get_file(key)
     assert loaded == binary_file
 
@@ -285,7 +286,7 @@ async def test_get_store_file_in_partition():
     partition_key = datetime.now(tz=timezone.utc).strftime("%Y/%m/%d")
     file_obj = io.BytesIO(binary_file)
     location = await fs.store_file(key, file_obj)
-    assert location == f"{partition_key}/{key}"
+    assert location == str(fs.path / f"{partition_key}/{key}")
     loaded = await fs.get_file(key, partition_key=partition_key)
     assert loaded == binary_file
 

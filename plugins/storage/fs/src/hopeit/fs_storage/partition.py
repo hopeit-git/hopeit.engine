@@ -3,11 +3,12 @@ FS Storage plugin package module
 """
 
 from datetime import datetime, timezone
+from typing import Optional
 
 from hopeit.dataobjects import DataObject
 
 
-def get_partition_key(payload: DataObject, partition_dateformat: str) -> str:
+def get_partition_key(payload: Optional[DataObject], partition_dateformat: str) -> str:
     ts = (
         _partition_timestamp(payload)
         if payload is not None

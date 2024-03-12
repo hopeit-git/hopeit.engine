@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 0.23.0
+______________
+- Plugin:
+  
+  - fs-storage: add `store_file` and `get_file` features
+
+
 Version 0.22.0
 ______________
 - Engine:
