@@ -53,13 +53,6 @@ class ItemLocator:
     partition_key: Optional[str] = None
 
 
-@dataobject
-@dataclass
-class FileLocator:
-    file_name: str
-    partition_key: Optional[str] = None
-
-
 class FileStorage(Generic[DataObject]):
     """
     Stores and retrieves dataobjects from filesystem
