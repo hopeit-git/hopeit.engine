@@ -48,10 +48,9 @@ setuptools.setup(
     },
     python_requires=">=3.8",
     install_requires=[
-        f"hopeit.engine=={version['ENGINE_VERSION']}",
+        f"hopeit.engine[fs-storage]=={version['ENGINE_VERSION']}",
         "pandas",
         "numpy",
-        "aiofiles",
     ],
     extras_require={
         "pyarrow": ["pyarrow"],

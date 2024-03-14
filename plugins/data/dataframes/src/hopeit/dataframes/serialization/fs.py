@@ -1,44 +1,43 @@
 import io
-import os
-from datetime import datetime, timezone
 from importlib import import_module
-from pathlib import Path
 from typing import Callable, Generic, Optional, Type, TypeVar, Union
 from uuid import uuid4
 
-import aiofiles
 import pandas as pd
+try:
+    import pyarrow
+except ImportError as e:
+    raise ImportError(
+        "`pyarrow` needs to be installed to use `DatasetFileStorage`",
+        "Run `pip install hopeit.dataframes[pyarrow]`"        
+    ) from e
+
 from hopeit.dataframes.dataframe import DataFrameMixin
 from hopeit.dataframes.serialization.dataset import Dataset
-from hopeit.dataobjects import DataObject, EventPayloadType
-from hopeit.dataobjects.payload import Payload
+from hopeit.dataobjects import EventPayloadType
+
+from hopeit.fs_storage import FileStorage
 
 DataFrameType = TypeVar("DataFrameType", bound=DataFrameMixin)
 
 
-class DatasetFsStorage(Generic[DataFrameType]):
+class DatasetFileStorage(Generic[DataFrameType]):
 
     def __init__(self, *, location: str, partition_dateformat: Optional[str], **kwargs):
-        self.base_path = Path(location)
-        self.partition_dateformat = partition_dateformat or "%Y/%m/%d/%H/"
+        self.storage = FileStorage(
+            path=location,
+            partition_dateformat=partition_dateformat
+        )
 
     async def save(self, dataframe: DataFrameType) -> Dataset:
         datatype = type(dataframe)
-        partition_key = _get_partition_key(self.partition_dateformat)
-        path = self.base_path / partition_key
         key = f"{datatype.__qualname__.lower()}_{uuid4()}.parquet"
-        os.makedirs(path.resolve().as_posix(), exist_ok=True)
-        location = path / key
-
-        async with aiofiles.open(location, "wb") as f:
-            await f.write(dataframe._df.to_parquet(engine="pyarrow"))
-
-        # data = io.BytesIO(dataframe._df.to_parquet(engine="pyarrow"))
-        # location = await self.fs_storage.store_file(file_name=key, value=data)
-        # partition_key = self.fs_storage.partition_key(location)
+        data = io.BytesIO(dataframe._df.to_parquet(engine="pyarrow"))
+        location = await self.storage.store_file(file_name=key, value=data)
+        partition_key = self.storage.partition_key(location)
 
         return Dataset(
-            protocol=f"{__name__}.DatasetFsStorage",
+            protocol=f"{__name__}.{type(self).__name__}",
             partition_key=partition_key,
             key=key,
             datatype=f"{datatype.__module__}.{datatype.__qualname__}",
@@ -46,10 +45,9 @@ class DatasetFsStorage(Generic[DataFrameType]):
 
     async def load(self, dataset: Dataset) -> EventPayloadType:
         datatype: Type[DataFrameType] = find_dataframe_type(dataset.datatype)
-        location = self.base_path / dataset.partition_key / dataset.key
-        async with aiofiles.open(location, "rb") as f:
-            df = pd.read_parquet(io.BytesIO(await f.read()), engine="pyarrow")
-            return datatype._from_df(df)
+        data = await self.storage.get_file(dataset.key, partition_key=dataset.partition_key)
+        df = pd.read_parquet(io.BytesIO(data), engine="pyarrow")
+        return datatype._from_df(df)
 
     async def ser_wrapper(
         self,
@@ -92,6 +90,3 @@ def find_dataframe_type(qual_type_name: str) -> Type[DataFrameType]:
     ), f"Type {qual_type_name} must be annotated with `@dataframe`."
     return datatype
 
-
-def _get_partition_key(partition_dateformat: str) -> str:
-    return datetime.now(tz=timezone.utc).strftime(partition_dateformat.strip("/")) + "/"
