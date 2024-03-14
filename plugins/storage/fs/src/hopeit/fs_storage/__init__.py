@@ -17,7 +17,7 @@ import aiofiles.os
 
 from hopeit.dataobjects import dataobject, DataObject
 from hopeit.dataobjects.payload import Payload
-from hopeit.fs_storage.partition import get_partition_key
+from hopeit.fs_storage.partition import get_file_partition_key, get_partition_key
 
 __all__ = ["FileStorage", "FileStorageSettings"]
 
@@ -106,7 +106,7 @@ class FileStorage(Generic[DataObject]):
 
         :param file_name: str
         :param partition_key: Optional[str] partition path to be appended to base path
-        :return: bytes, the content of the file as bytes
+        :return: bytes, the content of the file as bytes, or None if the file is not found.
         """
         path = self.path / partition_key if partition_key else self.path
         file_path = path / file_name
@@ -142,13 +142,13 @@ class FileStorage(Generic[DataObject]):
         path = self.path
         partition_key = ""
         if self.partition_dateformat:
-            partition_key = get_partition_key(None, self.partition_dateformat)
+            partition_key = get_file_partition_key(self.partition_dateformat)
             path = path / partition_key
             os.makedirs(path.resolve().as_posix(), exist_ok=True)
         file_path = path / file_name
         async with aiofiles.open(file_path, "wb") as f:
             await f.write(value.read())
-            return str(path / file_name)
+            return file_path.as_posix()
 
     async def list_objects(self, wildcard: str = "*") -> List[ItemLocator]:
         """
@@ -239,7 +239,7 @@ class FileStorage(Generic[DataObject]):
             await f.write(payload_str)
             await f.flush()
         shutil.move(str(tmp_path), str(file_path))
-        return str(file_path)
+        return file_path.as_posix()
 
     def _get_item_locator(
         self, item_path: str, n_part_comps: int, suffix: Optional[str] = None
