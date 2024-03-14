@@ -27,7 +27,7 @@ check-engine:
 	/bin/bash engine/build/ci-static-engine.sh
 
 check-plugins:
-	/bin/bash plugins/build/ci-static-plugins.sh
+	/bin/bash plugins/build/ci-static-plugins.sh $(PLUGINFOLDER)
 
 check-apps:
 	/bin/bash apps/build/ci-static-apps.sh
