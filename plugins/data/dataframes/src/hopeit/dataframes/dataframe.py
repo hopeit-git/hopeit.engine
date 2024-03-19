@@ -19,8 +19,7 @@ from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type,
 
 import numpy as np
 import pandas as pd
-from dataclasses_jsonschema import DEFAULT_SCHEMA_TYPE, JsonSchemaMixin
-from hopeit.dataframes.serialization.dataset import Dataset
+from dataclasses_jsonschema import JsonSchemaMixin
 from hopeit.dataobjects import (
     DataObject,
     StreamEventMixin,
@@ -28,7 +27,7 @@ from hopeit.dataobjects import (
     dataobject,
 )
 
-DataFrameType = TypeVar("DataFrameType")
+DataFrameT = TypeVar("DataFrameT")
 
 
 @dataclass
@@ -55,7 +54,7 @@ class DataFrameParams:
         return value
 
 
-class DataFrameMixin(Generic[DataFrameType, DataObject]):
+class DataFrameMixin(Generic[DataFrameT, DataObject]):
     """
     MixIn class to add functionality for DataFrames dataobjects
 
@@ -66,8 +65,8 @@ class DataFrameMixin(Generic[DataFrameType, DataObject]):
         int: lambda x: x.astype(np.int64),
         float: lambda x: x.astype(np.float64),
         str: lambda x: x.astype(object),
-        date: lambda x: pd.to_datetime(x),
-        datetime: lambda x: pd.to_datetime(x),
+        date: pd.to_datetime,
+        datetime: pd.to_datetime,
     }
 
     def __init__(self) -> None:
@@ -87,7 +86,7 @@ class DataFrameMixin(Generic[DataFrameType, DataObject]):
             self._coerce_datatypes()
 
     @classmethod
-    def _from_df(cls, df: pd.DataFrame, **series: Any) -> DataFrameType:
+    def _from_df(cls, df: pd.DataFrame, **series: Any) -> DataFrameT:
         df = df if cls.__data_object__["unsafe"] else pd.DataFrame(df)
         # for col, values in series.items():
         #     df[col] = values
@@ -95,15 +94,15 @@ class DataFrameMixin(Generic[DataFrameType, DataObject]):
         return obj  # type: ignore
 
     @classmethod
-    def _from_array(cls, array: np.ndarray) -> DataFrameType:
+    def _from_array(cls, array: np.ndarray) -> DataFrameT:
         return cls._from_df(pd.DataFrame(array, columns=cls.__dataframe__.columns))
 
     @classmethod
-    def _from_dataobjects(cls, items: Iterator[DataObject]) -> DataFrameType:
+    def _from_dataobjects(cls, items: Iterator[DataObject]) -> DataFrameT:
         return cls._from_df(pd.DataFrame(asdict(item) for item in items))  # type: ignore
 
     @classmethod
-    def _from_df_unsafe(cls, df: pd.DataFrame, **series: pd.Series) -> DataFrameType:
+    def _from_df_unsafe(cls, df: pd.DataFrame, **series: pd.Series) -> DataFrameT:
         for col, values in series.items():
             df[col] = values
         obj = cls(**df._series)  # pylint: disable=protected-access
@@ -113,7 +112,7 @@ class DataFrameMixin(Generic[DataFrameType, DataObject]):
     def _df(self) -> pd.DataFrame:
         return getattr(self, "__df")
 
-    def __getitem__(self, key) -> "DataFrameType":
+    def __getitem__(self, key) -> "DataFrameT":
         return self._from_df(self.__df[key])
 
     def _to_dataobjects(self) -> List[DataObject]:
@@ -123,12 +122,12 @@ class DataFrameMixin(Generic[DataFrameType, DataObject]):
         ]
 
     def to_json(self, *args, **kwargs) -> str:
-        raise NotImplemented(  # type: ignore
+        raise NotImplementedError(
             "Dataframe must be used inside `@dataobject(unsafe=True)` to be used as an output"
         )
 
     def to_dict(self, *args, **kwargs) -> Dict[str, Any]:
-        raise NotImplemented(  # type: ignore
+        raise NotImplementedError(
             "Dataframe must be used inside `@dataobject(unsafe=True)` to be used as an output"
         )
 
@@ -152,10 +151,10 @@ class DataFrameMixin(Generic[DataFrameType, DataObject]):
             return schema
         return {}
 
-    def event_id(*args, **kwargs) -> str:
+    def event_id(self, *args, **kwargs) -> str:
         return ""
 
-    def event_ts(*args, **kwargs) -> datetime:
+    def event_ts(self, *args, **kwargs) -> datetime:
         return datetime.now(tz=timezone.utc)
 
     def __getattribute__(self, name: str) -> Any:
@@ -244,6 +243,6 @@ def dataframe(
     return wrap(decorated_class)  # type: ignore
 
 
-# class DataFrame(DataFrameMixin, Generic[DataFrameType]):
-#     def __new__(cls, obj: DataFrameType):
+# class DataFrame(DataFrameMixin, Generic[DataFrameT]):
+#     def __new__(cls, obj: DataFrameT):
 #         return obj

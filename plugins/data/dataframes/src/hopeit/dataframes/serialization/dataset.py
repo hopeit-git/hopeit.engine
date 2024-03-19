@@ -1,9 +1,11 @@
+"""Dataset objects definition, used as a result of serialized dataframes
+"""
 from importlib import import_module
-from typing import Any, Generic, List, Type, TypeVar
+from typing import Type, TypeVar
 
-from hopeit.dataobjects import DataObject, dataclass, dataobject
+from hopeit.dataobjects import dataclass, dataobject
 
-DataFrameType = TypeVar("DataFrameType")
+DataFrameT = TypeVar("DataFrameT")
 
 
 @dataobject

@@ -1,3 +1,5 @@
+"""Support for plugin configuration
+"""
 from typing import Optional
 
 from hopeit.dataobjects import dataclass, dataobject

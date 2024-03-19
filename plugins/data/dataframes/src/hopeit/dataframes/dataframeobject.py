@@ -29,30 +29,33 @@ from hopeit.dataobjects import (
     dataobject,
 )
 
-DataFrameObjectType = TypeVar("DataFrameObjectType")
+DataFrameObjectT = TypeVar("DataFrameObjectT")
 
 
 @dataclass
-class DataframeObjectMetadata(Generic[DataObject]):
+class DataFrameObjectMetadata(Generic[DataObject]):
     serialized_type: Type[DataObject]
 
 
-class DataframeObjectMixin(Generic[DataFrameObjectType]):
+class DataframeObjectMixin(Generic[DataFrameObjectT]):
     """
     MixIn class to add functionality for `@dataframeobject`s
 
     Do not use this class directly, instead use `@dataframeobject` class decorator.
     """
 
-    __storage: ClassVar[Any] = None
+    __storage: ClassVar[Any] = None  # pylint: disable=invalid-name
 
     def __init__(self) -> None:
-        self.__dataframeobject__: DataframeObjectMetadata = None  # type: ignore
-        raise NotImplemented(  # type: ignore
+        self.__dataframeobject__: DataFrameObjectMetadata = None  # type: ignore
+        raise NotImplementedError(
             "DataframeObjectMixin() should not be called directly. Use `@dataframeobject` annotation"
         )
 
     async def _serialize(self) -> Optional[DataObject]:
+        """Saves internal `@dataframe`s using configured serialization protocol
+        and returns json-serialiable dataobject
+        """
         datasets = {}
         for field in fields(self):  # type: ignore
             if _is_dataframe_field(field):
@@ -66,7 +69,11 @@ class DataframeObjectMixin(Generic[DataFrameObjectType]):
         return self.__dataframeobject__.serialized_type(**datasets)
 
     @classmethod
-    async def _deserialize(cls, serialized: DataObject) -> "DataframeObjectMixin[DataFrameObjectType]":
+    async def _deserialize(
+        cls, serialized: DataObject
+    ) -> "DataframeObjectMixin[DataFrameObjectT]":
+        """From a serialized datframeobject, load inner `@dataframe` objects
+        and returns a `@dataframeobject` instance"""
         dataframes = {}
         for field in fields(cls):  # type: ignore
             if _is_dataframe_field(field):
@@ -100,6 +107,9 @@ def _is_dataframe_field(field: Field) -> bool:
 
 
 def _serialized_field_type(field: Field) -> Type[Any]:
+    """Computes the `@dataobject` datatype used as a result
+    of serialized `@dataframeobject`
+    """
     if hasattr(field.type, "__dataframe__"):
         return Dataset
     if get_origin(field.type) is Union:
@@ -112,7 +122,7 @@ def _serialized_field_type(field: Field) -> Type[Any]:
             return Optional[Dataset]  # type: ignore
     if _is_dataframe_field(field):
         raise TypeError(
-            f"field {field.name}: only `DataframeType` or `Optional[DataFrameType]` are supported"
+            f"field {field.name}: only `DataFrameT` or `Optional[DataFrameT]` are supported"
         )
     return field.type
 
@@ -145,7 +155,7 @@ def dataframeobject(
         setattr(
             cls,
             "__dataframeobject__",
-            DataframeObjectMetadata(
+            DataFrameObjectMetadata(
                 serialized_type=serialized_type,
             ),
         )

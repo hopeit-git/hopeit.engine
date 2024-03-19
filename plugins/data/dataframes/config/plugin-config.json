@@ -8,7 +8,7 @@
   },
   "settings" : {
     "dataset_serialization": {
-      "protocol": "hopeit.dataframes.serialization.fs.DatasetFileStorage",
+      "protocol": "hopeit.dataframes.serialization.files.DatasetFileStorage",
       "location": "apps/examples/dataframes-example/data/{auto}",
       "partition_dateformat": "%Y/%m/%d/%H/"
     }

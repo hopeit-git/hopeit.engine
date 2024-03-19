@@ -1,3 +1,9 @@
+"""hopeit.engine dataframes plugin SETUP event.
+
+This event executes when engine starts with dataframes plugin configuration file loaded,
+and ensures that the engine will support serialization of `@dataframe` and `@dataframeobject`
+types
+"""
 from functools import partial
 
 from hopeit.app.context import EventContext
@@ -13,6 +19,9 @@ __steps__ = ["register_serialization"]
 
 
 def register_serialization(payload: None, context: EventContext) -> None:
+    """Setups serizaltion wrappers in hopeit.engine based on
+    `DataSerialization` settings configured in plugin configuration file
+    """
     logger.info(context, "Registering serialization methods...")
 
     settings: DatasetSerialization = context.settings(
@@ -28,7 +37,7 @@ def register_serialization(payload: None, context: EventContext) -> None:
     setattr(DataframeObjectMixin, "_DataframeObjectMixin__storage", storage)
 
     serdeser_wrappers = {}
-    for serdeser, methods in serialization._SERDESER.items():
+    for serdeser, methods in serialization._SERDESER.items():  # pylint: disable=protected-access
         serdeser_wrappers[serdeser] = (
             partial(storage.ser_wrapper, methods[0]),
             methods[1],
@@ -36,4 +45,4 @@ def register_serialization(payload: None, context: EventContext) -> None:
         )
 
     for serdeser, methods in serdeser_wrappers.items():
-        serialization._SERDESER[serdeser] = methods
+        serialization._SERDESER[serdeser] = methods  # pylint: disable=protected-access
