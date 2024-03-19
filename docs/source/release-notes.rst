@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 0.24.0
+______________
+- Plugin:
+  
+  - dataframes (beta): new plugin to support workflows based on `pandas`
+
+
 Version 0.23.0
 ______________
 - Plugin:

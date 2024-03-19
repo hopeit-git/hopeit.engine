@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.21",
+    "version": "0.24",
     "title": "Dataframes Example",
     "description": "Dataframes Example"
   },
   "paths": {
-    "/api/config-manager/0x21/runtime-apps-config": {
+    "/api/config-manager/0x24/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -62,11 +62,11 @@
           }
         },
         "tags": [
-          "config_manager.0x21"
+          "config_manager.0x24"
         ]
       }
     },
-    "/api/config-manager/0x21/cluster-apps-config": {
+    "/api/config-manager/0x24/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -122,14 +122,14 @@
           }
         },
         "tags": [
-          "config_manager.0x21"
+          "config_manager.0x24"
         ]
       }
     },
-    "/api/dataframes-example/0x21/training-pipeline": {
+    "/api/dataframes-example/0x24/prepare-data": {
       "get": {
-        "summary": "Training Pipeline",
-        "description": "Training Pipeline",
+        "summary": "Prepare Data",
+        "description": "Prepare Data",
         "parameters": [
           {
             "name": "X-Track-Request-Id",
@@ -153,18 +153,146 @@
         ],
         "responses": {
           "200": {
-            "description": "Experiment",
+            "description": "InputData",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Experiment"
+                  "$ref": "#/components/schemas/InputData"
                 }
               }
             }
           }
         },
         "tags": [
-          "dataframes_example.0x21"
+          "dataframes_example.0x24"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/dataframes-example/0x24/train-model": {
+      "post": {
+        "summary": "Training Pipeline",
+        "description": "Training Pipeline",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Serialized dataframeobject with iris dataset",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InputData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Iris",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Iris"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "dataframes_example.0x24"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/dataframes-example/0x24/predict": {
+      "post": {
+        "summary": "Predict",
+        "description": "Predict",
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "query",
+            "required": true,
+            "description": "experiment_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Batch of prediction requests",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IrisBatchPredictionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IrisFeatures"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "dataframes_example.0x24"
         ],
         "security": [
           {
@@ -638,7 +766,7 @@
           },
           "engine_version": {
             "type": "string",
-            "default": "0.21.2"
+            "default": "0.24.0"
           }
         },
         "x-module-name": "hopeit.server.config",
@@ -776,18 +904,51 @@
         "x-module-name": "hopeit.config_manager",
         "description": "\n    Combined App Config and Server Status information for running apps\n    "
       },
+      "Iris": {
+        "type": "object",
+        "required": [
+          "sepal_length",
+          "sepal_width",
+          "petal_length",
+          "petal_width",
+          "variety"
+        ],
+        "properties": {
+          "sepal_length": {
+            "type": "number"
+          },
+          "sepal_width": {
+            "type": "number"
+          },
+          "petal_length": {
+            "type": "number"
+          },
+          "petal_width": {
+            "type": "number"
+          },
+          "variety": {
+            "type": "integer"
+          }
+        },
+        "x-module-name": "hopeit.dataframes.dataframe",
+        "description": "Iris_(sepal_length: float, sepal_width: float, petal_length: float, petal_width: float, variety: int)"
+      },
       "Dataset": {
         "type": "object",
         "required": [
           "protocol",
-          "location",
+          "partition_key",
+          "key",
           "datatype"
         ],
         "properties": {
           "protocol": {
             "type": "string"
           },
-          "location": {
+          "partition_key": {
+            "type": "string"
+          },
+          "key": {
             "type": "string"
           },
           "datatype": {
@@ -795,53 +956,78 @@
           }
         },
         "x-module-name": "hopeit.dataframes.serialization.dataset",
-        "description": "Dataset(protocol: str, location: str, datatype: str)"
+        "description": "Dataset(protocol: str, partition_key: str, key: str, datatype: str)"
       },
-      "EvalMetrics": {
+      "InputData": {
         "type": "object",
         "required": [
-          "score"
+          "iris"
         ],
         "properties": {
-          "score": {
-            "type": "number"
-          }
-        },
-        "x-module-name": "dataframes_example.training_pipeline",
-        "description": "EvalMetrics(score: float)"
-      },
-      "Experiment": {
-        "type": "object",
-        "required": [
-          "experiment_dt",
-          "train_data",
-          "test_data",
-          "eval_data",
-          "model_location"
-        ],
-        "properties": {
-          "experiment_dt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "train_data": {
+          "iris": {
             "$ref": "#/components/schemas/Dataset"
-          },
-          "test_data": {
-            "$ref": "#/components/schemas/Dataset"
-          },
-          "eval_data": {
-            "$ref": "#/components/schemas/Dataset"
-          },
-          "model_location": {
-            "type": "string"
-          },
-          "eval_metrics": {
-            "$ref": "#/components/schemas/EvalMetrics"
           }
         },
         "x-module-name": "hopeit.dataframes.dataframeobject",
-        "description": "Experiment_(experiment_dt: datetime.datetime, train_data: hopeit.dataframes.serialization.dataset.Dataset, test_data: hopeit.dataframes.serialization.dataset.Dataset, eval_data: hopeit.dataframes.serialization.dataset.Dataset, model_location: str, eval_metrics: Optional[dataframes_example.training_pipeline.EvalMetrics])"
+        "description": "InputData_(iris: hopeit.dataframes.serialization.dataset.Dataset)"
+      },
+      "IrisPredictionRequest": {
+        "type": "object",
+        "required": [
+          "prediction_id",
+          "features"
+        ],
+        "properties": {
+          "prediction_id": {
+            "type": "string"
+          },
+          "features": {
+            "$ref": "#/components/schemas/IrisFeatures"
+          }
+        },
+        "x-module-name": "dataframes_example.iris",
+        "description": "IrisPredictionRequest(prediction_id: str, features: dataframes_example.iris.IrisFeatures)"
+      },
+      "IrisFeatures": {
+        "type": "object",
+        "required": [
+          "sepal_length",
+          "sepal_width",
+          "petal_length",
+          "petal_width"
+        ],
+        "properties": {
+          "sepal_length": {
+            "type": "number"
+          },
+          "sepal_width": {
+            "type": "number"
+          },
+          "petal_length": {
+            "type": "number"
+          },
+          "petal_width": {
+            "type": "number"
+          }
+        },
+        "x-module-name": "hopeit.dataframes.dataframe",
+        "description": "IrisFeatures_(sepal_length: float, sepal_width: float, petal_length: float, petal_width: float)"
+      },
+      "IrisBatchPredictionRequest": {
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IrisPredictionRequest"
+            }
+          }
+        },
+        "x-module-name": "dataframes_example.iris",
+        "description": "IrisBatchPredictionRequest(items: List[dataframes_example.iris.IrisPredictionRequest])"
       }
     },
     "securitySchemes": {
