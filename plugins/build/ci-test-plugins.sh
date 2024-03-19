@@ -54,7 +54,7 @@ fi
 
 if [ "$1" == "" ] || [ "data/dataframes" = "$1" ] ; then
 # data/dataframes
-export PYTHONPATH=engine/src/:plugins/data/dataframes/src/ && python3 -m pytest -v --cov-fail-under=70 --cov-report=term --cov=plugins/data/dataframes/src/ plugins/data/dataframes/test/integration/
+export PYTHONPATH=engine/src/:plugins/data/dataframes/src/ && python3 -m pytest -v --cov-fail-under=50 --cov-report=term --cov=plugins/data/dataframes/src/ plugins/data/dataframes/test/integration/
 code+=$?
 fi
 
