@@ -43,7 +43,7 @@ from hopeit.dataframes.dataframe import DataFrameT, dataframe
 from hopeit.dataframes.dataframeobject import DataFrameObjectT, dataframeobject
 from hopeit.dataobjects import DataObject
 
-__all__ = ["dataframe", "dataframeobject"]
+__all__ = ["DataFrames", "dataframe", "dataframeobject"]
 
 
 class DataFrames(Generic[DataFrameT, DataFrameObjectT, DataObject]):

@@ -37,7 +37,7 @@ class DataFrameObjectMetadata(Generic[DataObject]):
     serialized_type: Type[DataObject]
 
 
-class DataframeObjectMixin(Generic[DataFrameObjectT]):
+class DataFrameObjectMixin(Generic[DataFrameObjectT]):
     """
     MixIn class to add functionality for `@dataframeobject`s
 
@@ -49,7 +49,7 @@ class DataframeObjectMixin(Generic[DataFrameObjectT]):
     def __init__(self) -> None:
         self.__dataframeobject__: DataFrameObjectMetadata = None  # type: ignore
         raise NotImplementedError(
-            "DataframeObjectMixin() should not be called directly. Use `@dataframeobject` annotation"
+            "DataFrameObjectMixin() should not be called directly. Use `@dataframeobject` annotation"
         )
 
     async def _serialize(self) -> Optional[DataObject]:
@@ -71,7 +71,7 @@ class DataframeObjectMixin(Generic[DataFrameObjectT]):
     @classmethod
     async def _deserialize(
         cls, serialized: DataObject
-    ) -> "DataframeObjectMixin[DataFrameObjectT]":
+    ) -> "DataFrameObjectMixin[DataFrameObjectT]":
         """From a serialized datframeobject, load inner `@dataframe` objects
         and returns a `@dataframeobject` instance"""
         dataframes = {}
@@ -129,16 +129,16 @@ def _serialized_field_type(field: Field) -> Type[Any]:
 
 def dataframeobject(
     decorated_class=None,
-) -> Callable[[Type], Type[DataframeObjectMixin]]:
+) -> Callable[[Type], Type[DataFrameObjectMixin]]:
     """
     Decorator for dataclasses intended to be used as dataframes.
     """
 
-    def add_dataframe_mixin(cls) -> Type[DataframeObjectMixin]:
+    def add_dataframe_mixin(cls) -> Type[DataFrameObjectMixin]:
         if hasattr(cls, "__annotations__") and hasattr(cls, "__dataclass_fields__"):
             amended_class = type(
                 cls.__name__,
-                (DataframeObjectMixin,) + cls.__mro__,
+                (DataFrameObjectMixin,) + cls.__mro__,
                 dict(cls.__dict__),
                 # cls.__name__, cls.__mro__, dict(cls.__dict__)
             )
@@ -170,7 +170,7 @@ def dataframeobject(
         setattr(cls, "event_id", StreamEventMixin.event_id)
         setattr(cls, "event_ts", StreamEventMixin.event_ts)
 
-    def wrap(cls) -> Type[DataframeObjectMixin]:
+    def wrap(cls) -> Type[DataFrameObjectMixin]:
         if hasattr(cls, "__dataframeobject__"):
             return cls
         amended_class = add_dataframe_mixin(cls)

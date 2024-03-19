@@ -8,7 +8,7 @@ from functools import partial
 
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_logger
-from hopeit.dataframes.dataframeobject import DataframeObjectMixin
+from hopeit.dataframes.dataframeobject import DataFrameObjectMixin
 from hopeit.dataframes.serialization.dataset import find_protocol_impl
 from hopeit.dataframes.serialization.settings import DatasetSerialization
 from hopeit.server import serialization
@@ -34,7 +34,7 @@ def register_serialization(payload: None, context: EventContext) -> None:
         location=settings.location,
         partition_dateformat=settings.partition_dateformat,
     )
-    setattr(DataframeObjectMixin, "_DataframeObjectMixin__storage", storage)
+    setattr(DataFrameObjectMixin, "_DataFrameObjectMixin__storage", storage)
 
     serdeser_wrappers = {}
     for serdeser, methods in serialization._SERDESER.items():  # pylint: disable=protected-access
