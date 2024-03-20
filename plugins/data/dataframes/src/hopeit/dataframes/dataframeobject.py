@@ -6,7 +6,6 @@ for endpoints and streams.
 """
 
 from dataclasses import Field, dataclass, fields, make_dataclass
-from types import NoneType
 from typing import (
     Any,
     Callable,
@@ -30,7 +29,7 @@ from hopeit.dataobjects import (
 )
 
 DataFrameObjectT = TypeVar("DataFrameObjectT")
-
+NoneType = type(None)
 
 @dataclass
 class DataFrameObjectMetadata(Generic[DataObject]):
