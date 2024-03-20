@@ -39,6 +39,8 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=[
         "hopeit.dataframes",
+        "hopeit.dataframes.serialization",
+        "hopeit.dataframes.setup",
     ],
     include_package_data=True,
     package_data={

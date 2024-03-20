@@ -8,7 +8,7 @@ import os
 import sys
 
 ENGINE_NAME = "hopeit.engine"
-ENGINE_VERSION = "0.24.0"
+ENGINE_VERSION = "0.24.1"
 
 # Major.Minor version to be used in App versions and Api endpoints for Apps/Plugins
 APPS_API_VERSION = '.'.join(ENGINE_VERSION.split('.')[0:2])
