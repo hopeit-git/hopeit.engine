@@ -36,6 +36,9 @@ class DatasetFileStorage(Generic[DataFrameT]):
         )
 
     async def save(self, dataframe: DataFrameT) -> Dataset:
+        """Saves @dataframe annotated object as parquet to file system
+        and returns Dataset metadata to be used for retrieval
+        """
         datatype = type(dataframe)
         key = f"{datatype.__qualname__.lower()}_{uuid4()}.parquet"
         data = io.BytesIO(
@@ -54,6 +57,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         )
 
     async def load(self, dataset: Dataset) -> EventPayloadType:
+        """Loads @dataframe annotated object using Dataset metadata"""
         datatype: Type[DataFrameT] = find_dataframe_type(dataset.datatype)
         data = await self.storage.get_file(
             dataset.key, partition_key=dataset.partition_key
