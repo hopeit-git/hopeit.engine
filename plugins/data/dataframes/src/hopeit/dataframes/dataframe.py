@@ -89,8 +89,6 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     @classmethod
     def _from_df(cls, df: pd.DataFrame, **series: Any) -> DataFrameT:
         df = df if cls.__data_object__["unsafe"] else pd.DataFrame(df)
-        # for col, values in series.items():
-        #     df[col] = values
         obj = cls(**{**df._series, **series})  # pylint: disable=protected-access
         return obj  # type: ignore
 
@@ -196,7 +194,6 @@ def dataframe(
                 cls.__name__,
                 (DataFrameMixin, JsonSchemaMixin) + cls.__mro__,
                 dict(cls.__dict__),
-                # cls.__name__, cls.__mro__, dict(cls.__dict__)
             )
             setattr(amended_class, "__init__", DataFrameMixin.__init_from_series__)
             return amended_class
@@ -243,8 +240,3 @@ def dataframe(
     if decorated_class is None:
         return wrap
     return wrap(decorated_class)  # type: ignore
-
-
-# class DataFrame(DataFrameMixin, Generic[DataFrameT]):
-#     def __new__(cls, obj: DataFrameT):
-#         return obj

@@ -140,7 +140,6 @@ def dataframeobject(
                 cls.__name__,
                 (DataFrameObjectMixin,) + cls.__mro__,
                 dict(cls.__dict__),
-                # cls.__name__, cls.__mro__, dict(cls.__dict__)
             )
             return amended_class
         return cls
