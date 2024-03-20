@@ -96,6 +96,16 @@ Python library that exposes helpers to persist data objects to Redis.
 pip install hopeit.engine[redis-storage]
 ```
 
+**hopeit.dataframes**
+
+Plugin to support working with pandas dataframes as they were objects,
+supporting them as web request and respose payloads and transferring them
+through streams.
+
+```
+pip install hopeit.engine[dataframes]
+```
+
 
 ### Motivation
 
