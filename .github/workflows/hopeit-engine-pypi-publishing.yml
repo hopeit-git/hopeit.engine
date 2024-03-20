@@ -50,6 +50,9 @@ jobs:
     - name: make plugin apps-client
       run: |
         make PLUGINFOLDER=plugins/clients/apps-client/ dist-plugin
+    - name: make plugin dataframes
+      run: |
+        make PLUGINFOLDER=plugins/data/dataframes/ dist-plugin
 
     - name: Publish hopeit.engine on PyPI
       env: 
