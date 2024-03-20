@@ -25,3 +25,4 @@ uvloop
 # data/dataframes plugin tests
 pandas 
 pandas-stubs
+pyarrow
