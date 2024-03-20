@@ -13,7 +13,7 @@ Example:
         number: int
 """
 
-from dataclasses import asdict, dataclass, fields, make_dataclass
+from dataclasses import Field, asdict, dataclass, fields, make_dataclass
 from datetime import date, datetime, timezone
 from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar
 
@@ -33,6 +33,7 @@ DataFrameT = TypeVar("DataFrameT")
 @dataclass
 class DataFrameMetadata(Generic[DataObject]):
     columns: List[str]
+    fields: Dict[str, Field]
     serialized_type: Type[DataObject]
 
 
@@ -80,10 +81,10 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     def __init_from_series__(
         self, **series: pd.Series
     ):  # pylint: disable=bad-staticmethod-argument
+        if self.__data_object__["validate"]:
+            series = self._coerce_datatypes(series)
         df = pd.DataFrame(series)
         setattr(self, "__df", df[self.__dataframe__.columns])
-        if self.__data_object__["validate"]:
-            self._coerce_datatypes()
 
     @classmethod
     def _from_df(cls, df: pd.DataFrame, **series: Any) -> DataFrameT:
@@ -172,11 +173,11 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         else:
             object.__setattr__(self, name, value)
 
-    def _coerce_datatypes(self):
-        for field in fields(self):
-            self.__df.loc[:, field.name] = self.DATATYPE_MAPPING[field.type](
-                self.__df[field.name]
-            )
+    def _coerce_datatypes(self, series: Dict[str, pd.Series]) -> Dict[str, pd.Series]:
+        return {
+            name: self.DATATYPE_MAPPING[field.type](series[name])
+            for name, field in self.__dataframe__.fields.items()
+        }
 
 
 def dataframe(
@@ -211,6 +212,7 @@ def dataframe(
             "__dataframe__",
             DataFrameMetadata(
                 columns=[field.name for field in fields(cls)],
+                fields={field.name: field for field in fields(cls)},
                 serialized_type=serialized_type,
             ),
         )

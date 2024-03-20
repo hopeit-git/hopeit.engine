@@ -4,6 +4,7 @@ This event executes when engine starts with dataframes plugin configuration file
 and ensures that the engine will support serialization of `@dataframe` and `@dataframeobject`
 types
 """
+
 from functools import partial
 
 from hopeit.app.context import EventContext
@@ -37,7 +38,10 @@ def register_serialization(payload: None, context: EventContext) -> None:
     setattr(DataFrameObjectMixin, "_DataFrameObjectMixin__storage", storage)
 
     serdeser_wrappers = {}
-    for serdeser, methods in serialization._SERDESER.items():  # pylint: disable=protected-access
+    for (
+        serdeser,
+        methods,
+    ) in serialization._SERDESER.items():  # pylint: disable=protected-access
         serdeser_wrappers[serdeser] = (
             partial(storage.ser_wrapper, methods[0]),
             methods[1],

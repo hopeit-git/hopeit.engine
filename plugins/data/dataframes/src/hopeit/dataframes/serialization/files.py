@@ -1,5 +1,6 @@
 """Support for `@dataframes` serialization to files
 """
+
 import io
 from importlib import import_module
 from typing import Callable, Generic, Optional, Type, TypeVar, Union
@@ -37,7 +38,9 @@ class DatasetFileStorage(Generic[DataFrameT]):
     async def save(self, dataframe: DataFrameT) -> Dataset:
         datatype = type(dataframe)
         key = f"{datatype.__qualname__.lower()}_{uuid4()}.parquet"
-        data = io.BytesIO(dataframe._df.to_parquet(engine="pyarrow"))  # pylint: disable=protected-access
+        data = io.BytesIO(
+            dataframe._df.to_parquet(engine="pyarrow")
+        )  # pylint: disable=protected-access
         location = await self.storage.store_file(file_name=key, value=data)
         partition_key = self.storage.partition_key(location)
 
@@ -94,8 +97,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
 
 
 def find_dataframe_type(qual_type_name: str) -> Type[DataFrameT]:
-    """Returns dataframe class based on type name used during serialization
-    """
+    """Returns dataframe class based on type name used during serialization"""
     mod_name, type_name = (
         ".".join(qual_type_name.split(".")[:-1]),
         qual_type_name.split(".")[-1],

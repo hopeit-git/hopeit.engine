@@ -62,6 +62,15 @@ class DataFrames(Generic[DataFrameT, DataFrameObjectT, DataObject]):
         return await obj._serialize()  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
+    async def deserialize(
+        datatype: Type[DataFrameObjectT], dataobject: DataObject
+    ) -> DataFrameObjectT:
+        """Deserialize/load contents of serialized dataobject fields of a `@dataframeobject`
+        loading saved Dataset information for @dataframe fields
+        """
+        return await datatype._deserialize(dataobject)  # type: ignore  # pylint: disable=protected-access
+
+    @staticmethod
     def from_df(
         datatype: Type[DataFrameT], df: pd.DataFrame, **series: Dict[str, pd.Series]
     ) -> DataFrameT:
@@ -72,9 +81,7 @@ class DataFrames(Generic[DataFrameT, DataFrameObjectT, DataObject]):
 
     @staticmethod
     def from_dataframe(
-        datatype: Type[DataFrameT],
-        obj: DataFrameT,
-        **series: Dict[str, pd.Series]
+        datatype: Type[DataFrameT], obj: DataFrameT, **series: Dict[str, pd.Series]
     ) -> DataFrameT:
         """Creates a new `@dataframe` object extracting fields from another `@dataframe`"""
         return datatype._from_df(obj._df, **series)  # type: ignore  # pylint: disable=protected-access

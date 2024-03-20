@@ -1,23 +1,8 @@
-from dataclasses import dataclass
-from datetime import datetime, timezone
+import pandas as pd
+from conftest import MyTestData, MyTestDataObject
 from hopeit.dataframes import *
 from hopeit.dataframes.dataframe import DataFrameMixin
 from hopeit.dataframes.dataframeobject import DataFrameObjectMixin
-import pandas as pd
-
-@dataframe
-@dataclass
-class MyTestData:
-    number: int
-    name: str
-    timestamp: datetime
-
-
-@dataframeobject
-@dataclass
-class MyTestDataObject:
-    name: str
-    data: TestData
 
 
 def test_dataframes_imports():
@@ -25,11 +10,9 @@ def test_dataframes_imports():
     assert dataframe is not None
     assert dataframeobject is not None
 
-    test_data = DataFrames.from_df(MyTestData, pd.DataFrame(
-        [{
-            "number": 1, "name": "test1", "timestamp": datetime.now(tz=timezone.utc),
-        }]
-    ))
+
+def test_dataframe_object_construction(one_element_pandas_df: pd.DataFrame):
+    test_data = DataFrames.from_df(MyTestData, one_element_pandas_df)
     assert isinstance(test_data, DataFrameMixin)
 
     test_dataobject = MyTestDataObject(

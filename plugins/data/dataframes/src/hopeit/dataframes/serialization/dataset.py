@@ -1,5 +1,6 @@
 """Dataset objects definition, used as a result of serialized dataframes
 """
+
 from importlib import import_module
 from typing import Type, TypeVar
 
