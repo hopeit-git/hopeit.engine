@@ -31,6 +31,7 @@ from hopeit.dataobjects import (
 DataFrameObjectT = TypeVar("DataFrameObjectT")
 NoneType = type(None)
 
+
 @dataclass
 class DataFrameObjectMetadata(Generic[DataObject]):
     serialized_type: Type[DataObject]
