@@ -39,16 +39,11 @@ def test_dataobject_dataframes_conversion(one_element_pandas_df):
     objects = DataFrames.to_dataobjects(data)
     assert objects == [
         MyTestData.__dataframe__.serialized_type(
-            number=1,
-            name="test1",
-            timestamp=objects[0].timestamp
+            number=1, name="test1", timestamp=objects[0].timestamp
         )
     ]
     back_to_dataframe = DataFrames.from_dataobjects(MyTestData, objects)
-    assert_frame_equal(
-        DataFrames.df(data),
-        DataFrames.df(back_to_dataframe)
-    )
+    assert_frame_equal(DataFrames.df(data), DataFrames.df(back_to_dataframe))
 
 
 async def test_dataframe_object_serialization(
