@@ -28,7 +28,7 @@ python3 -m pylint apps/examples/client-example/src/client_example/
 code+=$?
 
 echo "apps/dataframes-example"
-export MYPYPATH=engine/src/:plugins/auth/basic-auth/src:apps/examples/simple-example/src/:apps/examples/dataframes-example/src/ && python3 -m mypy --namespace-packages -p dataframes_example
+export MYPYPATH=engine/src/:plugins/storage/fs/src/:plugins/data/dataframes/src/:apps/examples/simple-example/src/:apps/examples/dataframes-example/src/ && python3 -m mypy --namespace-packages -p dataframes_example
 code+=$?
 python3 -m flake8 --max-line-length=120 apps/examples/dataframes-example/src/
 code+=$?
