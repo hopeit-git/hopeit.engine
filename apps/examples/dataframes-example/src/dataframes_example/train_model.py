@@ -1,6 +1,10 @@
+"""Example training pipeline for the Iris dataset
+"""
+
+# pylint: disable=invalid-name
+
 import uuid
 from datetime import datetime, timezone
-from hopeit.dataframes import DataFrames
 
 import pandas as pd
 from dataframes_example import experiment_storage, model_storage
@@ -15,7 +19,9 @@ from dataframes_example.iris import (
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.logger import app_extra_logger
+from hopeit.dataframes import DataFrames
 from hopeit.server.steps import SHUFFLE
+
 from sklearn.metrics import accuracy_score  # type: ignore
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.tree import DecisionTreeClassifier  # type: ignore
@@ -63,6 +69,7 @@ async def __postprocess__(
 
 
 def prepare_datasets(experiment: Experiment, context: EventContext) -> Experiment:
+    """Split training and test datasets"""
     logger.info(
         context,
         "Preparing feature and label datasets",
@@ -85,6 +92,7 @@ def prepare_datasets(experiment: Experiment, context: EventContext) -> Experimen
 
 
 async def train_model(experiment: Experiment, context: EventContext) -> Experiment:
+    """Trains DecisionTreeClassifier"""
 
     logger.info(
         context,
@@ -93,7 +101,9 @@ async def train_model(experiment: Experiment, context: EventContext) -> Experime
     )
 
     clf = DecisionTreeClassifier(random_state=42)
-    clf.fit(DataFrames.df(experiment.train_features), DataFrames.df(experiment.train_labels))
+    clf.fit(
+        DataFrames.df(experiment.train_features), DataFrames.df(experiment.train_labels)
+    )
 
     logger.info(
         context,
@@ -110,6 +120,7 @@ async def train_model(experiment: Experiment, context: EventContext) -> Experime
 
 
 async def evaluate_model(experiment: Experiment, context: EventContext) -> Experiment:
+    """Evaluates trained model score usint test dataset"""
     logger.info(
         context,
         "Loading model...",
@@ -133,13 +144,16 @@ async def evaluate_model(experiment: Experiment, context: EventContext) -> Exper
 
     y = clf.predict(DataFrames.df(experiment.test_features))
     pred_labels = IrisLabels(variety=pd.Series(y))
-    accuracy = accuracy_score(DataFrames.df(experiment.test_labels), DataFrames.df(pred_labels))
+    accuracy = accuracy_score(
+        DataFrames.df(experiment.test_labels), DataFrames.df(pred_labels)
+    )
 
     experiment.eval_metrics = EvalMetrics(accuracy_score=accuracy)
     return experiment
 
 
 async def save_experiment(experiment: Experiment, context: EventContext) -> Experiment:
+    """Save experiment results"""
     logger.info(
         context,
         "Saving experiment...",

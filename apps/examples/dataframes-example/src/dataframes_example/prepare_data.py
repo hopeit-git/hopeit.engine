@@ -1,3 +1,6 @@
+"""Prepares input data for training pipeline
+"""
+
 from dataclasses import asdict, fields
 
 from dataframes_example.iris import InputData, Iris
@@ -19,17 +22,20 @@ __api__ = event_api(summary="Prepare Data", responses={200: InputData})
 
 
 def download_data(payload: None, context: EventContext) -> Iris:
+    """Downloads training data using scikit-learn"""
+
     logger.info(context, "Downloading input data..")
 
     raw = datasets.load_iris(as_frame=True)
 
-    iris = DataFrames.from_df(Iris,
+    iris = DataFrames.from_df(
+        Iris,
         raw.frame.rename(
             columns={
                 field.metadata["source_field_name"]: field.name
                 for field in fields(Iris)
             }
-        )
+        ),
     )
 
     return iris

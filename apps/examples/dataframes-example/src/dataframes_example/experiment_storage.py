@@ -1,3 +1,6 @@
+"""Simple storage for training experiments using fs storage
+"""
+
 from dataclasses import asdict
 from typing import Optional
 
@@ -13,6 +16,7 @@ fs: Optional[FileStorage] = None
 
 
 async def init_experiment_storage(context: EventContext):
+    """Initializes fs storage for experiments"""
     global fs
     if fs is None:
         settings: FileStorageSettings = context.settings(
@@ -20,7 +24,7 @@ async def init_experiment_storage(context: EventContext):
         )
         logger.info(
             context,
-            f"Initializing experiment storage...",
+            "Initializing experiment storage...",
             extra=extra(**asdict(settings)),
         )
         fs = FileStorage.with_settings(settings)

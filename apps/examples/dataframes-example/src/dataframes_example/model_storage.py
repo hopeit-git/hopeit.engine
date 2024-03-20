@@ -1,9 +1,12 @@
+"""Simple storage for trained models using fs-storage
+"""
+
 import io
 import os
 import pickle
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Optional, Tuple, TypeVar
+from typing import Optional, Tuple, TypeVar
 
 import aiofiles
 from dataframes_example.settings import ModelStorage
@@ -14,7 +17,7 @@ logger, extra = engine_extra_logger()
 
 model_storage: Optional[ModelStorage] = None
 
-ModelType = TypeVar("ModelType")
+ModelT = TypeVar("ModelT")
 
 
 async def init_model_storage(context: EventContext):
@@ -23,14 +26,12 @@ async def init_model_storage(context: EventContext):
     assert model_storage is not None
     logger.info(
         context,
-        f"Initializing model storage...",
+        "Initializing model storage...",
         extra=extra(**asdict(model_storage)),
     )
 
 
-async def save_model(
-    model: ModelType, experiment_id: str, context: EventContext
-) -> str:
+async def save_model(model: ModelT, experiment_id: str, context: EventContext) -> str:
     model_path, model_location, model_location_str = _get_model_location(experiment_id)
 
     os.makedirs(model_path, exist_ok=True)
@@ -40,13 +41,13 @@ async def save_model(
     return model_location_str
 
 
-async def load_model(model_location: str, context: EventContext) -> ModelType:
+async def load_model(model_location: str, context: EventContext) -> ModelT:
     async with aiofiles.open(Path(model_location), "rb") as f:
         buffer = io.BytesIO(await f.read())
         return pickle.load(buffer)
 
 
-async def load_experiment_model(experiment_id: str, context: EventContext) -> ModelType:
+async def load_experiment_model(experiment_id: str, context: EventContext) -> ModelT:
     _, _, model_location_str = _get_model_location(experiment_id)
     return await load_model(model_location_str, context)
 
