@@ -6,6 +6,53 @@
     "description": "Dataframes Example"
   },
   "paths": {
+    "/api/basic-auth/0x24/decode": {
+      "get": {
+        "summary": "Basic Auth: Decode",
+        "description": "Returns decoded auth info",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Information extracted from token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextUserInfo"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "basic_auth.0x24"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
     "/api/config-manager/0x24/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
@@ -300,10 +347,252 @@
           }
         ]
       }
+    },
+    "/api/dataframes-example/0x24/basic-auth/0x24/login": {
+      "get": {
+        "summary": "Basic Auth: Login",
+        "description": "Handles users login using basic-auth\nand generate access tokens for external services invoking apps\nplugged in with basic-auth plugin.",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authentication information to be used for further API calls",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthInfo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Login failed, invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "dataframes_example.0x24"
+        ],
+        "security": [
+          {
+            "auth.basic": []
+          }
+        ]
+      }
+    },
+    "/api/dataframes-example/0x24/basic-auth/0x24/refresh": {
+      "get": {
+        "summary": "Basic Auth: Refresh",
+        "description": "This event can be used for obtain new access token and update refresh token (http cookie),\nwith no need to re-login the user if there is a valid refresh token active.",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Refreshed authentication information to be used for further API calls",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthInfo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Login failed, invalid credentials. An http-cookie is expected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "dataframes_example.0x24"
+        ],
+        "security": [
+          {
+            "dataframes_example.0x24.refresh": []
+          }
+        ]
+      }
+    },
+    "/api/dataframes-example/0x24/basic-auth/0x24/logout": {
+      "get": {
+        "summary": "Basic Auth: Logout",
+        "description": "Invalidates previous refresh cookies.",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logged out message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "logout"
+                  ],
+                  "properties": {
+                    "logout": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "logout string payload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Login failed, invalid credentials or not logged in.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "dataframes_example.0x24"
+        ],
+        "security": [
+          {
+            "dataframes_example.0x24.refresh": []
+          }
+        ]
+      }
     }
   },
   "components": {
     "schemas": {
+      "ErrorInfo": {
+        "type": "object",
+        "required": [
+          "msg",
+          "tb"
+        ],
+        "properties": {
+          "msg": {
+            "type": "string"
+          },
+          "tb": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "x-module-name": "hopeit.server.errors",
+        "description": "\n    Error information to be returned in failed responses\n    "
+      },
+      "ContextUserInfo": {
+        "type": "object",
+        "required": [
+          "id",
+          "user",
+          "email"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "x-module-name": "hopeit.basic_auth",
+        "description": "\n    User info that will be available in context during events execution\n    "
+      },
+      "AuthInfo": {
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type",
+          "renew"
+        ],
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "token_type": {
+            "type": "string"
+          },
+          "renew": {
+            "type": "integer"
+          }
+        },
+        "x-module-name": "hopeit.basic_auth",
+        "description": "\n    Minimal auth info that should be returned outside this app\n    "
+      },
       "RuntimeAppInfo": {
         "type": "object",
         "required": [
@@ -1038,6 +1327,11 @@
       "auth.bearer": {
         "type": "http",
         "scheme": "bearer"
+      },
+      "dataframes_example.0x24.refresh": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "dataframes_example.0x24.refresh"
       }
     }
   },
