@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 0.24.1
+______________
+- Plugin:
+  
+  - dataframes (beta): fixed package imports
+  
+  
 Version 0.24.0
 ______________
 - Plugin:
