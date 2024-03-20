@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+
 from conftest import (
     MyNumericalData,
     MyPartialTestData,
@@ -21,8 +22,8 @@ def test_dataframes_from_dataframe(sample_pandas_df: pd.DataFrame):
     initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
     partial_data = DataFrames.from_dataframe(MyPartialTestData, initial_data)
     assert len(DataFrames.df(partial_data)) == 100
-    assert_series_equal(partial_data.number, initial_data.number)
-    assert_series_equal(partial_data.name, initial_data.name)
+    assert_series_equal(partial_data.number, initial_data.number)  # type: ignore
+    assert_series_equal(partial_data.name, initial_data.name)  # type: ignore
 
 
 def test_dataframes_from_array():
@@ -56,7 +57,7 @@ async def test_dataframe_object_serialization(
         name="test",
         data=initial_data,
     )
-    saved_obj = await DataFrames.serialize(dataobject)
+    saved_obj = await DataFrames.serialize(dataobject)  # type: ignore
     loaded_obj = await DataFrames.deserialize(MyTestDataObject, saved_obj)
 
     assert_frame_equal(DataFrames.df(dataobject.data), DataFrames.df(loaded_obj.data))

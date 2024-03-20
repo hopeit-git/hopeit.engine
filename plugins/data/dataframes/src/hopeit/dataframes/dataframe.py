@@ -175,7 +175,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     def _coerce_datatypes(self, series: Dict[str, pd.Series]) -> Dict[str, pd.Series]:
         return {
-            name: self.DATATYPE_MAPPING[field.type](series[name])
+            name: self.DATATYPE_MAPPING[field.type](series[name])  # type: ignore
             for name, field in self.__dataframe__.fields.items()
         }
 

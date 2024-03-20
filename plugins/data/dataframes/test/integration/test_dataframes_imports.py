@@ -1,6 +1,6 @@
 import pandas as pd
 from conftest import MyTestData, MyTestDataObject
-from hopeit.dataframes import *
+from hopeit.dataframes import DataFrames, dataframe, dataframeobject
 from hopeit.dataframes.dataframe import DataFrameMixin
 from hopeit.dataframes.dataframeobject import DataFrameObjectMixin
 
