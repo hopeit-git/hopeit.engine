@@ -5,6 +5,7 @@ Webserver module based on aiohttp to handle web/api requests
 # flake8: noqa
 # pylint: disable=wrong-import-position, wrong-import-order
 from collections import namedtuple
+
 import aiohttp
 from hopeit.server.serialization import deserialize
 
@@ -19,15 +20,14 @@ import sys
 import uuid
 from datetime import datetime, timezone
 from functools import partial
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Type, Tuple, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Type, Union
 
 import aiohttp_cors  # type: ignore
 from aiohttp import web
 from aiohttp.web_response import Response
 from aiohttp_cors import CorsConfig
-from stringcase import snakecase, titlecase  # type: ignore
 
-from hopeit.app.config import (
+from hopeit.app.config import (  # pylint: disable=ungrouped-imports
     AppConfig,
     Compression,
     EventDescriptor,
@@ -47,7 +47,6 @@ from hopeit.app.errors import BadRequest, Unauthorized
 from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType
 from hopeit.dataobjects.payload import Payload
 from hopeit.server import api, runtime
-from hopeit.server.api import app_route_name, OPEN_API_DEFAULTS
 from hopeit.server.config import AuthType, ServerConfig, parse_server_config_json
 from hopeit.server.engine import AppEngine
 from hopeit.server.errors import ErrorInfo
@@ -61,8 +60,9 @@ from hopeit.server.logger import (
 from hopeit.server.metrics import metrics
 from hopeit.server.names import route_name
 from hopeit.server.steps import find_datatype_handler
-
 from hopeit.toolkit import auth
+
+from stringcase import snakecase, titlecase  # type: ignore
 
 __all__ = [
     "parse_args",
@@ -109,7 +109,7 @@ def prepare_engine(
 
     if api_file is None and api_auto:
         if len(api_auto) < 3:
-            api_auto.extend(OPEN_API_DEFAULTS[len(api_auto) - 3 :])
+            api_auto.extend(api.OPEN_API_DEFAULTS[len(api_auto) - 3 :])
         else:
             api_auto = api_auto[:3]
         api.init_auto_api(api_auto[0], api_auto[1], api_auto[2])
@@ -349,7 +349,7 @@ def _create_post_event_route(
     datatype = find_datatype_handler(
         app_config=app_engine.app_config, event_name=event_name, event_info=event_info
     )
-    route = app_route_name(
+    route = api.app_route_name(
         app_engine.app_config.app,
         event_name=event_name,
         plugin=None if plugin is None else plugin.app_config.app,
@@ -381,7 +381,7 @@ def _create_get_event_route(
     """
     Creates route for handling GET requests
     """
-    route = app_route_name(
+    route = api.app_route_name(
         app_engine.app_config.app,
         event_name=event_name,
         plugin=None if plugin is None else plugin.app_config.app,
@@ -415,7 +415,7 @@ def _create_multipart_event_route(
     datatype = find_datatype_handler(
         app_config=app_engine.app_config, event_name=event_name, event_info=event_info
     )
-    route = app_route_name(
+    route = api.app_route_name(
         app_engine.app_config.app,
         event_name=event_name,
         plugin=None if plugin is None else plugin.app_config.app,
@@ -444,7 +444,7 @@ def _create_event_management_routes(
     Create routes to start and stop processing of STREAM events
     """
     evt = event_name.replace(".", "/").replace("$", "/")
-    base_route = app_route_name(
+    base_route = api.app_route_name(
         app_engine.app_config.app,
         event_name=evt,
         prefix="mgmt",
