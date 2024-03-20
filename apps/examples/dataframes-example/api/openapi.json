@@ -2,10 +2,57 @@
   "openapi": "3.0.3",
   "info": {
     "version": "0.24",
-    "title": "Client Example",
-    "description": "Client Example"
+    "title": "Dataframes Example",
+    "description": "Dataframes Example"
   },
   "paths": {
+    "/api/basic-auth/0x24/decode": {
+      "get": {
+        "summary": "Basic Auth: Decode",
+        "description": "Returns decoded auth info",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Information extracted from token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextUserInfo"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "basic_auth.0x24"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
     "/api/config-manager/0x24/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
@@ -126,16 +173,121 @@
         ]
       }
     },
-    "/api/client-example/0x24/call-unsecured": {
+    "/api/dataframes-example/0x24/prepare-data": {
       "get": {
-        "summary": "Client Example: Call Unsecured",
-        "description": "List all available Something objects connecting to simple-example app",
+        "summary": "Prepare Data",
+        "description": "Prepare Data",
         "parameters": [
           {
-            "name": "wildcard",
-            "in": "query",
+            "name": "X-Track-Request-Id",
+            "in": "header",
             "required": false,
-            "description": "Wildcard to filter objects by name prefixed by partition folder in format YYYY/MM/DD/HH/*",
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "InputData",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InputData"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "dataframes_example.0x24"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/dataframes-example/0x24/train-model": {
+      "post": {
+        "summary": "Training Pipeline",
+        "description": "Training Pipeline",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Serialized dataframeobject with iris dataset",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InputData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Iris",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Iris"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "dataframes_example.0x24"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/dataframes-example/0x24/predict": {
+      "post": {
+        "summary": "Predict",
+        "description": "Predict",
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "query",
+            "required": true,
+            "description": "experiment_id",
             "schema": {
               "type": "string"
             }
@@ -158,37 +310,28 @@
               "type": "string",
               "format": "date-time"
             }
-          },
-          {
-            "name": "X-Track-Caller",
-            "in": "header",
-            "required": true,
-            "description": "Track information: track.caller",
-            "schema": {
-              "type": "string",
-              "default": "test.caller"
-            }
-          },
-          {
-            "name": "X-Track-Session-Id",
-            "in": "header",
-            "required": true,
-            "description": "Track information: track.session_id",
-            "schema": {
-              "type": "string",
-              "default": "test.session_id"
-            }
           }
         ],
+        "requestBody": {
+          "description": "Batch of prediction requests",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IrisBatchPredictionRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "List Something objects returned by simple-example call",
+            "description": "List",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Something"
+                    "$ref": "#/components/schemas/IrisFeatures"
                   }
                 }
               }
@@ -196,24 +339,20 @@
           }
         },
         "tags": [
-          "client_example.0x24"
+          "dataframes_example.0x24"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
-    "/api/client-example/0x24/count-and-save": {
+    "/api/dataframes-example/0x24/basic-auth/0x24/login": {
       "get": {
-        "summary": "Client Example: Count Objects and Save new one",
-        "description": "Count all available Something objects connecting to simple-example app",
+        "summary": "Basic Auth: Login",
+        "description": "Handles users login using basic-auth\nand generate access tokens for external services invoking apps\nplugged in with basic-auth plugin.",
         "parameters": [
-          {
-            "name": "wildcard",
-            "in": "query",
-            "required": false,
-            "description": "Wildcard to filter objects by name prefixed by partition folder in format YYYY/MM/DD/HH/*",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "X-Track-Request-Id",
             "in": "header",
@@ -232,42 +371,32 @@
               "type": "string",
               "format": "date-time"
             }
-          },
-          {
-            "name": "X-Track-Caller",
-            "in": "header",
-            "required": true,
-            "description": "Track information: track.caller",
-            "schema": {
-              "type": "string",
-              "default": "test.caller"
-            }
-          },
-          {
-            "name": "X-Track-Session-Id",
-            "in": "header",
-            "required": true,
-            "description": "Track information: track.session_id",
-            "schema": {
-              "type": "string",
-              "default": "test.session_id"
-            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Count of Something objects returned by simple-example call",
+            "description": "Authentication information to be used for further API calls",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CountAndSaveResult"
+                  "$ref": "#/components/schemas/AuthInfo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Login failed, invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorInfo"
                 }
               }
             }
           }
         },
         "tags": [
-          "client_example.0x24"
+          "dataframes_example.0x24"
         ],
         "security": [
           {
@@ -276,29 +405,11 @@
         ]
       }
     },
-    "/api/client-example/0x24/handle-responses": {
+    "/api/dataframes-example/0x24/basic-auth/0x24/refresh": {
       "get": {
-        "summary": "Client Example: Handle Responses",
-        "description": "Non default responses and UnhandledResponse exception\n\nTo manage different types of responses from the same endpoint we can use the `responses` parameter where we list the\nhttp response status codes expected and the corresponding data type for each one. In this example `app_call` expect\nand handle, 200 and 404 responses.\n\nAlso in the code you can see how to handle an expection of type `UnhandledResponse` and log as warining.",
+        "summary": "Basic Auth: Refresh",
+        "description": "This event can be used for obtain new access token and update refresh token (http cookie),\nwith no need to re-login the user if there is a valid refresh token active.",
         "parameters": [
-          {
-            "name": "item_id",
-            "in": "query",
-            "required": true,
-            "description": "Item Id to read",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "partition_key",
-            "in": "query",
-            "required": true,
-            "description": "Partition folder in `YYYY/MM/DD/HH` format",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "X-Track-Request-Id",
             "in": "header",
@@ -317,55 +428,102 @@
               "type": "string",
               "format": "date-time"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Refreshed authentication information to be used for further API calls",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthInfo"
+                }
+              }
+            }
           },
+          "401": {
+            "description": "Login failed, invalid credentials. An http-cookie is expected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorInfo"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "dataframes_example.0x24"
+        ],
+        "security": [
           {
-            "name": "X-Track-Caller",
+            "dataframes_example.0x24.refresh": []
+          }
+        ]
+      }
+    },
+    "/api/dataframes-example/0x24/basic-auth/0x24/logout": {
+      "get": {
+        "summary": "Basic Auth: Logout",
+        "description": "Invalidates previous refresh cookies.",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
             "in": "header",
-            "required": true,
-            "description": "Track information: track.caller",
+            "required": false,
+            "description": "Track information: Request-Id",
             "schema": {
-              "type": "string",
-              "default": "test.caller"
+              "type": "string"
             }
           },
           {
-            "name": "X-Track-Session-Id",
+            "name": "X-Track-Request-Ts",
             "in": "header",
-            "required": true,
-            "description": "Track information: track.session_id",
+            "required": false,
+            "description": "Track information: Request-Ts",
             "schema": {
               "type": "string",
-              "default": "test.session_id"
+              "format": "date-time"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Show the response of the call",
+            "description": "Logged out message.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "required": [
-                    "handle_responses"
+                    "logout"
                   ],
                   "properties": {
-                    "handle_responses": {
+                    "logout": {
                       "type": "string"
                     }
                   },
-                  "description": "handle_responses string payload"
+                  "description": "logout string payload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Login failed, invalid credentials or not logged in.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorInfo"
                 }
               }
             }
           }
         },
         "tags": [
-          "client_example.0x24"
+          "dataframes_example.0x24"
         ],
         "security": [
           {
-            "auth.basic": []
+            "dataframes_example.0x24.refresh": []
           }
         ]
       }
@@ -373,6 +531,68 @@
   },
   "components": {
     "schemas": {
+      "ErrorInfo": {
+        "type": "object",
+        "required": [
+          "msg",
+          "tb"
+        ],
+        "properties": {
+          "msg": {
+            "type": "string"
+          },
+          "tb": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "x-module-name": "hopeit.server.errors",
+        "description": "\n    Error information to be returned in failed responses\n    "
+      },
+      "ContextUserInfo": {
+        "type": "object",
+        "required": [
+          "id",
+          "user",
+          "email"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "x-module-name": "hopeit.basic_auth",
+        "description": "\n    User info that will be available in context during events execution\n    "
+      },
+      "AuthInfo": {
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type",
+          "renew"
+        ],
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "token_type": {
+            "type": "string"
+          },
+          "renew": {
+            "type": "integer"
+          }
+        },
+        "x-module-name": "hopeit.basic_auth",
+        "description": "\n    Minimal auth info that should be returned outside this app\n    "
+      },
       "RuntimeAppInfo": {
         "type": "object",
         "required": [
@@ -973,92 +1193,130 @@
         "x-module-name": "hopeit.config_manager",
         "description": "\n    Combined App Config and Server Status information for running apps\n    "
       },
-      "User": {
+      "Iris": {
         "type": "object",
         "required": [
-          "id",
-          "name"
+          "sepal_length",
+          "sepal_width",
+          "petal_length",
+          "petal_width",
+          "variety"
         ],
         "properties": {
-          "id": {
+          "sepal_length": {
+            "type": "number"
+          },
+          "sepal_width": {
+            "type": "number"
+          },
+          "petal_length": {
+            "type": "number"
+          },
+          "petal_width": {
+            "type": "number"
+          },
+          "variety": {
+            "type": "integer"
+          }
+        },
+        "x-module-name": "hopeit.dataframes.dataframe",
+        "description": "Iris_(sepal_length: float, sepal_width: float, petal_length: float, petal_width: float, variety: int)"
+      },
+      "Dataset": {
+        "type": "object",
+        "required": [
+          "protocol",
+          "partition_key",
+          "key",
+          "datatype"
+        ],
+        "properties": {
+          "protocol": {
             "type": "string"
           },
-          "name": {
+          "partition_key": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "datatype": {
             "type": "string"
           }
         },
-        "x-module-name": "model",
-        "description": "User information"
+        "x-module-name": "hopeit.dataframes.serialization.dataset",
+        "description": "Dataset(protocol: str, partition_key: str, key: str, datatype: str)"
       },
-      "Status": {
+      "InputData": {
         "type": "object",
         "required": [
-          "ts",
-          "type"
+          "iris"
         ],
         "properties": {
-          "ts": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "NEW",
-              "LOADED",
-              "SUBMITTED",
-              "PROCESSED"
-            ],
-            "x-enum-name": "StatusType",
-            "x-module-name": "model"
+          "iris": {
+            "$ref": "#/components/schemas/Dataset"
           }
         },
-        "x-module-name": "model",
-        "description": "Status change"
+        "x-module-name": "hopeit.dataframes.dataframeobject",
+        "description": "InputData_(iris: hopeit.dataframes.serialization.dataset.Dataset)"
       },
-      "Something": {
+      "IrisPredictionRequest": {
         "type": "object",
         "required": [
-          "id",
-          "user"
+          "prediction_id",
+          "features"
         ],
         "properties": {
-          "id": {
+          "prediction_id": {
             "type": "string"
           },
-          "user": {
-            "$ref": "#/components/schemas/User"
+          "features": {
+            "$ref": "#/components/schemas/IrisFeatures"
+          }
+        },
+        "x-module-name": "dataframes_example.iris",
+        "description": "IrisPredictionRequest(prediction_id: str, features: dataframes_example.iris.IrisFeatures)"
+      },
+      "IrisFeatures": {
+        "type": "object",
+        "required": [
+          "sepal_length",
+          "sepal_width",
+          "petal_length",
+          "petal_width"
+        ],
+        "properties": {
+          "sepal_length": {
+            "type": "number"
           },
-          "status": {
-            "$ref": "#/components/schemas/Status"
+          "sepal_width": {
+            "type": "number"
           },
-          "history": {
+          "petal_length": {
+            "type": "number"
+          },
+          "petal_width": {
+            "type": "number"
+          }
+        },
+        "x-module-name": "hopeit.dataframes.dataframe",
+        "description": "IrisFeatures_(sepal_length: float, sepal_width: float, petal_length: float, petal_width: float)"
+      },
+      "IrisBatchPredictionRequest": {
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Status"
-            },
-            "default": []
+              "$ref": "#/components/schemas/IrisPredictionRequest"
+            }
           }
         },
-        "x-module-name": "model",
-        "description": "Example Something event"
-      },
-      "CountAndSaveResult": {
-        "type": "object",
-        "required": [
-          "count",
-          "save_path"
-        ],
-        "properties": {
-          "count": {
-            "type": "integer"
-          },
-          "save_path": {
-            "type": "string"
-          }
-        },
-        "x-module-name": "client_example",
-        "description": "CountAndSaveResult(count: int, save_path: str)"
+        "x-module-name": "dataframes_example.iris",
+        "description": "IrisBatchPredictionRequest(items: List[dataframes_example.iris.IrisPredictionRequest])"
       }
     },
     "securitySchemes": {
@@ -1069,6 +1327,11 @@
       "auth.bearer": {
         "type": "http",
         "scheme": "bearer"
+      },
+      "dataframes_example.0x24.refresh": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "dataframes_example.0x24.refresh"
       }
     }
   },

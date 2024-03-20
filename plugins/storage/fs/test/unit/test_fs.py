@@ -274,7 +274,6 @@ async def test_list_objects(monkeypatch):
     ]
 
     files = await fs.list_files()
-    print(files)
     assert files == [
         ItemLocator("1.json", None),
         ItemLocator("2.json", None),

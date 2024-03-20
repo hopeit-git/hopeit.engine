@@ -1,0 +1,56 @@
+{
+    "app": {
+        "name": "dataframes-example",
+        "version": "${HOPEIT_APPS_API_VERSION}"
+    },
+    "plugins": [
+        {
+            "name": "dataframes",
+            "version": "${HOPEIT_APPS_API_VERSION}"
+        },
+        {
+            "name": "basic-auth",
+            "version": "${HOPEIT_APPS_API_VERSION}"
+        }
+    ],
+    "engine": {
+        "track_headers": [],
+        "cors_origin": "*"
+    },
+    "settings": {
+        "data_storage": {
+            "ingest_data_path": "apps/examples/dataframes-example/data/raw"
+        },
+        "model_storage": {
+            "path": "apps/examples/dataframes-example/data/{auto}"
+        },
+        "experiment_storage": {
+            "path": "apps/examples/dataframes-example/data/{auto}",
+            "partition_dateformat": "%Y/%m/%d/%H/"
+        }
+    },
+    "events": {
+        "setup_storage": {
+            "type": "SETUP",
+            "setting_keys": [
+                "model_storage",
+                "experiment_storage"
+            ]
+        },
+        "prepare_data": {
+            "type": "GET",
+            "setting_keys": [
+                "data_storage"
+            ]
+        },
+        "train_model": {
+            "type": "POST",
+            "setting_keys": [
+                "data_storage"
+            ]
+        },
+        "predict": {
+            "type": "POST"
+        }
+    }
+}

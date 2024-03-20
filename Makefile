@@ -60,6 +60,10 @@ install-plugin:
 	cd $(PLUGINFOLDER) && \
 	pip install -U -e .
 
+install-plugin-extras:
+	cd $(PLUGINFOLDER) && \
+	pip install -U -e .[$(PLUGINEXTRAS)]
+
 qa: test check
 	echo "DONE."
 
@@ -104,6 +108,7 @@ pypi-test-plugin:
 update-examples-api: install-examples
 	bash apps/examples/simple-example/api/create_openapi_file.sh && \
 	bash apps/examples/client-example/api/create_openapi_file.sh && \
+	bash apps/examples/dataframes-example/api/create_openapi_file.sh && \
 	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
 
 install-examples:
@@ -116,8 +121,10 @@ install-examples:
 	make PLUGINFOLDER=plugins/ops/apps-visualizer install-plugin && \
 	make PLUGINFOLDER=plugins/auth/basic-auth install-plugin && \
 	make PLUGINFOLDER=plugins/clients/apps-client install-plugin && \
+	make PLUGINFOLDER=plugins/data/dataframes PLUGINEXTRAS=pyarrow install-plugin-extras && \
 	make APPFOLDER=apps/examples/simple-example install-app && \
-	make APPFOLDER=apps/examples/client-example install-app
+	make APPFOLDER=apps/examples/client-example install-app && \
+	make APPFOLDER=apps/examples/dataframes-example install-app
 
 run-simple-example:
 	export PYTHONPATH=apps/examples/simple-example/src && \

@@ -1,0 +1,23 @@
+{
+  "app" : {
+    "name": "dataframes",
+    "version": "${HOPEIT_APPS_API_VERSION}"
+  },
+  "engine" : {
+    "import_modules": ["hopeit.dataframes"]
+  },
+  "settings" : {
+    "dataset_serialization": {
+      "protocol": "hopeit.dataframes.serialization.files.DatasetFileStorage",
+      "location": "apps/examples/dataframes-example/data/{auto}",
+      "partition_dateformat": "%Y/%m/%d/%H/"
+    }
+  },
+  "events": {
+    "setup.dataframes": {
+      "type": "SETUP",
+      "plug_mode": "Standalone",
+      "setting_keys": ["dataset_serialization"]
+    }
+  }
+}

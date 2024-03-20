@@ -52,6 +52,12 @@ export PYTHONPATH=engine/src/:plugins/storage/fs/src/:plugins/ops/log-streamer/s
 code+=$?
 fi
 
+if [ "$1" == "" ] || [ "data/dataframes" = "$1" ] ; then
+# data/dataframes
+export PYTHONPATH=engine/src/:plugins/storage/fs/src/:plugins/data/dataframes/src/:plugins/data/dataframes/test/integration/ && python3 -m pytest -v --cov-fail-under=80 --cov-report=term --cov=plugins/data/dataframes/src/ plugins/data/dataframes/test/integration/
+code+=$?
+fi
+
 if [ $code -gt 0 ]
 then
   echo "[FAILED] CI TEST: PLUGINS"

@@ -17,7 +17,12 @@ types-redis
 black
 isort
 
-# Plugin dependencies
+# Plugin test dependencies
 redis
 watchdog
 uvloop
+
+# data/dataframes plugin tests
+pandas 
+pandas-stubs
+pyarrow

@@ -46,6 +46,22 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "dataframes-example",
+            "type": "python",
+            "request": "launch",
+            "module": "hopeit.server.web",
+            "env": {
+            },
+            "args": [
+                "--port=8040",
+                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/data/dataframes/config/plugin-config.json,apps/examples/dataframes-example/config/app-config.json",
+                "--api-file=apps/examples/dataframes-example/api/openapi.json",
+                "--start-streams",
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "apps-visualizer",
             "type": "python",
             "request": "launch",
