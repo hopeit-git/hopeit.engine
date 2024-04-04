@@ -82,6 +82,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         self, **series: pd.Series
     ):  # pylint: disable=bad-staticmethod-argument
         df = pd.DataFrame(series)
+        df.index.name = None  # Removes index name to avoid colisions with series name
         if self.__data_object__["validate"]:
             df = pd.DataFrame(self._coerce_datatypes(df))
         setattr(self, "__df", df[self.__dataframe__.columns])
