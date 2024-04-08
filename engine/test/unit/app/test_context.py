@@ -56,7 +56,7 @@ async def test_preprocess_file_hook_read_none():
 
 
 @pytest.mark.asyncio
-async def test_preprocess_hook():
+async def test_preprocess_hook_read_chunks():
     attachment_data = b'testdatatestdatatestdatatestdata'
     fields = {'a': 'field-a', 'b': 'field-b', 'file-a': 'filename-a', 'file-b': 'filename-b',
               'c': {"name": "field-c"}}
@@ -74,6 +74,56 @@ async def test_preprocess_hook():
         async for chunk in file.read_chunks():
             file_data[file.name] += chunk
 
+    assert file_data == attachments
+
+    args = await hook.parsed_args()
+    assert args == fields
+
+
+@pytest.mark.asyncio
+async def test_preprocess_hook_read():
+    attachment_data = b'testdatatestdatatestdatatestdata'
+    fields = {'a': 'field-a', 'b': 'field-b', 'file-a': 'filename-a', 'file-b': 'filename-b',
+              'c': {"name": "field-c"}}
+    attachments = {'file-a': attachment_data, 'file-b': attachment_data}
+    reader = MockMultipartReader(fields=fields, attachments=attachments)
+    hook = PreprocessHook(
+        headers={},
+        multipart_reader=reader,
+        file_hook_factory=MockFileHook
+    )
+
+    file_data = {'file-a': b'', 'file-b': b''}
+    async for file in hook.files():
+        assert file.file_name == fields[file.name]
+        chunk = await file.read(chunk_size=3)
+        while chunk:
+            file_data[file.name] += chunk
+            chunk = await file.read(chunk_size=3)
+
+    assert file_data == attachments
+
+    args = await hook.parsed_args()
+    assert args == fields
+
+
+@pytest.mark.asyncio
+async def test_preprocess_hook_read_once():
+    attachment_data = b'testdatatestdatatestdatatestdata'
+    fields = {'a': 'field-a', 'b': 'field-b', 'file-a': 'filename-a', 'file-b': 'filename-b',
+              'c': {"name": "field-c"}}
+    attachments = {'file-a': attachment_data, 'file-b': attachment_data}
+    reader = MockMultipartReader(fields=fields, attachments=attachments)
+    hook = PreprocessHook(
+        headers={},
+        multipart_reader=reader,
+        file_hook_factory=MockFileHook
+    )
+
+    file_data = {'file-a': b'', 'file-b': b''}
+    async for file in hook.files():
+        assert file.file_name == fields[file.name]
+        file_data[file.name] = await file.read()
     assert file_data == attachments
 
     args = await hook.parsed_args()

@@ -81,9 +81,10 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     def __init_from_series__(
         self, **series: pd.Series
     ):  # pylint: disable=bad-staticmethod-argument
-        if self.__data_object__["validate"]:
-            series = self._coerce_datatypes(series)
         df = pd.DataFrame(series)
+        df.index.name = None  # Removes index name to avoid colisions with series name
+        if self.__data_object__["validate"]:
+            df = pd.DataFrame(self._coerce_datatypes(df))
         setattr(self, "__df", df[self.__dataframe__.columns])
 
     @classmethod
@@ -171,9 +172,9 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         else:
             object.__setattr__(self, name, value)
 
-    def _coerce_datatypes(self, series: Dict[str, pd.Series]) -> Dict[str, pd.Series]:
+    def _coerce_datatypes(self, df: pd.DataFrame) -> Dict[str, pd.Series]:
         return {
-            name: self.DATATYPE_MAPPING[field.type](series[name])  # type: ignore
+            name: self.DATATYPE_MAPPING[field.type](df[name])  # type: ignore
             for name, field in self.__dataframe__.fields.items()
         }
 
