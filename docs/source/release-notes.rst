@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+Version 0.24.2
+______________
+- Plugin:
+  
+  - dataframes (beta):
+    - Fix: construction from series compatible with pandas
+    - Fix: clean index name on new dataframe creation
+
+
 Version 0.24.1
 ______________
 - Plugin:
