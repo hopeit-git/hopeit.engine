@@ -56,13 +56,17 @@ class DataFrameObjectMixin(Generic[DataFrameObjectT]):
         """Saves internal `@dataframe`s using configured serialization protocol
         and returns json-serialiable dataobject
         """
+        if not hasattr(self, "_datasets"):
+            self._datasets = {}
         datasets = {}
         for field in fields(self):  # type: ignore
             if _is_dataframe_field(field):
-                dataframe = getattr(self, field.name)
-                dataset = (
-                    None if dataframe is None else await self.__storage.save(dataframe)
-                )
+                dataset = self._datasets.get(field.name)
+                if dataset is None:  # do not serialized lazily load datasets
+                    dataframe = getattr(self, field.name)
+                    dataset = (
+                        None if dataframe is None else await self.__storage.save(dataframe)
+                    )
                 datasets[field.name] = dataset
             else:
                 datasets[field.name] = getattr(self, field.name)
@@ -75,16 +79,38 @@ class DataFrameObjectMixin(Generic[DataFrameObjectT]):
         """From a serialized datframeobject, load inner `@dataframe` objects
         and returns a `@dataframeobject` instance"""
         dataframes = {}
+        datasets = {}
         for field in fields(cls):  # type: ignore
             if _is_dataframe_field(field):
                 dataset = getattr(serialized, field.name)
-                dataframe = (
-                    None if dataset is None else await cls.__storage.load(dataset)
-                )
-                dataframes[field.name] = dataframe
+                # dataframe = (
+                #     None if dataset is None else await cls.__storage.load(dataset)
+                # )
+                # dataframes[field.name] = dataframe
+                if dataset is not None:
+                    datasets[field.name] = dataset
+                dataframes[field.name] = None
             else:
                 dataframes[field.name] = getattr(serialized, field.name)
-        return cls(**dataframes)
+        obj = cls(**dataframes)
+        obj._datasets = datasets
+        return obj
+    
+    async def _get(self, field_name: str) -> Any:
+        dataset = self._datasets.get(field_name)
+        if dataset is not None:
+            # Lazily load dataset on access
+            setattr(self, field_name, None if dataset is None else await self.__storage.load(dataset))
+            del self._datasets[field_name]
+        return getattr(self, field_name)
+    
+    def __getitem__(self, item):
+        return self._get(item)
+    
+    # def __getattribute__(self, name: str) -> Any:
+    #     if name in self.datasets:
+    #         raise AttributeError(f"""Dataframe must be loaded using `await object["{name}"]`""")
+    #     return object.__getattribute__(name)
 
     @classmethod
     def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
