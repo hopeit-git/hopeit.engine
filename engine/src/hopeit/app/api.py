@@ -6,6 +6,7 @@ from functools import partial
 from typing import Optional, List, Type, Dict, Callable, Union, Tuple, Any, TypeVar
 
 import re
+import typing
 import typing_inspect  # type: ignore
 
 from hopeit.dataobjects import BinaryDownload
@@ -90,12 +91,21 @@ def _payload_schema(event_name: str, arg: PayloadDef) -> dict:
     return datatype_schema(event_name, datatype)
 
 
+def get_type_string(tp):
+    origin = typing.get_origin(tp)
+    args = typing.get_args(tp)
+    if origin is None:
+        return getattr(tp, "__name__")
+    if origin is list:
+        args = [getattr(arg, "__name__") for arg in args]
+        return f"List[{', '.join(args)}]"
+    return ""
+
+
 def _payload_description(arg: PayloadDef) -> str:
     if isinstance(arg, tuple):
         return arg[1]
-    if hasattr(arg, '__name__'):
-        return arg.__name__
-    return str(arg)
+    return get_type_string(arg)
 
 
 def _method_summary(module: str, summary: Optional[str] = None) -> str:
