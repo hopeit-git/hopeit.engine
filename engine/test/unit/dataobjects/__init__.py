@@ -1,6 +1,8 @@
 from datetime import datetime
+from typing import Optional
 
 from hopeit.dataobjects import dataobject, dataclass
+from pydantic import ConfigDict
 
 
 @dataobject
@@ -53,8 +55,8 @@ class MockDataValidate:
     value: int
 
 
-@dataobject(validate=False)
+@dataobject
 @dataclass
-class MockDataDoNotValidate:
+class MockDataNullable:
     id: str
-    value: int
+    value: Optional[int]

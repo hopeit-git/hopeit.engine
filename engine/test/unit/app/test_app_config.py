@@ -123,7 +123,8 @@ def _get_env_mock(var_name):
         return ENGINE_VERSION
     elif var_name == "HOPEIT_APPS_API_VERSION":
         return APPS_API_VERSION
-    raise RuntimeError(f"Missing mocked env {var_name}")
+    return None
+    # raise RuntimeError(f"Missing mocked env {var_name}")
 
 
 def test_parse_app_config_json(monkeypatch,

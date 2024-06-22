@@ -110,7 +110,6 @@ def dataobject(
         event_id: Optional[str] = None,
         event_ts: Optional[str] = None,
         unsafe: bool = False,
-        validate: bool = True,
         schema: bool = True):
     """
     Decorator for dataclasses intended to be used in API and/or streams. This decorated mainly implements
@@ -170,7 +169,7 @@ def dataobject(
 
     def wrap(cls):
         amended_class = cls
-        setattr(amended_class, '__data_object__', {'unsafe': unsafe, 'validate': validate, 'schema': schema})
+        setattr(amended_class, '__data_object__', {'unsafe': unsafe, 'schema': schema})
         setattr(amended_class, '__stream_event__', StreamEventParams(event_id, event_ts))
         setattr(amended_class, 'event_id', StreamEventMixin.event_id)
         setattr(amended_class, 'event_ts', StreamEventMixin.event_ts)

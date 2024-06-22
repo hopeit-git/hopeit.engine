@@ -3,7 +3,7 @@ Payload tools to serialize and deserialze event payloads and responses, includin
 """
 
 import json
-from typing import Type, Generic, Optional, Union
+from typing import Dict, Type, Generic, Optional, Union
 
 from pydantic import RootModel, ValidationError
 
@@ -33,8 +33,8 @@ class Payload(Generic[EventPayloadType]):
         :param key: key to extract atomic types from
         :return: instance of datatype
         """
-        # if datatype in _ATOMIC_TYPES:
-        #     return RootModel[datatype].model_validate_json(json_str).root
+        if datatype in _ATOMIC_TYPES:
+             return RootModel[Dict[str, datatype]].model_validate_json(json_str).root.get(key)
         # if datatype in _COLLECTION_TYPES:
         #     return RootModel[datatype].model_validate_json(json_str).root
         try:
@@ -49,8 +49,7 @@ class Payload(Generic[EventPayloadType]):
     @staticmethod
     def from_obj(data: Union[dict, list],
                  datatype: Type[EventPayloadType],
-                 key: str = 'value',
-                 item_datatype: Optional[Type[EventPayloadType]] = None) -> EventPayloadType:
+                 key: str = 'value') -> EventPayloadType:
         """
         Converts dictionary to desired datatype
 

@@ -159,11 +159,11 @@ def dataframeobject(
             ),
         )
 
-    def add_dataobject_annotations(cls, unsafe: bool, validate: bool, schema: bool):
+    def add_dataobject_annotations(cls, unsafe: bool, schema: bool):
         setattr(
             cls,
             "__data_object__",
-            {"unsafe": unsafe, "validate": validate, "schema": schema},
+            {"unsafe": unsafe, "schema": schema},
         )
         setattr(cls, "__stream_event__", StreamEventParams(None, None))
         setattr(cls, "event_id", StreamEventMixin.event_id)
@@ -175,7 +175,7 @@ def dataframeobject(
         amended_class = add_dataframe_mixin(cls)
         add_dataframeobject_metadata(amended_class)
         add_dataobject_annotations(
-            amended_class, unsafe=False, validate=True, schema=True
+            amended_class, unsafe=False, schema=True
         )
         return amended_class
 
