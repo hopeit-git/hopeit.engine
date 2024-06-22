@@ -1,12 +1,11 @@
 """Iris datasets schemas
 """
 
-from hopeit.dataobjects import dataclass, field
 from datetime import datetime
 from typing import List, Optional
 
 from hopeit.dataframes import dataframe, dataframeobject
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataobject, dataclass, field
 
 
 @dataframe

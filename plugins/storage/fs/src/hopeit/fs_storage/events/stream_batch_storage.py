@@ -80,7 +80,6 @@ import asyncio
 import dataclasses
 import os
 import uuid
-from hopeit.dataobjects import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -88,7 +87,7 @@ import aiofiles
 from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn
 from hopeit.app.logger import app_extra_logger
-from hopeit.dataobjects import DataObject, dataobject
+from hopeit.dataobjects import DataObject, dataobject, dataclass
 from hopeit.dataobjects.payload import Payload
 from hopeit.fs_storage import FileStorageSettings
 from hopeit.fs_storage.partition import get_partition_key

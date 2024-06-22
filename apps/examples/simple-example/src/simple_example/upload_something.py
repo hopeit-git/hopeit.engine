@@ -5,14 +5,14 @@ Uploads file using multipart upload support. Returns metadata Something object.
 ```
 """
 from typing import List, Union
-from hopeit.dataobjects import dataclass, field
+
 import os
 from pathlib import Path
 
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
-from hopeit.dataobjects import dataobject, BinaryAttachment
+from hopeit.dataobjects import dataclass, dataobject, field, BinaryAttachment
 from hopeit.dataobjects.payload import Payload
 from hopeit.toolkit.web import save_multipart_attachment
 

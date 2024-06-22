@@ -5,13 +5,12 @@ This example will spawn 2 copies of payload data, those are going to be send to 
 and processed in asynchronously / in parallel if multiple nodes are available,
 then submitted to other stream to be updated and saved
 """
-from hopeit.dataobjects import dataclass
 from datetime import datetime, timezone
 from typing import Optional, Union
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataobject, dataclass
 from hopeit.app.events import Spawn, SHUFFLE
 from hopeit.app.logger import app_extra_logger
 from hopeit.fs_storage import FileStorage, FileStorageSettings
