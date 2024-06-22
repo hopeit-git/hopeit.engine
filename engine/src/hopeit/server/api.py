@@ -317,9 +317,6 @@ def enable_swagger(server_config: ServerConfig, app: web.Application):
         logger.warning(
             __name__, "OpenAPI documentation path not specified in server config. API docs endpoint disabled.")
 
-    # spec['components']['schemas']['Something']['properties']['status'] = (
-    #     spec['components']['schemas']['Something']['properties']['status']["anyOf"][0]
-    # )
 
     swagger = Swagger(
         app,

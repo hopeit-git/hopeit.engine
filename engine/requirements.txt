@@ -1,8 +1,7 @@
 aiohttp>=3.9.0,<4
 aiohttp-cors
 aiohttp-swagger3>=0.8.0
-dataclasses-jsonschema[fast-validation]>=2.16.0
-fastjsonschema
+pydantic>=2.7.4
 stringcase>=1.2.0
 lz4>=4.3.2
 cryptography>=41.0.7
