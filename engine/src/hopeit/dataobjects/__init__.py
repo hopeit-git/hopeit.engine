@@ -168,7 +168,7 @@ def dataobject(
     """
 
     def wrap(cls):
-        amended_class = _add_jsonschema_support(cls)
+        amended_class = cls
         setattr(amended_class, '__data_object__', {'unsafe': unsafe, 'validate': validate, 'schema': schema})
         setattr(amended_class, '__stream_event__', StreamEventParams(event_id, event_ts))
         setattr(amended_class, 'event_id', StreamEventMixin.event_id)
@@ -178,13 +178,6 @@ def dataobject(
     if decorated_class is None:
         return wrap
     return wrap(decorated_class)
-
-
-def _add_jsonschema_support(cls):
-    if hasattr(cls, '__root_model__'):
-        return cls
-    setattr(cls, '__root_model__', RootModel[cls])
-    return cls
 
 
 def _binary_copy(payload: Any) -> Any:

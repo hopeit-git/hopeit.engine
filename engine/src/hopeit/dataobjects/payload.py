@@ -33,14 +33,14 @@ class Payload(Generic[EventPayloadType]):
         :param key: key to extract atomic types from
         :return: instance of datatype
         """
-        if datatype in _ATOMIC_TYPES:
-            return RootModel[datatype].model_validate_json(json_str).root
-        if datatype in _COLLECTION_TYPES:
-            return RootModel[datatype].model_validate_json(json_str).root
+        # if datatype in _ATOMIC_TYPES:
+        #     return RootModel[datatype].model_validate_json(json_str).root
+        # if datatype in _COLLECTION_TYPES:
+        #     return RootModel[datatype].model_validate_json(json_str).root
         try:
-            return datatype.__root_model__.model_validate_json(json_str).root
-        except ValidationError as e:
-            raise # ValueError(f"Cannot read JSON: type={datatype} validation_error={str(e)}") from e
+            return RootModel[datatype].model_validate_json(json_str).root
+        except ValidationError:
+            raise
         except Exception:
             assert hasattr(datatype, '__data_object__'), \
                 f"{datatype} should be annotated with @dataobject"
@@ -62,22 +62,22 @@ class Payload(Generic[EventPayloadType]):
         """
         if datatype in _ATOMIC_TYPES:
             return RootModel[datatype].model_validate(data.get(key)).root
-        if datatype in _MAPPING_TYPES:
-            if item_datatype and isinstance(data, _MAPPING_TYPES):
-                return {  # type: ignore
-                    k: Payload.from_obj(v, item_datatype, key) for k, v in data.items()
-                }
-            return RootModel[datatype].model_validate(data).root
-        if datatype in _LIST_TYPES:
-            if item_datatype and isinstance(data, _LIST_TYPES):
-                return datatype([  # type: ignore
-                    Payload.from_obj(v, item_datatype, key) for v in data
-                ])
-            return datatype(data)  # type: ignore
+        # if datatype in _MAPPING_TYPES:
+        #     if item_datatype and isinstance(data, _MAPPING_TYPES):
+        #         return {  # type: ignore
+        #             k: Payload.from_obj(v, item_datatype, key) for k, v in data.items()
+        #         }
+        #     return RootModel[datatype].model_validate(data).root
+        # if datatype in _LIST_TYPES:
+        #     if item_datatype and isinstance(data, _LIST_TYPES):
+        #         return datatype([  # type: ignore
+        #             Payload.from_obj(v, item_datatype, key) for v in data
+        #         ])
+        #     return datatype(data)  # type: ignore
         try:
-            return datatype.__root_model__.model_validate(data).root
-        except ValidationError as e:
-            raise # ValueError(f"Cannot read object: type={datatype} validation_error={str(e)}") from e
+            return RootModel[datatype].model_validate(data).root
+        except ValidationError:
+            raise
         except Exception:
             assert hasattr(datatype, '__data_object__'), \
                 f"{datatype} should be annotated with @dataobject"
@@ -97,14 +97,14 @@ class Payload(Generic[EventPayloadType]):
             if key is None:
                 return json.dumps(payload)
             return json.dumps({key: payload})
-        if isinstance(payload, _LIST_TYPES):
-            return "[" + ', '.join(Payload.to_json(item, key=None) for item in payload) + "]"
-        if isinstance(payload, _MAPPING_TYPES):
-            return "{" + ', '.join(
-                f'"{str(k)}": {Payload.to_json(item, key=None)}' for k, item in payload.items()
-            ) + "}"
+        # if isinstance(payload, _LIST_TYPES):
+        #     return "[" + ', '.join(Payload.to_json(item, key=None) for item in payload) + "]"
+        # if isinstance(payload, _MAPPING_TYPES):
+        #     return "{" + ', '.join(
+        #         f'"{str(k)}": {Payload.to_json(item, key=None)}' for k, item in payload.items()
+        #     ) + "}"
         try:
-            return payload.__root_model__.model_dump_json(payload)
+            return RootModel(payload).model_dump_json()
         except (ValidationError, AttributeError) as e:
             raise 
         except Exception:
@@ -128,14 +128,14 @@ class Payload(Generic[EventPayloadType]):
             if key is None:
                 return payload  # type: ignore  # only for recursive use
             return {key: payload}
-        if isinstance(payload, _UNORDERED_LIST_TYPES):
-            return [Payload.to_obj(v, key=None) for v in sorted(payload)]
-        if isinstance(payload, _LIST_TYPES):
-            return [Payload.to_obj(v, key=None) for v in payload]
-        if isinstance(payload, _MAPPING_TYPES):
-            return {k: Payload.to_obj(v, key=None) for k, v in payload.items()}
+        # if isinstance(payload, _UNORDERED_LIST_TYPES):
+        #     return [Payload.to_obj(v, key=None) for v in sorted(payload)]
+        # if isinstance(payload, _LIST_TYPES):
+        #     return [Payload.to_obj(v, key=None) for v in payload]
+        # if isinstance(payload, _MAPPING_TYPES):
+        #     return {k: Payload.to_obj(v, key=None) for k, v in payload.items()}
         try:
-            return payload.__root_model__.model_dump(payload)
+            return RootModel(payload).model_dump()
         except (ValidationError, AttributeError) as e:
             raise # ValueError(f"Cannot convert to dict: type={type(payload)} validation_error={str(e)}") from e
         except Exception:
