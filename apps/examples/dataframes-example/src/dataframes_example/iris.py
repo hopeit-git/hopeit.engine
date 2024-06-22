@@ -1,7 +1,7 @@
 """Iris datasets schemas
 """
 
-from dataclasses import dataclass, field
+from hopeit.dataobjects import dataclass, field
 from datetime import datetime
 from typing import List, Optional
 

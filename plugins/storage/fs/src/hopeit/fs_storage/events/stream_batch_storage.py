@@ -77,9 +77,10 @@ each line is a valid single-line json object resulting of serializing the
 dataobjects consumed from the input stream.
 """
 import asyncio
+import dataclasses
 import os
 import uuid
-from dataclasses import dataclass, field
+from hopeit.dataobjects import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -97,10 +98,10 @@ logger, extra = app_extra_logger()
 __steps__ = ['buffer_item', 'flush']
 
 
-@dataclass
+@dataclasses.dataclass
 class Partition:
-    lock: asyncio.Lock = field(default_factory=asyncio.Lock)
-    items: List[DataObject] = field(default_factory=list)  # type: ignore
+    lock: asyncio.Lock = dataclasses.field(default_factory=asyncio.Lock)
+    items: List[DataObject] = dataclasses.field(default_factory=list)  # type: ignore
 
 
 SUFFIX = '.jsonlines'

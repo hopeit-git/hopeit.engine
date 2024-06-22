@@ -6,9 +6,8 @@ from typing import TypeVar, List, Optional
 import re
 import os
 
-from dataclasses import dataclass, field
-
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataobject, dataclass, field
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.names import auto_path_prefixed
 from hopeit.server.version import ENGINE_VERSION
 
@@ -114,7 +113,7 @@ def parse_server_config_json(config_json: str) -> ServerConfig:
     respective values (@see _replace_args)
     """
     effective_json = replace_env_vars(config_json)
-    parsed_config = ServerConfig.from_json(effective_json)  # type: ignore
+    parsed_config: ServerConfig = Payload.from_json(effective_json, datatype=ServerConfig)
     replace_config_args(
         parsed_config=parsed_config,
         config_classes=tuple([StreamsConfig])

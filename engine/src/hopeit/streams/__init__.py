@@ -3,11 +3,11 @@ Streams module. Handles reading and writing to streams.
 """
 from abc import ABC
 import asyncio
+import dataclasses
 import os
 import socket
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Union
-from dataclasses import dataclass
 from importlib import import_module
 
 from hopeit.app.config import Compression, Serialization
@@ -21,7 +21,7 @@ extra = extra_logger()
 __all__ = ["StreamEvent", "StreamManager", "stream_auth_info", "StreamOSError"]
 
 
-@dataclass
+@dataclasses.dataclass
 class StreamEvent:
     msg_internal_id: bytes
     queue: str

@@ -4,7 +4,7 @@ Server error handling convenience module
 import traceback
 import json
 import urllib.parse
-from dataclasses import dataclass
+from hopeit.dataobjects import dataclass
 from typing import List
 
 from hopeit.dataobjects import dataobject

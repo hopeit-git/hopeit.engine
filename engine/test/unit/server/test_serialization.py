@@ -1,6 +1,6 @@
 import base64
 import pickle
-from dataclasses import dataclass
+from hopeit.dataobjects import dataclass
 import sys
 
 from hopeit.app.config import Serialization, Compression

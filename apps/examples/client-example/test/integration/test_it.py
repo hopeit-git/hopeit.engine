@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from hopeit.dataobjects import dataclass
 from typing import List, Type, Union
 import pytest
 from base64 import b64encode

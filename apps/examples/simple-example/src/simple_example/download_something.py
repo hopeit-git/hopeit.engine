@@ -3,7 +3,7 @@ Simple Example: Download Something
 -----------------------------------------
 Download image file. The PostprocessHook return the requested file as stream.
 """
-from dataclasses import dataclass
+from hopeit.dataobjects import dataclass
 import os
 import shutil
 

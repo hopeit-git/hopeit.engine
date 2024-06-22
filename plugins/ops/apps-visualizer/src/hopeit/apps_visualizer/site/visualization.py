@@ -3,7 +3,7 @@ Visualization metadata
 """
 from hopeit.app.context import EventContext
 from typing import Dict, Any, Optional
-from dataclasses import dataclass, field
+from hopeit.dataobjects import dataclass, field
 
 from hopeit.dataobjects import dataobject
 

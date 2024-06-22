@@ -289,11 +289,12 @@ class RedisStreamManager(StreamManager):
         ), "Invalid message format. Expected `[bytes, bytes, Dict[bytes, bytes]]`"
         compression = Compression(msg[1][b"comp"].decode())
         serialization = Serialization(msg[1][b"ser"].decode())
+        payload = await deserialize(
+            msg[1][b"payload"], serialization, compression, datatype
+        )
         return StreamEvent(
             msg_internal_id=msg[0],
-            payload=await deserialize(
-                msg[1][b"payload"], serialization, compression, datatype
-            ),  # type: ignore
+            payload=payload,
             queue=msg[1]
             .get(b"queue", DEFAULT_QUEUE)
             .decode(),  # Default ensures backwards compat

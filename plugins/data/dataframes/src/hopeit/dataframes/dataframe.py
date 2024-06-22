@@ -13,7 +13,7 @@ Example:
         number: int
 """
 
-from dataclasses import Field, asdict, dataclass, fields, make_dataclass
+from dataclasses import Field, dataclass, fields, make_dataclass
 from datetime import date, datetime, timezone
 from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar
 

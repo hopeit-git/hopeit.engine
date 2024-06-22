@@ -3,7 +3,7 @@ Storage/persistence asynchronous stores and gets dataobjects from filesystem.
 
 """
 
-from dataclasses import dataclass
+from hopeit.dataobjects import dataclass
 import io
 import os
 import shutil

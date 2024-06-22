@@ -1,5 +1,5 @@
 from pathlib import Path
-from dataclasses import dataclass
+from hopeit.dataobjects import dataclass
 from hopeit.app.api import event_api
 from hopeit.dataobjects import BinaryDownload
 from hopeit.app.context import EventContext, PostprocessHook

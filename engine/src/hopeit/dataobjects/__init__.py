@@ -19,12 +19,12 @@ Example:
 """
 import pickle
 import uuid
-from dataclasses import dataclass
+from pydantic import RootModel
+from pydantic.dataclasses import dataclass, Field as field
 from datetime import datetime
 from decimal import Decimal
 from typing import TypeVar, Optional, Union, Any
 
-from dataclasses_jsonschema import JsonSchemaMixin
 
 __all__ = ['EventPayload',
            'EventPayloadType',
@@ -32,7 +32,9 @@ __all__ = ['EventPayload',
            'dataobject',
            'DataObject',
            'copy_payload',
-           'payload']
+           'payload',
+           'dataclass',
+           'field']
 
 
 @dataclass
@@ -76,7 +78,7 @@ class StreamEventMixin:
         return None
 
 
-DataObject = TypeVar("DataObject", bound=JsonSchemaMixin)
+DataObject = TypeVar("DataObject", bound=RootModel)
 EventPayload = Union[str, int, float, bool, dict, set, list, DataObject]
 EventPayloadType = TypeVar("EventPayloadType")  # pylint: disable=invalid-name
 
@@ -179,13 +181,9 @@ def dataobject(
 
 
 def _add_jsonschema_support(cls):
-    if hasattr(cls, '__data_object__'):
+    if hasattr(cls, '__root_model__'):
         return cls
-    if hasattr(cls, '__annotations__') and hasattr(cls, '__dataclass_fields__'):
-        amended_class = type(cls.__name__,
-                             (JsonSchemaMixin,) + cls.__mro__,
-                             dict(cls.__dict__))
-        return amended_class
+    setattr(cls, '__root_model__', RootModel[cls])
     return cls
 
 

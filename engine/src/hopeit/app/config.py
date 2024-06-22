@@ -2,11 +2,10 @@
 Config module: apps config data model and json loader
 """
 from copy import deepcopy
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, Optional, Type, Union, List, Generic
 
-from hopeit.dataobjects import EventPayloadType, dataobject
+from hopeit.dataobjects import EventPayloadType, dataobject, dataclass, field
 from hopeit.dataobjects.payload import Payload
 from hopeit.server.config import replace_config_args, replace_env_vars, ServerConfig, AuthType
 from hopeit.server.names import auto_path
@@ -442,12 +441,12 @@ class AppConfig:
             settings_data = deepcopy(self.settings.get(event_name, {"stream": {}}))
             stream_settings.update(settings_data.get('stream', {}))
             settings_data['stream'] = stream_settings
-            settings = EventSettings.from_dict(settings_data, validate=True)
+            settings: EventSettings = Payload.from_obj(settings_data, datatype=EventSettings)
             if settings.stream.compression is None:
                 settings.stream.compression = self.engine.default_stream_compression
             if settings.stream.serialization is None:
                 settings.stream.serialization = self.engine.default_stream_serialization
-            self.effective_settings[event_name] = settings.to_dict()
+            self.effective_settings[event_name] = Payload.to_obj(settings)
 
     def _setup_event_extra_settings(self):
         """
@@ -476,7 +475,7 @@ def parse_app_config_json(config_json: str) -> AppConfig:
     """
     # effective_config_json = _replace_args(config_json)
     effective_config_json = replace_env_vars(config_json)
-    app_config = AppConfig.from_json(effective_config_json)  # type: ignore
+    app_config: AppConfig = Payload.from_json(effective_config_json, datatype=AppConfig)
     replace_config_args(
         parsed_config=app_config,
         config_classes=(

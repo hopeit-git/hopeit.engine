@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from hopeit.dataobjects import dataclass
 import pytest
 
 from hopeit.app.config import Compression, EventLoggingConfig, EventStreamConfig, Serialization

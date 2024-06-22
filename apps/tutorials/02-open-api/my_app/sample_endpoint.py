@@ -8,7 +8,7 @@ This endpoint adds the capability of json-schema validation and API docs.
 representation.
 """
 
-from dataclasses import dataclass
+from hopeit.dataobjects import dataclass
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext

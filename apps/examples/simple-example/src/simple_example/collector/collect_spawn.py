@@ -6,7 +6,7 @@ using `collector` steps constructor (instantiating an `AsyncCollector`)
 then spawn the items found individually into a stream
 """
 import asyncio
-from dataclasses import dataclass
+from hopeit.dataobjects import dataclass
 from typing import Union, Optional, List
 
 from hopeit.app.api import event_api

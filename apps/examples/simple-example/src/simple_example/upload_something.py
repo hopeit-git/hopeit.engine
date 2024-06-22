@@ -5,7 +5,7 @@ Uploads file using multipart upload support. Returns metadata Something object.
 ```
 """
 from typing import List, Union
-from dataclasses import dataclass, field
+from hopeit.dataobjects import dataclass, field
 import os
 from pathlib import Path
 

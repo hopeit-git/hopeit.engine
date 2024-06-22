@@ -2,7 +2,7 @@
 Apps Visualizer: graph elements model
 """
 from typing import List, Dict
-from dataclasses import dataclass, field
+from hopeit.dataobjects import dataclass, field
 from enum import Enum
 
 from hopeit.dataobjects import dataobject

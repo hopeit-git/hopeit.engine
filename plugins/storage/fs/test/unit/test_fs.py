@@ -3,7 +3,7 @@ import io
 from typing import List, Optional
 
 import os
-from dataclasses import dataclass
+from hopeit.dataobjects import dataclass
 from pathlib import Path
 
 import aiofiles
