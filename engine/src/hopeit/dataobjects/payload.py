@@ -38,7 +38,7 @@ class Payload(Generic[EventPayloadType]):
         # if datatype in _COLLECTION_TYPES:
         #     return RootModel[datatype].model_validate_json(json_str).root
         try:
-            return RootModel[datatype].model_validate_json(json_str).root
+            return RootModel[datatype].model_validate_json(json_str).root  # type: ignore[valid-type]
         except ValidationError:
             raise
         except Exception:
@@ -61,7 +61,7 @@ class Payload(Generic[EventPayloadType]):
         :return: instance of datatype
         """
         if datatype in _ATOMIC_TYPES:
-            return RootModel[datatype].model_validate(data.get(key)).root
+            return RootModel[datatype].model_validate(data.get(key)).root  # type: ignore[valid-type, union-attr]
         # if datatype in _MAPPING_TYPES:
         #     if item_datatype and isinstance(data, _MAPPING_TYPES):
         #         return {  # type: ignore
@@ -75,7 +75,7 @@ class Payload(Generic[EventPayloadType]):
         #         ])
         #     return datatype(data)  # type: ignore
         try:
-            return RootModel[datatype].model_validate(data).root
+            return RootModel[datatype].model_validate(data).root  # type: ignore[valid-type]
         except ValidationError:
             raise
         except Exception:
@@ -105,13 +105,12 @@ class Payload(Generic[EventPayloadType]):
         #     ) + "}"
         try:
             return RootModel(payload).model_dump_json()
-        except (ValidationError, AttributeError) as e:
-            raise 
+        except (ValidationError, AttributeError):
+            raise
         except Exception:
             assert hasattr(payload, '__data_object__'), \
                 f"{type(payload)} should be annotated with @dataobject"
             raise  # Raises unexpected exceptions, if assert block does not catch missing @dataobject
-
 
     @staticmethod
     def to_obj(payload: EventPayloadType, key: Optional[str] = 'value') -> Union[dict, list]:
@@ -136,8 +135,8 @@ class Payload(Generic[EventPayloadType]):
         #     return {k: Payload.to_obj(v, key=None) for k, v in payload.items()}
         try:
             return RootModel(payload).model_dump()
-        except (ValidationError, AttributeError) as e:
-            raise # ValueError(f"Cannot convert to dict: type={type(payload)} validation_error={str(e)}") from e
+        except (ValidationError, AttributeError):
+            raise
         except Exception:
             assert hasattr(payload, '__data_object__'), \
                 f"{type(payload)} should be annotated with @dataobject"

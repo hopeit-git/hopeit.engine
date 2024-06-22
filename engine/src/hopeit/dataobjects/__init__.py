@@ -19,11 +19,12 @@ Example:
 """
 import pickle
 import uuid
-from pydantic import RootModel
-from pydantic.dataclasses import dataclass, Field as field
 from datetime import datetime
 from decimal import Decimal
 from typing import TypeVar, Optional, Union, Any
+
+from pydantic import RootModel
+from pydantic.dataclasses import dataclass, Field as field
 
 
 __all__ = ['EventPayload',

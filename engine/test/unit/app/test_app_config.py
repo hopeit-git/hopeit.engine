@@ -1,7 +1,7 @@
 import json
 import os
 
-import dataclasses_jsonschema
+from pydantic import ValidationError
 import pytest  # type: ignore
 
 from hopeit.server.version import APPS_API_VERSION, ENGINE_VERSION
@@ -155,7 +155,7 @@ def test_parse_invalid_event_type(monkeypatch, valid_config_json: str):
         key='events.query_something.type',
         value='INVALID'
     )
-    with pytest.raises(dataclasses_jsonschema.ValidationError):
+    with pytest.raises(ValidationError):
         parse_app_config_json(config_json)
 
 

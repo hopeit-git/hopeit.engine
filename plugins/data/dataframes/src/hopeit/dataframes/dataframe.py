@@ -19,7 +19,6 @@ from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type,
 
 import numpy as np
 import pandas as pd
-from dataclasses_jsonschema import JsonSchemaMixin
 from hopeit.dataobjects import (
     DataObject,
     StreamEventMixin,
@@ -193,7 +192,7 @@ def dataframe(
         if hasattr(cls, "__annotations__") and hasattr(cls, "__dataclass_fields__"):
             amended_class = type(
                 cls.__name__,
-                (DataFrameMixin, JsonSchemaMixin) + cls.__mro__,
+                (DataFrameMixin, ) + cls.__mro__,
                 dict(cls.__dict__),
             )
             setattr(amended_class, "__init__", DataFrameMixin.__init_from_series__)
