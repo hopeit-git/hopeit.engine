@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.24",
+    "version": "0.25",
     "title": "Dataframes Example",
     "description": "Dataframes Example"
   },
   "paths": {
-    "/api/basic-auth/0x24/decode": {
+    "/api/basic-auth/0x25/decode": {
       "get": {
         "summary": "Basic Auth: Decode",
         "description": "Returns decoded auth info",
@@ -44,7 +44,7 @@
           }
         },
         "tags": [
-          "basic_auth.0x24"
+          "basic_auth.0x25"
         ],
         "security": [
           {
@@ -53,7 +53,7 @@
         ]
       }
     },
-    "/api/config-manager/0x24/runtime-apps-config": {
+    "/api/config-manager/0x25/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -109,11 +109,11 @@
           }
         },
         "tags": [
-          "config_manager.0x24"
+          "config_manager.0x25"
         ]
       }
     },
-    "/api/config-manager/0x24/cluster-apps-config": {
+    "/api/config-manager/0x25/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -169,11 +169,11 @@
           }
         },
         "tags": [
-          "config_manager.0x24"
+          "config_manager.0x25"
         ]
       }
     },
-    "/api/dataframes-example/0x24/prepare-data": {
+    "/api/dataframes-example/0x25/prepare-data": {
       "get": {
         "summary": "Prepare Data",
         "description": "Prepare Data",
@@ -211,7 +211,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x24"
+          "dataframes_example.0x25"
         ],
         "security": [
           {
@@ -220,7 +220,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x24/train-model": {
+    "/api/dataframes-example/0x25/train-model": {
       "post": {
         "summary": "Training Pipeline",
         "description": "Training Pipeline",
@@ -269,7 +269,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x24"
+          "dataframes_example.0x25"
         ],
         "security": [
           {
@@ -278,7 +278,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x24/predict": {
+    "/api/dataframes-example/0x25/predict": {
       "post": {
         "summary": "Predict",
         "description": "Predict",
@@ -339,7 +339,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x24"
+          "dataframes_example.0x25"
         ],
         "security": [
           {
@@ -348,7 +348,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x24/basic-auth/0x24/login": {
+    "/api/dataframes-example/0x25/basic-auth/0x25/login": {
       "get": {
         "summary": "Basic Auth: Login",
         "description": "Handles users login using basic-auth\nand generate access tokens for external services invoking apps\nplugged in with basic-auth plugin.",
@@ -396,7 +396,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x24"
+          "dataframes_example.0x25"
         ],
         "security": [
           {
@@ -405,7 +405,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x24/basic-auth/0x24/refresh": {
+    "/api/dataframes-example/0x25/basic-auth/0x25/refresh": {
       "get": {
         "summary": "Basic Auth: Refresh",
         "description": "This event can be used for obtain new access token and update refresh token (http cookie),\nwith no need to re-login the user if there is a valid refresh token active.",
@@ -453,16 +453,16 @@
           }
         },
         "tags": [
-          "dataframes_example.0x24"
+          "dataframes_example.0x25"
         ],
         "security": [
           {
-            "dataframes_example.0x24.refresh": []
+            "dataframes_example.0x25.refresh": []
           }
         ]
       }
     },
-    "/api/dataframes-example/0x24/basic-auth/0x24/logout": {
+    "/api/dataframes-example/0x25/basic-auth/0x25/logout": {
       "get": {
         "summary": "Basic Auth: Logout",
         "description": "Invalidates previous refresh cookies.",
@@ -519,11 +519,11 @@
           }
         },
         "tags": [
-          "dataframes_example.0x24"
+          "dataframes_example.0x25"
         ],
         "security": [
           {
-            "dataframes_example.0x24.refresh": []
+            "dataframes_example.0x25.refresh": []
           }
         ]
       }
@@ -719,10 +719,10 @@
         "type": "http",
         "scheme": "bearer"
       },
-      "dataframes_example.0x24.refresh": {
+      "dataframes_example.0x25.refresh": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "dataframes_example.0x24.refresh"
+        "name": "dataframes_example.0x25.refresh"
       }
     }
   },
