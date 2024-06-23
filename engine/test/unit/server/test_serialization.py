@@ -5,6 +5,7 @@ import sys
 
 from hopeit.app.config import Serialization, Compression
 from hopeit.dataobjects import dataobject
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.serialization import serialize, deserialize
 import pytest
 
@@ -23,8 +24,8 @@ class Data:
 data = Data("data", 42)
 
 ser = {
-    Serialization.JSON_UTF8: b'{"x": "data", "y": 42}',
-    Serialization.JSON_BASE64: b"eyJ4IjogImRhdGEiLCAieSI6IDQyfQ==",
+    Serialization.JSON_UTF8: b'{"x":"data","y":42}',
+    Serialization.JSON_BASE64: b'eyJ4IjoiZGF0YSIsInkiOjQyfQ==',
     Serialization.PICKLE3: (
         b"\x80\x03ctest_serialization\nData\nq\x00)\x81q\x01}q\x02(X\x01\x00\x00\x00xq"
         b"\x03X\x04\x00\x00\x00dataq\x04X\x01\x00\x00\x00yq\x05K*ub."
@@ -48,12 +49,12 @@ async def test_serialize():
     assert (
         await serialize(data, Serialization.JSON_UTF8, Compression.NONE)
         == ser[Serialization.JSON_UTF8]
-        == data.to_json().encode()
+        == Payload.to_json(data).encode()
     )
     assert (
         await serialize(data, Serialization.JSON_BASE64, Compression.NONE)
         == ser[Serialization.JSON_BASE64]
-        == base64.b64encode(data.to_json().encode())
+        == base64.b64encode(Payload.to_json(data).encode())
     )
     assert (
         await serialize(data, Serialization.PICKLE3, Compression.NONE)
@@ -121,7 +122,7 @@ async def test_deserialize():
 async def test_serialize_primitives():
     assert (
         await serialize("test", Serialization.JSON_UTF8, Compression.NONE)
-        == b'{"value": "test"}'
+        == b'{"value":"test"}'
     )
     assert (
         await deserialize(
@@ -132,11 +133,11 @@ async def test_serialize_primitives():
 
     assert (
         await serialize("test", Serialization.JSON_BASE64, Compression.NONE)
-        == b"eyJ2YWx1ZSI6ICJ0ZXN0In0="
+        == b'eyJ2YWx1ZSI6InRlc3QifQ=='
     )
     assert (
         await deserialize(
-            b"eyJ2YWx1ZSI6ICJ0ZXN0In0=",
+            b'eyJ2YWx1ZSI6InRlc3QifQ==',
             Serialization.JSON_BASE64,
             Compression.NONE,
             str,
@@ -188,33 +189,33 @@ async def test_serialize_primitives():
 
     assert (
         await serialize(42, Serialization.JSON_UTF8, Compression.NONE)
-        == b'{"value": 42}'
+        == b'{"value":42}'
     )
     assert (
         await deserialize(
-            b'{"value": 42}', Serialization.JSON_UTF8, Compression.NONE, int
+            b'{"value":42}', Serialization.JSON_UTF8, Compression.NONE, int
         )
         == 42
     )
 
     assert (
         await serialize(42.5, Serialization.JSON_UTF8, Compression.NONE)
-        == b'{"value": 42.5}'
+        == b'{"value":42.5}'
     )
     assert (
         await deserialize(
-            b'{"value": 42.5}', Serialization.JSON_UTF8, Compression.NONE, float
+            b'{"value":42.5}', Serialization.JSON_UTF8, Compression.NONE, float
         )
         == 42.5
     )
 
     assert (
         await serialize(True, Serialization.JSON_UTF8, Compression.NONE)
-        == b'{"value": true}'
+        == b'{"value":true}'
     )
     assert (
         await deserialize(
-            b'{"value": true}', Serialization.JSON_UTF8, Compression.NONE, bool
+            b'{"value":true}', Serialization.JSON_UTF8, Compression.NONE, bool
         )
         is True
     )
@@ -224,7 +225,7 @@ async def test_serialize_primitives():
 async def test_serialize_collections():
     assert (
         await serialize({"test": "value"}, Serialization.JSON_UTF8, Compression.NONE)
-        == b'{"test": "value"}'
+        == b'{"test":"value"}'
     )
     assert await deserialize(
         b'{"test": "value"}', Serialization.JSON_UTF8, Compression.NONE, dict
@@ -232,7 +233,7 @@ async def test_serialize_collections():
 
     assert (
         await serialize(["test", "value"], Serialization.JSON_UTF8, Compression.NONE)
-        == b'["test", "value"]'
+        == b'["test","value"]'
     )
     assert await deserialize(
         b'["test", "value"]', Serialization.JSON_UTF8, Compression.NONE, list
@@ -240,9 +241,9 @@ async def test_serialize_collections():
 
     assert (
         await serialize({"test", "value"}, Serialization.JSON_UTF8, Compression.NONE)
-        == b'["test", "value"]'
+        == b'["test","value"]'
         or await serialize({"test", "value"}, Serialization.JSON_UTF8, Compression.NONE)
-        == b'["value", "test"]'
+        == b'["value","test"]'
     )
     assert await deserialize(
         b'["test", "value"]', Serialization.JSON_UTF8, Compression.NONE, set

@@ -34,7 +34,7 @@ class Payload(Generic[EventPayloadType]):
         :return: instance of datatype
         """
         if datatype in _ATOMIC_TYPES:
-             return RootModel[Dict[str, datatype]].model_validate_json(json_str).root.get(key)
+            return RootModel[Dict[str, datatype]].model_validate_json(json_str).root[key]  # type: ignore[valid-type]
         # if datatype in _COLLECTION_TYPES:
         #     return RootModel[datatype].model_validate_json(json_str).root
         try:
@@ -61,18 +61,6 @@ class Payload(Generic[EventPayloadType]):
         """
         if datatype in _ATOMIC_TYPES:
             return RootModel[datatype].model_validate(data.get(key)).root  # type: ignore[valid-type, union-attr]
-        # if datatype in _MAPPING_TYPES:
-        #     if item_datatype and isinstance(data, _MAPPING_TYPES):
-        #         return {  # type: ignore
-        #             k: Payload.from_obj(v, item_datatype, key) for k, v in data.items()
-        #         }
-        #     return RootModel[datatype].model_validate(data).root
-        # if datatype in _LIST_TYPES:
-        #     if item_datatype and isinstance(data, _LIST_TYPES):
-        #         return datatype([  # type: ignore
-        #             Payload.from_obj(v, item_datatype, key) for v in data
-        #         ])
-        #     return datatype(data)  # type: ignore
         try:
             return RootModel[datatype].model_validate(data).root  # type: ignore[valid-type]
         except ValidationError:
@@ -83,7 +71,7 @@ class Payload(Generic[EventPayloadType]):
             raise  # Raises unexpected exceptions, if assert block does not catch missing @dataobject
 
     @staticmethod
-    def to_json(payload: EventPayloadType, key: Optional[str] = 'value') -> str:
+    def to_json(payload: EventPayloadType, key: str = 'value') -> str:
         """
         Converts event payload to json string
 
@@ -93,15 +81,7 @@ class Payload(Generic[EventPayloadType]):
             a json str of key:value form will be generated using key parameter if it's not None.
         """
         if isinstance(payload, _ATOMIC_TYPES):  # immutable supported types
-            if key is None:
-                return json.dumps(payload)
-            return json.dumps({key: payload})
-        # if isinstance(payload, _LIST_TYPES):
-        #     return "[" + ', '.join(Payload.to_json(item, key=None) for item in payload) + "]"
-        # if isinstance(payload, _MAPPING_TYPES):
-        #     return "{" + ', '.join(
-        #         f'"{str(k)}": {Payload.to_json(item, key=None)}' for k, item in payload.items()
-        #     ) + "}"
+            return RootModel({key: payload}).model_dump_json()
         try:
             return RootModel(payload).model_dump_json()
         except (ValidationError, AttributeError):
@@ -112,7 +92,7 @@ class Payload(Generic[EventPayloadType]):
             raise  # Raises unexpected exceptions, if assert block does not catch missing @dataobject
 
     @staticmethod
-    def to_obj(payload: EventPayloadType, key: Optional[str] = 'value') -> Union[dict, list]:
+    def to_obj(payload: EventPayloadType, key: str = 'value') -> Union[dict, list]:
         """
         Converts event payload to dictionary or list
 
@@ -123,15 +103,7 @@ class Payload(Generic[EventPayloadType]):
             be converted. Flat collections will be converted to list.
         """
         if isinstance(payload, _ATOMIC_TYPES):  # immutable supported types
-            if key is None:
-                return payload  # type: ignore  # only for recursive use
             return {key: payload}
-        # if isinstance(payload, _UNORDERED_LIST_TYPES):
-        #     return [Payload.to_obj(v, key=None) for v in sorted(payload)]
-        # if isinstance(payload, _LIST_TYPES):
-        #     return [Payload.to_obj(v, key=None) for v in payload]
-        # if isinstance(payload, _MAPPING_TYPES):
-        #     return {k: Payload.to_obj(v, key=None) for k, v in payload.items()}
         try:
             return RootModel(payload).model_dump()
         except (ValidationError, AttributeError):

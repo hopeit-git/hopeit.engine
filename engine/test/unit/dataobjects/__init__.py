@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Optional
+import dataclasses
 
 from hopeit.dataobjects import dataobject, dataclass
-from pydantic import ConfigDict
 
 
 @dataobject

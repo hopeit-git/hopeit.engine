@@ -43,8 +43,9 @@ def valid_result_engine_config() -> ServerConfig:
 
 
 def _get_env_mock(var_name, default=None):
-    assert var_name == 'TEST_REDIS_HOST'
-    return 'test_redis_url'
+    if var_name == 'TEST_REDIS_HOST':
+        return 'test_redis_url'
+    return None
 
 
 def _get_env_missing_mock(var_name, default=None):

@@ -34,7 +34,7 @@ async def call_get_mock_event(client):
     assert res.headers.get("X-Track-Request-Ts")
     assert res.headers.get("X-Status") == "ok"
     result = (await res.read()).decode()
-    assert result == '{"mock_event": "ok: ok"}'
+    assert result == '{"mock_event":"ok: ok"}'
 
 
 async def call_get_mock_event_cors_allowed(client):
@@ -54,7 +54,7 @@ async def call_get_mock_event_cors_allowed(client):
     assert res.headers.get("Access-Control-Allow-Origin") == "http://test"
     assert res.headers.get("Access-Control-Allow-Credentials") == "true"
     result = (await res.read()).decode()
-    assert result == '{"mock_event": "ok: ok"}'
+    assert result == '{"mock_event":"ok: ok"}'
 
 
 async def call_get_mock_event_cors_unknown(client):
@@ -75,7 +75,7 @@ async def call_get_mock_event_cors_unknown(client):
     assert res.headers.get("Access-Control-Allow-Credentials") is None
     assert res.cookies.get("Test-Cookie").value == "ok"
     result = (await res.read()).decode()
-    assert result == '{"mock_event": "ok: ok"}'
+    assert result == '{"mock_event":"ok: ok"}'
 
 
 async def call_get_mock_event_special_case(client):
@@ -90,7 +90,7 @@ async def call_get_mock_event_special_case(client):
     assert res.headers.get("X-Track-Request-Ts")
     assert res.cookies.get("Test-Cookie").value == ""
     result = (await res.read()).decode()
-    assert result == '{"mock_event": "not-ok: None"}'
+    assert result == '{"mock_event":"not-ok: None"}'
 
 
 async def call_get_fail_request(client):
@@ -103,7 +103,7 @@ async def call_get_fail_request(client):
     result = (await res.read()).decode()
     assert (
         result
-        == '{"msg": "Test for error", "tb": ["AssertionError: Test for error\\n"]}'
+        == '{"msg":"Test for error","tb":["AssertionError: Test for error\\n"]}'
     )
 
 
@@ -121,7 +121,7 @@ async def call_post_mock_event(client):
     assert res.headers.get("X-Track-Session-Id") == "test_session_id"
     assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
-    assert result == '{"value": "ok: ok", "processed": true}'
+    assert result == '{"value":"ok: ok","processed":true}'
 
 
 async def call_post_mock_event_preprocess(client):
@@ -138,7 +138,7 @@ async def call_post_mock_event_preprocess(client):
     assert res.headers.get("X-Track-Session-Id") == "test_session_id"
     assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
-    assert result == '{"value": "ok: test_request_id"}'
+    assert result == '{"value":"ok: test_request_id"}'
 
 
 async def call_post_mock_event_preprocess_no_datatype(client):
@@ -155,7 +155,7 @@ async def call_post_mock_event_preprocess_no_datatype(client):
     assert res.headers.get("X-Track-Session-Id") == "test_session_id"
     assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
-    assert result == '{"value": "ok: test_request_id"}'
+    assert result == '{"value":"ok: test_request_id"}'
 
 
 async def call_multipart_mock_event(client):
@@ -193,7 +193,7 @@ async def call_multipart_mock_event(client):
         result = (await res.read()).decode()
         assert (
             result
-            == '{"value": "field1=value1 field2=value2 attachment=test_attachment ok"}'
+            == '{"value":"field1=value1 field2=value2 attachment=test_attachment ok"}'
         )
 
 
@@ -232,7 +232,7 @@ async def call_multipart_mock_event_plain_text_json(client):
         result = (await res.read()).decode()
         assert (
             result
-            == '{"value": "field1=value1 field2=value2 attachment=test_attachment ok"}'
+            == '{"value":"field1=value1 field2=value2 attachment=test_attachment ok"}'
         )
 
 
@@ -267,7 +267,7 @@ async def call_post_nopayload(client):
     assert res.headers.get("X-Track-Session-Id") == "test_session_id"
     assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
-    assert result == '{"mock_post_nopayload": "ok: nopayload ok"}'
+    assert result == '{"mock_post_nopayload":"ok: nopayload ok"}'
 
 
 async def call_post_invalid_payload(client):
@@ -278,11 +278,9 @@ async def call_post_invalid_payload(client):
         headers={"X-Track-Session-Id": "test_session_id"},
     )
     assert res.status == 400
-    result = (await res.read()).decode()
-    assert (
-        result == '{"msg": "Expecting value: line 1 column 11 (char 10)", "tb": '
-        '["hopeit.app.errors.BadRequest: Expecting value: line 1 column 11 (char 10)\\n"]}'
-    )
+    result = (await res.read()).decode().lower()
+    assert "validation error" in result
+    assert "invalid json" in result
 
 
 async def call_post_fail_request(client):
@@ -296,7 +294,7 @@ async def call_post_fail_request(client):
     result = (await res.read()).decode()
     assert (
         result
-        == '{"msg": "Test for error", "tb": ["AssertionError: Test for error\\n"]}'
+        == '{"msg":"Test for error","tb":["AssertionError: Test for error\\n"]}'
     )
 
 
@@ -315,9 +313,9 @@ async def call_post_mock_collector(client):
     assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
     assert (
-        result == '{"value": '
-        '"((ok+mock_collector+step1)&(ok+mock_collector+step2)+mock_collector+step3)", '
-        '"processed": true}'
+        result == '{"value":'
+        '"((ok+mock_collector+step1)&(ok+mock_collector+step2)+mock_collector+step3)",'
+        '"processed":true}'
     )
 
 
@@ -335,7 +333,7 @@ async def call_get_mock_spawn_event(client):
     assert res.headers.get("X-Track-Session-Id") == "test_session_id"
     assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
-    assert result == '{"value": "stream: ok.2"}'
+    assert result == '{"value":"stream: ok.2"}'
 
 
 async def call_get_mock_timeout_ok(client):
@@ -352,7 +350,7 @@ async def call_get_mock_timeout_ok(client):
     assert res.headers.get("X-Track-Session-Id") == "test_session_id"
     assert res.headers.get("X-Track-Request-Id") == "test_request_id"
     result = (await res.read()).decode()
-    assert result == '{"mock_timeout": "ok"}'
+    assert result == '{"mock_timeout":"ok"}'
 
 
 async def call_get_mock_timeout_exceeded(client):
@@ -366,8 +364,8 @@ async def call_get_mock_timeout_exceeded(client):
         },
     )
     assert res.status == 500
-    result = (await res.read()).decode()
-    assert '{"msg": "Response timeout exceeded seconds=2.0"' in result
+    result = (await res.read()).decode().lower()
+    assert 'response timeout exceeded seconds=2.0' in result
 
 
 async def call_get_file_response(client):
@@ -441,7 +439,7 @@ async def call_get_mock_auth_event(client):
     assert res.headers.get("X-Track-Request-Id")
     assert res.headers.get("X-Track-Request-Ts")
     result = (await res.read()).decode()
-    assert result == '{"mock_auth": "ok"}'
+    assert result == '{"mock_auth":"ok"}'
 
 
 async def call_get_mock_auth_event_malformed_authorization(client):
@@ -469,7 +467,7 @@ async def call_get_mock_auth_event_unauthorized(client):
     result = (await res.read()).decode()
     assert (
         result
-        == '{"msg": "Unsecured", "tb": ["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
+        == '{"msg":"Unsecured","tb":["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
     )
 
 
@@ -487,7 +485,7 @@ async def call_post_mock_auth_event(client):
     assert res.headers.get("X-Track-Request-Id")
     assert res.headers.get("X-Track-Request-Ts")
     result = (await res.read()).decode()
-    assert result == '{"mock_post_auth": "ok: test_data"}'
+    assert result == '{"mock_post_auth":"ok: test_data"}'
 
 
 async def call_post_mock_auth_event_unauthorized(client):
@@ -500,7 +498,7 @@ async def call_post_mock_auth_event_unauthorized(client):
     result = (await res.read()).decode()
     assert (
         result
-        == '{"msg": "Unsecured", "tb": ["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
+        == '{"msg":"Unsecured","tb":["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
     )
 
 
@@ -516,7 +514,7 @@ async def call_get_plugin_event_on_app(client):
     assert res.headers.get("PluginHeader") == "PluginHeaderValue"
     assert res.cookies.get("PluginCookie").value == "PluginCookieValue"
     result = (await res.read()).decode()
-    assert result == '{"plugin_event": "PluginEvent.postprocess"}'
+    assert result == '{"plugin_event":"PluginEvent.postprocess"}'
 
 
 async def check_setup_event_on_start(client):

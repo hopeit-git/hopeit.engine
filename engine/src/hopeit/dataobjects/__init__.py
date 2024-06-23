@@ -168,12 +168,19 @@ def dataobject(
     """
 
     def wrap(cls):
-        amended_class = cls
-        setattr(amended_class, '__data_object__', {'unsafe': unsafe, 'schema': schema})
-        setattr(amended_class, '__stream_event__', StreamEventParams(event_id, event_ts))
-        setattr(amended_class, 'event_id', StreamEventMixin.event_id)
-        setattr(amended_class, 'event_ts', StreamEventMixin.event_ts)
-        return amended_class
+        # From v0.25: Check if the dataclass is Pydantic compatible
+        # (prevents using `dataclasses.dataclass` by mistake)
+        if not hasattr(cls, "__pydantic_complete__"):
+            raise TypeError(
+                f"dataclass `{cls.__name__}` must be Pydantic compatible: i.e. use:"
+                "\n\t`from hopeit.dataobjects import dataclass, dataobject, field`"
+                "\nPython `dataclasses.dataclass` is no longer supported with `@dataobject`"
+            )
+        setattr(cls, '__data_object__', {'unsafe': unsafe, 'schema': schema})
+        setattr(cls, '__stream_event__', StreamEventParams(event_id, event_ts))
+        setattr(cls, 'event_id', StreamEventMixin.event_id)
+        setattr(cls, 'event_ts', StreamEventMixin.event_ts)
+        return cls
 
     if decorated_class is None:
         return wrap
