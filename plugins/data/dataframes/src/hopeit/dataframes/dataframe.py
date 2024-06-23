@@ -13,7 +13,7 @@ Example:
         number: int
 """
 import dataclasses
-from datetime import UTC, date, datetime
+from datetime import date, datetime, timezone
 from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar
 
 import numpy as np
@@ -156,7 +156,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         return ""
 
     def event_ts(self, *args, **kwargs) -> datetime:
-        return datetime.now(tz=UTC)
+        return datetime.now(tz=timezone.utc)
 
     def __getattribute__(self, name: str) -> Any:
         if name[:2] == "__":
