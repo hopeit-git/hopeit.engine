@@ -144,13 +144,13 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     # ) -> DataObject:
     #     return cls.__dataframe__.serialized_type.from_dict(*args, **kwargs)
 
-    @classmethod
-    def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
-        if cls.__data_object__["schema"]:
-            schema = cls.__dataframe__.serialized_type.json_schema(*args, **kwargs)
-            schema[cls.__name__] = schema[cls.__dataframe__.serialized_type.__name__]
-            return schema
-        return {}
+    # @classmethod
+    # def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
+    #     if cls.__data_object__["schema"]:
+    #         schema = cls.__dataframe__.serialized_type.json_schema(*args, **kwargs)
+    #         schema[cls.__name__] = schema[cls.__dataframe__.serialized_type.__name__]
+    #         return schema
+    #     return {}
 
     def event_id(self, *args, **kwargs) -> str:
         return ""

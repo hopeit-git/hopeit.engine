@@ -55,7 +55,7 @@ class Experiment:
     train_labels: Optional[IrisLabels] = None
     test_features: Optional[IrisFeatures] = None
     test_labels: Optional[IrisLabels] = None
-    model_location: Optional[str] = None
+    saved_model_location: Optional[str] = None
     eval_metrics: Optional[EvalMetrics] = None
 
 

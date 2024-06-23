@@ -7,7 +7,7 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
-from typing import Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
+from typing import Any, Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
 from datetime import date, datetime
 
 from aiohttp import web
@@ -646,11 +646,21 @@ def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):
         for datatype in datatypes:
             if datatype is not None and hasattr(datatype, '__data_object__'):
                 if datatype.__data_object__['schema']:
-                    local_schema = TypeAdapter(datatype).json_schema(
-                        schema_generator=GenerateOpenAPI30Schema,
-                        ref_template='#/components/schemas/{model}'
-                    )
-                    defs = local_schema.get("$defs", {datatype.__name__: local_schema})
+                    if hasattr(datatype, "json_schema"):
+                        local_schema = datatype.json_schema(
+                            schema_generator=GenerateOpenAPI30Schema,
+                            ref_template='#/components/schemas/{model}'
+                        )
+                    else:
+                        local_schema = TypeAdapter(datatype).json_schema(
+                            schema_generator=GenerateOpenAPI30Schema,
+                            ref_template='#/components/schemas/{model}'
+                        )
+                    defs = local_schema.get("$defs", {})
+                    defs[datatype.__name__] = {
+                        k: v for k, v in local_schema.items() if k != "$defs"
+                    }
+                    GenerateOpenAPI30Schema.cleanup_properties(defs)
                     schemas.update(defs)
 
 
@@ -765,3 +775,14 @@ class GenerateOpenAPI30Schema(GenerateJsonSchema):
         # there is not None case because if it's mixed it hits the final `else`
         # if it's a single Literal[None] then it becomes a `const` schema above
         return {"enum": expected}
+
+    @classmethod
+    def cleanup_properties(cls, json_schema: Dict[str, Any]):
+        for k, schema in json_schema.items():
+            if k == "properties":
+                for prop_name, prop_value in schema.items():
+                    schema[prop_name] = {
+                        k: v for k, v in prop_value.items() if k != "metadata"
+                    }
+            elif isinstance(schema, dict):
+                cls.cleanup_properties(schema)

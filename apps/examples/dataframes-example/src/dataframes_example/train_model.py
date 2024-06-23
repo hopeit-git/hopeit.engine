@@ -112,7 +112,7 @@ async def train_model(experiment: Experiment, context: EventContext) -> Experime
             experiment_id=experiment.experiment_id,
         ),
     )
-    experiment.model_location = await model_storage.save_model(
+    experiment.saved_model_location = await model_storage.save_model(
         clf, experiment.experiment_id, context
     )
 
@@ -126,14 +126,14 @@ async def evaluate_model(experiment: Experiment, context: EventContext) -> Exper
         "Loading model...",
         extra=extra(
             experiment_id=experiment.experiment_id,
-            model_location=experiment.model_location,
+            model_location=experiment.saved_model_location,
         ),
     )
 
-    assert experiment.model_location is not None
+    assert experiment.saved_model_location is not None
 
     clf: DecisionTreeClassifier = await model_storage.load_model(
-        experiment.model_location, context
+        experiment.saved_model_location, context
     )
 
     logger.info(

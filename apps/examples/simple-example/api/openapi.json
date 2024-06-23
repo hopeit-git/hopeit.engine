@@ -1679,6 +1679,299 @@
         "title": "AuthInfo",
         "type": "object"
       },
+      "APIConfig": {
+        "description": "Config for Open API docs page",
+        "properties": {
+          "docs_path": {
+            "default": null,
+            "nullable": true,
+            "title": "Docs Path",
+            "type": "string"
+          }
+        },
+        "title": "APIConfig",
+        "type": "object"
+      },
+      "AppConfig": {
+        "description": "App Configuration container",
+        "properties": {
+          "app": {
+            "$ref": "#/components/schemas/AppDescriptor"
+          },
+          "engine": {
+            "$ref": "#/components/schemas/AppEngineConfig"
+          },
+          "app_connections": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AppConnection"
+            },
+            "title": "App Connections",
+            "type": "object"
+          },
+          "env": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "title": "Env",
+            "type": "object"
+          },
+          "events": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EventDescriptor"
+            },
+            "title": "Events",
+            "type": "object"
+          },
+          "server": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ServerConfig"
+              }
+            ],
+            "default": null,
+            "nullable": true
+          },
+          "plugins": {
+            "items": {
+              "$ref": "#/components/schemas/AppDescriptor"
+            },
+            "title": "Plugins",
+            "type": "array"
+          },
+          "settings": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "title": "Settings",
+            "type": "object"
+          },
+          "effective_settings": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "default": null,
+            "nullable": true,
+            "title": "Effective Settings",
+            "type": "object"
+          }
+        },
+        "required": [
+          "app"
+        ],
+        "title": "AppConfig",
+        "type": "object"
+      },
+      "AppConnection": {
+        "description": "AppConnections: metadata to initialize app client in order to connect\nand issue requests to other running apps\n\n:field: name, str: target app name to connect to\n:field: version, str: target app version\n:field: client, str: hopeit.app.client.Client class implementation, from available client plugins\n:field: settings, optional str: key under `settings` section of app config containing connection configuration,\n    if not specified, plugin will lookup its default section usually the plugin name. But in case multiple\n    clients need to be configured, this value can be overridden.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "client": {
+            "default": "<<NO CLIENT CONFIGURED>>",
+            "title": "Client",
+            "type": "string"
+          },
+          "settings": {
+            "default": null,
+            "nullable": true,
+            "title": "Settings",
+            "type": "string"
+          },
+          "plugin_name": {
+            "default": null,
+            "nullable": true,
+            "title": "Plugin Name",
+            "type": "string"
+          },
+          "plugin_version": {
+            "default": null,
+            "nullable": true,
+            "title": "Plugin Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version"
+        ],
+        "title": "AppConnection",
+        "type": "object"
+      },
+      "AppDescriptor": {
+        "description": "App descriptor",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version"
+        ],
+        "title": "AppDescriptor",
+        "type": "object"
+      },
+      "AppEngineConfig": {
+        "description": "Engine specific parameters shared among events\n\n:field import_modules: list of string with the python module names to import to find\n    events and datatype implementations\n:field read_stream_timeout: timeout in milliseconds to block connection pool when waiting for stream events\n:field read_stream_interval: delay in milliseconds to wait before attempting a new batch. Use to prevent\n    connection pool to be blocked constantly.\n:track_headers: list of required X-Track-* headers\n:cors_origin: allowed CORS origin for web server",
+        "properties": {
+          "import_modules": {
+            "default": null,
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "title": "Import Modules",
+            "type": "array"
+          },
+          "read_stream_timeout": {
+            "default": 1000,
+            "title": "Read Stream Timeout",
+            "type": "integer"
+          },
+          "read_stream_interval": {
+            "default": 1000,
+            "title": "Read Stream Interval",
+            "type": "integer"
+          },
+          "default_stream_compression": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Compression"
+              }
+            ],
+            "default": "lz4"
+          },
+          "default_stream_serialization": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Serialization"
+              }
+            ],
+            "default": "json+base64"
+          },
+          "track_headers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Track Headers",
+            "type": "array"
+          },
+          "cors_origin": {
+            "default": null,
+            "nullable": true,
+            "title": "Cors Origin",
+            "type": "string"
+          }
+        },
+        "title": "AppEngineConfig",
+        "type": "object"
+      },
+      "AuthConfig": {
+        "description": "Server configuration to handle authorization tokens",
+        "properties": {
+          "secrets_location": {
+            "title": "Secrets Location",
+            "type": "string"
+          },
+          "auth_passphrase": {
+            "title": "Auth Passphrase",
+            "type": "string"
+          },
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "create_keys": {
+            "default": false,
+            "title": "Create Keys",
+            "type": "boolean"
+          },
+          "domain": {
+            "default": null,
+            "nullable": true,
+            "title": "Domain",
+            "type": "string"
+          },
+          "encryption_algorithm": {
+            "default": "RS256",
+            "title": "Encryption Algorithm",
+            "type": "string"
+          },
+          "default_auth_methods": {
+            "items": {
+              "$ref": "#/components/schemas/AuthType"
+            },
+            "title": "Default Auth Methods",
+            "type": "array"
+          }
+        },
+        "required": [
+          "secrets_location",
+          "auth_passphrase"
+        ],
+        "title": "AuthConfig",
+        "type": "object"
+      },
+      "AuthType": {
+        "description": "Supported Authorization/Authentication types",
+        "enum": [
+          "Unsecured",
+          "Basic",
+          "Bearer",
+          "Refresh"
+        ],
+        "title": "AuthType",
+        "type": "string"
+      },
+      "Compression": {
+        "description": "Available compression algorithms and levels for event payloads.",
+        "enum": [
+          "none",
+          "lz4",
+          "lz4:0",
+          "lz4:16",
+          "zip",
+          "zip:1",
+          "zip:9",
+          "gzip",
+          "gzip:1",
+          "gzip:9",
+          "bz2",
+          "bz2:1",
+          "bz2:9",
+          "lzma"
+        ],
+        "title": "Compression",
+        "type": "string"
+      },
       "EventConnection": {
         "description": "EventConnection: describes dependencies on this event when calling\nevent on apps configured in `app_connections` sections. Only events\nspecified are allowed to be invoked using `hopeit.client`\n\n:field: app_connection, str: key of app entry used in app_connections sections\n:field: event, str: target event_name to be called\n:filed: type, EventConnectionType: a valid event connection type, i.e. GET or POST\n:field: route, optional str: custom route in case event is not attached to default `app/version/event`",
         "properties": {
@@ -1710,6 +2003,350 @@
         ],
         "title": "EventConnectionType",
         "type": "string"
+      },
+      "EventDescriptor": {
+        "description": "Event Descriptor: configures event implementation\n\n:field: type, EventType: type of event i.e.: GET, POST, MULTIPART, STREAM, SERVICE, SETUP\n:field: plug_mode, EventPlugMode: defines whether an event defined in a plugin is created in the\n    current app (ON_APP) or it will be created in the original plugin (STANDALONE, default)\n:field: route, optional str: custom route for endpoint. If not specified route will be derived\n    from `/api/app_name/app_version/event_name`\n:field: impl, optional str: custom event implementation Python module. If not specified, module\n    with same same as event will be imported.\n:field: connections, list of EventConnection: specifies dependencies on other apps/endpoints,\n    that can be used by client plugins to call events on external apps\n:field: read_stream, optional ReadStreamDescriptor: specifies source stream to read from.\n    Valid only for STREAM events.\n:field: write_stream, optional WriteStreamDescriptor: for any type of events, resultant dataobjects will\n    be published to the specified stream.\n:field: auth, list of AuthType: supported authentication schemas for this event. If not specified\n    application default will be used.\n:field: setting_keys, list of str: by default EventContext will have access to the settings section\n    with the same name of the event using `settings = context.settings(datatype=MySettingsType)`.\n    In case additional sections are needed to be accessed from\n    EventContext, then a list of setting keys, including the name of the event if needed,\n    can be specified here. Then access to a `custom` key can be done using\n    `custom_settings = context.settings(key=\"customer\", datatype=MyCustomSettingsType)`\n:field: dataobjects, list of str: list of full qualified dataobject types that this event can process.\n    When not specified, the engine will inspect the module implementation and find all datatypes supported\n    as payload in the functions defined as `__steps__`. In case of generic functions that support\n    `payload: DataObject` argument, then a list of full qualified datatypes must be specified here.\n:field: group, str: group name, if none is assigned it is automatically assigned as 'DEFAULT'.",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EventType"
+          },
+          "plug_mode": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EventPlugMode"
+              }
+            ],
+            "default": "Standalone"
+          },
+          "route": {
+            "default": null,
+            "nullable": true,
+            "title": "Route",
+            "type": "string"
+          },
+          "impl": {
+            "default": null,
+            "nullable": true,
+            "title": "Impl",
+            "type": "string"
+          },
+          "connections": {
+            "items": {
+              "$ref": "#/components/schemas/EventConnection"
+            },
+            "title": "Connections",
+            "type": "array"
+          },
+          "read_stream": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReadStreamDescriptor"
+              }
+            ],
+            "default": null,
+            "nullable": true
+          },
+          "write_stream": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WriteStreamDescriptor"
+              }
+            ],
+            "default": null,
+            "nullable": true
+          },
+          "auth": {
+            "items": {
+              "$ref": "#/components/schemas/AuthType"
+            },
+            "title": "Auth",
+            "type": "array"
+          },
+          "setting_keys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Setting Keys",
+            "type": "array"
+          },
+          "dataobjects": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Dataobjects",
+            "type": "array"
+          },
+          "group": {
+            "default": "DEFAULT",
+            "title": "Group",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "EventDescriptor",
+        "type": "object"
+      },
+      "EventPlugMode": {
+        "description": "Defines how an event route is plugged into apps when\nit is used as a plugin.\n\nSTANDALONE: The event is added as a normal route where it is defined. Not added to apps.\nON_APP: The event route is added only to app routes where it is used as a plugin.",
+        "enum": [
+          "Standalone",
+          "OnApp"
+        ],
+        "title": "EventPlugMode",
+        "type": "string"
+      },
+      "EventType": {
+        "description": "Supported event types\n\nGET: event triggered from api get endpoint\nPOST: event triggered from api post endpoint\nSTREAM: event triggered read events from stream. Can be started and stopped.\nSERVICE: event executed on demand or continuously. Long lived. Can be started and stopped.\nMULTIPART: event triggered from api postform-multipart request via endpoint.\nSETUP: event that is executed once when service is starting",
+        "enum": [
+          "GET",
+          "POST",
+          "STREAM",
+          "SERVICE",
+          "MULTIPART",
+          "SETUP"
+        ],
+        "title": "EventType",
+        "type": "string"
+      },
+      "LoggingConfig": {
+        "properties": {
+          "log_level": {
+            "default": "INFO",
+            "title": "Log Level",
+            "type": "string"
+          },
+          "log_path": {
+            "default": "logs/",
+            "title": "Log Path",
+            "type": "string"
+          }
+        },
+        "title": "LoggingConfig",
+        "type": "object"
+      },
+      "ReadStreamDescriptor": {
+        "description": "Configuration to read streams\n\n:field stream_name: str, base stream name to read\n:consumer_group: str, consumer group to send to stream processing engine to keep track of\n    next messag to consume\n:queues: List[str], list of queue names to poll from. Each queue act as separate stream\n    with queue name used as stream name suffix, where `AUTO` queue name means to consume\n    events when no queue where specified at publish time, allowing to consume message with different\n    priorities without waiting for all events in the stream to be consumed.\n    Queues specified in this entry will be consumed by this event\n    on each poll cycle, on the order specified. If not present\n    only AUTO queue will be consumed. Take into account that in applications using multiple\n    queue names, in order to ensure all messages are consumed, all queue names should be listed\n    here including AUTO, except that the app is intentionally designed for certain events to\n    consume only from specific queues. This configuration is manual to allow consuming messages\n    produced by external apps.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "consumer_group": {
+            "title": "Consumer Group",
+            "type": "string"
+          },
+          "queues": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Queues",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "consumer_group"
+        ],
+        "title": "ReadStreamDescriptor",
+        "type": "object"
+      },
+      "RuntimeAppInfo": {
+        "description": "Application config information associated to servers at runtime",
+        "properties": {
+          "servers": {
+            "items": {
+              "$ref": "#/components/schemas/ServerInfo"
+            },
+            "title": "Servers",
+            "type": "array"
+          },
+          "app_config": {
+            "$ref": "#/components/schemas/AppConfig"
+          },
+          "effective_events": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EventDescriptor"
+            },
+            "title": "Effective Events",
+            "type": "object"
+          }
+        },
+        "required": [
+          "servers",
+          "app_config",
+          "effective_events"
+        ],
+        "title": "RuntimeAppInfo",
+        "type": "object"
+      },
+      "Serialization": {
+        "description": "Available serialization methods for event payloads.",
+        "enum": [
+          "json",
+          "json+base64",
+          "pickle:3",
+          "pickle:4",
+          "pickle:5"
+        ],
+        "title": "Serialization",
+        "type": "string"
+      },
+      "ServerConfig": {
+        "description": "Server configuration",
+        "properties": {
+          "streams": {
+            "$ref": "#/components/schemas/StreamsConfig"
+          },
+          "logging": {
+            "$ref": "#/components/schemas/LoggingConfig"
+          },
+          "auth": {
+            "$ref": "#/components/schemas/AuthConfig"
+          },
+          "api": {
+            "$ref": "#/components/schemas/APIConfig"
+          },
+          "engine_version": {
+            "default": "0.25.0b1",
+            "title": "Engine Version",
+            "type": "string"
+          }
+        },
+        "title": "ServerConfig",
+        "type": "object"
+      },
+      "ServerInfo": {
+        "description": "Server info associated with runtime apps",
+        "properties": {
+          "host_name": {
+            "title": "Host Name",
+            "type": "string"
+          },
+          "pid": {
+            "title": "Pid",
+            "type": "string"
+          },
+          "url": {
+            "default": "in-process",
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "host_name",
+          "pid"
+        ],
+        "title": "ServerInfo",
+        "type": "object"
+      },
+      "ServerStatus": {
+        "enum": [
+          "ALIVE",
+          "ERROR"
+        ],
+        "title": "ServerStatus",
+        "type": "string"
+      },
+      "StreamQueueStrategy": {
+        "description": "Different strategies to be used when reading streams from a queue and writing to another stream.\n\n:field PROPAGATE: original queue name will be preserved, so messages consumed from a queue will\n    maintain that queue name when published\n:field DROP: queue name will be dropped, so messages will be published only to queue specified in\n    `write_stream` configuration, or default queue if not specified.",
+        "enum": [
+          "PROPAGATE",
+          "DROP"
+        ],
+        "title": "StreamQueueStrategy",
+        "type": "string"
+      },
+      "StreamsConfig": {
+        "description": ":field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally",
+        "properties": {
+          "stream_manager": {
+            "default": "hopeit.streams.NoStreamManager",
+            "title": "Stream Manager",
+            "type": "string"
+          },
+          "connection_str": {
+            "default": "<<NoStreamManager>>",
+            "title": "Connection Str",
+            "type": "string"
+          },
+          "delay_auto_start_seconds": {
+            "default": 3,
+            "title": "Delay Auto Start Seconds",
+            "type": "integer"
+          },
+          "initial_backoff_seconds": {
+            "default": 1.0,
+            "title": "Initial Backoff Seconds",
+            "type": "number"
+          },
+          "max_backoff_seconds": {
+            "default": 60.0,
+            "title": "Max Backoff Seconds",
+            "type": "number"
+          },
+          "num_failures_open_circuit_breaker": {
+            "default": 1,
+            "title": "Num Failures Open Circuit Breaker",
+            "type": "integer"
+          }
+        },
+        "title": "StreamsConfig",
+        "type": "object"
+      },
+      "WriteStreamDescriptor": {
+        "description": "Configuration to publish messages to a stream\n\n:field: name, str: stream name\n:field: queue, List[str], queue names to be used to publish to stream.\n    Each queue act as separate stream with queue name used as stream name suffix,\n    allowing to publish messages to i.e. a queue that will be consumed with priority,\n    or to multiple queues that will be consumed by different readers.\n    Queue suffix will be propagated through events, allowing an event in a defined queue\n    and successive events in following steps to be consumed using same queue name.\n    Notice that queue will be applied only to messages coming from default queue\n    (where queue is not specified at intial message creation). Messages consumed\n    from other queues will be published using same queue name as they have when consumed.\n:field queue_stategory: strategy to be used when consuming messages from a stream\n    with a queue name and publishing to another stream. Default is `StreamQueueStrategy.DROP`,\n    so in case of complex stream propagating queue names are configured,\n    `StreamQueueStrategy.PROPAGATE` must be explicitly specified.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "queues": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Queues",
+            "type": "array"
+          },
+          "queue_strategy": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StreamQueueStrategy"
+              }
+            ],
+            "default": "DROP"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "WriteStreamDescriptor",
+        "type": "object"
+      },
+      "RuntimeApps": {
+        "description": "Combined App Config and Server Status information for running apps",
+        "properties": {
+          "apps": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/RuntimeAppInfo"
+            },
+            "title": "Apps",
+            "type": "object"
+          },
+          "server_status": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ServerStatus"
+            },
+            "title": "Server Status",
+            "type": "object"
+          }
+        },
+        "required": [
+          "apps"
+        ],
+        "title": "RuntimeApps",
+        "type": "object"
       },
       "Status": {
         "description": "Status change",
@@ -1759,6 +2396,40 @@
         "title": "User",
         "type": "object"
       },
+      "Something": {
+        "description": "Example Something event",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Status"
+              }
+            ],
+            "default": null,
+            "nullable": true
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/Status"
+            },
+            "title": "History",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "user"
+        ],
+        "title": "Something",
+        "type": "object"
+      },
       "SomethingNotFound": {
         "description": "Item not found in datastore",
         "properties": {
@@ -1795,40 +2466,6 @@
           "user"
         ],
         "title": "SomethingParams",
-        "type": "object"
-      },
-      "Something": {
-        "description": "Example Something event",
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
-          "user": {
-            "$ref": "#/components/schemas/User"
-          },
-          "status": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Status"
-              }
-            ],
-            "default": null,
-            "nullable": true
-          },
-          "history": {
-            "items": {
-              "$ref": "#/components/schemas/Status"
-            },
-            "title": "History",
-            "type": "array"
-          }
-        },
-        "required": [
-          "id",
-          "user"
-        ],
-        "title": "Something",
         "type": "object"
       },
       "ItemsInfo": {

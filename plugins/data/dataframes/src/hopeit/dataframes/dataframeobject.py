@@ -20,7 +20,7 @@ from typing import (
     get_origin,
 )
 
-from pydantic import create_model
+from pydantic import TypeAdapter, create_model
 from pydantic.fields import FieldInfo
 
 from hopeit.dataframes.serialization.dataset import Dataset
@@ -91,8 +91,9 @@ class DataFrameObjectMixin(Generic[DataFrameObjectT]):
 
     @classmethod
     def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
-        schema = cls.__dataframeobject__.serialized_type.json_schema(*args, **kwargs)
-        schema[cls.__name__] = schema[cls.__dataframeobject__.serialized_type.__name__]
+        schema = TypeAdapter(cls.__dataframeobject__.serialized_type).json_schema(*args, **kwargs)
+        # schema[cls.__name__] = schema[cls.__dataframeobject__.serialized_type.__name__]
+        # defs = schema.get("$defs", {cls.__name__: schema})
         return schema
 
     # def to_json(self, *args, **kwargs) -> Dict[str, Any]:

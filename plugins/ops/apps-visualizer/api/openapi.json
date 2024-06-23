@@ -1040,6 +1040,65 @@
         ],
         "title": "RuntimeApps",
         "type": "object"
+      },
+      "VisualizationOptions": {
+        "properties": {
+          "app_prefix": {
+            "default": "",
+            "title": "App Prefix",
+            "type": "string"
+          },
+          "host_filter": {
+            "default": "",
+            "title": "Host Filter",
+            "type": "string"
+          },
+          "expanded_view": {
+            "default": false,
+            "title": "Expanded View",
+            "type": "boolean"
+          },
+          "live": {
+            "default": false,
+            "title": "Live",
+            "type": "boolean"
+          }
+        },
+        "title": "VisualizationOptions",
+        "type": "object"
+      },
+      "CytoscapeGraph": {
+        "properties": {
+          "data": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "title": "Data",
+            "type": "object"
+          }
+        },
+        "title": "CytoscapeGraph",
+        "type": "object"
+      },
+      "EventsGraphResult": {
+        "properties": {
+          "runtime_apps": {
+            "$ref": "#/components/schemas/RuntimeApps"
+          },
+          "graph": {
+            "$ref": "#/components/schemas/CytoscapeGraph"
+          },
+          "options": {
+            "$ref": "#/components/schemas/VisualizationOptions"
+          }
+        },
+        "required": [
+          "runtime_apps",
+          "graph",
+          "options"
+        ],
+        "title": "EventsGraphResult",
+        "type": "object"
       }
     },
     "securitySchemes": {
