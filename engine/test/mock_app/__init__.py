@@ -672,15 +672,6 @@ def mock_api_spec():
                 "auth.basic": {"type": "http", "scheme": "basic"},
                 "auth.bearer": {"type": "http", "scheme": "bearer"},
                 "mock_app_api.test.refresh": {
-                    "type": "apiKey",
-                    "in": "cookie",
-                    "name": "mock_app_api.test.refresh",
-                },
-            },
-            "securitySchemes": {
-                "auth.basic": {"type": "http", "scheme": "basic"},
-                "auth.bearer": {"type": "http", "scheme": "bearer"},
-                "mock_app_api.test.refresh": {
                     "in": "cookie",
                     "name": "mock_app_api.test.refresh",
                     "type": "apiKey",

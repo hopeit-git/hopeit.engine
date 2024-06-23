@@ -2,18 +2,13 @@
 Payload tools to serialize and deserialze event payloads and responses, including dataobjects
 """
 
-import json
-from typing import Dict, Type, Generic, Optional, Union
+from typing import Dict, Type, Generic, Union
 
 from pydantic import RootModel, ValidationError
 
 from hopeit.dataobjects import EventPayloadType
 
 _ATOMIC_TYPES = (str, int, float, bool)
-_COLLECTION_TYPES = (dict, list, set)
-_MAPPING_TYPES = (dict, )
-_LIST_TYPES = (list, set)
-_UNORDERED_LIST_TYPES = (set, )
 
 
 class Payload(Generic[EventPayloadType]):
@@ -41,10 +36,10 @@ class Payload(Generic[EventPayloadType]):
             return RootModel[datatype].model_validate_json(json_str).root  # type: ignore[valid-type]
         except ValidationError:
             raise
-        except Exception:
-            assert hasattr(datatype, '__data_object__'), \
-                f"{datatype} should be annotated with @dataobject"
-            raise  # Raises unexpected exceptions, if assert block does not catch missing @dataobject
+        except Exception as e:
+            if not hasattr(datatype, '__data_object__'):
+                raise TypeError(f"{datatype} must be annotated with @dataobject") from e
+            raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
     def from_obj(data: Union[dict, list],
@@ -65,10 +60,10 @@ class Payload(Generic[EventPayloadType]):
             return RootModel[datatype].model_validate(data).root  # type: ignore[valid-type]
         except ValidationError:
             raise
-        except Exception:
-            assert hasattr(datatype, '__data_object__'), \
-                f"{datatype} should be annotated with @dataobject"
-            raise  # Raises unexpected exceptions, if assert block does not catch missing @dataobject
+        except Exception as e:
+            if not hasattr(datatype, '__data_object__'):
+                raise TypeError(f"{datatype} must be annotated with @dataobject") from e
+            raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
     def to_json(payload: EventPayloadType, key: str = 'value') -> str:
@@ -84,15 +79,13 @@ class Payload(Generic[EventPayloadType]):
             return RootModel({key: payload}).model_dump_json()
         try:
             return RootModel(payload).model_dump_json()
-        except (ValidationError, AttributeError):
-            raise
-        except Exception:
-            assert hasattr(payload, '__data_object__'), \
-                f"{type(payload)} should be annotated with @dataobject"
-            raise  # Raises unexpected exceptions, if assert block does not catch missing @dataobject
+        except Exception as e:
+            if not hasattr(payload, '__data_object__'):
+                raise TypeError(f"{type(payload)} must be annotated with @dataobject") from e
+            raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
-    def to_obj(payload: EventPayloadType, key: str = 'value') -> Union[dict, list]:
+    def to_obj(payload: EventPayloadType, key: str = 'value') -> Union[dict, list, set]:
         """
         Converts event payload to dictionary or list
 
@@ -105,13 +98,14 @@ class Payload(Generic[EventPayloadType]):
         if isinstance(payload, _ATOMIC_TYPES):  # immutable supported types
             return {key: payload}
         try:
-            return RootModel(payload).model_dump()
-        except (ValidationError, AttributeError):
-            raise
-        except Exception:
-            assert hasattr(payload, '__data_object__'), \
-                f"{type(payload)} should be annotated with @dataobject"
-            raise  # Raises unexpected exceptions, if assert block does not catch missing @dataobject
+            serialized = RootModel(payload).model_dump()  # pylint: disable=assignment-from-no-return
+            if not isinstance(serialized, (dict, list, set)):
+                raise TypeError(f"Cannot serialize {type(payload)} as `dict`, `list` or `set`")
+            return serialized
+        except Exception as e:
+            if not hasattr(payload, '__data_object__'):
+                raise TypeError(f"{type(payload)} must be annotated with @dataobject") from e
+            raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
     def parse_form_field(field_data: Union[str, dict], datatype: Type[EventPayloadType],
@@ -119,4 +113,4 @@ class Payload(Generic[EventPayloadType]):
         """Helper to parse dataobjects from form-fields where encoding type is not correctly set to json"""
         if isinstance(field_data, str):
             return Payload.from_json(field_data, datatype, key)
-        return RootModel[datatype].model_validate(field_data).root  # type: ignore
+        return Payload.from_obj(field_data, datatype)

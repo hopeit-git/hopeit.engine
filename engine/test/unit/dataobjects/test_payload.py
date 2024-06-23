@@ -15,7 +15,7 @@ def test_to_json_python_types():
     assert Payload.to_json(123.45, key='test') == '{"test":123.45}'
     assert Payload.to_json(True, key='test') == '{"test":true}'
     assert Payload.to_json({'test': 'dict'}) == '{"test":"dict"}'
-    assert set(json.loads(Payload.to_json({'test2', 'test1'}))) == {"test1","test2"}
+    assert set(json.loads(Payload.to_json({'test2', 'test1'}))) == {"test1", "test2"}
     assert Payload.to_json(['test1', 'test2']) == '["test1","test2"]'
 
 
@@ -394,3 +394,25 @@ def test_to_obj_invalid_types():
 
     with pytest.raises(ValidationError):
         Payload.to_obj(MockData(id='1', value='ok-value', nested=MockNested(ts="NOT A DATETIME")))  # type: ignore
+
+
+def test_to_json_to_obj_invalid_class():
+    class NotDataObjectMarked:
+        pass
+
+    with pytest.raises(TypeError):
+        Payload.to_json(NotDataObjectMarked())
+
+    with pytest.raises(TypeError):
+        Payload.to_obj(NotDataObjectMarked())
+
+
+def test_from_json_from_obj_invalid_class():
+    class NotDataObjectMarked:
+        pass
+
+    with pytest.raises(TypeError):
+        Payload.from_json("{}", NotDataObjectMarked())
+
+    with pytest.raises(TypeError):
+        Payload.from_obj({}, NotDataObjectMarked())
