@@ -12,31 +12,33 @@ Example:
         name: str
         number: int
 """
-
-from dataclasses import Field, asdict, dataclass, fields, make_dataclass
-from datetime import date, datetime, timezone
+import dataclasses
+from datetime import UTC, date, datetime
 from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar
 
 import numpy as np
 import pandas as pd
+from pydantic import create_model
+
 from hopeit.dataobjects import (
     DataObject,
     StreamEventMixin,
     StreamEventParams,
     dataobject,
 )
+from hopeit.dataobjects.payload import Payload
 
 DataFrameT = TypeVar("DataFrameT")
 
 
-@dataclass
+@dataclasses.dataclass
 class DataFrameMetadata(Generic[DataObject]):
     columns: List[str]
-    fields: Dict[str, Field]
+    fields: Dict[str, dataclasses.Field]
     serialized_type: Type[DataObject]
 
 
-@dataclass
+@dataclasses.dataclass
 class DataFrameParams:
     """
     Helper class used to access attributes in @dataframe
@@ -98,7 +100,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     @classmethod
     def _from_dataobjects(cls, items: Iterator[DataObject]) -> DataFrameT:
-        return cls._from_df(pd.DataFrame(asdict(item) for item in items))  # type: ignore
+        return cls._from_df(pd.DataFrame(Payload.to_obj(item) for item in items))  # type: ignore[misc]
 
     @classmethod
     def _from_df_unsafe(cls, df: pd.DataFrame, **series: pd.Series) -> DataFrameT:
@@ -120,27 +122,27 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
             for fields in self.__df.to_dict(orient="records")
         ]
 
-    def to_json(self, *args, **kwargs) -> str:
-        raise NotImplementedError(
-            "Dataframe must be used inside `@dataobject(unsafe=True)` to be used as an output"
-        )
+    # def to_json(self, *args, **kwargs) -> str:
+    #     raise NotImplementedError(
+    #         "Dataframe must be used inside `@dataobject(unsafe=True)` to be used as an output"
+    #     )
 
-    def to_dict(self, *args, **kwargs) -> Dict[str, Any]:
-        raise NotImplementedError(
-            "Dataframe must be used inside `@dataobject(unsafe=True)` to be used as an output"
-        )
+    # def to_dict(self, *args, **kwargs) -> Dict[str, Any]:
+    #     raise NotImplementedError(
+    #         "Dataframe must be used inside `@dataobject(unsafe=True)` to be used as an output"
+    #     )
 
-    @classmethod
-    def from_json(cls, *args, **kwargs) -> DataObject:
-        return cls.__dataframe__.serialized_type.from_dict(*args, **kwargs)
+    # @classmethod
+    # def from_json(cls, *args, **kwargs) -> DataObject:
+    #     return cls.__dataframe__.serialized_type.from_dict(*args, **kwargs)
 
-    @classmethod
-    def from_dict(
-        cls,
-        *args,
-        **kwargs,
-    ) -> DataObject:
-        return cls.__dataframe__.serialized_type.from_dict(*args, **kwargs)
+    # @classmethod
+    # def from_dict(
+    #     cls,
+    #     *args,
+    #     **kwargs,
+    # ) -> DataObject:
+    #     return cls.__dataframe__.serialized_type.from_dict(*args, **kwargs)
 
     @classmethod
     def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
@@ -154,7 +156,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         return ""
 
     def event_ts(self, *args, **kwargs) -> datetime:
-        return datetime.now(tz=timezone.utc)
+        return datetime.now(tz=UTC)
 
     def __getattribute__(self, name: str) -> Any:
         if name[:2] == "__":
@@ -200,16 +202,16 @@ def dataframe(
         return cls
 
     def add_dataframe_metadata(cls):
-        serialized_fiels = [(field.name, field.type) for field in fields(cls)]
-        serialized_type = make_dataclass(cls.__name__ + "_", serialized_fiels)
+        serialized_fields = {k: (v.annotation, v) for k, v in cls.__pydantic_fields__.items()}
+        serialized_type = create_model(cls.__name__+"_", **serialized_fields)
         serialized_type = dataobject(serialized_type, unsafe=True)
 
         setattr(
             cls,
             "__dataframe__",
             DataFrameMetadata(
-                columns=[field.name for field in fields(cls)],
-                fields={field.name: field for field in fields(cls)},
+                columns=[field.name for field in dataclasses.fields(cls)],
+                fields={field.name: field for field in dataclasses.fields(cls)},
                 serialized_type=serialized_type,
             ),
         )
@@ -225,14 +227,14 @@ def dataframe(
         setattr(cls, "event_ts", StreamEventMixin.event_ts)
 
     def set_fields_optional(cls):
-        for field in fields(cls):
+        for field in dataclasses.fields(cls):
             field.default = None
 
     def wrap(cls) -> Type[DataFrameMixin]:
         if hasattr(cls, "__dataframe__"):
             return cls
+        add_dataframe_metadata(cls)
         amended_class = add_dataframe_mixin(cls)
-        add_dataframe_metadata(amended_class)
         add_dataobject_annotations(amended_class, unsafe, validate, schema)
         set_fields_optional(amended_class)
         return amended_class
