@@ -422,7 +422,7 @@ class AppsClient(Client):
         else:
             data = await response.json()
         if isinstance(data, list):
-            return Payload.from_obj(data, list, item_datatype=response_type)  # type: ignore
+            return Payload.from_obj(data, List[response_type])  # type: ignore[valid-type]
         return [Payload.from_obj(data, response_type, key=target_event_name)]
 
     async def _request(self, request_func: AbstractAsyncContextManager, context: EventContext,
