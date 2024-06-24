@@ -10,8 +10,8 @@ ______________
 
   BREAKING CHANGES
   ================
-  - Python `dataclasses.dataclass`` is no longer supported in `@dataobjects`` annotated classes.
-  Pydantic `@dataclasses`` (and in the future BaseModel should be used). 
+  - Python `dataclasses.dataclass` is no longer supported in `@dataobjects` annotated classes.
+  Pydantic `@dataclasses` (and in the future BaseModel should be used). 
   
   - The recommended way is to import from dataobjects module:
   ```
