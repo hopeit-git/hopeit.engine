@@ -30,8 +30,6 @@ class Payload(Generic[EventPayloadType]):
         """
         if datatype in _ATOMIC_TYPES:
             return RootModel[Dict[str, datatype]].model_validate_json(json_str).root[key]  # type: ignore[valid-type]
-        # if datatype in _COLLECTION_TYPES:
-        #     return RootModel[datatype].model_validate_json(json_str).root
         try:
             return RootModel[datatype].model_validate_json(json_str).root  # type: ignore[valid-type]
         except ValidationError:
