@@ -4,13 +4,13 @@
 import io
 import os
 import pickle
-from dataclasses import asdict
 from pathlib import Path
 from typing import Optional, Tuple, TypeVar
 
 import aiofiles
 from dataframes_example.settings import ModelStorage
 from hopeit.app.context import EventContext
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.logger import engine_extra_logger
 
 logger, extra = engine_extra_logger()
@@ -27,7 +27,7 @@ async def init_model_storage(context: EventContext):
     logger.info(
         context,
         "Initializing model storage...",
-        extra=extra(**asdict(model_storage)),
+        extra=extra(**Payload.to_obj(model_storage)),
     )
 
 

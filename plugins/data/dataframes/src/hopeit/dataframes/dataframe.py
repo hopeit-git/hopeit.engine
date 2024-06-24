@@ -19,12 +19,14 @@ from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type,
 import numpy as np
 import pandas as pd
 from pydantic import create_model
+from pydantic.fields import FieldInfo
 
 from hopeit.dataobjects import (
     DataObject,
     StreamEventMixin,
     StreamEventParams,
     dataobject,
+    fields,
 )
 from hopeit.dataobjects.payload import Payload
 
@@ -34,7 +36,7 @@ DataFrameT = TypeVar("DataFrameT")
 @dataclasses.dataclass
 class DataFrameMetadata(Generic[DataObject]):
     columns: List[str]
-    fields: Dict[str, dataclasses.Field]
+    fields: Dict[str, FieldInfo]
     serialized_type: Type[DataObject]
 
 
@@ -175,7 +177,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     def _coerce_datatypes(self, df: pd.DataFrame) -> Dict[str, pd.Series]:
         return {
-            name: self.DATATYPE_MAPPING[field.type](df[name])  # type: ignore
+            name: self.DATATYPE_MAPPING[field.annotation](df[name])  # type: ignore
             for name, field in self.__dataframe__.fields.items()
         }
 
@@ -202,7 +204,7 @@ def dataframe(
         return cls
 
     def add_dataframe_metadata(cls):
-        serialized_fields = {k: (v.annotation, v) for k, v in cls.__pydantic_fields__.items()}
+        serialized_fields = {k: (v.annotation, v) for k, v in fields(cls).items()}
         serialized_type = create_model(cls.__name__+"_", **serialized_fields)
         serialized_type = dataobject(serialized_type, unsafe=True)
 
@@ -210,8 +212,8 @@ def dataframe(
             cls,
             "__dataframe__",
             DataFrameMetadata(
-                columns=[field.name for field in dataclasses.fields(cls)],
-                fields={field.name: field for field in dataclasses.fields(cls)},
+                columns=list(fields(cls).keys()),
+                fields=dict(fields(cls).items()),
                 serialized_type=serialized_type,
             ),
         )
@@ -227,7 +229,7 @@ def dataframe(
         setattr(cls, "event_ts", StreamEventMixin.event_ts)
 
     def set_fields_optional(cls):
-        for field in dataclasses.fields(cls):
+        for _, field in fields(cls).items():
             field.default = None
 
     def wrap(cls) -> Type[DataFrameMixin]:

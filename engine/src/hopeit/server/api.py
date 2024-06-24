@@ -660,7 +660,7 @@ def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):
                     defs[datatype.__name__] = {
                         k: v for k, v in local_schema.items() if k != "$defs"
                     }
-                    GenerateOpenAPI30Schema.cleanup_properties(defs)
+                    # GenerateOpenAPI30Schema.cleanup_properties(defs)
                     schemas.update(defs)
 
 

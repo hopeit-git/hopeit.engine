@@ -21,10 +21,11 @@ import pickle
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import TypeVar, Optional, Union, Any
+from typing import Dict, Type, TypeVar, Optional, Union, Any
 
 from pydantic import RootModel
 from pydantic.dataclasses import dataclass, Field as field
+from pydantic.fields import FieldInfo
 
 
 __all__ = ['EventPayload',
@@ -35,7 +36,8 @@ __all__ = ['EventPayload',
            'copy_payload',
            'payload',
            'dataclass',
-           'field']
+           'field',
+           'fields']
 
 
 @dataclass
@@ -207,3 +209,7 @@ def copy_payload(original: Optional[EventPayload]) -> Optional[EventPayload]:
     if hasattr(original, '__data_object__') and original.__data_object__['unsafe']:
         return original
     return _binary_copy(original)
+
+
+def fields(cls_or_instance: Union[DataObject, Type[DataObject]]) -> Dict[str, FieldInfo]:
+    return cls_or_instance.__pydantic_fields__  # type: ignore[union-attr]

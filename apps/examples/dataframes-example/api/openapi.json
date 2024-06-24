@@ -1346,28 +1346,26 @@
       "IrisFeatures": {
         "properties": {
           "sepal_length": {
+            "default": null,
             "title": "Sepal Length",
             "type": "number"
           },
           "sepal_width": {
+            "default": null,
             "title": "Sepal Width",
             "type": "number"
           },
           "petal_length": {
+            "default": null,
             "title": "Petal Length",
             "type": "number"
           },
           "petal_width": {
+            "default": null,
             "title": "Petal Width",
             "type": "number"
           }
         },
-        "required": [
-          "sepal_length",
-          "sepal_width",
-          "petal_length",
-          "petal_width"
-        ],
         "title": "IrisFeatures",
         "type": "object"
       },

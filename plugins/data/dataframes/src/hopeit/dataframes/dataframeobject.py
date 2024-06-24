@@ -29,6 +29,7 @@ from hopeit.dataobjects import (
     StreamEventMixin,
     StreamEventParams,
     dataobject,
+    fields,
 )
 
 DataFrameObjectT = TypeVar("DataFrameObjectT")
@@ -60,7 +61,7 @@ class DataFrameObjectMixin(Generic[DataFrameObjectT]):
         and returns json-serialiable dataobject
         """
         datasets = {}
-        for field_name, field in self.__pydantic_fields__.items():  # type: ignore[attr-defined]
+        for field_name, field in fields(self).items():  # type: ignore[arg-type]
             if Dataset in {field.annotation, *get_args(field.annotation)}:
                 dataframe = getattr(self, field_name)
                 dataset = (
@@ -78,7 +79,7 @@ class DataFrameObjectMixin(Generic[DataFrameObjectT]):
         """From a serialized datframeobject, load inner `@dataframe` objects
         and returns a `@dataframeobject` instance"""
         dataframes = {}
-        for field_name, field in cls.__pydantic_fields__.items():  # type: ignore[attr-defined]
+        for field_name, field in fields(cls).items():  # type: ignore[type-var]
             if Dataset in {field.annotation, *get_args(field.annotation)}:
                 dataset = getattr(serialized, field_name)
                 dataframe = (
@@ -92,8 +93,6 @@ class DataFrameObjectMixin(Generic[DataFrameObjectT]):
     @classmethod
     def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
         schema = TypeAdapter(cls.__dataframeobject__.serialized_type).json_schema(*args, **kwargs)
-        # schema[cls.__name__] = schema[cls.__dataframeobject__.serialized_type.__name__]
-        # defs = schema.get("$defs", {cls.__name__: schema})
         return schema
 
     # def to_json(self, *args, **kwargs) -> Dict[str, Any]:
@@ -151,7 +150,7 @@ def dataframeobject(
     def add_dataframeobject_metadata(cls):
         serialized_fields = {
             field_name: (_serialized_field_type(field_name, field_info), field_info)
-            for field_name, field_info in cls.__pydantic_fields__.items()
+            for field_name, field_info in fields(cls).items()
         }
         serialized_type = create_model(cls.__name__+"_", **serialized_fields)
         serialized_type = dataobject(serialized_type, unsafe=True)

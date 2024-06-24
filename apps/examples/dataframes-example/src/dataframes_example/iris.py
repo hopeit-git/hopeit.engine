@@ -11,11 +11,11 @@ from hopeit.dataobjects import dataobject, dataclass, field
 @dataframe
 @dataclass
 class Iris:
-    sepal_length: float = field(metadata={"source_field_name": "sepal length (cm)"})
-    sepal_width: float = field(metadata={"source_field_name": "sepal width (cm)"})
-    petal_length: float = field(metadata={"source_field_name": "petal length (cm)"})
-    petal_width: float = field(metadata={"source_field_name": "petal width (cm)"})
-    variety: int = field(metadata={"source_field_name": "target"})
+    sepal_length: float = field(serialization_alias="sepal length (cm)")
+    sepal_width: float = field(serialization_alias="sepal width (cm)")
+    petal_length: float = field(serialization_alias="petal length (cm)")
+    petal_width: float = field(serialization_alias="petal width (cm)")
+    variety: int = field(serialization_alias="target")
 
 
 @dataframe
