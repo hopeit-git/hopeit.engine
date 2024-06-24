@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime, timezone
 
 import pandas as pd
@@ -12,6 +11,7 @@ from hopeit.app.config import (
 )
 from hopeit.app.context import EventContext
 from hopeit.dataframes import dataframe, dataframeobject
+from hopeit.dataobjects import dataclass
 from hopeit.testing.apps import create_test_context, execute_event, server_config
 
 

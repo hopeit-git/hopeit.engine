@@ -3,7 +3,6 @@ Storage/persistence asynchronous stores and gets dataobjects from filesystem.
 
 """
 
-from dataclasses import dataclass
 import io
 import os
 import shutil
@@ -15,7 +14,7 @@ from typing import Optional, Type, Generic, List
 import aiofiles
 import aiofiles.os
 
-from hopeit.dataobjects import dataobject, DataObject
+from hopeit.dataobjects import DataObject, dataclass, dataobject
 from hopeit.dataobjects.payload import Payload
 from hopeit.fs_storage.partition import get_file_partition_key, get_partition_key
 

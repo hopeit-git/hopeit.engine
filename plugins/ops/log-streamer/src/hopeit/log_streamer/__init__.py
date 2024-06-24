@@ -9,7 +9,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.utils import BaseThread
 
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 

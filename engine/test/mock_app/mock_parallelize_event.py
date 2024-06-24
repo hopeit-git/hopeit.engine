@@ -1,11 +1,9 @@
-from dataclasses import dataclass
-
 from typing import Union
 
 from hopeit.app.events import Spawn, SHUFFLE
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 
 __steps__ = ['produce_messages', SHUFFLE, 'process_a', 'process_b']
 

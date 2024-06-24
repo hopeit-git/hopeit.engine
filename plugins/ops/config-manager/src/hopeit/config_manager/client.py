@@ -7,6 +7,7 @@ import random
 
 import aiohttp
 
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.version import APPS_ROUTE_VERSION
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import dataclass, dataobject
@@ -93,7 +94,7 @@ async def _get_host_config(
         timeout = aiohttp.ClientTimeout(total=settings.client_timeout)
         async with aiohttp.ClientSession(timeout=timeout) as client:
             async with client.get(url) as response:
-                return host, RuntimeApps.from_dict(await response.json())  # type: ignore
+                return host, Payload.from_obj(await response.json(), RuntimeApps)
     except TimeoutError as e:  # pylint: disable=broad-except
         logger.error(
             context,

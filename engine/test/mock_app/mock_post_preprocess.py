@@ -18,7 +18,7 @@ async def __init_event__(context: EventContext):
 async def __preprocess__(payload: MockData, context: EventContext, request: PreprocessHook,
                          *, query_arg1: str) -> MockData:
     assert isinstance(payload, MockData)
-    assert request.payload_raw == b'{"value": "ok"}'
+    assert request.payload_raw in (b'{"value":"ok"}', b'{"value": "ok"}')
     return MockData(value=request.headers.get('X-Track-Request-Id'))
 
 

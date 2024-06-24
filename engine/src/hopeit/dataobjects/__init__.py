@@ -19,12 +19,14 @@ Example:
 """
 import pickle
 import uuid
-from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import TypeVar, Optional, Union, Any
+from typing import Dict, Type, TypeVar, Optional, Union, Any
 
-from dataclasses_jsonschema import JsonSchemaMixin
+from pydantic import RootModel
+from pydantic.dataclasses import dataclass, Field as field
+from pydantic.fields import FieldInfo
+
 
 __all__ = ['EventPayload',
            'EventPayloadType',
@@ -32,7 +34,10 @@ __all__ = ['EventPayload',
            'dataobject',
            'DataObject',
            'copy_payload',
-           'payload']
+           'payload',
+           'dataclass',
+           'field',
+           'fields']
 
 
 @dataclass
@@ -76,7 +81,7 @@ class StreamEventMixin:
         return None
 
 
-DataObject = TypeVar("DataObject", bound=JsonSchemaMixin)
+DataObject = TypeVar("DataObject", bound=RootModel)
 EventPayload = Union[str, int, float, bool, dict, set, list, DataObject]
 EventPayloadType = TypeVar("EventPayloadType")  # pylint: disable=invalid-name
 
@@ -107,7 +112,6 @@ def dataobject(
         event_id: Optional[str] = None,
         event_ts: Optional[str] = None,
         unsafe: bool = False,
-        validate: bool = True,
         schema: bool = True):
     """
     Decorator for dataclasses intended to be used in API and/or streams. This decorated mainly implements
@@ -166,27 +170,23 @@ def dataobject(
     """
 
     def wrap(cls):
-        amended_class = _add_jsonschema_support(cls)
-        setattr(amended_class, '__data_object__', {'unsafe': unsafe, 'validate': validate, 'schema': schema})
-        setattr(amended_class, '__stream_event__', StreamEventParams(event_id, event_ts))
-        setattr(amended_class, 'event_id', StreamEventMixin.event_id)
-        setattr(amended_class, 'event_ts', StreamEventMixin.event_ts)
-        return amended_class
+        # From v0.25: Check if the dataclass is Pydantic compatible
+        # (prevents using `dataclasses.dataclass` by mistake)
+        if not hasattr(cls, "__pydantic_complete__"):
+            raise TypeError(
+                f"dataclass `{cls.__name__}` must be Pydantic compatible: i.e. use:"
+                "\n\t`from hopeit.dataobjects import dataclass, dataobject, field`"
+                "\nPython `dataclasses.dataclass` is no longer supported with `@dataobject`"
+            )
+        setattr(cls, '__data_object__', {'unsafe': unsafe, 'schema': schema})
+        setattr(cls, '__stream_event__', StreamEventParams(event_id, event_ts))
+        setattr(cls, 'event_id', StreamEventMixin.event_id)
+        setattr(cls, 'event_ts', StreamEventMixin.event_ts)
+        return cls
 
     if decorated_class is None:
         return wrap
     return wrap(decorated_class)
-
-
-def _add_jsonschema_support(cls):
-    if hasattr(cls, '__data_object__'):
-        return cls
-    if hasattr(cls, '__annotations__') and hasattr(cls, '__dataclass_fields__'):
-        amended_class = type(cls.__name__,
-                             (JsonSchemaMixin,) + cls.__mro__,
-                             dict(cls.__dict__))
-        return amended_class
-    return cls
 
 
 def _binary_copy(payload: Any) -> Any:
@@ -209,3 +209,7 @@ def copy_payload(original: Optional[EventPayload]) -> Optional[EventPayload]:
     if hasattr(original, '__data_object__') and original.__data_object__['unsafe']:
         return original
     return _binary_copy(original)
+
+
+def fields(cls_or_instance: Union[DataObject, Type[DataObject]]) -> Dict[str, FieldInfo]:
+    return cls_or_instance.__pydantic_fields__  # type: ignore[union-attr]

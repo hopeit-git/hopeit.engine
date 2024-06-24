@@ -5,7 +5,7 @@ Datasets behaves as DataObject so they can be used as payload
 for endpoints and streams.
 """
 
-from dataclasses import Field, dataclass, fields, make_dataclass
+import dataclasses
 from typing import (
     Any,
     Callable,
@@ -20,19 +20,23 @@ from typing import (
     get_origin,
 )
 
+from pydantic import TypeAdapter, create_model
+from pydantic.fields import FieldInfo
+
 from hopeit.dataframes.serialization.dataset import Dataset
 from hopeit.dataobjects import (
     DataObject,
     StreamEventMixin,
     StreamEventParams,
     dataobject,
+    fields,
 )
 
 DataFrameObjectT = TypeVar("DataFrameObjectT")
 NoneType = type(None)
 
 
-@dataclass
+@dataclasses.dataclass
 class DataFrameObjectMetadata(Generic[DataObject]):
     serialized_type: Type[DataObject]
 
@@ -57,15 +61,15 @@ class DataFrameObjectMixin(Generic[DataFrameObjectT]):
         and returns json-serialiable dataobject
         """
         datasets = {}
-        for field in fields(self):  # type: ignore
-            if _is_dataframe_field(field):
-                dataframe = getattr(self, field.name)
+        for field_name, field in fields(self).items():  # type: ignore[arg-type]
+            if Dataset in {field.annotation, *get_args(field.annotation)}:
+                dataframe = getattr(self, field_name)
                 dataset = (
                     None if dataframe is None else await self.__storage.save(dataframe)
                 )
-                datasets[field.name] = dataset
+                datasets[field_name] = dataset
             else:
-                datasets[field.name] = getattr(self, field.name)
+                datasets[field_name] = getattr(self, field_name)
         return self.__dataframeobject__.serialized_type(**datasets)
 
     @classmethod
@@ -75,45 +79,44 @@ class DataFrameObjectMixin(Generic[DataFrameObjectT]):
         """From a serialized datframeobject, load inner `@dataframe` objects
         and returns a `@dataframeobject` instance"""
         dataframes = {}
-        for field in fields(cls):  # type: ignore
-            if _is_dataframe_field(field):
-                dataset = getattr(serialized, field.name)
+        for field_name, field in fields(cls).items():  # type: ignore[type-var]
+            if Dataset in {field.annotation, *get_args(field.annotation)}:
+                dataset = getattr(serialized, field_name)
                 dataframe = (
                     None if dataset is None else await cls.__storage.load(dataset)
                 )
-                dataframes[field.name] = dataframe
+                dataframes[field_name] = dataframe
             else:
-                dataframes[field.name] = getattr(serialized, field.name)
+                dataframes[field_name] = getattr(serialized, field_name)
         return cls(**dataframes)
 
     @classmethod
     def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
-        schema = cls.__dataframeobject__.serialized_type.json_schema(*args, **kwargs)
-        schema[cls.__name__] = schema[cls.__dataframeobject__.serialized_type.__name__]
+        schema = TypeAdapter(cls.__dataframeobject__.serialized_type).json_schema(*args, **kwargs)
         return schema
 
-    def to_json(self, *args, **kwargs) -> Dict[str, Any]:
-        raise RuntimeError(
-            f"`{type(self).__name__}` `@dataframeobject` cannot be converted to json directly. "
-            "i.e. use `return await DataFrames.serialize(obj)` to return it as a reponse."
-        )
+    # def to_json(self, *args, **kwargs) -> Dict[str, Any]:
+    #     raise RuntimeError(
+    #         f"`{type(self).__name__}` `@dataframeobject` cannot be converted to json directly. "
+    #         "i.e. use `return await DataFrames.serialize(obj)` to return it as a response."
+    #     )
 
 
-def _is_dataframe_field(field: Field) -> bool:
+def _is_dataframe_field(field: FieldInfo) -> bool:
     return any(
         hasattr(field_type, "__dataframe__")
-        for field_type in [field.type, *get_args(field.type)]
+        for field_type in [field.annotation, *get_args(field.annotation)]
     )
 
 
-def _serialized_field_type(field: Field) -> Type[Any]:
+def _serialized_field_type(field_name: str, field: FieldInfo) -> Optional[Type[Any]]:
     """Computes the `@dataobject` datatype used as a result
     of serialized `@dataframeobject`
     """
-    if hasattr(field.type, "__dataframe__"):
+    if hasattr(field.annotation, "__dataframe__"):
         return Dataset
-    if get_origin(field.type) is Union:
-        args = get_args(field.type)
+    if get_origin(field.annotation) is Union:
+        args = get_args(field.annotation)
         if (
             len(args) == 2
             and any(hasattr(field_type, "__dataframe__") for field_type in args)
@@ -122,9 +125,9 @@ def _serialized_field_type(field: Field) -> Type[Any]:
             return Optional[Dataset]  # type: ignore
     if _is_dataframe_field(field):
         raise TypeError(
-            f"field {field.name}: only `DataFrameT` or `Optional[DataFrameT]` are supported"
+            f"field {field_name}: only `DataFrameT` or `Optional[DataFrameT]` are supported"
         )
-    return field.type
+    return field.annotation
 
 
 def dataframeobject(
@@ -145,12 +148,12 @@ def dataframeobject(
         return cls
 
     def add_dataframeobject_metadata(cls):
-        serialized_fiels = [
-            (field.name, _serialized_field_type(field)) for field in fields(cls)
-        ]
-        serialized_type = make_dataclass(cls.__name__ + "_", serialized_fiels)
+        serialized_fields = {
+            field_name: (_serialized_field_type(field_name, field_info), field_info)
+            for field_name, field_info in fields(cls).items()
+        }
+        serialized_type = create_model(cls.__name__+"_", **serialized_fields)
         serialized_type = dataobject(serialized_type, unsafe=True)
-
         setattr(
             cls,
             "__dataframeobject__",
@@ -159,11 +162,11 @@ def dataframeobject(
             ),
         )
 
-    def add_dataobject_annotations(cls, unsafe: bool, validate: bool, schema: bool):
+    def add_dataobject_annotations(cls, unsafe: bool, schema: bool):
         setattr(
             cls,
             "__data_object__",
-            {"unsafe": unsafe, "validate": validate, "schema": schema},
+            {"unsafe": unsafe, "schema": schema},
         )
         setattr(cls, "__stream_event__", StreamEventParams(None, None))
         setattr(cls, "event_id", StreamEventMixin.event_id)
@@ -172,10 +175,10 @@ def dataframeobject(
     def wrap(cls) -> Type[DataFrameObjectMixin]:
         if hasattr(cls, "__dataframeobject__"):
             return cls
+        add_dataframeobject_metadata(cls)
         amended_class = add_dataframe_mixin(cls)
-        add_dataframeobject_metadata(amended_class)
         add_dataobject_annotations(
-            amended_class, unsafe=False, validate=True, schema=True
+            amended_class, unsafe=False, schema=True
         )
         return amended_class
 

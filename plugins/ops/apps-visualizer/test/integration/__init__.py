@@ -32,7 +32,7 @@ def mock_getenv(var_name):
         return APPS_API_VERSION
     if var_name == "HOPEIT_APPS_ROUTE_VERSION":
         return APPS_ROUTE_VERSION
-    raise NotImplementedError(var_name)
+    return None
 
 
 def mock_runtime(monkeypatch, effective_events):
@@ -44,6 +44,6 @@ def mock_runtime(monkeypatch, effective_events):
     server = MockServer(basic_auth_config, app_config, client_app_config)
     for app_key, app_effective_events in effective_events.items():
         server.app_engines[app_key].effective_events = Payload.from_obj(
-            app_effective_events, datatype=dict, item_datatype=EventDescriptor
+            app_effective_events, datatype=Dict[str, EventDescriptor]
         )
     monkeypatch.setattr(runtime, "server", server)

@@ -2,10 +2,9 @@
 Apps Visualizer: graph elements model
 """
 from typing import List, Dict
-from dataclasses import dataclass, field
 from enum import Enum
 
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject, field
 from hopeit.app.config import AppConnection, AppDescriptor, EventDescriptor, EventType, StreamQueueStrategy
 from hopeit.server.names import auto_path
 

@@ -15,7 +15,7 @@ def client_app_config(monkeypatch):
             return version.APPS_API_VERSION
         if var == "HOPEIT_APPS_ROUTE_VERSION":
             return version.APPS_ROUTE_VERSION
-        raise NotImplementedError(var)
+        return None
 
     monkeypatch.setattr(server_config.os, "getenv", mock_getenv)
     return config('apps/examples/client-example/config/app-config.json')

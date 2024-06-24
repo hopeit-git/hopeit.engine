@@ -1,148 +1,162 @@
 {
-  "type": "object",
-  "properties": {
-    "streams": {
-      "$ref": "#/definitions/StreamsConfig",
-      "default": {
-        "stream_manager": "hopeit.streams.NoStreamManager",
-        "connection_str": "<<NoStreamManager>>",
-        "delay_auto_start_seconds": 3,
-        "initial_backoff_seconds": 1.0,
-        "max_backoff_seconds": 60.0,
-        "num_failures_open_circuit_breaker": 1
-      }
-    },
-    "logging": {
-      "$ref": "#/definitions/LoggingConfig",
-      "default": {
-        "log_level": "INFO",
-        "log_path": "logs/"
-      }
-    },
-    "auth": {
-      "$ref": "#/definitions/AuthConfig",
-      "default": {
-        "secrets_location": ".secrets/",
-        "auth_passphrase": "",
-        "enabled": false,
-        "create_keys": false,
-        "domain": null,
-        "encryption_algorithm": "RS256",
-        "default_auth_methods": [
-          "Unsecured"
-        ]
-      }
-    },
-    "api": {
-      "$ref": "#/definitions/APIConfig",
-      "default": {
-        "docs_path": null
-      }
-    },
-    "engine_version": {
-      "type": "string",
-      "default": "0.23.0"
-    }
-  },
-  "description": "\n    Server configuration\n    ",
-  "$schema": "http://json-schema.org/draft-06/schema#",
-  "definitions": {
-    "StreamsConfig": {
-      "type": "object",
+  "$defs": {
+    "APIConfig": {
+      "description": "Config for Open API docs page",
       "properties": {
-        "stream_manager": {
-          "type": "string",
-          "default": "hopeit.streams.NoStreamManager"
-        },
-        "connection_str": {
-          "type": "string",
-          "default": "<<NoStreamManager>>"
-        },
-        "delay_auto_start_seconds": {
-          "type": "integer",
-          "default": 3
-        },
-        "initial_backoff_seconds": {
-          "type": "number",
-          "default": 1.0
-        },
-        "max_backoff_seconds": {
-          "type": "number",
-          "default": 60.0
-        },
-        "num_failures_open_circuit_breaker": {
-          "type": "integer",
-          "default": 1
+        "docs_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Docs Path"
         }
       },
-      "description": "\n    :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n        if using redis stream manager plugin to connect locally\n    "
-    },
-    "LoggingConfig": {
-      "type": "object",
-      "properties": {
-        "log_level": {
-          "type": "string",
-          "default": "INFO"
-        },
-        "log_path": {
-          "type": "string",
-          "default": "logs/"
-        }
-      },
-      "description": "LoggingConfig(log_level: str = 'INFO', log_path: str = 'logs/')"
+      "title": "APIConfig",
+      "type": "object"
     },
     "AuthConfig": {
-      "type": "object",
+      "description": "Server configuration to handle authorization tokens",
+      "properties": {
+        "secrets_location": {
+          "title": "Secrets Location",
+          "type": "string"
+        },
+        "auth_passphrase": {
+          "title": "Auth Passphrase",
+          "type": "string"
+        },
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "create_keys": {
+          "default": false,
+          "title": "Create Keys",
+          "type": "boolean"
+        },
+        "domain": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Domain"
+        },
+        "encryption_algorithm": {
+          "default": "RS256",
+          "title": "Encryption Algorithm",
+          "type": "string"
+        },
+        "default_auth_methods": {
+          "items": {
+            "$ref": "#/$defs/AuthType"
+          },
+          "title": "Default Auth Methods",
+          "type": "array"
+        }
+      },
       "required": [
         "secrets_location",
         "auth_passphrase"
       ],
-      "properties": {
-        "secrets_location": {
-          "type": "string"
-        },
-        "auth_passphrase": {
-          "type": "string"
-        },
-        "enabled": {
-          "type": "boolean",
-          "default": true
-        },
-        "create_keys": {
-          "type": "boolean",
-          "default": false
-        },
-        "domain": {
-          "type": "string"
-        },
-        "encryption_algorithm": {
-          "type": "string",
-          "default": "RS256"
-        },
-        "default_auth_methods": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "Unsecured",
-              "Basic",
-              "Bearer",
-              "Refresh"
-            ]
-          },
-          "default": []
-        }
-      },
-      "description": "\n    Server configuration to handle authorization tokens\n    "
+      "title": "AuthConfig",
+      "type": "object"
     },
-    "APIConfig": {
-      "type": "object",
+    "AuthType": {
+      "description": "Supported Authorization/Authentication types",
+      "enum": [
+        "Unsecured",
+        "Basic",
+        "Bearer",
+        "Refresh"
+      ],
+      "title": "AuthType",
+      "type": "string"
+    },
+    "LoggingConfig": {
       "properties": {
-        "docs_path": {
+        "log_level": {
+          "default": "INFO",
+          "title": "Log Level",
+          "type": "string"
+        },
+        "log_path": {
+          "default": "logs/",
+          "title": "Log Path",
           "type": "string"
         }
       },
-      "description": "\n    Config for Open API docs page\n    "
+      "title": "LoggingConfig",
+      "type": "object"
+    },
+    "StreamsConfig": {
+      "description": ":field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally",
+      "properties": {
+        "stream_manager": {
+          "default": "hopeit.streams.NoStreamManager",
+          "title": "Stream Manager",
+          "type": "string"
+        },
+        "connection_str": {
+          "default": "<<NoStreamManager>>",
+          "title": "Connection Str",
+          "type": "string"
+        },
+        "delay_auto_start_seconds": {
+          "default": 3,
+          "title": "Delay Auto Start Seconds",
+          "type": "integer"
+        },
+        "initial_backoff_seconds": {
+          "default": 1.0,
+          "title": "Initial Backoff Seconds",
+          "type": "number"
+        },
+        "max_backoff_seconds": {
+          "default": 60.0,
+          "title": "Max Backoff Seconds",
+          "type": "number"
+        },
+        "num_failures_open_circuit_breaker": {
+          "default": 1,
+          "title": "Num Failures Open Circuit Breaker",
+          "type": "integer"
+        }
+      },
+      "title": "StreamsConfig",
+      "type": "object"
     }
-  }
+  },
+  "description": "Server configuration",
+  "properties": {
+    "streams": {
+      "$ref": "#/$defs/StreamsConfig"
+    },
+    "logging": {
+      "$ref": "#/$defs/LoggingConfig"
+    },
+    "auth": {
+      "$ref": "#/$defs/AuthConfig"
+    },
+    "api": {
+      "$ref": "#/$defs/APIConfig"
+    },
+    "engine_version": {
+      "default": "0.25.0b1",
+      "title": "Engine Version",
+      "type": "string"
+    }
+  },
+  "title": "ServerConfig",
+  "type": "object"
 }

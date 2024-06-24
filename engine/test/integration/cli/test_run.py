@@ -25,7 +25,7 @@ class MockBaseAppliction:
         print("Listening at: http://localhost:8021")
 
 
-async def test_full_signatre(monkeypatch):
+async def test_example_app_starts_ok(monkeypatch):
     sys.path.append("plugins/auth/basic-auth/src/")
     sys.path.append("apps/examples/simple-example/src/")
     sys.path.append("plugins/storage/fs/src/")

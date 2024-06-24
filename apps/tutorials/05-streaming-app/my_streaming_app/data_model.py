@@ -1,10 +1,9 @@
 """
 Data Model for my_app
 """
-from dataclasses import dataclass
 from enum import Enum
 
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 
 
 @dataobject

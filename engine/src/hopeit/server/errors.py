@@ -4,10 +4,9 @@ Server error handling convenience module
 import traceback
 import json
 import urllib.parse
-from dataclasses import dataclass
 from typing import List
 
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 
 __all__ = ['ErrorInfo',
            'format_exc',

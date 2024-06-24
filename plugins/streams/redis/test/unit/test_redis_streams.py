@@ -3,10 +3,9 @@ from redis import ResponseError
 
 import pytest
 from datetime import datetime, timezone
-from dataclasses import dataclass
 
 from hopeit.app.config import Compression, Serialization
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.config import AuthType
 
 from hopeit.streams import StreamEvent
@@ -61,7 +60,7 @@ async def write_stream():
         'comp': 'none',
         'ser': 'json',
         'auth_info': b'eyJhdXRoX3R5cGUiOiAiVW5zZWN1cmVkIiwgImFsbG93ZWQiOiAidHJ1ZSJ9',
-        'payload': '{"value": "test_value", "ts": "1970-01-01T00:00:00+00:00"}'.encode(),
+        'payload': '{"value":"test_value","ts":"1970-01-01T00:00:00Z"}'.encode(),
         'queue': TestStreamData.test_queue.encode()
     }
     res = await mgr.write_stream(

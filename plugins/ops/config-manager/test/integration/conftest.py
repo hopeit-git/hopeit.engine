@@ -2,6 +2,7 @@ import socket
 import os
 import json
 from pathlib import Path
+from typing import Dict
 
 import pytest
 from hopeit.app.config import EventDescriptor
@@ -75,7 +76,7 @@ def effective_events_example():
     res = res.replace("${APPS_ROUTE_VERSION}", APPS_ROUTE_VERSION)
     res = json.loads(res)
 
-    result = Payload.from_obj(res, datatype=dict, item_datatype=EventDescriptor)
+    result = Payload.from_obj(res, datatype=Dict[str, EventDescriptor])
 
     return result
 

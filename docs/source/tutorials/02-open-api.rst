@@ -86,11 +86,9 @@ an ``__api__`` definition to your source file:
     representation.
     """
     
-    from dataclasses import dataclass
-    
     from hopeit.app.api import event_api
     from hopeit.app.context import EventContext
-    from hopeit.dataobjects import dataobject
+    from hopeit.dataobjects import dataclass, dataobject
     
     __steps__ = ['step1']
     

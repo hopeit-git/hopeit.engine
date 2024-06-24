@@ -4,6 +4,7 @@ import importlib
 from pathlib import Path
 from types import ModuleType
 
+from hopeit.dataobjects.payload import Payload
 import pytest  # type: ignore
 
 from hopeit.app.context import (
@@ -28,7 +29,7 @@ def test_config(mock_app_config):  # noqa: F811
     file_name = Path("/tmp") / (str(uuid.uuid4()) + ".json")
     expected = mock_app_config
     with open(file_name, "w") as f:
-        f.write(expected.to_json())
+        f.write(Payload.to_json(expected))
     result = config(file_name)
     os.remove(file_name)
     assert result.app == expected.app

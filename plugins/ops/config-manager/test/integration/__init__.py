@@ -4,6 +4,7 @@ import aiohttp
 
 from hopeit.app.config import AppConfig, EventDescriptor
 from hopeit.config_manager import RuntimeApps
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.version import APPS_ROUTE_VERSION
 from hopeit.app.context import EventContext
 from hopeit.server.events import get_event_settings
@@ -38,7 +39,7 @@ class MockResponse:
         return None
 
     async def json(self):
-        return self.response.to_dict()
+        return Payload.to_obj(self.response)
 
 
 class MockClientSession:

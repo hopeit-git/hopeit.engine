@@ -1,6 +1,7 @@
 """
 Open API spec creation and server helpers
 """
+from enum import Enum
 import json
 import re
 from copy import deepcopy
@@ -10,17 +11,19 @@ from typing import Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
 from datetime import date, datetime
 
 from aiohttp import web
-from aiohttp_swagger3 import RapiDocUiSettings  # type: ignore
-from aiohttp_swagger3.swagger import Swagger, _handle_swagger_call  # type: ignore
-from aiohttp_swagger3.exceptions import ValidatorError  # type: ignore
-from aiohttp_swagger3 import validators  # type: ignore
-from aiohttp_swagger3.validators import MISSING, _MissingType  # type: ignore
-from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
+from aiohttp_swagger3 import RapiDocUiSettings
+from aiohttp_swagger3.swagger import Swagger, _handle_swagger_call
+from aiohttp_swagger3.exceptions import ValidatorError
+from aiohttp_swagger3 import validators
+from aiohttp_swagger3.validators import MISSING, _MissingType
+from aiohttp_swagger3.swagger_route import SwaggerRoute
+from pydantic import TypeAdapter
+from pydantic.json_schema import GenerateJsonSchema, JsonSchemaValue
+from pydantic_core import core_schema
 from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
-from dataclasses_jsonschema import SchemaType
 
-from hopeit.dataobjects import BinaryAttachment, BinaryDownload  # type: ignore
+from hopeit.dataobjects import BinaryAttachment, BinaryDownload
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventPlugMode, EventType
 from hopeit.server.config import ServerConfig, AuthType
 from hopeit.server.errors import ErrorInfo
@@ -471,7 +474,10 @@ def _update_predefined_schemas():
     """
     assert spec is not None
     spec['components']['schemas'].update(
-        ErrorInfo.json_schema(schema_type=SchemaType.V3, embeddable=True)
+        {'ErrorInfo': TypeAdapter(ErrorInfo).json_schema(
+            schema_generator=GenerateOpenAPI30Schema,
+            ref_template='#/components/schemas/{model}'
+        )}
     )
 
 
@@ -633,13 +639,28 @@ def _generate_schemas(app_config: AppConfig, event_name: str, event_info: EventD
 
 
 def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):
+    """Extract schemas from payload and return types"""
     if step_info is not None:
         _, input_type, ret_type, _ = step_info
         datatypes = _explode_datatypes([input_type, ret_type])
         for datatype in datatypes:
             if datatype is not None and hasattr(datatype, '__data_object__'):
                 if datatype.__data_object__['schema']:
-                    schemas.update(datatype.json_schema(schema_type=SchemaType.V3, embeddable=True))
+                    if hasattr(datatype, "json_schema"):
+                        local_schema = datatype.json_schema(
+                            schema_generator=GenerateOpenAPI30Schema,
+                            ref_template='#/components/schemas/{model}'
+                        )
+                    else:
+                        local_schema = TypeAdapter(datatype).json_schema(
+                            schema_generator=GenerateOpenAPI30Schema,
+                            ref_template='#/components/schemas/{model}'
+                        )
+                    defs = local_schema.get("$defs", {})
+                    defs[datatype.__name__] = {
+                        k: v for k, v in local_schema.items() if k != "$defs"
+                    }
+                    schemas.update(defs)
 
 
 def _explode_datatypes(datatypes: List[Type]) -> List[Type]:
@@ -711,3 +732,45 @@ BUILTIN_TYPES = {
     date: ('string', 'date'),
     datetime: ('string', 'date-time')
 }
+
+
+class GenerateOpenAPI30Schema(GenerateJsonSchema):
+    """Modify the schema generation for OpenAPI 3.0."""
+
+    def nullable_schema(
+        self,
+        schema: core_schema.NullableSchema,
+    ) -> JsonSchemaValue:
+        """Generates a JSON schema that matches a schema that allows null values.
+
+        In OpenAPI 3.0, types can not be None, but a special "nullable" field is
+        available.
+        """
+        inner_json_schema = self.generate_inner(schema["schema"])
+        inner_json_schema["nullable"] = True
+        return inner_json_schema
+
+    def literal_schema(self, schema: core_schema.LiteralSchema) -> JsonSchemaValue:
+        """Generates a JSON schema that matches a literal value.
+
+        In OpenAPI 3.0, the "const" keyword is not supported, so this
+        version of this method skips that optimization.
+        """
+        expected = [
+            v.value if isinstance(v, Enum) else v for v in schema["expected"]
+        ]
+
+        types = {type(e) for e in expected}
+        if types == {str}:
+            return {"enum": expected, "type": "string"}
+        if types == {int}:
+            return {"enum": expected, "type": "integer"}
+        if types == {float}:
+            return {"enum": expected, "type": "number"}
+        if types == {bool}:
+            return {"enum": expected, "type": "boolean"}
+        if types == {list}:
+            return {"enum": expected, "type": "array"}
+        # there is not None case because if it's mixed it hits the final `else`
+        # if it's a single Literal[None] then it becomes a `const` schema above
+        return {"enum": expected}

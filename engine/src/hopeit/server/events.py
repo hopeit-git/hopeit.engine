@@ -6,6 +6,7 @@ from typing import Dict, Optional, List, Tuple, AsyncGenerator, Any
 from asyncio import iscoroutine
 
 from hopeit.dataobjects import EventPayload
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.steps import (
     StepExecutionList, StepInfo, extract_postprocess_handler, extract_preprocess_handler, execute_steps,
     invoke_single_step, extract_module_steps, effective_steps, event_and_step
@@ -150,4 +151,4 @@ def get_runtime_settings(app_config: AppConfig, plugins: List[AppConfig]) -> Dic
 
 def get_event_settings(settings: Dict[str, Any], event_name: str) -> EventSettings:
     data = settings[event_name.split('$')[0]]  # Removes auto-generated event suffixes
-    return EventSettings.from_dict(data, validate=False)  # type: ignore
+    return Payload.from_obj(data, datatype=EventSettings)

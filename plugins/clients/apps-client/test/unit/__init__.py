@@ -5,7 +5,7 @@ import asyncio
 from hopeit.app.config import AppConfig
 from hopeit.server import engine
 from hopeit.server.version import APPS_ROUTE_VERSION
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.dataobjects.payload import Payload
 
 

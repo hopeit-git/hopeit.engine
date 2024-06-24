@@ -1,7 +1,9 @@
-import uuid
+import dataclasses
 from datetime import datetime, timezone
+import uuid
 
-from hopeit.dataobjects import StreamEventParams, copy_payload
+from hopeit.dataobjects import StreamEventParams, copy_payload, dataobject
+import pytest
 
 from . import MockNested, MockData, MockDataWithoutTs, MockDataWithAutoEventId, \
     MockDataImmutable, MockDataUnsafe
@@ -80,3 +82,12 @@ def test_copy_native_immutable_values_should_return_same():
     assert copy_payload(test_int) is test_int
     assert copy_payload(test_float) is test_float
     assert copy_payload(test_bool) is test_bool
+
+
+def test_check_dataclass_compatibility():
+    with pytest.raises(TypeError):
+        @dataobject
+        @dataclasses.dataclass
+        class MockNestedNonPydantic:
+            """not a pydantic dataclass"""
+            ts: datetime

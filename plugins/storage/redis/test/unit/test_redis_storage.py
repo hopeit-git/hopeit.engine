@@ -1,10 +1,9 @@
 from typing import Any, Dict, Optional
 from uuid import uuid4
-from dataclasses import dataclass
 from fnmatch import fnmatch
 import pytest  # type: ignore
 import redis.asyncio as redis
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.dataobjects.payload import Payload
 
 from hopeit.redis_storage import RedisStorage

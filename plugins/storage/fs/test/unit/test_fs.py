@@ -3,13 +3,12 @@ import io
 from typing import List, Optional
 
 import os
-from dataclasses import dataclass
 from pathlib import Path
 
 import aiofiles
 
 import hopeit.fs_storage as fs_module
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.fs_storage import FileStorage, FileStorageSettings, ItemLocator
 import pytest
 

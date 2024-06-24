@@ -1,22 +1,21 @@
 """Iris datasets schemas
 """
 
-from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional
 
 from hopeit.dataframes import dataframe, dataframeobject
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject, field
 
 
 @dataframe
 @dataclass
 class Iris:
-    sepal_length: float = field(metadata={"source_field_name": "sepal length (cm)"})
-    sepal_width: float = field(metadata={"source_field_name": "sepal width (cm)"})
-    petal_length: float = field(metadata={"source_field_name": "petal length (cm)"})
-    petal_width: float = field(metadata={"source_field_name": "petal width (cm)"})
-    variety: int = field(metadata={"source_field_name": "target"})
+    sepal_length: float = field(serialization_alias="sepal length (cm)")
+    sepal_width: float = field(serialization_alias="sepal width (cm)")
+    petal_length: float = field(serialization_alias="petal length (cm)")
+    petal_width: float = field(serialization_alias="petal width (cm)")
+    variety: int = field(serialization_alias="target")
 
 
 @dataframe
@@ -56,7 +55,7 @@ class Experiment:
     train_labels: Optional[IrisLabels] = None
     test_features: Optional[IrisFeatures] = None
     test_labels: Optional[IrisLabels] = None
-    model_location: Optional[str] = None
+    saved_model_location: Optional[str] = None
     eval_metrics: Optional[EvalMetrics] = None
 
 

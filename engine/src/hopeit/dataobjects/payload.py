@@ -2,18 +2,13 @@
 Payload tools to serialize and deserialze event payloads and responses, including dataobjects
 """
 
-import json
-from typing import Type, Generic, Optional, Union
+from typing import Dict, Type, Generic, Union
 
-from dataclasses_jsonschema import ValidationError
+from pydantic import RootModel, ValidationError
 
 from hopeit.dataobjects import EventPayloadType
 
 _ATOMIC_TYPES = (str, int, float, bool)
-_COLLECTION_TYPES = (dict, list, set)
-_MAPPING_TYPES = (dict, )
-_LIST_TYPES = (list, set)
-_UNORDERED_LIST_TYPES = (set, )
 
 
 class Payload(Generic[EventPayloadType]):
@@ -34,23 +29,20 @@ class Payload(Generic[EventPayloadType]):
         :return: instance of datatype
         """
         if datatype in _ATOMIC_TYPES:
-            return datatype(json.loads(json_str).get(key))  # type: ignore
-        if datatype in _COLLECTION_TYPES:
-            return datatype(json.loads(json_str))  # type: ignore
+            return RootModel[Dict[str, datatype]].model_validate_json(json_str).root[key]  # type: ignore[valid-type]
         try:
-            return datatype.from_json(json_str, validate=datatype.__data_object__['validate'])  # type: ignore
-        except ValidationError as e:
-            raise ValueError(f"Cannot read JSON: type={datatype} validation_error={str(e)}") from e
-        except Exception:
-            assert getattr(datatype, 'from_json'), \
-                f"{datatype} should be annotated with @dataobject"
-            raise  # Raises unexpected exceptions, if assert block does not catch missing @dataobject
+            return RootModel[datatype].model_validate_json(json_str).root  # type: ignore[valid-type]
+        except ValidationError:
+            raise
+        except Exception as e:
+            if not hasattr(datatype, '__data_object__'):
+                raise TypeError(f"{datatype} must be annotated with @dataobject") from e
+            raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
     def from_obj(data: Union[dict, list],
                  datatype: Type[EventPayloadType],
-                 key: str = 'value',
-                 item_datatype: Optional[Type[EventPayloadType]] = None) -> EventPayloadType:
+                 key: str = 'value') -> EventPayloadType:
         """
         Converts dictionary to desired datatype
 
@@ -61,28 +53,18 @@ class Payload(Generic[EventPayloadType]):
         :return: instance of datatype
         """
         if datatype in _ATOMIC_TYPES:
-            return datatype(data.get(key))  # type: ignore
-        if datatype in _MAPPING_TYPES:
-            if item_datatype and isinstance(data, _MAPPING_TYPES):
-                return {  # type: ignore
-                    k: Payload.from_obj(v, item_datatype, key) for k, v in data.items()
-                }
-            return datatype(data)  # type: ignore
-        if datatype in _LIST_TYPES:
-            if item_datatype and isinstance(data, _LIST_TYPES):
-                return datatype([  # type: ignore
-                    Payload.from_obj(v, item_datatype, key) for v in data
-                ])
-            return datatype(data)  # type: ignore
-        assert getattr(datatype, 'from_dict'), \
-            f"{datatype} should be annotated with @dataobject"
+            return RootModel[datatype].model_validate(data.get(key)).root  # type: ignore[valid-type, union-attr]
         try:
-            return datatype.from_dict(data, validate=datatype.__data_object__['validate'])  # type: ignore
-        except ValidationError as e:
-            raise ValueError(f"Cannot read object: type={datatype} validation_error={str(e)}") from e
+            return RootModel[datatype].model_validate(data).root  # type: ignore[valid-type]
+        except ValidationError:
+            raise
+        except Exception as e:
+            if not hasattr(datatype, '__data_object__'):
+                raise TypeError(f"{datatype} must be annotated with @dataobject") from e
+            raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
-    def to_json(payload: EventPayloadType, key: Optional[str] = 'value') -> str:
+    def to_json(payload: EventPayloadType, key: str = 'value') -> str:
         """
         Converts event payload to json string
 
@@ -92,24 +74,16 @@ class Payload(Generic[EventPayloadType]):
             a json str of key:value form will be generated using key parameter if it's not None.
         """
         if isinstance(payload, _ATOMIC_TYPES):  # immutable supported types
-            if key is None:
-                return json.dumps(payload)
-            return json.dumps({key: payload})
-        if isinstance(payload, _LIST_TYPES):
-            return "[" + ', '.join(Payload.to_json(item, key=None) for item in payload) + "]"
-        if isinstance(payload, _MAPPING_TYPES):
-            return "{" + ', '.join(
-                f'"{str(k)}": {Payload.to_json(item, key=None)}' for k, item in payload.items()
-            ) + "}"
-        assert getattr(payload, 'to_json'), \
-            f"{type(payload)} should be annotated with @dataobject"
+            return RootModel({key: payload}).model_dump_json()
         try:
-            return payload.to_json(validate=payload.__data_object__['validate'])  # type: ignore
-        except (ValidationError, AttributeError) as e:
-            raise ValueError(f"Cannot convert to JSON: type={type(payload)} validation_error={str(e)}") from e
+            return RootModel(payload).model_dump_json()
+        except Exception as e:
+            if not hasattr(payload, '__data_object__'):
+                raise TypeError(f"{type(payload)} must be annotated with @dataobject") from e
+            raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
-    def to_obj(payload: EventPayloadType, key: Optional[str] = 'value') -> Union[dict, list]:
+    def to_obj(payload: EventPayloadType, key: str = 'value') -> Union[dict, list, set]:
         """
         Converts event payload to dictionary or list
 
@@ -120,21 +94,16 @@ class Payload(Generic[EventPayloadType]):
             be converted. Flat collections will be converted to list.
         """
         if isinstance(payload, _ATOMIC_TYPES):  # immutable supported types
-            if key is None:
-                return payload  # type: ignore  # only for recursive use
             return {key: payload}
-        if isinstance(payload, _UNORDERED_LIST_TYPES):
-            return [Payload.to_obj(v, key=None) for v in sorted(payload)]
-        if isinstance(payload, _LIST_TYPES):
-            return [Payload.to_obj(v, key=None) for v in payload]
-        if isinstance(payload, _MAPPING_TYPES):
-            return {k: Payload.to_obj(v, key=None) for k, v in payload.items()}
-        assert getattr(payload, 'to_dict'), \
-            f"{type(payload)} should be annotated with @dataobject"
         try:
-            return payload.to_dict(validate=payload.__data_object__['validate'])  # type: ignore
-        except (ValidationError, AttributeError) as e:
-            raise ValueError(f"Cannot convert to dict: type={type(payload)} validation_error={str(e)}") from e
+            serialized = RootModel(payload).model_dump()  # pylint: disable=assignment-from-no-return
+            if not isinstance(serialized, (dict, list, set)):
+                raise TypeError(f"Cannot serialize {type(payload)} as `dict`, `list` or `set`")
+            return serialized
+        except Exception as e:
+            if not hasattr(payload, '__data_object__'):
+                raise TypeError(f"{type(payload)} must be annotated with @dataobject") from e
+            raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
     def parse_form_field(field_data: Union[str, dict], datatype: Type[EventPayloadType],
@@ -142,4 +111,4 @@ class Payload(Generic[EventPayloadType]):
         """Helper to parse dataobjects from form-fields where encoding type is not correctly set to json"""
         if isinstance(field_data, str):
             return Payload.from_json(field_data, datatype, key)
-        return datatype.from_dict(field_data)  # type: ignore
+        return Payload.from_obj(field_data, datatype)

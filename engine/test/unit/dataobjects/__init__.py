@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Optional
 
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataclass, dataobject
 
 
 @dataobject
@@ -53,8 +54,8 @@ class MockDataValidate:
     value: int
 
 
-@dataobject(validate=False)
+@dataobject
 @dataclass
-class MockDataDoNotValidate:
+class MockDataNullable:
     id: str
-    value: int
+    value: Optional[int]

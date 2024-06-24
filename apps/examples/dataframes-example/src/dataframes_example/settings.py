@@ -1,9 +1,7 @@
 """Dataframes example settings classes
 """
 
-from dataclasses import dataclass
-
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 
 
 @dataobject
