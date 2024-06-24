@@ -27,7 +27,7 @@ async def init_model_storage(context: EventContext):
     logger.info(
         context,
         "Initializing model storage...",
-        extra=extra(**Payload.to_obj(model_storage)),
+        extra=extra(**Payload.to_obj(model_storage)),  # type: ignore[arg-type]
     )
 
 

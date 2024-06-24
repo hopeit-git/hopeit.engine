@@ -33,7 +33,7 @@ def download_data(payload: None, context: EventContext) -> Iris:
         raw.frame.rename(
             columns={
                 field.serialization_alias: field_name
-                for field_name, field in fields(Iris).items()
+                for field_name, field in fields(Iris).items()  # type: ignore[type-var]
             }
         ),
     )
@@ -44,6 +44,6 @@ def download_data(payload: None, context: EventContext) -> Iris:
 async def save_raw_data(iris: Iris, context: EventContext) -> InputData:
     settings: DataStorage = context.settings(key="data_storage", datatype=DataStorage)
 
-    logger.info(context, "Saving input data..", extra=extra(**Payload.to_obj(settings)))
+    logger.info(context, "Saving input data..", extra=extra(**Payload.to_obj(settings)))  # type: ignore[arg-type]
 
     return await DataFrames.serialize(InputData(iris=iris))

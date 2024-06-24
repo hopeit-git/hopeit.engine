@@ -25,7 +25,7 @@ async def init_experiment_storage(context: EventContext):
         logger.info(
             context,
             "Initializing experiment storage...",
-            extra=extra(**Payload.to_obj(settings)),
+            extra=extra(**Payload.to_obj(settings)),  # type: ignore[arg-type]
         )
         fs = FileStorage.with_settings(settings)
 
