@@ -7,7 +7,7 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
+from typing import Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
 from datetime import date, datetime
 
 from aiohttp import web
@@ -774,4 +774,3 @@ class GenerateOpenAPI30Schema(GenerateJsonSchema):
         # there is not None case because if it's mixed it hits the final `else`
         # if it's a single Literal[None] then it becomes a `const` schema above
         return {"enum": expected}
-
