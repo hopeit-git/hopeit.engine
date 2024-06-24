@@ -660,7 +660,6 @@ def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):
                     defs[datatype.__name__] = {
                         k: v for k, v in local_schema.items() if k != "$defs"
                     }
-                    # GenerateOpenAPI30Schema.cleanup_properties(defs)
                     schemas.update(defs)
 
 
@@ -776,13 +775,3 @@ class GenerateOpenAPI30Schema(GenerateJsonSchema):
         # if it's a single Literal[None] then it becomes a `const` schema above
         return {"enum": expected}
 
-    @classmethod
-    def cleanup_properties(cls, json_schema: Dict[str, Any]):
-        for k, schema in json_schema.items():
-            if k == "properties":
-                for prop_name, prop_value in schema.items():
-                    schema[prop_name] = {
-                        k: v for k, v in prop_value.items() if k != "metadata"
-                    }
-            elif isinstance(schema, dict):
-                cls.cleanup_properties(schema)
