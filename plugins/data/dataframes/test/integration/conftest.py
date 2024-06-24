@@ -11,8 +11,7 @@ from hopeit.app.config import (
 )
 from hopeit.app.context import EventContext
 from hopeit.dataframes import dataframe, dataframeobject
-from pydantic.dataclasses import dataclass
-# from hopeit.dataobjects import dataclass
+from hopeit.dataobjects import dataclass
 from hopeit.testing.apps import create_test_context, execute_event, server_config
 
 

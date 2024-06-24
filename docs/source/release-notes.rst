@@ -1,6 +1,29 @@
 Release Notes
 =============
 
+Version 0.25.0
+______________
+
+- Engine:
+
+  - This release adopts `pydantic` as a the library for dataclasses and schema validation
+
+  BREAKING CHANGES
+  ================
+  - Python `dataclasses.dataclass`` is no longer supported in `@dataobjects`` annotated classes.
+  Pydantic `@dataclasses`` (and in the future BaseModel should be used). 
+  
+  - The recommended way is to import from dataobjects module:
+  ```
+  from hopeit.dataobjects import dataclass, dataobject, field
+  ```
+  where dataclass and field are aliases of `pydantic.dataclasses.dataclass` and `pydantic.Field`
+  
+  - In most of the cases replacing the import clause in applications should suffice,
+  but could be features of dataclasses (like i.e. `metadata`) that should be replaced by its
+  equivalent in `pydantic`.
+
+
 Version 0.24.2
 ______________
 - Engine:
