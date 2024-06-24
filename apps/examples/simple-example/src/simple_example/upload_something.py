@@ -12,7 +12,7 @@ from pathlib import Path
 from hopeit.app.api import event_api
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
-from hopeit.dataobjects import dataclass, dataobject, field, BinaryAttachment
+from hopeit.dataobjects import BinaryAttachment, dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
 from hopeit.toolkit.web import save_multipart_attachment
 

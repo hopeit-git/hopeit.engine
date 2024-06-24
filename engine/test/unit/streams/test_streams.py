@@ -3,7 +3,7 @@ from typing import List, Union
 
 import pytest
 
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.streams import (
     StreamCircuitBreaker,
     StreamEvent,

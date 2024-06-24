@@ -17,7 +17,7 @@ from hopeit.app.client import AppConnectionNotFound, Client, ClientException, Un
 from hopeit.app.context import EventContext
 from hopeit.app.config import AppConfig, AppDescriptor, EventConnection, EventConnectionType
 from hopeit.app.errors import Unauthorized
-from hopeit.dataobjects import EventPayload, EventPayloadType, dataobject, dataclass, field
+from hopeit.dataobjects import EventPayload, EventPayloadType, dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
 from hopeit.toolkit import auth
 from hopeit.server.logger import engine_extra_logger

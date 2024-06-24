@@ -1,6 +1,5 @@
-from hopeit.dataobjects import dataclass
 from datetime import datetime
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 
 
 @dataobject(event_id="object_id", event_ts="object_ts")

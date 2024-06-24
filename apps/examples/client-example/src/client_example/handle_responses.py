@@ -15,7 +15,7 @@ from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.client import app_call, UnhandledResponse
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataclass, dataobject
 from model import Something, SomethingNotFound
 
 __steps__ = ['handle_exception', 'handle_responses']

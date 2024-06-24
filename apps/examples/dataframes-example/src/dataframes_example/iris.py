@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from hopeit.dataframes import dataframe, dataframeobject
-from hopeit.dataobjects import dataobject, dataclass, field
+from hopeit.dataobjects import dataclass, dataobject, field
 
 
 @dataframe

@@ -11,7 +11,7 @@ import inspect
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventType, \
     ReadStreamDescriptor, StreamQueueStrategy, WriteStreamDescriptor
 from hopeit.app.context import EventContext
-from hopeit.dataobjects import DataObject, EventPayload, copy_payload, EventPayloadType
+from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType, copy_payload
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger, extra_logger
 from hopeit.server.names import auto_path

@@ -87,7 +87,7 @@ import aiofiles
 from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn
 from hopeit.app.logger import app_extra_logger
-from hopeit.dataobjects import DataObject, dataobject, dataclass
+from hopeit.dataobjects import DataObject, dataclass, dataobject
 from hopeit.dataobjects.payload import Payload
 from hopeit.fs_storage import FileStorageSettings
 from hopeit.fs_storage.partition import get_partition_key

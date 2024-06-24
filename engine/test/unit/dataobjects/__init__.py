@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataclass, dataobject
 
 
 @dataobject

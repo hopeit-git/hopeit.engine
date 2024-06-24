@@ -11,19 +11,19 @@ from typing import Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
 from datetime import date, datetime
 
 from aiohttp import web
-from aiohttp_swagger3 import RapiDocUiSettings  # type: ignore
-from aiohttp_swagger3.swagger import Swagger, _handle_swagger_call  # type: ignore
-from aiohttp_swagger3.exceptions import ValidatorError  # type: ignore
-from aiohttp_swagger3 import validators  # type: ignore
-from aiohttp_swagger3.validators import MISSING, _MissingType  # type: ignore
-from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
+from aiohttp_swagger3 import RapiDocUiSettings
+from aiohttp_swagger3.swagger import Swagger, _handle_swagger_call
+from aiohttp_swagger3.exceptions import ValidatorError
+from aiohttp_swagger3 import validators
+from aiohttp_swagger3.validators import MISSING, _MissingType
+from aiohttp_swagger3.swagger_route import SwaggerRoute
 from pydantic import TypeAdapter
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaValue
 from pydantic_core import core_schema
 from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
 
-from hopeit.dataobjects import BinaryAttachment, BinaryDownload  # type: ignore
+from hopeit.dataobjects import BinaryAttachment, BinaryDownload
 from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventPlugMode, EventType
 from hopeit.server.config import ServerConfig, AuthType
 from hopeit.server.errors import ErrorInfo

@@ -4,9 +4,8 @@ Data model for simple-example test application
 from datetime import datetime
 from typing import List, Optional
 from enum import Enum
-from hopeit.dataobjects import dataclass, field
 
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject, field
 
 
 class StatusType(str, Enum):

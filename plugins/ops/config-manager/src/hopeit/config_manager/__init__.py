@@ -5,7 +5,7 @@ from typing import Dict, List
 from enum import Enum
 
 from hopeit.app.config import AppConfig, EventDescriptor
-from hopeit.dataobjects import dataobject, dataclass, field
+from hopeit.dataobjects import dataclass, dataobject, field
 
 
 @dataobject

@@ -1,10 +1,9 @@
 import base64
 import pickle
-from hopeit.dataobjects import dataclass
 import sys
 
 from hopeit.app.config import Serialization, Compression
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.dataobjects.payload import Payload
 from hopeit.server.serialization import serialize, deserialize
 import pytest

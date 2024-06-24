@@ -63,10 +63,8 @@ Step 4: Create the event handler
 
 .. code:: python
 
-    from hopeit.dataobjects import dataclass
-
     from hopeit.app.context import EventContext
-    from hopeit.dataobjects import dataobject
+    from hopeit.dataobjects import dataclass, dataobject
 
     __steps__ = ['step1']
 

@@ -6,7 +6,7 @@ from typing import TypeVar, List, Optional
 import re
 import os
 
-from hopeit.dataobjects import dataobject, dataclass, field
+from hopeit.dataobjects import dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
 from hopeit.server.names import auto_path_prefixed
 from hopeit.server.version import ENGINE_VERSION

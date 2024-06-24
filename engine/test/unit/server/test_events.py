@@ -1,9 +1,8 @@
-from hopeit.dataobjects import dataclass
 import pytest
 
 from hopeit.app.config import Compression, EventLoggingConfig, EventStreamConfig, Serialization
 from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.config import AuthType
 from hopeit.server.events import EventHandler, get_event_settings
 from mock_engine import MockStreamManager

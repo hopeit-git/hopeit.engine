@@ -6,7 +6,7 @@ import json
 import urllib.parse
 from typing import List
 
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataclass, dataobject
 
 __all__ = ['ErrorInfo',
            'format_exc',

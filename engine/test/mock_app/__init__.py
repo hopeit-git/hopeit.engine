@@ -1,5 +1,3 @@
-from hopeit.dataobjects import dataclass
-
 import pytest  # type: ignore
 
 from hopeit.app.config import (
@@ -11,7 +9,7 @@ from hopeit.app.config import (
     WriteStreamDescriptor,
     AppEngineConfig,
 )
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.config import (
     APIConfig,
     AuthConfig,

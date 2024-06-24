@@ -5,7 +5,7 @@ from copy import deepcopy
 from enum import Enum
 from typing import Any, Dict, Optional, Type, Union, List, Generic
 
-from hopeit.dataobjects import EventPayloadType, dataobject, dataclass, field
+from hopeit.dataobjects import EventPayloadType, dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
 from hopeit.server.config import replace_config_args, replace_env_vars, ServerConfig, AuthType
 from hopeit.server.names import auto_path
@@ -473,7 +473,6 @@ def parse_app_config_json(config_json: str) -> AppConfig:
     Before conversion, parameters enclosed with { } are replaced by its
     respective values (@see _replace_args)
     """
-    # effective_config_json = _replace_args(config_json)
     effective_config_json = replace_env_vars(config_json)
     app_config: AppConfig = Payload.from_json(effective_config_json, datatype=AppConfig)
     replace_config_args(

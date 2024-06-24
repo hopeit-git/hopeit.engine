@@ -3,10 +3,9 @@ from redis import ResponseError
 
 import pytest
 from datetime import datetime, timezone
-from hopeit.dataobjects import dataclass
 
 from hopeit.app.config import Compression, Serialization
-from hopeit.dataobjects import dataobject
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.config import AuthType
 
 from hopeit.streams import StreamEvent

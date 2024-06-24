@@ -7,7 +7,7 @@ import random
 from hopeit.app.api import app_base_route_name
 from hopeit.app.config import AppDescriptor
 from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.dataobjects.payload import Payload
 from hopeit.server.config import AuthType
 from hopeit.toolkit import auth
