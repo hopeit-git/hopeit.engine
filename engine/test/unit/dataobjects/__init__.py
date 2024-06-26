@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Optional
 
 from hopeit.dataobjects import dataclass, dataobject
@@ -59,3 +60,9 @@ class MockDataValidate:
 class MockDataNullable:
     id: str
     value: Optional[int]
+
+
+@dataobject
+@dataclass
+class MockWithDecimal:
+    number: Decimal
