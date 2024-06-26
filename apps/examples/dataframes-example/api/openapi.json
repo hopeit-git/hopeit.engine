@@ -1192,7 +1192,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.25.0b1",
+            "default": "0.25.0b2",
             "title": "Engine Version",
             "type": "string"
           }
@@ -1365,6 +1365,7 @@
         "type": "object"
       },
       "Dataset_Iris_": {
+        "description": "Persisted representation of a @dataframe object",
         "properties": {
           "protocol": {
             "title": "Protocol",
@@ -1405,6 +1406,7 @@
         "type": "object"
       },
       "Dataset_IrisFeatures_": {
+        "description": "Persisted representation of a @dataframe object",
         "properties": {
           "protocol": {
             "title": "Protocol",
@@ -1433,6 +1435,7 @@
         "type": "object"
       },
       "Dataset_IrisLabels_": {
+        "description": "Persisted representation of a @dataframe object",
         "properties": {
           "protocol": {
             "title": "Protocol",
@@ -1474,6 +1477,7 @@
         "type": "object"
       },
       "Experiment": {
+        "description": "Experiment parameters, data and model",
         "properties": {
           "experiment_id": {
             "title": "Experiment Id",
