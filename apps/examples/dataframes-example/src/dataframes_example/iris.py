@@ -4,7 +4,8 @@
 from datetime import datetime
 from typing import List, Optional
 
-from hopeit.dataframes import dataframe, dataframeobject
+from hopeit.dataframes import dataframe
+from hopeit.dataframes.serialization.dataset import Dataset
 from hopeit.dataobjects import dataclass, dataobject, field
 
 
@@ -39,22 +40,22 @@ class EvalMetrics:
     accuracy_score: float
 
 
-@dataframeobject
+@dataobject
 @dataclass
 class InputData:
-    iris: Iris
+    iris: Dataset[Iris]
 
 
-@dataframeobject
+@dataobject
 @dataclass
 class Experiment:
     experiment_id: str
     experiment_dt: datetime
-    input_data: Iris
-    train_features: Optional[IrisFeatures] = None
-    train_labels: Optional[IrisLabels] = None
-    test_features: Optional[IrisFeatures] = None
-    test_labels: Optional[IrisLabels] = None
+    input_data: Dataset[Iris]
+    train_features: Optional[Dataset[IrisFeatures]] = None
+    train_labels: Optional[Dataset[IrisLabels]] = None
+    test_features: Optional[Dataset[IrisFeatures]] = None
+    test_labels: Optional[Dataset[IrisLabels]] = None
     saved_model_location: Optional[str] = None
     eval_metrics: Optional[EvalMetrics] = None
 
@@ -63,7 +64,7 @@ class Experiment:
 @dataclass
 class IrisPredictionRequest:
     prediction_id: str
-    features: IrisFeatures
+    features: IrisFeatures.DataObject
 
 
 @dataobject(unsafe=True)
@@ -76,7 +77,7 @@ class IrisBatchPredictionRequest:
 @dataclass
 class IrisPredictionResponse:
     prediction_id: str
-    prediction: IrisLabels
+    prediction: IrisLabels.DataObject
 
 
 @dataobject(unsafe=True)

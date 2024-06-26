@@ -34,5 +34,5 @@ async def save_experiment(experiment: Experiment, context: EventContext) -> str:
     assert fs is not None
     return await fs.store(
         key=experiment.experiment_id,
-        value=await DataFrames.serialize(experiment),
+        value=experiment,
     )

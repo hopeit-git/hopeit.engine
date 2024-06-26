@@ -212,11 +212,6 @@
         },
         "tags": [
           "dataframes_example.0x25"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -270,11 +265,6 @@
         },
         "tags": [
           "dataframes_example.0x25"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -340,11 +330,6 @@
         },
         "tags": [
           "dataframes_example.0x25"
-        ],
-        "security": [
-          {
-            "auth.bearer": []
-          }
         ]
       }
     },
@@ -1303,7 +1288,7 @@
         "title": "Iris",
         "type": "object"
       },
-      "Dataset": {
+      "Dataset_Iris_": {
         "properties": {
           "protocol": {
             "title": "Protocol",
@@ -1334,39 +1319,41 @@
       "InputData": {
         "properties": {
           "iris": {
-            "$ref": "#/components/schemas/Dataset"
+            "$ref": "#/components/schemas/Dataset_Iris_"
           }
         },
         "required": [
           "iris"
         ],
-        "title": "InputData_",
+        "title": "InputData",
         "type": "object"
       },
-      "IrisFeatures": {
+      "IrisFeatures_": {
         "properties": {
           "sepal_length": {
-            "default": null,
             "title": "Sepal Length",
             "type": "number"
           },
           "sepal_width": {
-            "default": null,
             "title": "Sepal Width",
             "type": "number"
           },
           "petal_length": {
-            "default": null,
             "title": "Petal Length",
             "type": "number"
           },
           "petal_width": {
-            "default": null,
             "title": "Petal Width",
             "type": "number"
           }
         },
-        "title": "IrisFeatures",
+        "required": [
+          "sepal_length",
+          "sepal_width",
+          "petal_length",
+          "petal_width"
+        ],
+        "title": "IrisFeatures_",
         "type": "object"
       },
       "IrisPredictionRequest": {
@@ -1376,7 +1363,7 @@
             "type": "string"
           },
           "features": {
-            "$ref": "#/components/schemas/IrisFeatures"
+            "$ref": "#/components/schemas/IrisFeatures_"
           }
         },
         "required": [

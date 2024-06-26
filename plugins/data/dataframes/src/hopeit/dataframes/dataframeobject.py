@@ -90,10 +90,10 @@ class DataFrameObjectMixin(Generic[DataFrameObjectT]):
                 dataframes[field_name] = getattr(serialized, field_name)
         return cls(**dataframes)
 
-    @classmethod
-    def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
-        schema = TypeAdapter(cls.__dataframeobject__.serialized_type).json_schema(*args, **kwargs)
-        return schema
+    # @classmethod
+    # def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
+    #     schema = TypeAdapter(cls.__dataframeobject__.serialized_type).json_schema(*args, **kwargs)
+    #     return schema
 
     # def to_json(self, *args, **kwargs) -> Dict[str, Any]:
     #     raise RuntimeError(
@@ -109,25 +109,25 @@ def _is_dataframe_field(field: FieldInfo) -> bool:
     )
 
 
-def _serialized_field_type(field_name: str, field: FieldInfo) -> Optional[Type[Any]]:
-    """Computes the `@dataobject` datatype used as a result
-    of serialized `@dataframeobject`
-    """
-    if hasattr(field.annotation, "__dataframe__"):
-        return Dataset
-    if get_origin(field.annotation) is Union:
-        args = get_args(field.annotation)
-        if (
-            len(args) == 2
-            and any(hasattr(field_type, "__dataframe__") for field_type in args)
-            and any(field_type is NoneType for field_type in args)
-        ):
-            return Optional[Dataset]  # type: ignore
-    if _is_dataframe_field(field):
-        raise TypeError(
-            f"field {field_name}: only `DataFrameT` or `Optional[DataFrameT]` are supported"
-        )
-    return field.annotation
+# def _serialized_field_type(field_name: str, field: FieldInfo) -> Optional[Type[Any]]:
+#     """Computes the `@dataobject` datatype used as a result
+#     of serialized `@dataframeobject`
+#     """
+#     if hasattr(field.annotation, "__dataframe__"):
+#         return Dataset
+#     if get_origin(field.annotation) is Union:
+#         args = get_args(field.annotation)
+#         if (
+#             len(args) == 2
+#             and any(hasattr(field_type, "__dataframe__") for field_type in args)
+#             and any(field_type is NoneType for field_type in args)
+#         ):
+#             return Optional[Dataset]  # type: ignore
+#     if _is_dataframe_field(field):
+#         raise TypeError(
+#             f"field {field_name}: only `DataFrameT` or `Optional[DataFrameT]` are supported"
+#         )
+#     return field.annotation
 
 
 def dataframeobject(
@@ -147,20 +147,20 @@ def dataframeobject(
             return amended_class
         return cls
 
-    def add_dataframeobject_metadata(cls):
-        serialized_fields = {
-            field_name: (_serialized_field_type(field_name, field_info), field_info)
-            for field_name, field_info in fields(cls).items()
-        }
-        serialized_type = create_model(cls.__name__+"_", **serialized_fields)
-        serialized_type = dataobject(serialized_type, unsafe=True)
-        setattr(
-            cls,
-            "__dataframeobject__",
-            DataFrameObjectMetadata(
-                serialized_type=serialized_type,
-            ),
-        )
+    # def add_dataframeobject_metadata(cls):
+    #     serialized_fields = {
+    #         field_name: (_serialized_field_type(field_name, field_info), field_info)
+    #         for field_name, field_info in fields(cls).items()
+    #     }
+    #     serialized_type = create_model(cls.__name__+"_", **serialized_fields)
+    #     serialized_type = dataobject(serialized_type, unsafe=True)
+    #     setattr(
+    #         cls,
+    #         "__dataframeobject__",
+    #         DataFrameObjectMetadata(
+    #             serialized_type=serialized_type,
+    #         ),
+    #     )
 
     def add_dataobject_annotations(cls, unsafe: bool, schema: bool):
         setattr(
@@ -175,7 +175,7 @@ def dataframeobject(
     def wrap(cls) -> Type[DataFrameObjectMixin]:
         if hasattr(cls, "__dataframeobject__"):
             return cls
-        add_dataframeobject_metadata(cls)
+        # add_dataframeobject_metadata(cls)
         amended_class = add_dataframe_mixin(cls)
         add_dataobject_annotations(
             amended_class, unsafe=False, schema=True

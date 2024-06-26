@@ -14,7 +14,7 @@ Example:
 """
 import dataclasses
 from datetime import date, datetime, timezone
-from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar, cast
 
 import numpy as np
 import pandas as pd
@@ -117,6 +117,9 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     def __getitem__(self, key) -> "DataFrameT":
         return self._from_df(self.__df[key])
+    
+    # def _to_serialized_type(self) -> "DataFrameT":
+    #     return self.__dataframe__.serialized_type(**self.__dict__)        
 
     def _to_dataobjects(self) -> List[DataObject]:
         return [
@@ -208,6 +211,7 @@ def dataframe(
         serialized_type = create_model(cls.__name__+"_", **serialized_fields)
         serialized_type = dataobject(serialized_type, unsafe=True)
 
+        setattr(cls, "DataObject", serialized_type)
         setattr(
             cls,
             "__dataframe__",

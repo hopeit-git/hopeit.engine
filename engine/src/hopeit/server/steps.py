@@ -191,7 +191,7 @@ async def _execute_steps_recursion(payload: Optional[EventPayload],
 
         if i == -1:
             # Yields result if all steps were exhausted
-            yield copy_payload(invoke_result)
+            yield invoke_result  # NOTE: No need to make a copy
         if i >= MAX_STEPS:
             raise RuntimeError(f"Maximun number of steps to execute exceeded (MAX_STEPS={MAX_STEPS}).")
 

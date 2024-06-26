@@ -51,24 +51,24 @@ class DataFrames(Generic[DataFrameT, DataFrameObjectT, DataObject]):
     Dataframes manipulation utilities methods
     """
 
-    @staticmethod
-    async def serialize(obj: DataFrameObjectT) -> DataObject:
-        """Serialize/saves contents of dataframe fields of a `@dataframeobject`
-        and converts to a `DataObject` json-compatible with pointers to saved
-        locations.
+    # @staticmethod
+    # async def serialize(obj: DataFrameObjectT) -> DataObject:
+    #     """Serialize/saves contents of dataframe fields of a `@dataframeobject`
+    #     and converts to a `DataObject` json-compatible with pointers to saved
+    #     locations.
 
-        This method can be used to i.e. return `@dataframeobject`s as a JSON response
-        """
-        return await obj._serialize()  # type: ignore  # pylint: disable=protected-access
+    #     This method can be used to i.e. return `@dataframeobject`s as a JSON response
+    #     """
+    #     return await obj._serialize()  # type: ignore  # pylint: disable=protected-access
 
-    @staticmethod
-    async def deserialize(
-        datatype: Type[DataFrameObjectT], dataobject: DataObject
-    ) -> DataFrameObjectT:
-        """Deserialize/load contents of serialized dataobject fields of a `@dataframeobject`
-        loading saved Dataset information for @dataframe fields
-        """
-        return await datatype._deserialize(dataobject)  # type: ignore  # pylint: disable=protected-access
+    # @staticmethod
+    # async def deserialize(
+    #     datatype: Type[DataFrameObjectT], dataobject: DataObject
+    # ) -> DataFrameObjectT:
+    #     """Deserialize/load contents of serialized dataobject fields of a `@dataframeobject`
+    #     loading saved Dataset information for @dataframe fields
+    #     """
+    #     return await datatype._deserialize(dataobject)  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
     def from_df(
