@@ -7,7 +7,7 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.dataframes import DataFrames, Dataset
 from hopeit.dataobjects import fields
 from hopeit.dataobjects.payload import Payload
-from sklearn import datasets
+from sklearn import datasets  # type: ignore[import-untyped]
 
 from dataframes_example.iris import InputData, Iris
 from dataframes_example.settings import DataStorage
@@ -48,5 +48,5 @@ async def save_raw_data(iris: Iris, context: EventContext) -> InputData:
     logger.info(context, "Saving input data..", extra=extra(**Payload.to_obj(settings)))  # type: ignore[arg-type]
 
     return InputData(
-        iris = await Dataset.save(iris)   
+        iris=await Dataset.save(iris)
     )

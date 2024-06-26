@@ -48,6 +48,7 @@ class InputData:
 @dataobject
 @dataclass
 class Experiment:
+    """Experiment parameters, data and model"""
     experiment_id: str
     experiment_dt: datetime
     input_data: Dataset[Iris]
@@ -64,7 +65,7 @@ class Experiment:
 @dataclass
 class IrisPredictionRequest:
     prediction_id: str
-    features: IrisFeatures.DataObject
+    features: IrisFeatures.DataObject  # type: ignore[name-defined]
 
 
 @dataobject(unsafe=True)
@@ -77,7 +78,7 @@ class IrisBatchPredictionRequest:
 @dataclass
 class IrisPredictionResponse:
     prediction_id: str
-    prediction: IrisLabels.DataObject
+    prediction: IrisLabels.DataObject  # type: ignore[name-defined]
 
 
 @dataobject

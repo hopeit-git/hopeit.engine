@@ -13,9 +13,9 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.dataframes import DataFrames, Dataset
 from hopeit.server.steps import SHUFFLE
 
-from sklearn.metrics import accuracy_score  # type: ignore
-from sklearn.model_selection import train_test_split  # type: ignore
-from sklearn.tree import DecisionTreeClassifier  # type: ignore
+from sklearn.metrics import accuracy_score  # type: ignore[import-untyped]
+from sklearn.model_selection import train_test_split  # type: ignore[import-untyped]
+from sklearn.tree import DecisionTreeClassifier  # type: ignore[import-untyped]
 
 from dataframes_example import experiment_storage, model_storage
 from dataframes_example.iris import (
@@ -52,6 +52,7 @@ __api__ = event_api(
 async def prepare_experiment(
     input_data: InputData, context: EventContext
 ) -> Experiment:
+    """Initialize experiment"""
     experiment_id = str(uuid.uuid4())
 
     logger.info(
@@ -121,6 +122,9 @@ async def train_model(experiment: Experiment, context: EventContext) -> Experime
         extra=extra(experiment_id=experiment.experiment_id),
     )
 
+    assert experiment.train_features is not None
+    assert experiment.train_labels is not None
+
     train_features: IrisFeatures = await experiment.train_features.load()
     train_labels: IrisLabels = await experiment.train_labels.load()
 
@@ -153,6 +157,8 @@ async def evaluate_model(experiment: Experiment, context: EventContext) -> Exper
     )
 
     assert experiment.trained_model_location is not None
+    assert experiment.test_features is not None
+    assert experiment.test_labels is not None
 
     clf: DecisionTreeClassifier = await model_storage.load_model(
         experiment.trained_model_location, context

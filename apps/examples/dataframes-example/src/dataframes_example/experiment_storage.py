@@ -39,13 +39,15 @@ async def save_experiment(experiment: Experiment, context: EventContext) -> str:
 
 
 def get_experiment_partition_key(experiment: Experiment, context: EventContext) -> str:
-    return get_partition_key(experiment, partition_dateformat=fs.partition_dateformat)
+    assert fs is not None
+    return get_partition_key(experiment, partition_dateformat=fs.partition_dateformat)  # type: ignore[type-var]
 
 
 async def load_experiment(experiment_id: str, experiment_partition_key: str, context: EventContext) -> Experiment:
     assert fs is not None
-    return await fs.get(
+    experiment: Experiment = await fs.get(  # type: ignore[assignment]
         key=experiment_id,
         datatype=Experiment,
         partition_key=experiment_partition_key,
     )
+    return experiment

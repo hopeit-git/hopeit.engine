@@ -1,7 +1,5 @@
 """Endpoint to run predictions using trained model"""
 
-from typing import List
-
 from dataframes_example.iris import (
     IrisBatchPredictionRequest,
     IrisBatchPredictionResponse,
