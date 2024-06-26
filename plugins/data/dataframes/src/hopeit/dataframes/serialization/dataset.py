@@ -12,18 +12,18 @@ DataFrameT = TypeVar("DataFrameT")
 @dataobject
 @dataclass
 class Dataset(Generic[DataFrameT]):
+    """Persisted representation of a @dataframe object"""
     protocol: str
     partition_key: str
     key: str
     datatype: str
 
     async def load(self) -> DataFrameT:
-        return await self.__storage.load(self)
+        return await self.__storage.load(self)  # type: ignore[attr-defined]
 
     @classmethod
     async def save(cls, dataframe: DataFrameT) -> "Dataset[DataFrameT]":
-        return await cls.__storage.save(dataframe)
-
+        return await cls.__storage.save(dataframe)  # type: ignore[attr-defined]
 
 
 def find_protocol_impl(qual_type_name: str) -> Type:

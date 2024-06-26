@@ -5,13 +5,10 @@ and ensures that the engine will support serialization of `@dataframe` and `@dat
 types
 """
 
-from functools import partial
-
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_logger
 from hopeit.dataframes.serialization.dataset import Dataset, find_protocol_impl
 from hopeit.dataframes.serialization.settings import DatasetSerialization
-from hopeit.server import serialization
 
 logger = app_logger()
 

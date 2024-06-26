@@ -3,7 +3,7 @@ DataFrames type abstractions.
 """
 import dataclasses
 from datetime import date, datetime, timezone
-from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, Generic, Iterator, List, Type, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -87,7 +87,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     def __getitem__(self, key) -> "DataFrameT":
         return self._from_df(self.__df[key])
-    
+
     def _to_dataobjects(self) -> List[DataObject]:
         return [
             self.DataObject(**fields)

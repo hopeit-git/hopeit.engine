@@ -74,12 +74,12 @@ print(Payload.to_json(my_json_response))
 
 from typing import Dict, Generic, Iterator, List, Type
 
-from hopeit.dataframes.setup.dataframes import register_serialization
 import numpy as np
 import pandas as pd
 from hopeit.dataframes.dataframe import DataFrameT, dataframe
 from hopeit.dataframes.serialization.dataset import Dataset
 from hopeit.dataframes.serialization.settings import DatasetSerialization
+from hopeit.dataframes.setup.dataframes import register_serialization
 from hopeit.dataobjects import DataObject
 
 __all__ = ["DataFrames", "Dataset", "dataframe"]
