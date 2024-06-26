@@ -29,7 +29,7 @@ ______________
 
     - Made it compatible with pydantic dataclasses
     - Removed `@dataframeobject` annotation in favor of Dataset[T] generic type
-    - Introducted `.DataObject` companion type for `@dataframe` conversion to `DataObject`
+    - Introduced `.DataObject` companion type for `@dataframe` conversion to `DataObject`
 
 
 Version 0.24.2
