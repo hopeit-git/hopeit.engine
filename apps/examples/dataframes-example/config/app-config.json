@@ -41,23 +41,19 @@
             "type": "GET",
             "setting_keys": [
                 "data_storage"
-            ],
-            "auth": ["Unsecured"]
+            ]
         },
         "train_model": {
             "type": "POST",
             "setting_keys": [
                 "data_storage"
-            ],
-            "auth": ["Unsecured"]
+            ]
         },
         "predict": {
-            "type": "POST",
-            "auth": ["Unsecured"]
+            "type": "POST"
         },
         "experiment": {
-            "type": "GET",
-            "auth": ["Unsecured"]
+            "type": "GET"
         }
     }
 }
