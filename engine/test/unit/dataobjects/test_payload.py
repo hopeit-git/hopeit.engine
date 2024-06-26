@@ -533,15 +533,15 @@ def test_to_json_kwargs():
 
 def test_from_json_kwargs():
     data = '{"id":"id1","value":"4"}'
-    no_strinct = Payload.from_json(data, MockDataValidate)
-    assert no_strinct == MockDataValidate(id="id1", value=4)
+    no_strict = Payload.from_json(data, MockDataValidate)
+    assert no_strict == MockDataValidate(id="id1", value=4)
     with pytest.raises(ValidationError):
         Payload.from_json(data, MockDataValidate, strict=True)
 
 
 def test_from_obj_kwargs():
     data = {"id": "id1", "value": 4}
-    no_strinct = Payload.from_obj(data, MockDataValidate)
-    assert no_strinct == MockDataValidate(id="id1", value=4)
+    no_strict = Payload.from_obj(data, MockDataValidate)
+    assert no_strict == MockDataValidate(id="id1", value=4)
     with pytest.raises(ValidationError):
         Payload.from_obj(data, MockDataValidate, strict=True)

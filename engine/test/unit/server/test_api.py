@@ -172,3 +172,12 @@ def test_api_disabled(mock_api_app_config):  # noqa: F811
     route = app_route_name(mock_api_app_config.app, event_name='mock-app-noapi')
     handler = api.add_route('get', route, _test_handler_get)
     assert handler is _test_handler_get
+
+
+async def test_remove_metadata(mock_api_app_config, mock_api_spec, mock_plugin_config):  # noqa: F811
+    _init_api(mock_api_app_config, mock_api_spec, plugin=mock_plugin_config,
+              init_server=True, init_apps=True, init_swagger=True)
+
+    assert "metadata" not in api.spec["components"]["schemas"]["MockData"]["properties"]["value"]
+    assert "title" in api.spec["components"]["schemas"]["MockData"]["properties"]["value"]
+    assert "type" in api.spec["components"]["schemas"]["MockData"]["properties"]["value"]

@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-from hopeit.dataobjects import dataclass, dataobject
+from hopeit.dataobjects import dataclass, dataobject, field
 
 
 @dataobject
@@ -16,7 +16,7 @@ class MockNested:
 class MockData:
     id: str
     value: str
-    nested: MockNested
+    nested: MockNested = field(metadata={"key": "value"})  # type: ignore[call-arg]
 
 
 @dataobject(event_id='id')
