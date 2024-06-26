@@ -23,6 +23,14 @@ ______________
   but could be features of dataclasses (like i.e. `metadata`) that should be replaced by its
   equivalent in `pydantic`.
 
+- Plugins:
+
+  - Dataframes
+
+    - Made it compatible with pydantic dataclasses
+    - Removed `@dataframeobject` annotation in favor of Dataset[T] generic type
+    - Introduced `.DataObject` companion type for `@dataframe` conversion to `DataObject`
+
 
 Version 0.24.2
 ______________

@@ -51,6 +51,9 @@
         },
         "predict": {
             "type": "POST"
+        },
+        "experiment": {
+            "type": "GET"
         }
     }
 }

@@ -646,16 +646,10 @@ def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):
         for datatype in datatypes:
             if datatype is not None and hasattr(datatype, '__data_object__'):
                 if datatype.__data_object__['schema']:
-                    if hasattr(datatype, "json_schema"):
-                        local_schema = datatype.json_schema(
-                            schema_generator=GenerateOpenAPI30Schema,
-                            ref_template='#/components/schemas/{model}'
-                        )
-                    else:
-                        local_schema = TypeAdapter(datatype).json_schema(
-                            schema_generator=GenerateOpenAPI30Schema,
-                            ref_template='#/components/schemas/{model}'
-                        )
+                    local_schema = TypeAdapter(datatype).json_schema(
+                        schema_generator=GenerateOpenAPI30Schema,
+                        ref_template='#/components/schemas/{model}'
+                    )
                     defs = local_schema.get("$defs", {})
                     defs[datatype.__name__] = {
                         k: v for k, v in local_schema.items() if k != "$defs"

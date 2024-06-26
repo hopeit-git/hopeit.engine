@@ -1,20 +1,9 @@
 """
 DataFrames type abstractions.
-
-Example:
-
-    from hopeit.dataobjects import dataclass # equivalent to `dataclasses.dataclass`
-    from hopeit.dataframes import dataframe
-
-    @dataframe
-    @dataclass
-    class MyObject:
-        name: str
-        number: int
 """
 import dataclasses
 from datetime import date, datetime, timezone
-from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, Generic, Iterator, List, Type, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -34,28 +23,9 @@ DataFrameT = TypeVar("DataFrameT")
 
 
 @dataclasses.dataclass
-class DataFrameMetadata(Generic[DataObject]):
+class DataFrameMetadata():
     columns: List[str]
     fields: Dict[str, FieldInfo]
-    serialized_type: Type[DataObject]
-
-
-@dataclasses.dataclass
-class DataFrameParams:
-    """
-    Helper class used to access attributes in @dataframe
-    decorated objects, based on dot notation expressions
-    """
-
-    datatypes: Optional[str]
-
-    @staticmethod
-    def extract_attr(obj, expr):
-        value = obj
-        for attr_name in expr.split("."):
-            if value:
-                value = getattr(value, attr_name)
-        return value
 
 
 class DataFrameMixin(Generic[DataFrameT, DataObject]):
@@ -120,39 +90,9 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     def _to_dataobjects(self) -> List[DataObject]:
         return [
-            self.__dataframe__.serialized_type(**fields)
+            self.DataObject(**fields)
             for fields in self.__df.to_dict(orient="records")
         ]
-
-    # def to_json(self, *args, **kwargs) -> str:
-    #     raise NotImplementedError(
-    #         "Dataframe must be used inside `@dataobject(unsafe=True)` to be used as an output"
-    #     )
-
-    # def to_dict(self, *args, **kwargs) -> Dict[str, Any]:
-    #     raise NotImplementedError(
-    #         "Dataframe must be used inside `@dataobject(unsafe=True)` to be used as an output"
-    #     )
-
-    # @classmethod
-    # def from_json(cls, *args, **kwargs) -> DataObject:
-    #     return cls.__dataframe__.serialized_type.from_dict(*args, **kwargs)
-
-    # @classmethod
-    # def from_dict(
-    #     cls,
-    #     *args,
-    #     **kwargs,
-    # ) -> DataObject:
-    #     return cls.__dataframe__.serialized_type.from_dict(*args, **kwargs)
-
-    # @classmethod
-    # def json_schema(cls, *args, **kwargs) -> Dict[str, Any]:
-    #     if cls.__data_object__["schema"]:
-    #         schema = cls.__dataframe__.serialized_type.json_schema(*args, **kwargs)
-    #         schema[cls.__name__] = schema[cls.__dataframe__.serialized_type.__name__]
-    #         return schema
-    #     return {}
 
     def event_id(self, *args, **kwargs) -> str:
         return ""
@@ -205,16 +145,16 @@ def dataframe(
 
     def add_dataframe_metadata(cls):
         serialized_fields = {k: (v.annotation, v) for k, v in fields(cls).items()}
-        serialized_type = create_model(cls.__name__+"_", **serialized_fields)
-        serialized_type = dataobject(serialized_type, unsafe=True)
+        dataobject_type = create_model(cls.__name__+"DataObject", **serialized_fields)
+        dataobject_type = dataobject(dataobject_type, unsafe=True)
 
+        setattr(cls, "DataObject", dataobject_type)
         setattr(
             cls,
             "__dataframe__",
             DataFrameMetadata(
                 columns=list(fields(cls).keys()),
                 fields=dict(fields(cls).items()),
-                serialized_type=serialized_type,
             ),
         )
 

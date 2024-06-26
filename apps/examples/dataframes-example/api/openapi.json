@@ -258,11 +258,11 @@
         },
         "responses": {
           "200": {
-            "description": "Iris",
+            "description": "Experiment",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Iris"
+                  "$ref": "#/components/schemas/Experiment"
                 }
               }
             }
@@ -325,14 +325,95 @@
         },
         "responses": {
           "200": {
-            "description": "List",
+            "description": "IrisBatchPredictionResponse",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/IrisFeatures"
-                  }
+                  "$ref": "#/components/schemas/IrisBatchPredictionResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "dataframes_example.0x25"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
+    "/api/dataframes-example/0x25/experiment": {
+      "get": {
+        "summary": "Experiment",
+        "description": "Experiment",
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "query",
+            "required": true,
+            "description": "experiment_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "experiment_partition_key",
+            "in": "query",
+            "required": true,
+            "description": "experiment_partition_key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Experiment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Experiment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "str",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "experiment"
+                  ],
+                  "properties": {
+                    "experiment": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "experiment string payload"
                 }
               }
             }
@@ -1131,7 +1212,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.25.0b1",
+            "default": "0.25.0b2",
             "title": "Engine Version",
             "type": "string"
           }
@@ -1303,7 +1384,8 @@
         "title": "Iris",
         "type": "object"
       },
-      "Dataset": {
+      "Dataset_Iris_": {
+        "description": "Persisted representation of a @dataframe object",
         "properties": {
           "protocol": {
             "title": "Protocol",
@@ -1334,39 +1416,193 @@
       "InputData": {
         "properties": {
           "iris": {
-            "$ref": "#/components/schemas/Dataset"
+            "$ref": "#/components/schemas/Dataset_Iris_"
           }
         },
         "required": [
           "iris"
         ],
-        "title": "InputData_",
+        "title": "InputData",
         "type": "object"
       },
-      "IrisFeatures": {
+      "Dataset_IrisFeatures_": {
+        "description": "Persisted representation of a @dataframe object",
+        "properties": {
+          "protocol": {
+            "title": "Protocol",
+            "type": "string"
+          },
+          "partition_key": {
+            "title": "Partition Key",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "datatype": {
+            "title": "Datatype",
+            "type": "string"
+          }
+        },
+        "required": [
+          "protocol",
+          "partition_key",
+          "key",
+          "datatype"
+        ],
+        "title": "Dataset",
+        "type": "object"
+      },
+      "Dataset_IrisLabels_": {
+        "description": "Persisted representation of a @dataframe object",
+        "properties": {
+          "protocol": {
+            "title": "Protocol",
+            "type": "string"
+          },
+          "partition_key": {
+            "title": "Partition Key",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "datatype": {
+            "title": "Datatype",
+            "type": "string"
+          }
+        },
+        "required": [
+          "protocol",
+          "partition_key",
+          "key",
+          "datatype"
+        ],
+        "title": "Dataset",
+        "type": "object"
+      },
+      "EvalMetrics": {
+        "properties": {
+          "accuracy_score": {
+            "title": "Accuracy Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "accuracy_score"
+        ],
+        "title": "EvalMetrics",
+        "type": "object"
+      },
+      "Experiment": {
+        "description": "Experiment parameters, data and model",
+        "properties": {
+          "experiment_id": {
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "experiment_dt": {
+            "format": "date-time",
+            "title": "Experiment Dt",
+            "type": "string"
+          },
+          "input_data": {
+            "$ref": "#/components/schemas/Dataset_Iris_"
+          },
+          "train_features": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Dataset_IrisFeatures_"
+              }
+            ],
+            "default": null,
+            "nullable": true
+          },
+          "train_labels": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Dataset_IrisLabels_"
+              }
+            ],
+            "default": null,
+            "nullable": true
+          },
+          "test_features": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Dataset_IrisFeatures_"
+              }
+            ],
+            "default": null,
+            "nullable": true
+          },
+          "test_labels": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Dataset_IrisLabels_"
+              }
+            ],
+            "default": null,
+            "nullable": true
+          },
+          "eval_metrics": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EvalMetrics"
+              }
+            ],
+            "default": null,
+            "nullable": true
+          },
+          "trained_model_location": {
+            "default": null,
+            "nullable": true,
+            "title": "Trained Model Location",
+            "type": "string"
+          },
+          "experiment_partition_key": {
+            "default": null,
+            "nullable": true,
+            "title": "Experiment Partition Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "experiment_id",
+          "experiment_dt",
+          "input_data"
+        ],
+        "title": "Experiment",
+        "type": "object"
+      },
+      "IrisFeaturesDataObject": {
         "properties": {
           "sepal_length": {
-            "default": null,
             "title": "Sepal Length",
             "type": "number"
           },
           "sepal_width": {
-            "default": null,
             "title": "Sepal Width",
             "type": "number"
           },
           "petal_length": {
-            "default": null,
             "title": "Petal Length",
             "type": "number"
           },
           "petal_width": {
-            "default": null,
             "title": "Petal Width",
             "type": "number"
           }
         },
-        "title": "IrisFeatures",
+        "required": [
+          "sepal_length",
+          "sepal_width",
+          "petal_length",
+          "petal_width"
+        ],
+        "title": "IrisFeaturesDataObject",
         "type": "object"
       },
       "IrisPredictionRequest": {
@@ -1376,7 +1612,7 @@
             "type": "string"
           },
           "features": {
-            "$ref": "#/components/schemas/IrisFeatures"
+            "$ref": "#/components/schemas/IrisFeaturesDataObject"
           }
         },
         "required": [
@@ -1400,6 +1636,52 @@
           "items"
         ],
         "title": "IrisBatchPredictionRequest",
+        "type": "object"
+      },
+      "IrisLabelsDataObject": {
+        "properties": {
+          "variety": {
+            "title": "Variety",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "variety"
+        ],
+        "title": "IrisLabelsDataObject",
+        "type": "object"
+      },
+      "IrisPredictionResponse": {
+        "properties": {
+          "prediction_id": {
+            "title": "Prediction Id",
+            "type": "string"
+          },
+          "prediction": {
+            "$ref": "#/components/schemas/IrisLabelsDataObject"
+          }
+        },
+        "required": [
+          "prediction_id",
+          "prediction"
+        ],
+        "title": "IrisPredictionResponse",
+        "type": "object"
+      },
+      "IrisBatchPredictionResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/IrisPredictionResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "IrisBatchPredictionResponse",
         "type": "object"
       }
     },

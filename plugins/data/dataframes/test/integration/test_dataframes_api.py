@@ -1,3 +1,4 @@
+from hopeit.dataframes.serialization.dataset import Dataset
 import numpy as np
 import pandas as pd
 
@@ -6,6 +7,7 @@ from conftest import (
     MyPartialTestData,
     MyTestData,
     MyTestDataObject,
+    MyTestJsonDataObject,
     setup_serialization_context,
 )
 from hopeit.app.config import AppConfig
@@ -39,7 +41,7 @@ def test_dataobject_dataframes_conversion(one_element_pandas_df):
     data = DataFrames.from_df(MyTestData, one_element_pandas_df)
     objects = DataFrames.to_dataobjects(data)
     assert objects == [
-        MyTestData.__dataframe__.serialized_type(
+        MyTestData.DataObject(
             number=1, name="test1", timestamp=objects[0].timestamp
         )
     ]
@@ -55,9 +57,27 @@ async def test_dataframe_object_serialization(
     initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
     dataobject = MyTestDataObject(
         name="test",
-        data=initial_data,
+        data=await Dataset.save(initial_data),
     )
-    saved_obj = await DataFrames.serialize(dataobject)  # type: ignore
-    loaded_obj = await DataFrames.deserialize(MyTestDataObject, saved_obj)
 
-    assert_frame_equal(DataFrames.df(dataobject.data), DataFrames.df(loaded_obj.data))
+    assert isinstance(dataobject.data, Dataset)
+
+    loaded_obj = await dataobject.data.load()
+
+    assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
+
+
+async def test_dataframe_json_object_serialization(
+    sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
+):
+    initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
+    dataobject = MyTestJsonDataObject(
+        name="test",
+        data=DataFrames.to_dataobjects(initial_data),
+    )
+
+    assert all(isinstance(item, MyTestData.DataObject) for item in dataobject.data)  # type: ignore[attr-defined]
+
+    original_data = DataFrames.from_dataobjects(MyTestData, dataobject.data)  # type: ignore[arg-type]
+
+    assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(original_data))

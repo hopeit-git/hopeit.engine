@@ -1,15 +1,16 @@
 """Prepares input data for training pipeline
 """
 
-from dataframes_example.iris import InputData, Iris
-from dataframes_example.settings import DataStorage
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-from hopeit.dataframes import DataFrames
+from hopeit.dataframes import DataFrames, Dataset
 from hopeit.dataobjects import fields
 from hopeit.dataobjects.payload import Payload
 from sklearn import datasets  # type: ignore
+
+from dataframes_example.iris import InputData, Iris
+from dataframes_example.settings import DataStorage
 
 logger, extra = app_extra_logger()
 
@@ -46,4 +47,6 @@ async def save_raw_data(iris: Iris, context: EventContext) -> InputData:
 
     logger.info(context, "Saving input data..", extra=extra(**Payload.to_obj(settings)))  # type: ignore[arg-type]
 
-    return await DataFrames.serialize(InputData(iris=iris))
+    return InputData(
+        iris=await Dataset.save(iris)
+    )

@@ -2209,7 +2209,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.25.0b1",
+            "default": "0.25.0b2",
             "title": "Engine Version",
             "type": "string"
           }

@@ -1,7 +1,5 @@
 """Endpoint to run predictions using trained model"""
 
-from typing import List
-
 from dataframes_example.iris import (
     IrisBatchPredictionRequest,
     IrisBatchPredictionResponse,
@@ -24,7 +22,7 @@ __api__ = event_api(
     summary="Predict",
     query_args=[("experiment_id", str)],
     payload=(IrisBatchPredictionRequest, "Batch of prediction requests"),
-    responses={200: List[IrisFeatures]},
+    responses={200: IrisBatchPredictionResponse},
 )
 
 

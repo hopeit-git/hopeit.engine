@@ -4,7 +4,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from hopeit.dataframes import dataframe, dataframeobject
+from hopeit.dataframes import Dataset, dataframe
 from hopeit.dataobjects import dataclass, dataobject, field
 
 
@@ -39,31 +39,33 @@ class EvalMetrics:
     accuracy_score: float
 
 
-@dataframeobject
+@dataobject
 @dataclass
 class InputData:
-    iris: Iris
+    iris: Dataset[Iris]
 
 
-@dataframeobject
+@dataobject
 @dataclass
 class Experiment:
+    """Experiment parameters, data and model"""
     experiment_id: str
     experiment_dt: datetime
-    input_data: Iris
-    train_features: Optional[IrisFeatures] = None
-    train_labels: Optional[IrisLabels] = None
-    test_features: Optional[IrisFeatures] = None
-    test_labels: Optional[IrisLabels] = None
-    saved_model_location: Optional[str] = None
+    input_data: Dataset[Iris]
+    train_features: Optional[Dataset[IrisFeatures]] = None
+    train_labels: Optional[Dataset[IrisLabels]] = None
+    test_features: Optional[Dataset[IrisFeatures]] = None
+    test_labels: Optional[Dataset[IrisLabels]] = None
     eval_metrics: Optional[EvalMetrics] = None
+    trained_model_location: Optional[str] = None
+    experiment_partition_key: Optional[str] = None
 
 
-@dataobject(unsafe=True)
+@dataobject
 @dataclass
 class IrisPredictionRequest:
     prediction_id: str
-    features: IrisFeatures
+    features: IrisFeatures.DataObject  # type: ignore[name-defined]
 
 
 @dataobject(unsafe=True)
@@ -72,14 +74,14 @@ class IrisBatchPredictionRequest:
     items: List[IrisPredictionRequest]
 
 
-@dataobject(unsafe=True)
+@dataobject
 @dataclass
 class IrisPredictionResponse:
     prediction_id: str
-    prediction: IrisLabels
+    prediction: IrisLabels.DataObject  # type: ignore[name-defined]
 
 
-@dataobject(unsafe=True)
+@dataobject
 @dataclass
 class IrisBatchPredictionResponse:
     items: List[IrisPredictionResponse]

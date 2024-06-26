@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import List
 
 import pandas as pd
 import pytest
@@ -10,8 +11,8 @@ from hopeit.app.config import (
     EventType,
 )
 from hopeit.app.context import EventContext
-from hopeit.dataframes import dataframe, dataframeobject
-from hopeit.dataobjects import dataclass
+from hopeit.dataframes import Dataset, dataframe
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.testing.apps import create_test_context, execute_event, server_config
 
 
@@ -37,11 +38,18 @@ class MyPartialTestData:
     name: str
 
 
-@dataframeobject
+@dataobject
 @dataclass
 class MyTestDataObject:
     name: str
-    data: MyTestData
+    data: Dataset[MyTestData]
+
+
+@dataobject
+@dataclass
+class MyTestJsonDataObject:
+    name: str
+    data: List[MyTestData.DataObject]  # type: ignore[name-defined]
 
 
 @pytest.fixture
