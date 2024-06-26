@@ -95,3 +95,4 @@ def test_check_dataclass_compatibility():
 
 def test_access_metadata():
     assert MockData.nested.json_schema_extra["metadata"] == {"key": "value"}
+    assert MockData.value.json_schema_extra["metadata"] == {"key": "value"}

@@ -15,7 +15,7 @@ class MockNested:
 @dataclass
 class MockData:
     id: str
-    value: str
+    value: str = field(json_schema_extra={"metadata": {"key": "value"}})
     nested: MockNested = field(metadata={"key": "value"})  # type: ignore[call-arg]
 
 
