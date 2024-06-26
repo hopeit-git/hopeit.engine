@@ -8,7 +8,8 @@ This module exposes the 3 main constructions to be used inside apps:
 
 Usage:
 ```
-from hopeit.dataframes import DataFrames, dataframe, dataframeobject
+from hopeit.dataframes import DataFrames, dataframe
+from hopeit.dataobjects import dataobject
 
 @dataframe
 @dataclass
@@ -17,11 +18,11 @@ class MyDataFrame:
     field2: str
     ...
 
-@dataframeobject
+@dataobject
 @dataclass
 class MyDataset:
     dataset_name: str
-    example_data: MyDataFrame
+    example_data: Dataset[MyDataFrame]
 
 
 df = pd.DataFrame(...)  # create or load your pandas dataframe
@@ -30,7 +31,7 @@ my_data = DataFrames.from_df(pd.DataFrame(..))
 
 return MyDataSet(
     dataset_name="example",
-    example_data=my_data
+    example_data=await Dataset.save(my_data)
 )
 ```
 """
@@ -40,13 +41,12 @@ from typing import Dict, Generic, Iterator, List, Type
 import numpy as np
 import pandas as pd
 from hopeit.dataframes.dataframe import DataFrameT, dataframe
-from hopeit.dataframes.dataframeobject import DataFrameObjectT, dataframeobject
 from hopeit.dataobjects import DataObject
 
-__all__ = ["DataFrames", "dataframe", "dataframeobject"]
+__all__ = ["DataFrames", "dataframe"]
 
 
-class DataFrames(Generic[DataFrameT, DataFrameObjectT, DataObject]):
+class DataFrames(Generic[DataFrameT, DataObject]):
     """
     Dataframes manipulation utilities methods
     """
@@ -88,7 +88,7 @@ class DataFrames(Generic[DataFrameT, DataFrameObjectT, DataObject]):
 
     @staticmethod
     def from_dataobjects(
-        datatype: Type[DataFrameT], dataobjects: Iterator[DataFrameObjectT]
+        datatype: Type[DataFrameT], dataobjects: Iterator[DataObject]
     ) -> DataFrameT:
         """Converts standard json serializable `@dataobject`s to a single `@dataframe`"""
         return datatype._from_dataobjects(dataobjects)  # type: ignore  # pylint: disable=protected-access

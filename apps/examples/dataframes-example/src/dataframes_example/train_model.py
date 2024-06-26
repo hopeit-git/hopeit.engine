@@ -45,22 +45,42 @@ __steps__ = [
 __api__ = event_api(
     summary="Training Pipeline",
     payload=(InputData, "Serialized dataframeobject with iris dataset"),
-    responses={200: Iris},
+    responses={200: Experiment},
 )
 
 
-def prepare_experiment(input_data: InputData, context: EventContext) -> Experiment:
+async def prepare_experiment(
+    input_data: InputData, context: EventContext
+) -> Experiment:
     experiment_id = str(uuid.uuid4())
 
     logger.info(
         context, "Setting up experiment", extra=extra(experiment_id=experiment_id)
     )
 
-    return Experiment(
+    experiment = Experiment(
         experiment_id=experiment_id,
         experiment_dt=datetime.now(tz=timezone.utc),
         input_data=input_data.iris,
     )
+
+    location = await experiment_storage.save_experiment(experiment, context)
+
+    experiment.experiment_partition_key = (
+        experiment_storage.get_experiment_partition_key(experiment, context)
+    )
+
+    logger.info(
+        context,
+        "Experiment prepared",
+        extra=extra(
+            experiment_id=experiment_id,
+            experiment_partition_key=experiment.experiment_partition_key,
+            location=location,
+        ),
+    )
+
+    return experiment
 
 
 # async def __postprocess__(
@@ -94,9 +114,7 @@ async def prepare_datasets(experiment: Experiment, context: EventContext) -> Exp
     experiment.test_features = await Dataset.save(
         DataFrames.from_df(IrisFeatures, X_test)
     )
-    experiment.test_labels = await Dataset.save(
-        DataFrames.from_df(IrisLabels, y_test)
-    )
+    experiment.test_labels = await Dataset.save(DataFrames.from_df(IrisLabels, y_test))
     return experiment
 
 
@@ -113,9 +131,7 @@ async def train_model(experiment: Experiment, context: EventContext) -> Experime
     train_labels: IrisLabels = await experiment.train_labels.load()
 
     clf = DecisionTreeClassifier(random_state=42)
-    clf.fit(
-        DataFrames.df(train_features), DataFrames.df(train_labels)
-    )
+    clf.fit(DataFrames.df(train_features), DataFrames.df(train_labels))
 
     logger.info(
         context,
@@ -124,7 +140,7 @@ async def train_model(experiment: Experiment, context: EventContext) -> Experime
             experiment_id=experiment.experiment_id,
         ),
     )
-    experiment.saved_model_location = await model_storage.save_model(
+    experiment.trained_model_location = await model_storage.save_model(
         clf, experiment.experiment_id, context
     )
 
@@ -138,14 +154,14 @@ async def evaluate_model(experiment: Experiment, context: EventContext) -> Exper
         "Loading model...",
         extra=extra(
             experiment_id=experiment.experiment_id,
-            model_location=experiment.saved_model_location,
+            trained_model_location=experiment.trained_model_location,
         ),
     )
 
-    assert experiment.saved_model_location is not None
+    assert experiment.trained_model_location is not None
 
     clf: DecisionTreeClassifier = await model_storage.load_model(
-        experiment.saved_model_location, context
+        experiment.trained_model_location, context
     )
 
     logger.info(
@@ -159,9 +175,7 @@ async def evaluate_model(experiment: Experiment, context: EventContext) -> Exper
 
     y = clf.predict(DataFrames.df(test_features))
     pred_labels = IrisLabels(variety=pd.Series(y))
-    accuracy = accuracy_score(
-        DataFrames.df(test_labels), DataFrames.df(pred_labels)
-    )
+    accuracy = accuracy_score(DataFrames.df(test_labels), DataFrames.df(pred_labels))
 
     experiment.eval_metrics = EvalMetrics(accuracy_score=accuracy)
     return experiment

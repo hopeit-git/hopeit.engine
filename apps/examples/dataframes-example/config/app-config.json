@@ -54,6 +54,10 @@
         "predict": {
             "type": "POST",
             "auth": ["Unsecured"]
+        },
+        "experiment": {
+            "type": "GET",
+            "auth": ["Unsecured"]
         }
     }
 }

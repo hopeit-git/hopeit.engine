@@ -24,7 +24,7 @@ __api__ = event_api(
     summary="Predict",
     query_args=[("experiment_id", str)],
     payload=(IrisBatchPredictionRequest, "Batch of prediction requests"),
-    responses={200: List[IrisFeatures]},
+    responses={200: IrisBatchPredictionResponse},
 )
 
 

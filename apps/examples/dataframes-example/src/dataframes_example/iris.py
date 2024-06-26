@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from hopeit.dataframes import dataframe
-from hopeit.dataframes.serialization.dataset import Dataset
+from hopeit.dataframes.serialization import Dataset
 from hopeit.dataobjects import dataclass, dataobject, field
 
 
@@ -56,11 +56,12 @@ class Experiment:
     train_labels: Optional[Dataset[IrisLabels]] = None
     test_features: Optional[Dataset[IrisFeatures]] = None
     test_labels: Optional[Dataset[IrisLabels]] = None
-    saved_model_location: Optional[str] = None
     eval_metrics: Optional[EvalMetrics] = None
+    trained_model_location: Optional[str] = None
+    experiment_partition_key: Optional[str] = None
 
 
-@dataobject(unsafe=True)
+@dataobject
 @dataclass
 class IrisPredictionRequest:
     prediction_id: str
@@ -73,14 +74,14 @@ class IrisBatchPredictionRequest:
     items: List[IrisPredictionRequest]
 
 
-@dataobject(unsafe=True)
+@dataobject
 @dataclass
 class IrisPredictionResponse:
     prediction_id: str
     prediction: IrisLabels.DataObject
 
 
-@dataobject(unsafe=True)
+@dataobject
 @dataclass
 class IrisBatchPredictionResponse:
     items: List[IrisPredictionResponse]

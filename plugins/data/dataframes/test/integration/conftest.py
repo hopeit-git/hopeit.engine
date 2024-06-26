@@ -10,7 +10,7 @@ from hopeit.app.config import (
     EventType,
 )
 from hopeit.app.context import EventContext
-from hopeit.dataframes import dataframe, dataframeobject
+from hopeit.dataframes import dataframe
 from hopeit.dataobjects import dataclass
 from hopeit.testing.apps import create_test_context, execute_event, server_config
 
@@ -37,7 +37,6 @@ class MyPartialTestData:
     name: str
 
 
-@dataframeobject
 @dataclass
 class MyTestDataObject:
     name: str

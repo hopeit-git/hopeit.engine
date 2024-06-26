@@ -3,7 +3,7 @@
 
 import io
 from importlib import import_module
-from typing import Callable, Generic, Optional, Type, TypeVar, Union
+from typing import Generic, Optional, Type, TypeVar
 from uuid import uuid4
 
 import pandas as pd
@@ -67,39 +67,39 @@ class DatasetFileStorage(Generic[DataFrameT]):
         df = pd.read_parquet(io.BytesIO(data), engine="pyarrow")
         return datatype._from_df(df)  # pylint: disable=protected-access
 
-    async def ser_wrapper(
-        self,
-        base_serialization: Callable,
-        data: Union[EventPayloadType, DataFrameT],
-        level: int,
-    ) -> bytes:
-        """Serialization wrapper that plugins-in into hopeit.engine
-        serialization when dataframes plugin is initialized
-        """
-        if hasattr(data, "__dataframeobject__"):
-            data = await data._serialize()  # type: ignore  # pylint: disable=protected-access
-        if hasattr(data, "__dataframe__"):
-            data = await self.save(data)  # type: ignore
-        return await base_serialization(data, level)
+    # async def ser_wrapper(
+    #     self,
+    #     base_serialization: Callable,
+    #     data: Union[EventPayloadType, DataFrameT],
+    #     level: int,
+    # ) -> bytes:
+    #     """Serialization wrapper that plugins-in into hopeit.engine
+    #     serialization when dataframes plugin is initialized
+    #     """
+    #     if hasattr(data, "__dataframeobject__"):
+    #         data = await data._serialize()  # type: ignore  # pylint: disable=protected-access
+    #     if hasattr(data, "__dataframe__"):
+    #         data = await self.save(data)  # type: ignore
+    #     return await base_serialization(data, level)
 
-    async def deser_wrapper(
-        self,
-        base_deserialization: Callable,
-        data: bytes,
-        datatype: Union[Type[EventPayloadType], Type[DataFrameT]],
-    ) -> Union[EventPayloadType, DataFrameT]:
-        """Deerialization wrapper that plugins-in into hopeit.engine
-        deserialization when dataframes plugin is initialized
-        """
-        if hasattr(datatype, "__dataframeobject__"):
-            dataset = await base_deserialization(
-                data, datatype.__dataframeobject__.serialized_type  # type: ignore
-            )
-            return await datatype._deserialize(dataset)  # type: ignore  # pylint: disable=protected-access
-        if hasattr(datatype, "__dataframe__"):
-            dataset = await base_deserialization(data, Dataset)
-            return await self.load(dataset)
-        return await base_deserialization(data, datatype)
+    # async def deser_wrapper(
+    #     self,
+    #     base_deserialization: Callable,
+    #     data: bytes,
+    #     datatype: Union[Type[EventPayloadType], Type[DataFrameT]],
+    # ) -> Union[EventPayloadType, DataFrameT]:
+    #     """Deerialization wrapper that plugins-in into hopeit.engine
+    #     deserialization when dataframes plugin is initialized
+    #     """
+    #     if hasattr(datatype, "__dataframeobject__"):
+    #         dataset = await base_deserialization(
+    #             data, datatype.__dataframeobject__.serialized_type  # type: ignore
+    #         )
+    #         return await datatype._deserialize(dataset)  # type: ignore  # pylint: disable=protected-access
+    #     if hasattr(datatype, "__dataframe__"):
+    #         dataset = await base_deserialization(data, Dataset)
+    #         return await self.load(dataset)
+    #     return await base_deserialization(data, datatype)
 
 
 def find_dataframe_type(qual_type_name: str) -> Type[DataFrameT]:

@@ -37,7 +37,7 @@ DataFrameT = TypeVar("DataFrameT")
 class DataFrameMetadata(Generic[DataObject]):
     columns: List[str]
     fields: Dict[str, FieldInfo]
-    serialized_type: Type[DataObject]
+    # serialized_type: Type[DataObject]
 
 
 @dataclasses.dataclass
@@ -123,7 +123,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     def _to_dataobjects(self) -> List[DataObject]:
         return [
-            self.__dataframe__.serialized_type(**fields)
+            self.DataObject(**fields)
             for fields in self.__df.to_dict(orient="records")
         ]
 
@@ -208,17 +208,17 @@ def dataframe(
 
     def add_dataframe_metadata(cls):
         serialized_fields = {k: (v.annotation, v) for k, v in fields(cls).items()}
-        serialized_type = create_model(cls.__name__+"_", **serialized_fields)
-        serialized_type = dataobject(serialized_type, unsafe=True)
+        dataobject_type = create_model(cls.__name__+"DataObject", **serialized_fields)
+        dataobject_type = dataobject(dataobject_type, unsafe=True)
 
-        setattr(cls, "DataObject", serialized_type)
+        setattr(cls, "DataObject", dataobject_type)
         setattr(
             cls,
             "__dataframe__",
             DataFrameMetadata(
                 columns=list(fields(cls).keys()),
                 fields=dict(fields(cls).items()),
-                serialized_type=serialized_type,
+                # serialized_type=serialized_type,
             ),
         )
 
