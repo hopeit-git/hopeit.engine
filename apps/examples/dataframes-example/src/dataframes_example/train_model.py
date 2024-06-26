@@ -13,9 +13,9 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.dataframes import DataFrames, Dataset
 from hopeit.server.steps import SHUFFLE
 
-from sklearn.metrics import accuracy_score  # type: ignore[import-untyped]
-from sklearn.model_selection import train_test_split  # type: ignore[import-untyped]
-from sklearn.tree import DecisionTreeClassifier  # type: ignore[import-untyped]
+from sklearn.metrics import accuracy_score  # type: ignore
+from sklearn.model_selection import train_test_split  # type: ignore
+from sklearn.tree import DecisionTreeClassifier  # type: ignore
 
 from dataframes_example import experiment_storage, model_storage
 from dataframes_example.iris import (

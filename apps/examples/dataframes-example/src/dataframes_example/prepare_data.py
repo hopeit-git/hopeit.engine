@@ -7,7 +7,7 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.dataframes import DataFrames, Dataset
 from hopeit.dataobjects import fields
 from hopeit.dataobjects.payload import Payload
-from sklearn import datasets  # type: ignore[import-untyped]
+from sklearn import datasets  # type: ignore
 
 from dataframes_example.iris import InputData, Iris
 from dataframes_example.settings import DataStorage

@@ -212,6 +212,11 @@
         },
         "tags": [
           "dataframes_example.0x25"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -265,6 +270,11 @@
         },
         "tags": [
           "dataframes_example.0x25"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -327,6 +337,11 @@
         },
         "tags": [
           "dataframes_example.0x25"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
@@ -406,6 +421,11 @@
         },
         "tags": [
           "dataframes_example.0x25"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
         ]
       }
     },
