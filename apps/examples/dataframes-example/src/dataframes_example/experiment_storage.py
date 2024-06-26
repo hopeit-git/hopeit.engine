@@ -6,9 +6,8 @@ from typing import Optional
 from dataframes_example.iris import Experiment
 from hopeit.fs_storage.partition import get_partition_key
 from hopeit.app.context import EventContext
-from hopeit.dataframes import DataFrames
 from hopeit.dataobjects.payload import Payload
-from hopeit.fs_storage import FileStorage, FileStorageSettings, ItemLocator
+from hopeit.fs_storage import FileStorage, FileStorageSettings
 from hopeit.server.logger import engine_extra_logger
 
 logger, extra = engine_extra_logger()

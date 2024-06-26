@@ -1,19 +1,25 @@
 """
 hopeit.engine dataframes plugin entry point
 
-This module exposes the 3 main constructions to be used inside apps:
+This module exposes the 2 main constructions to be used inside apps,
+to extend @dataobject functionallity supporting working with `pandas DataFrames`
 `@dataframe` dataclass annotation
-`@dataframeobject` dataclass annotation
 `DataFrames` class to handle manipulation of dataframe/dataframeobjects
 
 Usage:
 ```
-from hopeit.dataframes import DataFrames, dataframe
-from hopeit.dataobjects import dataobject
+from typing import List
+
+import pandas as pd
+
+from hopeit.dataframes.serialization.settings import DatasetSerialization
+from hopeit.dataframes import DataFrames, Dataset, dataframe
+from hopeit.dataobjects import dataobject, dataclass
+from hopeit.dataobjects.payload import Payload
 
 @dataframe
 @dataclass
-class MyDataFrame:
+class MyData:
     field1: int
     field2: str
     ...
@@ -22,28 +28,61 @@ class MyDataFrame:
 @dataclass
 class MyDataset:
     dataset_name: str
-    example_data: Dataset[MyDataFrame]
+    example_data: Dataset[MyData]
 
+@dataobject
+@dataclass
+class MyWebResponse:
+    dataset_name: str
+    example_data: List[MyData.DataObject]
 
-df = pd.DataFrame(...)  # create or load your pandas dataframe
+# This step is not needed if SETUP event is configured in app
+DataFrames.setup(DatasetSerialization(
+      protocol="hopeit.dataframes.serialization.files.DatasetFileStorage",
+      location="/tmp/data",
+      partition_dateformat="%Y/%m/%d/%H/",
+))
 
-my_data = DataFrames.from_df(pd.DataFrame(..))
+df = pd.DataFrame([  # Create or load a pandas DataFrame
+    {"field1": 1, "field2": "text1"},
+    {"field1": 2, "field2": "text2"},
+])
 
-return MyDataSet(
+my_data: MyData = DataFrames.from_df(MyData, df)
+
+# return dataset after saving data to disk
+my_dataset = MyDataset(
     dataset_name="example",
     example_data=await Dataset.save(my_data)
 )
+
+print(Payload.to_json(my_dataset))
+
+my_data_again: MyData = await my_dataset.example_data.load()
+
+print(DataFrames.df(my_data_again))
+
+# return dataframe converted to list of dataobjects that can be directly converted to json
+my_json_response = MyWebResponse(
+    dataset_name="example",
+    example_data=DataFrames.to_dataobjects(my_data)
+)
+
+print(Payload.to_json(my_json_response))
 ```
 """
 
 from typing import Dict, Generic, Iterator, List, Type
 
+from hopeit.dataframes.setup.dataframes import register_serialization
 import numpy as np
 import pandas as pd
 from hopeit.dataframes.dataframe import DataFrameT, dataframe
+from hopeit.dataframes.serialization.dataset import Dataset
+from hopeit.dataframes.serialization.settings import DatasetSerialization
 from hopeit.dataobjects import DataObject
 
-__all__ = ["DataFrames", "dataframe"]
+__all__ = ["DataFrames", "Dataset", "dataframe"]
 
 
 class DataFrames(Generic[DataFrameT, DataObject]):
@@ -51,24 +90,9 @@ class DataFrames(Generic[DataFrameT, DataObject]):
     Dataframes manipulation utilities methods
     """
 
-    # @staticmethod
-    # async def serialize(obj: DataFrameObjectT) -> DataObject:
-    #     """Serialize/saves contents of dataframe fields of a `@dataframeobject`
-    #     and converts to a `DataObject` json-compatible with pointers to saved
-    #     locations.
-
-    #     This method can be used to i.e. return `@dataframeobject`s as a JSON response
-    #     """
-    #     return await obj._serialize()  # type: ignore  # pylint: disable=protected-access
-
-    # @staticmethod
-    # async def deserialize(
-    #     datatype: Type[DataFrameObjectT], dataobject: DataObject
-    # ) -> DataFrameObjectT:
-    #     """Deserialize/load contents of serialized dataobject fields of a `@dataframeobject`
-    #     loading saved Dataset information for @dataframe fields
-    #     """
-    #     return await datatype._deserialize(dataobject)  # type: ignore  # pylint: disable=protected-access
+    @staticmethod
+    def setup(settings: DatasetSerialization):
+        register_serialization(settings)
 
     @staticmethod
     def from_df(

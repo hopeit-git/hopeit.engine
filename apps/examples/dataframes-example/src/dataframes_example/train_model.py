@@ -6,8 +6,17 @@
 import uuid
 from datetime import datetime, timezone
 
-from hopeit.dataframes.serialization.dataset import Dataset
 import pandas as pd
+from hopeit.app.api import event_api
+from hopeit.app.context import EventContext
+from hopeit.app.logger import app_extra_logger
+from hopeit.dataframes import DataFrames, Dataset
+from hopeit.server.steps import SHUFFLE
+
+from sklearn.metrics import accuracy_score  # type: ignore
+from sklearn.model_selection import train_test_split  # type: ignore
+from sklearn.tree import DecisionTreeClassifier  # type: ignore
+
 from dataframes_example import experiment_storage, model_storage
 from dataframes_example.iris import (
     EvalMetrics,
@@ -17,15 +26,6 @@ from dataframes_example.iris import (
     IrisFeatures,
     IrisLabels,
 )
-from hopeit.app.api import event_api
-from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.app.logger import app_extra_logger
-from hopeit.dataframes import DataFrames
-from hopeit.server.steps import SHUFFLE
-
-from sklearn.metrics import accuracy_score  # type: ignore
-from sklearn.model_selection import train_test_split  # type: ignore
-from sklearn.tree import DecisionTreeClassifier  # type: ignore
 
 logger, extra = app_extra_logger()
 
@@ -81,12 +81,6 @@ async def prepare_experiment(
     )
 
     return experiment
-
-
-# async def __postprocess__(
-#     experiment: Experiment, context: EventContext, response: PostprocessHook
-# ) -> Experiment:
-#     return experiment
 
 
 async def prepare_datasets(experiment: Experiment, context: EventContext) -> Experiment:

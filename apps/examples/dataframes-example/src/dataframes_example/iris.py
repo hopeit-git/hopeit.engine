@@ -4,8 +4,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from hopeit.dataframes import dataframe
-from hopeit.dataframes.serialization import Dataset
+from hopeit.dataframes import Dataset, dataframe
 from hopeit.dataobjects import dataclass, dataobject, field
 
 
