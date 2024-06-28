@@ -10,10 +10,10 @@ from hopeit.log_streamer import LogFileHandler, start_observer
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    platform.system().lower() != "linux",
-    reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
-)
+# @pytest.mark.skipif(
+#     platform.system().lower() != "linux",
+#     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
+# )
 async def test_read_one_batch(raw_log_entries, log_config, service_context):
     handler = LogFileHandler(log_config, service_context)
     os.makedirs(log_config.logs_path, exist_ok=True)

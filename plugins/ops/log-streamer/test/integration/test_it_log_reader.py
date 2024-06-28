@@ -3,7 +3,6 @@ import pytest
 
 import asyncio
 import os
-import platform
 from pathlib import Path
 
 from hopeit.testing.apps import config, execute_event
@@ -29,10 +28,6 @@ async def write_logs(log_config, raw_log_entries):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    platform.system().lower() != "linux",
-    reason="LogFileReader uses watchdog that works with no additional helpers only in Linux"
-)
 async def test_service(monkeypatch, raw_log_entries, log_config, service_context):
     monkeypatch.setattr(service_context.settings, 'extras', {'_': Payload.to_obj(log_config)})
     loop = asyncio.get_event_loop()

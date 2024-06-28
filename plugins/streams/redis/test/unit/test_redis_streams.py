@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import dataclass, dataobject
-from hopeit.server.config import AuthType
+from hopeit.server.config import AuthType, StreamsConfig
 
 from hopeit.streams import StreamEvent
 from hopeit.redis_streams import RedisStreamManager
@@ -28,7 +28,8 @@ class MockInvalidDataEvent:
 
 
 async def create_stream_manager():
-    return await RedisStreamManager(address=MockRedisPool.test_url).connect()
+    settings = StreamsConfig()
+    return await RedisStreamManager(address=MockRedisPool.test_url).connect(settings)
 
 
 async def write_stream():
@@ -230,7 +231,7 @@ class MockRedisPool():
         self.closed = False
 
     @staticmethod
-    def from_url(url):
+    def from_url(url, username, password):
         assert url == MockRedisPool.test_url
         return MockRedisPool()
 

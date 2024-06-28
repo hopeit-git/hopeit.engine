@@ -105,7 +105,7 @@ class MockRedisPool:
         return [k.encode('utf-8') for k in self.items if fnmatch(k, pattern)]
 
     @staticmethod
-    def from_url(url):
+    def from_url(url, username, password):
         assert url == test_url
         return MockRedisPool()
 
