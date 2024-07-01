@@ -2,6 +2,7 @@
 Streams module. Handles reading and writing to streams.
 Backed by Redis Streams
 """
+
 import asyncio
 import json
 import base64
@@ -15,6 +16,7 @@ from redis.exceptions import ConnectionError as RedisConnectionError
 
 from hopeit.app.config import Compression, Serialization, StreamQueue
 from hopeit.dataobjects import EventPayload
+from hopeit.server.config import StreamsConfig
 from hopeit.server.serialization import deserialize, serialize
 from hopeit.server.logger import engine_logger, extra_logger
 from hopeit.streams import StreamManager, StreamEvent, StreamOSError
@@ -41,15 +43,24 @@ class RedisStreamManager(StreamManager):
         self._write_pool: redis.Redis
         self._read_pool: redis.Redis
 
-    async def connect(self):
+    async def connect(self, config: StreamsConfig):
         """
         Connects to Redis using two connection pools, one to handle
         writing to stream and one for reading.
+        :param config: StreamsConfig: The configuration object containing the Redis connection details.
         """
         logger.info(__name__, f"Connecting address={self.address}...")
         try:
-            self._write_pool = redis.from_url(self.address)
-            self._read_pool = redis.from_url(self.address)
+            self._write_pool = redis.from_url(
+                self.address,
+                username=config.username.get_secret_value(),
+                password=config.password.get_secret_value(),
+            )
+            self._read_pool = redis.from_url(
+                self.address,
+                username=config.username.get_secret_value(),
+                password=config.password.get_secret_value(),
+            )
             return self
         except (OSError, RedisError, RedisConnectionError) as e:  # pragma: no cover
             logger.error(__name__, e)

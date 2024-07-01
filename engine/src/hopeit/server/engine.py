@@ -101,13 +101,13 @@ class AppEngine:
             or (event_info.write_stream is not None)
         )
         if streams_present and self.streams_enabled:
-            stream_settings = self.app_config.server.streams
-            mgr = StreamManager.create(self.app_config.server.streams)
+            stream_config = self.app_config.server.streams
+            mgr = StreamManager.create(stream_config)
             self.stream_manager = StreamCircuitBreaker(
-                stream_manager=await mgr.connect(),
-                initial_backoff_seconds=stream_settings.initial_backoff_seconds,
-                num_failures_open_circuit_breaker=stream_settings.num_failures_open_circuit_breaker,
-                max_backoff_seconds=stream_settings.max_backoff_seconds,
+                stream_manager=await mgr.connect(stream_config),
+                initial_backoff_seconds=stream_config.initial_backoff_seconds,
+                num_failures_open_circuit_breaker=stream_config.num_failures_open_circuit_breaker,
+                max_backoff_seconds=stream_config.max_backoff_seconds,
             )
         auth.init(self.app_key, self.app_config.server.auth)
         await register_app_connections(self.app_config)

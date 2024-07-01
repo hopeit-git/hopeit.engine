@@ -8,6 +8,8 @@ ______________
 
   - This release adopts `pydantic` as a the library for dataclasses and schema validation
 
+  - StreamManager: add support for `username` and `password` in `StreamsConfig`
+  
   BREAKING CHANGES
   ================
   - Python `dataclasses.dataclass` is no longer supported in `@dataobjects` annotated classes.
@@ -34,7 +36,7 @@ ______________
     metadata = User.name.json_schema_extra["metadata"]
   
     ```
-
+  
 - Plugins:
 
   - Dataframes
@@ -42,7 +44,11 @@ ______________
     - Made it compatible with pydantic dataclasses
     - Removed `@dataframeobject` annotation in favor of Dataset[T] generic type
     - Introduced `.DataObject` companion type for `@dataframe` conversion to `DataObject`
+  
+  - redis-streams: update `StreamsConfig` usage to support new `username` and `password` fields
 
+
+  - redis-storage: add support for `username` and `password` in the `connect` method 
 
 Version 0.24.2
 ______________

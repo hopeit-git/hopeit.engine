@@ -902,7 +902,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.25.0b3",
+            "default": "0.25.0b4",
             "title": "Engine Version",
             "type": "string"
           }
@@ -952,7 +952,7 @@
         "type": "string"
       },
       "StreamsConfig": {
-        "description": ":field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally",
+        "description": "Configuration class for stream connection settings.\n\n:stream_manager: str: Stream manager class name. Default is \"hopeit.streams.NoStreamManager\".\n:field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally\n:field username: SecretStr: Username for authentication. Default is an empty secret string.\n:field password: SecretStr: Password for authentication. Default is an empty secret string.\n:field delay_auto_start_seconds: int: Delay in seconds before auto-starting the stream.\n    Default is 3 seconds.\n:field initial_backoff_seconds: float: Initial backoff time in seconds for connection retries.\n    Default is 1.0 second.\n:field max_backoff_seconds: float: Maximum backoff time in seconds for connection retries.\n    Default is 60.0 seconds.\n:field num_failures_open_circuit_breaker: int: Number of failures before opening the circuit breaker.\n    Default is 1.\n\nNote:\n    hopeit.engine provides `hopeit.redis_streams.RedisStreamManager` as the default plugin for stream management.",
         "properties": {
           "stream_manager": {
             "default": "hopeit.streams.NoStreamManager",
@@ -963,6 +963,18 @@
             "default": "<<NoStreamManager>>",
             "title": "Connection Str",
             "type": "string"
+          },
+          "username": {
+            "format": "password",
+            "title": "Username",
+            "type": "string",
+            "writeOnly": true
+          },
+          "password": {
+            "format": "password",
+            "title": "Password",
+            "type": "string",
+            "writeOnly": true
           },
           "delay_auto_start_seconds": {
             "default": 3,

@@ -27,13 +27,16 @@ class RedisStorage(Generic[DataObject]):
         """
         self._conn: Optional[redis.Redis] = None
 
-    def connect(self, *, address: str) -> Any:
+    def connect(self, *, address: str, username: str = "", password: str = "") -> Any:
         """
         Creates a Redis connection pool
 
         :param address: str, address = "redis://hostname:6379/0?encoding=utf-8"
+        :param username: str: Username for authentication (default is "").
+        :param password: str: Password for authentication (default is "").
+
         """
-        self._conn = redis.from_url(address)
+        self._conn = redis.from_url(address, username=username, password=password)
         return self
 
     async def get(self, key: str, *, datatype: Type[DataObject]) -> Optional[DataObject]:
