@@ -28,7 +28,7 @@ def valid_config_json() -> str:
   "env" : {
     "fs": {
       "data_path": "${TEST_TMP_FOLDER}/{auto}/",
-      "app_description": "This is {app.name} version {app.version}",
+      "app_description": "This is {app.name} version {app.version}${TEST_EMPTY_VALUE}",
       "recursive_replacement": "Data is in {env.fs.data_path}. {env.fs.app_description}"
     }
   },
@@ -123,6 +123,8 @@ def _get_env_mock(var_name):
         return ENGINE_VERSION
     elif var_name == "HOPEIT_APPS_API_VERSION":
         return APPS_API_VERSION
+    elif var_name == "TEST_EMPTY_VALUE":
+        return ""
     return None
 
 

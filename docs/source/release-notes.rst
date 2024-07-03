@@ -10,6 +10,8 @@ ______________
 
   - StreamManager: add support for `username` and `password` in `StreamsConfig`
   
+  - Fix: support for empty values in environment variables used in config files
+  
   BREAKING CHANGES
   ================
   - Python `dataclasses.dataclass` is no longer supported in `@dataobjects` annotated classes.

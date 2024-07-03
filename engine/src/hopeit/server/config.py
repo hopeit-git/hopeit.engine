@@ -154,7 +154,7 @@ def replace_env_vars(config_json: str) -> str:
         expr = match.group(0)
         var_name = match.group(1)
         value = os.getenv(var_name.upper())
-        if value:
+        if value is not None:
             result = result.replace(expr, value)
 
     missing_env_vars = env_re.findall(result)
