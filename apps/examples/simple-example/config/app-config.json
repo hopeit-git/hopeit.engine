@@ -75,6 +75,7 @@
     },
     "list_somethings_unsecured": {
       "type": "GET",
+      "impl": "simple_example.list_somethings",
       "setting_keys": ["fs_storage"],
       "auth": ["Unsecured"]
     },

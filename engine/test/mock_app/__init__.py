@@ -9,7 +9,7 @@ from hopeit.app.config import (
     WriteStreamDescriptor,
     AppEngineConfig,
 )
-from hopeit.dataobjects import dataclass, dataobject, field
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.config import (
     APIConfig,
     AuthConfig,
@@ -24,7 +24,7 @@ from hopeit.server.config import (
 @dataclass
 class MockData:
     """MockData object"""
-    value: str = field(metadata={"key": "value"})  # type: ignore[call-arg]
+    value: str
 
 
 @dataobject(event_id="value")

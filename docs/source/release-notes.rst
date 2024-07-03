@@ -10,6 +10,8 @@ ______________
 
   - StreamManager: add support for `username` and `password` in `StreamsConfig`
   
+  - Fix: support for empty values in environment variables used in config files
+  
   BREAKING CHANGES
   ================
   - Python `dataclasses.dataclass` is no longer supported in `@dataobjects` annotated classes.
@@ -22,21 +24,9 @@ ______________
     where dataclass and field are aliases of `pydantic.dataclasses.dataclass` and `pydantic.Field`
   
   - In most of the cases replacing the import clause in applications should suffice,
-  but could be features of dataclasses that should be replaced by its
+  but could be features of dataclasses (like i.e. `metadata`) that should be replaced by its
   equivalent in `pydantic`.
-  - For cases where you store data in the field property metadata, you can access it as follows:
-    ```
-    from hopeit.dataobjects import dataclass, dataobject, field
- 
-    @dataobject
-    @dataclass
-    class User:
-        name: str = field(metadata={"key": "value"})
-  
-    metadata = User.name.json_schema_extra["metadata"]
-  
-    ```
-  
+
 - Plugins:
 
   - Dataframes

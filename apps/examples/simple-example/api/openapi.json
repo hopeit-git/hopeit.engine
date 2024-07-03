@@ -254,7 +254,7 @@
     },
     "/api/simple-example/0x25/list-somethings-unsecured": {
       "get": {
-        "summary": "Simple Example: List Objects Unsecured",
+        "summary": "Simple Example: List Objects",
         "description": "Lists all available Something objects",
         "parameters": [
           {
@@ -2209,7 +2209,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.25.0b4",
+            "default": "0.25.0b5",
             "title": "Engine Version",
             "type": "string"
           }
