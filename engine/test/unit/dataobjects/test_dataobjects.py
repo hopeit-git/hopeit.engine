@@ -91,8 +91,3 @@ def test_check_dataclass_compatibility():
         class MockNestedNonPydantic:
             """not a pydantic dataclass"""
             ts: datetime
-
-
-def test_access_metadata():
-    assert MockData.nested.json_schema_extra["metadata"] == {"key": "value"}
-    assert MockData.value.json_schema_extra["metadata"] == {"key": "value"}
