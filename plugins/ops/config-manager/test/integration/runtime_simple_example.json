@@ -63,6 +63,7 @@
                   "list_somethings_unsecured": {
                       "type": "GET",
                       "plug_mode": "Standalone",
+                      "impl": "simple_example.list_somethings",
                       "connections": [],
                       "auth": [
                           "Unsecured"
@@ -903,6 +904,7 @@
               "simple_example.${APPS_ROUTE_VERSION}.list_somethings_unsecured": {
                   "type": "GET",
                   "plug_mode": "Standalone",
+                  "impl": "simple_example.list_somethings",
                   "connections": [],
                   "auth": [
                       "Unsecured"
