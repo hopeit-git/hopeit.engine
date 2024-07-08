@@ -41,11 +41,6 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         str: lambda x: x.astype(str),
         date: pd.to_datetime,
         datetime: pd.to_datetime,
-        int | None: lambda x: x.astype(np.int64),
-        float | None: lambda x: x.astype(np.float64),
-        str | None: lambda x: x.astype(str),
-        date  | None: pd.to_datetime,
-        datetime | None: pd.to_datetime,
     }
 
     def __init__(self) -> None:
