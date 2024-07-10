@@ -42,6 +42,7 @@ ______________
     - Made it compatible with pydantic dataclasses
     - Removed `@dataframeobject` annotation in favor of Dataset[T] generic type
     - Introduced `.DataObject` companion type for `@dataframe` conversion to `DataObject`
+    - Fixed type coercion for string fields
 
 
 Version 0.24.2
