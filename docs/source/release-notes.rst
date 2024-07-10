@@ -34,9 +34,9 @@ ______________
     - Made it compatible with pydantic dataclasses
     - Removed `@dataframeobject` annotation in favor of Dataset[T] generic type
     - Introduced `.DataObject` companion type for `@dataframe` conversion to `DataObject`
+    - Fixed type coercion for string fields
   
   - redis-streams: update `StreamsConfig` usage to support new `username` and `password` fields
-
 
   - redis-storage: add support for `username` and `password` in the `connect` method 
 

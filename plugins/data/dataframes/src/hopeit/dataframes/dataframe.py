@@ -38,7 +38,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     DATATYPE_MAPPING = {
         int: lambda x: x.astype(np.int64),
         float: lambda x: x.astype(np.float64),
-        str: lambda x: x.astype(object),
+        str: lambda x: x.astype(str),
         date: pd.to_datetime,
         datetime: pd.to_datetime,
     }

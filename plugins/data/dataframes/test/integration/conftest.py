@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import List
 
 import pandas as pd
@@ -50,6 +50,16 @@ class MyTestDataObject:
 class MyTestJsonDataObject:
     name: str
     data: List[MyTestData.DataObject]  # type: ignore[name-defined]
+
+
+@dataframe
+@dataclass
+class MyTestAllTypesData:
+    int_value: int
+    float_value: float
+    str_value: str
+    date_value: date
+    datetime_value: datetime
 
 
 @pytest.fixture
