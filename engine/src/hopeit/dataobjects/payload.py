@@ -100,7 +100,7 @@ class Payload(Generic[EventPayloadType]):
 
         :param payload: EventPayload, instance of supported object type
         :param key: key name used in generated json when serializing atomic values
-        :param kwargs: Additional arguments to pass to the Pydantic `model_dump` method. 
+        :param kwargs: Additional arguments to pass to the Pydantic `model_dump` method.
             i.e. use `mode='json'` to generate json compatible output instead of python objects.
         :return: dict or list containing mapped representation of data. In case of simple datatypes,
             a key:value form will be generated using key parameter. All objects mappable to dict will
