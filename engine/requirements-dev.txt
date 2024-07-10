@@ -1,5 +1,5 @@
 flake8
-pylint==3.2.3
+pylint
 pytest
 pytest-cov
 pytest-aiohttp>=1.0.5

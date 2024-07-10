@@ -26,7 +26,9 @@ class MockAppEngine(AppEngine):
 
     async def start(self):
         self.stream_manager = MockStreamManager(address="mock")
-        await self.stream_manager.connect()
+        stream_config = self.app_config.server.streams
+
+        await self.stream_manager.connect(stream_config)
         return self
 
     async def stop(self):
@@ -120,7 +122,7 @@ class MockStreamManager(StreamManager):
         self.write_target_max_len: Optional[int] = None
         self.write_count = 0
 
-    async def connect(self):
+    async def connect(self, settings):
         MockStreamManager.closed = False
         return self
 

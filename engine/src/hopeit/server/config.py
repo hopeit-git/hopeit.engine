@@ -5,6 +5,8 @@ from enum import Enum
 from typing import TypeVar, List, Optional
 import re
 import os
+from functools import partial
+from pydantic import SecretStr
 
 from hopeit.dataobjects import dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
@@ -30,11 +32,29 @@ ConfigType = TypeVar("ConfigType")  # pylint: disable=invalid-name
 @dataclass
 class StreamsConfig:
     """
+    Configuration class for stream connection settings.
+
+    :stream_manager: str: Stream manager class name. Default is "hopeit.streams.NoStreamManager".
     :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379
         if using redis stream manager plugin to connect locally
+    :field username: SecretStr: Username for authentication. Default is an empty secret string.
+    :field password: SecretStr: Password for authentication. Default is an empty secret string.
+    :field delay_auto_start_seconds: int: Delay in seconds before auto-starting the stream.
+        Default is 3 seconds.
+    :field initial_backoff_seconds: float: Initial backoff time in seconds for connection retries.
+        Default is 1.0 second.
+    :field max_backoff_seconds: float: Maximum backoff time in seconds for connection retries.
+        Default is 60.0 seconds.
+    :field num_failures_open_circuit_breaker: int: Number of failures before opening the circuit breaker.
+        Default is 1.
+
+    Note:
+        hopeit.engine provides `hopeit.redis_streams.RedisStreamManager` as the default plugin for stream management.
     """
     stream_manager: str = "hopeit.streams.NoStreamManager"
     connection_str: str = '<<NoStreamManager>>'
+    username: SecretStr = field(default_factory=partial(SecretStr, ""))
+    password: SecretStr = field(default_factory=partial(SecretStr, ""))
     delay_auto_start_seconds: int = 3
     initial_backoff_seconds: float = 1.0
     max_backoff_seconds: float = 60.0
@@ -134,7 +154,7 @@ def replace_env_vars(config_json: str) -> str:
         expr = match.group(0)
         var_name = match.group(1)
         value = os.getenv(var_name.upper())
-        if value:
+        if value is not None:
             result = result.replace(expr, value)
 
     missing_env_vars = env_re.findall(result)

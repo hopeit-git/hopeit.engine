@@ -47,7 +47,7 @@ def stream_auth_info(stream_event: StreamEvent):
 
 class StreamManager(ABC):
     """
-    Base class to imeplement stream management of a Hopeit App
+    Base class to implement stream management of a Hopeit App
     """
 
     @staticmethod
@@ -67,7 +67,7 @@ class StreamManager(ABC):
         )
         return impl(address=config.connection_str)
 
-    async def connect(self) -> None:
+    async def connect(self, config: StreamsConfig) -> None:
         """
         Connects to streams service
         """
@@ -243,8 +243,8 @@ class StreamCircuitBreaker(StreamManager):
         self.backoff = 0.0
         self.lock = asyncio.Lock()
 
-    async def connect(self) -> None:
-        await self.stream_manager.connect()
+    async def connect(self, config) -> None:
+        await self.stream_manager.connect(config)
 
     async def close(self) -> None:
         await self.stream_manager.close()
