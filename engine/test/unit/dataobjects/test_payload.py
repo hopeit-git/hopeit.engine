@@ -362,7 +362,6 @@ def test_from_json_dataobject_do_not_validate_null():
     )  # type: ignore
 
 
-@pytest.mark.skip(reason="Enable when pydantic.BaseModel is supported")
 def test_from_json_dataobject_do_not_validate_missing():
     data = '{"id": "test"}'
     assert Payload.from_json(data, MockDataNullable) == MockDataNullable(
@@ -377,7 +376,6 @@ def test_from_obj_dataobject_do_not_validate_none():
     )  # type: ignore
 
 
-@pytest.mark.skip(reason="Enable when pydantic.BaseModel is supported")
 def test_from_obj_dataobject_do_not_validate_missing():
     data = {"id": "test"}
     assert Payload.from_obj(data, MockDataNullable) == MockDataNullable(

@@ -59,7 +59,7 @@ class MockDataValidate:
 @dataclass
 class MockDataNullable:
     id: str
-    value: Optional[int]
+    value: Optional[int] = None
 
 
 @dataobject
