@@ -3,6 +3,7 @@ DataFrames type abstractions.
 """
 import dataclasses
 from datetime import date, datetime, timezone
+from functools import partial
 from typing import Any, Callable, Dict, Generic, Iterator, List, Type, TypeVar
 
 import numpy as np
@@ -35,12 +36,26 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     Do not use this class directly, instead use `@dataframe` class decorator.
     """
 
+    @staticmethod
+    def _series_to_int(x: pd.Series) -> pd.Series:
+        return x.astype(np.int64)
+
+    @staticmethod
+    def _series_to_float(x: pd.Series) -> pd.Series:
+        return x.astype(np.float64)
+
+    @staticmethod
+    def _series_to_str(x: pd.Series) -> pd.Series:
+        return x.astype(str)
+
+    _series_to_utc_datetime = partial(pd.to_datetime, utc=True)
+
     DATATYPE_MAPPING = {
-        int: lambda x: x.astype(np.int64),
-        float: lambda x: x.astype(np.float64),
-        str: lambda x: x.astype(str),
+        int: _series_to_int,
+        float: _series_to_float,
+        str: _series_to_str,
         date: pd.to_datetime,
-        datetime: pd.to_datetime,
+        datetime: _series_to_utc_datetime,
     }
 
     def __init__(self) -> None:
