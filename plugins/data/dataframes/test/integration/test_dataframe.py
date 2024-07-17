@@ -110,6 +110,7 @@ def test_coerce_types_defaults():
         pd.Series(
             [pd.NaT, pd.NaT, pd.NaT],
             name="datetime_value",
+            dtype="datetime64[ns, UTC]"
         ),
     )
 

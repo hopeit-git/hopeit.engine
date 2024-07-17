@@ -13,9 +13,8 @@ from datetime import date, datetime
 from aiohttp import web
 from aiohttp_swagger3 import RapiDocUiSettings
 from aiohttp_swagger3.swagger import Swagger, _handle_swagger_call
-from aiohttp_swagger3.exceptions import ValidatorError
 from aiohttp_swagger3 import validators
-from aiohttp_swagger3.validators import MISSING, _MissingType
+from aiohttp_swagger3.validators import _MissingType
 from aiohttp_swagger3.swagger_route import SwaggerRoute
 from pydantic import TypeAdapter
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaValue
@@ -214,69 +213,14 @@ async def _passthru_handler(request: web.Request) -> Tuple[web.Request, bool]:
     return request, True
 
 
-class CustomizedObjectValidator(validators.Object):  # pragma: no cover
-    """
-    Replacements of Object Validator provided by aiohttp3_swagger
-    to handle multipart form requests
-    """
-    def validate(self, raw_value: Union[None, Dict, _MissingType],
-                 raw: bool) -> Union[None, Dict, _MissingType]:
-        # FIXED: is_missing = isinstance(raw_value, _MissingType)
-        is_missing = (
-            isinstance(raw_value, _MissingType)
-            or ((raw_value is not None) and (not isinstance(raw_value, dict)))
-        )
-        # ORIGINAL CODE: https://github.com/hh-h/aiohttp-swagger3/blob/master/aiohttp_swagger3/validators.py
-        # FIXED END
-        if not is_missing and self.readOnly:
-            raise ValidatorError("property is read-only")
-        if raw_value is None:
-            if self.nullable:
-                return None
-            raise ValidatorError("value should be type of dict")
-        if not isinstance(raw_value, dict):
-            if is_missing:
-                return raw_value
-            raise ValidatorError("value should be type of dict")
-        value = {}
-        errors: Dict = {}
-        for name in self.required:
-            if name not in raw_value:
-                errors[name] = "required property"
-        if errors:
-            raise ValidatorError(errors)
-
-        for name, validator in self.properties.items():
-            prop = raw_value.get(name, MISSING)
-            try:
-                val = validator.validate(prop, raw)
-                if val != MISSING:
-                    value[name] = val
-            except ValidatorError as e:
-                errors[name] = e.error
-        if errors:
-            raise ValidatorError(errors)
-
-        if isinstance(self.additionalProperties, bool):
-            if not self.additionalProperties:
-                additional_properties = raw_value.keys() - value.keys()
-                if additional_properties:
-                    raise ValidatorError({k: "additional property not allowed" for k in additional_properties})
-            else:
-                for key in raw_value.keys() - value.keys():
-                    value[key] = raw_value[key]
-        else:
-            for name in raw_value.keys() - value.keys():
-                validator = self.additionalProperties
-                value[name] = validator.validate(raw_value[name], raw)
-        if self.minProperties is not None and len(value) < self.minProperties:
-            raise ValidatorError(f"number or properties must be more than {self.minProperties}")
-        if self.maxProperties is not None and len(value) > self.maxProperties:
-            raise ValidatorError(f"number or properties must be less than {self.maxProperties}")
-        return value
+def bypass_payload_validation(self, raw_value: Union[None, Dict, _MissingType],
+                              raw: bool) -> Union[None, Dict, _MissingType]:
+    return raw_value
 
 
-setattr(validators.Object, "validate", CustomizedObjectValidator.validate)
+# Bypass swagger3 module payload validation since is done
+# when deserializing payload in web.py module
+setattr(validators.Object, "validate", bypass_payload_validation)
 
 
 def enable_swagger(server_config: ServerConfig, app: web.Application):

@@ -27,6 +27,10 @@ ______________
   but could be features of dataclasses (like i.e. `metadata`) that should be replaced by its
   equivalent in `pydantic`.
 
+  - API validation: now payload validation not done in api module and is deferred and done by `pydantic` when the 
+  payload is being parsed. Response in case of validation error will return `BadRequest` (400) but with
+  different error message than in previous versions.
+
 - Plugins:
 
   - Dataframes
@@ -35,6 +39,7 @@ ______________
     - Removed `@dataframeobject` annotation in favor of Dataset[T] generic type
     - Introduced `.DataObject` companion type for `@dataframe` conversion to `DataObject`
     - Fixed type coercion for string fields
+    - Datetime fields are converted to UTC when dataframe object is initialized
   
   - redis-streams: update `StreamsConfig` usage to support new `username` and `password` fields
 

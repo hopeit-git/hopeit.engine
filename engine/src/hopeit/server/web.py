@@ -7,7 +7,6 @@ Webserver module based on aiohttp to handle web/api requests
 from collections import namedtuple
 
 import aiohttp
-from hopeit.server.serialization import deserialize
 
 setattr(aiohttp.http, "SERVER_SOFTWARE", "")
 
@@ -29,12 +28,10 @@ from aiohttp_cors import CorsConfig
 
 from hopeit.app.config import (  # pylint: disable=ungrouped-imports
     AppConfig,
-    Compression,
     EventDescriptor,
     EventPlugMode,
     EventSettings,
     EventType,
-    Serialization,
     parse_app_config_json,
 )
 from hopeit.app.context import (
@@ -718,17 +715,7 @@ async def _request_process_payload(
     try:
         payload_raw = await request.read()
         if datatype is not None:
-            try:
-                return Payload.from_json(payload_raw, datatype), payload_raw  # type: ignore
-            except AttributeError:
-                # Attempts to deserialize using stream/dataobject serialization methods
-                # (that can be customized by plugins) in case sync `from_json` is not available.
-                return (
-                    await deserialize(  # type: ignore
-                        payload_raw, Serialization.JSON_UTF8, Compression.NONE, datatype
-                    ),
-                    payload_raw,
-                )
+            return Payload.from_json(payload_raw, datatype), payload_raw  # type: ignore
         return None, payload_raw
     except ValueError as e:
         logger.error(context, e)
