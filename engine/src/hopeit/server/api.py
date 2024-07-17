@@ -221,6 +221,8 @@ class CustomizedObjectValidator(validators.Object):  # pragma: no cover
     """
     def validate(self, raw_value: Union[None, Dict, _MissingType],
                  raw: bool) -> Union[None, Dict, _MissingType]:
+        return raw_value
+    
         # FIXED: is_missing = isinstance(raw_value, _MissingType)
         is_missing = (
             isinstance(raw_value, _MissingType)
