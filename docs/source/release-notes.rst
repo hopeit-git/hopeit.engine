@@ -27,9 +27,9 @@ ______________
   but could be features of dataclasses (like i.e. `metadata`) that should be replaced by its
   equivalent in `pydantic`.
 
-  - API validation: now payload validation not done in api module and is deferred and done by pydantic when the 
-  payload is being parsed. Response in case of Validation error will be BadRequest but with different error message
-  than in previous versions.
+  - API validation: now payload validation not done in api module and is deferred and done by `pydantic` when the 
+  payload is being parsed. Response in case of validation error will return `BadRequest` (400) but with
+  different error message than in previous versions.
 
 - Plugins:
 
