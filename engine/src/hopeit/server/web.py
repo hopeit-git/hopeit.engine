@@ -715,17 +715,7 @@ async def _request_process_payload(
     try:
         payload_raw = await request.read()
         if datatype is not None:
-            # try:
             return Payload.from_json(payload_raw, datatype), payload_raw  # type: ignore
-            # except AttributeError:
-            #     # Attempts to deserialize using stream/dataobject serialization methods
-            #     # (that can be customized by plugins) in case sync `from_json` is not available.
-            #     return (
-            #         await deserialize(  # type: ignore
-            #             payload_raw, Serialization.JSON_UTF8, Compression.NONE, datatype
-            #         ),
-            #         payload_raw,
-            #     )
         return None, payload_raw
     except ValueError as e:
         logger.error(context, e)
