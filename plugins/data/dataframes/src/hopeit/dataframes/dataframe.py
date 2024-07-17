@@ -29,26 +29,28 @@ class DataFrameMetadata():
     fields: Dict[str, FieldInfo]
 
 
+# Functions to do type coercion
+def _series_to_int(x: pd.Series) -> pd.Series:
+    return x.astype(np.int64)
+
+
+def _series_to_float(x: pd.Series) -> pd.Series:
+    return x.astype(np.float64)
+
+
+def _series_to_str(x: pd.Series) -> pd.Series:
+    return x.astype(str)
+
+
+_series_to_utc_datetime = partial(pd.to_datetime, utc=True)
+
+
 class DataFrameMixin(Generic[DataFrameT, DataObject]):
     """
     MixIn class to add functionality for DataFrames dataobjects
 
     Do not use this class directly, instead use `@dataframe` class decorator.
     """
-
-    @staticmethod
-    def _series_to_int(x: pd.Series) -> pd.Series:
-        return x.astype(np.int64)
-
-    @staticmethod
-    def _series_to_float(x: pd.Series) -> pd.Series:
-        return x.astype(np.float64)
-
-    @staticmethod
-    def _series_to_str(x: pd.Series) -> pd.Series:
-        return x.astype(str)
-
-    _series_to_utc_datetime = partial(pd.to_datetime, utc=True)
 
     DATATYPE_MAPPING = {
         int: _series_to_int,
