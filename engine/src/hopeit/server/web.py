@@ -7,7 +7,6 @@ Webserver module based on aiohttp to handle web/api requests
 from collections import namedtuple
 
 import aiohttp
-from hopeit.server.serialization import deserialize
 
 setattr(aiohttp.http, "SERVER_SOFTWARE", "")
 
@@ -29,12 +28,10 @@ from aiohttp_cors import CorsConfig
 
 from hopeit.app.config import (  # pylint: disable=ungrouped-imports
     AppConfig,
-    Compression,
     EventDescriptor,
     EventPlugMode,
     EventSettings,
     EventType,
-    Serialization,
     parse_app_config_json,
 )
 from hopeit.app.context import (
