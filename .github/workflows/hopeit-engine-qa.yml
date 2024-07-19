@@ -27,8 +27,8 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: |
-        make locked-deps
-    - name: hopeit.engine QA
-      run: |
-        make qa
+      run: make locked-deps
+    - name: check-engine
+      run: make check-engine
+    - name: test-engine
+      run: make test-engine
