@@ -1,12 +1,16 @@
 import setuptools
 
+
+DEPS = "requirements.txt"
+LOCKED_DEPS = "requirements.lock.3.9"  # Use early supported version to limit version number
+
 version = {}
 with open("src/hopeit/server/version.py") as fp:
     exec(fp.read(), version)
 
 
 def read_requirements_txt():
-    with open("requirements.txt") as fb:
+    with open(DEPS) as fb:
         libs = {}
         for line in fb.readlines():
             for op in (">=", "=="):
@@ -18,7 +22,7 @@ def read_requirements_txt():
     return libs
 
 def read_requirements_lock():
-    with open("requirements.lock") as fb:
+    with open(LOCKED_DEPS) as fb:
         libs = {}
         for line in fb.readlines():
             lv = line.split("==")
@@ -31,10 +35,10 @@ locked_versions = read_requirements_lock()
 
 
 def libversion(lib):
-    lib_source = "requirements.txt"
+    lib_source = DEPS
     lib_version = req_versions.get(lib)
     if lib_version is None:
-        lib_source = "requirements.lock"
+        lib_source = LOCKED_DEPS
         lib_version = locked_versions[lib.split('[')[0]]
     print(lib_source, f"{lib}>={lib_version}")
     return lib_version
