@@ -22,7 +22,7 @@ multidict==6.0.5
 mypy==1.10.1
 mypy-extensions==1.0.0
 nest-asyncio==1.6.0
-numpy==1.13.1
+numpy==2.0.0
 ordered-set==4.1.0
 packaging==24.1
 pandas==2.2.2
