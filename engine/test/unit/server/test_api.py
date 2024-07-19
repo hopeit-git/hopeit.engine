@@ -5,12 +5,12 @@ from copy import deepcopy
 
 import pytest
 from aiohttp import web
-from aiohttp_swagger3.swagger_route import SwaggerRoute  # type: ignore
+from aiohttp_swagger3.swagger_route import SwaggerRoute
 
 from hopeit.server import api
 from hopeit.server.api import app_route_name, APIError
-from mock_app import mock_api_spec, mock_api_app_config, mock_app_api_generated  # type: ignore
-from mock_plugin import mock_plugin_config  # type: ignore
+from mock_app import mock_api_spec, mock_api_app_config, mock_app_api_generated
+from mock_plugin import mock_plugin_config
 
 
 def test_init_empty_spec(mock_api_spec):

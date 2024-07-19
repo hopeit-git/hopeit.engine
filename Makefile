@@ -24,7 +24,8 @@ lock-requirements: clean dev-deps
 	pip freeze > requirements.lock
 
 format-engine:
-	ruff format engine/src/ engine/test/
+	ruff format engine/src/ engine/test/ && \
+	ruff check engine/src/ engine/test/ --fix
 
 check-engine:
 	ruff check engine/src/ engine/test/ && \
@@ -41,7 +42,7 @@ check-apps:
 check: check-engine check-plugins check-apps
 
 test-engine:
-	/bin/bash engine/build/ci-test-engine.sh
+	PYTHONPATH=engine/src/:engine/test/:engine/test/unit/:engine/test/integration/ pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
 
 test-plugins:
 	/bin/bash plugins/build/ci-test-plugins.sh $(PLUGINFOLDER)
