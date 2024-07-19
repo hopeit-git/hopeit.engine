@@ -1,6 +1,7 @@
 """
 Apps Visualizer apps state
 """
+
 from typing import Optional
 import asyncio
 from datetime import datetime, timezone
@@ -20,9 +21,9 @@ _apps: Optional[RuntimeApps] = None
 _expire: float = 0.0
 
 
-async def get_runtime_apps(context: EventContext,
-                           *, refresh: bool = False,
-                           expand_events: bool = False) -> RuntimeApps:
+async def get_runtime_apps(
+    context: EventContext, *, refresh: bool = False, expand_events: bool = False
+) -> RuntimeApps:
     """
     Extract current runtime app_config objects
     """

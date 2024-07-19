@@ -28,9 +28,9 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     
-    - name: Install dependencies
-      run: make locked-deps
-    
+    - name: Install modules
+      run: make ci-setup
+
     - name: Linting
       run: |
         make check-engine & PID_CHECK_ENGINE=$!

@@ -83,8 +83,12 @@ def effective_events_example():
 
 @pytest.fixture
 def cluster_apps_response():
-    server1 = _get_runtime_simple_example("http://test-server1", source="runtime_simple_example.json")
-    server2 = _get_runtime_simple_example("http://test-server2", source="runtime_simple_example.json")
+    server1 = _get_runtime_simple_example(
+        "http://test-server1", source="runtime_simple_example.json"
+    )
+    server2 = _get_runtime_simple_example(
+        "http://test-server2", source="runtime_simple_example.json"
+    )
 
     server1.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers.extend(
         server2.apps[f"simple_example.{APPS_ROUTE_VERSION}"].servers

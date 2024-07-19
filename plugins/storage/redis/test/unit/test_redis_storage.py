@@ -18,7 +18,7 @@ class RedisMockData:
 test_key = str(uuid4())
 test_url = "redis://localhost"
 payload_str = """{"test": "test_redis"}"""
-test_redis = RedisMockData(test='test_redis')
+test_redis = RedisMockData(test="test_redis")
 
 
 async def store_item():
@@ -31,7 +31,7 @@ async def store_item():
 async def store_item_extra_args():
     redis = RedisStorage().connect(address=test_url)
     await redis.store(test_key, test_redis, ex=60)  # ttl 60 secconds
-    assert redis._conn.set_called_with == {'ex': 60}
+    assert redis._conn.set_called_with == {"ex": 60}
     assert test_key in redis._conn.items
     assert redis._conn.items[test_key] == Payload.to_json(test_redis)
 
@@ -58,11 +58,11 @@ async def delete_item():
 
 async def delete_items():
     redis = RedisStorage().connect(address=test_url)
-    await redis.store('my_key1', test_redis)
-    await redis.store('my_key2', test_redis)
-    await redis.delete('my_key1', 'my_key2')
-    assert redis._conn.items.get('my_key1') is None
-    assert redis._conn.items.get('my_key2') is None
+    await redis.store("my_key1", test_redis)
+    await redis.store("my_key2", test_redis)
+    await redis.delete("my_key1", "my_key2")
+    assert redis._conn.items.get("my_key1") is None
+    assert redis._conn.items.get("my_key2") is None
 
 
 async def list_objects():
@@ -71,10 +71,10 @@ async def list_objects():
     assert files == [test_key]
     files = await redis.list_objects(wildcard="my_key*")
     assert files == []
-    await redis.store('my_key1', test_redis)
-    await redis.store('my_key2', test_redis)
+    await redis.store("my_key1", test_redis)
+    await redis.store("my_key2", test_redis)
     files = await redis.list_objects(wildcard="my_key*")
-    assert files == ['my_key1', 'my_key2']
+    assert files == ["my_key1", "my_key2"]
 
 
 async def connect():
@@ -101,8 +101,8 @@ class MockRedisPool:
 
     async def keys(self, pattern: str):
         if pattern == "*":
-            return [k.encode('utf-8') for k in self.items]
-        return [k.encode('utf-8') for k in self.items if fnmatch(k, pattern)]
+            return [k.encode("utf-8") for k in self.items]
+        return [k.encode("utf-8") for k in self.items if fnmatch(k, pattern)]
 
     @staticmethod
     def from_url(url, username, password):
@@ -112,41 +112,41 @@ class MockRedisPool:
 
 @pytest.mark.asyncio
 async def test_set(monkeypatch):
-    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await store_item()
 
 
 async def test_set_extra_args(monkeypatch):
-    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await store_item_extra_args()
 
 
 @pytest.mark.asyncio
 async def test_get(monkeypatch):
-    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await get_item()
 
 
 @pytest.mark.asyncio
 async def test_delete(monkeypatch):
-    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await delete_item()
     await delete_items()
 
 
 @pytest.mark.asyncio
 async def test_list_objects(monkeypatch):
-    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await list_objects()
 
 
 @pytest.mark.asyncio
 async def test_get_item_not_found(monkeypatch):
-    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await get_item_not_found()
 
 
 @pytest.mark.asyncio
 async def test_connect(monkeypatch):
-    monkeypatch.setattr(redis, 'from_url', MockRedisPool.from_url)
+    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await connect()

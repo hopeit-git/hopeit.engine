@@ -31,9 +31,7 @@ def test_dataframes_from_dataframe(sample_pandas_df: pd.DataFrame):
 def test_dataframes_from_array():
     array = np.array([(n, 1.1 * n) for n in range(100)])
     numerical_data = DataFrames.from_array(MyNumericalData, array)
-    assert_series_equal(
-        numerical_data.number, pd.Series(array.T[0], name="number").astype(int)
-    )
+    assert_series_equal(numerical_data.number, pd.Series(array.T[0], name="number").astype(int))
     assert_series_equal(numerical_data.value, pd.Series(array.T[1], name="value"))
 
 
@@ -41,9 +39,7 @@ def test_dataobject_dataframes_conversion(one_element_pandas_df):
     data = DataFrames.from_df(MyTestData, one_element_pandas_df)
     objects = DataFrames.to_dataobjects(data)
     assert objects == [
-        MyTestData.DataObject(
-            number=1, name="test1", timestamp=objects[0].timestamp
-        )
+        MyTestData.DataObject(number=1, name="test1", timestamp=objects[0].timestamp)
     ]
     back_to_dataframe = DataFrames.from_dataobjects(MyTestData, objects)
     assert_frame_equal(DataFrames.df(data), DataFrames.df(back_to_dataframe))

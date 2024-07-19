@@ -1,6 +1,7 @@
 """
 Apps Visualizer plugin module
 """
+
 from hopeit.dataobjects import dataclass, dataobject
 
 
@@ -20,6 +21,7 @@ class AppsVisualizerSettings:
     :field: live_active_treshold_seconds, int, default: 60: number of seconds to consider a node
         has been activated (border will be highlighted)
     """
+
     hosts: str
     refresh_hosts_seconds: int = 60
     live_recent_treshold_seconds: int = 10

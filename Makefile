@@ -12,11 +12,6 @@ dev-deps: deps
 	cd engine && \
 	pip install -U -r requirements-dev.txt
 
-dev: dev-deps
-	make install && \
-	make install-plugins && \
-	make install-examples
-
 locked-deps:
 	cd engine && \
 	pip install -U pip && \
@@ -24,15 +19,33 @@ locked-deps:
 	pip install --force-reinstall -r requirements.lock && \
 	pip install -U -r requirements-dev.txt
 
+ci-setup: locked-deps:
+	make install && \
+	make install-plugins && \
+	make install-examples
+
 lock-requirements: clean dev-deps
 	cd engine && \
 	pip freeze > requirements.lock
 
-format-engine:
-	ruff format engine/src/ engine/test/ && \
-	ruff check engine/src/ engine/test/ --fix
+format-module:
+	ruff format $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/ && \
+	ruff check $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/ --fix
+
+format:
+	make MODULEFOLDER=engine format-module && \
+	make MODULEFOLDER=plugins/auth/basic-auth format-module && \
+	make MODULEFOLDER=plugins/clients/apps-client format-module && \
+	make MODULEFOLDER=plugins/data/dataframes format-module && \
+	make MODULEFOLDER=plugins/ops/apps-visualizer format-module && \
+	make MODULEFOLDER=plugins/ops/config-manager format-module && \
+	make MODULEFOLDER=plugins/ops/log-streamer format-module && \
+	make MODULEFOLDER=plugins/storage/fs format-module && \
+	make MODULEFOLDER=plugins/storage/redis format-module && \
+	make MODULEFOLDER=plugins/streams/redis format-module
 
 check-engine:
+	ruff format --check engine/src/ engine/test/ && \
 	ruff check engine/src/ engine/test/ && \
 	MYPYPATH=engine/src/ mypy --namespace-packages -p hopeit && \
 	MYPYPATH=engine/src:engine/test/ mypy --namespace-packages engine/test/unit/ && \
@@ -40,6 +53,7 @@ check-engine:
 
 check-plugin:
 	cd $(PLUGINFOLDER) && \
+	ruff format --check src/ test/ && \
 	ruff check src/ test/ && \
 	MYPYPATH=src/ mypy --namespace-packages -p hopeit && \
 	MYPYPATH=src:test mypy --namespace-packages test/

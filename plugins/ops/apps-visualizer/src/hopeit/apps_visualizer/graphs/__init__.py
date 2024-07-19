@@ -1,11 +1,18 @@
 """
 Apps Visualizer: graph elements model
 """
+
 from typing import List, Dict
 from enum import Enum
 
 from hopeit.dataobjects import dataclass, dataobject, field
-from hopeit.app.config import AppConnection, AppDescriptor, EventDescriptor, EventType, StreamQueueStrategy
+from hopeit.app.config import (
+    AppConnection,
+    AppDescriptor,
+    EventDescriptor,
+    EventType,
+    StreamQueueStrategy,
+)
 from hopeit.server.names import auto_path
 
 
@@ -43,8 +50,9 @@ class Graph:
     edges: List[Edge]
 
 
-def get_nodes(events: Dict[str, EventDescriptor],
-              *, expanded_view: bool = False) -> Dict[str, Node]:
+def get_nodes(
+    events: Dict[str, EventDescriptor], *, expanded_view: bool = False
+) -> Dict[str, Node]:
     """
     Create Node metadata from EventDescriptors from app_config,
     expanding effective events using engine functionallity.
@@ -59,20 +67,23 @@ def get_nodes(events: Dict[str, EventDescriptor],
             port_name = f"{event_name}.{event_info.type.value}"
             inputs.append(port_name)
             request_node = Node(
-                id=port_name, label=event_info.type.value, type=NodeType.REQUEST, outputs=[port_name]
+                id=port_name,
+                label=event_info.type.value,
+                type=NodeType.REQUEST,
+                outputs=[port_name],
             )
             nodes[port_name] = request_node
 
         if event_info.read_stream:
             queues = event_info.read_stream.queues
             for qid, queue in zip(queues, queues) if expanded_view else [("", "|".join(queues))]:
-                stream_id = f">{event_info.read_stream.name}.{qid}".strip('.')
+                stream_id = f">{event_info.read_stream.name}.{qid}".strip(".")
                 stream_name = f"{event_info.read_stream.name}"
                 if qid not in ("", "AUTO"):
                     stream_name += f".{qid}"
-                stream_node = nodes.get(stream_id, Node(
-                    id=stream_id, label=stream_name, type=NodeType.STREAM
-                ))
+                stream_node = nodes.get(
+                    stream_id, Node(id=stream_id, label=stream_name, type=NodeType.STREAM)
+                )
                 stream_node.slots = sorted(set([*stream_node.slots, *queue.split("|")]))
                 nodes[stream_id] = stream_node
 
@@ -83,20 +94,23 @@ def get_nodes(events: Dict[str, EventDescriptor],
 
         if event_info.write_stream:
             queues = event_info.write_stream.queues
-            if event_info.read_stream and event_info.write_stream.queue_strategy == StreamQueueStrategy.PROPAGATE:
+            if (
+                event_info.read_stream
+                and event_info.write_stream.queue_strategy == StreamQueueStrategy.PROPAGATE
+            ):
                 queues = [
                     qx if qy == "AUTO" else qy
                     for qx in event_info.read_stream.queues
                     for qy in queues
                 ]
             for qid, queue in zip(queues, queues) if expanded_view else [("", "|".join(queues))]:
-                stream_id = f">{event_info.write_stream.name}.{qid}".strip('.')
+                stream_id = f">{event_info.write_stream.name}.{qid}".strip(".")
                 stream_name = f"{event_info.write_stream.name}"
                 if qid not in ("", "AUTO"):
                     stream_name += f".{qid}"
-                stream_node = nodes.get(stream_id, Node(
-                    id=stream_id, label=stream_name, type=NodeType.STREAM
-                ))
+                stream_node = nodes.get(
+                    stream_id, Node(id=stream_id, label=stream_name, type=NodeType.STREAM)
+                )
                 stream_node.slots = sorted(set([*stream_node.slots, *queue.split("|")]))
                 nodes[stream_id] = stream_node
 
@@ -112,26 +126,34 @@ def get_nodes(events: Dict[str, EventDescriptor],
     return nodes
 
 
-def add_app_connections(nodes: Dict[str, Node], *,
-                        app_connections: Dict[str, AppConnection],
-                        events: Dict[str, EventDescriptor]):
+def add_app_connections(
+    nodes: Dict[str, Node],
+    *,
+    app_connections: Dict[str, AppConnection],
+    events: Dict[str, EventDescriptor],
+):
     """
     Add to nodes map, input/output ports for app_connections in order to show call
     dependencies between events.
     """
     for event_name, event_info in events.items():
-        app_key = '.'.join(event_name.split('.', maxsplit=2)[0:2])
+        app_key = ".".join(event_name.split(".", maxsplit=2)[0:2])
         source_node = nodes[event_name]
         if source_node:
             for conn in event_info.connections:
                 app_connection = app_connections[f"{app_key}.{conn.app_connection}"]
-                target_app_key = AppDescriptor(name=app_connection.name, version=app_connection.version).app_key()
+                target_app_key = AppDescriptor(
+                    name=app_connection.name, version=app_connection.version
+                ).app_key()
                 dest_node_name = f"{target_app_key}."
                 if app_connection.plugin_name:
-                    dest_node_name += auto_path(
-                        app_connection.plugin_name,
-                        app_connection.plugin_version or app_connection.version
-                    ) + '.'
+                    dest_node_name += (
+                        auto_path(
+                            app_connection.plugin_name,
+                            app_connection.plugin_version or app_connection.version,
+                        )
+                        + "."
+                    )
                 dest_node_name += f"{conn.event}.{conn.type.value}"
                 dest_node = nodes.get(dest_node_name)
                 if dest_node:
@@ -144,22 +166,13 @@ def get_edges(nodes: Dict[str, Node]):
     """
     Builds Edge list from list of Nodes
     """
-    inputs = {
-        port: node for node in nodes.values() for port in node.inputs
-    }
-    outputs = {
-        port: node for node in nodes.values() for port in node.outputs
-    }
+    inputs = {port: node for node in nodes.values() for port in node.inputs}
+    outputs = {port: node for node in nodes.values() for port in node.outputs}
 
     edges = []
     for k, source in outputs.items():
         target = inputs.get(k)
         if target:
-            edges.append(Edge(
-                id=k,
-                label=k.split(".")[-1],
-                source=source.id,
-                target=target.id
-            ))
+            edges.append(Edge(id=k, label=k.split(".")[-1], source=source.id, target=target.id))
 
     return edges

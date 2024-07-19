@@ -22,15 +22,9 @@ def test_coerce_types_happy():
         datetime_value_opt=[test_datetime, test_datetime, None],
     )
 
-    pd.testing.assert_series_equal(
-        data.int_value, pd.Series([0, 1, 2], name="int_value")
-    )
-    pd.testing.assert_series_equal(
-        data.float_value, pd.Series([1.1, 2.2, 3.0], name="float_value")
-    )
-    pd.testing.assert_series_equal(
-        data.str_value, pd.Series(["a", "B", "42"], name="str_value")
-    )
+    pd.testing.assert_series_equal(data.int_value, pd.Series([0, 1, 2], name="int_value"))
+    pd.testing.assert_series_equal(data.float_value, pd.Series([1.1, 2.2, 3.0], name="float_value"))
+    pd.testing.assert_series_equal(data.str_value, pd.Series(["a", "B", "42"], name="str_value"))
     pd.testing.assert_series_equal(
         data.date_value,
         pd.Series(
@@ -69,9 +63,7 @@ def test_coerce_types_none_values():
     pd.testing.assert_series_equal(
         data.float_value, pd.Series([1.1, 2.2, np.nan], name="float_value")
     )
-    pd.testing.assert_series_equal(
-        data.str_value, pd.Series(["a", "B", "None"], name="str_value")
-    )
+    pd.testing.assert_series_equal(data.str_value, pd.Series(["a", "B", "None"], name="str_value"))
     pd.testing.assert_series_equal(
         data.date_value,
         pd.Series([pd.Timestamp(test_date), pd.NaT, pd.NaT], name="date_value"),
@@ -107,11 +99,7 @@ def test_coerce_types_defaults():
     )
     pd.testing.assert_series_equal(
         data.datetime_value,
-        pd.Series(
-            [pd.NaT, pd.NaT, pd.NaT],
-            name="datetime_value",
-            dtype="datetime64[ns, UTC]"
-        ),
+        pd.Series([pd.NaT, pd.NaT, pd.NaT], name="datetime_value", dtype="datetime64[ns, UTC]"),
     )
 
 

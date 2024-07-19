@@ -20,8 +20,10 @@ async def invoke_logout(context: EventContext):
 async def invoke_postprocess(payload: None, context: EventContext):
     hook = PostprocessHook()
     result = await logout.__postprocess__(payload, context, response=hook)
-    assert hook.del_cookies == [('test_app.test.refresh', (), {'path': '/api/test-app/test/', 'domain': None})]
-    assert result == 'Logged out.'
+    assert hook.del_cookies == [
+        ("test_app.test.refresh", (), {"path": "/api/test-app/test/", "domain": None})
+    ]
+    assert result == "Logged out."
 
 
 async def execute_flow(context):
@@ -31,21 +33,26 @@ async def execute_flow(context):
 
 def _event_context(mock_app_config, plugin_config):  # noqa: F811
     settings = get_event_settings(plugin_config.effective_settings, "logout")
-    cfg = settings(key='auth', datatype=AuthSettings)
+    cfg = settings(key="auth", datatype=AuthSettings)
     iat = datetime.now(tz=timezone.utc)
     timeout = cfg.access_token_expiration
     return EventContext(
         app_config=mock_app_config,
         plugin_config=plugin_config,
-        event_name='logout',
+        event_name="logout",
         settings=settings,
         track_ids={},
         auth_info={
-            'allowed': True,
-            'auth_type': AuthType.REFRESH,
-            'payload': {'id': 'id', 'user': 'test', 'email': 'test@email', 'iat': iat,
-                        'exp': iat + timedelta(seconds=timeout)}
-        }
+            "allowed": True,
+            "auth_type": AuthType.REFRESH,
+            "payload": {
+                "id": "id",
+                "user": "test",
+                "email": "test@email",
+                "iat": iat,
+                "exp": iat + timedelta(seconds=timeout),
+            },
+        },
     )
 
 
@@ -60,6 +67,6 @@ async def test_logout(mock_app_config, plugin_config):  # noqa: F811
 async def test_logout_unauthorized(mock_app_config, plugin_config):  # noqa: F811
     auth.init(mock_app_config.app_key(), mock_app_config.server.auth)
     context = _event_context(mock_app_config, plugin_config)
-    context.auth_info['auth_type'] = "UNKNOWN"
+    context.auth_info["auth_type"] = "UNKNOWN"
     with pytest.raises(Unauthorized):
         await execute_flow(context)

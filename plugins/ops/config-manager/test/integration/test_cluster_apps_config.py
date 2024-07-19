@@ -10,9 +10,7 @@ async def test_cluster_apps_config(
     monkeypatch, cluster_apps_response, server1_apps_response, server2_apps_response
 ):
     def apply_mock_client(module, context):
-        mock_client(
-            module.client, monkeypatch, server1_apps_response, server2_apps_response
-        )
+        mock_client(module.client, monkeypatch, server1_apps_response, server2_apps_response)
 
     plugin_config = config("plugins/ops/config-manager/config/plugin-config.json")
     result = await execute_event(

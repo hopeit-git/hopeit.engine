@@ -1,6 +1,7 @@
 """
 Manage access to server runtime running applications
 """
+
 import socket
 import os
 from typing import Dict
@@ -45,17 +46,11 @@ def get_in_process_config(url: str, expand_events: bool):
     return RuntimeApps(
         apps={
             app_key: RuntimeAppInfo(
-                servers=[ServerInfo(
-                    host_name=socket.gethostname(),
-                    pid=str(os.getpid()),
-                    url=url
-                )],
+                servers=[ServerInfo(host_name=socket.gethostname(), pid=str(os.getpid()), url=url)],
                 app_config=app_engine.app_config,
-                effective_events=_effective_events(app_engine, expand_events=expand_events)
+                effective_events=_effective_events(app_engine, expand_events=expand_events),
             )
             for app_key, app_engine in runtime.server.app_engines.items()
         },
-        server_status={
-            url: ServerStatus.ALIVE
-        }
+        server_status={url: ServerStatus.ALIVE},
     )

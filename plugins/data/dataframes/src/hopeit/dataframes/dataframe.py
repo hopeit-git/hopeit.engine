@@ -1,6 +1,7 @@
 """
 DataFrames type abstractions.
 """
+
 import dataclasses
 from datetime import date, datetime, timezone
 from functools import partial
@@ -24,7 +25,7 @@ DataFrameT = TypeVar("DataFrameT")
 
 
 @dataclasses.dataclass
-class DataFrameMetadata():
+class DataFrameMetadata:
     columns: List[str]
     fields: Dict[str, FieldInfo]
 
@@ -68,9 +69,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(
-        self, **series: pd.Series
-    ):  # pylint: disable=bad-staticmethod-argument
+    def __init_from_series__(self, **series: pd.Series):  # pylint: disable=bad-staticmethod-argument
         df = pd.DataFrame(series)
         df.index.name = None  # Removes index name to avoid colisions with series name
         if self.__data_object__["validate"]:
@@ -106,10 +105,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         return self._from_df(self.__df[key])
 
     def _to_dataobjects(self) -> List[DataObject]:
-        return [
-            self.DataObject(**fields)
-            for fields in self.__df.to_dict(orient="records")
-        ]
+        return [self.DataObject(**fields) for fields in self.__df.to_dict(orient="records")]
 
     def event_id(self, *args, **kwargs) -> str:
         return ""
@@ -153,7 +149,7 @@ def dataframe(
         if hasattr(cls, "__annotations__") and hasattr(cls, "__dataclass_fields__"):
             amended_class = type(
                 cls.__name__,
-                (DataFrameMixin, ) + cls.__mro__,
+                (DataFrameMixin,) + cls.__mro__,
                 dict(cls.__dict__),
             )
             setattr(amended_class, "__init__", DataFrameMixin.__init_from_series__)
@@ -162,7 +158,7 @@ def dataframe(
 
     def add_dataframe_metadata(cls):
         serialized_fields = {k: (v.annotation, v) for k, v in fields(cls).items()}
-        dataobject_type = create_model(cls.__name__+"DataObject", **serialized_fields)
+        dataobject_type = create_model(cls.__name__ + "DataObject", **serialized_fields)
         dataobject_type = dataobject(dataobject_type, unsafe=True)
 
         setattr(cls, "DataObject", dataobject_type)

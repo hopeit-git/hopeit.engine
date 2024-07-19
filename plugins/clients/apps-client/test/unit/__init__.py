@@ -107,9 +107,7 @@ class MockClientSession:
         return cls
 
     @classmethod
-    def set_alternate_response(
-        cls, host: str, status: int, content_type: str = "application/json"
-    ):
+    def set_alternate_response(cls, host: str, status: int, content_type: str = "application/json"):
         cls.alternate[cls._host(host)] = status
         cls.content_type = content_type
         return cls
@@ -206,9 +204,7 @@ class MockClientSession:
         raise IOError("Test error")
 
 
-async def init_mock_client_app(
-    module, monkeypatch, mock_auth, app_config, event_name, response
-):
+async def init_mock_client_app(module, monkeypatch, mock_auth, app_config, event_name, response):
     monkeypatch.setattr(engine, "auth", mock_auth)
     monkeypatch.setattr(module, "auth", mock_auth)
     url_pattern = "{}/api/test-app/{}/{}"

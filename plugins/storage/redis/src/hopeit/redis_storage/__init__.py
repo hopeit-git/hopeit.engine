@@ -2,6 +2,7 @@
 Storage/persistence asynchronous get/set key-values.
 Backed by Redis
 """
+
 from typing import Optional, Type, Generic, Any, List
 
 import redis.asyncio as redis
@@ -9,18 +10,19 @@ import redis.asyncio as redis
 from hopeit.dataobjects import DataObject
 from hopeit.dataobjects.payload import Payload
 
-__all__ = ['RedisStorage']
+__all__ = ["RedisStorage"]
 
 
 class RedisStorage(Generic[DataObject]):
     """
-       Stores and retrieves dataobjects from Redis
-       This class must be initialized with the method connect
-       Example:
-           ```
-           redis_store = RedisStorage().connect(address="redis://hostname:6379")
-           ```
+    Stores and retrieves dataobjects from Redis
+    This class must be initialized with the method connect
+    Example:
+        ```
+        redis_store = RedisStorage().connect(address="redis://hostname:6379")
+        ```
     """
+
     def __init__(self) -> None:
         """
         Setups Redis connection
@@ -98,4 +100,4 @@ class RedisStorage(Generic[DataObject]):
         :param wildcard: str, expected glob-style wildcards
         """
         assert self._conn
-        return [obj.decode('utf-8') for obj in await self._conn.keys(wildcard)]
+        return [obj.decode("utf-8") for obj in await self._conn.keys(wildcard)]

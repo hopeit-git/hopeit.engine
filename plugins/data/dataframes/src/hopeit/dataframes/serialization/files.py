@@ -1,5 +1,4 @@
-"""Support for `@dataframes` serialization to files
-"""
+"""Support for `@dataframes` serialization to files"""
 
 import io
 from importlib import import_module
@@ -59,9 +58,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
     async def load(self, dataset: Dataset) -> EventPayloadType:
         """Loads @dataframe annotated object using Dataset metadata"""
         datatype: Type[DataFrameT] = find_dataframe_type(dataset.datatype)
-        data = await self.storage.get_file(
-            dataset.key, partition_key=dataset.partition_key
-        )
+        data = await self.storage.get_file(dataset.key, partition_key=dataset.partition_key)
         if data is None:
             raise FileNotFoundError(dataset.key)
         df = pd.read_parquet(io.BytesIO(data), engine="pyarrow")
