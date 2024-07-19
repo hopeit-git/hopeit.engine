@@ -1,5 +1,4 @@
-"""Simple storage for trained models using fs-storage
-"""
+"""Simple storage for trained models using fs-storage"""
 
 import io
 import os

@@ -3,6 +3,7 @@ Client Example: Call Unsecured
 --------------------------------------------------------------------
 List all available Something objects connecting to simple-example app
 """
+
 from typing import List, Optional
 
 from hopeit.app.api import event_api
@@ -23,17 +24,13 @@ __api__ = event_api(
             "by partition folder in format YYYY/MM/DD/HH/*",
         )
     ],
-    responses={
-        200: (List[Something], "List Something objects returned by simple-example call")
-    },
+    responses={200: (List[Something], "List Something objects returned by simple-example call")},
 )
 
 logger, extra = app_extra_logger()
 
 
-async def list_something(
-    payload: None, context: EventContext, wildcard: str
-) -> List[Something]:
+async def list_something(payload: None, context: EventContext, wildcard: str) -> List[Something]:
     """Call simple-example endpoint and return list of Something"""
     response: List[Something] = await app_call_list(
         "simple_example_conn_unsecured",

@@ -34,6 +34,9 @@ format-module:
 
 format:
 	make MODULEFOLDER=engine format-module && \
+	make MODULEFOLDER=apps/examples/simple-example format-module && \
+	make MODULEFOLDER=apps/examples/client-example format-module && \
+	make MODULEFOLDER=apps/examples/dataframes-example format-module
 	make MODULEFOLDER=plugins/auth/basic-auth format-module && \
 	make MODULEFOLDER=plugins/clients/apps-client format-module && \
 	make MODULEFOLDER=plugins/data/dataframes format-module && \
@@ -71,6 +74,7 @@ check-plugins:
 
 check-app:
 	cd $(APPFOLDER) && \
+	ruff format src/ test/ --check && \
 	ruff check src/ test/ && \
 	MYPYPATH=src/ mypy --namespace-packages src/ && \
 	MYPYPATH=src/ mypy --namespace-packages test/

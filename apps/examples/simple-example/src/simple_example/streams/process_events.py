@@ -3,6 +3,7 @@ Simple Example: Process Events
 --------------------------------------------------------------------
 Process events submitted by something_event app event
 """
+
 from datetime import datetime, timezone
 from typing import Optional
 import random
@@ -13,7 +14,7 @@ from hopeit.app.context import EventContext
 from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import Something, SomethingStored, Status, StatusType
 
-__steps__ = ['update_status', 'save']
+__steps__ = ["update_status", "save"]
 
 
 logger, extra = app_extra_logger()
@@ -40,10 +41,7 @@ def update_status(payload: Something, context: EventContext) -> Something:
 
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(
-        ts=datetime.now(tz=timezone.utc),
-        type=StatusType.PROCESSED
-    )
+    payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.PROCESSED)
     return payload
 
 
@@ -58,7 +56,4 @@ async def save(payload: Something, context: EventContext) -> SomethingStored:
     logger.info(context, "save", extra=extra(something_id=payload.id, path=fs.path))
     path = await fs.store(payload.id, payload)
     await asyncio.sleep(random.random() * 1.0)
-    return SomethingStored(
-        path=path,
-        payload=payload
-    )
+    return SomethingStored(path=path, payload=payload)

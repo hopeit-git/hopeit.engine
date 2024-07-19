@@ -17,7 +17,9 @@ from hopeit.apps_visualizer.apps import get_runtime_apps
 from hopeit.apps_visualizer.site.visualization import (
     VisualizationOptions,
     visualization_options_api_args,
-)  # noqa: F401
+    visualization_options,  # noqa: F401
+)
+
 
 __steps__ = ["visualization_options", "runtime_apps_config"]
 

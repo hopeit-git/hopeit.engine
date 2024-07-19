@@ -1,5 +1,4 @@
-"""Simple storage for training experiments using fs storage
-"""
+"""Simple storage for training experiments using fs storage"""
 
 from typing import Optional
 
@@ -43,7 +42,9 @@ def get_experiment_partition_key(experiment: Experiment, context: EventContext) 
     return get_partition_key(experiment, partition_dateformat=fs.partition_dateformat)  # type: ignore[type-var]
 
 
-async def load_experiment(experiment_id: str, experiment_partition_key: str, context: EventContext) -> Experiment:
+async def load_experiment(
+    experiment_id: str, experiment_partition_key: str, context: EventContext
+) -> Experiment:
     assert fs is not None
     experiment: Experiment = await fs.get(  # type: ignore[assignment]
         key=experiment_id,

@@ -1,5 +1,4 @@
-"""Example training pipeline for the Iris dataset
-"""
+"""Example training pipeline for the Iris dataset"""
 
 # pylint: disable=invalid-name
 
@@ -49,15 +48,11 @@ __api__ = event_api(
 )
 
 
-async def prepare_experiment(
-    input_data: InputData, context: EventContext
-) -> Experiment:
+async def prepare_experiment(input_data: InputData, context: EventContext) -> Experiment:
     """Initialize experiment"""
     experiment_id = str(uuid.uuid4())
 
-    logger.info(
-        context, "Setting up experiment", extra=extra(experiment_id=experiment_id)
-    )
+    logger.info(context, "Setting up experiment", extra=extra(experiment_id=experiment_id))
 
     experiment = Experiment(
         experiment_id=experiment_id,
@@ -67,8 +62,8 @@ async def prepare_experiment(
 
     location = await experiment_storage.save_experiment(experiment, context)
 
-    experiment.experiment_partition_key = (
-        experiment_storage.get_experiment_partition_key(experiment, context)
+    experiment.experiment_partition_key = experiment_storage.get_experiment_partition_key(
+        experiment, context
     )
 
     logger.info(
@@ -100,15 +95,9 @@ async def prepare_datasets(experiment: Experiment, context: EventContext) -> Exp
         DataFrames.df(X), DataFrames.df(y), test_size=0.2, random_state=42
     )
 
-    experiment.train_features = await Dataset.save(
-        DataFrames.from_df(IrisFeatures, X_train)
-    )
-    experiment.train_labels = await Dataset.save(
-        DataFrames.from_df(IrisLabels, y_train)
-    )
-    experiment.test_features = await Dataset.save(
-        DataFrames.from_df(IrisFeatures, X_test)
-    )
+    experiment.train_features = await Dataset.save(DataFrames.from_df(IrisFeatures, X_train))
+    experiment.train_labels = await Dataset.save(DataFrames.from_df(IrisLabels, y_train))
+    experiment.test_features = await Dataset.save(DataFrames.from_df(IrisFeatures, X_test))
     experiment.test_labels = await Dataset.save(DataFrames.from_df(IrisLabels, y_test))
     return experiment
 

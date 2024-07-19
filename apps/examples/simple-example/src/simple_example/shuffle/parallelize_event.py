@@ -5,6 +5,7 @@ This example will spawn 2 copies of payload data, those are going to be send to 
 and processed in asynchronously / in parallel if multiple nodes are available,
 then submitted to other stream to be updated and saved
 """
+
 from datetime import datetime, timezone
 from typing import Optional, Union
 
@@ -18,14 +19,20 @@ from model import Something, SomethingStored, Status, StatusType
 
 logger, extra = app_extra_logger()
 
-__steps__ = ['fork_something', SHUFFLE, 'process_first_part', 'process_second_part', SHUFFLE, 'update_status', 'save']
+__steps__ = [
+    "fork_something",
+    SHUFFLE,
+    "process_first_part",
+    "process_second_part",
+    SHUFFLE,
+    "update_status",
+    "save",
+]
 
 __api__ = event_api(
     summary="Simple Example: Parallelize Event",
     payload=(Something, "Something object to forked and submitted to be processed concurrently"),
-    responses={
-        200: (str, 'events submitted successfully message')
-    }
+    responses={200: (str, "events submitted successfully message")},
 )
 
 
@@ -53,22 +60,23 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-async def fork_something(payload: Something, context: EventContext) -> Spawn[Union[FirstPart, SecondPart]]:
+async def fork_something(
+    payload: Something, context: EventContext
+) -> Spawn[Union[FirstPart, SecondPart]]:
     """
     Produces 2 variants from payload to be processed in parallel
     """
     logger.info(context, "producing 2 variants of payload", extra=extra(something_id=payload.id))
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(
-        ts=datetime.now(tz=timezone.utc),
-        type=StatusType.SUBMITTED
-    )
+    payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.SUBMITTED)
     yield FirstPart(payload)
     yield SecondPart(payload)
 
 
-async def __postprocess__(payload: Something, context: EventContext, response: PostprocessHook) -> str:  # noqa: C0103
+async def __postprocess__(
+    payload: Something, context: EventContext, response: PostprocessHook
+) -> str:  # noqa: C0103
     assert context.event_info.write_stream
     msg = f"events submitted to stream: {context.event_info.write_stream.name}"
     logger.info(context, msg)
@@ -78,13 +86,13 @@ async def __postprocess__(payload: Something, context: EventContext, response: P
 
 def process_first_part(payload: FirstPart, context: EventContext) -> Something:
     logger.info(context, "Processing FirstPart of id={payload.data.id}")
-    payload.data.id = 'first_' + payload.data.id
+    payload.data.id = "first_" + payload.data.id
     return payload.data
 
 
 def process_second_part(payload: SecondPart, context: EventContext) -> Something:
     logger.info(context, f"Processing SecondPart of id={payload.data.id}")
-    payload.data.id = 'second_' + payload.data.id
+    payload.data.id = "second_" + payload.data.id
     return payload.data
 
 
@@ -99,10 +107,7 @@ def update_status(payload: Something, context: EventContext) -> Something:
 
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(
-        ts=datetime.now(timezone.utc),
-        type=StatusType.PROCESSED
-    )
+    payload.status = Status(ts=datetime.now(timezone.utc), type=StatusType.PROCESSED)
     return payload
 
 
@@ -116,7 +121,4 @@ async def save(payload: Something, context: EventContext) -> SomethingStored:
     assert fs
     logger.info(context, "save", extra=extra(something_id=payload.id, path=fs.path))
     path = await fs.store(payload.id, payload)
-    return SomethingStored(
-        path=path,
-        payload=payload
-    )
+    return SomethingStored(path=path, payload=payload)

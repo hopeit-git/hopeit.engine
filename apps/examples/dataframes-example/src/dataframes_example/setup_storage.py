@@ -1,5 +1,4 @@
-"""Intial setup event for experiment and model storage
-"""
+"""Intial setup event for experiment and model storage"""
 
 from dataframes_example import experiment_storage, model_storage
 from hopeit.app.context import EventContext

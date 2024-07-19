@@ -8,10 +8,11 @@ from hopeit.app.context import EventContext
 from hopeit.apps_visualizer.event_stats.collect import get_stats
 from hopeit.apps_visualizer.site.visualization import (
     visualization_options_api_args,
-)  # noqa: F401
+    visualization_options,  # noqa: F401
+)
 from hopeit.apps_visualizer.apps.events_graph import (
     EventsGraphResult,
-)  # noqa: F401
+)
 from hopeit.apps_visualizer import AppsVisualizerSettings
 
 __steps__ = [

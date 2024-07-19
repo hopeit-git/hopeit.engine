@@ -1,6 +1,7 @@
 """
 Client example module schemas
 """
+
 from hopeit.dataobjects import dataclass, dataobject
 
 

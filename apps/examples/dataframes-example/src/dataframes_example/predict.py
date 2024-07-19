@@ -32,9 +32,7 @@ async def predict(
     """Loads model and predict based on request features"""
     model: DecisionTreeClassifier = await load_experiment_model(experiment_id, context)
 
-    features = DataFrames.from_dataobjects(
-        IrisFeatures, (item.features for item in request.items)
-    )
+    features = DataFrames.from_dataobjects(IrisFeatures, (item.features for item in request.items))
 
     model_predictions = model.predict(DataFrames.df(features))
 
@@ -46,8 +44,6 @@ async def predict(
                 prediction_id=request.prediction_id,
                 prediction=prediction,
             )
-            for request, prediction in zip(
-                request.items, DataFrames.to_dataobjects(predictions)
-            )
+            for request, prediction in zip(request.items, DataFrames.to_dataobjects(predictions))
         ]
     )

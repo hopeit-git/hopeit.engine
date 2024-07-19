@@ -4,11 +4,12 @@ Simple Example: Download Something Streamed
 Download streamd created content as file.
 The PostprocessHook return the requested resource as stream using `prepare_stream_response`.
 """
+
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.dataobjects import BinaryDownload, dataclass
 
-__steps__ = ['get_streamed_data']
+__steps__ = ["get_streamed_data"]
 
 
 @dataclass
@@ -18,9 +19,7 @@ class SomeFile(BinaryDownload):
 
 __api__ = event_api(
     query_args=[("file_name", str, "expected return file name")],
-    responses={
-        200: (SomeFile, "Return content with filename=`file_name`")
-    }
+    responses={200: (SomeFile, "Return content with filename=`file_name`")},
 )
 
 
@@ -31,7 +30,9 @@ async def get_streamed_data(payload: None, context: EventContext, *, file_name: 
     return SomeFile(file_name=file_name)
 
 
-async def __postprocess__(file: SomeFile, context: EventContext, response: PostprocessHook) -> SomeFile:
+async def __postprocess__(
+    file: SomeFile, context: EventContext, response: PostprocessHook
+) -> SomeFile:
     """
     Stream 50 MB of binary content:
     """
@@ -41,7 +42,7 @@ async def __postprocess__(file: SomeFile, context: EventContext, response: Postp
         context,
         content_disposition=f'attachment; filename="{file.file_name}"',
         content_type=file.content_type,
-        content_length=response_length
+        content_length=response_length,
     )
 
     for _ in range(50):

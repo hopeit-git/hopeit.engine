@@ -1,5 +1,4 @@
-"""Iris datasets schemas
-"""
+"""Iris datasets schemas"""
 
 from datetime import datetime
 from typing import List, Optional
@@ -49,6 +48,7 @@ class InputData:
 @dataclass
 class Experiment:
     """Experiment parameters, data and model"""
+
     experiment_id: str
     experiment_dt: datetime
     input_data: Dataset[Iris]

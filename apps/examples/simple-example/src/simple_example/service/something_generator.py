@@ -38,9 +38,7 @@ async def __service__(context: EventContext) -> Spawn[SomethingParams]:
     logger.info(context, "Service seamlessly exit")
 
 
-async def create_something(
-    payload: SomethingParams, context: EventContext
-) -> Something:
+async def create_something(payload: SomethingParams, context: EventContext) -> Something:
     """Create a Something object asynchronously."""
     logger.info(
         context,

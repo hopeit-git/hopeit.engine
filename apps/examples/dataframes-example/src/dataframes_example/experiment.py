@@ -29,7 +29,9 @@ async def retrieve_experiment(
     return await load_experiment(experiment_id, experiment_partition_key, context)
 
 
-def __postprocess__(experiment: Experiment, context: EventContext, response: PostprocessHook) -> Union[Experiment, str]:
+def __postprocess__(
+    experiment: Experiment, context: EventContext, response: PostprocessHook
+) -> Union[Experiment, str]:
     if experiment is None:
         response.status = 404
         return "Experiment not found"

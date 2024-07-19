@@ -4,6 +4,7 @@ Simple Example: Query Something Extended
 Loads Something from disk, update status base on POST body.
 Objects is saved with updated status and history.
 """
+
 from typing import Union, Optional
 
 from hopeit.app.api import event_api
@@ -13,19 +14,19 @@ from hopeit.fs_storage import FileStorage, FileStorageSettings
 from common.validation import validate
 from model import Something, Status, SomethingNotFound
 
-__steps__ = ['load', 'save_with_updated_status']
+__steps__ = ["load", "save_with_updated_status"]
 
 __api__ = event_api(
     summary="Simple Example: Query Something Extended",
     query_args=[
-        ('item_id', str, 'Item Id to read'),
-        ('partition_key', str, 'Partition folder in `YYYY/MM/DD/HH` format')
+        ("item_id", str, "Item Id to read"),
+        ("partition_key", str, "Partition folder in `YYYY/MM/DD/HH` format"),
     ],
     payload=(Status, "Status change for the retrieved object"),
     responses={
         200: (Something, "Something object returned when found"),
-        404: (SomethingNotFound, "Information about not found object")
-    }
+        404: (SomethingNotFound, "Information about not found object"),
+    },
 )
 
 logger, extra = app_extra_logger()
@@ -41,9 +42,14 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-async def load(payload: Status, context: EventContext, *,
-               item_id: str, partition_key: str,
-               update_status: bool = False) -> Union[Something, SomethingNotFound]:
+async def load(
+    payload: Status,
+    context: EventContext,
+    *,
+    item_id: str,
+    partition_key: str,
+    update_status: bool = False,
+) -> Union[Something, SomethingNotFound]:
     """
     Loads json file from filesystem as `Something` instance,
     sets status to specified payload
@@ -81,10 +87,10 @@ async def save_with_updated_status(payload: Something, context: EventContext) ->
     return payload
 
 
-async def __postprocess__(payload: Union[Something, SomethingNotFound],
-                          context: EventContext,
-                          response: PostprocessHook) -> Union[Something, SomethingNotFound]:
+async def __postprocess__(
+    payload: Union[Something, SomethingNotFound], context: EventContext, response: PostprocessHook
+) -> Union[Something, SomethingNotFound]:
     if isinstance(payload, SomethingNotFound):
-        logger.debug(context, '404 - File %s not found', payload.id)
+        logger.debug(context, "404 - File %s not found", payload.id)
         response.status = 404
     return payload

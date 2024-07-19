@@ -5,6 +5,7 @@ Loads 2 Something objects concurrently from disk, combine the results
 using `collector` steps constructor (instantiating an `AsyncCollector`)
 then spawn the items found individually into a stream
 """
+
 import asyncio
 from typing import Union, Optional, List
 
@@ -25,13 +26,15 @@ class ItemsCollected:
     """
     Collected items. Need a dataclass in order to publish to stream
     """
+
     items: List[Something]
 
 
 __steps__ = [
-    collector_step(payload=ItemsInfo).gather(
-        'load_first', 'load_second', 'combine'
-    ), 'result', SHUFFLE, 'spawn'
+    collector_step(payload=ItemsInfo).gather("load_first", "load_second", "combine"),
+    "result",
+    SHUFFLE,
+    "spawn",
 ]
 
 __api__ = event_api(
@@ -39,7 +42,7 @@ __api__ = event_api(
     payload=(ItemsInfo, "Items to read concurrently"),
     responses={
         200: (int, "Number of items spawned (0,1 or 2)"),
-    }
+    },
 )
 
 logger, extra = app_extra_logger()
@@ -55,7 +58,9 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-async def load_first(collector: Collector, context: EventContext) -> Union[Something, SomethingNotFound]:
+async def load_first(
+    collector: Collector, context: EventContext
+) -> Union[Something, SomethingNotFound]:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -65,18 +70,22 @@ async def load_first(collector: Collector, context: EventContext) -> Union[Somet
 
     """
     assert fs
-    items_to_read = await collector['payload']
+    items_to_read = await collector["payload"]
     item_id = items_to_read.item1_id
     await asyncio.sleep(0.1)
     logger.info(context, "load_second", extra=extra(something_id=item_id, path=fs.path))
-    something = await fs.get(key=item_id, datatype=Something, partition_key=items_to_read.partition_key)
+    something = await fs.get(
+        key=item_id, datatype=Something, partition_key=items_to_read.partition_key
+    )
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
         return SomethingNotFound(str(fs.path), item_id)
     return something
 
 
-async def load_second(collector: Collector, context: EventContext) -> Union[Something, SomethingNotFound]:
+async def load_second(
+    collector: Collector, context: EventContext
+) -> Union[Something, SomethingNotFound]:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -86,11 +95,13 @@ async def load_second(collector: Collector, context: EventContext) -> Union[Some
 
     """
     assert fs
-    items_to_read = await collector['payload']
+    items_to_read = await collector["payload"]
     item_id = items_to_read.item2_id
     await asyncio.sleep(0.1)
     logger.info(context, "load_first", extra=extra(something_id=item_id, path=fs.path))
-    something = await fs.get(key=item_id, datatype=Something, partition_key=items_to_read.partition_key)
+    something = await fs.get(
+        key=item_id, datatype=Something, partition_key=items_to_read.partition_key
+    )
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
         return SomethingNotFound(str(fs.path), item_id)
@@ -107,8 +118,8 @@ async def combine(collector: Collector, context: EventContext) -> List[Something
     :param context: EventContext
     :return: List of one or two found Something objects, or emtpy list if non found
     """
-    item1 = await collector['load_first']
-    item2 = await collector['load_second']
+    item1 = await collector["load_first"]
+    item2 = await collector["load_second"]
     results = []
     if isinstance(item1, Something):
         results.append(item1)
@@ -123,7 +134,7 @@ async def result(collector: Collector, context: EventContext) -> ItemsCollected:
     to be published into internal SHUFFLE stream before spawn step.
     This result will be sent to __postprocess__ in order to respond to request.
     """
-    items = await collector['combine']
+    items = await collector["combine"]
     logger.info(context, f"Found {len(items)} items.")
     return ItemsCollected(items)
 
@@ -137,7 +148,9 @@ async def spawn(payload: ItemsCollected, context: EventContext) -> Spawn[Somethi
         yield item
 
 
-async def __postprocess__(payload: ItemsCollected, context: EventContext, response: PostprocessHook):
+async def __postprocess__(
+    payload: ItemsCollected, context: EventContext, response: PostprocessHook
+):
     """
     Process reponse to request, returning only number of items found
     """
