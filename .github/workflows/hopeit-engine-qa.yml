@@ -29,7 +29,11 @@ jobs:
     - name: Install dependencies
       run: make locked-deps
     - name: check-engine
-      run: | 
-        make check-engine &
-        make test-engine &
-        wait
+      run: |
+        make check-engine & PID_CHECK=$!
+        make test-engine & PID_TEST=$!
+        wait $PID_CHECK || CHECK_STATUS=$?
+        wait $PID_TEST || TEST_STATUS=$?
+        if [ -n "$CHECK_STATUS" ] || [ -n "$TEST_STATUS"]; then
+          exit 1
+        fi
