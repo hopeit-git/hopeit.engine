@@ -39,7 +39,12 @@ jobs:
         wait $PID_CHECK_ENGINE || CHECK_ENGINE_STATUS=$?
         wait $PID_CHECK_PLUGINS || CHECK_PLUGINS_STATUS=$?
         wait $PID_CHECK_APPS || CHECK_APPS_STATUS=$?
-        if [ -n "$CHECK_ENGINE_STATUS" ] || [ -n "$CHECK_PLUGINS_STATUS" ] || [ -n "$CHECK_APPS_STATUS" ]; then
+        echo "CHECK_ENGINE_STATUS: $CHECK_ENGINE_STATUS"
+        echo "CHECK_PLUGINS_STATUS: $CHECK_PLUGINS_STATUS"
+        echo "CHECK_APPS_STATUS: $CHECK_APPS_STATUS"
+        if [ -z "$CHECK_ENGINE_STATUS" ] && [ -z "$CHECK_PLUGINS_STATUS" ] && [ -z "$CHECK_APPS_STATUS" ]; then
+          exit 0
+        else
           exit 1
         fi
 
@@ -49,6 +54,8 @@ jobs:
         make test-apps & PID_TEST_APPS=$!
         wait $PID_TEST_PLUGINS || TEST_PLUGINS_STATUS=$?
         wait $PID_TEST_APPS || TEST_APPS_STATUS=$?
+        echo "TEST_PLUGINS_STATUS: $TEST_PLUGINS_STATUS"
+        echo "TEST_APPS_STATUS: $TEST_APPS_STATUS"
         if [ -z "$TEST_PLUGINS_STATUS"] && [ -z "$TEST_APPS_STATUS"]; then
           exit 0
         else
