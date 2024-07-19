@@ -12,6 +12,11 @@ dev-deps: deps
 	cd engine && \
 	pip install -U -r requirements-dev.txt
 
+dev: dev-deps
+	make install && \
+	make install-plugins && \
+	make install-examples
+
 locked-deps:
 	cd engine && \
 	pip install -U pip && \
@@ -33,22 +38,59 @@ check-engine:
 	MYPYPATH=engine/src:engine/test/ mypy --namespace-packages engine/test/unit/ && \
 	MYPYPATH=engine/src:engine/test/ mypy --namespace-packages engine/test/integration/
 
+check-plugin:
+	cd $(PLUGINFOLDER) && \
+	ruff check src/ test/ && \
+	MYPYPATH=src/ mypy --namespace-packages -p hopeit && \
+	MYPYPATH=src:test mypy --namespace-packages test/
+
 check-plugins:
-	/bin/bash plugins/build/ci-static-plugins.sh $(PLUGINFOLDER)
+	make PLUGINFOLDER=plugins/auth/basic-auth check-plugin && \
+	make PLUGINFOLDER=plugins/clients/apps-client check-plugin && \
+	make PLUGINFOLDER=plugins/data/dataframes check-plugin && \
+	make PLUGINFOLDER=plugins/ops/apps-visualizer check-plugin && \
+	make PLUGINFOLDER=plugins/ops/config-manager check-plugin && \
+	make PLUGINFOLDER=plugins/ops/log-streamer check-plugin && \
+	make PLUGINFOLDER=plugins/storage/fs check-plugin && \
+	make PLUGINFOLDER=plugins/storage/redis check-plugin && \
+	make PLUGINFOLDER=plugins/streams/redis check-plugin
+
+check-app:
+	cd $(APPFOLDER) && \
+	ruff check src/ test/ && \
+	MYPYPATH=src/ mypy --namespace-packages src/ && \
+	MYPYPATH=src/ mypy --namespace-packages test/
 
 check-apps:
-	/bin/bash apps/build/ci-static-apps.sh
+	make APPFOLDER=apps/examples/simple-example check-app && \
+	make APPFOLDER=apps/examples/client-example check-app && \
+	make APPFOLDER=apps/examples/dataframes-example check-app
 
 check: check-engine check-plugins check-apps
 
 test-engine:
-	PYTHONPATH=engine/src/:engine/test/:engine/test/unit/:engine/test/integration/ pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
+	pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
+
+test-plugin:
+	pytest -v --cov-fail-under=90 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
 
 test-plugins:
-	/bin/bash plugins/build/ci-test-plugins.sh $(PLUGINFOLDER)
+	make PLUGINFOLDER=plugins/auth/basic-auth test-plugin && \
+	make PLUGINFOLDER=plugins/clients/apps-client test-plugin && \
+	make PLUGINFOLDER=plugins/data/dataframes test-plugin && \
+	make PLUGINFOLDER=plugins/ops/apps-visualizer test-plugin && \
+	make PLUGINFOLDER=plugins/ops/config-manager test-plugin && \
+	make PLUGINFOLDER=plugins/storage/fs test-plugin && \
+	make PLUGINFOLDER=plugins/storage/redis test-plugin && \
+	make PLUGINFOLDER=plugins/streams/redis test-plugin && \
+	make PLUGINFOLDER=plugins/ops/log-streamer test-plugin
+
+test-app:
+	pytest -v --cov-fail-under=90 --cov-report=term --cov=$(APPFOLDER)/src/ $(APPFOLDER)/test/
 
 test-apps:
-	/bin/bash apps/build/ci-test-apps.sh
+	make APPFOLDER=apps/examples/simple-example test-app && \
+	make APPFOLDER=apps/examples/client-example test-app
 
 test: test-engine test-plugins test-apps
 
@@ -118,8 +160,8 @@ update-examples-api:
 	bash apps/examples/dataframes-example/api/create_openapi_file.sh && \
 	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
 
-install-examples:
-	make install && \
+install-plugins: install
+	make PLUGINFOLDER=plugins/auth/basic-auth install-plugin && \
 	make PLUGINFOLDER=plugins/streams/redis install-plugin && \
 	make PLUGINFOLDER=plugins/storage/fs install-plugin && \
 	make PLUGINFOLDER=plugins/storage/redis install-plugin && \
@@ -128,7 +170,9 @@ install-examples:
 	make PLUGINFOLDER=plugins/ops/apps-visualizer install-plugin && \
 	make PLUGINFOLDER=plugins/auth/basic-auth install-plugin && \
 	make PLUGINFOLDER=plugins/clients/apps-client install-plugin && \
-	make PLUGINFOLDER=plugins/data/dataframes PLUGINEXTRAS=pyarrow install-plugin-extras && \
+	make PLUGINFOLDER=plugins/data/dataframes PLUGINEXTRAS=pyarrow install-plugin-extras
+
+install-examples: install install-plugins
 	make APPFOLDER=apps/examples/simple-example install-app && \
 	make APPFOLDER=apps/examples/client-example install-app && \
 	make APPFOLDER=apps/examples/dataframes-example install-app
