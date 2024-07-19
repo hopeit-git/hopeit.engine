@@ -15,7 +15,7 @@ setuptools.setup(
         "dataframes_example",
     ],
     include_package_data=True,
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=[
         f"hopeit.engine[web,cli,redis-streams]=={version['ENGINE_VERSION']}",
         f"hopeit.dataframes[pyarrow]=={version['ENGINE_VERSION']}",

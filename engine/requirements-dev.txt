@@ -23,3 +23,6 @@ uvloop
 pandas 
 pandas-stubs
 pyarrow
+
+# examples/dataframes-example deps
+scikit-learn

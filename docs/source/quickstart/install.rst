@@ -6,7 +6,7 @@ API support and the Command Line interface tools to run a server and manage APIs
 
 hopeit.engine requires:
 
-* Python 3.8.x or above
+* Python 3.9.x or above
 
 1 - To install hopeit.engine with web server and command line interface support using pip on a virtual environment:
 
