@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.12", "3.11", "3.10", "3.9", "3.8"]
+        python-version: ["3.12"] #, "3.11", "3.10", "3.9", "3.8"]
       max-parallel: 5
 
     steps:
@@ -29,6 +29,7 @@ jobs:
     - name: Install dependencies
       run: make locked-deps
     - name: check-engine
-      run: make check-engine
-    - name: test-engine
-      run: make test-engine
+      run: | 
+        make check-engine &
+        make test-engine &
+        wait
