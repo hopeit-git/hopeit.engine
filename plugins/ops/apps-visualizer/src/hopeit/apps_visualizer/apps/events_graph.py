@@ -25,7 +25,8 @@ from hopeit.apps_visualizer.site.visualization import (
     CytoscapeGraph,
     VisualizationOptions,
     visualization_options_api_args,
-)  # noqa: F401  # pylint: disable=unused-import
+    visualization_options,  # noqa: F401
+)
 
 logger, extra = app_extra_logger()
 

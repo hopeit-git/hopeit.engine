@@ -12,6 +12,9 @@ from hopeit.apps_visualizer.site.visualization import (
 )
 from hopeit.apps_visualizer.apps.events_graph import (
     EventsGraphResult,
+    runtime_apps,  # noqa: F401
+    config_graph,  # noqa: F401
+    cytoscape_data,  # noqa: F401
 )
 from hopeit.apps_visualizer import AppsVisualizerSettings
 
