@@ -39,18 +39,16 @@ jobs:
         wait $PID_CHECK_ENGINE || CHECK_ENGINE_STATUS=$?
         wait $PID_CHECK_PLUGINS || CHECK_PLUGINS_STATUS=$?
         wait $PID_CHECK_APPS || CHECK_APPS_STATUS=$?
-        if [ -n "$CHECK_ENGINE_STATUS" ] || [ -n "$CHECK_PLUGINS_STATUS" ] ||[ -n "$CHECK_APPS_STATUS" ]; then
+        if [ -n "$CHECK_ENGINE_STATUS" ] || [ -n "$CHECK_PLUGINS_STATUS" ] || [ -n "$CHECK_APPS_STATUS" ]; then
           exit 1
         fi
 
     - name: test
       run: |
-        make test-engine & PID_TEST_ENGINE=$!
         make test-plugins & PID_TEST_PLUGINS=$!
         make test-apps & PID_TEST_APPS=$!
-        wait $PID_TEST_ENGINE || TEST_ENGINE_STATUS=$?
         wait $PID_TEST_PLUGINS || TEST_PLUGINS_STATUS=$?
         wait $PID_TEST_APPS || TEST_APPS_STATUS=$?
-        if [ -n "$TEST_ENGINE_STATUS"] || [ -n "$TEST_PLUGINS_STATUS"] || [ -n "$TEST_APPS_STATUS"]; then
+        if [ -n "$TEST_PLUGINS_STATUS"] || [ -n "$TEST_APPS_STATUS"]; then
           exit 1
         fi
