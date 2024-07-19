@@ -19,7 +19,7 @@ locked-deps:
 	pip install --force-reinstall -r requirements.lock && \
 	pip install -U -r requirements-dev.txt
 
-ci-setup: locked-deps:
+ci-setup: locked-deps
 	make install && \
 	make install-plugins && \
 	make install-examples
