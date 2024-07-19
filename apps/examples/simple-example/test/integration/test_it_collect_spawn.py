@@ -12,10 +12,6 @@ from simple_example.collector.collect_spawn import ItemsInfo, ItemsCollected
 APP_VERSION = APPS_API_VERSION.replace('.', "x")
 
 
-def test_fail():
-    assert False
-
-
 @pytest.fixture
 def sample_file_ids():
     ids = [str(uuid.uuid4()), str(uuid.uuid4())]

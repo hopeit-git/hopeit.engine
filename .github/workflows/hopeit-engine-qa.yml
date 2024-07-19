@@ -50,13 +50,16 @@ jobs:
 
     - name: test
       run: |
+        make test-engine & PID_TEST_ENGINE=$!
         make test-plugins & PID_TEST_PLUGINS=$!
         make test-apps & PID_TEST_APPS=$!
+        wait $PID_TEST_ENGINE || TEST_ENGINE_STATUS=$?
         wait $PID_TEST_PLUGINS || TEST_PLUGINS_STATUS=$?
         wait $PID_TEST_APPS || TEST_APPS_STATUS=$?
+        echo "TEST_ENGINE_STATUS: $TEST_ENGINE_STATUS"
         echo "TEST_PLUGINS_STATUS: $TEST_PLUGINS_STATUS"
         echo "TEST_APPS_STATUS: $TEST_APPS_STATUS"
-        if [ -z "$TEST_PLUGINS_STATUS"] && [ -z "$TEST_APPS_STATUS"]; then
+        if [ -z "$TEST_ENDING_STATUS"] && [ -z "$TEST_PLUGINS_STATUS"] && [ -z "$TEST_APPS_STATUS"]; then
           exit 0
         else
           exit 1
