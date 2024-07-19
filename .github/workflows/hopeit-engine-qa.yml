@@ -22,26 +22,35 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+    
     - name: Install dependencies
       run: make locked-deps
-    - name: check-engine
+    
+    - name: check
       run: |
         make check-engine & PID_CHECK_ENGINE=$!
         make check-plugins & PID_CHECK_PLUGINS=$!
         make check-apps & PID_CHECK_APPS=$!
-        make test-engine & PID_TEST_ENGINE=$!
-        make test-plugins & PID_TEST_PLUGINS=$!
-        make test-apps & PID_TEST_APPS=$!
         wait $PID_CHECK_ENGINE || CHECK_ENGINE_STATUS=$?
         wait $PID_CHECK_PLUGINS || CHECK_PLUGINS_STATUS=$?
         wait $PID_CHECK_APPS || CHECK_APPS_STATUS=$?
+        if [ -n "$CHECK_ENGINE_STATUS" ] || [ -n "$CHECK_PLUGINS_STATUS" ] ||[ -n "$CHECK_APPS_STATUS" ]; then
+          exit 1
+        fi
+
+    - name: test
+      run: |
+        make test-engine & PID_TEST_ENGINE=$!
+        make test-plugins & PID_TEST_PLUGINS=$!
+        make test-apps & PID_TEST_APPS=$!
         wait $PID_TEST_ENGINE || TEST_ENGINE_STATUS=$?
         wait $PID_TEST_PLUGINS || TEST_PLUGINS_STATUS=$?
         wait $PID_TEST_APPS || TEST_APPS_STATUS=$?
-        if [ -n "$CHECK_ENGINE_STATUS" ] || [ -n "$CHECK_PLUGINS_STATUS" ] ||[ -n "$CHECK_APPS_STATUS" ] || [ -n "$TEST_ENGINE_STATUS"] || [ -n "$TEST_PLUGINS_STATUS"] || [ -n "$TEST_APPS_STATUS"]; then
+        if [ -n "$TEST_ENGINE_STATUS"] || [ -n "$TEST_PLUGINS_STATUS"] || [ -n "$TEST_APPS_STATUS"]; then
           exit 1
         fi
