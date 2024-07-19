@@ -83,7 +83,7 @@ check-apps:
 check: check-engine check-plugins check-apps
 
 test-engine:
-	pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
+	PYTHONPATH=engine/test pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
 
 test-plugin:
 	pytest -v --cov-fail-under=90 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
@@ -100,7 +100,7 @@ test-plugins:
 	make PLUGINFOLDER=plugins/ops/log-streamer test-plugin
 
 test-app:
-	pytest -v --cov-fail-under=90 --cov-report=term --cov=$(APPFOLDER)/src/ $(APPFOLDER)/test/
+	PYTHONPATH=$(APPFOLDER)/test pytest -v --cov-fail-under=90 --cov-report=term --cov=$(APPFOLDER)/src/ $(APPFOLDER)/test/
 
 test-apps:
 	make APPFOLDER=apps/examples/simple-example test-app && \
