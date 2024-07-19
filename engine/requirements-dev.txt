@@ -1,5 +1,4 @@
-flake8
-pylint
+ruff
 pytest
 pytest-cov
 pytest-aiohttp>=1.0.5
@@ -14,8 +13,6 @@ aiofiles
 types-aiofiles
 nest-asyncio
 types-redis
-black
-isort
 
 # Plugin test dependencies
 redis

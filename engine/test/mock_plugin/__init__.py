@@ -21,14 +21,8 @@ def mock_plugin_config():
             }
         },
         events={
-            "plugin_setup": EventDescriptor(
-                type=EventType.SETUP, plug_mode=EventPlugMode.ON_APP
-            ),
-            "plugin_event": EventDescriptor(
-                type=EventType.GET, plug_mode=EventPlugMode.ON_APP
-            ),
+            "plugin_setup": EventDescriptor(type=EventType.SETUP, plug_mode=EventPlugMode.ON_APP),
+            "plugin_event": EventDescriptor(type=EventType.GET, plug_mode=EventPlugMode.ON_APP),
         },
-        server=ServerConfig(
-            logging=LoggingConfig(log_level="DEBUG", log_path="work/logs/test/")
-        ),
+        server=ServerConfig(logging=LoggingConfig(log_level="DEBUG", log_path="work/logs/test/")),
     ).setup()

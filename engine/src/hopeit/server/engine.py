@@ -1,6 +1,7 @@
 """
 Engine module: handle apps load, setup and serving
 """
+
 import asyncio
 import random
 import uuid
@@ -69,9 +70,7 @@ class AppEngine:
         """
         self.app_config = app_config
         self.app_key = app_config.app_key()
-        self.effective_events = self._config_effective_events(
-            app_config, enabled_groups
-        )
+        self.effective_events = self._config_effective_events(app_config, enabled_groups)
         self.plugins = plugins
         self.settings = get_runtime_settings(app_config, plugins)
         self.event_handler: Optional[EventHandler] = None
@@ -97,8 +96,7 @@ class AppEngine:
         streams_present = any(
             True
             for _, event_info in self.effective_events.items()
-            if (event_info.type == EventType.STREAM)
-            or (event_info.write_stream is not None)
+            if (event_info.type == EventType.STREAM) or (event_info.write_stream is not None)
         )
         if streams_present and self.streams_enabled:
             stream_config = self.app_config.server.streams
@@ -122,9 +120,7 @@ class AppEngine:
             if running.locked():
                 await self.stop_event(event_name)
         if self.stream_manager:
-            await asyncio.sleep(
-                (self.app_config.engine.read_stream_timeout + 5000) / 1000
-            )
+            await asyncio.sleep((self.app_config.engine.read_stream_timeout + 5000) / 1000)
             await self.stream_manager.close()
         await stop_app_connections(self.app_key)
         logger.info(__name__, f"Stopped app={self.app_key}")
@@ -171,13 +167,9 @@ class AppEngine:
         :return: result of executing the event. In case of multiple results yield from event,
         last item will be returned. If no items are yield, None will be returned.
         """
-        assert (
-            self.event_handler is not None
-        ), "event_handler not created. Call `start()`."
+        assert self.event_handler is not None, "event_handler not created. Call `start()`."
         if self.streams_enabled and (context.event_info.write_stream is not None):
-            assert (
-                self.stream_manager
-            ), "stream_manager not initialized. Call `start()`."
+            assert self.stream_manager, "stream_manager not initialized. Call `start()`."
         event_info = self.effective_events[context.event_name]
         batch_size = context.settings.stream.batch_size
         batch = []
@@ -229,22 +221,17 @@ class AppEngine:
         """
         Publish payload in configured one or more queues for a given configured stream
         """
-        assert (
-            self.stream_manager is not None
-        ), "stream_manager not created. Call `start()`."
+        assert self.stream_manager is not None, "stream_manager not created. Call `start()`."
         assert event_info.write_stream is not None, "write_stream name not configured"
         assert context.settings.stream.compression, "stream compression not configured"
-        assert (
-            context.settings.stream.serialization
-        ), "stream serialization not configured"
+        assert context.settings.stream.serialization, "stream serialization not configured"
 
         for configured_queue in event_info.write_stream.queues:
             stream_name = event_info.write_stream.name
             if (
                 upstream_queue != StreamQueue.AUTO
                 and configured_queue == StreamQueue.AUTO
-                and event_info.write_stream.queue_strategy
-                == StreamQueueStrategy.PROPAGATE
+                and event_info.write_stream.queue_strategy == StreamQueueStrategy.PROPAGATE
             ):
                 stream_name += f".{upstream_queue}"
             elif configured_queue != StreamQueue.AUTO:
@@ -415,9 +402,7 @@ class AppEngine:
             for result in await asyncio.gather(*batch):
                 last_res = result
         if last_context:
-            logger.stats(
-                last_context, extra=extra(prefix="metrics.stream.", **stats.calc())
-            )
+            logger.stats(last_context, extra=extra(prefix="metrics.stream.", **stats.calc()))
         if test_mode:
             self._running[event_name].release()
         if last_err is not None:
@@ -446,11 +431,7 @@ class AppEngine:
         log_info = {"app_key": self.app_key, "event_name": event_name}
         wait = self.app_config.server.streams.delay_auto_start_seconds
         if wait > 0:
-            wait = (
-                int(wait / 2)
-                + random.randint(0, wait)
-                - random.randint(0, int(wait / 2))
-            )
+            wait = int(wait / 2) + random.randint(0, wait) - random.randint(0, int(wait / 2))
             logger.info(
                 __name__,
                 f"Start reading stream: waiting seconds={wait}...",
@@ -471,13 +452,9 @@ class AppEngine:
 
             event_config = self.effective_events[event_name]
             stream_info = event_config.read_stream
-            assert (
-                stream_info
-            ), f"No read_stream section in config for event={event_name}"
+            assert stream_info, f"No read_stream section in config for event={event_name}"
             event_settings = get_event_settings(self.settings, event_name)
-            assert not self._running[
-                event_name
-            ].locked(), f"Event already running {event_name}"
+            assert not self._running[event_name].locked(), f"Event already running {event_name}"
             await self._running[event_name].acquire()
 
             for queue in stream_info.queues:
@@ -527,9 +504,7 @@ class AppEngine:
             return last_res
         except (AssertionError, NotImplementedError) as e:
             logger.error(__name__, e)
-            logger.error(
-                __name__, f"Unexpectedly stopped read stream for event={event_name}"
-            )
+            logger.error(__name__, f"Unexpectedly stopped read stream for event={event_name}")
             return e
 
     async def _process_stream_event(
@@ -578,9 +553,7 @@ class AppEngine:
             return result
         except CancelledError as e:
             extra_info = {**log_info, "name": stream_name, "queue": queue}
-            logger.error(
-                context, "Cancelled", extra=extra(prefix="stream.", **extra_info)
-            )
+            logger.error(context, "Cancelled", extra=extra(prefix="stream.", **extra_info))
             logger.failed(context, extra=extra(prefix="stream.", **extra_info))
             stats.inc(error=True)
             return e
@@ -636,20 +609,14 @@ class AppEngine:
         await self._running[event_name].acquire()
         wait = self.app_config.server.streams.delay_auto_start_seconds
         if wait > 0:
-            wait = (
-                int(wait / 2)
-                + random.randint(0, wait)
-                - random.randint(0, int(wait / 2))
-            )
+            wait = int(wait / 2) + random.randint(0, wait) - random.randint(0, int(wait / 2))
             logger.info(
                 __name__,
                 f"Start service: waiting seconds={wait}...",
                 extra=extra(prefix="service.", **log_info),
             )
             await asyncio.sleep(wait)
-        logger.info(
-            __name__, "Starting service...", extra=extra(prefix="service.", **log_info)
-        )
+        logger.info(__name__, "Starting service...", extra=extra(prefix="service.", **log_info))
         event_config = self.effective_events[event_name]
         impl = find_event_handler(
             app_config=self.app_config, event_name=event_name, event_info=event_config
@@ -659,9 +626,7 @@ class AppEngine:
             service_handler is not None
         ), f"{event_name} must implement method `__service__(context) -> Spawn[...]` to run as a service"
         event_settings = get_event_settings(self.settings, event_name)
-        context = self._service_event_context(
-            event_name=event_name, event_settings=event_settings
-        )
+        context = self._service_event_context(event_name=event_name, event_settings=event_settings)
         last_result = None
         if self._running[event_name].locked():
             async for payload in service_handler(context):
@@ -684,9 +649,7 @@ class AppEngine:
                         )
                         break
                 except CancelledError as e:
-                    logger.error(
-                        context, "Cancelled", extra=extra(prefix="service.", **log_info)
-                    )
+                    logger.error(context, "Cancelled", extra=extra(prefix="service.", **log_info))
                     logger.failed(context, extra=extra(prefix="service.", **log_info))
                     last_result = e
                 except Exception as e:  # pylint: disable=broad-except
@@ -697,12 +660,8 @@ class AppEngine:
                     self._running[event_name].release()
                     return last_result
         else:
-            logger.info(
-                __name__, "Stopped service.", extra=extra(prefix="service.", **log_info)
-            )
-        logger.info(
-            __name__, "Finished service.", extra=extra(prefix="service.", **log_info)
-        )
+            logger.info(__name__, "Stopped service.", extra=extra(prefix="service.", **log_info))
+        logger.info(__name__, "Finished service.", extra=extra(prefix="service.", **log_info))
         return last_result
 
     def is_running(self, event_name) -> bool:
@@ -746,9 +705,7 @@ class AppEngine:
                     app_config=app_config, event_name=event_name, event_info=event_info
                 )
                 # Add events resultant of splitting steps on SHUFFLE (stages)
-                splits = split_event_stages(
-                    app_config.app, event_name, event_info, impl
-                )
+                splits = split_event_stages(app_config.app, event_name, event_info, impl)
                 effective_events.update(**splits)
                 # Add associated SERVICE events to streams
                 if event_info.type == EventType.STREAM and hasattr(impl, "__service__"):
@@ -780,9 +737,7 @@ class AppEngine:
             elif datatype is DataObject:
                 for type_name in event_info.dataobjects:
                     datatype = find_datobject_type(type_name)
-                    datatypes[
-                        f"{datatype.__module__}.{datatype.__qualname__}"
-                    ] = datatype
+                    datatypes[f"{datatype.__module__}.{datatype.__qualname__}"] = datatype
         if len(datatypes) == 0:
             raise NotImplementedError(
                 f"No data types found to read from stream in event={event_name}. "
@@ -828,8 +783,7 @@ class Server:
         """
         logger.info(__name__, f"Starting app={app_config.app_key()}...")
         plugins = [
-            self.app_engine(app_key=plugin.app_key()).app_config
-            for plugin in app_config.plugins
+            self.app_engine(app_key=plugin.app_key()).app_config for plugin in app_config.plugins
         ]
         app_engine = await AppEngine(
             app_config=app_config, plugins=plugins, enabled_groups=enabled_groups

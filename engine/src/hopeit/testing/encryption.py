@@ -1,18 +1,15 @@
 """
 Simple encryption tools for testing development
 """
+
 from pathlib import Path
 from typing import Union
 
 from cryptography.fernet import Fernet
 
-__all__ = [
-    'setup_encryption',
-    'encrypt',
-    'decrypt'
-]
+__all__ = ["setup_encryption", "encrypt", "decrypt"]
 
-key_file: Path = Path.home() / '.hopeit' / 'test.key'
+key_file: Path = Path.home() / ".hopeit" / "test.key"
 
 
 def setup_encryption(path_to_key_file: Union[str, Path]):

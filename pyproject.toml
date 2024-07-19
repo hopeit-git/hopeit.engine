@@ -1,0 +1,5 @@
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint.extend-per-file-ignores]
+"engine/test/**/test_*.py" = ["F401", "F811"]

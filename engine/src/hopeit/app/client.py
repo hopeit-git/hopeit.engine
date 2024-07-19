@@ -2,6 +2,7 @@
 Base class and helper functions to defined and invoke external apps
 using clients plugins.
 """
+
 from typing import Optional, Type, List, Dict
 from abc import ABC
 from importlib import import_module
@@ -27,6 +28,7 @@ class AppConnectionNotFound(ClientException):
 
 class UnhandledResponse(ClientException):
     """Exception for unhandled responses"""
+
     def __init__(self, message, response, status):
         super().__init__(message)
         self.response = response
@@ -37,12 +39,16 @@ class Client(ABC):
     """
     Base class to imeplement stream management of a Hopeit App
     """
+
     @staticmethod
     def create(app_config: AppConfig, app_connection: str):
         connection_info = app_config.app_connections[app_connection]
-        cm_comps = connection_info.client.split('.')
-        module_name, impl_name = '.'.join(cm_comps[:-1]), cm_comps[-1]
-        logger.info(__name__, f"Importing Client module: {module_name} implementation: {impl_name}...")
+        cm_comps = connection_info.client.split(".")
+        module_name, impl_name = ".".join(cm_comps[:-1]), cm_comps[-1]
+        logger.info(
+            __name__,
+            f"Importing Client module: {module_name} implementation: {impl_name}...",
+        )
         module = import_module(module_name)
         impl = getattr(module, impl_name)
         logger.info(__name__, f"Creating {impl_name} for app_connection {app_connection}...")
@@ -60,10 +66,16 @@ class Client(ABC):
         """
         raise NotImplementedError()
 
-    async def call(self, event_name: str,
-                   *, datatype: Type[EventPayloadType], payload: Optional[EventPayload],
-                   context: EventContext,
-                   responses: Optional[Dict[int, Type[EventPayloadType]]], **kwargs) -> List[EventPayloadType]:
+    async def call(
+        self,
+        event_name: str,
+        *,
+        datatype: Type[EventPayloadType],
+        payload: Optional[EventPayload],
+        context: EventContext,
+        responses: Optional[Dict[int, Type[EventPayloadType]]],
+        **kwargs,
+    ) -> List[EventPayloadType]:
         """
         Implement invocation to external apps in the configured app_connection.
 
@@ -116,11 +128,16 @@ def app_client(app_connection: str, context: EventContext) -> Client:
         )
 
 
-async def app_call(app_connection: str,
-                   *, event: str, datatype: Type[EventPayloadType],
-                   payload: EventPayload, context: EventContext,
-                   responses: Optional[Dict[int, Type[EventPayloadType]]] = None,
-                   **kwargs) -> EventPayloadType:
+async def app_call(
+    app_connection: str,
+    *,
+    event: str,
+    datatype: Type[EventPayloadType],
+    payload: EventPayload,
+    context: EventContext,
+    responses: Optional[Dict[int, Type[EventPayloadType]]] = None,
+    **kwargs,
+) -> EventPayloadType:
     """
     Invokes event in external app using configured app_connection, for events that return
     a single item.
@@ -136,16 +153,26 @@ async def app_call(app_connection: str,
     """
     client = app_client(app_connection, context)
     results = await client.call(
-        event, datatype=datatype, payload=payload, context=context, responses=responses, **kwargs
+        event,
+        datatype=datatype,
+        payload=payload,
+        context=context,
+        responses=responses,
+        **kwargs,
     )
     return results[0]
 
 
-async def app_call_list(app_connection: str,
-                        *, event: str, datatype: Type[EventPayloadType],
-                        payload: EventPayload, context: EventContext,
-                        responses: Optional[Dict[int, Type[EventPayloadType]]] = None,
-                        **kwargs) -> List[EventPayloadType]:
+async def app_call_list(
+    app_connection: str,
+    *,
+    event: str,
+    datatype: Type[EventPayloadType],
+    payload: EventPayload,
+    context: EventContext,
+    responses: Optional[Dict[int, Type[EventPayloadType]]] = None,
+    **kwargs,
+) -> List[EventPayloadType]:
     """
     Invokes event in external app using configured app_connection, for events that return
     a list or collection of items.
@@ -161,5 +188,10 @@ async def app_call_list(app_connection: str,
     """
     client = app_client(app_connection, context)
     return await client.call(
-        event, datatype=datatype, payload=payload, context=context, responses=responses, **kwargs
+        event,
+        datatype=datatype,
+        payload=payload,
+        context=context,
+        responses=responses,
+        **kwargs,
     )

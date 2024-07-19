@@ -1,6 +1,7 @@
 """
 Server/Engine logging module
 """
+
 import logging
 import os
 import socket
@@ -17,17 +18,19 @@ from hopeit.app.context import EventContext
 from hopeit.server.errors import json_exc
 from hopeit.server.config import ServerConfig, LoggingConfig
 
-DEFAULT_ENGINE_LOGGER = 'engine_logger_default'
+DEFAULT_ENGINE_LOGGER = "engine_logger_default"
 LOG_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(message)s | %(extra)s"
 WARNINGS_LOG_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(message)s | "
 
-__all__ = ['extra_values',
-           'combined',
-           'setup_app_logger',
-           'engine_logger',
-           'extra_logger',
-           'format_extra_values',
-           'EngineLoggerWrapper']
+__all__ = [
+    "extra_values",
+    "combined",
+    "setup_app_logger",
+    "engine_logger",
+    "extra_logger",
+    "format_extra_values",
+    "EngineLoggerWrapper",
+]
 
 
 class EventLoggerWrapper:
@@ -59,7 +62,7 @@ class EventLoggerWrapper:
 def _logger_name(app: AppDescriptor, name: str):
     host = socket.gethostname()
     pid = os.getpid()
-    base_name = name.split('$')[0]
+    base_name = name.split("$")[0]
     return f"{app.name} {app.version} {base_name} {host} {pid}"
 
 
@@ -69,12 +72,9 @@ def _engine_logger_name(name: str):
     return f"{version.ENGINE_NAME} {version.ENGINE_VERSION} {name} {host} {pid}"
 
 
-def extra_values(required_fields: Iterable[str], *, prefix='extra.', **kwargs) -> Dict[str, str]:
-    values = {
-        **{k: kwargs[k] for k in required_fields},
-        **kwargs
-    }
-    return {'extra': format_extra_values(values, prefix=prefix)}
+def extra_values(required_fields: Iterable[str], *, prefix="extra.", **kwargs) -> Dict[str, str]:
+    values = {**{k: kwargs[k] for k in required_fields}, **kwargs}
+    return {"extra": format_extra_values(values, prefix=prefix)}
 
 
 def extra_logger():
@@ -82,13 +82,11 @@ def extra_logger():
 
 
 def combined(*args) -> Dict[str, str]:
-    return {'extra': ' | '.join(x['extra'] for x in args)}
+    return {"extra": " | ".join(x["extra"] for x in args)}
 
 
-def format_extra_values(values: Dict[str, Any], prefix: str = '') -> str:
-    return ' | '.join(
-        f"{prefix}{k}={_format_value(v)}" for k, v in values.items()
-    )
+def format_extra_values(values: Dict[str, Any], prefix: str = "") -> str:
+    return " | ".join(f"{prefix}{k}={_format_value(v)}" for k, v in values.items())
 
 
 def _format_value(v: Any) -> str:
@@ -100,13 +98,12 @@ def _format_value(v: Any) -> str:
 
 
 def _enrich_extra(logger_kwargs, context: Union[str, EventContext], msg=None):
-    logger_kwargs['extra'] = logger_kwargs.get('extra', {'extra': ''})
+    logger_kwargs["extra"] = logger_kwargs.get("extra", {"extra": ""})
     if isinstance(context, EventContext):
-        logger_kwargs['extra']['extra'] += f" | {format_extra_values(context.track_ids)}"
+        logger_kwargs["extra"]["extra"] += f" | {format_extra_values(context.track_ids)}"
     if isinstance(msg, Exception):
-        logger_kwargs['extra']['extra'] += \
-            f" | trace={json_exc(msg)}"
-    logger_kwargs['extra']['extra'] = logger_kwargs['extra']['extra'].lstrip('| ')
+        logger_kwargs["extra"]["extra"] += f" | trace={json_exc(msg)}"
+    logger_kwargs["extra"]["extra"] = logger_kwargs["extra"]["extra"].lstrip("| ")
 
 
 def setup_extra_fields_extractor(module, *, event_settings: EventSettings):
@@ -128,7 +125,9 @@ def _console_handler(logger_name: str, formatter: logging.Formatter):
     return ch
 
 
-def _setup_standard_logger(logger_name: str, config: LoggingConfig, log_format: str = LOG_FORMAT) -> logging.Logger:
+def _setup_standard_logger(
+    logger_name: str, config: LoggingConfig, log_format: str = LOG_FORMAT
+) -> logging.Logger:
     """
     Creates a python logger using server logging configuration.
     By default all loggers are created with a file handler.
@@ -166,6 +165,7 @@ class EngineLoggerWrapper:
     Wrapper around standard python Logger to be used in engine modules.
     Provides additional functionallity to log extra info and metrics.
     """
+
     engine_logger: logging.Logger = logging.getLogger("bootstrap")
     loggers: Dict[str, logging.Logger] = {}
 
@@ -174,10 +174,13 @@ class EngineLoggerWrapper:
         return self
 
     def init_server(self, server_config: ServerConfig):
-        _setup_standard_logger("py.warnings", config=server_config.logging, log_format=WARNINGS_LOG_FORMAT)
+        _setup_standard_logger(
+            "py.warnings", config=server_config.logging, log_format=WARNINGS_LOG_FORMAT
+        )
         logging.captureWarnings(True)
         EngineLoggerWrapper.engine_logger = _setup_standard_logger(
-            _engine_logger_name("engine"), config=server_config.logging)
+            _engine_logger_name("engine"), config=server_config.logging
+        )
         return self
 
     def init_app(self, app_config: AppConfig, plugins: List[AppConfig]):
@@ -187,13 +190,12 @@ class EngineLoggerWrapper:
         assert app_config.server
         events = [
             *app_config.events.keys(),
-            *[k for plugin in plugins for k in plugin.events.keys()]
+            *[k for plugin in plugins for k in plugin.events.keys()],
         ]
         for event_name in events:
             logger_name = _logger_name(app_config.app, event_name)
             if logger_name not in self.loggers:
-                logger = _setup_standard_logger(
-                    logger_name, config=app_config.server.logging)
+                logger = _setup_standard_logger(logger_name, config=app_config.server.logging)
                 self.loggers[logger_name] = logger
         return self
 
@@ -202,19 +204,19 @@ class EngineLoggerWrapper:
         return self.loggers[logger_name]
 
     def start(self, context: EventContext, *args, **kwargs) -> None:
-        self.info(context, 'START', *args, **kwargs)
+        self.info(context, "START", *args, **kwargs)
 
     def failed(self, context: EventContext, *args, **kwargs) -> None:
-        self.error(context, 'FAILED', *args, **kwargs)
+        self.error(context, "FAILED", *args, **kwargs)
 
     def ignored(self, context: EventContext, *args, **kwargs) -> None:
-        self.warning(context, 'IGNORED', *args, **kwargs)
+        self.warning(context, "IGNORED", *args, **kwargs)
 
     def done(self, context: EventContext, *args, **kwargs) -> None:
-        self.info(context, 'DONE', *args, **kwargs)
+        self.info(context, "DONE", *args, **kwargs)
 
     def stats(self, context: EventContext, *args, **kwargs) -> None:
-        self.info(context, 'STATS', *args, **kwargs)
+        self.info(context, "STATS", *args, **kwargs)
 
     def debug(self, context: Union[str, EventContext], msg, *args, **kwargs) -> None:
         _enrich_extra(kwargs, context, msg)  # type: ignore
@@ -228,7 +230,7 @@ class EngineLoggerWrapper:
         if isinstance(context, str):
             self.engine_logger.info(f"[{context}] {msg}", *args, **kwargs)
         else:
-            self._logger(context).info(msg, *args, **kwargs)   # type: ignore
+            self._logger(context).info(msg, *args, **kwargs)  # type: ignore
 
     def warning(self, context: Union[str, EventContext], msg, *args, **kwargs) -> None:
         _enrich_extra(kwargs, context, msg)  # type: ignore
@@ -252,7 +254,7 @@ def setup_app_logger(module, *, app_config: AppConfig, name: str, event_settings
     Standard fields to be logged are `%(asctime)s | %(levelname)s | %(name)s | %(message)s | `
     Specific apps can require for extra fields per event, configurabe in EventDescriptor
     """
-    if hasattr(module, 'logger') and not isinstance(module.logger, EventLoggerWrapper):
+    if hasattr(module, "logger") and not isinstance(module.logger, EventLoggerWrapper):
         assert app_config.server
         logger_name = _logger_name(app_config.app, name)
         logger = EngineLoggerWrapper.loggers.get(logger_name)

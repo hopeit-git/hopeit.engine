@@ -3,7 +3,7 @@ from hopeit.app.context import EventContext
 from hopeit.dataobjects import DataObject
 from hopeit.dataobjects.payload import Payload
 
-__steps__ = ['entry_point']
+__steps__ = ["entry_point"]
 
 logger, extra = app_extra_logger()
 

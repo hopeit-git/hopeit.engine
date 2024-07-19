@@ -24,6 +24,7 @@ from hopeit.server.config import (
 @dataclass
 class MockData:
     """MockData object"""
+
     value: str
 
 
@@ -73,9 +74,7 @@ def mock_app_config():
             "mock_spawn_event": {
                 "stream": {"target_max_len": 10, "throttle_ms": 100, "batch_size": 2}
             },
-            "mock_shuffle_event": {
-                "stream": {"target_max_len": 10, "throttle_ms": 100}
-            },
+            "mock_shuffle_event": {"stream": {"target_max_len": 10, "throttle_ms": 100}},
             "mock_timeout": {"response_timeout": 2.0},
             "custom_extra_settings": {"custom_setting": {"custom": "value"}},
         },
@@ -153,9 +152,7 @@ def mock_app_config():
             "mock_stream_response": EventDescriptor(type=EventType.GET),
             "mock_file_response_content_type": EventDescriptor(type=EventType.GET),
             "mock_auth": EventDescriptor(type=EventType.GET, auth=[AuthType.BASIC]),
-            "mock_post_auth": EventDescriptor(
-                type=EventType.POST, auth=[AuthType.BASIC]
-            ),
+            "mock_post_auth": EventDescriptor(type=EventType.POST, auth=[AuthType.BASIC]),
             "mock_collector": EventDescriptor(type=EventType.POST),
             "mock_timeout": EventDescriptor(type=EventType.GET),
             "mock_read_write_stream": EventDescriptor(
@@ -241,12 +238,8 @@ def mock_api_app_config():
                 type=EventType.MULTIPART,
                 route="mock-app-api/test/mock-app-api-multipart",
             ),
-            "mock-app-api-get-list": EventDescriptor(
-                type=EventType.GET, auth=[AuthType.REFRESH]
-            ),
-            "mock-app-api-query-args": EventDescriptor(
-                type=EventType.GET, auth=[AuthType.REFRESH]
-            ),
+            "mock-app-api-get-list": EventDescriptor(type=EventType.GET, auth=[AuthType.REFRESH]),
+            "mock-app-api-query-args": EventDescriptor(type=EventType.GET, auth=[AuthType.REFRESH]),
             "mock-app-noapi": EventDescriptor(type=EventType.GET),
             "mock_file_response_content_type": EventDescriptor(type=EventType.GET),
         },
@@ -369,9 +362,7 @@ def mock_api_spec():
                                     "schema": {
                                         "type": "object",
                                         "required": ["mock-app-api-post"],
-                                        "properties": {
-                                            "mock-app-api-post": {"type": "integer"}
-                                        },
+                                        "properties": {"mock-app-api-post": {"type": "integer"}},
                                         "description": "mock-app-api-post integer payload",
                                     }
                                 }
@@ -442,9 +433,7 @@ def mock_api_spec():
                                 "encoding": {
                                     "field1": {"contentType": "text/plain"},
                                     "field2": {"contentType": "application/json"},
-                                    "file": {
-                                        "contentType": "application/octect-stream"
-                                    },
+                                    "file": {"contentType": "application/octect-stream"},
                                 },
                             }
                         },
@@ -458,9 +447,7 @@ def mock_api_spec():
                                         "type": "object",
                                         "required": ["mock-app-api-multipart"],
                                         "properties": {
-                                            "mock-app-api-multipart": {
-                                                "type": "integer"
-                                            }
+                                            "mock-app-api-multipart": {"type": "integer"}
                                         },
                                         "description": "mock-app-api-multipart integer payload",
                                     }
@@ -511,9 +498,7 @@ def mock_api_spec():
                             "content": {
                                 "application/json": {
                                     "schema": {
-                                        "items": {
-                                            "$ref": "#/components/schemas/MockData"
-                                        },
+                                        "items": {"$ref": "#/components/schemas/MockData"},
                                         "type": "array",
                                     }
                                 }
@@ -592,9 +577,7 @@ def mock_api_spec():
                             "content": {
                                 "application/json": {
                                     "schema": {
-                                        "items": {
-                                            "$ref": "#/components/schemas/MockData"
-                                        },
+                                        "items": {"$ref": "#/components/schemas/MockData"},
                                         "type": "array",
                                     }
                                 }
@@ -642,9 +625,7 @@ def mock_api_spec():
                     "responses": {
                         "200": {
                             "content": {
-                                "image/png": {
-                                    "schema": {"format": "binary", "type": "string"}
-                                }
+                                "image/png": {"schema": {"format": "binary", "type": "string"}}
                             },
                             "description": "",
                         }

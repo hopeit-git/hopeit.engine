@@ -35,7 +35,8 @@ class Payload(Generic[EventPayloadType]):
         if datatype in _ATOMIC_TYPES:
             return (
                 RootModel[Dict[str, datatype]]  # type: ignore[valid-type]
-                .model_validate_json(json_str, **kwargs).root[key]
+                .model_validate_json(json_str, **kwargs)
+                .root[key]
             )
         try:
             return RootModel[datatype].model_validate_json(json_str, **kwargs).root  # type: ignore[valid-type]
@@ -47,10 +48,12 @@ class Payload(Generic[EventPayloadType]):
             raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
-    def from_obj(data: Union[dict, list],
-                 datatype: Type[EventPayloadType],
-                 key: str = 'value',
-                 **kwargs) -> EventPayloadType:
+    def from_obj(
+        data: Union[dict, list],
+        datatype: Type[EventPayloadType],
+        key: str = "value",
+        **kwargs,
+    ) -> EventPayloadType:
         """
         Converts dictionary to desired datatype
 
@@ -69,7 +72,7 @@ class Payload(Generic[EventPayloadType]):
         except ValidationError:
             raise
         except Exception as e:
-            if not hasattr(datatype, '__data_object__'):
+            if not hasattr(datatype, "__data_object__"):
                 raise TypeError(f"{datatype} must be annotated with @dataobject") from e
             raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
@@ -89,12 +92,12 @@ class Payload(Generic[EventPayloadType]):
         try:
             return RootModel(payload).model_dump_json(**kwargs)
         except Exception as e:
-            if not hasattr(payload, '__data_object__'):
+            if not hasattr(payload, "__data_object__"):
                 raise TypeError(f"{type(payload)} must be annotated with @dataobject") from e
             raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
-    def to_obj(payload: EventPayloadType, key: str = 'value', **kwargs) -> Union[dict, list, set]:
+    def to_obj(payload: EventPayloadType, key: str = "value", **kwargs) -> Union[dict, list, set]:
         """
         Converts event payload to dictionary or list
 
@@ -114,13 +117,16 @@ class Payload(Generic[EventPayloadType]):
                 raise TypeError(f"Cannot serialize {type(payload)} as `dict`, `list` or `set`")
             return serialized
         except Exception as e:
-            if not hasattr(payload, '__data_object__'):
+            if not hasattr(payload, "__data_object__"):
                 raise TypeError(f"{type(payload)} must be annotated with @dataobject") from e
             raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
-    def parse_form_field(field_data: Union[str, dict], datatype: Type[EventPayloadType],
-                         key: str = 'value') -> EventPayloadType:
+    def parse_form_field(
+        field_data: Union[str, dict],
+        datatype: Type[EventPayloadType],
+        key: str = "value",
+    ) -> EventPayloadType:
         """Helper to parse dataobjects from form-fields where encoding type is not correctly set to json"""
         if isinstance(field_data, str):
             return Payload.from_json(field_data, datatype, key)

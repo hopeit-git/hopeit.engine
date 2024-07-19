@@ -3,7 +3,7 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PostprocessHook
 from . import MockData
 
-__steps__ = ['produce_messages']
+__steps__ = ["produce_messages"]
 
 logger, extra = app_extra_logger()
 
@@ -14,5 +14,7 @@ async def produce_messages(payload: str, context: EventContext) -> Spawn[MockDat
         yield MockData(f"stream: {payload}.{i}")
 
 
-async def __postprocess__(payload: MockData, context: EventContext, response: PostprocessHook) -> MockData:
+async def __postprocess__(
+    payload: MockData, context: EventContext, response: PostprocessHook
+) -> MockData:
     return payload

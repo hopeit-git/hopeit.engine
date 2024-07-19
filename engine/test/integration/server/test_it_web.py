@@ -18,8 +18,8 @@ from hopeit.server.web import (
 )
 
 from mock_engine import MockStreamManager, MockEventHandler
-from mock_app import MockResult, mock_app_config, mock_event_setup  # type: ignore  # noqa: F401
-from mock_plugin import mock_plugin_config, plugin_setup  # type: ignore  # noqa: F401
+from mock_app import MockResult, mock_app_config, mock_event_setup  # type: ignore
+from mock_plugin import mock_plugin_config, plugin_setup  # type: ignore
 
 
 async def call_get_mock_event(client):
@@ -101,10 +101,7 @@ async def call_get_fail_request(client):
     )
     assert res.status == 500
     result = (await res.read()).decode()
-    assert (
-        result
-        == '{"msg":"Test for error","tb":["AssertionError: Test for error\\n"]}'
-    )
+    assert result == '{"msg":"Test for error","tb":["AssertionError: Test for error\\n"]}'
 
 
 async def call_post_mock_event(client):
@@ -191,10 +188,7 @@ async def call_multipart_mock_event(client):
         assert res.headers.get("X-Track-Session-Id") == "test_session_id"
         assert res.headers.get("X-Track-Request-Id") == "test_request_id"
         result = (await res.read()).decode()
-        assert (
-            result
-            == '{"value":"field1=value1 field2=value2 attachment=test_attachment ok"}'
-        )
+        assert result == '{"value":"field1=value1 field2=value2 attachment=test_attachment ok"}'
 
 
 async def call_multipart_mock_event_plain_text_json(client):
@@ -230,10 +224,7 @@ async def call_multipart_mock_event_plain_text_json(client):
         assert res.headers.get("X-Track-Session-Id") == "test_session_id"
         assert res.headers.get("X-Track-Request-Id") == "test_request_id"
         result = (await res.read()).decode()
-        assert (
-            result
-            == '{"value":"field1=value1 field2=value2 attachment=test_attachment ok"}'
-        )
+        assert result == '{"value":"field1=value1 field2=value2 attachment=test_attachment ok"}'
 
 
 async def call_multipart_mock_event_bad_request(client):
@@ -292,10 +283,7 @@ async def call_post_fail_request(client):
     )
     assert res.status == 500
     result = (await res.read()).decode()
-    assert (
-        result
-        == '{"msg":"Test for error","tb":["AssertionError: Test for error\\n"]}'
-    )
+    assert result == '{"msg":"Test for error","tb":["AssertionError: Test for error\\n"]}'
 
 
 async def call_post_mock_collector(client):
@@ -365,7 +353,7 @@ async def call_get_mock_timeout_exceeded(client):
     )
     assert res.status == 500
     result = (await res.read()).decode().lower()
-    assert 'response timeout exceeded seconds=2.0' in result
+    assert "response timeout exceeded seconds=2.0" in result
 
 
 async def call_get_file_response(client):
@@ -379,9 +367,7 @@ async def call_get_file_response(client):
     assert res.headers.get("X-Track-Session-Id") == "test_session_id"
     assert res.headers.get("X-Track-Request-Id")
     assert res.headers.get("X-Track-Request-Ts")
-    assert (
-        res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
-    )
+    assert res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
     assert res.headers.get("Content-Type") == "text/plain"
     result = (await res.read()).decode()
     assert result == "mock_file_response test file_response"
@@ -398,9 +384,7 @@ async def call_get_stream_response(client):
     assert res.headers.get("X-Track-Session-Id") == "test_session_id"
     assert res.headers.get("X-Track-Request-Id")
     assert res.headers.get("X-Track-Request-Ts")
-    assert (
-        res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
-    )
+    assert res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
     assert res.headers.get("Content-Type") == "application/octet-stream"
     assert res.headers.get("Content-length") == "48"
     result = await res.read()
@@ -418,9 +402,7 @@ async def call_get_file_response_content_type(client):
     assert res.headers.get("X-Track-Session-Id") == "test_session_id"
     assert res.headers.get("X-Track-Request-Id")
     assert res.headers.get("X-Track-Request-Ts")
-    assert (
-        res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
-    )
+    assert res.headers.get("Content-Disposition") == f'attachment; filename="{file_name}"'
     assert res.headers.get("Content-Type") == "image/png"
     result = (await res.read()).decode()
     assert result == file_name
@@ -465,10 +447,7 @@ async def call_get_mock_auth_event_unauthorized(client):
     )
     assert res.status == 401
     result = (await res.read()).decode()
-    assert (
-        result
-        == '{"msg":"Unsecured","tb":["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
-    )
+    assert result == '{"msg":"Unsecured","tb":["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
 
 
 async def call_post_mock_auth_event(client):
@@ -496,10 +475,7 @@ async def call_post_mock_auth_event_unauthorized(client):
     )
     assert res.status == 401
     result = (await res.read()).decode()
-    assert (
-        result
-        == '{"msg":"Unsecured","tb":["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
-    )
+    assert result == '{"msg":"Unsecured","tb":["hopeit.app.errors.Unauthorized: Unsecured\\n"]}'
 
 
 async def call_get_plugin_event_on_app(client):
@@ -552,8 +528,8 @@ async def stop_test_server():
 
 
 async def start_test_server(
-    mock_app_config,  # noqa: F811
-    mock_plugin_config,  # noqa: F811
+    mock_app_config,
+    mock_plugin_config,
     streams: bool,
     enabled_groups: List[str],
 ):
@@ -568,9 +544,9 @@ async def start_test_server(
 
 async def _setup(
     monkeypatch,
-    mock_app_config,  # noqa: F811
-    mock_plugin_config,  # noqa: F811
-    aiohttp_client,  # noqa: F811
+    mock_app_config,
+    mock_plugin_config,
+    aiohttp_client,
     streams: bool,
     enabled_groups: List[str],
 ):
@@ -581,9 +557,7 @@ async def _setup(
     api.clear()
     if enabled_groups is None:
         enabled_groups = []
-    await start_test_server(
-        mock_app_config, mock_plugin_config, streams, enabled_groups
-    )
+    await start_test_server(mock_app_config, mock_plugin_config, streams, enabled_groups)
     return await aiohttp_client(web.web_server)
 
 
@@ -604,10 +578,10 @@ def loop():
 @pytest.mark.asyncio
 async def test_endpoints(
     monkeypatch,
-    mock_app_config,  # noqa: F811
-    mock_plugin_config,  # noqa: F811
+    mock_app_config,
+    mock_plugin_config,
     aiohttp_client,
-):  # noqa: F811
+):
     test_client = await _setup(
         monkeypatch, mock_app_config, mock_plugin_config, aiohttp_client, False, []
     )
@@ -664,10 +638,10 @@ async def test_endpoints(
 @pytest.mark.asyncio
 async def test_start_streams_on_startup(
     monkeypatch,
-    mock_app_config,  # noqa: F811
-    mock_plugin_config,  # noqa: F811
+    mock_app_config,
+    mock_plugin_config,
     aiohttp_client,
-):  # noqa: F811
+):
     test_client = await _setup(
         monkeypatch, mock_app_config, mock_plugin_config, aiohttp_client, True, []
     )

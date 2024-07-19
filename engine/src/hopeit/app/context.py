@@ -1,8 +1,21 @@
 """
 Context information and handling
 """
-from typing import AsyncGenerator, AsyncIterator, Callable, Generic, TypeVar, \
-    Dict, Optional, Any, Tuple, Union, List, Mapping
+
+from typing import (
+    AsyncGenerator,
+    AsyncIterator,
+    Callable,
+    Generic,
+    TypeVar,
+    Dict,
+    Optional,
+    Any,
+    Tuple,
+    Union,
+    List,
+    Mapping,
+)
 from abc import ABC, abstractmethod
 from pathlib import Path
 from datetime import datetime, timezone
@@ -12,13 +25,17 @@ from aiohttp import web
 from multidict import CIMultiDictProxy, MultiDict, CIMultiDict, MultiMapping, istr
 from stringcase import titlecase  # type: ignore
 
-from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, Env, EventSettings, EventType
+from hopeit.app.config import (
+    AppConfig,
+    AppDescriptor,
+    EventDescriptor,
+    Env,
+    EventSettings,
+    EventType,
+)
 
 
-__all__ = ['EventContext',
-           'PostprocessHook',
-           'PreprocessHook',
-           'NoopMultiparReader']
+__all__ = ["EventContext", "PostprocessHook", "PreprocessHook", "NoopMultiparReader"]
 
 
 class EventContext:
@@ -35,51 +52,54 @@ class EventContext:
     :param event_info: EventDescriptor of the event executed
     :param track_ids: dict of keys and id values to be tracked
     """
-    def __init__(self, *,
-                 app_config: AppConfig,
-                 plugin_config: AppConfig,
-                 event_name: str,
-                 settings: EventSettings,
-                 track_ids: Dict[str, str],
-                 auth_info: Dict[str, Any]):
+
+    def __init__(
+        self,
+        *,
+        app_config: AppConfig,
+        plugin_config: AppConfig,
+        event_name: str,
+        settings: EventSettings,
+        track_ids: Dict[str, str],
+        auth_info: Dict[str, Any],
+    ):
         self.app_key: str = app_config.app_key()
         self.plugin_key: str = plugin_config.app_key()
         self.app: AppDescriptor = app_config.app
         self.env: Env = {**plugin_config.env, **app_config.env}
         self.event_name = event_name
         self.settings = settings
-        base_event = event_name.split('$')[0]
+        base_event = event_name.split("$")[0]
         self.event_info: EventDescriptor = plugin_config.events[base_event]
         self.creation_ts: datetime = datetime.now(tz=timezone.utc)
         self.auth_info = auth_info
         track_fields = [
-            'track.operation_id',
-            'track.client_app_key',
-            'track.client_event_name',
+            "track.operation_id",
+            "track.client_app_key",
+            "track.client_event_name",
             *app_config.engine.track_headers,
-            *(settings.logging.stream_fields
-              if self.event_info.type == EventType.STREAM
-              else [])
+            *(settings.logging.stream_fields if self.event_info.type == EventType.STREAM else []),
         ]
-        self.track_ids = {
-            k: track_ids[k] for k in track_fields if k in track_ids
-        }
-        self.track_ids['event.app'] = self.app_key
+        self.track_ids = {k: track_ids[k] for k in track_fields if k in track_ids}
+        self.track_ids["event.app"] = self.app_key
         if self.plugin_key != self.app_key:
-            self.track_ids['event.plugin'] = self.plugin_key
+            self.track_ids["event.plugin"] = self.plugin_key
 
 
-class PostprocessStreamResponseHook():
+class PostprocessStreamResponseHook:
     """
     Post process stream response hook
 
     Useful to stream content and avoid memory overhead.
     """
+
     def __init__(self, content_disposition: str, content_type: str, content_length: int):
-        self.headers: Mapping = MultiDict({
-            "Content-Disposition": content_disposition,
-            "Content-Type": content_type,
-        })
+        self.headers: Mapping = MultiDict(
+            {
+                "Content-Disposition": content_disposition,
+                "Content-Type": content_type,
+            }
+        )
         self.resp = web.StreamResponse(headers=self.headers)
         self.resp.content_type = content_type
         self.resp.content_length = content_length
@@ -94,7 +114,7 @@ class PostprocessStreamResponseHook():
 class TestingResp:
     def __init__(self):
         self.headers = MultiDict()
-        self.data = b''
+        self.data = b""
 
 
 class PostprocessTestingStreamResponseHook(PostprocessStreamResponseHook):
@@ -103,29 +123,33 @@ class PostprocessTestingStreamResponseHook(PostprocessStreamResponseHook):
 
     Useful to stream content and avoid memory overhead.
     """
+
     def __init__(self, content_disposition: str, content_type: str, content_length: int):
         super().__init__(content_disposition, content_type, content_length)
         self.resp: TestingResp = TestingResp()  # type: ignore
-        self.headers = MultiDict({
-            "Content-Disposition": content_disposition,
-            "Content-Type": content_type,
-            "Content-Length": str(content_length),
-        })
+        self.headers = MultiDict(
+            {
+                "Content-Disposition": content_disposition,
+                "Content-Type": content_type,
+                "Content-Length": str(content_length),
+            }
+        )
 
     async def prepare(self, request):
-        self.resp.data = b''
+        self.resp.data = b""
 
     async def write(self, data: bytes):
         self.resp.data += data
 
 
-class PostprocessHook():
+class PostprocessHook:
     """
     Post process hook that keeps additional changes to add to response on
     `__postprocess__(...)` event methods.
 
     Useful to set cookies, change status and set additional headers in web responses.
     """
+
     def __init__(self, request: Optional[web.BaseRequest] = None):
         self.headers: Dict[str, str] = {}
         self.cookies: Dict[str, Tuple[str, tuple, dict]] = {}
@@ -137,23 +161,30 @@ class PostprocessHook():
         self.request = request
 
     async def prepare_stream_response(
-        self, context: EventContext, content_disposition: str, content_type: str, content_length: int
+        self,
+        context: EventContext,
+        content_disposition: str,
+        content_type: str,
+        content_length: int,
     ):
         """
         Prepare stream response allow to send file like objects as stream response.
         """
         if self.request:
-            self.stream_response = PostprocessStreamResponseHook(content_disposition, content_type, content_length)
+            self.stream_response = PostprocessStreamResponseHook(
+                content_disposition, content_type, content_length
+            )
         else:
-            self.stream_response = PostprocessTestingStreamResponseHook(content_disposition,
-                                                                        content_type, content_length)
-        self.headers.update(
-            self.stream_response.headers
+            self.stream_response = PostprocessTestingStreamResponseHook(
+                content_disposition, content_type, content_length
+            )
+        self.headers.update(self.stream_response.headers)
+        self.stream_response.resp.headers.update(
+            {
+                **self.headers,
+                **{f"X-{re.sub(' ', '-', titlecase(k))}": v for k, v in context.track_ids.items()},
+            }
         )
-        self.stream_response.resp.headers.update({
-            **self.headers,
-            **{f"X-{re.sub(' ', '-', titlecase(k))}": v for k, v in context.track_ids.items()}
-        })
         self.content_type = self.stream_response.headers["Content-Type"]
 
         await self.stream_response.prepare(self.request)  # type: ignore
@@ -183,32 +214,27 @@ class BodyPartReaderProtocol(ABC):
     Required functionallity for BodyPartReader implementation
     to be used in PreprocessHook
     """
-    @abstractmethod
-    async def read_chunk(self, size: Optional[int] = None) -> bytes:
-        ...
 
     @abstractmethod
-    async def text(self, *, encoding: Optional[str] = None) -> str:
-        ...
+    async def read_chunk(self, size: Optional[int] = None) -> bytes: ...
 
     @abstractmethod
-    async def json(self, *, encoding: Optional[str] = None) -> Optional[Dict[str, Any]]:
-        ...
+    async def text(self, *, encoding: Optional[str] = None) -> str: ...
+
+    @abstractmethod
+    async def json(self, *, encoding: Optional[str] = None) -> Optional[Dict[str, Any]]: ...
 
     @property
     @abstractmethod
-    def name(self) -> Optional[str]:
-        ...
+    def name(self) -> Optional[str]: ...
 
     @property
     @abstractmethod
-    def filename(self) -> Optional[str]:
-        ...
+    def filename(self) -> Optional[str]: ...
 
     @property
     @abstractmethod
-    def headers(self) -> MultiMapping[str]:
-        ...
+    def headers(self) -> MultiMapping[str]: ...
 
 
 class MultipartReaderProtocol(ABC):
@@ -220,28 +246,27 @@ class MultipartReaderProtocol(ABC):
     @abstractmethod
     def __aiter__(
         self,
-    ) -> AsyncIterator["BodyPartReaderProtocol"]:
-        ...
+    ) -> AsyncIterator["BodyPartReaderProtocol"]: ...
 
     @abstractmethod
     async def __anext__(
         self,
-    ) -> Optional[Union["MultipartReaderProtocol", BodyPartReaderProtocol]]:
-        ...
+    ) -> Optional[Union["MultipartReaderProtocol", BodyPartReaderProtocol]]: ...
 
 
 class NoopMultiparReader(MultipartReaderProtocol):
     pass
 
 
-_MultipartReader = TypeVar('_MultipartReader', bound=MultipartReaderProtocol)
-_BodyPartReader = TypeVar('_BodyPartReader', bound=BodyPartReaderProtocol)
+_MultipartReader = TypeVar("_MultipartReader", bound=MultipartReaderProtocol)
+_BodyPartReader = TypeVar("_BodyPartReader", bound=BodyPartReaderProtocol)
 
 
 class PreprocessFileHook(Generic[_BodyPartReader]):
     """
     Hook to read files from multipart requests
     """
+
     def __init__(self, *, name: str, file_name: str, data: _BodyPartReader):
         self.name = name
         self.file_name = file_name
@@ -288,6 +313,7 @@ class PreprocessHeaders:
     """
     Wrapper to receive request headers in `__preprocess__` functions
     """
+
     def __init__(self, request_headers: MultiMapping[str]) -> None:
         self._headers = request_headers
 
@@ -310,10 +336,15 @@ class PreprocessHook(Generic[_MultipartReader]):
     Preprocess hook that handles information available in the request to be accessed
     from `__preprocess__(...)` event method when defined.
     """
-    def __init__(self, *, headers: MultiMapping[str],
-                 payload_raw: Optional[bytes] = None,
-                 multipart_reader: Optional[_MultipartReader] = None,
-                 file_hook_factory: Callable = PreprocessFileHook):
+
+    def __init__(
+        self,
+        *,
+        headers: MultiMapping[str],
+        payload_raw: Optional[bytes] = None,
+        multipart_reader: Optional[_MultipartReader] = None,
+        file_hook_factory: Callable = PreprocessFileHook,
+    ):
         self.headers = PreprocessHeaders(headers)
         self.payload_raw = payload_raw
         self._multipart_reader = multipart_reader
@@ -342,8 +373,10 @@ class PreprocessHook(Generic[_MultipartReader]):
                 if field.name is not None:
                     if field.filename:
                         self._args[field.name] = field.filename
-                        yield self.file_hook_factory(name=field.name, file_name=field.filename, data=field)
-                    elif field.headers.get(istr("Content-Type")) == 'application/json':
+                        yield self.file_hook_factory(
+                            name=field.name, file_name=field.filename, data=field
+                        )
+                    elif field.headers.get(istr("Content-Type")) == "application/json":
                         self._args[field.name] = await field.json()
                     else:
                         self._args[field.name] = await field.text()

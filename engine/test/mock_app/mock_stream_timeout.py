@@ -3,7 +3,7 @@ import asyncio
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
 
-__steps__ = ['wait']
+__steps__ = ["wait"]
 
 from mock_app import MockData, MockResult
 

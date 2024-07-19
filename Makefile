@@ -23,8 +23,14 @@ lock-requirements: clean dev-deps
 	cd engine && \
 	pip freeze > requirements.lock
 
+format-engine:
+	ruff format engine/src/ engine/test/
+
 check-engine:
-	/bin/bash engine/build/ci-static-engine.sh
+	ruff check engine/src/ engine/test/ && \
+	MYPYPATH=engine/src/ mypy --namespace-packages -p hopeit && \
+	MYPYPATH=engine/src:engine/test/ mypy --namespace-packages engine/test/unit/ && \
+	MYPYPATH=engine/src:engine/test/ mypy --namespace-packages engine/test/integration/
 
 check-plugins:
 	/bin/bash plugins/build/ci-static-plugins.sh $(PLUGINFOLDER)

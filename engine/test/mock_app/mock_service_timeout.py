@@ -5,7 +5,7 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
 from . import MockData
 
-__steps__ = ['message']
+__steps__ = ["message"]
 
 logger, extra = app_extra_logger()
 

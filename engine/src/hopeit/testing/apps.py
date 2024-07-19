@@ -1,6 +1,7 @@
 """
 Test utilities/wrappers for app development
 """
+
 from pathlib import Path
 from types import ModuleType
 from typing import Union, Callable, List, Optional, Dict, Tuple, Any
@@ -18,12 +19,7 @@ from hopeit.server.logger import engine_logger
 from hopeit.testing.hooks import MockFileHook, MockMultipartReader
 from multidict import CIMultiDict, CIMultiDictProxy
 
-__all__ = [
-    'config',
-    'server_config',
-    'create_test_context',
-    'execute_event'
-]
+__all__ = ["config", "server_config", "create_test_context", "execute_event"]
 
 logger = engine_logger()
 
@@ -35,21 +31,22 @@ class TestingException(Exception):
 def config(path: Union[str, Path]) -> AppConfig:
     if isinstance(path, str):
         path = Path(path)
-    with open(path, 'r', encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8") as f:
         app_config = parse_app_config_json(f.read())
         app_config.server = server_config()
         return app_config
 
 
 def server_config():
-    return ServerConfig(
-        logging=LoggingConfig(log_level='DEBUG', log_path='logs/')
-    )
+    return ServerConfig(logging=LoggingConfig(log_level="DEBUG", log_path="logs/"))
 
 
-def create_test_context(app_config: AppConfig, event_name: str,
-                        track_ids: Optional[dict] = None,
-                        auth_info: Optional[dict] = None) -> EventContext:
+def create_test_context(
+    app_config: AppConfig,
+    event_name: str,
+    track_ids: Optional[dict] = None,
+    auth_info: Optional[dict] = None,
+) -> EventContext:
     """
     Creates an EventContext object to be used in tests
 
@@ -66,28 +63,29 @@ def create_test_context(app_config: AppConfig, event_name: str,
         event_name=event_name,
         settings=get_event_settings(app_config.effective_settings, event_name),  # type: ignore
         track_ids={
-            **{
-                k: '' for k in app_config.engine.track_headers
-            },
-            'track.operation_id': 'test_operation_id',
-            'track.request_id': 'test_request_id',
-            'track.request_ts': datetime.now(tz=timezone.utc).isoformat(),
-            **({} if track_ids is None else track_ids)
+            **{k: "" for k in app_config.engine.track_headers},
+            "track.operation_id": "test_operation_id",
+            "track.request_id": "test_request_id",
+            "track.request_ts": datetime.now(tz=timezone.utc).isoformat(),
+            **({} if track_ids is None else track_ids),
         },
         auth_info={
-            'auth_type': AuthType.UNSECURED, 'allowed': 'true',
-            **({} if auth_info is None else auth_info)
-        }
+            "auth_type": AuthType.UNSECURED,
+            "allowed": "true",
+            **({} if auth_info is None else auth_info),
+        },
     )
 
 
-def _apply_mocks(context: EventContext,
-                 handler: EventHandler,
-                 event_name: str,
-                 effective_events: Dict[str, EventDescriptor],
-                 preprocess_hook: Optional[PreprocessHook],
-                 postprocess_hook: Optional[PostprocessHook],
-                 mocks: List[Callable[[ModuleType, EventContext], None]]):
+def _apply_mocks(
+    context: EventContext,
+    handler: EventHandler,
+    event_name: str,
+    effective_events: Dict[str, EventDescriptor],
+    preprocess_hook: Optional[PreprocessHook],
+    postprocess_hook: Optional[PostprocessHook],
+    mocks: List[Callable[[ModuleType, EventContext], None]],
+):
     """
     Execute a list of functions to mock module properties.
     """
@@ -96,29 +94,32 @@ def _apply_mocks(context: EventContext,
     for mock in mocks:
         hooks: Dict[str, Any] = {}
         if preprocess_hook is not None:
-            hooks['preprocess_hook'] = preprocess_hook
+            hooks["preprocess_hook"] = preprocess_hook
         if postprocess_hook is not None:
-            hooks['postprocess_hook'] = postprocess_hook
+            hooks["postprocess_hook"] = postprocess_hook
         mock(module, context, **hooks)  # type: ignore
     handler.load_modules(effective_events=effective_events)
-    logger.debug(context, '[test.apps] mocking done.')
+    logger.debug(context, "[test.apps] mocking done.")
 
 
-async def execute_event(app_config: AppConfig,
-                        event_name: str,
-                        payload: Optional[EventPayload],
-                        mocks: Optional[List[Callable[[ModuleType, EventContext], None]]] = None,
-                        *,
-                        fields: Optional[Dict[str, str]] = None,
-                        upload: Optional[Dict[str, bytes]] = None,
-                        preprocess: bool = False,
-                        postprocess: bool = False,
-                        context: Optional[EventContext] = None,
-                        **kwargs) -> Union[
-                            Optional[EventPayload],
-                            List[EventPayload],
-                            Tuple[Optional[EventPayload], EventPayload, PostprocessHook],
-                            Tuple[List[EventPayload], EventPayload, PostprocessHook]]:
+async def execute_event(
+    app_config: AppConfig,
+    event_name: str,
+    payload: Optional[EventPayload],
+    mocks: Optional[List[Callable[[ModuleType, EventContext], None]]] = None,
+    *,
+    fields: Optional[Dict[str, str]] = None,
+    upload: Optional[Dict[str, bytes]] = None,
+    preprocess: bool = False,
+    postprocess: bool = False,
+    context: Optional[EventContext] = None,
+    **kwargs,
+) -> Union[
+    Optional[EventPayload],
+    List[EventPayload],
+    Tuple[Optional[EventPayload], EventPayload, PostprocessHook],
+    Tuple[List[EventPayload], EventPayload, PostprocessHook],
+]:
     """
     Test executes an app event.
 
@@ -140,6 +141,7 @@ async def execute_event(app_config: AppConfig,
         above, second element the output of call to __postprocess__, and third one a PostprocessHook
         with response information used during call to __postprocess__
     """
+
     async def _postprocess(hook: PostprocessHook, results: List[EventPayload]) -> EventPayload:
         assert context is not None
         pp_payload = results[-1] if len(results) > 0 else None
@@ -148,7 +150,8 @@ async def execute_event(app_config: AppConfig,
     async def _preprocess(hook: PreprocessHook, payload: EventPayload) -> EventPayload:
         assert context is not None
         return await handler.preprocess(
-            context=context, query_args=kwargs, payload=payload, request=hook)
+            context=context, query_args=kwargs, payload=payload, request=hook
+        )
 
     if context is None:
         context = create_test_context(app_config, event_name)
@@ -157,9 +160,10 @@ async def execute_event(app_config: AppConfig,
     impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
     effective_events = {**split_event_stages(app_config.app, event_name, event_info, impl)}
     handler = EventHandler(
-        app_config=app_config, plugins=[],
+        app_config=app_config,
+        plugins=[],
         effective_events=effective_events,
-        settings=app_config.effective_settings  # type: ignore
+        settings=app_config.effective_settings,  # type: ignore
     )
 
     preprocess_hook, postprocess_hook = None, None
@@ -168,14 +172,24 @@ async def execute_event(app_config: AppConfig,
             headers=CIMultiDictProxy(CIMultiDict()),
             multipart_reader=MockMultipartReader(fields or {}, upload or {}),  # type: ignore
             file_hook_factory=MockFileHook,
-            payload_raw=b'' if payload is None else Payload.to_json(payload).encode()
+            payload_raw=b"" if payload is None else Payload.to_json(payload).encode(),
         )
     if postprocess:
         postprocess_hook = PostprocessHook()
     if mocks is not None:
-        _apply_mocks(context, handler, event_name, effective_events, preprocess_hook, postprocess_hook, mocks)
+        _apply_mocks(
+            context,
+            handler,
+            event_name,
+            effective_events,
+            preprocess_hook,
+            postprocess_hook,
+            mocks,
+        )
 
-    datatype = find_datatype_handler(app_config=app_config, event_name=event_name, event_info=event_info)
+    datatype = find_datatype_handler(
+        app_config=app_config, event_name=event_name, event_info=event_info
+    )
     if preprocess_hook:
         payload = await _preprocess(preprocess_hook, payload)
         if postprocess_hook and preprocess_hook.status is not None:
@@ -189,11 +203,16 @@ async def execute_event(app_config: AppConfig,
     on_queue, pp_result, pp_called = [payload], None, False
     for effective_event_name, event_info in effective_events.items():
         context = create_test_context(
-            app_config, effective_event_name, track_ids=context.track_ids, auth_info=context.auth_info
+            app_config,
+            effective_event_name,
+            track_ids=context.track_ids,
+            auth_info=context.auth_info,
         )
         stage_results = []
         for elem in on_queue:
-            async for res in handler.handle_async_event(context=context, query_args=kwargs, payload=elem):
+            async for res in handler.handle_async_event(
+                context=context, query_args=kwargs, payload=elem
+            ):
                 stage_results.append(res)
         on_queue = stage_results if len(stage_results) > 0 else on_queue
         if postprocess_hook and not pp_called:
@@ -232,7 +251,7 @@ async def execute_service(
     app_config: AppConfig,
     event_name: str,
     max_events: int = 1,
-    mocks: Optional[List[Callable[[ModuleType, EventContext], None]]] = None
+    mocks: Optional[List[Callable[[ModuleType, EventContext], None]]] = None,
 ) -> List[Union[EventPayload, Exception]]:
     """
     Executes __service__ handler of an event,
@@ -248,12 +267,21 @@ async def execute_service(
     impl = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
     effective_events = {**split_event_stages(app_config.app, event_name, event_info, impl)}
     handler = EventHandler(
-        app_config=app_config, plugins=[],
+        app_config=app_config,
+        plugins=[],
         effective_events=effective_events,
-        settings=app_config.effective_settings  # type: ignore
+        settings=app_config.effective_settings,  # type: ignore
     )
-    _apply_mocks(context, handler, event_name, effective_events, None, None, [apply_service_running_mock])
-    service_handler = getattr(impl, '__service__')
+    _apply_mocks(
+        context,
+        handler,
+        event_name,
+        effective_events,
+        None,
+        None,
+        [apply_service_running_mock],
+    )
+    service_handler = getattr(impl, "__service__")
     count = 0
     results = []
     async for payload in service_handler(context):

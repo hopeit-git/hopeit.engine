@@ -160,9 +160,7 @@ async def stop_server():
     await web_server.cleanup()
 
 
-async def app_startup_hook(
-    config: AppConfig, enabled_groups: List[str], *args, **kwargs
-):
+async def app_startup_hook(config: AppConfig, enabled_groups: List[str], *args, **kwargs):
     """
     Start Hopeit app specified by config
 
@@ -170,9 +168,7 @@ async def app_startup_hook(
     :param enabled_groups: list of event groups names to enable. If empty,
         all events will be enabled.
     """
-    app_engine = await runtime.server.start_app(
-        app_config=config, enabled_groups=enabled_groups
-    )
+    app_engine = await runtime.server.start_app(app_config=config, enabled_groups=enabled_groups)
     cors_origin = (
         aiohttp_cors.setup(
             web_server,
@@ -224,11 +220,7 @@ def _effective_events(app_engine: AppEngine, plugin: Optional[AppEngine] = None)
             for k, v in app_engine.effective_events.items()
             if v.plug_mode == EventPlugMode.STANDALONE
         }
-    return {
-        k: v
-        for k, v in plugin.effective_events.items()
-        if v.plug_mode == EventPlugMode.ON_APP
-    }
+    return {k: v for k, v in plugin.effective_events.items() if v.plug_mode == EventPlugMode.ON_APP}
 
 
 def _load_engine_config(path: str):
@@ -253,9 +245,7 @@ def _enable_cors(prefix: str, cors: CorsConfig):
             cors.add(route)
 
 
-async def _setup_app_event_routes(
-    app_engine: AppEngine, plugin: Optional[AppEngine] = None
-):
+async def _setup_app_event_routes(app_engine: AppEngine, plugin: Optional[AppEngine] = None):
     """
     Setup http routes for existing events in app,
     in existing web_server global instance.
@@ -320,9 +310,7 @@ async def _setup_app_event_routes(
         elif event_info.type == EventType.SETUP:
             await _execute_setup_event(app_engine, plugin, event_name)
         else:
-            raise ValueError(
-                f"Invalid event_type:{event_info.type} for event:{event_name}"
-            )
+            raise ValueError(f"Invalid event_type:{event_info.type} for event:{event_name}")
 
 
 def _auth_types(app_engine: AppEngine, event_name: str):
@@ -447,18 +435,14 @@ def _create_event_management_routes(
         prefix="mgmt",
         override_route_name=event_info.route,
     )
-    logger.info(
-        __name__, f"{event_info.type.value.upper()} path={base_route}/[start|stop]"
-    )
+    logger.info(__name__, f"{event_info.type.value.upper()} path={base_route}/[start|stop]")
 
     handler: Optional[partial[Coroutine[Any, Any, Response]]] = None
     if event_info.type == EventType.STREAM:
         handler = partial(_handle_stream_start_invocation, app_engine, event_name)
     elif event_info.type == EventType.SERVICE:
         handler = partial(_handle_service_start_invocation, app_engine, event_name)
-    assert (
-        handler is not None
-    ), f"No handler for event={event_name} type={event_info.type}"
+    assert handler is not None, f"No handler for event={event_name} type={event_info.type}"
     return [
         web.get(base_route + "/start", handler),
         web.get(
@@ -492,9 +476,7 @@ def _response(
             hook.content_type, _text_response
         )
         body = serializer(payload, key=key)
-        response = web.Response(
-            body=body, headers=headers, content_type=hook.content_type
-        )
+        response = web.Response(body=body, headers=headers, content_type=hook.content_type)
         for name, cookie in hook.cookies.items():
             value, args, kwargs = cookie
             response.set_cookie(name, value, *args, **kwargs)
@@ -597,9 +579,7 @@ def _extract_auth_header(request: web.Request, context: EventContext) -> Optiona
     return request.headers.get("Authorization")
 
 
-def _extract_refresh_cookie(
-    request: web.Request, context: EventContext
-) -> Optional[str]:
+def _extract_refresh_cookie(request: web.Request, context: EventContext) -> Optional[str]:
     return request.cookies.get(f"{context.app_key}.refresh")
 
 
@@ -688,9 +668,7 @@ async def _request_execute(
         context=context, query_args=query_args, payload=payload, request=preprocess_hook
     )
     if (preprocess_hook.status is None) or (preprocess_hook.status == 200):
-        result = await app_engine.execute(
-            context=context, query_args=query_args, payload=result
-        )
+        result = await app_engine.execute(context=context, query_args=query_args, payload=result)
         result = await app_engine.postprocess(
             context=context, payload=result, response=response_hook
         )
@@ -739,9 +717,7 @@ async def _handle_post_invocation(
         context = _request_start(app_engine, impl, event_name, event_settings, request)
         query_args = dict(request.query)
         _validate_authorization(app_engine.app_config, context, auth_types, request)
-        payload, payload_raw = await _request_process_payload(
-            context, datatype, request
-        )
+        payload, payload_raw = await _request_process_payload(context, datatype, request)
         hook: PreprocessHook[NoopMultiparReader] = PreprocessHook(
             headers=request.headers, payload_raw=payload_raw
         )
@@ -781,9 +757,7 @@ async def _handle_get_invocation(
         payload = query_args.get("payload")
         if payload is not None:
             del query_args["payload"]
-        hook: PreprocessHook[NoopMultiparReader] = PreprocessHook(
-            headers=request.headers
-        )
+        hook: PreprocessHook[NoopMultiparReader] = PreprocessHook(headers=request.headers)
         return await _request_execute(
             impl,
             event_name,
@@ -819,7 +793,8 @@ async def _handle_multipart_invocation(
         query_args = dict(request.query)
         _validate_authorization(app_engine.app_config, context, auth_types, request)
         hook = PreprocessHook(  # type: ignore
-            headers=request.headers, multipart_reader=await request.multipart()  # type: ignore
+            headers=request.headers,
+            multipart_reader=await request.multipart(),  # type: ignore
         )
         return await _request_execute(
             impl,
@@ -931,15 +906,9 @@ def parse_args(args) -> ParsedArgs:
     parser.add_argument("--enabled-groups")
 
     parsed_args = parser.parse_args(args=args)
-    port = (
-        int(parsed_args.port)
-        if parsed_args.port
-        else 8020 if parsed_args.path is None else None
-    )
+    port = int(parsed_args.port) if parsed_args.port else 8020 if parsed_args.path is None else None
     config_files = parsed_args.config_files.split(",")
-    enabled_groups = (
-        parsed_args.enabled_groups.split(",") if parsed_args.enabled_groups else []
-    )
+    enabled_groups = parsed_args.enabled_groups.split(",") if parsed_args.enabled_groups else []
     api_auto = [] if parsed_args.api_auto is None else parsed_args.api_auto.split(";")
 
     return ParsedArgs(
@@ -991,12 +960,8 @@ def serve(
     """
     init_logger()
 
-    web_app = init_web_server(
-        config_files, api_file, api_auto, enabled_groups, start_streams
-    )
-    logger.info(
-        __name__, f"Starting web server host: {host} port: {port} socket: {path}..."
-    )
+    web_app = init_web_server(config_files, api_file, api_auto, enabled_groups, start_streams)
+    logger.info(__name__, f"Starting web server host: {host} port: {port} socket: {path}...")
     web.run_app(web_app, host=host, path=path, port=port)
 
 
