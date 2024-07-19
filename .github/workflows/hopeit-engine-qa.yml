@@ -49,6 +49,8 @@ jobs:
         make test-apps & PID_TEST_APPS=$!
         wait $PID_TEST_PLUGINS || TEST_PLUGINS_STATUS=$?
         wait $PID_TEST_APPS || TEST_APPS_STATUS=$?
-        if [ -n "$TEST_PLUGINS_STATUS"] || [ -n "$TEST_APPS_STATUS"]; then
+        if [ -z "$TEST_PLUGINS_STATUS"] && [ -z "$TEST_APPS_STATUS"]; then
+          exit 0
+        else
           exit 1
         fi
