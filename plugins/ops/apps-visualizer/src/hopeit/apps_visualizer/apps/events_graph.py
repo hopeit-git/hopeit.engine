@@ -1,6 +1,7 @@
 """
 Events graph showing events, stream and dependencies for specified apps
 """
+
 from typing import Optional
 
 from hopeit.app.context import EventContext
@@ -12,20 +13,29 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.config_manager import RuntimeApps, RuntimeAppInfo
 
 from hopeit.apps_visualizer.apps import get_runtime_apps
-from hopeit.apps_visualizer.graphs import Edge, Node, Graph, add_app_connections, get_edges, get_nodes
-from hopeit.apps_visualizer.site.visualization import CytoscapeGraph, VisualizationOptions, \
-    visualization_options, visualization_options_api_args  # noqa: F401  # pylint: disable=unused-import
+from hopeit.apps_visualizer.graphs import (
+    Edge,
+    Node,
+    Graph,
+    add_app_connections,
+    get_edges,
+    get_nodes,
+)
+from hopeit.apps_visualizer.site.visualization import (
+    CytoscapeGraph,
+    VisualizationOptions,
+    visualization_options_api_args,
+    visualization_options,  # noqa: F401
+)
 
 logger, extra = app_extra_logger()
 
 __steps__ = [
-    'visualization_options',
+    "visualization_options",
     collector_step(payload=VisualizationOptions).gather(
-        'runtime_apps',
-        'config_graph',
-        'cytoscape_data'
+        "runtime_apps", "config_graph", "cytoscape_data"
     ),
-    'build_visualization'
+    "build_visualization",
 ]
 
 
@@ -41,9 +51,7 @@ __api__ = event_api(
     summary="App Visualizer: Events Graph Data",
     description="App Visualizer: Events Graph Data",
     query_args=visualization_options_api_args(),
-    responses={
-        200: (EventsGraphResult, "Graph Data with applied Live Stats")
-    }
+    responses={200: (EventsGraphResult, "Graph Data with applied Live Stats")},
 )
 
 
@@ -51,19 +59,17 @@ async def runtime_apps(collector: Collector, context: EventContext) -> RuntimeAp
     """
     Extract current runtime app_config objects
     """
-    options: VisualizationOptions = await collector['payload']
+    options: VisualizationOptions = await collector["payload"]
     return await get_runtime_apps(context, expand_events=options.expanded_view)
 
 
 def _filter_apps(runtime_info: RuntimeAppInfo, options: VisualizationOptions) -> bool:
-    return options.app_prefix == runtime_info.app_config.app.name[0:len(options.app_prefix)]
+    return options.app_prefix == runtime_info.app_config.app.name[0 : len(options.app_prefix)]
 
 
 def _filter_hosts(runtime_info: RuntimeAppInfo, options: VisualizationOptions) -> bool:
-    return (
-        options.host_filter == '' or any(
-            options.host_filter in server.url for server in runtime_info.servers
-        )
+    return options.host_filter == "" or any(
+        options.host_filter in server.url for server in runtime_info.servers
     )
 
 
@@ -71,8 +77,8 @@ async def config_graph(collector: Collector, context: EventContext) -> Optional[
     """
     Generates Graph object with nodes and edges from server runtime active configuration
     """
-    options: VisualizationOptions = await collector['payload']
-    all_apps: RuntimeApps = await collector['runtime_apps']
+    options: VisualizationOptions = await collector["payload"]
+    all_apps: RuntimeApps = await collector["runtime_apps"]
 
     filtered_apps = [
         (app_key, runtime_info)
@@ -102,8 +108,9 @@ async def cytoscape_data(collector: Collector, context: EventContext) -> Cytosca
     """
     Converts Graph to cytoscape json format
     """
+
     def _edge_label(edge: Edge) -> str:
-        label = edge.label.split('.')[-1]
+        label = edge.label.split(".")[-1]
         if label in ("AUTO", "POST", "GET", "MULTIPART"):
             return ""
         return label
@@ -111,25 +118,30 @@ async def cytoscape_data(collector: Collector, context: EventContext) -> Cytosca
     def _node_label(node: Node) -> str:
         comps = node.label.split(".")
         if len(comps) > 2:
-            return '\n'.join(['.'.join(comps[0:2]), '.'.join(comps[2:])])
+            return "\n".join([".".join(comps[0:2]), ".".join(comps[2:])])
         return node.label
 
-    graph: Graph = await collector['config_graph']
+    graph: Graph = await collector["config_graph"]
 
     nodes = {
-        node.id: {"data": {
-            "id": node.id,
-            "content": _node_label(node),
-        }, "classes": node.type.value}
+        node.id: {
+            "data": {
+                "id": node.id,
+                "content": _node_label(node),
+            },
+            "classes": node.type.value,
+        }
         for node in graph.nodes
     }
     edges = {
-        f"edge_{edge.id}": {"data": {
-            "id": f"edge_{edge.id}",
-            "source": edge.source,
-            "target": edge.target,
-            "label": _edge_label(edge)
-        }}
+        f"edge_{edge.id}": {
+            "data": {
+                "id": f"edge_{edge.id}",
+                "source": edge.source,
+                "target": edge.target,
+                "label": _edge_label(edge),
+            }
+        }
         for edge in graph.edges
     }
     return CytoscapeGraph(data={**nodes, **edges})
@@ -137,7 +149,7 @@ async def cytoscape_data(collector: Collector, context: EventContext) -> Cytosca
 
 async def build_visualization(collector: Collector, context: EventContext) -> EventsGraphResult:
     return EventsGraphResult(
-        runtime_apps=await collector['runtime_apps'],
-        graph=await collector['cytoscape_data'],
-        options=await collector['payload']
+        runtime_apps=await collector["runtime_apps"],
+        graph=await collector["cytoscape_data"],
+        options=await collector["payload"],
     )

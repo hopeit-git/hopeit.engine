@@ -7,14 +7,26 @@ from hopeit.dataobjects import DataObject, EventPayload
 from hopeit.server.events import EventHandler
 from hopeit.server.engine import Server
 from hopeit.streams import StreamManager, StreamEvent, StreamOSError
-from hopeit.app.config import AppConfig, EventDescriptor, Serialization, Compression, StreamQueue
+from hopeit.app.config import (
+    AppConfig,
+    EventDescriptor,
+    Serialization,
+    Compression,
+    StreamQueue,
+)
 from hopeit.server.engine import AppEngine
 
 from mock_app import MockData, MockResult  # type: ignore
 
 
 class MockAppEngine(AppEngine):
-    def __init__(self, *, app_config: AppConfig, plugins: List[AppConfig], enabled_groups: List[str]):
+    def __init__(
+        self,
+        *,
+        app_config: AppConfig,
+        plugins: List[AppConfig],
+        enabled_groups: List[str],
+    ):
         """
         Creates an instance of the AppEngine
 
@@ -40,43 +52,52 @@ class MockEventHandler(EventHandler):
     input_payload = MockData("ok")
     expected_result = MockResult("ok: ok", processed=True)
     test_track_ids = {
-        'track.operation_id': 'test_operation_id',
-        'track.request_id': 'test_request_id',
-        'track.request_ts': '2020-02-05T17:07:37.771396+00:00',
-        'track.session_id': 'test_session_id'
+        "track.operation_id": "test_operation_id",
+        "track.request_id": "test_request_id",
+        "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
+        "track.session_id": "test_session_id",
     }
     expected_track_ids = test_track_ids
     call_function = None
 
-    def __init__(self, *,
-                 app_config: AppConfig,
-                 plugins: List[AppConfig],
-                 effective_events: Dict[str, EventDescriptor],
-                 settings: Dict[str, Any]):
+    def __init__(
+        self,
+        *,
+        app_config: AppConfig,
+        plugins: List[AppConfig],
+        effective_events: Dict[str, EventDescriptor],
+        settings: Dict[str, Any],
+    ):
         self.app_config = app_config
         self.plugins = plugins
         self.effective_events = effective_events
         self.settings = settings
 
-    async def handle_async_event(self, *,
-                                 context: EventContext,
-                                 query_args: Optional[dict],
-                                 payload: Optional[EventPayload]) -> AsyncGenerator[Optional[EventPayload], None]:
+    async def handle_async_event(
+        self,
+        *,
+        context: EventContext,
+        query_args: Optional[dict],
+        payload: Optional[EventPayload],
+    ) -> AsyncGenerator[Optional[EventPayload], None]:
         assert payload == MockEventHandler.input_payload
         if MockEventHandler.call_function is not None:
             yield MockEventHandler.call_function(payload, context)
-        elif isinstance(payload, MockData) and payload.value == 'fail':  # type: ignore
+        elif isinstance(payload, MockData) and payload.value == "fail":  # type: ignore
             raise ValueError("Test for error")
-        elif isinstance(payload, MockData) and payload.value == 'cancel':  # type: ignore
+        elif isinstance(payload, MockData) and payload.value == "cancel":  # type: ignore
             raise asyncio.CancelledError("Test for cancellation")
-        elif isinstance(payload, MockData) and payload.value == 'timeout':  # type: ignore
+        elif isinstance(payload, MockData) and payload.value == "timeout":  # type: ignore
             await asyncio.sleep(5.0)
         yield MockEventHandler.expected_result
 
-    async def postprocess(self, *,
-                          context: EventContext,
-                          payload: Optional[EventPayload],
-                          response: PostprocessHook) -> Optional[EventPayload]:
+    async def postprocess(
+        self,
+        *,
+        context: EventContext,
+        payload: Optional[EventPayload],
+        response: PostprocessHook,
+    ) -> Optional[EventPayload]:
         response.set_header("PluginHeader", "PluginHeaderValue")
         response.set_cookie("PluginCookie", "PluginCookieValue")
         response.set_status(999)
@@ -87,21 +108,18 @@ class MockStreamManager(StreamManager):
     test_queue = StreamQueue.AUTO
     test_payload = MockResult("ok: ok", processed=True)
     test_track_ids = {
-        'track.request_id': 'test_request_id',
-        'track.request_ts': '2020-02-05T17:07:37.771396+00:00',
-        'track.session_id': 'test_session_id',
-        'stream.consumer_group': 'test_group',
-        'stream.msg_id': '0000000000-0',
-        'stream.name': 'test_stream',
-        'stream.event_id': 'test_id',
-        'stream.event_ts': '',
-        'stream.read_ts': '2020-02-05T17:07:39.771396+00:00',
-        'stream.submit_ts': '2020-02-05T17:07:38.771396+00:00'
+        "track.request_id": "test_request_id",
+        "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
+        "track.session_id": "test_session_id",
+        "stream.consumer_group": "test_group",
+        "stream.msg_id": "0000000000-0",
+        "stream.name": "test_stream",
+        "stream.event_id": "test_id",
+        "stream.event_ts": "",
+        "stream.read_ts": "2020-02-05T17:07:39.771396+00:00",
+        "stream.submit_ts": "2020-02-05T17:07:38.771396+00:00",
     }
-    test_auth_info = {
-        'allowed': True,
-        'auth_type': 'Unsecured'
-    }
+    test_auth_info = {"allowed": True, "auth_type": "Unsecured"}
     closed = True
     last_read_message = None
     error_pattern = [None]
@@ -129,19 +147,22 @@ class MockStreamManager(StreamManager):
     async def close(self):
         MockStreamManager.closed = True
 
-    async def write_stream(self, *,
-                           stream_name: str,
-                           queue: str,
-                           payload: EventPayload,
-                           track_ids: Dict[str, str],
-                           auth_info: Dict[str, Any],
-                           target_max_len: int = 0,
-                           compression: Compression,
-                           serialization: Serialization) -> int:
+    async def write_stream(
+        self,
+        *,
+        stream_name: str,
+        queue: str,
+        payload: EventPayload,
+        track_ids: Dict[str, str],
+        auth_info: Dict[str, Any],
+        target_max_len: int = 0,
+        compression: Compression,
+        serialization: Serialization,
+    ) -> int:
         if MockEventHandler.test_track_ids:
-            track_ids['track.operation_id'] = MockEventHandler.test_track_ids['track.operation_id']
-            track_ids['track.request_ts'] = MockEventHandler.test_track_ids['track.request_ts']
-            track_ids['track.session_id'] = MockEventHandler.test_track_ids['track.session_id']
+            track_ids["track.operation_id"] = MockEventHandler.test_track_ids["track.operation_id"]
+            track_ids["track.request_ts"] = MockEventHandler.test_track_ids["track.request_ts"]
+            track_ids["track.session_id"] = MockEventHandler.test_track_ids["track.session_id"]
             assert track_ids == MockEventHandler.test_track_ids
         self.write_stream_name = stream_name
         self.write_stream_queue = queue
@@ -154,30 +175,33 @@ class MockStreamManager(StreamManager):
         self.last_write_queue_names.append(queue)
         return 1
 
-    async def ensure_consumer_group(self, *,
-                                    stream_name: str,
-                                    consumer_group: str):
+    async def ensure_consumer_group(self, *, stream_name: str, consumer_group: str):
         pass
 
-    async def ack_read_stream(self, *, stream_name: str, consumer_group: str, stream_event: StreamEvent):
+    async def ack_read_stream(
+        self, *, stream_name: str, consumer_group: str, stream_event: StreamEvent
+    ):
         return 1
 
-    async def read_stream(self, *,
-                          stream_name: str,
-                          consumer_group: str,
-                          datatypes: Dict[str, type],
-                          track_headers: List[str],
-                          offset: str,
-                          batch_size: int,
-                          timeout: int,
-                          batch_interval: int) -> List[Union[StreamEvent, Exception]]:
+    async def read_stream(
+        self,
+        *,
+        stream_name: str,
+        consumer_group: str,
+        datatypes: Dict[str, type],
+        track_headers: List[str],
+        offset: str,
+        batch_size: int,
+        timeout: int,
+        batch_interval: int,
+    ) -> List[Union[StreamEvent, Exception]]:
         if not MockStreamManager.closed:
             MockStreamManager.last_read_message = StreamEvent(
-                msg_internal_id=b'0000000000-0',
-                queue=MockStreamManager.test_queue or stream_name.split('.')[-1],
+                msg_internal_id=b"0000000000-0",
+                queue=MockStreamManager.test_queue or stream_name.split(".")[-1],
                 payload=MockStreamManager.test_payload,
                 track_ids=MockStreamManager.test_track_ids,
-                auth_info=MockStreamManager.test_auth_info
+                auth_info=MockStreamManager.test_auth_info,
             )
             results: List[Union[StreamEvent, Exception]] = []
             for i, err_mode in enumerate(copy(MockStreamManager.error_pattern)):
@@ -187,7 +211,7 @@ class MockStreamManager(StreamManager):
                     self.last_read_queue_names.append(MockStreamManager.last_read_message.queue)
                     await asyncio.sleep(timeout)
                 elif isinstance(err_mode, StreamOSError):
-                    MockStreamManager.error_pattern = MockStreamManager.error_pattern[i+1:]
+                    MockStreamManager.error_pattern = MockStreamManager.error_pattern[i + 1 :]
                     raise err_mode
                 else:
                     results.append(err_mode)

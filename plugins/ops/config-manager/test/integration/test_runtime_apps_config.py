@@ -39,9 +39,9 @@ async def test_runtime_apps_config_expand_events(monkeypatch, effective_events_e
 
     app_prefix = app_config.app_key()
     for k, v in result.apps[app_config.app_key()].effective_events.items():
-        assert k[0: len(app_prefix)] == app_prefix
+        assert k[0 : len(app_prefix)] == app_prefix
         if v.plug_mode == EventPlugMode.ON_APP:
             app_plugin_prefx = f"{app_prefix}.{basic_auth_config.app_key()}"
-            assert k[0: len(app_plugin_prefx)] == app_plugin_prefx
+            assert k[0 : len(app_plugin_prefx)] == app_plugin_prefx
         event_name = k.split(".")[-1]
         assert v == effective_events_example[event_name]

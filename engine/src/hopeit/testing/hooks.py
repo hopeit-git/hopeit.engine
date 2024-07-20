@@ -28,11 +28,7 @@ class MockField:
                 "Content-Type": (
                     "application/json"
                     if isinstance(value, dict)
-                    else (
-                        "application/octect-stream"
-                        if file_data is not None
-                        else "text/plain"
-                    )
+                    else ("application/octect-stream" if file_data is not None else "text/plain")
                 )
             }
         )
@@ -105,10 +101,7 @@ class MockMultipartReader:
     def __init__(self, fields: Dict[str, str], attachments: Dict[str, bytes]):
         self.fields = fields
         self.it = iter(
-            [
-                MockField(name=k, value=v, file_data=attachments.get(k))
-                for k, v in fields.items()
-            ]
+            [MockField(name=k, value=v, file_data=attachments.get(k)) for k, v in fields.items()]
         )
 
     def __aiter__(self) -> AsyncIterator[MockField]:

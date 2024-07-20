@@ -1,5 +1,4 @@
-"""Dataset objects definition, used as a result of serialized dataframes
-"""
+"""Dataset objects definition, used as a result of serialized dataframes"""
 
 from importlib import import_module
 from typing import Generic, Type, TypeVar
@@ -13,6 +12,7 @@ DataFrameT = TypeVar("DataFrameT")
 @dataclass
 class Dataset(Generic[DataFrameT]):
     """Persisted representation of a @dataframe object"""
+
     protocol: str
     partition_key: str
     key: str

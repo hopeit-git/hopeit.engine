@@ -1,5 +1,4 @@
-"""Dataframes example settings classes
-"""
+"""Dataframes example settings classes"""
 
 from hopeit.dataobjects import dataclass, dataobject
 

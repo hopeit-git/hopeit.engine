@@ -1,6 +1,7 @@
 """
 Common validation module that can be shared among events in simple-example test app
 """
+
 from typing import Optional
 
 from hopeit.app.context import EventContext

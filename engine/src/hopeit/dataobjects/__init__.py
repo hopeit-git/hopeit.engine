@@ -17,6 +17,7 @@ Example:
         name: str
         number: int
 """
+
 import pickle
 import uuid
 from datetime import datetime
@@ -28,16 +29,18 @@ from pydantic.dataclasses import dataclass, Field as field
 from pydantic.fields import FieldInfo
 
 
-__all__ = ['EventPayload',
-           'EventPayloadType',
-           'StreamEventParams',
-           'dataobject',
-           'DataObject',
-           'copy_payload',
-           'payload',
-           'dataclass',
-           'field',
-           'fields']
+__all__ = [
+    "EventPayload",
+    "EventPayloadType",
+    "StreamEventParams",
+    "dataobject",
+    "DataObject",
+    "copy_payload",
+    "payload",
+    "dataclass",
+    "field",
+    "fields",
+]
 
 
 @dataclass
@@ -46,13 +49,14 @@ class StreamEventParams:
     Helper class used to access attributes in @dataobject
     decorated objects, based on dot notation expressions
     """
+
     event_id_expr: Optional[str]
     event_ts_expr: Optional[str]
 
     @staticmethod
     def extract_attr(obj, expr):
         value = obj
-        for attr_name in expr.split('.'):
+        for attr_name in expr.split("."):
             if value:
                 value = getattr(value, attr_name)
         return value
@@ -104,15 +108,18 @@ class BinaryDownload:
 
     This way, the  type can be used in event API specification as response type.
     """
+
     content_type: str = "application/octet-stream"
 
 
 def dataobject(
-        decorated_class=None, *,
-        event_id: Optional[str] = None,
-        event_ts: Optional[str] = None,
-        unsafe: bool = False,
-        schema: bool = True):
+    decorated_class=None,
+    *,
+    event_id: Optional[str] = None,
+    event_ts: Optional[str] = None,
+    unsafe: bool = False,
+    schema: bool = True,
+):
     """
     Decorator for dataclasses intended to be used in API and/or streams. This decorated mainly implements
     JsonSchemaMixIn adding dataclass functionality to:
@@ -178,10 +185,10 @@ def dataobject(
                 "\n\t`from hopeit.dataobjects import dataclass, dataobject, field`"
                 "\nPython `dataclasses.dataclass` is no longer supported with `@dataobject`"
             )
-        setattr(cls, '__data_object__', {'unsafe': unsafe, 'schema': schema})
-        setattr(cls, '__stream_event__', StreamEventParams(event_id, event_ts))
-        setattr(cls, 'event_id', StreamEventMixin.event_id)
-        setattr(cls, 'event_ts', StreamEventMixin.event_ts)
+        setattr(cls, "__data_object__", {"unsafe": unsafe, "schema": schema})
+        setattr(cls, "__stream_event__", StreamEventParams(event_id, event_ts))
+        setattr(cls, "event_id", StreamEventMixin.event_id)
+        setattr(cls, "event_ts", StreamEventMixin.event_ts)
         return cls
 
     if decorated_class is None:
@@ -204,12 +211,14 @@ def copy_payload(original: Optional[EventPayload]) -> Optional[EventPayload]:
         return original
     if isinstance(original, (dict, set, list)):
         return _binary_copy(original)
-    if hasattr(original, '__dataclass_params__') and original.__dataclass_params__.frozen:  # type: ignore
+    if hasattr(original, "__dataclass_params__") and original.__dataclass_params__.frozen:  # type: ignore
         return original
-    if hasattr(original, '__data_object__') and original.__data_object__['unsafe']:
+    if hasattr(original, "__data_object__") and original.__data_object__["unsafe"]:
         return original
     return _binary_copy(original)
 
 
-def fields(cls_or_instance: Union[DataObject, Type[DataObject]]) -> Dict[str, FieldInfo]:
+def fields(
+    cls_or_instance: Union[DataObject, Type[DataObject]],
+) -> Dict[str, FieldInfo]:
     return cls_or_instance.__pydantic_fields__  # type: ignore[union-attr]

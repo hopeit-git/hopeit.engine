@@ -7,5 +7,5 @@ Provides utilities to test and write unit or integration tests for App Events:
       of events without starting a server.
     * **encryption**: provides data encryption for tests. Useful to test data apps.
 """
-__all__ = ['apps',
-           'encryption']
+
+__all__ = ["apps", "encryption"]

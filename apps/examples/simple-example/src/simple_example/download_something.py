@@ -34,9 +34,7 @@ __api__ = event_api(
 logger, extra = app_extra_logger()
 
 
-async def find_image(
-    payload: None, context: EventContext, *, file_name: str
-) -> ImagePng:
+async def find_image(payload: None, context: EventContext, *, file_name: str) -> ImagePng:
     """
     Find image file
     """
@@ -53,11 +51,8 @@ async def find_image(
 async def __postprocess__(
     img_file: ImagePng, context: EventContext, response: PostprocessHook
 ) -> str:
-
     if os.path.isfile(img_file.file_path):
-        response.set_header(
-            "Content-Disposition", f'attachment; filename="{img_file.file_name}"'
-        )
+        response.set_header("Content-Disposition", f'attachment; filename="{img_file.file_name}"')
         response.set_content_type(img_file.content_type)
         response.set_file_response(img_file.file_path)
         return f"File {img_file.file_name}"

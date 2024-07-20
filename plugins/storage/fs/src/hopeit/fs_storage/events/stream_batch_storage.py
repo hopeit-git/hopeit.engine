@@ -76,6 +76,7 @@ Each generated files is a in `jsonlines` format (http://jsonlines.org) where
 each line is a valid single-line json object resulting of serializing the
 dataobjects consumed from the input stream.
 """
+
 import asyncio
 import dataclasses
 import os
@@ -94,7 +95,7 @@ from hopeit.fs_storage.partition import get_partition_key
 
 logger, extra = app_extra_logger()
 
-__steps__ = ['buffer_item', 'flush']
+__steps__ = ["buffer_item", "flush"]
 
 
 @dataclasses.dataclass
@@ -103,7 +104,7 @@ class Partition:
     items: List[DataObject] = dataclasses.field(default_factory=list)  # type: ignore
 
 
-SUFFIX = '.jsonlines'
+SUFFIX = ".jsonlines"
 buffer: Dict[str, Partition] = {}
 buffer_lock: asyncio.Lock = asyncio.Lock()
 
@@ -127,7 +128,7 @@ async def __service__(context: EventContext) -> Spawn[FlushSignal]:
                 context,
                 "Flushing partitions by size and time are disabled."
                 "Specify either `flush_seconds` or `flush_max_size`"
-                "to enable flushing the buffer periodically"
+                "to enable flushing the buffer periodically",
             )
         else:
             logger.info(context, "Flushing partitions by time disabled.")
@@ -166,6 +167,6 @@ async def _save_partition(partition_key: str, items: List[DataObject], context: 
     file = path / f"{uuid.uuid4()}{SUFFIX}"
     logger.info(context, f"Saving {file}...")
     os.makedirs(path.resolve(), exist_ok=True)
-    async with aiofiles.open(file, 'w') as f:
+    async with aiofiles.open(file, "w") as f:
         for item in items:
             await f.write(Payload.to_json(item) + "\n")

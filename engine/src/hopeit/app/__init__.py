@@ -9,9 +9,5 @@ Overview:
     * **logger**: provides logging for App Events.
     * **errors**: provides error handling for app events
 """
-__all__ = ['api',
-           'config',
-           'context',
-           'errors',
-           'events',
-           'logger']
+
+__all__ = ["api", "config", "context", "errors", "events", "logger"]

@@ -30,9 +30,7 @@ payload_str = """{"test":"test_fs"}"""
 test_fs = FsMockData(test="test_fs")
 
 payload_str_with_ts = """{"test":"test_fs", "ts":"2022-03-01T00:00:00+00:00"}"""
-test_fs_with_ts = FsMockData(
-    test="test_fs", ts=datetime(2022, 3, 1, tzinfo=timezone.utc)
-)
+test_fs_with_ts = FsMockData(test="test_fs", ts=datetime(2022, 3, 1, tzinfo=timezone.utc))
 test_fs_without_ts = FsMockDataNoTs(test="test_fs")
 
 binary_file = b"Binary file content"
@@ -72,12 +70,8 @@ async def delete_files_in_partition():
     partition_key = datetime.now(tz=timezone.utc).strftime("%Y/%m/%d")
     assert await fs.store(key1, test_fs) is not None
     assert await fs.store(key2, test_fs) is not None
-    assert (
-        await fs.get(key1, datatype=FsMockData, partition_key=partition_key) == test_fs
-    )
-    assert (
-        await fs.get(key2, datatype=FsMockData, partition_key=partition_key) == test_fs
-    )
+    assert await fs.get(key1, datatype=FsMockData, partition_key=partition_key) == test_fs
+    assert await fs.get(key2, datatype=FsMockData, partition_key=partition_key) == test_fs
     await fs.delete(key1, key2, partition_key=partition_key)
     assert await fs.get(key1, datatype=FsMockData, partition_key=partition_key) is None
     assert await fs.get(key2, datatype=FsMockData, partition_key=partition_key) is None

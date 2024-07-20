@@ -62,7 +62,7 @@ class MockStreamManager(StreamManager):
             raise StreamOSError()
 
 
-def test_as_data_event():  # noqa: F811
+def test_as_data_event():
     test_data = MockData("ok", datetime.now(tz=timezone.utc))
     assert StreamManager.as_data_event(test_data) == test_data
     with pytest.raises(NotImplementedError):

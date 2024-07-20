@@ -11,7 +11,9 @@ async def test_simple_example_events_diagram(
 ):
     async with mock_lock:
         mock_runtime(monkeypatch, effective_events)
-        result = await execute_event(app_config=plugin_config, event_name="apps.events-graph", payload=None)
+        result = await execute_event(
+            app_config=plugin_config, event_name="apps.events-graph", payload=None
+        )
         assert result.graph.data == events_graph_data_standard
         assert result.options.expanded_view is False
 
@@ -23,7 +25,10 @@ async def test_simple_example_events_diagram_expanded_view(
     async with mock_lock:
         mock_runtime(monkeypatch, effective_events)
         result = await execute_event(
-            app_config=plugin_config, event_name="apps.events-graph", payload=None, expanded_view="true"
+            app_config=plugin_config,
+            event_name="apps.events-graph",
+            payload=None,
+            expanded_view="true",
         )
 
         assert result.graph.data == events_graph_data_expanded
@@ -40,8 +45,10 @@ async def test_simple_example_events_diagram_filter_apps(
             k: v for k, v in events_graph_data_standard.items() if "simple_example" in k
         }
         result = await execute_event(
-            app_config=plugin_config, event_name="apps.events-graph", payload=None,
-            app_prefix="simple-example"
+            app_config=plugin_config,
+            event_name="apps.events-graph",
+            payload=None,
+            app_prefix="simple-example",
         )
 
         assert result.graph.data == filtered_events_graph_data

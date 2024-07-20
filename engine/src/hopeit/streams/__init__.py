@@ -1,6 +1,7 @@
 """
 Streams module. Handles reading and writing to streams.
 """
+
 from abc import ABC
 import asyncio
 import dataclasses
@@ -104,9 +105,7 @@ class StreamManager(ABC):
         """
         raise NotImplementedError()
 
-    async def ensure_consumer_group(
-        self, *, stream_name: str, consumer_group: str
-    ) -> None:
+    async def ensure_consumer_group(self, *, stream_name: str, consumer_group: str) -> None:
         """
         Ensures a consumer_group exists for a given stream.
         If group does not exists, consumer groups must be registered

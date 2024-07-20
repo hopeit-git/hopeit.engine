@@ -1,5 +1,4 @@
-"""Support for plugin configuration
-"""
+"""Support for plugin configuration"""
 
 from typing import Optional
 

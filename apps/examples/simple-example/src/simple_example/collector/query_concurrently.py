@@ -4,6 +4,7 @@ Simple Example: Query Concurrently
 Loads 2 Something objects concurrently from disk and combine the results
 using `collector` steps constructor (instantiating an `AsyncCollector`)
 """
+
 import asyncio
 from typing import Union, Optional, List
 
@@ -16,14 +17,20 @@ from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import ItemsInfo, Something, SomethingNotFound
 
 
-__steps__ = [collector_step(payload=ItemsInfo).gather('load_first', 'load_second', 'combine'), 'result']
+__steps__ = [
+    collector_step(payload=ItemsInfo).gather("load_first", "load_second", "combine"),
+    "result",
+]
 
 __api__ = event_api(
     summary="Simple Example: Query Concurrently",
     payload=(ItemsInfo, "Items to read concurrently"),
     responses={
-        200: (List[Something], "List of one or two Something objects returned found, empty list if none is found"),
-    }
+        200: (
+            List[Something],
+            "List of one or two Something objects returned found, empty list if none is found",
+        ),
+    },
 )
 
 logger, extra = app_extra_logger()
@@ -39,7 +46,9 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-async def load_first(collector: Collector, context: EventContext) -> Union[Something, SomethingNotFound]:
+async def load_first(
+    collector: Collector, context: EventContext
+) -> Union[Something, SomethingNotFound]:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -49,18 +58,22 @@ async def load_first(collector: Collector, context: EventContext) -> Union[Somet
 
     """
     assert fs
-    items_to_read = await collector['payload']
+    items_to_read = await collector["payload"]
     item_id = items_to_read.item1_id
     await asyncio.sleep(0.1)
     logger.info(context, "load_second", extra=extra(something_id=item_id, path=fs.path))
-    something = await fs.get(key=item_id, datatype=Something, partition_key=items_to_read.partition_key)
+    something = await fs.get(
+        key=item_id, datatype=Something, partition_key=items_to_read.partition_key
+    )
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
         return SomethingNotFound(str(fs.path), item_id)
     return something
 
 
-async def load_second(collector: Collector, context: EventContext) -> Union[Something, SomethingNotFound]:
+async def load_second(
+    collector: Collector, context: EventContext
+) -> Union[Something, SomethingNotFound]:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -70,11 +83,13 @@ async def load_second(collector: Collector, context: EventContext) -> Union[Some
 
     """
     assert fs
-    items_to_read = await collector['payload']
+    items_to_read = await collector["payload"]
     item_id = items_to_read.item2_id
     await asyncio.sleep(0.1)
     logger.info(context, "load_first", extra=extra(something_id=item_id, path=fs.path))
-    something = await fs.get(key=item_id, datatype=Something, partition_key=items_to_read.partition_key)
+    something = await fs.get(
+        key=item_id, datatype=Something, partition_key=items_to_read.partition_key
+    )
     if something is None:
         logger.warning(context, "item not found", extra=extra(something_id=item_id, path=fs.path))
         return SomethingNotFound(str(fs.path), item_id)
@@ -91,8 +106,8 @@ async def combine(collector: Collector, context: EventContext) -> List[Something
     :param context: EventContext
     :return: List of one or two found Something objects, or emtpy list if non found
     """
-    item1 = await collector['load_first']
-    item2 = await collector['load_second']
+    item1 = await collector["load_first"]
+    item2 = await collector["load_second"]
     results = []
     if isinstance(item1, Something):
         results.append(item1)
@@ -102,6 +117,6 @@ async def combine(collector: Collector, context: EventContext) -> List[Something
 
 
 async def result(collector: Collector, context: EventContext) -> List[Something]:
-    items = await collector['combine']
+    items = await collector["combine"]
     logger.info(context, f"Found {len(items)} items.")
     return items

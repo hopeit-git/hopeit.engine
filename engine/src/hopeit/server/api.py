@@ -1,6 +1,7 @@
 """
 Open API spec creation and server helpers
 """
+
 from enum import Enum
 import json
 import re
@@ -23,26 +24,38 @@ from stringcase import titlecase  # type: ignore
 import typing_inspect as typing  # type: ignore
 
 from hopeit.dataobjects import BinaryAttachment, BinaryDownload
-from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventPlugMode, EventType
+from hopeit.app.config import (
+    AppConfig,
+    AppDescriptor,
+    EventDescriptor,
+    EventPlugMode,
+    EventType,
+)
 from hopeit.server.config import ServerConfig, AuthType
 from hopeit.server.errors import ErrorInfo
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger
 from hopeit.server.names import route_name
-from hopeit.server.steps import extract_module_steps, extract_postprocess_handler, extract_preprocess_handler, \
-    StepInfo
+from hopeit.server.steps import (
+    extract_module_steps,
+    extract_postprocess_handler,
+    extract_preprocess_handler,
+    StepInfo,
+)
 
 
-__all__ = ['init_empty_spec',
-           'load_api_file',
-           'save_api_file',
-           'setup',
-           'clear',
-           'app_route_name',
-           'register_server_config',
-           'register_apps',
-           'enable_swagger',
-           'diff_specs']
+__all__ = [
+    "init_empty_spec",
+    "load_api_file",
+    "save_api_file",
+    "setup",
+    "clear",
+    "app_route_name",
+    "register_server_config",
+    "register_apps",
+    "enable_swagger",
+    "diff_specs",
+]
 
 logger = engine_logger()
 
@@ -50,18 +63,19 @@ swagger: Optional[Swagger] = None
 spec: Optional[dict] = None
 static_spec: Optional[dict] = None
 runtime_schemas = {}
-_options = {
-    'generate_mode': False
-}
+_options = {"generate_mode": False}
 
-OPEN_API_VERSION = '3.0.3'
+OPEN_API_VERSION = "3.0.3"
 
-OPEN_API_DEFAULTS = ["hopeit.engine automatic OpenAPI title", "hopeit.engine automatic OpenAPI description"]
+OPEN_API_DEFAULTS = [
+    "hopeit.engine automatic OpenAPI title",
+    "hopeit.engine automatic OpenAPI description",
+]
 
 METHOD_MAPPING = {
-    EventType.GET: 'get',
-    EventType.POST: 'post',
-    EventType.MULTIPART: 'post'
+    EventType.GET: "get",
+    EventType.POST: "post",
+    EventType.MULTIPART: "post",
 }
 
 
@@ -90,9 +104,7 @@ def clear():
     static_spec = None
     swagger = None
     runtime_schemas = {}
-    _options = {
-        'generate_mode': False
-    }
+    _options = {"generate_mode": False}
 
 
 def init_empty_spec(api_version: str, title: str, description: str):
@@ -107,14 +119,13 @@ def init_empty_spec(api_version: str, title: str, description: str):
     logger.info(__name__, "Creating Open API spec...")
     spec = {
         "openapi": OPEN_API_VERSION,
-        "info": {
-            "version": api_version,
-            "title": title,
-            "description": description
-        },
-        "paths": {}
+        "info": {"version": api_version, "title": title, "description": description},
+        "paths": {},
     }
-    logger.info(__name__, f"API: openapi={spec['openapi']}, API version={spec['info']['version']}")
+    logger.info(
+        __name__,
+        f"API: openapi={spec['openapi']}, API version={spec['info']['version']}",
+    )
     static_spec = deepcopy(spec)
 
 
@@ -132,10 +143,13 @@ def load_api_file(path: Union[str, Path]):
     """
     global spec, static_spec
     logger.info(__name__, f"Loading api spec from api_file={path}...")
-    with open(path, 'r', encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8") as f:
         spec = json.loads(f.read())
         assert spec is not None
-        logger.info(__name__, f"API: openapi={spec['openapi']}, API version={spec['info']['version']}")
+        logger.info(
+            __name__,
+            f"API: openapi={spec['openapi']}, API version={spec['info']['version']}",
+        )
         static_spec = deepcopy(spec)
 
 
@@ -148,14 +162,14 @@ def save_api_file(path: Union[str, Path], api_version: str):
     """
     assert spec is not None
     assert static_spec is not None
-    if diff_specs() and static_spec['info']['version'] == api_version:
+    if diff_specs() and static_spec["info"]["version"] == api_version:
         err = APIError("Cannot save api file. Need to increment version number. Differences found.")
         logger.error(__name__, err)
         raise err
     logger.info(__name__, f"Set API version={api_version}...")
-    spec['info']['version'] = api_version
+    spec["info"]["version"] = api_version
     logger.info(__name__, f"Saving api spec to api_file={path}...")
-    with open(path, 'w', encoding="utf-8") as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write(json.dumps(spec, indent=2))
         f.flush()
 
@@ -165,8 +179,8 @@ def register_server_config(server_config: ServerConfig):
     Register API definitions from server configuration. This consists of allowed and default authentication methods.
     """
     if spec is not None:
-        if 'components' not in spec:
-            spec['components'] = {'schemas': {}}
+        if "components" not in spec:
+            spec["components"] = {"schemas": {}}
         _update_auth_methods()
         _update_server_default_auth_methods(server_config)
 
@@ -184,7 +198,10 @@ def register_apps(apps_config: List[AppConfig]):
             logger.info(__name__, f"Updating API spec for app={config.app_key()}...")
             _register_api_spec(config)
             for plugin in config.plugins:
-                logger.info(__name__, f"Updating API spec for app={config.app_key()}, plugin={plugin.app_key()}...")
+                logger.info(
+                    __name__,
+                    f"Updating API spec for app={config.app_key()}, plugin={plugin.app_key()}...",
+                )
                 plugin_config = apps_config_by_key[plugin.app_key()]
                 _register_api_spec(config, plugin_config)
         _cleanup_api_schemas()
@@ -193,8 +210,8 @@ def register_apps(apps_config: List[AppConfig]):
 
 def _register_api_spec(app_config: AppConfig, plugin: Optional[AppConfig] = None):
     if spec is not None:
-        if 'components' not in spec:
-            spec['components'] = {'schemas': {}}
+        if "components" not in spec:
+            spec["components"] = {"schemas": {}}
         _update_predefined_schemas()
         _update_api_schemas(app_config)
         _update_api_paths(app_config, plugin)
@@ -213,8 +230,9 @@ async def _passthru_handler(request: web.Request) -> Tuple[web.Request, bool]:
     return request, True
 
 
-def bypass_payload_validation(self, raw_value: Union[None, Dict, _MissingType],
-                              raw: bool) -> Union[None, Dict, _MissingType]:
+def bypass_payload_validation(
+    self, raw_value: Union[None, Dict, _MissingType], raw: bool
+) -> Union[None, Dict, _MissingType]:
     return raw_value
 
 
@@ -237,8 +255,10 @@ def enable_swagger(server_config: ServerConfig, app: web.Application):
         logger.warning(__name__, "No api-file loaded. OpenAPI docs and validation disabled.")
         return
     if static_spec is not None and diff_specs():
-        err = APIError("Cannot enable OpenAPI. Differences found between api-file and running apps. "
-                       "Run `hopeit openapi diff` to check and `hopeit openapi update` to generate spec file")
+        err = APIError(
+            "Cannot enable OpenAPI. Differences found between api-file and running apps. "
+            "Run `hopeit openapi diff` to check and `hopeit openapi update` to generate spec file"
+        )
         logger.error(__name__, err)
         raise err
     static_spec = None
@@ -248,20 +268,25 @@ def enable_swagger(server_config: ServerConfig, app: web.Application):
     if server_config.api.docs_path:
         api_docs_ui = RapiDocUiSettings(
             path=server_config.api.docs_path,
-            heading_text=spec['info']['title'],
-            theme='dark',
-            render_style='read',
-            layout='column',
-            schema_style='tree',
+            heading_text=spec["info"]["title"],
+            theme="dark",
+            render_style="read",
+            layout="column",
+            schema_style="tree",
             allow_spec_url_load=False,
             allow_spec_file_load=False,
             allow_server_selection=False,
-            show_header=False
+            show_header=False,
         )
-        logger.info(__name__, f"OpenAPI documentation available in {server_config.api.docs_path}")
+        logger.info(
+            __name__,
+            f"OpenAPI documentation available in {server_config.api.docs_path}",
+        )
     else:
         logger.warning(
-            __name__, "OpenAPI documentation path not specified in server config. API docs endpoint disabled.")
+            __name__,
+            "OpenAPI documentation path not specified in server config. API docs endpoint disabled.",
+        )
 
     swagger = Swagger(
         app,
@@ -270,15 +295,15 @@ def enable_swagger(server_config: ServerConfig, app: web.Application):
         request_key="data",
         rapidoc_ui_settings=api_docs_ui,
         redoc_ui_settings=None,
-        swagger_ui_settings=None
+        swagger_ui_settings=None,
     )
     swagger.register_media_type_handler("multipart/form-data", _passthru_handler)
     logger.info(__name__, "OpenAPI validations enabled.")
 
 
-def add_route(method: str,
-              path: str,
-              handler: Callable[..., Awaitable[web.StreamResponse]]) -> Callable[..., Awaitable[web.StreamResponse]]:
+def add_route(
+    method: str, path: str, handler: Callable[..., Awaitable[web.StreamResponse]]
+) -> Callable[..., Awaitable[web.StreamResponse]]:
     """
     Register a route handler. In case the path is associated with a path in Open API running spec,
     handler is to be wrapped by an Open API handler, if not, handler will be returned with no changes
@@ -300,9 +325,14 @@ def add_route(method: str,
     return handler
 
 
-def app_route_name(app: AppDescriptor, *, event_name: str,
-                   plugin: Optional[AppDescriptor] = None,
-                   prefix: str = 'api', override_route_name: Optional[str] = None) -> str:
+def app_route_name(
+    app: AppDescriptor,
+    *,
+    event_name: str,
+    plugin: Optional[AppDescriptor] = None,
+    prefix: str = "api",
+    override_route_name: Optional[str] = None,
+) -> str:
     """
     Returns the full route name for a given app event
 
@@ -315,15 +345,19 @@ def app_route_name(app: AppDescriptor, *, event_name: str,
     :return: str, full route name. i.e.:
         /api/app-name/1x0/event-name or /api/app-name/1x0/plugin-name/1x0/event-name
     """
-    components = [
-        prefix, app.name, app.version,
-        *([plugin.name, plugin.version] if plugin else []),
-        *event_name.split('.')
-    ] if override_route_name is None else [
-        override_route_name[1:]
-    ] if override_route_name[0] == '/' else [
-        prefix, override_route_name
-    ]
+    components = (
+        [
+            prefix,
+            app.name,
+            app.version,
+            *([plugin.name, plugin.version] if plugin else []),
+            *event_name.split("."),
+        ]
+        if override_route_name is None
+        else [override_route_name[1:]]
+        if override_route_name[0] == "/"
+        else [prefix, override_route_name]
+    )
     return route_name(*components)
 
 
@@ -337,9 +371,7 @@ def datatype_schema(event_name: str, datatype: Type) -> dict:
         origin = datatype
     type_mapper = TYPE_MAPPERS.get(origin)
     if type_mapper is None:
-        return {
-            "$ref": _schema_name(datatype)
-        }
+        return {"$ref": _schema_name(datatype)}
     return type_mapper(event_name, datatype)  # type: ignore
 
 
@@ -347,18 +379,14 @@ def _update_auth_methods():
     """
     Generate default securitySchemes section
     """
-    security_schemas = spec['components'].get('securitySchemes', {})
-    security_schemas.update({
-        'auth.basic': {
-            'type': 'http',
-            'scheme': 'basic'
-        },
-        'auth.bearer': {
-            'type': 'http',
-            'scheme': 'bearer'
+    security_schemas = spec["components"].get("securitySchemes", {})
+    security_schemas.update(
+        {
+            "auth.basic": {"type": "http", "scheme": "basic"},
+            "auth.bearer": {"type": "http", "scheme": "bearer"},
         }
-    })
-    spec['components']['securitySchemes'] = security_schemas
+    )
+    spec["components"]["securitySchemes"] = security_schemas
 
 
 def _update_auth_refresh_method(app_key: str):
@@ -366,15 +394,17 @@ def _update_auth_refresh_method(app_key: str):
     Generate securitySchemes entries for REFRESH token cookie for each app
     """
     assert spec is not None
-    security_schemas = spec['components'].get('securitySchemes', {})
-    security_schemas.update({
-        f"{app_key}.refresh": {
-            'type': 'apiKey',
-            'in': 'cookie',
-            'name': f"{app_key}.refresh"
+    security_schemas = spec["components"].get("securitySchemes", {})
+    security_schemas.update(
+        {
+            f"{app_key}.refresh": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": f"{app_key}.refresh",
+            }
         }
-    })
-    spec['components']['securitySchemes'] = security_schemas
+    )
+    spec["components"]["securitySchemes"] = security_schemas
 
 
 def _update_server_default_auth_methods(server_config: ServerConfig):
@@ -382,13 +412,13 @@ def _update_server_default_auth_methods(server_config: ServerConfig):
     Generate security section based on server default_auth_methods
     """
     assert spec is not None
-    security = spec.get('security', [])
+    security = spec.get("security", [])
     methods = {method for entry in security for method in entry.keys()}
     for auth_method in server_config.auth.default_auth_methods:
         auth_str = f"auth.{auth_method.value.lower()}"
-        if auth_str != 'auth.unsecured' and auth_str not in methods:
+        if auth_str != "auth.unsecured" and auth_str not in methods:
             security.append({auth_str: []})
-    spec['security'] = security
+    spec["security"] = security
 
 
 def _update_api_schemas(app_config: AppConfig):
@@ -396,20 +426,22 @@ def _update_api_schemas(app_config: AppConfig):
     Generate schemas for @dataobject annotated dataclasses discovered in event implementation modules
     """
     assert spec is not None
-    schemas = spec['components'].get('schemas', {})
+    schemas = spec["components"].get("schemas", {})
     for event_name, event_info in app_config.events.items():
         event_schemas = _generate_schemas(app_config, event_name, event_info)
         for name, event_schema in event_schemas.items():
             if name in runtime_schemas:
                 if not event_schema == schemas.get(name):
-                    logger.warning(__name__,
-                                   f"Schema ignored: same schema name has non-compatible implementations: "
-                                   f"event={event_name} schema={name}")
+                    logger.warning(
+                        __name__,
+                        f"Schema ignored: same schema name has non-compatible implementations: "
+                        f"event={event_name} schema={name}",
+                    )
             else:
                 schemas[name] = event_schema
                 runtime_schemas[name] = event_schema
 
-    spec['components']['schemas'] = schemas
+    spec["components"]["schemas"] = schemas
 
 
 def _update_predefined_schemas():
@@ -417,11 +449,13 @@ def _update_predefined_schemas():
     Generate schemas for predefined classes
     """
     assert spec is not None
-    spec['components']['schemas'].update(
-        {'ErrorInfo': TypeAdapter(ErrorInfo).json_schema(
-            schema_generator=GenerateOpenAPI30Schema,
-            ref_template='#/components/schemas/{model}'
-        )}
+    spec["components"]["schemas"].update(
+        {
+            "ErrorInfo": TypeAdapter(ErrorInfo).json_schema(
+                schema_generator=GenerateOpenAPI30Schema,
+                ref_template="#/components/schemas/{model}",
+            )
+        }
     )
 
 
@@ -434,12 +468,12 @@ def _cleanup_api_schemas():
     while modified:
         clean = {}
         spec_str = json.dumps(spec)
-        schemas = spec['components'].get('schemas', {})
+        schemas = spec["components"].get("schemas", {})
         for name, schema in schemas.items():
             if spec_str.find(f"#/components/schemas/{name}") >= 0:
                 clean[name] = schema
         modified = len(schemas) > len(clean)
-        spec['components']['schemas'] = clean
+        spec["components"]["schemas"] = clean
 
 
 def _cleanup_global_auth():
@@ -447,7 +481,7 @@ def _cleanup_global_auth():
     Remove global security requirements as they are propagated path by path.
     """
     assert spec is not None
-    spec['security'] = []
+    spec["security"] = []
 
 
 def _update_api_paths(app_config: AppConfig, plugin: Optional[AppConfig] = None):
@@ -455,16 +489,20 @@ def _update_api_paths(app_config: AppConfig, plugin: Optional[AppConfig] = None)
     Populates paths section of spec based on __api__ specified in implemented events
     """
     assert spec is not None
-    events = {
-        k: v for k, v in app_config.events.items() if v.plug_mode == EventPlugMode.STANDALONE
-    } if plugin is None else {
-        k: v for k, v in plugin.events.items() if v.plug_mode == EventPlugMode.ON_APP
-    }
+    events = (
+        {k: v for k, v in app_config.events.items() if v.plug_mode == EventPlugMode.STANDALONE}
+        if plugin is None
+        else {k: v for k, v in plugin.events.items() if v.plug_mode == EventPlugMode.ON_APP}
+    )
     plugin_app = None if plugin is None else plugin.app
-    paths = spec.get('paths', {})
+    paths = spec.get("paths", {})
     for event_name, event_info in events.items():
-        route = app_route_name(app_config.app, event_name=event_name, plugin=plugin_app,
-                               override_route_name=event_info.route)
+        route = app_route_name(
+            app_config.app,
+            event_name=event_name,
+            plugin=plugin_app,
+            override_route_name=event_info.route,
+        )
         method = METHOD_MAPPING.get(event_info.type)
         if method is None:
             continue
@@ -473,64 +511,69 @@ def _update_api_paths(app_config: AppConfig, plugin: Optional[AppConfig] = None)
         )
         if event_api_spec is None:
             event_api_spec = paths.get(route, {}).get(method)
-        if event_api_spec is None and _options.get('generate_mode'):
-            event_api_spec = {"description": f"<<<{event_name}>>>", "parameters": [], "responses": {}}
+        if event_api_spec is None and _options.get("generate_mode"):
+            event_api_spec = {
+                "description": f"<<<{event_name}>>>",
+                "parameters": [],
+                "responses": {},
+            }
         if event_api_spec is not None:
-            event_api_spec['tags'] = [app_config.app_key()]
+            event_api_spec["tags"] = [app_config.app_key()]
             _set_optional_fixed_headers(event_api_spec)
             _set_track_headers(event_api_spec, app_config)
             _set_path_security(event_api_spec, app_config, event_info)
             route_path = paths.get(route, {})
             route_path[method] = event_api_spec
             paths[route] = route_path
-    spec['paths'] = paths
+    spec["paths"] = paths
 
 
 def _set_optional_fixed_headers(event_api_spec: dict):
     """
     Set arguments for request-id and request-ts track headers on every path entry
     """
-    if not any(param['name'] == 'X-Track-Request-Id' for param in event_api_spec['parameters']):
-        event_api_spec['parameters'].append({
-            "name": "X-Track-Request-Id",
-            "in": "header",
-            "required": False,
-            "description": "Track information: Request-Id",
-            "schema": {
-                "type": "string"
+    if not any(param["name"] == "X-Track-Request-Id" for param in event_api_spec["parameters"]):
+        event_api_spec["parameters"].append(
+            {
+                "name": "X-Track-Request-Id",
+                "in": "header",
+                "required": False,
+                "description": "Track information: Request-Id",
+                "schema": {"type": "string"},
             }
-        })
-    if not any(param['name'] == 'X-Track-Request-Ts' for param in event_api_spec['parameters']):
-        event_api_spec['parameters'].append({
-            "name": "X-Track-Request-Ts",
-            "in": "header",
-            "required": False,
-            "description": "Track information: Request-Ts",
-            "schema": {
-                "type": "string",
-                "format": "date-time"
+        )
+    if not any(param["name"] == "X-Track-Request-Ts" for param in event_api_spec["parameters"]):
+        event_api_spec["parameters"].append(
+            {
+                "name": "X-Track-Request-Ts",
+                "in": "header",
+                "required": False,
+                "description": "Track information: Request-Ts",
+                "schema": {"type": "string", "format": "date-time"},
             }
-        })
+        )
 
 
 def _set_track_headers(event_api_spec: dict, app_config: AppConfig):
     """
     Set arguments for track headers specified in app_config for every path
     """
-    current_params = {entry['name'] for entry in event_api_spec['parameters']}
+    current_params = {entry["name"] for entry in event_api_spec["parameters"]}
     for track_header in app_config.engine.track_headers:
         header_name = f"X-{re.sub(' ', '-', titlecase(track_header))}"
         if header_name not in current_params:
-            event_api_spec['parameters'].append({
-                "name": header_name,
-                "in": "header",
-                "required": True,
-                "description": f"Track information: {track_header}",
-                "schema": {
-                    "type": "string",
-                    "default": track_header.replace('track', 'test')
+            event_api_spec["parameters"].append(
+                {
+                    "name": header_name,
+                    "in": "header",
+                    "required": True,
+                    "description": f"Track information: {track_header}",
+                    "schema": {
+                        "type": "string",
+                        "default": track_header.replace("track", "test"),
+                    },
                 }
-            })
+            )
 
 
 def _set_path_security(event_api_spec: dict, app_config: AppConfig, event_info: EventDescriptor):
@@ -548,18 +591,20 @@ def _set_path_security(event_api_spec: dict, app_config: AppConfig, event_info: 
             auth_str = f"auth.{auth.value.lower()}"
             security.append({auth_str: []})
     if len(security) == 0 and AuthType.UNSECURED not in event_info.auth:
-        security = spec['security']
+        security = spec["security"]
     if len(security) > 0:
-        event_api_spec['security'] = security
+        event_api_spec["security"] = security
 
 
-def _extract_event_api_spec(app_config: AppConfig, event_name: str, event_info: EventDescriptor) -> Optional[dict]:
+def _extract_event_api_spec(
+    app_config: AppConfig, event_name: str, event_info: EventDescriptor
+) -> Optional[dict]:
     """
     Extract __api__ definition from event implementation
     """
     module = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
-    if hasattr(module, '__api__'):
-        method_spec = getattr(module, '__api__')
+    if hasattr(module, "__api__"):
+        method_spec = getattr(module, "__api__")
         if isinstance(method_spec, dict):
             return method_spec
         return method_spec(module, app_config, event_name, None)
@@ -588,11 +633,11 @@ def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):
         _, input_type, ret_type, _ = step_info
         datatypes = _explode_datatypes([input_type, ret_type])
         for datatype in datatypes:
-            if datatype is not None and hasattr(datatype, '__data_object__'):
-                if datatype.__data_object__['schema']:
+            if datatype is not None and hasattr(datatype, "__data_object__"):
+                if datatype.__data_object__["schema"]:
                     local_schema = TypeAdapter(datatype).json_schema(
                         schema_generator=GenerateOpenAPI30Schema,
-                        ref_template='#/components/schemas/{model}'
+                        ref_template="#/components/schemas/{model}",
                     )
                     defs = local_schema.get("$defs", {})
                     defs[datatype.__name__] = {
@@ -605,8 +650,8 @@ def _explode_datatypes(datatypes: List[Type]) -> List[Type]:
     result = []
     for datatype in datatypes:
         if datatype is not None:
-            if hasattr(datatype, '__args__'):
-                for arg in getattr(datatype, '__args__'):
+            if hasattr(datatype, "__args__"):
+                for arg in getattr(datatype, "__args__"):
                     result.extend(_explode_datatypes([arg]))
             else:
                 result.append(datatype)
@@ -615,60 +660,51 @@ def _explode_datatypes(datatypes: List[Type]) -> List[Type]:
 
 def _array_schema(event_name: str, datatype: type):
     args = typing.get_args(datatype)
-    return {
-        "type": "array",
-        "items": {
-            "$ref": _schema_name(args[0])
-        }
-    }
+    return {"type": "array", "items": {"$ref": _schema_name(args[0])}}
 
 
 def _binary_download_schema(event_name: str, datatype: type):
-    return {
-        "type": "string",
-        "format": "binary"
-    }
+    return {"type": "string", "format": "binary"}
 
 
-def _builtin_schema(type_name: str, type_format: Optional[str],
-                    event_name: str, datatype: type) -> dict:
+def _builtin_schema(
+    type_name: str, type_format: Optional[str], event_name: str, datatype: type
+) -> dict:
     """
     Build type schema for predefined datatypes
     """
     schema = {
         "type": "object",
-        "required": [
-            event_name
-        ],
+        "required": [event_name],
         "properties": {
             event_name: {
                 "type": type_name,
             }
         },
-        "description": f"{event_name} {type_name} payload"
+        "description": f"{event_name} {type_name} payload",
     }
     if type_format is not None:
-        schema['properties'][event_name]['format'] = type_format  # type: ignore
+        schema["properties"][event_name]["format"] = type_format  # type: ignore
     return schema
 
 
 TYPE_MAPPERS = {
-    str: partial(_builtin_schema, 'string', None),
-    int: partial(_builtin_schema, 'integer', None),
-    float: partial(_builtin_schema, 'number', None),
-    bool: partial(_builtin_schema, 'boolean', None),
+    str: partial(_builtin_schema, "string", None),
+    int: partial(_builtin_schema, "integer", None),
+    float: partial(_builtin_schema, "number", None),
+    bool: partial(_builtin_schema, "boolean", None),
     list: _array_schema,
-    BinaryAttachment: partial(_builtin_schema, 'string', 'binary'),
-    BinaryDownload: _binary_download_schema
+    BinaryAttachment: partial(_builtin_schema, "string", "binary"),
+    BinaryDownload: _binary_download_schema,
 }
 
 BUILTIN_TYPES = {
-    str: ('string', None),
-    int: ('integer', None),
-    float: ('number', None),
-    bool: ('boolean', None),
-    date: ('string', 'date'),
-    datetime: ('string', 'date-time')
+    str: ("string", None),
+    int: ("integer", None),
+    float: ("number", None),
+    bool: ("boolean", None),
+    date: ("string", "date"),
+    datetime: ("string", "date-time"),
 }
 
 
@@ -694,9 +730,7 @@ class GenerateOpenAPI30Schema(GenerateJsonSchema):
         In OpenAPI 3.0, the "const" keyword is not supported, so this
         version of this method skips that optimization.
         """
-        expected = [
-            v.value if isinstance(v, Enum) else v for v in schema["expected"]
-        ]
+        expected = [v.value if isinstance(v, Enum) else v for v in schema["expected"]]
 
         types = {type(e) for e in expected}
         if types == {str}:

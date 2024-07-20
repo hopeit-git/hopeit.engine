@@ -22,10 +22,10 @@ from hopeit.testing.apps import (
     execute_service,
     TestingException,
 )
-from mock_app import mock_app_config, MockData, mock_event, MockResult  # noqa: F401
+from mock_app import mock_app_config, MockData, mock_event, MockResult
 
 
-def test_config(mock_app_config):  # noqa: F811
+def test_config(mock_app_config):
     file_name = Path("/tmp") / (str(uuid.uuid4()) + ".json")
     expected = mock_app_config
     with open(file_name, "w") as f:
@@ -38,7 +38,7 @@ def test_config(mock_app_config):  # noqa: F811
     assert result.server == server_config()
 
 
-def test_create_test_context(mock_app_config):  # noqa: F811
+def test_create_test_context(mock_app_config):
     result = create_test_context(mock_app_config, "mock_event")
     assert isinstance(result, EventContext)
     assert result.app == mock_app_config.app
@@ -54,13 +54,13 @@ def test_create_test_context(mock_app_config):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_execute_event(mock_app_config):  # noqa: F811
+async def test_execute_event(mock_app_config):
     result = await execute_event(mock_app_config, "mock_event", None, query_arg1="ok")
     assert result == "ok: ok"
 
 
 @pytest.mark.asyncio
-async def test_execute_event_and_postprocess(mock_app_config):  # noqa: F811
+async def test_execute_event_and_postprocess(mock_app_config):
     result, pp_result, response = await execute_event(
         mock_app_config, "mock_event", None, query_arg1="ok", postprocess=True
     )
@@ -72,7 +72,7 @@ async def test_execute_event_and_postprocess(mock_app_config):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_execute_event_failed_case(mock_app_config):  # noqa: F811
+async def test_execute_event_failed_case(mock_app_config):
     with pytest.raises(AssertionError):
         await execute_event(
             mock_app_config, "mock_event", None, query_arg1="fail", postprocess=True
@@ -80,7 +80,7 @@ async def test_execute_event_failed_case(mock_app_config):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_execute_event_special_case(mock_app_config):  # noqa: F811
+async def test_execute_event_special_case(mock_app_config):
     result, pp_result, response = await execute_event(
         mock_app_config, "mock_event", None, query_arg1="no-ok", postprocess=True
     )
@@ -90,7 +90,7 @@ async def test_execute_event_special_case(mock_app_config):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_execute_spawn_event(mock_app_config):  # noqa: F811
+async def test_execute_spawn_event(mock_app_config):
     result = await execute_event(mock_app_config, "mock_spawn_event", "ok")
     assert result == [
         MockData(value="stream: ok.0"),
@@ -100,7 +100,7 @@ async def test_execute_spawn_event(mock_app_config):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_execute_service(mock_app_config):  # noqa: F811
+async def test_execute_service(mock_app_config):
     result = await execute_service(mock_app_config, "mock_service_event", max_events=3)
     assert result == [
         MockData(value="stream: service.0"),
@@ -110,15 +110,13 @@ async def test_execute_service(mock_app_config):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_execute_service_unhappy(mock_app_config):  # noqa: F811
+async def test_execute_service_unhappy(mock_app_config):
     with pytest.raises(TestingException):
-        await execute_service(
-            mock_app_config, "mock_service_event_unhappy", max_events=3
-        )
+        await execute_service(mock_app_config, "mock_service_event_unhappy", max_events=3)
 
 
 @pytest.mark.asyncio
-async def test_execute_shuffle_event(mock_app_config):  # noqa: F811
+async def test_execute_shuffle_event(mock_app_config):
     result = await execute_event(mock_app_config, "mock_shuffle_event", "ok")
     assert result == [
         MockResult(value="ok: ok.0", processed=True),
@@ -128,7 +126,7 @@ async def test_execute_shuffle_event(mock_app_config):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_execute_shuffle_event_default_step(mock_app_config):  # noqa: F811
+async def test_execute_shuffle_event_default_step(mock_app_config):
     result = await execute_event(mock_app_config, "mock_shuffle_event", "none")
     assert result == [
         MockResult(value="default", processed=True),
@@ -138,7 +136,7 @@ async def test_execute_shuffle_event_default_step(mock_app_config):  # noqa: F81
 
 
 @pytest.mark.asyncio
-async def test_execute_parallelize_event(mock_app_config):  # noqa: F811
+async def test_execute_parallelize_event(mock_app_config):
     result, pp_result, response = await execute_event(
         mock_app_config,
         "mock_parallelize_event",
@@ -150,7 +148,7 @@ async def test_execute_parallelize_event(mock_app_config):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_execute_parallelize_event_no_shuffle(mock_app_config):  # noqa: F811
+async def test_execute_parallelize_event_no_shuffle(mock_app_config):
     def mock_steps(module, context):
         setattr(module, "__steps__", ["produce_messages", "process_a", "process_b"])
 
@@ -164,7 +162,7 @@ async def test_execute_parallelize_event_no_shuffle(mock_app_config):  # noqa: F
 
 
 @pytest.mark.asyncio
-async def test_execute_shuffle_event_default_step_fail(mock_app_config):  # noqa: F811
+async def test_execute_shuffle_event_default_step_fail(mock_app_config):
     with pytest.raises(AssertionError):
         await execute_event(mock_app_config, "mock_shuffle_event", "fail")
 
@@ -177,7 +175,7 @@ def mock_module(module: ModuleType, context: EventContext):
 
 
 @pytest.mark.asyncio
-async def test_execute_event_with_mocks(mock_app_config):  # noqa: F811
+async def test_execute_event_with_mocks(mock_app_config):
     result = await execute_event(
         mock_app_config, "mock_event", None, mocks=[mock_module], query_arg1="ok"
     )
@@ -186,7 +184,7 @@ async def test_execute_event_with_mocks(mock_app_config):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_execute_multipart_event(mock_app_config):  # noqa: F811
+async def test_execute_multipart_event(mock_app_config):
     fields = {
         "field1": "value1",
         "field2": {"value": "value2"},
@@ -210,16 +208,14 @@ async def test_execute_multipart_event(mock_app_config):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_execute_event_preprocess(mock_app_config):  # noqa: F811
+async def test_execute_event_preprocess(mock_app_config):
     def mock_hooks(
         module,
         context: EventContext,
         preprocess_hook: PreprocessHook,
         postprocess_hook: PostprocessHook,
     ):
-        preprocess_hook.headers = PreprocessHeaders.from_dict(
-            {"X-Track-Request-Id": "Testing!"}
-        )
+        preprocess_hook.headers = PreprocessHeaders.from_dict({"X-Track-Request-Id": "Testing!"})
         assert postprocess_hook.headers.get("recognized") is None
 
     result, pp_result, response = await execute_event(
@@ -237,16 +233,14 @@ async def test_execute_event_preprocess(mock_app_config):  # noqa: F811
 
 
 @pytest.mark.asyncio
-async def test_execute_event_preprocess_no_datatype(mock_app_config):  # noqa: F811
+async def test_execute_event_preprocess_no_datatype(mock_app_config):
     def mock_hooks(
         module,
         context: EventContext,
         preprocess_hook: PreprocessHook,
         postprocess_hook: PostprocessHook,
     ):
-        preprocess_hook.headers = PreprocessHeaders.from_dict(
-            {"X-Track-Request-Id": "Testing!"}
-        )
+        preprocess_hook.headers = PreprocessHeaders.from_dict({"X-Track-Request-Id": "Testing!"})
         preprocess_hook.payload_raw = b"OK\n"
         assert postprocess_hook.headers.get("recognized") is None
 

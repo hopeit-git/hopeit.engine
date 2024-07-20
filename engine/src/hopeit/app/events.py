@@ -1,6 +1,7 @@
 """
 Events handling
 """
+
 from typing import AsyncGenerator, Type, TypeVar
 
 from hopeit.app.context import EventContext
@@ -10,9 +11,9 @@ from hopeit.server.engine import AppEngine
 from hopeit.server.steps import SHUFFLE, CollectorStepsDescriptor
 from hopeit.server.runtime import server
 
-__all__ = ['Spawn', 'SHUFFLE', 'collector_step', 'Collector']
+__all__ = ["Spawn", "SHUFFLE", "collector_step", "Collector"]
 
-T = TypeVar('T')
+T = TypeVar("T")
 Spawn = AsyncGenerator[T, None]
 
 

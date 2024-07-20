@@ -4,6 +4,7 @@ Simple Example: Spawn Event
 This example will spawn 3 data events, those are going to be send to a stream using SHUFFLE
 and processed in asynchronously / in parallel if multiple nodes are available
 """
+
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -16,14 +17,12 @@ from model import Something, SomethingStored, Status, StatusType
 
 logger, extra = app_extra_logger()
 
-__steps__ = ['spawn_many_events', SHUFFLE, 'update_status', 'save']
+__steps__ = ["spawn_many_events", SHUFFLE, "update_status", "save"]
 
 __api__ = event_api(
     summary="Simple Example: Spawn Event",
     payload=(Something, "Something object to submitted several times to stream"),
-    responses={
-        200: (str, 'events submitted successfully message')
-    }
+    responses={200: (str, "events submitted successfully message")},
 )
 
 
@@ -47,15 +46,14 @@ async def spawn_many_events(payload: Something, context: EventContext) -> Spawn[
     if payload.status:
         payload.history.append(payload.status)
     for i in range(3):
-        payload.status = Status(
-            ts=datetime.now(tz=timezone.utc),
-            type=StatusType.SUBMITTED
-        )
+        payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.SUBMITTED)
         payload.id = str(i)
         yield payload
 
 
-async def __postprocess__(payload: Something, context: EventContext, response: PostprocessHook) -> str:  # noqa: C0103
+async def __postprocess__(
+    payload: Something, context: EventContext, response: PostprocessHook
+) -> str:  # noqa: C0103
     assert context.event_info.write_stream
     msg = f"events submitted to stream: {context.event_info.write_stream.name}"
     logger.info(context, msg)
@@ -74,10 +72,7 @@ def update_status(payload: Something, context: EventContext) -> Something:
 
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(
-        ts=datetime.now(tz=timezone.utc),
-        type=StatusType.PROCESSED
-    )
+    payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.PROCESSED)
     return payload
 
 
@@ -91,7 +86,4 @@ async def save(payload: Something, context: EventContext) -> SomethingStored:
     assert fs
     logger.info(context, "save", extra=extra(something_id=payload.id, path=fs.path))
     path = await fs.store(payload.id, payload)
-    return SomethingStored(
-        path=path,
-        payload=payload
-    )
+    return SomethingStored(path=path, payload=payload)

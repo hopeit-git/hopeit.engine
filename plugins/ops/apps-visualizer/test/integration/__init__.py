@@ -17,10 +17,7 @@ class MockAppEngine:
 
 class MockServer:
     def __init__(self, *app_config: AppConfig):
-        self.app_engines = {
-            cfg.app_key(): MockAppEngine(cfg)
-            for cfg in app_config
-        }
+        self.app_engines = {cfg.app_key(): MockAppEngine(cfg) for cfg in app_config}
 
 
 def mock_getenv(var_name):
@@ -37,10 +34,10 @@ def mock_getenv(var_name):
 
 def mock_runtime(monkeypatch, effective_events):
     setattr(apps, "_expire", 0.0)
-    monkeypatch.setattr(server_config.os, 'getenv', mock_getenv)
-    app_config = config('apps/examples/simple-example/config/app-config.json')
-    basic_auth_config = config('plugins/auth/basic-auth/config/plugin-config.json')
-    client_app_config = config('apps/examples/client-example/config/app-config.json')
+    monkeypatch.setattr(server_config.os, "getenv", mock_getenv)
+    app_config = config("apps/examples/simple-example/config/app-config.json")
+    basic_auth_config = config("plugins/auth/basic-auth/config/plugin-config.json")
+    client_app_config = config("apps/examples/client-example/config/app-config.json")
     server = MockServer(basic_auth_config, app_config, client_app_config)
     for app_key, app_effective_events in effective_events.items():
         server.app_engines[app_key].effective_events = Payload.from_obj(

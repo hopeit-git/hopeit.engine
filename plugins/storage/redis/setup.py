@@ -18,7 +18,6 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Intended Audience :: Developers",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -47,7 +46,7 @@ setuptools.setup(
     package_data={
         "hopeit.redis_storage": ["py.typed"]
     },
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=[
         f"hopeit.engine=={version['ENGINE_VERSION']}",
         "redis>=5.0.0"

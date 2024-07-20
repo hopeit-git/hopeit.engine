@@ -19,9 +19,7 @@ async def _ser_json_utf8(data: EventPayload, level: int) -> bytes:
     return Payload.to_json(data).encode("utf-8")
 
 
-async def _deser_json_utf8(
-    data: bytes, datatype: Type[EventPayloadType]
-) -> EventPayload:
+async def _deser_json_utf8(data: bytes, datatype: Type[EventPayloadType]) -> EventPayload:
     return Payload.from_json(data.decode("utf-8"), datatype)
 
 
@@ -37,9 +35,7 @@ async def _ser_json_base64(data: EventPayload, level: int) -> bytes:
     return base64.b64encode(await _ser_json_utf8(data, level))
 
 
-async def _deser_json_base64(
-    data: bytes, datatype: Type[EventPayloadType]
-) -> EventPayload:
+async def _deser_json_base64(data: bytes, datatype: Type[EventPayloadType]) -> EventPayload:
     return await _deser_json_utf8(base64.b64decode(data), datatype)
 
 

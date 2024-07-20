@@ -14,6 +14,8 @@ ______________
   
   BREAKING CHANGES
   ================
+  - Dropped support for `Python 3.8`
+
   - Python `dataclasses.dataclass` is no longer supported in `@dataobjects` annotated classes.
   Pydantic `@dataclasses` (and in the future BaseModel should be used). 
   
@@ -27,7 +29,7 @@ ______________
   but could be features of dataclasses (like i.e. `metadata`) that should be replaced by its
   equivalent in `pydantic`.
 
-  - API validation: now payload validation not done in api module and is deferred and done by `pydantic` when the 
+  - API validation: now payload validation is not done in `api` module and is deferred and done by `pydantic` when the 
   payload is being parsed. Response in case of validation error will return `BadRequest` (400) but with
   different error message than in previous versions.
 
@@ -43,7 +45,14 @@ ______________
   
   - redis-streams: update `StreamsConfig` usage to support new `username` and `password` fields
 
-  - redis-storage: add support for `username` and `password` in the `connect` method 
+  - redis-storage: add support for `username` and `password` in the `connect` method
+
+- Development (internal)
+
+  - Simplified and accelerated linting using `ruff`. Dropping `pylint` and `flake`
+  - Reformatted code files
+  - Moved linting and test logic to `Makefile`
+
 
 Version 0.24.2
 ______________

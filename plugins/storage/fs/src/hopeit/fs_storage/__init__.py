@@ -69,9 +69,7 @@ class FileStorage(Generic[DataObject]):
 
     @classmethod
     def with_settings(cls, settings: FileStorageSettings) -> "FileStorage":
-        return cls(
-            path=settings.path, partition_dateformat=settings.partition_dateformat
-        )
+        return cls(path=settings.path, partition_dateformat=settings.partition_dateformat)
 
     async def get(
         self,
@@ -159,10 +157,7 @@ class FileStorage(Generic[DataObject]):
         base_path = str(self.path.resolve())
         path = base_path + "/" + wildcard + SUFFIX
         n_part_comps = len(self.partition_dateformat.split("/"))
-        return [
-            self._get_item_locator(item_path, n_part_comps, SUFFIX)
-            for item_path in glob(path)
-        ]
+        return [self._get_item_locator(item_path, n_part_comps, SUFFIX) for item_path in glob(path)]
 
     async def list_files(self, wildcard: str = "*") -> List[ItemLocator]:
         """
@@ -174,9 +169,7 @@ class FileStorage(Generic[DataObject]):
         base_path = str(self.path.resolve())
         path = base_path + "/" + wildcard
         n_part_comps = len(self.partition_dateformat.split("/"))
-        return [
-            self._get_item_locator(item_path, n_part_comps) for item_path in glob(path)
-        ]
+        return [self._get_item_locator(item_path, n_part_comps) for item_path in glob(path)]
 
     async def delete(self, *keys: str, partition_key: Optional[str] = None):
         """
@@ -246,9 +239,7 @@ class FileStorage(Generic[DataObject]):
         """This method generates an `ItemLocator` object from a given `item_path`"""
         comps = item_path.split("/")
         partition_key = (
-            "/".join(comps[-n_part_comps - 1: -1])
-            if self.partition_dateformat
-            else None
+            "/".join(comps[-n_part_comps - 1 : -1]) if self.partition_dateformat else None
         )
         item_id = comps[-1][: -len(suffix)] if suffix else comps[-1]
         return ItemLocator(item_id=item_id, partition_key=partition_key)

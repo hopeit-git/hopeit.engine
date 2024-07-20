@@ -1,31 +1,39 @@
 """
 Config module: apps config data model and json loader
 """
+
 from copy import deepcopy
 from enum import Enum
 from typing import Any, Dict, Optional, Type, Union, List, Generic
 
 from hopeit.dataobjects import EventPayloadType, dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
-from hopeit.server.config import replace_config_args, replace_env_vars, ServerConfig, AuthType
+from hopeit.server.config import (
+    replace_config_args,
+    replace_env_vars,
+    ServerConfig,
+    AuthType,
+)
 from hopeit.server.names import auto_path
 
-__all__ = ['AppDescriptor',
-           'AppSettings',
-           'Env',
-           'EventType',
-           'EventPlugMode',
-           'EventDescriptor',
-           'EventSettings',
-           'ReadStreamDescriptor',
-           'WriteStreamDescriptor',
-           'EventLoggingConfig',
-           'EventStreamConfig',
-           'Compression',
-           'Serialization',
-           'AppEngineConfig',
-           'AppConfig',
-           'parse_app_config_json']
+__all__ = [
+    "AppDescriptor",
+    "AppSettings",
+    "Env",
+    "EventType",
+    "EventPlugMode",
+    "EventDescriptor",
+    "EventSettings",
+    "ReadStreamDescriptor",
+    "WriteStreamDescriptor",
+    "EventLoggingConfig",
+    "EventStreamConfig",
+    "Compression",
+    "Serialization",
+    "AppEngineConfig",
+    "AppConfig",
+    "parse_app_config_json",
+]
 
 
 @dataobject
@@ -34,14 +42,15 @@ class AppDescriptor:
     """
     App descriptor
     """
+
     name: str
     version: str
 
     def __post_init__(self):
         if len(self.name) == 0:
-            raise ValueError('name', self)
+            raise ValueError("name", self)
         if len(self.version) == 0:
-            raise ValueError('version', self)
+            raise ValueError("version", self)
 
     def app_key(self):
         return auto_path(self.name, self.version)
@@ -62,12 +71,13 @@ class EventType(str, Enum):
     MULTIPART: event triggered from api postform-multipart request via endpoint.
     SETUP: event that is executed once when service is starting
     """
-    GET = 'GET'
-    POST = 'POST'
-    STREAM = 'STREAM'
-    SERVICE = 'SERVICE'
-    MULTIPART = 'MULTIPART'
-    SETUP = 'SETUP'
+
+    GET = "GET"
+    POST = "POST"
+    STREAM = "STREAM"
+    SERVICE = "SERVICE"
+    MULTIPART = "MULTIPART"
+    SETUP = "SETUP"
 
 
 class StreamQueue:
@@ -99,6 +109,7 @@ class ReadStreamDescriptor:
         consume only from specific queues. This configuration is manual to allow consuming messages
         produced by external apps.
     """
+
     name: str
     consumer_group: str
     queues: List[str] = field(default_factory=StreamQueue.default_queues)
@@ -113,6 +124,7 @@ class StreamQueueStrategy(str, Enum):
     :field DROP: queue name will be dropped, so messages will be published only to queue specified in
         `write_stream` configuration, or default queue if not specified.
     """
+
     PROPAGATE = "PROPAGATE"
     DROP = "DROP"
 
@@ -138,6 +150,7 @@ class WriteStreamDescriptor:
         so in case of complex stream propagating queue names are configured,
         `StreamQueueStrategy.PROPAGATE` must be explicitly specified.
     """
+
     name: str
     queues: List[str] = field(default_factory=StreamQueue.default_queues)
     queue_strategy: StreamQueueStrategy = StreamQueueStrategy.DROP
@@ -161,45 +174,49 @@ class EventLoggingConfig:
             'event_id', event id from @data_event
             'read_ts': uct time when message was consumed from stream
     """
+
     extra_fields: List[str] = field(default_factory=list)
     stream_fields: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         if len(self.stream_fields) == 0:
-            self.stream_fields = ['name', 'msg_id', 'consumer_group']
-        self.stream_fields = [k if k.startswith('stream.') else f"stream.{k}"
-                              for k in self.stream_fields]
+            self.stream_fields = ["name", "msg_id", "consumer_group"]
+        self.stream_fields = [
+            k if k.startswith("stream.") else f"stream.{k}" for k in self.stream_fields
+        ]
 
 
 class Compression(str, Enum):
     """
     Available compression algorithms and levels for event payloads.
     """
-    NONE = 'none'
-    LZ4 = 'lz4'
-    LZ4_MIN = 'lz4:0'
-    LZ4_MAX = 'lz4:16'
-    ZIP = 'zip'
-    ZIP_MIN = 'zip:1'
-    ZIP_MAX = 'zip:9'
-    GZIP = 'gzip'
-    GZIP_MIN = 'gzip:1'
-    GZIP_MAX = 'gzip:9'
-    BZ2 = 'bz2'
-    BZ2_MIN = 'bz2:1'
-    BZ2_MAX = 'bz2:9'
-    LZMA = 'lzma'
+
+    NONE = "none"
+    LZ4 = "lz4"
+    LZ4_MIN = "lz4:0"
+    LZ4_MAX = "lz4:16"
+    ZIP = "zip"
+    ZIP_MIN = "zip:1"
+    ZIP_MAX = "zip:9"
+    GZIP = "gzip"
+    GZIP_MIN = "gzip:1"
+    GZIP_MAX = "gzip:9"
+    BZ2 = "bz2"
+    BZ2_MIN = "bz2:1"
+    BZ2_MAX = "bz2:9"
+    LZMA = "lzma"
 
 
 class Serialization(str, Enum):
     """
     Available serialization methods for event payloads.
     """
-    JSON_UTF8 = 'json'
-    JSON_BASE64 = 'json+base64'
-    PICKLE3 = 'pickle:3'
-    PICKLE4 = 'pickle:4'
-    PICKLE5 = 'pickle:5'
+
+    JSON_UTF8 = "json"
+    JSON_BASE64 = "json+base64"
+    PICKLE3 = "pickle:3"
+    PICKLE4 = "pickle:4"
+    PICKLE5 = "pickle:5"
 
 
 @dataobject
@@ -224,6 +241,7 @@ class EventStreamConfig:
     :field serialization: Serialization, serialization method used to send messages to stream, if not specified
         default from Server config will be used.
     """
+
     timeout: float = 60.0
     target_max_len: int = 0
     throttle_ms: int = 0
@@ -247,12 +265,13 @@ class EventSettings(Generic[EventPayloadType]):
     :field logging: EventLoggingConfig, configuration for logging for this particular event
     :field stream: EventStreamConfig, configuration for stream processing for this particular event
     """
+
     response_timeout: float = 60.0
     logging: EventLoggingConfig = field(default_factory=EventLoggingConfig)
     stream: EventStreamConfig = field(default_factory=EventStreamConfig)
     extras: Dict[str, Any] = field(default_factory=dict)
 
-    def __call__(self, *, key: str = '_', datatype: Type[EventPayloadType]) -> EventPayloadType:
+    def __call__(self, *, key: str = "_", datatype: Type[EventPayloadType]) -> EventPayloadType:
         return Payload.from_obj(self.extras.get(key, {}), datatype=datatype)
 
 
@@ -264,14 +283,16 @@ class EventPlugMode(str, Enum):
     STANDALONE: The event is added as a normal route where it is defined. Not added to apps.
     ON_APP: The event route is added only to app routes where it is used as a plugin.
     """
-    STANDALONE = 'Standalone'
-    ON_APP = 'OnApp'
+
+    STANDALONE = "Standalone"
+    ON_APP = "OnApp"
 
 
 class EventConnectionType(str, Enum):
     """
     Event connection type
     """
+
     GET = "GET"
     POST = "POST"
 
@@ -289,6 +310,7 @@ class EventConnection:
     :filed: type, EventConnectionType: a valid event connection type, i.e. GET or POST
     :field: route, optional str: custom route in case event is not attached to default `app/version/event`
     """
+
     app_connection: str
     event: str
     type: EventConnectionType
@@ -327,7 +349,8 @@ class EventDescriptor:
         `payload: DataObject` argument, then a list of full qualified datatypes must be specified here.
     :field: group, str: group name, if none is assigned it is automatically assigned as 'DEFAULT'.
     """
-    DEFAULT_GROUP = 'DEFAULT'
+
+    DEFAULT_GROUP = "DEFAULT"
 
     type: EventType
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE
@@ -343,8 +366,9 @@ class EventDescriptor:
 
     def __post_init__(self):
         if self.read_stream:
-            assert '{auto}' not in self.read_stream.name, \
-                "read_stream.name should be defined. {auto} is not allowed."
+            assert (
+                "{auto}" not in self.read_stream.name
+            ), "read_stream.name should be defined. {auto} is not allowed."
 
 
 @dataobject
@@ -361,6 +385,7 @@ class AppEngineConfig:
     :track_headers: list of required X-Track-* headers
     :cors_origin: allowed CORS origin for web server
     """
+
     import_modules: Optional[List[str]] = None
     read_stream_timeout: int = 1000
     read_stream_interval: int = 1000
@@ -370,11 +395,13 @@ class AppEngineConfig:
     cors_origin: Optional[str] = None
 
     def __post_init__(self):
-        self.track_headers = [k if k.startswith('track.') else f"track.{k}" for k in self.track_headers]
-        if 'track.request_ts' not in self.track_headers:
-            self.track_headers = ['track.request_ts'] + self.track_headers
-        if 'track.request_id' not in self.track_headers:
-            self.track_headers = ['track.request_id'] + self.track_headers
+        self.track_headers = [
+            k if k.startswith("track.") else f"track.{k}" for k in self.track_headers
+        ]
+        if "track.request_ts" not in self.track_headers:
+            self.track_headers = ["track.request_ts"] + self.track_headers
+        if "track.request_id" not in self.track_headers:
+            self.track_headers = ["track.request_id"] + self.track_headers
 
 
 @dataobject
@@ -391,6 +418,7 @@ class AppConnection:
         if not specified, plugin will lookup its default section usually the plugin name. But in case multiple
         clients need to be configured, this value can be overridden.
     """
+
     name: str
     version: str
     client: str = "<<NO CLIENT CONFIGURED>>"
@@ -405,6 +433,7 @@ class AppConfig:
     """
     App Configuration container
     """
+
     app: AppDescriptor
     engine: AppEngineConfig = field(default_factory=AppEngineConfig)
     app_connections: Dict[str, AppConnection] = field(default_factory=dict)
@@ -439,8 +468,8 @@ class AppConfig:
             elif event_info.read_stream:
                 stream_settings.update(self.settings.get(event_info.read_stream.name, {}))
             settings_data = deepcopy(self.settings.get(event_name, {"stream": {}}))
-            stream_settings.update(settings_data.get('stream', {}))
-            settings_data['stream'] = stream_settings
+            stream_settings.update(settings_data.get("stream", {}))
+            settings_data["stream"] = stream_settings
             settings: EventSettings = Payload.from_obj(settings_data, datatype=EventSettings)
             if settings.stream.compression is None:
                 settings.stream.compression = self.engine.default_stream_compression
@@ -459,12 +488,12 @@ class AppConfig:
         for event_name, event_info in self.events.items():
             extras = {}
             if event_name in self.settings:
-                extras['_'] = self.settings[event_name]
+                extras["_"] = self.settings[event_name]
             for key in event_info.setting_keys:
                 value = self.settings.get(key)
                 if value is not None:
                     extras[key] = value
-            self.effective_settings[event_name]['extras'] = extras
+            self.effective_settings[event_name]["extras"] = extras
 
 
 def parse_app_config_json(config_json: str) -> AppConfig:
@@ -478,9 +507,14 @@ def parse_app_config_json(config_json: str) -> AppConfig:
     replace_config_args(
         parsed_config=app_config,
         config_classes=(
-            AppDescriptor, EventDescriptor, ReadStreamDescriptor, WriteStreamDescriptor,
-            AppConnection, EventConnection, EventSettings
+            AppDescriptor,
+            EventDescriptor,
+            ReadStreamDescriptor,
+            WriteStreamDescriptor,
+            AppConnection,
+            EventConnection,
+            EventSettings,
         ),
-        auto_prefix=app_config.app.app_key()
+        auto_prefix=app_config.app.app_key(),
     )
     return app_config.setup()

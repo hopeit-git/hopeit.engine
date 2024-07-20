@@ -1,7 +1,7 @@
 from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PostprocessHook
 
-__steps__ = ['entry_point']
+__steps__ = ["entry_point"]
 
 logger, extra = app_extra_logger()
 

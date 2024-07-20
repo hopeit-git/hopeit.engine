@@ -17,9 +17,7 @@ async def test_buffer_objects_and_flush_partitions(app_config, test_objs):  # no
     # Buffer 10 objects that should create 5 partitions
     for test_obj in test_objs:
         result = await execute_event(
-            app_config=app_config,
-            event_name='test_stream_batch_storage',
-            payload=test_obj
+            app_config=app_config, event_name="test_stream_batch_storage", payload=test_obj
         )
         assert result is None
 
@@ -27,7 +25,7 @@ async def test_buffer_objects_and_flush_partitions(app_config, test_objs):  # no
 
     # Load saved data from disk and compare to input
     saved_objects = {}
-    for file_name in glob(f'{test_save_path}/2020/05/01/**/*.jsonlines'):
+    for file_name in glob(f"{test_save_path}/2020/05/01/**/*.jsonlines"):
         with open(file_name) as f:
             for line in f:
                 obj = Payload.from_json(line, datatype=MyObject)
@@ -45,26 +43,22 @@ async def test_buffer_object_and_flush_signal(app_config, test_objs):  # noqa: F
     # Buffer single object
     test_obj = test_objs[0]
     result = await execute_event(
-        app_config=app_config,
-        event_name='test_stream_batch_storage',
-        payload=test_obj
+        app_config=app_config, event_name="test_stream_batch_storage", payload=test_obj
     )
     assert result is None
 
     # Send flush partition signal to force flush single object
-    partition_key = test_obj.object_ts.strftime("%Y/%m/%d/%H") + '/'
+    partition_key = test_obj.object_ts.strftime("%Y/%m/%d/%H") + "/"
     signal = FlushSignal(partition_key)
     result = await execute_event(
-        app_config=app_config,
-        event_name='test_stream_batch_storage',
-        payload=signal
+        app_config=app_config, event_name="test_stream_batch_storage", payload=signal
     )
     assert result is None
 
     # Load saved object and check is correct
     await asyncio.sleep(1)  # Allow aiofiles to save
     saved_objects = {}
-    for file_name in glob(f'{test_save_path}/{partition_key}/*.jsonlines'):
+    for file_name in glob(f"{test_save_path}/{partition_key}/*.jsonlines"):
         with open(file_name) as f:
             for line in f:
                 obj = Payload.from_json(line, datatype=MyObject)

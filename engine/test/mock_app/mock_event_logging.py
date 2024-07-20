@@ -4,7 +4,7 @@ from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PostprocessHook
 from . import MockData
 
-__steps__ = ['entry_point', 'handle_ok_case', 'handle_special_case']
+__steps__ = ["entry_point", "handle_ok_case", "handle_special_case"]
 
 logger, extra = app_extra_logger()
 
@@ -20,10 +20,10 @@ def __init_event__(context: EventContext):
 def entry_point(payload: None, context: EventContext, *, query_arg1: str) -> Union[MockData, str]:
     logger.info(context, "mock_event_logging.entry_point", extra=extra(query_arg1=query_arg1))
     assert initialized
-    if query_arg1 == 'fail':
+    if query_arg1 == "fail":
         raise AssertionError("Test for error")
-    if query_arg1 == 'ok':
-        return MockData(value='ok')
+    if query_arg1 == "ok":
+        return MockData(value="ok")
     return "None"
 
 
@@ -38,10 +38,10 @@ async def handle_ok_case(payload: MockData, context: EventContext) -> str:
 
 
 async def __postprocess__(payload: str, context: EventContext, response: PostprocessHook) -> str:
-    if payload.startswith('ok:'):
+    if payload.startswith("ok:"):
         response.set_status(200)
-        response.set_header('X-Status', 'ok')
-        response.set_cookie('Test-Cookie', 'ok')
+        response.set_header("X-Status", "ok")
+        response.set_cookie("Test-Cookie", "ok")
     else:
         response.set_status(400)
     return payload

@@ -19,7 +19,6 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Intended Audience :: Developers",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -42,7 +41,7 @@ setuptools.setup(
     packages=["hopeit.basic_auth"],
     include_package_data=True,
     package_data={"hopeit.basic_auth": ["py.typed"]},
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=[
         f"hopeit.engine=={version['ENGINE_VERSION']}",
         "PyJWT[crypto]>=2.4.0,<3",

@@ -7,7 +7,6 @@ from hopeit.testing.apps import config
 
 @pytest.fixture
 def client_app_config(monkeypatch):
-
     def mock_getenv(var: str) -> Any:
         if var == "HOPEIT_SIMPLE_EXAMPLE_HOSTS":
             return "test-host"
@@ -18,4 +17,4 @@ def client_app_config(monkeypatch):
         return None
 
     monkeypatch.setattr(server_config.os, "getenv", mock_getenv)
-    return config('apps/examples/client-example/config/app-config.json')
+    return config("apps/examples/client-example/config/app-config.json")

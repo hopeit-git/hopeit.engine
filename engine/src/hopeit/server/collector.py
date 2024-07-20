@@ -3,13 +3,14 @@ AsyncCollector (aliased as Collector) implementation to be used as a way to conc
 
 Use `hopeit.app.events` `collector_step(...)` constructor to define steps implementing AsyncCollector
 """
+
 import asyncio
 from typing import Callable, Dict, Any, Tuple, Optional, Coroutine
 from hopeit.dataobjects import copy_payload
 
 from hopeit.app.context import EventContext
 
-__all__ = ['Collector', 'AsyncCollector', 'CollectorStepType']
+__all__ = ["Collector", "AsyncCollector", "CollectorStepType"]
 
 
 class AbstractCollector:
@@ -51,7 +52,8 @@ class AsyncCollector(AbstractCollector):
     will be canceled when reaching a timeout, but no checking is done on whether a deadlock is happening.
     Please check the sequence your code is accessing/awaiting results from the collector to avoid cycles.
     """
-    __data_object__ = {'unsafe': True, 'validate': False, 'schema': False}
+
+    __data_object__ = {"unsafe": True, "validate": False, "schema": False}
 
     def __init__(self):
         self.items: Dict[str, CollectorItem] = {}
@@ -72,9 +74,11 @@ class AsyncCollector(AbstractCollector):
         Locks and waits for a collector steps is computed and return its results.
         In case name is 'payload', returns collector input without blocking.
         """
-        if name == 'payload':
+        if name == "payload":
             return copy_payload(self.payload)
-        assert self.executed, "Collector not executed. Call collector.run(...) before accessing results."
+        assert (
+            self.executed
+        ), "Collector not executed. Call collector.run(...) before accessing results."
         item = self.items[name]
         await item.lock.acquire()
         try:

@@ -1,6 +1,7 @@
 """
 Log Reader service: watches log files and emit batches of Log entries to a stream
 """
+
 import asyncio
 from typing import Dict, List, Optional
 
@@ -9,21 +10,28 @@ from hopeit.app.events import Spawn
 from hopeit.app.logger import app_extra_logger
 from hopeit.server.names import auto_path
 
-from hopeit.log_streamer import LogReaderConfig, LogRawBatch, LogEntry, LogBatch, \
-    LogFileHandler, start_observer
+from hopeit.log_streamer import (
+    LogReaderConfig,
+    LogRawBatch,
+    LogEntry,
+    LogBatch,
+    LogFileHandler,
+    start_observer,
+)
 
 logger, extra = app_extra_logger()
 
-__steps__ = ['process_log_data']
+__steps__ = ["process_log_data"]
 
 
 async def __service__(context: EventContext) -> Spawn[LogRawBatch]:
     config = context.settings(datatype=LogReaderConfig)
     event_handler = LogFileHandler(config, context)
-    logger.info(context, "Starting LogFileHandler...", extra=extra(
-        logs_path=config.logs_path,
-        checkpoint_path=config.checkpoint_path
-    ))
+    logger.info(
+        context,
+        "Starting LogFileHandler...",
+        extra=extra(logs_path=config.logs_path, checkpoint_path=config.checkpoint_path),
+    )
     observer = start_observer(event_handler, config.logs_path)
     logger.info(context, "LogFileHandler started.")
 
@@ -35,7 +43,7 @@ async def __service__(context: EventContext) -> Spawn[LogRawBatch]:
                 await asyncio.sleep(config.batch_wait_interval_secs)
             else:
                 for i in range(0, len(batch), config.batch_size):
-                    yield LogRawBatch(data=batch[i: i + config.batch_size + 1])
+                    yield LogRawBatch(data=batch[i : i + config.batch_size + 1])
                     await asyncio.sleep(config.batch_wait_interval_secs)
             event_handler.close_inactive_files()
     except KeyboardInterrupt:  # pragma: no cover
@@ -50,11 +58,11 @@ async def __service__(context: EventContext) -> Spawn[LogRawBatch]:
 def _parse_extras(extras: List[str]) -> Dict[str, str]:
     items = {}
     for entry in extras:
-        entry = entry.strip('\n')
+        entry = entry.strip("\n")
         if entry:
-            xs = entry.split('=')
+            xs = entry.split("=")
             if len(xs) == 2:
-                k, v = entry.split('=')
+                k, v = entry.split("=")
                 items[k] = v
     return items
 
@@ -67,11 +75,11 @@ async def _process_log_entry(entry: str, context: EventContext) -> Optional[LogE
     (This behaviour can be changed if all lines should be processed)
     """
     try:
-        xs = entry.split(' | ')
+        xs = entry.split(" | ")
         if len(xs) >= 4:
             ts, app_info, msg, extras = xs[0], xs[2], xs[3], xs[4:]
-            app_info_components = app_info.split(' ')
-            if msg in ('START', 'DONE', 'FAILED', 'IGNORED') and (len(app_info_components) >= 3):
+            app_info_components = app_info.split(" ")
+            if msg in ("START", "DONE", "FAILED", "IGNORED") and (len(app_info_components) >= 3):
                 app_name, app_version, event_name, host, pid = app_info_components[:5]
                 event = f"{auto_path(app_name, app_version)}.{event_name}"
                 extra_items = _parse_extras(extras)
@@ -84,7 +92,7 @@ async def _process_log_entry(entry: str, context: EventContext) -> Optional[LogE
                     event=event,
                     extra=extra_items,
                     host=host,
-                    pid=pid
+                    pid=pid,
                 )
         return None
     except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
@@ -98,7 +106,9 @@ async def process_log_data(payload: LogRawBatch, context: EventContext) -> Optio
     to emit processed batch to a stream.
     """
     config = context.settings(datatype=LogReaderConfig)
-    logger.info(context, "Processing batch of log entries...", extra=extra(batch_size=len(payload.data)))
+    logger.info(
+        context, "Processing batch of log entries...", extra=extra(batch_size=len(payload.data))
+    )
     try:
         entries: List[LogEntry] = []
         for entry in payload.data:

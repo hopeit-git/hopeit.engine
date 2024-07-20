@@ -1,5 +1,4 @@
-flake8
-pylint
+ruff
 pytest
 pytest-cov
 pytest-aiohttp>=1.0.5
@@ -8,14 +7,12 @@ pytest-order
 pytest-mock
 coverage
 coverage-badge
-mypy
+mypy==1.10.1
 wheel
 aiofiles
 types-aiofiles
 nest-asyncio
 types-redis
-black
-isort
 
 # Plugin test dependencies
 redis
@@ -26,3 +23,6 @@ uvloop
 pandas 
 pandas-stubs
 pyarrow
+
+# examples/dataframes-example deps
+scikit-learn

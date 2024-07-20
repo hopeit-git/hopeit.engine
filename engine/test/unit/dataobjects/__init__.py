@@ -11,7 +11,7 @@ class MockNested:
     ts: datetime
 
 
-@dataobject(event_id='id', event_ts='nested.ts')
+@dataobject(event_id="id", event_ts="nested.ts")
 @dataclass
 class MockData:
     id: str
@@ -19,7 +19,7 @@ class MockData:
     nested: MockNested
 
 
-@dataobject(event_id='id')
+@dataobject(event_id="id")
 @dataclass
 class MockDataWithoutTs:
     id: str

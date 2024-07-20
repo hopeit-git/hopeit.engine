@@ -21,10 +21,10 @@ class UntimedObject:
 def test_get_partition_timed_object():
     obj = TimedObject(
         "obj1",
-        datetime.strptime(
-            "2020-05-01T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"
-        ).astimezone(tz=timezone.utc),
-        value=1
+        datetime.strptime("2020-05-01T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z").astimezone(
+            tz=timezone.utc
+        ),
+        value=1,
     )
     partition_key = partition.get_partition_key(obj, "%Y/%m/%d/%H")
     assert partition_key == "2020/05/01/00/"
@@ -33,16 +33,13 @@ def test_get_partition_timed_object():
 class MockDatetime:
     @staticmethod
     def now(*args, **kwargs):
-        return datetime.strptime(
-            "2021-06-02T01:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"
-        ).astimezone(tz=timezone.utc)
+        return datetime.strptime("2021-06-02T01:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z").astimezone(
+            tz=timezone.utc
+        )
 
 
 def test_get_partition_current_time(monkeypatch):
-    monkeypatch.setattr(partition, 'datetime', MockDatetime)
-    obj = UntimedObject(
-        object_id="obj2",
-        value=2
-    )
+    monkeypatch.setattr(partition, "datetime", MockDatetime)
+    obj = UntimedObject(object_id="obj2", value=2)
     partition_key = partition.get_partition_key(obj, "%Y/%m/%d/%H")
     assert partition_key == "2021/06/02/01/"

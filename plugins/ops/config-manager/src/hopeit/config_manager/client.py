@@ -1,6 +1,7 @@
 """
 Config Manager Client
 """
+
 from typing import Dict, Union, Tuple
 import asyncio
 import random
@@ -28,6 +29,7 @@ class ConfigManagerClientSettings:
 
     :field: client_timeout, float: client timeout in seconds, defults to 10.0
     """
+
     client_timeout: float = 10.0
 
 
@@ -51,9 +53,7 @@ async def get_apps_config(hosts: str, context: EventContext, **kwargs) -> Runtim
     for host, runtime_apps_response in responses:
         if isinstance(runtime_apps_response, RuntimeApps):
             _combine_apps(apps, runtime_apps_response)
-            server_status[host] = runtime_apps_response.server_status.get(
-                host, ServerStatus.ALIVE
-            )
+            server_status[host] = runtime_apps_response.server_status.get(host, ServerStatus.ALIVE)
         elif isinstance(runtime_apps_response, ServerStatus):
             server_status[host] = runtime_apps_response
 
@@ -77,9 +77,7 @@ async def _get_host_config(
     # Random <1 sec pause to prevent network overload
     await asyncio.sleep(random.random())
 
-    url = (
-        f"{host}/api/config-manager/{APPS_ROUTE_VERSION}/runtime-apps-config?url={host}"
-    )
+    url = f"{host}/api/config-manager/{APPS_ROUTE_VERSION}/runtime-apps-config?url={host}"
     for k, v in kwargs.items():
         url += f"&{k}={v}".lower()
 

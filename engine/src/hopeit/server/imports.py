@@ -1,6 +1,7 @@
 """
 Utilities to import apps modules and datatypes at runtime / server start
 """
+
 from importlib import import_module
 from types import ModuleType
 from typing import Type
@@ -10,12 +11,12 @@ from hopeit.server.names import module_name
 
 from hopeit.dataobjects import DataObject
 
-__all__ = ['find_event_handler']
+__all__ = ["find_event_handler"]
 
 
-def find_event_handler(*, app_config: AppConfig,
-                       event_name: str,
-                       event_info: EventDescriptor) -> ModuleType:
+def find_event_handler(
+    *, app_config: AppConfig, event_name: str, event_info: EventDescriptor
+) -> ModuleType:
     """
     Returns the initialized module implementing the event business logic.
     """
@@ -39,12 +40,13 @@ def find_event_handler(*, app_config: AppConfig,
 
 
 def find_datobject_type(qual_type_name: str) -> Type[DataObject]:
-    mod_name,  type_name = (
-        '.'.join(qual_type_name.split('.')[:-1]),
-        qual_type_name.split('.')[-1]
+    mod_name, type_name = (
+        ".".join(qual_type_name.split(".")[:-1]),
+        qual_type_name.split(".")[-1],
     )
     module = import_module(mod_name)
     datatype = getattr(module, type_name)
-    assert hasattr(datatype, "__data_object__"), \
-        f"Type {qual_type_name} must be annotated with `@dataobject`."
+    assert hasattr(
+        datatype, "__data_object__"
+    ), f"Type {qual_type_name} must be annotated with `@dataobject`."
     return datatype

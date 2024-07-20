@@ -22,9 +22,7 @@ class MockServer:
     def __init__(self, *app_config: AppConfig):
         self.app_engines = {cfg.app_key(): MockAppEngine(cfg) for cfg in app_config}
 
-    def set_effective_events(
-        self, app_key: str, effective_events: Dict[str, EventDescriptor]
-    ):
+    def set_effective_events(self, app_key: str, effective_events: Dict[str, EventDescriptor]):
         self.app_engines[app_key].effective_events = effective_events
 
 
@@ -76,11 +74,7 @@ def mock_effective_events(response, effective_events=None):
 
 
 def mock_client(
-    module,
-    monkeypatch,
-    server1_apps_response,
-    server2_apps_response,
-    effective_events=None
+    module, monkeypatch, server1_apps_response, server2_apps_response, effective_events=None
 ):
     expand_events = str(effective_events is not None).lower()
     url_pattern = "{}/api/config-manager/{}/runtime-apps-config?url={}&expand_events={}"
