@@ -186,7 +186,6 @@ install-plugins: install
 	make PLUGINFOLDER=plugins/ops/config-manager install-plugin && \
 	make PLUGINFOLDER=plugins/ops/log-streamer install-plugin && \
 	make PLUGINFOLDER=plugins/ops/apps-visualizer install-plugin && \
-	make PLUGINFOLDER=plugins/auth/basic-auth install-plugin && \
 	make PLUGINFOLDER=plugins/clients/apps-client install-plugin && \
 	make PLUGINFOLDER=plugins/data/dataframes PLUGINEXTRAS=pyarrow install-plugin-extras
 
