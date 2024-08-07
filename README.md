@@ -17,7 +17,7 @@
 
 **Fast and Robust**: it relies on `pydantic 2.x` for dataclasses serialization and schemas, on `aiohttp` for web services and supports pluggable stream managers to connect to your preferred event queue like `Redis Streams`. It is async by default and performance is comparable to REST frameworks like `FastAPI`.
 
-**Data-driven & AI Applications**: it is particularly well-suited to run data-driven applications like machine-learning training and serving thanks to the tight integration with `pandas` using the `hopeit.dataframes` plugin, allowing serialization and data transfer via endpoints and streams.
+**Data-driven & AI Applications**: it is particularly well-suited for running data-driven applications like machine-learning training and serving thanks to the tight integration with `pandas` using the `hopeit.dataframes` plugin, allowing serialization and data transfer via endpoints and streams.
 
 
 ### Installation
@@ -125,7 +125,7 @@ Plugins supporting integration with *Amazon Web Services* can be found in
 
 **Streams**: *hopeit.engine* provides the main necessary features for your system to accomplish the objectives of modern, reactive systems: responsiveness, resiliency, scalability and message-driven. The architecture enforced by *hopeit.engine* will lead you to develop small stateless services, primarily running asynchronous operations, that can recover from failure, can scale up quickly and handle more load, and communicate asynchronously with other services and process data using streams.
 
-**For production**: With already a few years used in different organizations, we aim to ease the steps needed to put microservices in production. *hopeit.engine* provides out of the box logging of app events with extra information that allows monitoring, track, and measure requests. It's easily configurable to run in containers and allows extensibility using plugins to add the pieces you need to integrate new microservices into your organization: i.e. plugins are available to integrate authentication and monitoring into your existing infrastructure.
+**For production**: With already a few years used in different organizations, we aim to ease the steps needed to put microservices in production. *hopeit.engine* provides out of the box logging of app events with extra information that allows monitoring, tracking, and measuring requests. It's easily configurable to run in containers and allows extensibility using plugins to add the pieces you need to integrate new microservices into your organization: i.e. plugins are available to integrate authentication and monitoring into your existing infrastructure.
 The way applications are structured allow for flexible deployment using Docker Containers and Kubernetes.
 
 Check out our [*docs and tutorials*](https://hopeitengine.readthedocs.io/en/latest/index.html). 
