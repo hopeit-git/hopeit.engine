@@ -17,17 +17,13 @@ aiohttp-swagger3
     Link: https://github.com/hh-h/aiohttp-swagger3
     License: Apache 2.0 (https://github.com/hh-h/aiohttp-swagger3/blob/master/LICENSE)
 
-aiojobs
-    Link: https://github.com/aio-libs/aiojobs
-    License: Apache 2.0 (https://github.com/aio-libs/aiojobs/blob/master/LICENSE)
-
 aiofiles
     Link: https://github.com/Tinche/aiofiles
     License: Apache-2.0 (https://github.com/Tinche/aiofiles/blob/master/LICENSE)
 
-dataclasses-jsonschema
-    Link: https://github.com/s-knibbs/dataclasses-jsonschema
-    License: MIT (https://github.com/s-knibbs/dataclasses-jsonschema/blob/master/LICENSE)
+pydantic
+    Link: https://github.com/pydantic/pydantic
+    License: MIT (https://github.com/pydantic/pydantic/blob/main/LICENSE)
 
 stringcase
     Link: https://github.com/okunishinishi/python-stringcase
@@ -57,27 +53,23 @@ deepdiff
     Link: https://github.com/seperman/deepdiff
     License: MIT (https://github.com/seperman/deepdiff/blob/master/LICENSE)
 
-fastjsonschema
-    Link: https://github.com/horejsek/python-fastjsonschema
-    License: BSD 3-Clause "New" or "Revised" (https://github.com/horejsek/python-fastjsonschema/blob/master/LICENSE)
-
 typing_inspect
     Link: https://github.com/ilevkivskyi/typing_inspect
     License: MIT (https://github.com/ilevkivskyi/typing_inspect/blob/master/LICENSE)
 
-Redis:
+redis:
     Link: https://redis.io/
     License: BSD (https://redis.io/topics/license)
 
+pandas:
+    Link: https://github.com/pandas-dev/pandas
+    License: BSD 3-Clause (https://github.com/pandas-dev/pandas/blob/main/LICENSE)
+
 
 The following libraries are used to test and develop hopeit.engine:
-flake8:
-    Link: https://gitlab.com/pycqa/flake8
-    License: MIT https://gitlab.com/pycqa/flake8/-/blob/master/LICENSE
-
-pylint
-    Link: https://github.com/PyCQA/pylint
-    License: GNU General Public License v2.0 (https://github.com/PyCQA/pylint/blob/master/COPYING)
+ruff:
+    Link: https://github.com/astral-sh/ruff
+    License: MIT https://github.com/astral-sh/ruff/blob/main/LICENSE
 
 pytest
     Link: https://github.com/pytest-dev/pytest
