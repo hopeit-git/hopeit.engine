@@ -7,22 +7,22 @@
 > - *simple-example* *client-example* and *dataframes-example* applications and plugins integration tests
                                                                       
 
-# hopeit engine
+# hopeit.engine
 
-**"Microservices with Data Streams"**
+**Microservices with Data Streams**
 
-*hopeit.engine* is a library and runtime that allows development and deployment of event driven applications in Python. It provides a way to create APIs, orchestrate workflows using data streams, test, deploy and scale services. It also provides a flexible way to design, understand, run and visualize your apps, events and data dependencies.
+*hopeit.engine* is a library and runtime that allows development and deployment of event-driven applications in Python. It provides a way to create APIs, orchestrate workflows using data streams, test, deploy and scale services. It also provides a flexible way to design, understand, run and visualize your apps, events and data dependencies.
 
 ![Apps Visualizer](docs/source/readme/apps-visualizer.png)
 
-*Fast and Robust*: it relies on `pydantic 2.x` for dataclasses serialization and schemas, on `aiohttp` for web services and supports pluggable stream managers to connect to your preferred event queue like `Redis Streams`. It is async by default and performance is comparable to REST frameworks like `FastAPI`.
+**Fast and Robust**: it relies on `pydantic 2.x` for dataclasses serialization and schemas, on `aiohttp` for web services and supports pluggable stream managers to connect to your preferred event queue like `Redis Streams`. It is async by default and performance is comparable to REST frameworks like `FastAPI`.
 
-*Data Driven & ML applications*: it is particularly well suited to run data driven applications like machine learning training and serving thanks to the tight integration with `pandas` using the `hopeit.dataframes` plugin, allowing to serialize and transfer data via endpoints and streams.
+**Data-driven & AI Applications**: it is particularly well-suited to run data-driven applications like machine-learning training and serving thanks to the tight integration with `pandas` using the `hopeit.dataframes` plugin, allowing serialization and data transfer via endpoints and streams.
 
 
 ### Installation
 
-Typical installation to use `aiohttp` server and command line utilities.
+Typical installation to use `aiohttp` server and command-line utilities.
 ```
 pip install hopeit.engine[web,cli]
 ```
@@ -33,12 +33,12 @@ pip install hopeit.engine[web,cli,redis-streams]
 ```
 
 
-#### Supported plugins:
+#### Supported Plugins:
 
 
 **hopeit.redis_streams**
 
-Plugin implementing backend to use Redis for stream processing in `hopeit.engine`
+Plugin implementing backend to use Redis for stream processing in `hopeit.engine`.
 
 ```
 pip install hopeit.engine[redis-streams]
@@ -47,7 +47,7 @@ pip install hopeit.engine[redis-streams]
 
 **hopeit.apps_client**
 
-Plugin to invoke other hopeit app events using http GET and POST requests, with retrying and circuit breaker
+Plugin to invoke other applications based on `hopeit.engine` using http GET and POST requests, with retrying and circuit breaker.
 
 ```
 pip install hopeit.engine[apps-client]
@@ -56,8 +56,7 @@ pip install hopeit.engine[apps-client]
 
 **hopeit.apps_visualizer**
 
-Plugin that display a web page with event dependencies and live monitoring capabilities for multiple apps
-running in multiple hosts.
+Plugin that displays a web page with event dependencies, allowing live monitoring of multiple application instances.
 
 ```
 pip install hopeit.engine[apps-visualizer]
@@ -76,7 +75,7 @@ pip install hopeit.engine[config-manager]
 **hopeit.log_streamer**
 
 Plugin that can be run in a separate process and parses logs from running hopeit apps, publishing relevant
-entries to a stream allowing live monitoring of apps activity.
+entries to a stream allowing live monitoring of applications activity.
 
 ```
 pip install hopeit.engine[log-streamer]
@@ -102,8 +101,8 @@ pip install hopeit.engine[redis-storage]
 
 **hopeit.dataframes**
 
-Plugin to support working with pandas dataframes as they were objects,
-supporting them as web request and respose payloads and transferring them
+Plugin to support working with `pandas` dataframes as they were objects,
+supporting them as web request and response payloads and transferring them
 through streams.
 
 ```
@@ -111,7 +110,8 @@ pip install hopeit.engine[dataframes]
 ```
 
 **AWS Support**
-Plugins to support integration with *Amazon Web Services* can be found in 
+
+Plugins supporting integration with *Amazon Web Services* can be found in 
 [*hopeit.aws*](https://github.com/hopeit-git/hopeit.aws) repository.
 
 
@@ -121,14 +121,14 @@ Plugins to support integration with *Amazon Web Services* can be found in
 
 **Easy learning:** if you want to learn how to develop microservices, *hopeit.engine* is a good starting point, since it will quickly make you productive and at the same time you will learn all the necessary steps and features that a production-grade microservice should have. Only basic Python knowledge is required. *hopeit.engine* was successfully adopted by Full-stack and Backend Software Developers, Data Engineers, and Data Scientists coming from different backgrounds.
 
-**Data driven**: *hopeit.engine* was thought keeping in mind that most business logic and decisions are and will be driven by data. Working with data is a key part of the library. We embrace [*pydantic dataclasses*](https://docs.pydantic.dev/latest/concepts/dataclasses/) and enforce data-types checking on input and output data. The library and plugins provide Open API validation and documentation and a way to share data between applications using streams. *hopeit.engine* is Data Science/Machine Learning friendly. We try to keep the library compatible with Python ecosystem around Machine Learning: Pandas, Jupyter Notebooks and the Scientific Stack. We aim to enable Data Teams to create their own services in a way people with different skills can contribute.
+**Data-driven**: *hopeit.engine* was thought keeping in mind that most business logic and decisions are, and will be, driven by data. Working with data is a key part of the library. We embrace [*pydantic dataclasses*](https://docs.pydantic.dev/latest/concepts/dataclasses/) and enforce data-types checking on input and output data. The library and plugins provide OpenAPI validation and documentation and a way to share data between applications using streams. *hopeit.engine* is Data Science/Machine Learning friendly. We try to keep the library compatible with Python ecosystem around Machine Learning: Pandas, Jupyter Notebooks and the Scientific Stack. We aim to enable Data Teams to create their own services in a way people with different skills can contribute.
 
 **Streams**: *hopeit.engine* provides the main necessary features for your system to accomplish the objectives of modern, reactive systems: responsiveness, resiliency, scalability and message-driven. The architecture enforced by *hopeit.engine* will lead you to develop small stateless services, primarily running asynchronous operations, that can recover from failure, can scale up quickly and handle more load, and communicate asynchronously with other services and process data using streams.
 
-**For production**: With already a few years used in different organizations, we aim to ease the steps needed to put microservices in production. *hopeit.engine* provides out of the box logging of app events with extra information that allows monitor, track, and measure requests. It's easily configurable to run in containers and allows extensibility using plugins to add the pieces you need to integrate new microservices in your organization: i.e. plugins are available to integrate authentication and monitoring into your existing infrastructure.
+**For production**: With already a few years used in different organizations, we aim to ease the steps needed to put microservices in production. *hopeit.engine* provides out of the box logging of app events with extra information that allows monitoring, track, and measure requests. It's easily configurable to run in containers and allows extensibility using plugins to add the pieces you need to integrate new microservices into your organization: i.e. plugins are available to integrate authentication and monitoring into your existing infrastructure.
 The way applications are structured allow for flexible deployment using Docker Containers and Kubernetes.
 
-Check our [*docs and tutorials*](https://hopeitengine.readthedocs.io/en/latest/index.html). 
+Check out our [*docs and tutorials*](https://hopeitengine.readthedocs.io/en/latest/index.html). 
 
 ## Adopters
 
@@ -138,7 +138,7 @@ Check our [*docs and tutorials*](https://hopeitengine.readthedocs.io/en/latest/i
 
 #### Consejo Nacional de Bomberos Voluntarios de la República Argentina
 
-National Council of Volunteer Firefighters adopted hopeit.engine to create new applications, including APIs for data integration, nation-wide real-time resources monitoring, Firefighters Academy, COVID-19 dashboards, to mention a few examples. hopeit.engine leverages for this organization the ability to ease development of new features at fast speed and allows them to integrate onto existing software and decouple components using Microservices architecture. 
+National Council of Volunteer Firefighters adopted hopeit.engine to create new applications, including APIs for data integration, nation-wide real-time resources monitoring, Firefighters Academy, COVID-19 dashboards, to mention just a few examples. hopeit.engine leverages for this organization the ability to ease development of new features at fast speed and allows them to integrate onto the existing software and decouple components using Microservices architecture.
 
 <img align="left" width="56" height="56" src="docs/source/readme/capsfe.png">
 
@@ -146,14 +146,14 @@ National Council of Volunteer Firefighters adopted hopeit.engine to create new a
 
 Social Security Fund for Lawyers and Attorneys of Santa Fe, uses hopeit.engine to automate analysis of texts using Natural Language Processing techniques, integrating relevant information into a workflow management system.
 
-> If you want to mention your organization let us know by openning an issue:
+> If you want to mention your organization, let us know by opening an issue:
 > ![_@_](https://github.com/hopeit-git/hopeit.engine/issues)
 
 ## Features
 
-- Enables development of microservices in Python (3.9+).
-- Provides web server for API endpoints. *
-- Open API schema validation and docs. *
+- Enables the development of microservices in Python (3.9+).
+- Provides a web server for API endpoints. *
+- OpenAPI schema validation and docs. *
 - Inter-app connectivity via http client with retrying and circuit breaker. *
 - Modular and testable application design: each microservice is an app composed of independent events
 - Metrics: event durations, events starts, success, failures. Stream processing rates.
@@ -162,7 +162,7 @@ Social Security Fund for Lawyers and Attorneys of Santa Fe, uses hopeit.engine t
 - Log processing.
 - Apps and events dependencies visualization and live monitoring.
 - Helps to create elegant and well structure code using your preferred IDE.
-- Data Science / Machine Learning friendly: dataframes with schema support via dataframe plugin *
+- Data Science / Machine Learning friendly: dataframes with schema support via the hopeit.dataframes plugin *
 - Testing: provides utilities to test from Notebooks or Python testing frameworks.
 
 ## Open Source
@@ -190,11 +190,11 @@ A few examples of how microservices can be architected using *hopeit.engine*
 
 **Steps**: each Event can define a list of Steps to be executed when the event is triggered. *hopeit.engine* ensures the ordered execution of steps and dependency based on its inputs/outputs, allowing each step to be concise and independently testable.
 
-**Plugin**: a special type of App that can extend other Apps functionality.
+**Plugin**: a special type of module that can extend the framework or other Apps functionality.
 
-**Server**: a group of Apps and Plugins, a server configuration file plus an Open API specification file can run together using hopeit.server.web module.
+**Server**: a group of Apps and Plugins, a server configuration file plus an OpenAPI specification file can run together using hopeit.server.web module.
 
-Check [Simple Example Application](apps/examples/simple-example) for examples of supported event types, steps, configuration and Open API specification files. 
+Check [Simple Example Application](apps/examples/simple-example) for examples of supported event types, steps, configuration and OpenAPI specification files. 
 
 
 ### A Simple Microservice
@@ -219,7 +219,7 @@ If an external request triggers a process that requires background tasks to run,
 
 ![Scale](docs/source/readme/hopeit.engine-scale.png)
 
-*hopeit.engine* enforces your Apps implementation to be scalable. We mentioned that events are served concurrently using asyncio, but to achieve real parallelism, many instances of an App can run in the same or different server instances. Putting a load balancer (i.e: [NGINX](https://nginx.org/en/) or [HAProxy](http://www.haproxy.org/), in front of your API Server app instances, will ensure serving a high load of requests in parallel. The same scalability/load-balancing pattern applies to stream events processing. You can run many instances of Apps consuming Redis Streams. Using consumer groups, Redis will act as a load-balancer and each App instance will consume events from the stream in parallel. Apps created with *hopeit.engine* are also easy to deploy in containers, like [Docker](https://www.docker.com/). Only a Python runtime and a load-balancer is needed.
+*hopeit.engine* enforces your Apps implementation to be scalable. We mentioned that events are served concurrently using asyncio, but to achieve real parallelism, many instances of an App can run in the same or different server instances. Putting a load balancer (i.e: [NGINX](https://nginx.org/en/) or [HAProxy](http://www.haproxy.org/), in front of your API Server app instances, will ensure serving a high load of requests in parallel. The same scalability/load-balancing pattern applies to stream events processing. You can run many instances of Apps consuming Redis Streams. By using consumer groups, Redis will act as a load-balancer and each App instance will consume events from the stream in parallel. Apps created with *hopeit.engine* are also easy to deploy in containers, like [Docker](https://www.docker.com/). Only a Python runtime and a load-balancer is needed.
 
 ## More info
 
