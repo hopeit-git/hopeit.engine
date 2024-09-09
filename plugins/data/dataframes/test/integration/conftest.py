@@ -26,6 +26,22 @@ class MyTestData:
 
 @dataframe
 @dataclass
+class MyTestDataSchemaCompatible:
+    number: int
+    timestamp: datetime
+
+
+@dataframe
+@dataclass
+class MyTestDataSchemaNotCompatible:
+    number: int
+    name: str
+    timestamp: datetime
+    new_required_field: str
+
+
+@dataframe
+@dataclass
 class MyNumericalData:
     number: int
     value: float

@@ -1188,7 +1188,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.25.0",
+            "default": "0.25.1",
             "title": "Engine Version",
             "type": "string"
           }
@@ -1386,6 +1386,10 @@
           "datatype": {
             "title": "Datatype",
             "type": "string"
+          },
+          "schema": {
+            "title": "Schema",
+            "type": "object"
           }
         },
         "required": [
@@ -1427,6 +1431,10 @@
           "datatype": {
             "title": "Datatype",
             "type": "string"
+          },
+          "schema": {
+            "title": "Schema",
+            "type": "object"
           }
         },
         "required": [
@@ -1456,6 +1464,10 @@
           "datatype": {
             "title": "Datatype",
             "type": "string"
+          },
+          "schema": {
+            "title": "Schema",
+            "type": "object"
           }
         },
         "required": [

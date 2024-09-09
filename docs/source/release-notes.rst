@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+Version 0.25.1
+______________
+
+- Plugins:
+
+  - DataFrames:
+      - Saving json schema for serialiazed Datasets
+      - Handling load errors with `DatasetLoadException`
+
+
 Version 0.25.0
 ______________
 

@@ -1,12 +1,17 @@
-from hopeit.dataframes.serialization.dataset import Dataset
+from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
+from hopeit.dataobjects import copy_payload
 import numpy as np
 import pandas as pd
+from pydantic import TypeAdapter
+import pytest
 
 from conftest import (
     MyNumericalData,
     MyPartialTestData,
     MyTestData,
     MyTestDataObject,
+    MyTestDataSchemaCompatible,
+    MyTestDataSchemaNotCompatible,
     MyTestJsonDataObject,
     setup_serialization_context,
 )
@@ -45,7 +50,7 @@ def test_dataobject_dataframes_conversion(one_element_pandas_df):
     assert_frame_equal(DataFrames.df(data), DataFrames.df(back_to_dataframe))
 
 
-async def test_dataframe_object_serialization(
+async def test_dataframe_dataset_serialization(
     sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
 ):
     await setup_serialization_context(plugin_config)
@@ -57,10 +62,53 @@ async def test_dataframe_object_serialization(
     )
 
     assert isinstance(dataobject.data, Dataset)
+    assert dataobject.data.datatype == "conftest.MyTestData"
+    assert isinstance(dataobject.data.partition_key, str)
+    assert isinstance(dataobject.data.key, str)
+    assert dataobject.data.protocol == "hopeit.dataframes.serialization.files.DatasetFileStorage"
+    assert dataobject.data.schema == TypeAdapter(MyTestData).json_schema()
 
     loaded_obj = await dataobject.data.load()
 
     assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
+
+
+async def test_dataframe_dataset_deserialization_compatible(
+    sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
+):
+    await setup_serialization_context(plugin_config)
+
+    initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
+    dataobject = MyTestDataObject(
+        name="test",
+        data=await Dataset.save(initial_data),
+    )
+
+    modified_obj: Dataset[MyTestDataSchemaCompatible] = copy_payload(dataobject.data)  # type: ignore[assignment]
+    modified_obj.datatype = "conftest.MyTestDataSchemaCompatible"
+    loaded_obj = await modified_obj.load()
+
+    assert_frame_equal(
+        DataFrames.df(initial_data)[["number", "timestamp"]], DataFrames.df(loaded_obj)
+    )
+
+
+async def test_dataframe_dataset_deserialization_not_compatible(
+    sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
+):
+    await setup_serialization_context(plugin_config)
+
+    initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
+    dataobject = MyTestDataObject(
+        name="test",
+        data=await Dataset.save(initial_data),
+    )
+
+    modified_obj: Dataset[MyTestDataSchemaNotCompatible] = copy_payload(dataobject.data)  # type: ignore[assignment]
+    modified_obj.datatype = "conftest.MyTestDataSchemaNotCompatible"
+
+    with pytest.raises(DatasetLoadError):
+        await modified_obj.load()
 
 
 async def test_dataframe_json_object_serialization(

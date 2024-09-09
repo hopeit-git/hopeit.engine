@@ -110,21 +110,21 @@ test: test-engine test-plugins test-apps
 install:
 	cd engine && \
 	pip install --force-reinstall -r requirements.txt && \
-	pip install -U -e . --no-deps && \
-	pip install -U -e ".[web]" --no-deps && \
-	pip install -U -e ".[cli]" --no-deps
+	pip install -U -e . --no-deps --config-settings editable_mode=compat && \
+	pip install -U -e ".[web]" --no-deps --config-settings editable_mode=compat && \
+	pip install -U -e ".[cli]" --no-deps --config-settings editable_mode=compat
 
 install-app:
 	cd $(APPFOLDER) && \
-	pip install -U -e .
+	pip install -U -e . --config-settings editable_mode=compat
 
 install-plugin:
 	cd $(PLUGINFOLDER) && \
-	pip install -U -e .
+	pip install -U -e . --config-settings editable_mode=compat
 
 install-plugin-extras:
 	cd $(PLUGINFOLDER) && \
-	pip install -U -e .[$(PLUGINEXTRAS)]
+	pip install -U -e .[$(PLUGINEXTRAS)] --config-settings editable_mode=compat
 
 qa: test check
 	echo "DONE."

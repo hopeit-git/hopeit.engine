@@ -6,6 +6,7 @@ from typing import Generic, Optional, Type, TypeVar
 from uuid import uuid4
 
 import pandas as pd
+from pydantic import TypeAdapter
 
 try:
     import pyarrow  # type: ignore  # noqa  # pylint: disable=unused-import
@@ -53,6 +54,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
             partition_key=partition_key,
             key=key,
             datatype=f"{datatype.__module__}.{datatype.__qualname__}",
+            schema=TypeAdapter(datatype).json_schema(),
         )
 
     async def load(self, dataset: Dataset) -> EventPayloadType:
