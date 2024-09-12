@@ -5,11 +5,8 @@ with open("../../../engine/src/hopeit/server/version.py") as fp:
     exec(fp.read(), version)
 
 setuptools.setup(
-    name="hopeit.apps-visualizer",
-    version=version['ENGINE_VERSION'],
-    description="Hopeit Engine Apps Visualizer Plugin",
-    license="Apache 2",
-    long_description=open('README.md').read(),
+    version=version["ENGINE_VERSION"],
+    long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     author="Leo Smerling and Pablo Canto",
     author_email="contact@hopeit.com.ar",
@@ -29,37 +26,30 @@ setuptools.setup(
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Framework :: AsyncIO",
-    ],    
+    ],
     project_urls={
         "CI: GitHub Actions": "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow",  # noqa
         "Docs: RTD": "https://hopeitengine.readthedocs.io/en/latest/",
         "GitHub: issues": "https://github.com/hopeit-git/hopeit.engine/issues",
         "GitHub: repo": "https://github.com/hopeit-git/hopeit.engine",
     },
-    package_dir={
-        "": "src"
-    },
+    package_dir={"": "src"},
     packages=[
         "hopeit.apps_visualizer",
         "hopeit.apps_visualizer.apps",
         "hopeit.apps_visualizer.event_stats",
         "hopeit.apps_visualizer.graphs",
-        "hopeit.apps_visualizer.site"
+        "hopeit.apps_visualizer.site",
     ],
     package_data={
         "hopeit.apps_visualizer": ["py.typed"],
         "hopeit.apps_visualizer.apps": ["py.typed"],
         "hopeit.apps_visualizer.event_stats": ["py.typed"],
         "hopeit.apps_visualizer.graphs": ["py.typed"],
-        "hopeit.apps_visualizer.site": ["*.html", "py.typed"]
+        "hopeit.apps_visualizer.site": ["*.html", "py.typed"],
     },
     include_package_data=True,
-    python_requires=">=3.9",
     install_requires=[
         f"hopeit.engine[web,log-streamer,config-manager]=={version['ENGINE_VERSION']}"
     ],
-    extras_require={
-    },
-    entry_points={
-    }
 )

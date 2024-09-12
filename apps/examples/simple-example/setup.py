@@ -7,21 +7,13 @@ with open("../../../engine/src/hopeit/server/version.py") as fp:
 
 setuptools.setup(
     name="simple_example",
-    version=version['ENGINE_VERSION'],
+    version=version["ENGINE_VERSION"],
     description="Hopeit.py Example App",
-    package_dir={
-        "": "src"
-    },
-    packages=[
-        "common", "model", "simple_example"
-    ],
+    package_dir={"": "src"},
+    packages=["common", "model", "simple_example"],
     include_package_data=True,
     python_requires=">=3.9",
     install_requires=[
         f"hopeit.engine[web,cli,redis-streams,fs-storage]=={version['ENGINE_VERSION']}",
     ],
-    extras_require={
-    },
-    entry_points={
-    }
 )

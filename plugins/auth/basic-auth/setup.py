@@ -6,10 +6,8 @@ with open("../../../engine/src/hopeit/server/version.py") as fp:
     exec(fp.read(), version)
 
 setuptools.setup(
-    name="hopeit.basic_auth",
     version=version["ENGINE_VERSION"],
     description="Hopeit Engine Example Basic Auth Plugin",
-    license="Apache 2",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     author="Leo Smerling and Pablo Canto",
@@ -41,11 +39,8 @@ setuptools.setup(
     packages=["hopeit.basic_auth"],
     include_package_data=True,
     package_data={"hopeit.basic_auth": ["py.typed"]},
-    python_requires=">=3.9",
     install_requires=[
         f"hopeit.engine=={version['ENGINE_VERSION']}",
-        "PyJWT[crypto]>=2.4.0,<3",
+        "PyJWT[crypto]>=2.8.0",
     ],
-    extras_require={},
-    entry_points={},
 )

@@ -7,7 +7,7 @@ pytest-order
 pytest-mock
 coverage
 coverage-badge
-mypy==1.10.1
+mypy
 wheel
 aiofiles
 types-aiofiles

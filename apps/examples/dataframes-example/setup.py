@@ -6,11 +6,9 @@ with open("../../../engine/src/hopeit/server/version.py") as fp:
 
 setuptools.setup(
     name="dataframes_example",
-    version=version['ENGINE_VERSION'],
+    version=version["ENGINE_VERSION"],
     description="hopeit.engine dataframes example app",
-    package_dir={
-        "": "src"
-    },
+    package_dir={"": "src"},
     packages=[
         "dataframes_example",
     ],
@@ -21,8 +19,4 @@ setuptools.setup(
         f"hopeit.dataframes[pyarrow]=={version['ENGINE_VERSION']}",
         f"scikit-learn",
     ],
-    extras_require={
-    },
-    entry_points={
-    }
 )

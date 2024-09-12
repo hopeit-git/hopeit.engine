@@ -7,8 +7,6 @@ with open("../../../engine/src/hopeit/server/version.py") as fp:
 setuptools.setup(
     name="hopeit.dataframes",
     version=version["ENGINE_VERSION"],
-    description="Hopeit Engine Dataframes Toolkit",
-    license="Apache 2",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     author="Leo Smerling and Pablo Canto",
@@ -44,8 +42,9 @@ setuptools.setup(
     include_package_data=True,
     package_data={
         "hopeit.dataframes": ["py.typed"],
+        "hopeit.dataframes.serialization": ["py.typed"],
+        "hopeit.dataframes.setup": ["py.typed"],
     },
-    python_requires=">=3.9",
     install_requires=[
         f"hopeit.engine[fs-storage]=={version['ENGINE_VERSION']}",
         "pandas",
@@ -54,5 +53,4 @@ setuptools.setup(
     extras_require={
         "pyarrow": ["pyarrow"],
     },
-    entry_points={},
 )
