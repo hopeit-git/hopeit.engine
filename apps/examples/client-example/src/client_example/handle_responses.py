@@ -34,14 +34,14 @@ logger, extra = app_extra_logger()
 
 @dataobject
 @dataclass
-class ListOptions:
+class QueryArgs:
     item_id: str
     partition_key: str
 
 
 async def handle_exception(
     payload: None, context: EventContext, item_id: str, partition_key: str
-) -> ListOptions:
+) -> QueryArgs:
     """
     To manage different types of responses from the same endpoint we can use the `responses` parameter where we list
     the http response status codes expected and the corresponding data type for each one. In this example app_call
@@ -60,10 +60,10 @@ async def handle_exception(
         )
     except UnhandledResponse as e:
         logger.warning(context, f"Unexpected response status {e.status}")
-    return ListOptions(item_id=item_id, partition_key=partition_key)
+    return QueryArgs(item_id=item_id, partition_key=partition_key)
 
 
-async def handle_responses(options: ListOptions, context: EventContext) -> str:
+async def handle_responses(options: QueryArgs, context: EventContext) -> str:
     """
     To manage different types of responses from the same endpoint we can use the `responses` parameter where we list
     the http response status codes expected and the corresponding data type for each one. In this example app_call

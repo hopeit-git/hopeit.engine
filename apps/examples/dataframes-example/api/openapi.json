@@ -742,11 +742,7 @@
             "type": "object"
           },
           "server": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ServerConfig"
-              }
-            ],
+            "$ref": "#/components/schemas/ServerConfig",
             "default": null,
             "nullable": true
           },
@@ -864,19 +860,11 @@
             "type": "integer"
           },
           "default_stream_compression": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Compression"
-              }
-            ],
+            "$ref": "#/components/schemas/Compression",
             "default": "lz4"
           },
           "default_stream_serialization": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Serialization"
-              }
-            ],
+            "$ref": "#/components/schemas/Serialization",
             "default": "json+base64"
           },
           "track_headers": {
@@ -1014,11 +1002,7 @@
             "$ref": "#/components/schemas/EventType"
           },
           "plug_mode": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/EventPlugMode"
-              }
-            ],
+            "$ref": "#/components/schemas/EventPlugMode",
             "default": "Standalone"
           },
           "route": {
@@ -1041,20 +1025,12 @@
             "type": "array"
           },
           "read_stream": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ReadStreamDescriptor"
-              }
-            ],
+            "$ref": "#/components/schemas/ReadStreamDescriptor",
             "default": null,
             "nullable": true
           },
           "write_stream": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/WriteStreamDescriptor"
-              }
-            ],
+            "$ref": "#/components/schemas/WriteStreamDescriptor",
             "default": null,
             "nullable": true
           },
@@ -1325,11 +1301,7 @@
             "type": "array"
           },
           "queue_strategy": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/StreamQueueStrategy"
-              }
-            ],
+            "$ref": "#/components/schemas/StreamQueueStrategy",
             "default": "DROP"
           }
         },
@@ -1524,47 +1496,27 @@
             "$ref": "#/components/schemas/Dataset_Iris_"
           },
           "train_features": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Dataset_IrisFeatures_"
-              }
-            ],
+            "$ref": "#/components/schemas/Dataset_IrisFeatures_",
             "default": null,
             "nullable": true
           },
           "train_labels": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Dataset_IrisLabels_"
-              }
-            ],
+            "$ref": "#/components/schemas/Dataset_IrisLabels_",
             "default": null,
             "nullable": true
           },
           "test_features": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Dataset_IrisFeatures_"
-              }
-            ],
+            "$ref": "#/components/schemas/Dataset_IrisFeatures_",
             "default": null,
             "nullable": true
           },
           "test_labels": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Dataset_IrisLabels_"
-              }
-            ],
+            "$ref": "#/components/schemas/Dataset_IrisLabels_",
             "default": null,
             "nullable": true
           },
           "eval_metrics": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/EvalMetrics"
-              }
-            ],
+            "$ref": "#/components/schemas/EvalMetrics",
             "default": null,
             "nullable": true
           },
