@@ -130,14 +130,15 @@ qa: test check
 	echo "DONE."
 
 dist: clean
-	pip install wheel && \
+	pip install wheel build && \
 	cd engine && \
-	python setup.py sdist bdist_wheel
+	python -m build
 
 dist-plugin: clean-plugins
-	pip install wheel && \
+	$(eval ENGINE_VERSION := $(shell python engine/src/hopeit/server/version.py))
+	export  && pip install wheel build && \
 	cd $(PLUGINFOLDER) && \
-	python setup.py sdist bdist_wheel
+	ENGINE_VERSION=$(ENGINE_VERSION) python -m build
 
 clean:
 	cd engine && \

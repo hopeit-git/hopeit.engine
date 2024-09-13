@@ -3,13 +3,13 @@ requires = ["setuptools >= 64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name="hopeit.config-manager"
-description="Hopeit Engine Config Manager Plugin"
-dynamic = ["version", "readme"]
-license = {text = "Apache 2"}
+name = "hopeit.config-manager"
+description = "Hopeit Engine Config Manager Plugin"
+dynamic = ["version", "readme", "dependencies"]
+license = { text = "Apache 2" }
 authors = [
-    {name = "Leo Smerling", email = "contact@hopeit.com.ar"},
-    {name = "Pablo Canto", email = "contact@hopeit.com.ar"}
+    { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
+    { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
 ]
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
@@ -46,4 +46,4 @@ where = ["src"]
 "hopeit.config_manager" = ["py.typed"]
 
 [tool.setuptools.dynamic]
-readme = {file = ["README.md"], content-type = "text/plain"}
+readme = { file = ["README.md"], content-type = "text/plain" }

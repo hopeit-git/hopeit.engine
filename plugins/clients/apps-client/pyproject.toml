@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hopeit.apps-client"
 description = "Hopeit Apps Client Plugin"
-dynamic = ["version", "readme"]
+dynamic = ["version", "readme", "dependencies"]
 license = { text = "Apache 2" }
 authors = [
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },

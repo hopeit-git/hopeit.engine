@@ -1,4 +1,5 @@
 from setuptools import setup
+import re
 
 DEPS = "requirements.txt"
 
@@ -7,50 +8,36 @@ with open("src/hopeit/server/version.py") as fp:
     exec(fp.read(), version)
 
 
-def extract_package_names(file_path):
-    """Extract package names from a requirements.txt file."""
-    package_names = set()
-    with open(file_path, "r") as file:
+def read_requirements_txt(*packages):
+    """Return lines from the file that match the exact package names with optional version specifiers."""
+    matches = []
+    package_patterns = [
+        re.compile(rf"^{re.escape(package)}(\s|==|>=|<=|>|<|;|$)", re.IGNORECASE)
+        for package in packages
+    ]
+
+    with open(DEPS, "r") as file:
         for line in file:
             line = line.strip()
             if line and not line.startswith("#"):
-                pkg_name = (
-                    line.split("==")[0]
-                    .split(">=")[0]
-                    .split("<=")[0]
-                    .split(">=")[0]
-                    .split(">")[0]
-                    .split("<")[0]
-                    .split(";")[0]
-                    .strip()
-                )
-                package_names.add(pkg_name)
-    return package_names
-
-
-def match_packages(file_path, packages_to_match):
-    """Return package names from the file that match the given list."""
-    all_packages = extract_package_names(file_path)
-    matches = [pkg for pkg in packages_to_match if pkg in all_packages]
+                if any(pattern.match(line) for pattern in package_patterns):
+                    matches.append(line)
     return matches
 
 
 setup(
-    install_requires=match_packages(
-        DEPS,
-        [
-            "lz4",
-            "stringcase",
-            "PyJWT[crypto]",
-            "deepdiff",
-            "typing-inspect",
-            "multidict",
-            "pydantic",
-        ],
+    install_requires=read_requirements_txt(
+        "lz4",
+        "stringcase",
+        "PyJWT[crypto]",
+        "deepdiff",
+        "typing-inspect",
+        "multidict",
+        "pydantic",
     ),
     extras_require={
-        "web": match_packages(DEPS, ["aiohttp", "aiohttp-cors", "aiohttp-swagger3", "gunicorn"]),
-        "cli": match_packages(DEPS, ["click"]),
+        "web": read_requirements_txt("aiohttp", "aiohttp-cors", "aiohttp-swagger3", "gunicorn"),
+        "cli": read_requirements_txt("click"),
         "redis-streams": [f"hopeit.redis-streams=={version['ENGINE_VERSION']}"],
         "redis-storage": [f"hopeit.redis-storage=={version['ENGINE_VERSION']}"],
         "fs-storage": [f"hopeit.fs-storage=={version['ENGINE_VERSION']}"],

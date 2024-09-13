@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 description = "Hopeit Engine Redis Storage Toolkit"
 name = "hopeit.redis-storage"
-dynamic = ["version", "readme"]
+dynamic = ["version", "readme", "dependencies"]
 license = { text = "Apache 2" }
 authors = [
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
