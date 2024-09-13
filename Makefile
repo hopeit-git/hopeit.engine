@@ -16,17 +16,12 @@ locked-deps:
 	cd engine && \
 	pip install -U pip && \
 	pip install -U wheel && \
-	pip install --force-reinstall -r requirements.lock.$(PYTHONVERSION) && \
 	pip install -U -r requirements-dev.txt
 
 ci-setup: locked-deps
 	make install && \
 	make install-plugins && \
 	make install-examples
-
-lock-requirements: clean dev-deps
-	cd engine && \
-	pip freeze > requirements.lock
 
 format-module:
 	ruff format $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/ && \
