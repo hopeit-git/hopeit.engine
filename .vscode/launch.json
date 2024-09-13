@@ -3,7 +3,7 @@
     "configurations": [
         {
             "name": "simple-example",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "hopeit.server.web",
             "args": [
@@ -17,7 +17,7 @@
         },
         {
             "name": "simple-example-auto",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "hopeit.server.web",
             "args": [
@@ -31,7 +31,7 @@
         },
         {
             "name": "client-example",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "hopeit.server.web",
             "env": {
@@ -47,7 +47,7 @@
         },
         {
             "name": "dataframes-example",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "hopeit.server.web",
             "env": {
@@ -63,7 +63,7 @@
         },
         {
             "name": "apps-visualizer",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "hopeit.server.web",
             "env": {
@@ -80,7 +80,7 @@
         },
         {
             "name": "log-streamer",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "hopeit.server.web",
             "args": [

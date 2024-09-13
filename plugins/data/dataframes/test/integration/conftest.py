@@ -1,5 +1,5 @@
 from datetime import date, datetime, timezone
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 import pytest
@@ -12,7 +12,7 @@ from hopeit.app.config import (
 )
 from hopeit.app.context import EventContext
 from hopeit.dataframes import Dataset, dataframe
-from hopeit.dataobjects import dataclass, dataobject
+from hopeit.dataobjects import dataclass, dataobject, field
 from hopeit.testing.apps import create_test_context, execute_event, server_config
 
 
@@ -26,9 +26,32 @@ class MyTestData:
 
 @dataframe
 @dataclass
+class MyTestDataOptionalValues:
+    number: int
+    name: str
+    timestamp: datetime
+    optional_value: Optional[float]
+    optional_label: Optional[str]
+
+
+@dataframe
+@dataclass
+class MyTestDataDefaultValues:
+    number: int
+    name: str
+    timestamp: datetime
+    optional_value: Optional[float] = 0.0
+    optional_label: Optional[str] = "(default)"
+
+
+@dataframe
+@dataclass
 class MyTestDataSchemaCompatible:
     number: int
+    # Removed field: name
     timestamp: datetime
+    # Added field with default value
+    new_optional_field: str = field(default="(default)")
 
 
 @dataframe
@@ -76,6 +99,31 @@ class MyTestAllTypesData:
     str_value: str
     date_value: date
     datetime_value: datetime
+    int_value_optional: Optional[int]
+    float_value_optional: Optional[float]
+    str_value_optional: Optional[str]
+    date_value_optional: Optional[date]
+    datetime_value_optional: Optional[datetime]
+
+
+DEFAULT_DATE = datetime.now().date()
+DEFAULT_DATETIME = datetime.now(tz=timezone.utc)
+
+
+@dataframe
+@dataclass
+class MyTestAllTypesDefaultValues:
+    id: str
+    int_value: int = 1
+    float_value: float = 1.0
+    str_value: str = "(default)"
+    date_value: date = DEFAULT_DATE
+    datetime_value: datetime = DEFAULT_DATETIME
+    int_value_optional: Optional[int] = None
+    float_value_optional: Optional[float] = None
+    str_value_optional: Optional[str] = None
+    date_value_optional: Optional[date] = None
+    datetime_value_optional: Optional[datetime] = None
 
 
 @pytest.fixture

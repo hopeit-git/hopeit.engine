@@ -4,8 +4,7 @@ DataFrames type abstractions.
 
 import dataclasses
 from datetime import date, datetime, timezone
-from functools import partial
-from typing import Any, Callable, Dict, Generic, Iterator, List, Type, TypeVar
+from typing import Any, Callable, Dict, Generic, Iterator, List, Type, TypeVar, Union
 
 import numpy as np
 import pandas as pd
@@ -20,6 +19,7 @@ from hopeit.dataobjects import (
     fields,
 )
 from hopeit.dataobjects.payload import Payload
+from pydantic_core import PydanticUndefined
 
 DataFrameT = TypeVar("DataFrameT")
 
@@ -31,19 +31,55 @@ class DataFrameMetadata:
 
 
 # Functions to do type coercion
-def _series_to_int(x: pd.Series) -> pd.Series:
+def _series_to_int(field_name: str, x: pd.Series) -> pd.Series:
+    if x.isnull().values.any():  # type: ignore[union-attr]
+        raise ValueError(f"Field `{field_name}` is not nullable")
     return x.astype(np.int64)
 
 
-def _series_to_float(x: pd.Series) -> pd.Series:
+def _series_to_float(field_name: str, x: pd.Series) -> pd.Series:
+    if x.isnull().values.any():  # type: ignore[union-attr]
+        raise ValueError(f"Field `{field_name}` is not nullable")
     return x.astype(np.float64)
 
 
-def _series_to_str(x: pd.Series) -> pd.Series:
+def _series_to_str(field_name: str, x: pd.Series) -> pd.Series:
+    if x.isnull().values.any():  # type: ignore[union-attr]
+        raise ValueError(f"Field `{field_name}` is not nullable")
     return x.astype(str)
 
 
-_series_to_utc_datetime = partial(pd.to_datetime, utc=True)
+# Functions to do type coercion
+def _series_to_int_nullable(_field_name: str, x: pd.Series) -> pd.Series:
+    return x[x.notna()].astype(np.int64)
+
+
+def _series_to_float_nullable(_field_name: str, x: pd.Series) -> pd.Series:
+    return x[x.notna()].astype(np.float64)
+
+
+def _series_to_str_nullable(_field_name: str, x: pd.Series) -> pd.Series:
+    return x[x.notna()].astype(str)
+
+
+def _series_to_datetime(field_name: str, x: pd.Series) -> pd.Series:
+    if x.isnull().values.any():  # type: ignore[union-attr]
+        raise ValueError(f"Field `{field_name}` is not nullable")
+    return pd.to_datetime(x)
+
+
+def _series_to_utc_datetime(field_name: str, x: pd.Series) -> pd.Series:
+    if x.isnull().values.any():  # type: ignore[union-attr]
+        raise ValueError(f"Field `{field_name}` is not nullable")
+    return pd.to_datetime(x, utc=True)
+
+
+def _series_to_datetime_nullable(_field_name: str, x: pd.Series) -> pd.Series:
+    return pd.to_datetime(x)
+
+
+def _series_to_utc_datetime_nullable(_field_name: str, x: pd.Series) -> pd.Series:
+    return pd.to_datetime(x, utc=True)
 
 
 class DataFrameMixin(Generic[DataFrameT, DataObject]):
@@ -57,11 +93,16 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         int: _series_to_int,
         float: _series_to_float,
         str: _series_to_str,
-        date: pd.to_datetime,
+        date: _series_to_datetime,
         datetime: _series_to_utc_datetime,
+        Union[int, None]: _series_to_int_nullable,
+        Union[float, None]: _series_to_float_nullable,
+        Union[str, None]: _series_to_str_nullable,
+        Union[date, None]: _series_to_datetime_nullable,
+        Union[datetime, None]: _series_to_utc_datetime_nullable,
     }
 
-    def __init__(self) -> None:
+    def __init__(self, *, allow_new_fields: bool = False, **series: pd.Series) -> None:
         # Fields added here only to allow mypy to provide correct type hints
         self.__data_object__: Dict[str, Any] = {}
         self.__dataframe__: DataFrameMetadata = None  # type: ignore
@@ -69,17 +110,19 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(self, **series: pd.Series):  # pylint: disable=bad-staticmethod-argument
+    def __init_from_series__(self, *, allow_new_fields: bool = False, **series: pd.Series):  # pylint: disable=bad-staticmethod-argument
         df = pd.DataFrame(series)
         df.index.name = None  # Removes index name to avoid colisions with series name
         if self.__data_object__["validate"]:
-            df = pd.DataFrame(self._coerce_datatypes(df))
+            df = pd.DataFrame(self._coerce_datatypes(df, allow_new_fields=allow_new_fields))
         setattr(self, "__df", df[self.__dataframe__.columns])
 
     @classmethod
-    def _from_df(cls, df: pd.DataFrame, **series: Any) -> DataFrameT:
+    def _from_df(
+        cls, df: pd.DataFrame, *, allow_new_fields: bool = False, **series: Any
+    ) -> DataFrameT:
         df = df if cls.__data_object__["unsafe"] else pd.DataFrame(df)
-        obj = cls(**{**df._series, **series})  # pylint: disable=protected-access
+        obj = cls(allow_new_fields=allow_new_fields, **{**df._series, **series})  # pylint: disable=protected-access
         return obj  # type: ignore
 
     @classmethod
@@ -128,9 +171,29 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         else:
             object.__setattr__(self, name, value)
 
-    def _coerce_datatypes(self, df: pd.DataFrame) -> Dict[str, pd.Series]:
+    def _get_series(
+        self,
+        df: pd.DataFrame,
+        field_name: str,
+        field_info: FieldInfo,
+        *,
+        allow_default_values: bool,
+    ) -> pd.Series:
+        try:
+            return df[field_name]
+        except KeyError:
+            default_value = field_info.get_default()
+            if default_value is not PydanticUndefined:
+                return pd.Series([default_value] * len(df))
+            raise
+
+    def _coerce_datatypes(
+        self, df: pd.DataFrame, *, allow_new_fields: bool = False
+    ) -> Dict[str, pd.Series]:
         return {
-            name: self.DATATYPE_MAPPING[field.annotation](df[name])  # type: ignore
+            name: self.DATATYPE_MAPPING[field.annotation](  # type: ignore[index, operator]
+                name, self._get_series(df, name, field, allow_default_values=allow_new_fields)
+            )
             for name, field in self.__dataframe__.fields.items()
         }
 
@@ -181,17 +244,12 @@ def dataframe(
         setattr(cls, "event_id", StreamEventMixin.event_id)
         setattr(cls, "event_ts", StreamEventMixin.event_ts)
 
-    def set_fields_optional(cls):
-        for _, field in fields(cls).items():
-            field.default = None
-
     def wrap(cls) -> Type[DataFrameMixin]:
         if hasattr(cls, "__dataframe__"):
             return cls
         add_dataframe_metadata(cls)
         amended_class = add_dataframe_mixin(cls)
         add_dataobject_annotations(amended_class, unsafe, validate, schema)
-        set_fields_optional(amended_class)
         return amended_class
 
     if decorated_class is None:

@@ -4,11 +4,18 @@ Release Notes
 Version 0.25.1
 ______________
 
+- Engine
+
+  - API: Support for `type | None`, as well as `Optional[type]` anottation for not required query args
+
 - Plugins:
 
-  - DataFrames:
-      - Saving json schema for serialiazed Datasets
+  - DataFrames, feature to allow schema evolution:
+      - Allowing optional and default values in `@dataframe` objects
+      - Saving `json` schema for serialized Datasets
       - Handling load errors with `DatasetLoadException`
+      - Allowing load dataset with deprecated fields (removed fields)
+      - Allowing load dataset with new fields in schema using a default value
 
 
 Version 0.25.0

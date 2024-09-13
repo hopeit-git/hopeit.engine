@@ -9,6 +9,8 @@ from conftest import (
     MyNumericalData,
     MyPartialTestData,
     MyTestData,
+    MyTestDataOptionalValues,
+    MyTestDataDefaultValues,
     MyTestDataObject,
     MyTestDataSchemaCompatible,
     MyTestDataSchemaNotCompatible,
@@ -23,6 +25,58 @@ from pandas.testing import assert_frame_equal, assert_series_equal
 def test_dataframes_from_df(sample_pandas_df: pd.DataFrame):
     initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
     assert len(DataFrames.df(initial_data)) == 100
+
+
+def test_dataframes_from_df_not_nullable_number(sample_pandas_df: pd.DataFrame):
+    sample_pandas_df.loc[0, "number"] = np.nan
+    with pytest.raises(ValueError):
+        DataFrames.from_df(MyTestData, sample_pandas_df)
+
+
+def test_dataframes_from_df_not_nullable_string(sample_pandas_df: pd.DataFrame):
+    sample_pandas_df.loc[0, "name"] = np.nan
+    with pytest.raises(ValueError):
+        DataFrames.from_df(MyTestData, sample_pandas_df)
+
+
+def test_dataframes_from_df_all_null_values(sample_pandas_df: pd.DataFrame):
+    sample_pandas_df["optional_value"] = np.nan
+    sample_pandas_df["optional_label"] = np.nan
+    initial_data = DataFrames.from_df(MyTestDataOptionalValues, sample_pandas_df)
+    assert len(DataFrames.df(initial_data)) == 100
+    assert initial_data.optional_value.isnull().all()  # type: ignore[union-attr]
+    assert initial_data.optional_label.isnull().all()  # type: ignore[union-attr]
+
+
+def test_dataframes_from_df_some_null_values(sample_pandas_df: pd.DataFrame):
+    sample_pandas_df["optional_value"] = 100.0
+    sample_pandas_df["optional_label"] = "optional"
+    sample_pandas_df.loc[1, "optional_value"] = np.nan
+    sample_pandas_df.loc[2, "optional_label"] = np.nan
+    initial_data = DataFrames.from_df(MyTestDataOptionalValues, sample_pandas_df)
+    assert len(DataFrames.df(initial_data)) == 100
+    assert initial_data.optional_value.loc[0] == 100.0  # type: ignore[union-attr]
+    assert np.isnan(initial_data.optional_value.loc[1])  # type: ignore[union-attr]
+    assert initial_data.optional_value.loc[2] == 100.0  # type: ignore[union-attr]
+    assert initial_data.optional_label.loc[1] == "optional"  # type: ignore[union-attr]
+    assert np.isnan(initial_data.optional_label.loc[2])  # type: ignore[union-attr]
+    assert initial_data.optional_label.loc[3] == "optional"  # type: ignore[union-attr]
+
+
+def test_dataframes_from_df_set_optional_values(sample_pandas_df: pd.DataFrame):
+    sample_pandas_df["optional_value"] = 100.0
+    sample_pandas_df["optional_label"] = "optional"
+    initial_data = DataFrames.from_df(MyTestDataOptionalValues, sample_pandas_df)
+    assert len(DataFrames.df(initial_data)) == 100
+    assert (initial_data.optional_value == 100.0).all()  # type: ignore[union-attr, attr-defined]
+    assert (initial_data.optional_label == "optional").all()  # type: ignore[union-attr, attr-defined]
+
+
+def test_dataframes_from_df_default_values(sample_pandas_df: pd.DataFrame):
+    initial_data = DataFrames.from_df(MyTestDataDefaultValues, sample_pandas_df)
+    assert len(DataFrames.df(initial_data)) == 100
+    assert (initial_data.optional_value == 0.0).all()  # type: ignore[union-attr, attr-defined]
+    assert (initial_data.optional_label == "(default)").all()  # type: ignore[union-attr, attr-defined]
 
 
 def test_dataframes_from_dataframe(sample_pandas_df: pd.DataFrame):
@@ -88,8 +142,11 @@ async def test_dataframe_dataset_deserialization_compatible(
     modified_obj.datatype = "conftest.MyTestDataSchemaCompatible"
     loaded_obj = await modified_obj.load()
 
+    expected_df = DataFrames.df(initial_data)
+    expected_df["new_optional_field"] = "(default)"
+
     assert_frame_equal(
-        DataFrames.df(initial_data)[["number", "timestamp"]], DataFrames.df(loaded_obj)
+        expected_df[["number", "timestamp", "new_optional_field"]], DataFrames.df(loaded_obj)
     )
 
 
