@@ -13,6 +13,6 @@ if not ENGINE_VERSION:
     raise RuntimeError("ENGINE_VERSION is not specified.")
 
 setup(
-    version=version["ENGINE_VERSION"],
-    install_requires=[f"hopeit.engine=={version['ENGINE_VERSION']}", "redis>=5.0.0"],
+    version=ENGINE_VERSION,
+    install_requires=[f"hopeit.engine=={ENGINE_VERSION}", "redis>=5.0.0"],
 )

@@ -13,6 +13,6 @@ if not ENGINE_VERSION:
     raise RuntimeError("ENGINE_VERSION is not specified.")
 
 setup(
-    version=version["ENGINE_VERSION"],
-    install_requires=[f"hopeit.engine[web]=={version['ENGINE_VERSION']}"],
+    version=ENGINE_VERSION,
+    install_requires=[f"hopeit.engine[web]=={ENGINE_VERSION}"],
 )

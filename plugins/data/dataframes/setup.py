@@ -13,9 +13,9 @@ if not ENGINE_VERSION:
     raise RuntimeError("ENGINE_VERSION is not specified.")
 
 setup(
-    version=version["ENGINE_VERSION"],
+    version=ENGINE_VERSION,
     install_requires=[
-        f"hopeit.engine[fs-storage]=={version['ENGINE_VERSION']}",
+        f"hopeit.engine[fs-storage]=={ENGINE_VERSION}",
         "pandas",
         "numpy",
     ],

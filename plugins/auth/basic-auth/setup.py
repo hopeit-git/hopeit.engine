@@ -13,9 +13,9 @@ if not ENGINE_VERSION:
     raise RuntimeError("ENGINE_VERSION is not specified.")
 
 setup(
-    version=version["ENGINE_VERSION"],
+    version=ENGINE_VERSION,
     install_requires=[
-        f"hopeit.engine=={version['ENGINE_VERSION']}",
+        f"hopeit.engine=={ENGINE_VERSION}",
         "PyJWT[crypto]>=2.8.0",
     ],
 )

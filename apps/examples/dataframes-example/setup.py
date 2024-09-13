@@ -14,10 +14,10 @@ if not ENGINE_VERSION:
 
 
 setup(
-    version=version["ENGINE_VERSION"],
+    version=ENGINE_VERSION,
     install_requires=[
-        f"hopeit.engine[web,cli,redis-streams]=={version['ENGINE_VERSION']}",
-        f"hopeit.dataframes[pyarrow]=={version['ENGINE_VERSION']}",
+        f"hopeit.engine[web,cli,redis-streams]=={ENGINE_VERSION}",
+        f"hopeit.dataframes[pyarrow]=={ENGINE_VERSION}",
         f"scikit-learn",
     ],
 )
