@@ -29,6 +29,13 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 
+[project.urls]
+"Homepage" = "https://github.com/hopeit-git/hopeit.engine"
+"CI: GitHub Actions" = "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow"
+"Docs: RTD" = "https://hopeitengine.readthedocs.io/en/latest/"
+"GitHub: issues" = "https://github.com/hopeit-git/hopeit.engine/issues"
+"GitHub: repo" = "https://github.com/hopeit-git/hopeit.engine"
+
 [tool.setuptools]
 include-package-data = true
 

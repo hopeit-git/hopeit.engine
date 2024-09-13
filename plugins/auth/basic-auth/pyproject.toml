@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hopeit.basic_auth"
-description="Hopeit Engine Example Basic Auth Plugin"
+description = "Hopeit Engine Example Basic Auth Plugin"
 dynamic = ["version", "readme"]
-license = {text = "Apache 2"}
+license = { text = "Apache 2" }
 authors = [
-    {name = "Leo Smerling", email = "contact@hopeit.com.ar"},
-    {name = "Pablo Canto", email = "contact@hopeit.com.ar"}
+    { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
+    { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
 ]
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
@@ -29,6 +29,13 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 
+[project.urls]
+"Homepage" = "https://github.com/hopeit-git/hopeit.engine"
+"CI: GitHub Actions" = "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow"
+"Docs: RTD" = "https://hopeitengine.readthedocs.io/en/latest/"
+"GitHub: issues" = "https://github.com/hopeit-git/hopeit.engine/issues"
+"GitHub: repo" = "https://github.com/hopeit-git/hopeit.engine"
+
 [tool.setuptools]
 include-package-data = true
 
@@ -38,6 +45,5 @@ where = ["src"]
 [tool.setuptools.package-data]
 "hopeit.basic_auth" = ["py.typed"]
 
-
 [tool.setuptools.dynamic]
-readme = {file = ["README.md"], content-type = "text/plain"}
+readme = { file = ["README.md"], content-type = "text/plain" }

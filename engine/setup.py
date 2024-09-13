@@ -37,13 +37,6 @@ def match_packages(file_path, packages_to_match):
 
 
 setup(
-    url="https://github.com/hopeit-git/hopeit.engine",
-    project_urls={
-        "CI: GitHub Actions": "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow",
-        "Docs: RTD": "https://hopeitengine.readthedocs.io/en/latest/",
-        "GitHub: issues": "https://github.com/hopeit-git/hopeit.engine/issues",
-        "GitHub: repo": "https://github.com/hopeit-git/hopeit.engine",
-    },
     install_requires=match_packages(
         DEPS,
         [

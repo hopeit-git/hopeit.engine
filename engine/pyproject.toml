@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hopeit.engine"
-dynamic = ["version", "readme"]
 description = "Hopeit Engine: Microservices with Streams"
-license = {text = "Apache 2"}
+dynamic = ["version", "readme"]
+license = { text = "Apache 2" }
 authors = [
-    {name = "Leo Smerling", email = "contact@hopeit.com.ar"},
-    {name = "Pablo Canto", email = "contact@hopeit.com.ar"}
+    { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
+    { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
 ]
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
@@ -29,14 +29,16 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 
-
 [project.urls]
 "Homepage" = "https://github.com/hopeit-git/hopeit.engine"
-"CI: GitHub Actions"= "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow"
-"Docs: RTD"= "https://hopeitengine.readthedocs.io/en/latest/"
-"GitHub: issues"= "https://github.com/hopeit-git/hopeit.engine/issues"
-"GitHub: repo"= "https://github.com/hopeit-git/hopeit.engine"
-    
+"CI: GitHub Actions" = "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow"
+"Docs: RTD" = "https://hopeitengine.readthedocs.io/en/latest/"
+"GitHub: issues" = "https://github.com/hopeit-git/hopeit.engine/issues"
+"GitHub: repo" = "https://github.com/hopeit-git/hopeit.engine"
+
+[tool.setuptools]
+include-package-data = true
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
@@ -53,9 +55,6 @@ where = ["src"]
 hopeit_server = "hopeit.cli.server:server"
 hopeit_openapi = "hopeit.cli.openapi:openapi"
 
-[tool.setuptools]
-include-package-data = true
-
 [tool.setuptools.dynamic]
-version = {attr = "hopeit.server.version.ENGINE_VERSION"}
-readme = {file = ["README.md"], content-type = "text/plain"}
+version = { attr = "hopeit.server.version.ENGINE_VERSION" }
+readme = { file = ["README.md"], content-type = "text/plain" }
