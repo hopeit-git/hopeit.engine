@@ -187,7 +187,7 @@ def _parse_fields_schema(fields: Optional[List[ArgDef]]):
 def _event_api(
     summary: Optional[str],
     description: Optional[str],
-    payload: Optional[Type | tuple[type[Any], str]],
+    payload: Optional[Union[Type, tuple[type[Any], str]]],
     query_args: Optional[List[ArgDef]],
     fields: Optional[List[ArgDef]],
     responses: Optional[Dict[int, PayloadDef]],

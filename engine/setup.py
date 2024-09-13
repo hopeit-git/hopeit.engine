@@ -1,6 +1,5 @@
 from setuptools import setup
 
-
 DEPS = "requirements.txt"
 
 version = {}
