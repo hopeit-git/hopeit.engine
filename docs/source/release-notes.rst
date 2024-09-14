@@ -6,7 +6,7 @@ ______________
 
 - Engine
 
-  - API: Support for `type | None`, as well as `Optional[type]` anottation for not required query args
+  - API: Support for `type | None` syntax, as well as `Optional[type]` annotation for optional required query args
 
 - Plugins:
 
