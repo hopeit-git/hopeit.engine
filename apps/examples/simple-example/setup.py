@@ -1,27 +1,20 @@
-import setuptools
-
+from setuptools import setup
+from os import environ
 
 version = {}
-with open("../../../engine/src/hopeit/server/version.py") as fp:
-    exec(fp.read(), version)
+try:
+    with open("../../../engine/src/hopeit/server/version.py") as fp:
+        exec(fp.read(), version)
+        ENGINE_VERSION = version["ENGINE_VERSION"]
+except FileNotFoundError:
+    ENGINE_VERSION = environ.get("ENGINE_VERSION")
 
-setuptools.setup(
-    name="simple_example",
-    version=version['ENGINE_VERSION'],
-    description="Hopeit.py Example App",
-    package_dir={
-        "": "src"
-    },
-    packages=[
-        "common", "model", "simple_example"
-    ],
-    include_package_data=True,
-    python_requires=">=3.9",
+if not ENGINE_VERSION:
+    raise RuntimeError("ENGINE_VERSION is not specified.")
+
+setup(
+    version=ENGINE_VERSION,
     install_requires=[
-        f"hopeit.engine[web,cli,redis-streams,fs-storage]=={version['ENGINE_VERSION']}",
+        f"hopeit.engine[web,cli,redis-streams,fs-storage]=={ENGINE_VERSION}",
     ],
-    extras_require={
-    },
-    entry_points={
-    }
 )

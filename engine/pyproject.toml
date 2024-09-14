@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools >= 64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hopeit.engine"
+description = "Hopeit Engine: Microservices with Streams"
+dynamic = ["version", "readme", "dependencies", "optional-dependencies"]
+license = { text = "Apache 2" }
+authors = [
+    { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
+    { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
+]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: AsyncIO",
+]
+requires-python = ">=3.9"
+
+[project.urls]
+"Homepage" = "https://github.com/hopeit-git/hopeit.engine"
+"CI: GitHub Actions" = "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow"
+"Docs: RTD" = "https://hopeitengine.readthedocs.io/en/latest/"
+"GitHub: issues" = "https://github.com/hopeit-git/hopeit.engine/issues"
+"GitHub: repo" = "https://github.com/hopeit-git/hopeit.engine"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"hopeit.app" = ["py.typed"]
+"hopeit.cli" = ["py.typed"]
+"hopeit.dataobjects" = ["py.typed"]
+"hopeit.server" = ["py.typed"]
+"hopeit.streams" = ["py.typed"]
+"hopeit.testing" = ["py.typed"]
+"hopeit.toolkit" = ["py.typed"]
+
+[project.scripts]
+hopeit_server = "hopeit.cli.server:server"
+hopeit_openapi = "hopeit.cli.openapi:openapi"
+
+[tool.setuptools.dynamic]
+version = { attr = "hopeit.server.version.ENGINE_VERSION" }
+readme = { file = ["README.md"], content-type = "text/plain" }

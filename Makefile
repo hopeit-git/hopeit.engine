@@ -16,17 +16,12 @@ locked-deps:
 	cd engine && \
 	pip install -U pip && \
 	pip install -U wheel && \
-	pip install --force-reinstall -r requirements.lock.$(PYTHONVERSION) && \
 	pip install -U -r requirements-dev.txt
 
 ci-setup: locked-deps
 	make install && \
 	make install-plugins && \
 	make install-examples
-
-lock-requirements: clean dev-deps
-	cd engine && \
-	pip freeze > requirements.lock
 
 format-module:
 	ruff format $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/ && \
@@ -135,14 +130,15 @@ qa: test check
 	echo "DONE."
 
 dist: clean
-	pip install wheel && \
+	pip install wheel build && \
 	cd engine && \
-	python setup.py sdist bdist_wheel
+	python -m build
 
 dist-plugin: clean-plugins
-	pip install wheel && \
+	$(eval ENGINE_VERSION := $(shell python engine/src/hopeit/server/version.py))
+	export  && pip install wheel build && \
 	cd $(PLUGINFOLDER) && \
-	python setup.py sdist bdist_wheel
+	ENGINE_VERSION=$(ENGINE_VERSION) python -m build
 
 clean:
 	cd engine && \

@@ -1739,11 +1739,7 @@
             "type": "object"
           },
           "server": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ServerConfig"
-              }
-            ],
+            "$ref": "#/components/schemas/ServerConfig",
             "default": null,
             "nullable": true
           },
@@ -1861,19 +1857,11 @@
             "type": "integer"
           },
           "default_stream_compression": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Compression"
-              }
-            ],
+            "$ref": "#/components/schemas/Compression",
             "default": "lz4"
           },
           "default_stream_serialization": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Serialization"
-              }
-            ],
+            "$ref": "#/components/schemas/Serialization",
             "default": "json+base64"
           },
           "track_headers": {
@@ -2011,11 +1999,7 @@
             "$ref": "#/components/schemas/EventType"
           },
           "plug_mode": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/EventPlugMode"
-              }
-            ],
+            "$ref": "#/components/schemas/EventPlugMode",
             "default": "Standalone"
           },
           "route": {
@@ -2038,20 +2022,12 @@
             "type": "array"
           },
           "read_stream": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ReadStreamDescriptor"
-              }
-            ],
+            "$ref": "#/components/schemas/ReadStreamDescriptor",
             "default": null,
             "nullable": true
           },
           "write_stream": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/WriteStreamDescriptor"
-              }
-            ],
+            "$ref": "#/components/schemas/WriteStreamDescriptor",
             "default": null,
             "nullable": true
           },
@@ -2322,11 +2298,7 @@
             "type": "array"
           },
           "queue_strategy": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/StreamQueueStrategy"
-              }
-            ],
+            "$ref": "#/components/schemas/StreamQueueStrategy",
             "default": "DROP"
           }
         },
@@ -2419,11 +2391,7 @@
             "$ref": "#/components/schemas/User"
           },
           "status": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Status"
-              }
-            ],
+            "$ref": "#/components/schemas/Status",
             "default": null,
             "nullable": true
           },

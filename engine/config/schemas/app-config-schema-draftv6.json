@@ -127,19 +127,11 @@
           "type": "integer"
         },
         "default_stream_compression": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/Compression"
-            }
-          ],
+          "$ref": "#/$defs/Compression",
           "default": "lz4"
         },
         "default_stream_serialization": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/Serialization"
-            }
-          ],
+          "$ref": "#/$defs/Serialization",
           "default": "json+base64"
         },
         "track_headers": {
@@ -289,11 +281,7 @@
           "$ref": "#/$defs/EventType"
         },
         "plug_mode": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/EventPlugMode"
-            }
-          ],
+          "$ref": "#/$defs/EventPlugMode",
           "default": "Standalone"
         },
         "route": {
@@ -474,7 +462,7 @@
           "$ref": "#/$defs/APIConfig"
         },
         "engine_version": {
-          "default": "0.25.0b4",
+          "default": "0.25.0",
           "title": "Engine Version",
           "type": "string"
         }
@@ -555,11 +543,7 @@
           "type": "array"
         },
         "queue_strategy": {
-          "allOf": [
-            {
-              "$ref": "#/$defs/StreamQueueStrategy"
-            }
-          ],
+          "$ref": "#/$defs/StreamQueueStrategy",
           "default": "DROP"
         }
       },

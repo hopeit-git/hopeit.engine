@@ -23,6 +23,6 @@ help:
 deps:
 	pip install -r requirements.txt
 
-# Create apidocs for hopeit.py from source code, replacing existing files in ./source/apidocs
+# Create apidocs for hopeit.engine from source code, replacing existing files in ./source/apidocs
 apidocs:
 	sphinx-apidoc --module-first -d 6 --no-headings --implicit-namespaces -f --tocfile index -o source/apidocs ../engine/src/hopeit
