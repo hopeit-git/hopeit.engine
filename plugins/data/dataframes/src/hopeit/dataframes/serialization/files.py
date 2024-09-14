@@ -64,7 +64,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         if data is None:
             raise FileNotFoundError(dataset.key)
         df = pd.read_parquet(io.BytesIO(data), engine="pyarrow")
-        return datatype._from_df(df, allow_new_fields=True)  # pylint: disable=protected-access
+        return datatype._from_df(df)  # pylint: disable=protected-access
 
 
 def find_dataframe_type(qual_type_name: str) -> Type[DataFrameT]:
