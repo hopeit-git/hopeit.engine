@@ -86,9 +86,9 @@ def _arg_type(arg: ArgDef) -> Tuple[str, Optional[str], bool]:
     if isinstance(arg, str):
         return (*BUILTIN_TYPES[str], True)
     datatype, required = arg[1], True
+    type_args = typing_inspect.get_args(datatype)
     origin = typing_inspect.get_origin(datatype)
-    if origin is Union:
-        type_args = typing_inspect.get_args(datatype)
+    if len(type_args) and (origin is Union or type_args[-1] is type(None)):
         datatype = type_args[0]
         required = type_args[-1] is None
     return (*BUILTIN_TYPES.get(datatype, BUILTIN_TYPES[str]), required)
