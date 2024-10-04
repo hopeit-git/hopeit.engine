@@ -1,19 +1,22 @@
 import asyncio
 import pytest
+import signal
+from asyncio.exceptions import CancelledError
 from typing import List, Any
 from unittest.mock import MagicMock
 
 import nest_asyncio  # type: ignore
-from aiohttp.web_runner import GracefulExit
-from aiohttp.web import run_app, Application
 
 from hopeit.server import web, runtime, engine
 from hopeit.server.web import parse_args
 
 
+test_lock = asyncio.Lock()
+
+
 async def cleanup_test_server():
     runtime.server = engine.Server()
-    web.web_server = Application()
+    web.web_server = web.web.Application()
 
 
 def test_port_path():
@@ -132,7 +135,7 @@ async def _stream_startup_hook(*args, **kwargs):
 async def test_server_initialization(monkeypatch, api_file, api_auto):
     async def _shutdown(*args, **kwargs):
         await asyncio.sleep(1)
-        raise GracefulExit
+        signal.raise_signal(signal.SIGTERM)
 
     def _serve():
         web.init_web_server(
@@ -147,46 +150,50 @@ async def test_server_initialization(monkeypatch, api_file, api_auto):
             start_streams=True,
         )
         web.web_server.on_startup.append(_shutdown)
-        run_app(web.web_server, host="localhost", port=8020, path=None)
+        web.web.run_app(web.web_server, host="localhost", port=8020, path=None)
 
-    nest_asyncio.apply()
+    async with test_lock:
+        nest_asyncio.apply()
 
-    _load_engine_config = MagicMock()
-    _load_api_file = MagicMock()
-    _enable_swagger = MagicMock()
-    _register_server_config = MagicMock()
-    _register_apps = MagicMock()
-    _load_app_config = MagicMock()
+        _load_engine_config = MagicMock()
+        _load_api_file = MagicMock()
+        _enable_swagger = MagicMock()
+        _register_server_config = MagicMock()
+        _register_apps = MagicMock()
+        _load_app_config = MagicMock()
 
-    monkeypatch.setattr(web, "_load_engine_config", _load_engine_config)
-    monkeypatch.setattr(web.api, "load_api_file", _load_api_file)
-    monkeypatch.setattr(web.api, "register_server_config", _register_server_config)
-    monkeypatch.setattr(web.api, "register_apps", _register_apps)
-    monkeypatch.setattr(web.api, "enable_swagger", _enable_swagger)
-    monkeypatch.setattr(web, "_load_app_config", _load_app_config)
-    monkeypatch.setattr(web, "server_startup_hook", _server_startup_hook)
-    monkeypatch.setattr(web, "app_startup_hook", _app_startup_hook)
-    monkeypatch.setattr(web, "stream_startup_hook", _stream_startup_hook)
+        monkeypatch.setattr(web, "_load_engine_config", _load_engine_config)
+        monkeypatch.setattr(web.api, "load_api_file", _load_api_file)
+        monkeypatch.setattr(web.api, "register_server_config", _register_server_config)
+        monkeypatch.setattr(web.api, "register_apps", _register_apps)
+        monkeypatch.setattr(web.api, "enable_swagger", _enable_swagger)
+        monkeypatch.setattr(web, "_load_app_config", _load_app_config)
+        monkeypatch.setattr(web, "server_startup_hook", _server_startup_hook)
+        monkeypatch.setattr(web, "app_startup_hook", _app_startup_hook)
+        monkeypatch.setattr(web, "stream_startup_hook", _stream_startup_hook)
 
-    try:
-        _serve()
-        await cleanup_test_server()
-    except Exception as e:
-        raise e  # Unexpected error
-    finally:
-        assert len(MockHooks._server_startup_hook_calls) == 1
-        assert len(MockHooks._app_startup_hook_calls) == 2
-        assert len(MockHooks._stream_startup_hook_calls) == 2
+        try:
+            await asyncio.sleep(1)
+            _serve()
+            await cleanup_test_server()
+        except CancelledError:
+            return  # Needed in linux
+        except Exception as e:
+            raise e  # Unexpected error
+        finally:
+            assert len(MockHooks._server_startup_hook_calls) == 1
+            assert len(MockHooks._app_startup_hook_calls) == 2
+            assert len(MockHooks._stream_startup_hook_calls) == 2
 
-        assert _load_engine_config.call_args[0] == ("test_server_file.json",)
-        if api_file:
-            assert _load_api_file.call_args[0] == ("test_api_file.json",)
-        assert _register_server_config.call_count == (1 if api_file or api_auto else 0)
-        assert _load_app_config.call_args_list[0][0] == ("test_app_file.json",)
-        assert _load_app_config.call_args_list[1][0] == ("test_app_file2.json",)
-        assert _register_apps.call_count == 1
-        assert _enable_swagger.call_count == 1
+            assert _load_engine_config.call_args[0] == ("test_server_file.json",)
+            if api_file:
+                assert _load_api_file.call_args[0] == ("test_api_file.json",)
+            assert _register_server_config.call_count == (1 if api_file or api_auto else 0)
+            assert _load_app_config.call_args_list[0][0] == ("test_app_file.json",)
+            assert _load_app_config.call_args_list[1][0] == ("test_app_file2.json",)
+            assert _register_apps.call_count == 1
+            assert _enable_swagger.call_count == 1
 
-        MockHooks._stream_startup_hook_calls = []
-        MockHooks._server_startup_hook_calls = []
-        MockHooks._app_startup_hook_calls = []
+            MockHooks._stream_startup_hook_calls = []
+            MockHooks._server_startup_hook_calls = []
+            MockHooks._app_startup_hook_calls = []

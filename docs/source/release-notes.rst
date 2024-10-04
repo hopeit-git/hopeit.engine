@@ -1,9 +1,18 @@
 Release Notes
 =============
 
-Version 0.25.1
+Version 0.25.2
 ______________
 
+- Plugins:
+
+  - DataFrames:
+    - Support for `bool` fields
+    - `Dataframes.to_dataobjects`: option to convert null values (`nan`, `NaT`, etc) to None
+
+
+Version 0.25.1
+______________
 - Engine
 
   - API: Support for `type | None` syntax, as well as `Optional[type]` annotation for optional required query args

@@ -17,11 +17,13 @@ def test_coerce_types_happy():
         str_value=["a", "B", 42],
         date_value=[test_date, test_date, "2024-01-01"],
         datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
+        bool_value=[True, False, True],
         int_value_optional=[0, 1, None],
         float_value_optional=[1.1, 2.2, None],
         str_value_optional=["a", "B", None],
         date_value_optional=[test_date, None, None],
         datetime_value_optional=[test_datetime, test_datetime, None],
+        bool_value_optional=[True, False, None],
     )
 
     pd.testing.assert_series_equal(data.int_value, pd.Series([0, 1, 2], name="int_value"))
@@ -48,6 +50,9 @@ def test_coerce_types_happy():
             ],
             name="datetime_value",
         ),
+    )
+    pd.testing.assert_series_equal(
+        data.bool_value, pd.Series([True, False, True], name="bool_value")
     )
     pd.testing.assert_series_equal(
         data.int_value_optional, pd.Series([0, 1, np.nan], name="int_value_optional")
@@ -80,6 +85,9 @@ def test_coerce_types_happy():
             name="datetime_value_optional",
         ),
     )
+    pd.testing.assert_series_equal(
+        data.bool_value_optional, pd.Series([True, False, None], name="bool_value_optional")
+    )
 
 
 def test_coerce_types_defaults():
@@ -111,6 +119,9 @@ def test_coerce_types_defaults():
         ),
     )
     pd.testing.assert_series_equal(
+        data.bool_value, pd.Series([False, False, False], name="bool_value")
+    )
+    pd.testing.assert_series_equal(
         data.float_value_optional,
         pd.Series([np.nan, np.nan, np.nan], name="float_value_optional"),
     )
@@ -127,6 +138,9 @@ def test_coerce_types_defaults():
         pd.Series(
             [pd.NaT, pd.NaT, pd.NaT], name="datetime_value_optional", dtype="datetime64[ns, UTC]"
         ),
+    )
+    pd.testing.assert_series_equal(
+        data.bool_value_optional, pd.Series([None, None, None], name="bool_value_optional")
     )
 
 
