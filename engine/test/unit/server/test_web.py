@@ -152,7 +152,7 @@ async def test_server_initialization(monkeypatch, api_file, api_auto):
         web.web_server.on_startup.append(_shutdown)
         web.web.run_app(web.web_server, host="localhost", port=8020, path=None)
 
-    async with test_lock:
+    async with test_lock:  # Ensures this part does not run concurrently
         nest_asyncio.apply()
 
         _load_engine_config = MagicMock()
