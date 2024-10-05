@@ -37,6 +37,12 @@ def _series_to_int(field_name: str, x: pd.Series) -> pd.Series:
     return x.astype(np.int64)
 
 
+def _series_to_bool(field_name: str, x: pd.Series) -> pd.Series:
+    if x.isnull().values.any():  # type: ignore[union-attr]
+        raise ValueError(f"Field `{field_name}` is not nullable")
+    return x.astype(bool)
+
+
 def _series_to_float(field_name: str, x: pd.Series) -> pd.Series:
     if x.isnull().values.any():  # type: ignore[union-attr]
         raise ValueError(f"Field `{field_name}` is not nullable")
@@ -51,15 +57,19 @@ def _series_to_str(field_name: str, x: pd.Series) -> pd.Series:
 
 # Functions to do type coercion
 def _series_to_int_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return x[x.notna()].astype(np.int64)
+    return x.dropna().astype(np.int64)
+
+
+def _series_to_bool_nullable(_field_name: str, x: pd.Series) -> pd.Series:
+    return x.dropna().astype(bool)
 
 
 def _series_to_float_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return x[x.notna()].astype(np.float64)
+    return x.dropna().astype(np.float64)
 
 
 def _series_to_str_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return x[x.notna()].astype(str)
+    return x.dropna().astype(str)
 
 
 def _series_to_datetime(field_name: str, x: pd.Series) -> pd.Series:
@@ -75,11 +85,11 @@ def _series_to_utc_datetime(field_name: str, x: pd.Series) -> pd.Series:
 
 
 def _series_to_datetime_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return pd.to_datetime(x)
+    return pd.to_datetime(x.dropna())
 
 
 def _series_to_utc_datetime_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return pd.to_datetime(x, utc=True)
+    return pd.to_datetime(x.dropna(), utc=True)
 
 
 class DataFrameMixin(Generic[DataFrameT, DataObject]):
@@ -89,13 +99,17 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     Do not use this class directly, instead use `@dataframe` class decorator.
     """
 
+    DataFrameValueType = Union[int, bool, float, str, date, datetime, None]
+
     DATATYPE_MAPPING = {
         int: _series_to_int,
+        bool: _series_to_bool,
         float: _series_to_float,
         str: _series_to_str,
         date: _series_to_datetime,
         datetime: _series_to_utc_datetime,
         Union[int, None]: _series_to_int_nullable,
+        Union[bool, None]: _series_to_bool_nullable,
         Union[float, None]: _series_to_float_nullable,
         Union[str, None]: _series_to_str_nullable,
         Union[date, None]: _series_to_datetime_nullable,
@@ -145,7 +159,17 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     def __getitem__(self, key) -> "DataFrameT":
         return self._from_df(self.__df[key])
 
-    def _to_dataobjects(self) -> List[DataObject]:
+    def _normalize_null_values(
+        self, value: Union[DataFrameValueType, pd.Timestamp]
+    ) -> DataFrameValueType:
+        return None if pd.isnull(value) else value
+
+    def _to_dataobjects(self, normalize_null_values: bool) -> List[DataObject]:
+        if normalize_null_values:
+            return [
+                self.DataObject(**{k: self._normalize_null_values(v) for k, v in fields.items()})
+                for fields in self.__df.to_dict(orient="records")
+            ]
         return [self.DataObject(**fields) for fields in self.__df.to_dict(orient="records")]
 
     def event_id(self, *args, **kwargs) -> str:

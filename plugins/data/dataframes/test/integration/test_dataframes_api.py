@@ -2,13 +2,14 @@ from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
 from hopeit.dataobjects import copy_payload
 import numpy as np
 import pandas as pd
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, ValidationError
 import pytest
 
 from conftest import (
     MyNumericalData,
     MyPartialTestData,
     MyTestData,
+    MyTestDataAllOptional,
     MyTestDataOptionalValues,
     MyTestDataDefaultValues,
     MyTestDataObject,
@@ -101,6 +102,24 @@ def test_dataobject_dataframes_conversion(one_element_pandas_df):
         MyTestData.DataObject(number=1, name="test1", timestamp=objects[0].timestamp)
     ]
     back_to_dataframe = DataFrames.from_dataobjects(MyTestData, objects)
+    assert_frame_equal(DataFrames.df(data), DataFrames.df(back_to_dataframe))
+
+
+def test_dataobject_normalized_null_values(two_element_pandas_df_with_nulls):
+    data = DataFrames.from_df(MyTestDataAllOptional, two_element_pandas_df_with_nulls)
+
+    with pytest.raises(ValidationError):
+        # nan values are not allowed
+        DataFrames.to_dataobjects(data, normalize_null_values=False)
+
+    objects = DataFrames.to_dataobjects(data, normalize_null_values=True)
+    assert objects == [
+        MyTestDataAllOptional.DataObject(
+            id="1", number=1, name="test1", timestamp=objects[0].timestamp
+        ),
+        MyTestDataAllOptional.DataObject(id="2", number=None, name=None, timestamp=None),
+    ]
+    back_to_dataframe = DataFrames.from_dataobjects(MyTestDataAllOptional, objects)
     assert_frame_equal(DataFrames.df(data), DataFrames.df(back_to_dataframe))
 
 

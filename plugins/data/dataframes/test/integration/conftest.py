@@ -1,6 +1,7 @@
 from datetime import date, datetime, timezone
 from typing import List, Optional
 
+import numpy as np
 import pandas as pd
 import pytest
 from hopeit.app.config import (
@@ -22,6 +23,15 @@ class MyTestData:
     number: int
     name: str
     timestamp: datetime
+
+
+@dataframe
+@dataclass
+class MyTestDataAllOptional:
+    id: str
+    number: Optional[int]
+    name: Optional[str]
+    timestamp: Optional[datetime]
 
 
 @dataframe
@@ -99,11 +109,13 @@ class MyTestAllTypesData:
     str_value: str
     date_value: date
     datetime_value: datetime
+    bool_value: bool
     int_value_optional: Optional[int]
     float_value_optional: Optional[float]
     str_value_optional: Optional[str]
     date_value_optional: Optional[date]
     datetime_value_optional: Optional[datetime]
+    bool_value_optional: Optional[bool]
 
 
 DEFAULT_DATE = datetime.now().date()
@@ -119,11 +131,13 @@ class MyTestAllTypesDefaultValues:
     str_value: str = "(default)"
     date_value: date = DEFAULT_DATE
     datetime_value: datetime = DEFAULT_DATETIME
+    bool_value: bool = False
     int_value_optional: Optional[int] = None
     float_value_optional: Optional[float] = None
     str_value_optional: Optional[str] = None
     date_value_optional: Optional[date] = None
     datetime_value_optional: Optional[datetime] = None
+    bool_value_optional: Optional[bool] = None
 
 
 @pytest.fixture
@@ -135,6 +149,21 @@ def one_element_pandas_df() -> pd.DataFrame:
                 "name": "test1",
                 "timestamp": datetime.now(tz=timezone.utc),
             }
+        ]
+    )
+
+
+@pytest.fixture
+def two_element_pandas_df_with_nulls() -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "id": "1",
+                "number": 1,
+                "name": "test1",
+                "timestamp": datetime.now(tz=timezone.utc),
+            },
+            {"id": "2", "number": np.nan, "name": None, "timestamp": pd.NaT},
         ]
     )
 
