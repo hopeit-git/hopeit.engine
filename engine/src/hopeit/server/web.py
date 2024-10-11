@@ -190,10 +190,10 @@ async def app_startup_hook(config: AppConfig, enabled_groups: List[str], *args, 
         await _setup_app_event_routes(app_engine, plugin_engine)
     if cors_origin:
         app = app_engine.app_config.app
-        cors_route_prefix = app_engine.app_config.engine.cors_routes_prefix
-        if cors_route_prefix is None:
-            cors_route_prefix = route_name("api", app.name, app.version)
-        _enable_cors(cors_route_prefix, cors_origin)
+        cors_prefix = app_engine.app_config.engine.cors_routes_prefix
+        if cors_prefix is None:
+            cors_prefix = route_name("api", app.name, app.version)
+        _enable_cors(cors_prefix, cors_origin)
 
 
 async def stream_startup_hook(app_config: AppConfig, *args, **kwargs):
