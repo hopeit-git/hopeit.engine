@@ -384,6 +384,7 @@ class AppEngineConfig:
         connection pool to be blocked constantly.
     :track_headers: list of required X-Track-* headers
     :cors_origin: allowed CORS origin for web server
+    :cors_routes_prefix: routes prefix to apply CORS origin to. If not specified `/api/app-name/version/` will be used
     """
 
     import_modules: Optional[List[str]] = None
@@ -393,6 +394,7 @@ class AppEngineConfig:
     default_stream_serialization: Serialization = Serialization.JSON_BASE64
     track_headers: List[str] = field(default_factory=list)
     cors_origin: Optional[str] = None
+    cors_routes_prefix: Optional[str] = None
 
     def __post_init__(self):
         self.track_headers = [

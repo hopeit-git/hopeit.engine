@@ -1,7 +1,17 @@
 Release Notes
 =============
 
-Version 0.25.2
+Version 0.25.3
+______________
+
+- Engine:
+
+  - Web:
+    - Allow to specify `cors_routes_prefix` to allow `cors_origin` to be applied
+    to custom routes names
+
+
+Version 0.25.3
 ______________
 
 - Plugins:
