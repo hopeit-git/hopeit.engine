@@ -529,7 +529,7 @@
         "type": "object"
       },
       "AppEngineConfig": {
-        "description": "Engine specific parameters shared among events\n\n:field import_modules: list of string with the python module names to import to find\n    events and datatype implementations\n:field read_stream_timeout: timeout in milliseconds to block connection pool when waiting for stream events\n:field read_stream_interval: delay in milliseconds to wait before attempting a new batch. Use to prevent\n    connection pool to be blocked constantly.\n:track_headers: list of required X-Track-* headers\n:cors_origin: allowed CORS origin for web server",
+        "description": "Engine specific parameters shared among events\n\n:field import_modules: list of string with the python module names to import to find\n    events and datatype implementations\n:field read_stream_timeout: timeout in milliseconds to block connection pool when waiting for stream events\n:field read_stream_interval: delay in milliseconds to wait before attempting a new batch. Use to prevent\n    connection pool to be blocked constantly.\n:track_headers: list of required X-Track-* headers\n:cors_origin: allowed CORS origin for web server\n:cors_routes_prefix: routes prefix to apply CORS origin to. If not specified `/api/app-name/version/` will be used",
         "properties": {
           "import_modules": {
             "default": null,
@@ -569,6 +569,12 @@
             "default": null,
             "nullable": true,
             "title": "Cors Origin",
+            "type": "string"
+          },
+          "cors_routes_prefix": {
+            "default": null,
+            "nullable": true,
+            "title": "Cors Routes Prefix",
             "type": "string"
           }
         },
@@ -879,7 +885,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.25.2",
+            "default": "0.25.3",
             "title": "Engine Version",
             "type": "string"
           }
