@@ -76,7 +76,9 @@ def get_nodes(
 
         if event_info.read_stream:
             queues = event_info.read_stream.queues
-            for qid, queue in zip(queues, queues) if expanded_view else [("", "|".join(queues))]:
+            for qid, queue in (
+                zip(queues, queues) if expanded_view else iter([("", "|".join(queues))])
+            ):
                 stream_id = f">{event_info.read_stream.name}.{qid}".strip(".")
                 stream_name = f"{event_info.read_stream.name}"
                 if qid not in ("", "AUTO"):
@@ -103,7 +105,9 @@ def get_nodes(
                     for qx in event_info.read_stream.queues
                     for qy in queues
                 ]
-            for qid, queue in zip(queues, queues) if expanded_view else [("", "|".join(queues))]:
+            for qid, queue in (
+                zip(queues, queues) if expanded_view else iter([("", "|".join(queues))])
+            ):
                 stream_id = f">{event_info.write_stream.name}.{qid}".strip(".")
                 stream_name = f"{event_info.write_stream.name}"
                 if qid not in ("", "AUTO"):
