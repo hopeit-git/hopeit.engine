@@ -31,8 +31,14 @@ class Dataset(Generic[DataFrameT]):
     schema: Dict[str, Any] = field(default_factory=dict)
 
     async def load(self) -> DataFrameT:
-        df = await self.load_df()
-        return self.convert(self, df)
+        try:
+            df = await self.load_df()
+            return self.convert(self, df)
+        except DatasetConvertError as e:
+            raise DatasetLoadError(
+                f"Error {type(e).__name__}: {e} loading dataset of type {self.datatype} "
+                f"at location {self.partition_key}/{self.key}"
+            ) from e
 
     async def load_df(self, *, columns: Optional[list[str]] = None) -> pd.DataFrame:
         try:
