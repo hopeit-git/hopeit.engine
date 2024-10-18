@@ -1,4 +1,4 @@
-from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
+from hopeit.dataframes.serialization.dataset import Dataset, DatasetConvertError
 from hopeit.dataobjects import copy_payload
 import numpy as np
 import pandas as pd
@@ -183,7 +183,7 @@ async def test_dataframe_dataset_deserialization_not_compatible(
     modified_obj: Dataset[MyTestDataSchemaNotCompatible] = copy_payload(dataobject.data)  # type: ignore[assignment]
     modified_obj.datatype = "conftest.MyTestDataSchemaNotCompatible"
 
-    with pytest.raises(DatasetLoadError):
+    with pytest.raises(DatasetConvertError):
         await modified_obj.load()
 
 

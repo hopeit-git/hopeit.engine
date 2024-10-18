@@ -15,6 +15,10 @@ class DatasetLoadError(Exception):
     pass
 
 
+class DatasetConvertError(Exception):
+    pass
+
+
 @dataobject
 @dataclass
 class Dataset(Generic[DataFrameT]):
@@ -41,8 +45,13 @@ class Dataset(Generic[DataFrameT]):
 
     def convert(self, dataset: "Dataset", df: pd.DataFrame) -> DataFrameT:
         """Converts loaded pandas Dataframe to @dataframe annotated object using Dataset metadata"""
-        datatype: Type[DataFrameT] = find_dataframe_type(dataset.datatype)
-        return datatype._from_df(df)  # type: ignore[attr-defined]
+        try:
+            datatype: Type[DataFrameT] = find_dataframe_type(dataset.datatype)
+            return datatype._from_df(df)  # type: ignore[attr-defined]
+        except KeyError as e:
+            raise DatasetConvertError(
+                f"Error {type(e).__name__}: {e} converting dataset of type {self.datatype}"
+            ) from e
 
     def adapt(self, datatype: DataFrameT) -> "Dataset[DataFrameT]":
         """Adapts a more generic dataset that contains combined fields to be type specific"""
