@@ -1,7 +1,7 @@
 """Dataset objects definition, used as a result of serialized dataframes"""
 
 from importlib import import_module
-from typing import Any, Dict, Generic, Type, TypeVar
+from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
 from hopeit.dataobjects import dataclass, dataobject, field
 import pandas as pd
@@ -30,7 +30,7 @@ class Dataset(Generic[DataFrameT]):
         df = await self.load_df()
         return self.convert(self, df)
 
-    async def load_df(self, *, columns: list[str] | None = None) -> pd.DataFrame:
+    async def load_df(self, *, columns: Optional[list[str]] = None) -> pd.DataFrame:
         try:
             return await self.__storage.load_df(self, columns)  # type: ignore[attr-defined]
         except (RuntimeError, IOError) as e:

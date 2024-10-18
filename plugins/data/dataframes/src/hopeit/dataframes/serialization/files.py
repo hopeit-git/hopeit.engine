@@ -78,7 +78,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
             schema=TypeAdapter(datatype).json_schema(),
         )
 
-    async def load_df(self, dataset: Dataset, columns: list[str] | None = None) -> pd.DataFrame:
+    async def load_df(self, dataset: Dataset, columns: Optional[list[str]] = None) -> pd.DataFrame:
         data = await self.storage.get_file(dataset.key, partition_key=dataset.partition_key)
         if data is None:
             raise FileNotFoundError(dataset.key)
