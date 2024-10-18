@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+Version 0.25.4
+______________
+
+- Plugins:
+
+  - DataFrames:
+    - Experimental: support for saving and loading raw pandas dataframes from Dataset object
+
+
 Version 0.25.3
 ______________
 
@@ -11,7 +20,7 @@ ______________
     to custom routes names
 
 
-Version 0.25.3
+Version 0.25.2
 ______________
 
 - Plugins:
