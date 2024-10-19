@@ -155,6 +155,24 @@ class Part2:
     field5_opt: Optional[float] = None
 
 
+@dataframe
+@dataclass
+class Part2Compat:
+    field3: str
+    field4: float
+    field5_opt: Optional[float] = None
+    field6_opt: Optional[int] = None
+    field7_opt: Optional[str] = None
+
+
+@dataframe
+@dataclass
+class Part1NoCompat:
+    field1: str
+    field2: float
+    field8: float  # Added a required field
+
+
 @dataobject
 @dataclass
 class MyDataBlock:
@@ -162,6 +180,15 @@ class MyDataBlock:
     block_field: Optional[int]
     part1: Dataset[Part1]
     part2: Dataset[Part2]
+
+
+@dataobject
+@dataclass
+class MyDataBlockCompat:
+    block_id: str
+    block_field: Optional[int]
+    part1: Dataset[Part1]
+    part2: Dataset[Part2Compat]
 
 
 @dataobject

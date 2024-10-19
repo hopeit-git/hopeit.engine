@@ -69,17 +69,19 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             and (select is None or field_name in select)
         ]
 
-        # Filter/validate selected field names
+        # Filter/validate selected field names using saved schema
         field_names = [
             field_name
             for key in keys
-            # for field_name in getattr(datablock, key).schema["properties"].keys()
-            for field_name in fields(find_dataframe_type(getattr(datablock, key).datatype))
+            for field_name in getattr(datablock, key).schema["properties"].keys()
         ]
 
         # Load data from first dataset (datablock uses a single file for all datasets)
         dataset: Dataset = getattr(datablock, keys[0])
         result_df = await DataBlocks._load_datablock_df(dataset, field_names)
+
+        # Add missing optional fields using class schema (allows schema evolution)
+        cls._adapt_to_schema(datablock, keys, result_df)
 
         # Adding constant value fields
         for field_name, field_info in fields(datablock).items():  # type: ignore[arg-type]
@@ -120,3 +122,11 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
                 f"Error {type(e).__name__}: {e} loading datablock of type {dataset.datatype} "
                 f"at location {dataset.partition_key}/{dataset.key}"
             ) from e
+
+    @classmethod
+    def _adapt_to_schema(cls, datablock: DataBlockType, keys: list[str], df: pd.DataFrame):
+        for key in keys:
+            datatype = find_dataframe_type(getattr(datablock, key).datatype)
+            valid_df = datatype._from_df(df)._df
+            for col in valid_df.columns:
+                df[col] = valid_df[col]
