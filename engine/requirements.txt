@@ -8,5 +8,4 @@ PyJWT[crypto]>=2.9.0
 click
 deepdiff
 multidict
-typing_inspect
 gunicorn

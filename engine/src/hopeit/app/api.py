@@ -4,10 +4,21 @@ API Definition helpers for user apps
 
 import inspect
 from functools import partial
-from typing import Optional, List, Type, Dict, Callable, Union, Tuple, Any, TypeVar
+from typing import (
+    Optional,
+    List,
+    Type,
+    Dict,
+    Callable,
+    Union,
+    Tuple,
+    Any,
+    TypeVar,
+    get_args,
+    get_origin,
+)
 
 import re
-import typing_inspect  # type: ignore
 
 from hopeit.dataobjects import BinaryDownload
 from hopeit.app.config import AppConfig, AppDescriptor, EventType
@@ -86,8 +97,8 @@ def _arg_type(arg: ArgDef) -> Tuple[str, Optional[str], bool]:
     if isinstance(arg, str):
         return (*BUILTIN_TYPES[str], True)
     datatype, required = arg[1], True
-    type_args = typing_inspect.get_args(datatype)
-    origin = typing_inspect.get_origin(datatype)
+    type_args = get_args(datatype)
+    origin = get_origin(datatype)
     if len(type_args) and (origin is Union or type_args[-1] is type(None)):
         datatype = type_args[0]
         required = type_args[-1] is None
