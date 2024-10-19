@@ -86,7 +86,7 @@ def test_coerce_types_happy():
         ),
     )
     pd.testing.assert_series_equal(
-        data.bool_value_optional, pd.Series([True, False, None], name="bool_value_optional")
+        data.bool_value_optional, pd.Series([True, False, np.nan], name="bool_value_optional")
     )
 
 
@@ -140,7 +140,8 @@ def test_coerce_types_defaults():
         ),
     )
     pd.testing.assert_series_equal(
-        data.bool_value_optional, pd.Series([None, None, None], name="bool_value_optional")
+        data.bool_value_optional,
+        pd.Series([np.nan, np.nan, np.nan], dtype=object, name="bool_value_optional"),
     )
 
 

@@ -32,7 +32,10 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
             if result_df is None:
                 result_df = block_df
             else:
-                result_df = result_df.join(block_df)
+                # Skips duplicated column names to they are included only once
+                result_df = result_df.join(
+                    block_df[[col for col in block_df.columns if col not in result_df.columns]]
+                )
         assert result_df is not None
         return cls(datatype, result_df)
 
@@ -69,12 +72,17 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             and (select is None or field_name in select)
         ]
 
-        # Filter/validate selected field names using saved schema
-        field_names = [
-            field_name
-            for key in keys
-            for field_name in getattr(datablock, key).schema["properties"].keys()
-        ]
+        # Filter/validate selected field names using saved schema,
+        # generates a single field for every common/duplicated field in the datasets
+        field_names = list(
+            dict.fromkeys(
+                [
+                    field_name
+                    for key in keys
+                    for field_name in getattr(datablock, key).schema["properties"].keys()
+                ]
+            )
+        )
 
         # Load data from first dataset (datablock uses a single file for all datasets)
         dataset: Dataset = getattr(datablock, keys[0])

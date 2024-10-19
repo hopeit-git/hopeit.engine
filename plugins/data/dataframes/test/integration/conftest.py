@@ -143,6 +143,7 @@ class MyTestAllTypesDefaultValues:
 @dataframe
 @dataclass
 class Part1:
+    field0: str  # common field
     field1: str
     field2: float
 
@@ -150,6 +151,7 @@ class Part1:
 @dataframe
 @dataclass
 class Part2:
+    field0: str  # common field
     field3: str
     field4: float
     field5_opt: Optional[float] = None
@@ -158,6 +160,7 @@ class Part2:
 @dataframe
 @dataclass
 class Part2Compat:
+    field0: str  # common field
     field3: str
     field4: float
     field5_opt: Optional[float] = None
@@ -168,6 +171,7 @@ class Part2Compat:
 @dataframe
 @dataclass
 class Part1NoCompat:
+    field0: str  # common field
     field1: str
     field2: float
     field8: float  # Added a required field
@@ -271,6 +275,7 @@ def datablock_df() -> pd.DataFrame:
         {
             "block_id": ["b1", "b1"],
             "block_field": [42, 42],
+            "field0": ["item1", "item2"],
             "field1": ["f11", "f12"],
             "field2": [2.1, 2.2],
             "field3": ["f31", "f32"],
