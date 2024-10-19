@@ -126,8 +126,6 @@ async def test_schema_evolution_compatible(plugin_config, datablock_df):
     # test get dataframe
     loaded_df = await DataBlocks.df(datablock_compat)
 
-    print(loaded_df)
-
     datablock_df["field6_opt"] = np.nan
     datablock_df["field7_opt"] = None
 
@@ -198,8 +196,6 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
     loaded_df = await DataBlocks.df(
         datablock_not_compat, select=["part2"]
     )  # part2 is still compatible
-
-    print(loaded_df)
 
     pd.testing.assert_frame_equal(
         datablock_df[
