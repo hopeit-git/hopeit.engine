@@ -30,36 +30,29 @@ class Dataset(Generic[DataFrameT]):
     datatype: str
     schema: Dict[str, Any] = field(default_factory=dict)
 
+    @classmethod
+    async def save(cls, dataframe: DataFrameT) -> "Dataset[DataFrameT]":
+        return await cls.__storage.save(dataframe)  # type: ignore[attr-defined]
+
     async def load(self) -> DataFrameT:
         try:
-            df = await self.load_df()
-            return self.convert(self, df)
-        except DatasetConvertError as e:
+            df = await self._load_df()
+            return self._convert(df)
+        except (RuntimeError, IOError, KeyError) as e:
             raise DatasetLoadError(
                 f"Error {type(e).__name__}: {e} loading dataset of type {self.datatype} "
                 f"at location {self.partition_key}/{self.key}"
             ) from e
 
-    async def load_df(self, *, columns: Optional[list[str]] = None) -> pd.DataFrame:
-        try:
-            return await self.__storage.load_df(self, columns)  # type: ignore[attr-defined]
-        except (RuntimeError, IOError) as e:
-            raise DatasetLoadError(
-                f"Error {type(e).__name__}: {e} loading dataset of type {self.datatype} "
-                f"at location {self.partition_key}/{self.key}"
-            ) from e
+    async def _load_df(self, columns: Optional[list[str]] = None) -> pd.DataFrame:
+        return await self.__storage.load_df(self, columns)  # type: ignore[attr-defined]
 
-    def convert(self, dataset: "Dataset", df: pd.DataFrame) -> DataFrameT:
+    def _convert(self, df: pd.DataFrame) -> DataFrameT:
         """Converts loaded pandas Dataframe to @dataframe annotated object using Dataset metadata"""
-        try:
-            datatype: Type[DataFrameT] = find_dataframe_type(dataset.datatype)
-            return datatype._from_df(df)  # type: ignore[attr-defined]
-        except KeyError as e:
-            raise DatasetConvertError(
-                f"Error {type(e).__name__}: {e} converting dataset of type {self.datatype}"
-            ) from e
+        datatype: Type[DataFrameT] = find_dataframe_type(self.datatype)
+        return datatype._from_df(df)  # type: ignore[attr-defined]
 
-    def adapt(self, datatype: DataFrameT) -> "Dataset[DataFrameT]":
+    def _adapt(self, datatype: DataFrameT) -> "Dataset[DataFrameT]":
         """Adapts a more generic dataset that contains combined fields to be type specific"""
         return Dataset(
             protocol=self.protocol,
@@ -70,11 +63,7 @@ class Dataset(Generic[DataFrameT]):
         )
 
     @classmethod
-    async def save(cls, dataframe: DataFrameT) -> "Dataset[DataFrameT]":
-        return await cls.__storage.save(dataframe)  # type: ignore[attr-defined]
-
-    @classmethod
-    async def save_df(
+    async def _save_df(
         cls, df: pd.DataFrame, datatype: Type[GenericDataFrameT]
     ) -> "Dataset[GenericDataFrameT]":
         return await cls.__storage.save_df(df, datatype)  # type: ignore[attr-defined]
