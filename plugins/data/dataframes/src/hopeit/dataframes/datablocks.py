@@ -126,7 +126,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     @classmethod
     def _adapt_to_schema(cls, datablock: DataBlockType, keys: list[str], df: pd.DataFrame):
         for key in keys:
-            datatype = find_dataframe_type(getattr(datablock, key).datatype)
+            datatype = find_dataframe_type(getattr(datablock, key).datatype)  # type: ignore[var-annotated]
             valid_df = datatype._from_df(df)._df
             for col in valid_df.columns:
                 df[col] = valid_df[col]

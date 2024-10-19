@@ -7,7 +7,7 @@ ______________
 - Plugins:
 
   - DataFrames:
-    - Experimental: support for saving and loading raw pandas dataframes from Dataset object
+    - Experimental: `DataBlocks` API, to allow manipulating and saving multiple datasets at once
 
 
 Version 0.25.3
