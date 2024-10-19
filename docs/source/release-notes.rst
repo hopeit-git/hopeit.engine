@@ -4,6 +4,11 @@ Release Notes
 Version 0.25.4
 ______________
 
+- Engine:
+    
+    - Removed `typing_inspect` dependency in favor of `typing` built-in module
+
+
 - Plugins:
 
   - DataFrames:
