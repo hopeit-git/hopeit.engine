@@ -19,7 +19,7 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
     def from_dataobjects(
         cls, datatype: Type[DataBlockType], items: list[DataBlockItemType]
     ) -> "TempDataBlock[DataBlockType, DataBlockItemType]":
-        result_df: pd.DataFrame | None = None
+        result_df: Optional[pd.DataFrame] = None
         for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
             if get_origin(field_info.annotation) is Dataset:
                 block_items = (getattr(item, field_name) for item in items)
@@ -61,7 +61,7 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
 
 class DataBlocks(Generic[DataBlockType, DataFrameType]):
     @classmethod
-    async def df(cls, datablock: DataBlockType, select: list[str] | None = None) -> pd.DataFrame:
+    async def df(cls, datablock: DataBlockType, select: Optional[list[str]] = None) -> pd.DataFrame:
         keys = [
             field_name
             for field_name, field_info in fields(datablock).items()  # type: ignore[arg-type]

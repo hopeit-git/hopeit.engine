@@ -196,8 +196,8 @@ class MyDataBlockCompat:
 class MyDataBlockItem:
     block_id: str
     block_field: Optional[int]
-    part1: Part1.DataObject
-    part2: Part2.DataObject
+    part1: Part1.DataObject  # type: ignore[name-defined]
+    part2: Part2.DataObject  # type: ignore[name-defined]
 
 
 @pytest.fixture
