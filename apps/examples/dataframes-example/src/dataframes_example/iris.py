@@ -85,3 +85,19 @@ class IrisPredictionResponse:
 @dataclass
 class IrisBatchPredictionResponse:
     items: List[IrisPredictionResponse]
+
+
+@dataobject
+@dataclass
+class IrisOfflinePredictionDataBlock:
+    batch_id: str
+    features: Dataset[IrisFeatures]
+    predictions: Dataset[IrisLabels]
+
+
+@dataobject
+@dataclass
+class IrisOfflinePredictionDataBlockItem:
+    batch_id: str
+    features: IrisFeatures.DataObject  # type: ignore[name-defined]
+    predictions: IrisLabels.DataObject  # type: ignore[name-defined]

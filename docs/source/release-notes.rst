@@ -1,6 +1,20 @@
 Release Notes
 =============
 
+Version 0.25.4
+______________
+
+- Engine:
+    
+    - Removed `typing_inspect` dependency in favor of `typing` built-in module
+
+
+- Plugins:
+
+  - DataFrames:
+    - Experimental: `DataBlocks` API, to allow manipulating and saving multiple datasets at once
+
+
 Version 0.25.3
 ______________
 
@@ -11,7 +25,7 @@ ______________
     to custom routes names
 
 
-Version 0.25.3
+Version 0.25.2
 ______________
 
 - Plugins:

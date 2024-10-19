@@ -460,9 +460,9 @@ def _signature(
         signature = inspect.signature(func)
         payload_arg = next(iter(signature.parameters.values()))
         annotation = (
-            payload_arg.annotation if payload_arg.annotation is not inspect.Signature.empty else Any
+            payload_arg.annotation if payload_arg.annotation is not inspect.Signature.empty else Any  # type: ignore[assignment]
         )
-        return_annotation = signature.return_annotation if signature.return_annotation else Any
+        return_annotation = signature.return_annotation if signature.return_annotation else Any  # type: ignore[assignment]
     return func, annotation, return_annotation, _is_iterable(return_annotation)
 
 

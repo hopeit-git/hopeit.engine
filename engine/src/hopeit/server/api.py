@@ -8,7 +8,18 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
-from typing import Dict, List, Tuple, Type, Optional, Callable, Awaitable, Union
+from typing import (
+    Dict,
+    List,
+    Tuple,
+    Type,
+    Optional,
+    Callable,
+    Awaitable,
+    Union,
+    get_args,
+    get_origin,
+)
 from datetime import date, datetime
 
 from aiohttp import web
@@ -21,7 +32,6 @@ from pydantic import TypeAdapter
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaValue
 from pydantic_core import core_schema
 from stringcase import titlecase  # type: ignore
-import typing_inspect as typing  # type: ignore
 
 from hopeit.dataobjects import BinaryAttachment, BinaryDownload
 from hopeit.app.config import (
@@ -366,7 +376,7 @@ def _schema_name(datatype: type) -> str:
 
 
 def datatype_schema(event_name: str, datatype: Type) -> dict:
-    origin = typing.get_origin(datatype)
+    origin = get_origin(datatype)
     if origin is None:
         origin = datatype
     type_mapper = TYPE_MAPPERS.get(origin)
@@ -659,7 +669,7 @@ def _explode_datatypes(datatypes: List[Type]) -> List[Type]:
 
 
 def _array_schema(event_name: str, datatype: type):
-    args = typing.get_args(datatype)
+    args = get_args(datatype)
     return {"type": "array", "items": {"$ref": _schema_name(args[0])}}
 
 

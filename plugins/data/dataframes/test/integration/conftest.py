@@ -140,6 +140,70 @@ class MyTestAllTypesDefaultValues:
     bool_value_optional: Optional[bool] = None
 
 
+@dataframe
+@dataclass
+class Part1:
+    field0: str  # common field
+    field1: str
+    field2: float
+
+
+@dataframe
+@dataclass
+class Part2:
+    field0: str  # common field
+    field3: str
+    field4: float
+    field5_opt: Optional[float] = None
+
+
+@dataframe
+@dataclass
+class Part2Compat:
+    field0: str  # common field
+    field3: str
+    field4: float
+    field5_opt: Optional[float] = None
+    field6_opt: Optional[int] = None
+    field7_opt: Optional[str] = None
+
+
+@dataframe
+@dataclass
+class Part1NoCompat:
+    field0: str  # common field
+    field1: str
+    field2: float
+    field8: float  # Added a required field
+
+
+@dataobject
+@dataclass
+class MyDataBlock:
+    block_id: str
+    block_field: Optional[int]
+    part1: Dataset[Part1]
+    part2: Dataset[Part2]
+
+
+@dataobject
+@dataclass
+class MyDataBlockCompat:
+    block_id: str
+    block_field: Optional[int]
+    part1: Dataset[Part1]
+    part2: Dataset[Part2Compat]
+
+
+@dataobject
+@dataclass
+class MyDataBlockItem:
+    block_id: str
+    block_field: Optional[int]
+    part1: Part1.DataObject  # type: ignore[name-defined]
+    part2: Part2.DataObject  # type: ignore[name-defined]
+
+
 @pytest.fixture
 def one_element_pandas_df() -> pd.DataFrame:
     return pd.DataFrame(
@@ -203,6 +267,22 @@ def plugin_config() -> EventContext:
         },
         server=server_config(),
     ).setup()
+
+
+@pytest.fixture
+def datablock_df() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "block_id": ["b1", "b1"],
+            "block_field": [42, 42],
+            "field0": ["item1", "item2"],
+            "field1": ["f11", "f12"],
+            "field2": [2.1, 2.2],
+            "field3": ["f31", "f32"],
+            "field4": [4.1, 4.2],
+            "field5_opt": [5.1, None],
+        }
+    )
 
 
 async def setup_serialization_context(plugin_config) -> EventContext:

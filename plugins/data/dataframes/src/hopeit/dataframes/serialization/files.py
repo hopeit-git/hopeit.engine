@@ -1,7 +1,6 @@
 """Support for `@dataframes` serialization to files"""
 
 import io
-from importlib import import_module
 from typing import Generic, Optional, Type, TypeVar
 from uuid import uuid4
 
@@ -18,7 +17,7 @@ except ImportError as e:
 
 from hopeit.dataframes.dataframe import DataFrameMixin
 from hopeit.dataframes.serialization.dataset import Dataset
-from hopeit.dataobjects import EventPayloadType
+from hopeit.dataobjects import DataObject
 from hopeit.fs_storage import FileStorage
 
 DataFrameT = TypeVar("DataFrameT", bound=DataFrameMixin)
@@ -57,25 +56,30 @@ class DatasetFileStorage(Generic[DataFrameT]):
             schema=TypeAdapter(datatype).json_schema(),
         )
 
-    async def load(self, dataset: Dataset) -> EventPayloadType:
-        """Loads @dataframe annotated object using Dataset metadata"""
-        datatype: Type[DataFrameT] = find_dataframe_type(dataset.datatype)
+    async def save_df(self, df: pd.DataFrame, datatype: Type[DataObject]) -> Dataset:
+        """Saves pandas df object as parquet to file system
+        and returns Dataset metadata to be used when retrieval
+        is handled externally
+        """
+        key = f"{datatype.__qualname__.lower()}_{uuid4()}.parquet"
+        data = io.BytesIO(
+            df.to_parquet(  # pylint: disable=protected-access
+                engine="pyarrow"
+            )
+        )
+        location = await self.storage.store_file(file_name=key, value=data)
+        partition_key = self.storage.partition_key(location)
+
+        return Dataset(
+            protocol=f"{__name__}.{type(self).__name__}",
+            partition_key=partition_key,
+            key=key,
+            datatype=f"{datatype.__module__}.{datatype.__qualname__}",
+            schema=TypeAdapter(datatype).json_schema(),
+        )
+
+    async def load_df(self, dataset: Dataset, columns: Optional[list[str]] = None) -> pd.DataFrame:
         data = await self.storage.get_file(dataset.key, partition_key=dataset.partition_key)
         if data is None:
             raise FileNotFoundError(dataset.key)
-        df = pd.read_parquet(io.BytesIO(data), engine="pyarrow")
-        return datatype._from_df(df)  # pylint: disable=protected-access
-
-
-def find_dataframe_type(qual_type_name: str) -> Type[DataFrameT]:
-    """Returns dataframe class based on type name used during serialization"""
-    mod_name, type_name = (
-        ".".join(qual_type_name.split(".")[:-1]),
-        qual_type_name.split(".")[-1],
-    )
-    module = import_module(mod_name)
-    datatype = getattr(module, type_name)
-    assert hasattr(
-        datatype, "__dataframe__"
-    ), f"Type {qual_type_name} must be annotated with `@dataframe`."
-    return datatype
+        return pd.read_parquet(io.BytesIO(data), engine="pyarrow", columns=columns)

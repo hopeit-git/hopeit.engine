@@ -52,6 +52,12 @@
         "predict": {
             "type": "POST"
         },
+        "predict_offline": {
+            "type": "POST"
+        },
+        "offline_prediction_results": {
+            "type": "POST"
+        },
         "experiment": {
             "type": "GET"
         }

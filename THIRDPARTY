@@ -53,10 +53,6 @@ deepdiff
     Link: https://github.com/seperman/deepdiff
     License: MIT (https://github.com/seperman/deepdiff/blob/master/LICENSE)
 
-typing_inspect
-    Link: https://github.com/ilevkivskyi/typing_inspect
-    License: MIT (https://github.com/ilevkivskyi/typing_inspect/blob/master/LICENSE)
-
 redis:
     Link: https://redis.io/
     License: BSD (https://redis.io/topics/license)
