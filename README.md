@@ -1,9 +1,9 @@
 # hopeit.engine
 
-### A comprehensive framework for modular and scalable architectures to develop and serve modern Microservices-based AI/Machine Learning applications
+A comprehensive framework for modular and scalable architectures to develop and serve modern Microservices-based AI/Machine Learning applications
 
 
-** hopeit.engine ** for Microservices development:
+**hopeit.engine** for Microservices development:
 
 * handles communication between the services in a synchronous or asynchronous way without the need of complex infrastructure setup.
 
@@ -12,7 +12,7 @@
 * allows deploying to common stack like Kubernetes on any Cloud Infrastructure Provider. It can also be adapted to serverless stacks.
 
 
-** hopeit.engine ** for AI scenarios:
+**hopeit.engine** for AI scenarios:
 
 * designed to facilitate the implementation of complex Machine Learning systems. 
 
@@ -23,7 +23,7 @@
 * based on Python, which gives access to numerous AI libraries and tools.
 
 
-** hopeit.engine ** drives development speed:
+**hopeit.engine** drives development speed:
 
 * enforced modular design ensure less duplication and zero-boilerplate code: focus development on your product or platform needs
   
