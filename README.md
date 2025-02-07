@@ -1,13 +1,34 @@
-![hopeit.engine QA](https://github.com/hopeit-git/hopeit.engine/workflows/hopeit.engine%20QA/badge.svg)
-
-> - Tested on Python 3.9, 3.10, 3.11 and 3.12
-> - Types and code style checks with [*mypy*](https://pypi.org/project/mypy), [*ruff*](https://github.com/astral-sh/ruff)
-> - *hopeit.engine* unit tested using [*pytest*](https://pypi.org/project/pytest/), required coverage > 90%
-> - HTTP server integration tests using [*pytest_aiohttp*](https://pypi.org/project/pytest-aiohttp/)
-> - *simple-example* *client-example* and *dataframes-example* applications and plugins integration tests
-                                                                      
-
 # hopeit.engine
+
+### A comprehensive framework for modular and scalable architectures to develop and serve modern Microservices-based AI/Machine Learning applications
+
+
+** hopeit.engine ** for Microservices development:
+
+* handles communication between the services in a synchronous or asynchronous way without the need of complex infrastructure setup.
+
+* enforces best practices like API and messages schema management, testing, tracing, logging, monitoring and reusability of components.
+
+* allows deploying to common stack like Kubernetes on any Cloud Infrastructure Provider. It can also be adapted to serverless stacks.
+
+
+** hopeit.engine ** for AI scenarios:
+
+* designed to facilitate the implementation of complex Machine Learning systems. 
+
+* enables Machine Learning scenarios providing ways to manage and store datasets and artifacts.
+
+* helps ensuring consistency between model training, testing and inference times, a common Machine Learning challenge in production systems.
+
+* based on Python, which gives access to numerous AI libraries and tools.
+
+
+** hopeit.engine ** drives development speed:
+
+* enforced modular design ensure less duplication and zero-boilerplate code: focus development on your product or platform needs
+  
+* open-source, easy to learn and apply to new scenarios with reduced on-board times
+
 
 **Microservices with Data Streams**
 
@@ -223,6 +244,14 @@ If an external request triggers a process that requires background tasks to run,
 
 ## More info
 
+![hopeit.engine QA](https://github.com/hopeit-git/hopeit.engine/workflows/hopeit.engine%20QA/badge.svg)
+
+> - Tested on Python 3.9, 3.10, 3.11 and 3.12
+> - Types and code style checks with [*mypy*](https://pypi.org/project/mypy), [*ruff*](https://github.com/astral-sh/ruff)
+> - *hopeit.engine* unit tested using [*pytest*](https://pypi.org/project/pytest/), required coverage > 90%
+> - HTTP server integration tests using [*pytest_aiohttp*](https://pypi.org/project/pytest-aiohttp/)
+> - *simple-example* *client-example* and *dataframes-example* applications and plugins integration tests
+                                                                      
 Please check the [docs](https://hopeitengine.readthedocs.io/en/latest/index.html).
 
 Thank you!
