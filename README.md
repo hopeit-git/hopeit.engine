@@ -5,29 +5,29 @@ A comprehensive framework for modular and scalable architectures to develop and 
 
 **hopeit.engine** for Microservices development:
 
-* handles communication between the services in a synchronous or asynchronous way without the need of complex infrastructure setup.
+* Handles communication between the services in a synchronous or asynchronous way without the need of complex infrastructure setup.
 
-* enforces best practices like API and messages schema management, testing, tracing, logging, monitoring and reusability of components.
+* Enforces best practices like API and messages schema management, testing, tracing, logging, monitoring and reusability of components.
 
-* allows deploying to common stack like Kubernetes on any Cloud Infrastructure Provider. It can also be adapted to serverless stacks.
+* Allows deploying to common stack like Kubernetes on any Cloud Infrastructure Provider. It can also be adapted to serverless stacks.
 
 
 **hopeit.engine** for AI scenarios:
 
-* designed to facilitate the implementation of complex Machine Learning systems. 
+* Designed to facilitate the implementation of complex Machine Learning systems. 
 
-* enables Machine Learning scenarios providing ways to manage and store datasets and artifacts.
+* Enables Machine Learning scenarios providing ways to manage and store datasets and artifacts.
 
-* helps ensuring consistency between model training, testing and inference times, a common Machine Learning challenge in production systems.
+* Helps ensuring consistency between model training, testing and inference times, a common Machine Learning challenge in production systems.
 
-* based on Python, which gives access to numerous AI libraries and tools.
+* Based on Python, which gives access to numerous AI libraries and tools.
 
 
 **hopeit.engine** drives development speed:
 
-* enforced modular design ensure less duplication and zero-boilerplate code: focus development on your product or platform needs
+* Enforced modular design ensure less duplication and zero-boilerplate code: focus development on your product or platform needs
   
-* open-source, easy to learn and apply to new scenarios with reduced on-board times
+* Open-source, easy to learn and apply to new scenarios with reduced on-board times
 
 
 **Microservices with Data Streams**
