@@ -42,7 +42,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         key = f"{datatype.__qualname__.lower()}_{uuid4()}.parquet"
         data = io.BytesIO(
             dataframe._df.to_parquet(  # pylint: disable=protected-access
-                engine="pyarrow"
+                engine="pyarrow", compression="lz4"
             )
         )
         location = await self.storage.store_file(file_name=key, value=data)
