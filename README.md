@@ -151,9 +151,9 @@ The way applications are structured allow for flexible deployment using Docker C
 
 Check out our [*docs and tutorials*](https://hopeitengine.readthedocs.io/en/latest/index.html). 
 
-## Adopters
+## Adopters & Supporters
 
-**hopeit.engine** was adopted by the following non-profit organizations:
+Among others, **hopeit.engine** was adopted by the following non-profit organizations:
 
 <img align="left" width="64" height="64" src="docs/source/readme/cnbvra.png">
 
@@ -165,10 +165,20 @@ National Council of Volunteer Firefighters adopted hopeit.engine to create new a
 
 #### Caja de Seguridad Social de Abogados y Procuradores de Santa Fe
 
-Social Security Fund for Lawyers and Attorneys of Santa Fe, uses hopeit.engine to automate analysis of texts using Natural Language Processing techniques, integrating relevant information into a workflow management system.
+Social Security Fund for Lawyers and Attorneys, uses hopeit.engine to automate analysis of texts using in-house LLMs and Natural Language Processing techniques, integrating relevant information into a workflow management system.
+
+Also **hopeit.engine** is used by the following companies:
+
+<img align="left" width="64" height="48" src="docs/source/readme/fands.png">
+
+#### FandS AI Solutions
+
+FandS AI, uses **hopeit.engine** to develop and deploy the business logic components of their AI platform, APIs, enabling fast tailoring Machine Learning models and applications to customer needs, while deploying and scaling the platform in the cloud seamlessly.
+
 
 > If you want to mention your organization, let us know by opening an issue:
 > ![_@_](https://github.com/hopeit-git/hopeit.engine/issues)
+
 
 ## Features
 
