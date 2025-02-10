@@ -173,7 +173,7 @@ Also **hopeit.engine** is used by the following companies:
 
 #### FandS AI Solutions
 
-FandS AI, uses **hopeit.engine** to develop and deploy the business logic components of their AI platform, APIs, enabling fast tailoring Machine Learning models and applications to customer needs, while deploying and scaling the platform in the cloud seamlessly.
+FandS AI, uses **hopeit.engine** to develop and deploy the machine learning and business logic components of their AI platform, APIs, enabling fast tailoring Machine Learning models and applications to customer needs, while deploying and scaling the platform in the cloud seamlessly.
 
 
 > If you want to mention your organization, let us know by opening an ![issue](https://github.com/hopeit-git/hopeit.engine/issues)
