@@ -430,9 +430,9 @@ class CollectorStepsDescriptor:
             for step_name in self.step_names:
                 step_impl, payload_type, _, _ = _signature(module, step_name)
                 assert step_impl is not None, "Collector can only contain function definitions."
-                assert (
-                    payload_type is AsyncCollector
-                ), f"step={step_name} first arg must be `Collector`"
+                assert payload_type is AsyncCollector, (
+                    f"step={step_name} first arg must be `Collector`"
+                )
                 self.steps.append((step_name, step_impl))
         return partial(_run_collector, self)
 

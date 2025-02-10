@@ -76,9 +76,9 @@ class AsyncCollector(AbstractCollector):
         """
         if name == "payload":
             return copy_payload(self.payload)
-        assert (
-            self.executed
-        ), "Collector not executed. Call collector.run(...) before accessing results."
+        assert self.executed, (
+            "Collector not executed. Call collector.run(...) before accessing results."
+        )
         item = self.items[name]
         await item.lock.acquire()
         try:

@@ -46,7 +46,7 @@ def find_datobject_type(qual_type_name: str) -> Type[DataObject]:
     )
     module = import_module(mod_name)
     datatype = getattr(module, type_name)
-    assert hasattr(
-        datatype, "__data_object__"
-    ), f"Type {qual_type_name} must be annotated with `@dataobject`."
+    assert hasattr(datatype, "__data_object__"), (
+        f"Type {qual_type_name} must be annotated with `@dataobject`."
+    )
     return datatype

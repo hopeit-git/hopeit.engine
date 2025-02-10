@@ -295,9 +295,9 @@ class RedisStreamManager(StreamManager):
         read_ts: str,
     ):
         """Decodes/deserialize message from stream"""
-        assert isinstance(msg[0], bytes) and isinstance(
-            msg[1], dict
-        ), "Invalid message format. Expected `[bytes, bytes, Dict[bytes, bytes]]`"
+        assert isinstance(msg[0], bytes) and isinstance(msg[1], dict), (
+            "Invalid message format. Expected `[bytes, bytes, Dict[bytes, bytes]]`"
+        )
         compression = Compression(msg[1][b"comp"].decode())
         serialization = Serialization(msg[1][b"ser"].decode())
         payload = await deserialize(msg[1][b"payload"], serialization, compression, datatype)

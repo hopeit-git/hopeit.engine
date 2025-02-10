@@ -366,9 +366,9 @@ class EventDescriptor:
 
     def __post_init__(self):
         if self.read_stream:
-            assert (
-                "{auto}" not in self.read_stream.name
-            ), "read_stream.name should be defined. {auto} is not allowed."
+            assert "{auto}" not in self.read_stream.name, (
+                "read_stream.name should be defined. {auto} is not allowed."
+            )
 
 
 @dataobject
