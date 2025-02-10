@@ -169,7 +169,7 @@ Social Security Fund for Lawyers and Attorneys, uses hopeit.engine to automate a
 
 Also **hopeit.engine** is used by the following companies:
 
-<img align="left" width="64" height="48" src="docs/source/readme/fands.png">
+<img align="left" width="64" height="30" src="docs/source/readme/fands.png">
 
 #### FandS AI Solutions
 
