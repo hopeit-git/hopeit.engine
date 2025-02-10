@@ -159,7 +159,7 @@ Among others, **hopeit.engine** was adopted by the following non-profit organiza
 
 #### Consejo Nacional de Bomberos Voluntarios de la República Argentina
 
-National Council of Volunteer Firefighters adopted hopeit.engine to create new applications, including APIs for data integration, nation-wide real-time resources monitoring, Firefighters Academy, COVID-19 dashboards, to mention just a few examples. hopeit.engine leverages for this organization the ability to ease development of new features at fast speed and allows them to integrate onto the existing software and decouple components using Microservices architecture.
+National Council of Volunteer Firefighters adopted hopeit.engine to create new applications, including APIs for data integration, nation-wide real-time resources monitoring, Firemen Academy, COVID-19 dashboards, to mention just a few examples. hopeit.engine leverages for this organization the ability to ease development of new features at fast speed and allows them to integrate onto the existing software and decouple components using Microservices architecture.
 
 <img align="left" width="56" height="56" src="docs/source/readme/capsfe.png">
 
