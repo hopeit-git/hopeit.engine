@@ -1,13 +1,34 @@
-![hopeit.engine QA](https://github.com/hopeit-git/hopeit.engine/workflows/hopeit.engine%20QA/badge.svg)
-
-> - Tested on Python 3.9, 3.10, 3.11 and 3.12
-> - Types and code style checks with [*mypy*](https://pypi.org/project/mypy), [*ruff*](https://github.com/astral-sh/ruff)
-> - *hopeit.engine* unit tested using [*pytest*](https://pypi.org/project/pytest/), required coverage > 90%
-> - HTTP server integration tests using [*pytest_aiohttp*](https://pypi.org/project/pytest-aiohttp/)
-> - *simple-example* *client-example* and *dataframes-example* applications and plugins integration tests
-                                                                      
-
 # hopeit.engine
+
+A comprehensive framework for modular and scalable architectures to develop and serve modern Microservices-based AI/Machine Learning applications
+
+
+**hopeit.engine** for Microservices development:
+
+* Handles communication between the services in a synchronous or asynchronous way without the need of complex infrastructure setup.
+
+* Enforces best practices like API and messages schema management, testing, tracing, logging, monitoring and reusability of components.
+
+* Allows deploying to common stack like Kubernetes on any Cloud Infrastructure Provider. It can also be adapted to serverless stacks.
+
+
+**hopeit.engine** for AI scenarios:
+
+* Designed to facilitate the implementation of complex Machine Learning systems. 
+
+* Enables Machine Learning scenarios providing ways to manage and store datasets and artifacts.
+
+* Helps ensuring consistency between model training, testing and inference times, a common Machine Learning challenge in production systems.
+
+* Based on Python, which gives access to numerous AI libraries and tools.
+
+
+**hopeit.engine** drives development speed:
+
+* Enforced modular design ensure less duplication and zero-boilerplate code: focus development on your product or platform needs
+  
+* Open-source, easy to learn and apply to new scenarios with reduced on-board times
+
 
 **Microservices with Data Streams**
 
@@ -130,24 +151,33 @@ The way applications are structured allow for flexible deployment using Docker C
 
 Check out our [*docs and tutorials*](https://hopeitengine.readthedocs.io/en/latest/index.html). 
 
-## Adopters
+## Adopters & Supporters
 
-**hopeit.engine** was adopted by the following non-profit organizations:
+Among others, **hopeit.engine** was adopted by the following non-profit organizations:
 
 <img align="left" width="64" height="64" src="docs/source/readme/cnbvra.png">
 
 #### Consejo Nacional de Bomberos Voluntarios de la República Argentina
 
-National Council of Volunteer Firefighters adopted hopeit.engine to create new applications, including APIs for data integration, nation-wide real-time resources monitoring, Firefighters Academy, COVID-19 dashboards, to mention just a few examples. hopeit.engine leverages for this organization the ability to ease development of new features at fast speed and allows them to integrate onto the existing software and decouple components using Microservices architecture.
+National Council of Volunteer Firefighters adopted hopeit.engine to create new applications, including APIs for data integration, nation-wide real-time resources monitoring, Firemen Academy, COVID-19 dashboards, to mention just a few examples. hopeit.engine leverages for this organization the ability to ease development of new features at fast speed and allows them to integrate onto the existing software and decouple components using Microservices architecture.
 
 <img align="left" width="56" height="56" src="docs/source/readme/capsfe.png">
 
 #### Caja de Seguridad Social de Abogados y Procuradores de Santa Fe
 
-Social Security Fund for Lawyers and Attorneys of Santa Fe, uses hopeit.engine to automate analysis of texts using Natural Language Processing techniques, integrating relevant information into a workflow management system.
+Social Security Fund for Lawyers and Attorneys, uses hopeit.engine to automate analysis of texts using in-house LLMs and Natural Language Processing techniques, integrating relevant information into a workflow management system.
 
-> If you want to mention your organization, let us know by opening an issue:
-> ![_@_](https://github.com/hopeit-git/hopeit.engine/issues)
+Also **hopeit.engine** is used by the following companies:
+
+<img align="left" width="64" height="30" src="docs/source/readme/fands.png">
+
+#### FandS AI Solutions
+
+FandS AI, uses **hopeit.engine** to develop and deploy the ML and business logic components of their AI platform and APIs, enabling fast tailoring Machine Learning models and applications to customer needs, while deploying and scaling in the cloud seamlessly.
+
+
+> If you want to mention your organization, let us know by opening an ![issue](https://github.com/hopeit-git/hopeit.engine/issues)
+
 
 ## Features
 
@@ -223,6 +253,14 @@ If an external request triggers a process that requires background tasks to run,
 
 ## More info
 
+![hopeit.engine QA](https://github.com/hopeit-git/hopeit.engine/workflows/hopeit.engine%20QA/badge.svg)
+
+> - Tested on Python 3.9, 3.10, 3.11 and 3.12
+> - Types and code style checks with [*mypy*](https://pypi.org/project/mypy), [*ruff*](https://github.com/astral-sh/ruff)
+> - *hopeit.engine* unit tested using [*pytest*](https://pypi.org/project/pytest/), required coverage > 90%
+> - HTTP server integration tests using [*pytest_aiohttp*](https://pypi.org/project/pytest-aiohttp/)
+> - *simple-example* *client-example* and *dataframes-example* applications and plugins integration tests
+                                                                      
 Please check the [docs](https://hopeitengine.readthedocs.io/en/latest/index.html).
 
 Thank you!

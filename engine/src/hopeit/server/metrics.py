@@ -107,9 +107,9 @@ class StreamStats:
         calculate stream stats to be logged
         :return: dict, with stream stats to be used as extra info for logging
         """
-        assert (
-            self.start_ts is not None and self.from_ts is not None
-        ), "StreamStats not initialized. Call `ensure_start()`"
+        assert self.start_ts is not None and self.from_ts is not None, (
+            "StreamStats not initialized. Call `ensure_start()`"
+        )
         now = datetime.now(tz=timezone.utc)
         total_elapsed_td = now - self.start_ts
         total_elapsed = 1000.0 * total_elapsed_td.total_seconds()

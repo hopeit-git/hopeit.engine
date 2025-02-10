@@ -87,7 +87,7 @@ def find_dataframe_type(qual_type_name: str) -> Type[DataFrameT]:
     )
     module = import_module(mod_name)
     datatype = getattr(module, type_name)
-    assert hasattr(
-        datatype, "__dataframe__"
-    ), f"Type {qual_type_name} must be annotated with `@dataframe`."
+    assert hasattr(datatype, "__dataframe__"), (
+        f"Type {qual_type_name} must be annotated with `@dataframe`."
+    )
     return datatype

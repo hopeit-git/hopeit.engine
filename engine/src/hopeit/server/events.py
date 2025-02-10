@@ -130,9 +130,9 @@ class EventHandler:
         pp_handler = self.postprocess_handlers[context.event_name]
         if pp_handler:
             _, initialized, _ = self.modules[context.event_name]
-            assert (
-                initialized
-            ), "Module not initialized. Postprocess requires events steps to be executed first"
+            assert initialized, (
+                "Module not initialized. Postprocess requires events steps to be executed first"
+            )
             return await invoke_single_step(
                 payload=payload, context=context, func=pp_handler[0], response=response
             )

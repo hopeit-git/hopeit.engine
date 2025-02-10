@@ -17,9 +17,9 @@ setup(
     ],
     extras_require={
         "web": [
-            "aiohttp>=3.9.0,<4",
+            "aiohttp>=3.9.0,<3.11",
             "aiohttp-cors",
-            "aiohttp-swagger3>=0.8.0",
+            "aiohttp-swagger3>=0.9.0",
             "gunicorn",
         ],
         "cli": ["click"],

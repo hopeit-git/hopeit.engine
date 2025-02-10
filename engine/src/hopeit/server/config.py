@@ -163,9 +163,9 @@ def replace_env_vars(config_json: str) -> str:
             result = result.replace(expr, value)
 
     missing_env_vars = env_re.findall(result)
-    assert (
-        len(missing_env_vars) == 0
-    ), f"Cannot get value from OS environment vars: {missing_env_vars}"
+    assert len(missing_env_vars) == 0, (
+        f"Cannot get value from OS environment vars: {missing_env_vars}"
+    )
 
     return result
 

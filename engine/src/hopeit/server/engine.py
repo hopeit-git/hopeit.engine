@@ -446,9 +446,9 @@ class AppEngine:
         try:
             assert self.event_handler, "event_handler not created. Call `start()`."
             assert self.stream_manager, "No active stream manager. Call `start()`"
-            assert not self._running[
-                event_name
-            ].locked(), "Event already running. Call `stop_event(...)`"
+            assert not self._running[event_name].locked(), (
+                "Event already running. Call `stop_event(...)`"
+            )
 
             event_config = self.effective_events[event_name]
             stream_info = event_config.read_stream
@@ -603,9 +603,9 @@ class AppEngine:
         """
         assert self.app_config.server is not None
         log_info = {"app_key": self.app_key, "event_name": event_name}
-        assert not self._running[
-            event_name
-        ].locked(), f"Cannot start service, event already running {event_name}"
+        assert not self._running[event_name].locked(), (
+            f"Cannot start service, event already running {event_name}"
+        )
         await self._running[event_name].acquire()
         wait = self.app_config.server.streams.delay_auto_start_seconds
         if wait > 0:
@@ -622,9 +622,9 @@ class AppEngine:
             app_config=self.app_config, event_name=event_name, event_info=event_config
         )
         service_handler = getattr(impl, "__service__")
-        assert (
-            service_handler is not None
-        ), f"{event_name} must implement method `__service__(context) -> Spawn[...]` to run as a service"
+        assert service_handler is not None, (
+            f"{event_name} must implement method `__service__(context) -> Spawn[...]` to run as a service"
+        )
         event_settings = get_event_settings(self.settings, event_name)
         context = self._service_event_context(event_name=event_name, event_settings=event_settings)
         last_result = None

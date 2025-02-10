@@ -1,7 +1,7 @@
 ruff
 pytest
 pytest-cov
-pytest-aiohttp>=1.0.5
+pytest-aiohttp==1.0.5
 pytest-asyncio
 pytest-order
 pytest-mock
