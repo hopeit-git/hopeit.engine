@@ -5,7 +5,6 @@ Check enum values used in api schema
 """
 
 from enum import Enum
-from typing import Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
@@ -27,17 +26,9 @@ class CheckEnumResponse:
     value: CustomValue
 
 
-
-
 __api__ = event_api(
     summary="Simple Example: Check enum values",
-    query_args=[
-        (
-            "enum_value",
-            CustomValue,
-            "Enum value to validate"
-        )
-    ],
+    query_args=[("enum_value", CustomValue, "Enum value to validate")],
     responses={
         200: (list[CheckEnumResponse], "Enum value"),
     },
@@ -46,7 +37,9 @@ __api__ = event_api(
 logger, extra = app_extra_logger()
 
 
-async def check_value(payload: None, context: EventContext, enum_value: str) -> list[CheckEnumResponse]:
+async def check_value(
+    payload: None, context: EventContext, enum_value: str
+) -> list[CheckEnumResponse]:
     """
     Check enum_value:str query arg is a valid CustomValue enum value and return it,
     return None if it is not a valid value
