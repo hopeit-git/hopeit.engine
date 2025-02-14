@@ -270,6 +270,21 @@
       },
       "auth": []
     },
+    "check_enum": {
+      "type": "GET",
+      "plug_mode": "Standalone",
+      "route": null,
+      "impl": null,
+      "connections": [],
+      "read_stream": null,
+      "write_stream": null,
+      "auth": [
+        "Unsecured"
+      ],
+      "setting_keys": [],
+      "dataobjects": [],
+      "group": "DEFAULT"
+    }, 
     "service.something_generator": {
       "type": "SERVICE",
       "plug_mode": "Standalone",
