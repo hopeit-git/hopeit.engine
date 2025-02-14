@@ -69,6 +69,20 @@
     },
     "classes": "EVENT"
   },
+  "simple_example.${APPS_ROUTE_VERSION}.check_enum": {
+    "classes": "EVENT",
+    "data": {
+      "content": "simple_example.${APPS_ROUTE_VERSION}\ncheck_enum",
+      "id": "simple_example.${APPS_ROUTE_VERSION}.check_enum"
+    }
+  },
+  "simple_example.${APPS_ROUTE_VERSION}.check_enum.GET": {
+    "classes": "REQUEST",
+    "data": {
+      "content": "GET",
+      "id": "simple_example.${APPS_ROUTE_VERSION}.check_enum.GET"
+    }
+  },
   "simple_example.${APPS_ROUTE_VERSION}.query_something.GET": {
     "data": {
       "id": "simple_example.${APPS_ROUTE_VERSION}.query_something.GET",
@@ -477,6 +491,14 @@
       "id": "edge_simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST",
       "source": "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently.POST",
       "target": "simple_example.${APPS_ROUTE_VERSION}.collector.query_concurrently",
+      "label": ""
+    }
+  },
+  "edge_simple_example.${APPS_ROUTE_VERSION}.check_enum.GET": {
+    "data": {
+      "id": "edge_simple_example.${APPS_ROUTE_VERSION}.check_enum.GET",
+      "source": "simple_example.${APPS_ROUTE_VERSION}.check_enum.GET",
+      "target": "simple_example.${APPS_ROUTE_VERSION}.check_enum",
       "label": ""
     }
   },
