@@ -946,6 +946,80 @@
         ]
       }
     },
+    "/api/simple-example/0x25/check-enum": {
+      "get": {
+        "summary": "Simple Example: Check enum values",
+        "description": "Check enum values used in api schema",
+        "parameters": [
+          {
+            "name": "enum_value",
+            "in": "query",
+            "required": true,
+            "description": "Enum value to validate",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Caller",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.caller",
+            "schema": {
+              "type": "string",
+              "default": "test.caller"
+            }
+          },
+          {
+            "name": "X-Track-Session-Id",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.session_id",
+            "schema": {
+              "type": "string",
+              "default": "test.session_id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enum value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CheckEnumResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "simple_example.0x25"
+        ]
+      }
+    },
     "/api/simple-example/0x25/streams/something-event": {
       "post": {
         "summary": "Simple Example: Something Event",
@@ -2452,6 +2526,27 @@
           "user"
         ],
         "title": "SomethingParams",
+        "type": "object"
+      },
+      "CustomValue": {
+        "enum": [
+          "value1",
+          "value2",
+          "value3"
+        ],
+        "title": "CustomValue",
+        "type": "string"
+      },
+      "CheckEnumResponse": {
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/CustomValue"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "CheckEnumResponse",
         "type": "object"
       },
       "ItemsInfo": {

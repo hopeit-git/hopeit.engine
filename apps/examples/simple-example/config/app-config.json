@@ -105,6 +105,10 @@
       "type": "MULTIPART",
       "group": "g1"
     },
+    "check_enum": {
+      "type": "GET",
+      "auth" : ["Unsecured"]
+    },
     "service.something_generator": {
       "type": "SERVICE",
       "write_stream": {

@@ -12,7 +12,6 @@ setup(
         "lz4>=4.3.2",
         "PyJWT[crypto]>=2.9.0",
         "deepdiff",
-        "typing-inspect",
         "multidict",
     ],
     extras_require={
