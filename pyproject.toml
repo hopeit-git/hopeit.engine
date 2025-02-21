@@ -1,11 +1,12 @@
 [project]
 name = "hopeit.engine.workspace"
-# version = dynamic
+version = "0.26.rc0"
+
+dynamic = ["readme"]
 
 requires-python = ">=3.10"
 
 description = "Hopeit Engine: Microservices with Streams"
-dynamic = ["version", "readme"]
 license = { text = "Apache 2" }
 authors = [
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
@@ -15,7 +16,6 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Intended Audience :: Developers",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -28,7 +28,10 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Framework :: AsyncIO",
 ]
-dependencies = ["engine"]
+dependencies = [
+    "hopeit.engine",
+    "hopeit.fs-storage",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/hopeit-git/hopeit.engine"
@@ -39,57 +42,46 @@ dependencies = ["engine"]
 
 [tool.uv]
 package = false
-# dev-dependencies = [
-#     "mypy>=1.13.0",
-#     "pytest>=8.3.3",
-#     "pytest-cov",
-#     "pytest-aiohttp==1.0.5",
-#     "pytest-asyncio",
-#     "pytest-order",
-#     "pytest-mock",
-#     "coverage",
-#     "ruff>=0.7.4",
-#     "pandas-stubs>=2.2.3",
-#     "types-aiofiles>=24.1.0",
-#     "isort>=5.13.2",
-#     "aiofiles",
-#     "types-aiofiles",
-#     "nest-asyncio",
-#     "types-redis",
-#     # Release deps
-#     # "wheel",
-#     # Plugin test dependencies
-#     "redis",
-#     "watchdog",
-#     "uvloop",
-#     # data/dataframes plugin tests
-#     "pandas",
-#     "pandas-stubs",
-#     "pyarrow",
-#     # examples/dataframes-example deps
-#     "scikit-learn",
-# ]
+dev-dependencies = [
+    "mypy>=1.13.0",
+    "pytest>=8.3.3",
+    "pytest-cov>=6.0.0",
+    "pytest-aiohttp>=1.0.5",
+    "pytest-asyncio>=0.25.3",
+    "pytest-order>=1.3.0",
+    "pytest-mock>=3.14.0",
+    "coverage>=7.6.12",
+    "ruff>=0.9.7",
+    "pandas-stubs>=2.2.3",
+    "isort>=5.13.2",
+    "aiofiles>=24.1.0",
+    "nest-asyncio>=1.6.0",
+    # Type stubs
+    "types-aiofiles>=24.1.0",
+    "types-redis>=4.6.0",
+    # Plugin test dependencies
+    "uvloop>=0.21.0",
+    # data/dataframes plugin tests
+    "pandas-stubs>=2.2.3",
+    "pyarrow>=19.0.1",
+    # examples/dataframes-example deps
+    "scikit-learn>=1.6.1",
+]
 
 
 [tool.uv.sources]
-engine = { workspace = true }
+hopeit-engine = { path="engine" } # workspace = true }
+hopeit-fs-storage = { path="plugins/storage/fs" } # workspace = true }
 
-[tool.uv.workspace]
-members = [
+
+[build-system]
+requires = ["setuptools >= 64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pyright]
+include = [
     "engine"
 ]
-
-[tool.setuptools]
-py-modules = []
-
-# [tool.pyright]
-# include = [
-#     "engine"
-# ]
-# reportGeneralTypeIssues = "none"
-# reportArgumentType = "none"
-# reportAssignmentType = "none"
-# reportAssertTypeFailure = "none"
 
 [tool.ruff]
 line-length = 100
@@ -101,6 +93,4 @@ line-length = 100
 asyncio_mode = "auto"
 
 [tool.setuptools.dynamic]
-version = { attr = "hopeit.server.version.ENGINE_VERSION" }
 readme = { file = ["README.md"], content-type = "text/plain" }
-

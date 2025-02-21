@@ -12,9 +12,10 @@ clean-env:
 	rm -rf .ruff_cache
 	rm uv.lock
 
-deps: env
+dev: env
 	uv pip install -r pyproject.toml
-	uv pip install -U -e ./engine
+	uv pip install -U --no-deps -e ./engine
+	uv pip install -U --no-deps -e ./plugins/storage/fs
 
 # deps:
 # 	cd engine && \
