@@ -143,10 +143,8 @@ test-plugins:
 # qa: test check
 # 	echo "DONE."
 
-# dist: clean
-# 	pip install wheel build && \
-# 	cd engine && \
-# 	python -m build
+dist: clean-env dev
+	cd engine && uv build
 
 # dist-plugin: clean-plugins
 # 	$(eval ENGINE_VERSION := $(shell python engine/src/hopeit/server/version.py))
@@ -174,9 +172,10 @@ test-plugins:
 # 	pip install twine && \
 # 	python -m twine upload -u=__token__ -p=$(PYPI_API_TOKEN) --repository pypi $(PLUGINFOLDER)/dist/*
 
-# pypi-test:
+pypi-test:
 # 	pip install twine && \
 # 	python -m twine upload -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --repository testpypi engine/dist/*
+	uv publish -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --publish-url=https://test.pypi.org/legacy/  engine/dist/*
 
 # pypi-test-plugin:
 # 	pip install twine && \
