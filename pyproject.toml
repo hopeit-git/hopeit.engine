@@ -1,3 +1,96 @@
+[project]
+name = "hopeit.engine.workspace"
+# version = dynamic
+
+requires-python = ">=3.10"
+
+description = "Hopeit Engine: Microservices with Streams"
+dynamic = ["version", "readme"]
+license = { text = "Apache 2" }
+authors = [
+    { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
+    { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
+]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: AsyncIO",
+]
+dependencies = ["engine"]
+
+[project.urls]
+"Homepage" = "https://github.com/hopeit-git/hopeit.engine"
+"CI: GitHub Actions" = "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow"
+"Docs: RTD" = "https://hopeitengine.readthedocs.io/en/latest/"
+"GitHub: issues" = "https://github.com/hopeit-git/hopeit.engine/issues"
+"GitHub: repo" = "https://github.com/hopeit-git/hopeit.engine"
+
+[tool.uv]
+package = false
+# dev-dependencies = [
+#     "mypy>=1.13.0",
+#     "pytest>=8.3.3",
+#     "pytest-cov",
+#     "pytest-aiohttp==1.0.5",
+#     "pytest-asyncio",
+#     "pytest-order",
+#     "pytest-mock",
+#     "coverage",
+#     "ruff>=0.7.4",
+#     "pandas-stubs>=2.2.3",
+#     "types-aiofiles>=24.1.0",
+#     "isort>=5.13.2",
+#     "aiofiles",
+#     "types-aiofiles",
+#     "nest-asyncio",
+#     "types-redis",
+#     # Release deps
+#     # "wheel",
+#     # Plugin test dependencies
+#     "redis",
+#     "watchdog",
+#     "uvloop",
+#     # data/dataframes plugin tests
+#     "pandas",
+#     "pandas-stubs",
+#     "pyarrow",
+#     # examples/dataframes-example deps
+#     "scikit-learn",
+# ]
+
+
+[tool.uv.sources]
+engine = { workspace = true }
+
+[tool.uv.workspace]
+members = [
+    "engine"
+]
+
+[tool.setuptools]
+py-modules = []
+
+# [tool.pyright]
+# include = [
+#     "engine"
+# ]
+# reportGeneralTypeIssues = "none"
+# reportArgumentType = "none"
+# reportAssignmentType = "none"
+# reportAssertTypeFailure = "none"
+
 [tool.ruff]
 line-length = 100
 
@@ -6,3 +99,8 @@ line-length = 100
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+
+[tool.setuptools.dynamic]
+version = { attr = "hopeit.server.version.ENGINE_VERSION" }
+readme = { file = ["README.md"], content-type = "text/plain" }
+

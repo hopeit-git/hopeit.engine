@@ -1,46 +1,74 @@
-[build-system]
-requires = ["setuptools >= 64", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "hopeit.engine"
 description = "Hopeit Engine: Microservices with Streams"
-dynamic = ["version", "readme", "dependencies", "optional-dependencies"]
-license = { text = "Apache 2" }
-authors = [
-    { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
-    { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
-]
-classifiers = [
-    "License :: OSI Approved :: Apache Software License",
-    "Intended Audience :: Developers",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Development Status :: 5 - Production/Stable",
-    "Operating System :: POSIX :: Linux",
-    "Operating System :: MacOS :: MacOS X",
-    "Operating System :: Microsoft :: Windows",
-    "Topic :: Internet :: WWW/HTTP",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Framework :: AsyncIO",
-]
-requires-python = ">=3.9"
+dynamic = ["version", "readme"]
 
-[project.urls]
-"Homepage" = "https://github.com/hopeit-git/hopeit.engine"
-"CI: GitHub Actions" = "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow"
-"Docs: RTD" = "https://hopeitengine.readthedocs.io/en/latest/"
-"GitHub: issues" = "https://github.com/hopeit-git/hopeit.engine/issues"
-"GitHub: repo" = "https://github.com/hopeit-git/hopeit.engine"
+requires-python = ">=3.10"
+
+dependencies = [
+    "pydantic>=2.9.1,<3",
+    "stringcase>=1.2.0",
+    "lz4>=4.3.2",
+    "PyJWT[crypto]>=2.9.0",
+    "deepdiff",
+    "multidict",
+    "aiohttp>=3.9.0,<4",
+    "aiohttp-cors",
+    "aiohttp-swagger3>=0.10.0",
+    "gunicorn",
+    "click"
+]
+
+# [project.optional-dependencies]
+# web = [
+#     "aiohttp>=3.9.0,<4",
+#     "aiohttp-cors",
+#     "aiohttp-swagger3>=0.10.0",
+#     "gunicorn",
+# ]
+# cli = ["click"]
+# redis-streams = ["hopeit.redis-streams=={ENGINE_VERSION}"]
+# redis-storage = ["hopeit.redis-storage=={ENGINE_VERSION}"]
+# fs-storage = ["hopeit.fs-storage=={ENGINE_VERSION}"]
+# config-manager = ["hopeit.config-manager=={ENGINE_VERSION}"]
+# log-streamer = ["hopeit.log-streamer=={ENGINE_VERSION}"]
+# apps-visualizer = ["hopeit.apps-visualizer=={ENGINE_VERSION}"]
+# apps-client = ["hopeit.apps-client=={ENGINE_VERSION}"]
+# dataframes = ["hopeit.dataframes=={ENGINE_VERSION}"]
+
+# license = { text = "Apache 2" }
+# authors = [
+#     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
+#     { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
+# ]
+# classifiers = [
+#     "License :: OSI Approved :: Apache Software License",
+#     "Intended Audience :: Developers",
+#     "Programming Language :: Python",
+#     "Programming Language :: Python :: 3.9",
+#     "Programming Language :: Python :: 3.10",
+#     "Programming Language :: Python :: 3.11",
+#     "Programming Language :: Python :: 3.12",
+#     "Development Status :: 5 - Production/Stable",
+#     "Operating System :: POSIX :: Linux",
+#     "Operating System :: MacOS :: MacOS X",
+#     "Operating System :: Microsoft :: Windows",
+#     "Topic :: Internet :: WWW/HTTP",
+#     "Topic :: Software Development :: Libraries :: Python Modules",
+#     "Framework :: AsyncIO",
+# ]
+# requires-python = ">=3.9"
+
+
+# [tool.setuptools.packages.find]
+# where = ["src"]
+
+# [build-system]
+# requires = ["setuptools >= 64", "wheel"]
+# build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 include-package-data = true
-
-[tool.setuptools.packages.find]
-where = ["src"]
 
 [tool.setuptools.package-data]
 "hopeit.app" = ["py.typed"]
