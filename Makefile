@@ -57,29 +57,28 @@ dev: env
 # 	make MODULEFOLDER=plugins/storage/redis format-module && \
 # 	make MODULEFOLDER=plugins/streams/redis format-module
 
-# check-engine:
-# 	ruff format --check engine/src/ engine/test/ && \
-# 	ruff check engine/src/ engine/test/ && \
-# 	MYPYPATH=engine/src/ mypy --namespace-packages -p hopeit && \
-# 	MYPYPATH=engine/src:engine/test/ mypy --namespace-packages engine/test/unit/ && \
-# 	MYPYPATH=engine/src:engine/test/ mypy --namespace-packages engine/test/integration/
+check-engine:
+	uv run ruff format --check engine/src/ engine/test/ && \
+	uv run ruff check engine/src/ engine/test/ && \
+	MYPYPATH=engine/src/ uv run mypy --namespace-packages -p hopeit && \
+	MYPYPATH=engine/src:engine/test/ uv run mypy --namespace-packages engine/test/unit/ && \
+	MYPYPATH=engine/src:engine/test/ uv run mypy --namespace-packages engine/test/integration/
 
-# check-plugin:
-# 	cd $(PLUGINFOLDER) && \
-# 	ruff format --check src/ test/ && \
-# 	ruff check src/ test/ && \
-# 	MYPYPATH=src/ mypy --namespace-packages -p hopeit && \
-# 	MYPYPATH=src:test mypy --namespace-packages test/
+check-plugin:
+	uv run ruff format --check $(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
+	uv run ruff check $(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
+	MYPYPATH=$(PLUGINFOLDER)/src/ uv run mypy --namespace-packages -p hopeit
+	MYPYPATH=$(PLUGINFOLDER)/src:$(PLUGINFOLDER)/test uv run mypy --namespace-packages $(PLUGINFOLDER)/test/
 
-# check-plugins:
-# 	make PLUGINFOLDER=plugins/auth/basic-auth check-plugin && \
-# 	make PLUGINFOLDER=plugins/clients/apps-client check-plugin && \
-# 	make PLUGINFOLDER=plugins/data/dataframes check-plugin && \
-# 	make PLUGINFOLDER=plugins/ops/apps-visualizer check-plugin && \
-# 	make PLUGINFOLDER=plugins/ops/config-manager check-plugin && \
-# 	make PLUGINFOLDER=plugins/ops/log-streamer check-plugin && \
-# 	make PLUGINFOLDER=plugins/storage/fs check-plugin && \
-# 	make PLUGINFOLDER=plugins/storage/redis check-plugin && \
+check-plugins:
+# 	make PLUGINFOLDER=plugins/auth/basic-auth check-plugin
+# 	make PLUGINFOLDER=plugins/clients/apps-client check-plugin
+# 	make PLUGINFOLDER=plugins/data/dataframes check-plugin
+# 	make PLUGINFOLDER=plugins/ops/apps-visualizer check-plugin
+# 	make PLUGINFOLDER=plugins/ops/config-manager check-plugin
+# 	make PLUGINFOLDER=plugins/ops/log-streamer check-plugin
+	make PLUGINFOLDER=plugins/storage/fs check-plugin
+# 	make PLUGINFOLDER=plugins/storage/redis check-plugin
 # 	make PLUGINFOLDER=plugins/streams/redis check-plugin
 
 # check-app:
@@ -96,21 +95,21 @@ dev: env
 
 # check: check-engine check-plugins check-apps
 
-# test-engine:
-# 	PYTHONPATH=engine/test pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
+test-engine:
+	PYTHONPATH=engine/test uv run pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
 
-# test-plugin:
-# 	pytest -v --cov-fail-under=90 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
+test-plugin:
+	uv run pytest -v --cov-fail-under=90 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
 
-# test-plugins:
-# 	make PLUGINFOLDER=plugins/auth/basic-auth test-plugin && \
-# 	make PLUGINFOLDER=plugins/clients/apps-client test-plugin && \
-# 	make PLUGINFOLDER=plugins/data/dataframes test-plugin && \
-# 	make PLUGINFOLDER=plugins/ops/apps-visualizer test-plugin && \
-# 	make PLUGINFOLDER=plugins/ops/config-manager test-plugin && \
-# 	make PLUGINFOLDER=plugins/storage/fs test-plugin && \
-# 	make PLUGINFOLDER=plugins/storage/redis test-plugin && \
-# 	make PLUGINFOLDER=plugins/streams/redis test-plugin && \
+test-plugins:
+# 	make PLUGINFOLDER=plugins/auth/basic-auth test-plugin
+# 	make PLUGINFOLDER=plugins/clients/apps-client test-plugin
+# 	make PLUGINFOLDER=plugins/data/dataframes test-plugin
+# 	make PLUGINFOLDER=plugins/ops/apps-visualizer test-plugin
+# 	make PLUGINFOLDER=plugins/ops/config-manager test-plugin
+	make PLUGINFOLDER=plugins/storage/fs test-plugin
+# 	make PLUGINFOLDER=plugins/storage/redis test-plugin
+# 	make PLUGINFOLDER=plugins/streams/redis test-plugin
 # 	make PLUGINFOLDER=plugins/ops/log-streamer test-plugin
 
 # test-app:
