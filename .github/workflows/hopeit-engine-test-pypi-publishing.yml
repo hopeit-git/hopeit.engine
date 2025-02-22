@@ -15,32 +15,39 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build and publish Python 🐍 distributions 📦 to PyPI
-      uses: actions/setup-python@v5
+    
+    - name: install uv
+      uses: astral-sh/setup-uv@v3
       with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
+        version: "latest"
+    
+    - name: make ci-deps
+      run: PYTHONVERSION=${{ matrix.python-version }} make ci-deps
+
+    - name: make dist-engine
       run: |
-        make ci-setup
-    - name: make hopeit.engine package
-      run: |
-        make dist
-    - name: make plugin redis_streams
+        make dist-engine
+
+    - name: make dist-plugin redis_streams
       run: |
         make PLUGINFOLDER=plugins/streams/redis/ dist-plugin
-    - name: make plugin redis_storage
+
+    - name: make dist-plugin redis_storage
       run: |
         make PLUGINFOLDER=plugins/storage/redis/ dist-plugin
+
     - name: Publish hopeit.engine on Test PyPI
       env: 
         TEST_PYPI_API_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN_ALL }}
       run: |
         make pypi-test
+
     - name: Publish plugin redis_streams on Test PyPI
       env: 
         TEST_PYPI_API_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN_ALL }}
       run: |
         make PLUGINFOLDER=plugins/streams/redis pypi-test-plugin
+
     - name: Publish plugin fs_storage on Test PyPI
       env: 
         TEST_PYPI_API_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN_ALL }}

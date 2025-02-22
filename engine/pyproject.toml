@@ -18,27 +18,58 @@ dependencies = [
     "click>=8.1.8",
 ]
 
-[project.optional-dependencies]
-# redis-streams = ["hopeit.redis-streams=={ENGINE_VERSION}"]
-# redis-storage = ["hopeit.redis-storage=={ENGINE_VERSION}"]
-fs-storage = ["hopeit.fs-storage==0.26.0rc0"]
-# config-manager = ["hopeit.config-manager=={ENGINE_VERSION}"]
-# log-streamer = ["hopeit.log-streamer=={ENGINE_VERSION}"]
-# apps-visualizer = ["hopeit.apps-visualizer=={ENGINE_VERSION}"]
-# apps-client = ["hopeit.apps-client=={ENGINE_VERSION}"]
-# dataframes = ["hopeit.dataframes=={ENGINE_VERSION}"]
+license = { text = "Apache 2" }
+authors = [
+    { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
+    { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
+]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: AsyncIO",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/hopeit-git/hopeit.engine"
+"CI: GitHub Actions" = "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow"
+"Docs: RTD" = "https://hopeitengine.readthedocs.io/en/latest/"
+"GitHub: issues" = "https://github.com/hopeit-git/hopeit.engine/issues"
+"GitHub: repo" = "https://github.com/hopeit-git/hopeit.engine"
 
 [tool.setuptools]
 include-package-data = true
 
-[tool.setuptools.package-data]
-"hopeit.app" = ["py.typed"]
-"hopeit.cli" = ["py.typed"]
-"hopeit.dataobjects" = ["py.typed"]
-"hopeit.server" = ["py.typed"]
-"hopeit.streams" = ["py.typed"]
-"hopeit.testing" = ["py.typed"]
-"hopeit.toolkit" = ["py.typed"]
+# [tool.setuptools.package-data]
+# "hopeit.app" = ["py.typed"]
+# "hopeit.cli" = ["py.typed"]
+# "hopeit.dataobjects" = ["py.typed"]
+# "hopeit.server" = ["py.typed"]
+# "hopeit.streams" = ["py.typed"]
+# "hopeit.testing" = ["py.typed"]
+# "hopeit.toolkit" = ["py.typed"]
+
+[project.optional-dependencies]
+web = []
+cli = []
+redis-streams = ["hopeit.redis-streams==0.26.0rc1"]
+redis-storage = ["hopeit.redis-storage==0.26.0rc1"]
+fs-storage = ["hopeit.fs-storage==0.26.0rc1"]
+config-manager = ["hopeit.config-manager==0.26.0rc1"]
+log-streamer = ["hopeit.log-streamer==0.26.0rc1"]
+apps-visualizer = ["hopeit.apps-visualizer==0.26.0rc1"]
+apps-client = ["hopeit.apps-client==0.26.0rc1"]
+dataframes = ["hopeit.dataframes==0.26.0rc1"]
 
 [project.scripts]
 hopeit_server = "hopeit.cli.server:server"
