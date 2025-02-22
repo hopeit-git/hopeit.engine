@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hopeit.dataframes"
-version = "0.26.0rc3"
+version = "0.26.0rc0"
 
 description = "Hopeit Engine Dataframes for Pandas"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.0rc3",
-    "hopeit.fs-storage>=0.26.0rc3",
+    "hopeit.engine>=0.26.0rc0",
+    "hopeit.fs-storage>=0.26.0rc0",
     "pandas>=2.2.3",
     "numpy>=1.26.4"
 ]

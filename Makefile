@@ -18,9 +18,12 @@ dev: env
 	uv pip install -U --no-deps -e ./plugins/auth/basic-auth
 	uv pip install -U --no-deps -e ./plugins/clients/apps-client
 	uv pip install -U --no-deps -e ./plugins/data/dataframes
+	uv pip install -U --no-deps -e ./plugins/ops/apps-visualizer
 	uv pip install -U --no-deps -e ./plugins/ops/config-manager
 	uv pip install -U --no-deps -e ./plugins/ops/log-streamer
 	uv pip install -U --no-deps -e ./plugins/storage/fs
+	uv pip install -U --no-deps -e ./plugins/storage/redis
+	uv pip install -U --no-deps -e ./plugins/streams/redis
 
 ci-deps:
 	uv venv --seed --python $(PYTHONVERSION)
@@ -124,13 +127,11 @@ clean-dist-plugin:
 schemas:
 	uv --directory=engine/config/schemas run python update_config_schemas.py
 
-# pypi:
-# 	pip install twine && \
-# 	python -m twine upload -u=__token__ -p=$(PYPI_API_TOKEN) --repository pypi engine/dist/*
+publish-engine-pypi:
+	uv publish -u=__token__ -p=$(PYPI_API_TOKEN) engine/dist/*
 
-# pypi-plugin:
-# 	pip install twine && \
-# 	python -m twine upload -u=__token__ -p=$(PYPI_API_TOKEN) --repository pypi $(PLUGINFOLDER)/dist/*
+publish-plugin-pypi:
+	uv publish -u=__token__ -p=$(PYPI_API_TOKEN) $(PLUGINFOLDER)/dist/*
 
 publish-engine-pypi-test:
 	uv publish -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --publish-url=https://test.pypi.org/legacy/  engine/dist/*
