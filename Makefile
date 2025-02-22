@@ -67,8 +67,8 @@ lint-plugins:
 	make PLUGINFOLDER=plugins/ops/config-manager lint-plugin
 	make PLUGINFOLDER=plugins/ops/log-streamer lint-plugin
 	make PLUGINFOLDER=plugins/storage/fs lint-plugin
-# 	make PLUGINFOLDER=plugins/storage/redis lint-plugin
-# 	make PLUGINFOLDER=plugins/streams/redis lint-plugin
+	make PLUGINFOLDER=plugins/storage/redis lint-plugin
+	make PLUGINFOLDER=plugins/streams/redis lint-plugin
 
 lint-app:
 	uv run ruff format $(APPFOLDER)/src/ $(APPFOLDER)/test/ --check
