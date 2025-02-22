@@ -33,21 +33,31 @@ dependencies = [
     "hopeit.basic-auth",
     "hopeit.apps-client",
     "hopeit.dataframes",
+    "hopeit.apps-visualizer",
     "hopeit.config-manager",
     "hopeit.log-streamer",
     "hopeit.fs-storage",
+    "hopeit.redis-storage",
+    "hopeit.redis-streams",
     "simple-example",
+    "client-example",
+    "dataframes-example",
 ]
 
 [tool.uv.sources]
-hopeit-engine = { path="engine" } # workspace = true }
+hopeit-engine = { path="engine" }
 hopeit-basic-auth = { path="plugins/auth/basic-auth" }
 hopeit-apps-client = { path="plugins/clients/apps-client" }
 hopeit-dataframes = { path="plugins/data/dataframes" }
+hopeit-apps-visualizer = { path="plugins/ops/apps-visualizer" }
 hopeit-config-manager = { path="plugins/ops/config-manager" }
 hopeit-log-streamer = { path="plugins/ops/log-streamer" }
-hopeit-fs-storage = { path="plugins/storage/fs" } # workspace = true }
+hopeit-fs-storage = { path="plugins/storage/fs" }
+hopeit-redis-storage = { path="plugins/storage/redis" }
+hopeit-redis-streams = { path="plugins/streams/redis" }
 simple-example = { path="apps/examples/simple-example" }
+client-example = { path="apps/examples/client-example" }
+dataframes-example = { path="apps/examples/dataframes-example" }
 
 [project.urls]
 "Homepage" = "https://github.com/hopeit-git/hopeit.engine"
@@ -87,13 +97,18 @@ dev-dependencies = [
 [tool.pyright]
 include = [
     "engine",
-    "plugins/auth/bacis-auth",
+    "plugins/auth/basic-auth",
     "plugins/clients/apps-client",
     "plugins/data/dataframes",
+    "plugins/ops/apps-visualizer",
     "plugins/ops/config-manager",
     "plugins/ops/log-streamer",
     "plugins/storage/fs",
+    "plugins/storage/redis",
+    "plugins/streams/redis",
     "apps/examples/simple-example",
+    "apps/examples/client-example",
+    "apps/examples/dataframes-example",
 ]
 
 [tool.ruff]

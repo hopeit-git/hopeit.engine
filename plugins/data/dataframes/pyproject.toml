@@ -11,6 +11,7 @@ dynamic = ["readme"]
 
 dependencies = [
     "hopeit.engine>=0.26.0rc0",
+    "hopeit.fs-storage>=0.26.0rc0",
     "pandas>=2.2.3",
     "numpy>=1.26.4"
 ]

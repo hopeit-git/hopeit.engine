@@ -117,8 +117,8 @@ test-plugins:
 	make PLUGINFOLDER=plugins/ops/apps-visualizer test-plugin
 	make PLUGINFOLDER=plugins/ops/config-manager test-plugin
 	make PLUGINFOLDER=plugins/storage/fs test-plugin
-# 	make PLUGINFOLDER=plugins/storage/redis test-plugin
-# 	make PLUGINFOLDER=plugins/streams/redis test-plugin
+	make PLUGINFOLDER=plugins/storage/redis test-plugin
+	make PLUGINFOLDER=plugins/streams/redis test-plugin
 	make PLUGINFOLDER=plugins/ops/log-streamer test-plugin
 
 test-app:
@@ -128,31 +128,9 @@ test-apps:
 	make APPFOLDER=apps/examples/simple-example test-app
 	make APPFOLDER=apps/examples/client-example test-app
 
-# test: test-engine test-plugins test-apps
+test: test-engine test-plugins test-apps
 
-# install:
-# 	cd engine && \
-# 	pip install --force-reinstall -r requirements.txt && \
-# 	pip install -U -e . --no-deps && \
-# 	pip install -U -e ".[web]" --no-deps && \
-# 	pip install -U -e ".[cli]" --no-deps
-
-# install-app:
-# 	cd $(APPFOLDER) && \
-# 	pip install -U -e .
-
-# install-plugin:
-# 	cd $(PLUGINFOLDER) && \
-# 	pip install -U -e .
-
-# install-plugin-extras:
-# 	cd $(PLUGINFOLDER) && \
-# 	pip install -U -e .[$(PLUGINEXTRAS)]
-
-# qa: test check
-# 	echo "DONE."
-
-dist: clean-env dev
+dist-engine: clean-env dev
 	uv --directory=./ --project=engine build
 
 # dist-plugin: clean-plugins
