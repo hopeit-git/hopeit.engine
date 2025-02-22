@@ -131,25 +131,19 @@ test-apps:
 test: test-engine test-plugins test-apps
 
 dist-engine: clean-env dev
-	uv --directory=./ --project=engine build
+	uv --project=engine build
 
-# dist-plugin: clean-plugins
-# 	$(eval ENGINE_VERSION := $(shell python engine/src/hopeit/server/version.py))
-# 	export  && pip install wheel build && \
-# 	cd $(PLUGINFOLDER) && \
-# 	ENGINE_VERSION=$(ENGINE_VERSION) python -m build
+dist-plugin:
+	uv --project=$(PLUGINFOLDER) build
 
-# clean:
-# 	cd engine && \
-# 	rm -rf dist
+clean-dist-engine:
+	rm -rf engine/dist
 
-# clean-plugins:
-# 	cd $(PLUGINFOLDER) && \
-# 	rm -rf dist
+clean-dist-plugins:
+	rm -rf $(PLUGINFOLDER)/dist
 
-# schemas:
-# 	cd engine/config/schemas && \
-# 	python update_config_schemas.py
+schemas:
+	uv --directory=engine/config/schemas run python update_config_schemas.py
 
 # pypi:
 # 	pip install twine && \
@@ -173,7 +167,6 @@ update-examples-api:
 	bash apps/examples/client-example/api/create_openapi_file.sh
 	bash apps/examples/dataframes-example/api/create_openapi_file.sh
 	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
-
 
 # run-simple-example:
 # 	export PYTHONPATH=apps/examples/simple-example/src && \
