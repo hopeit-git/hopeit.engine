@@ -6,28 +6,18 @@ Docs: https://hopeitengine.readthedocs.io/en/latest/
 ### Engine development README
 
 #### Install locally for apps or plugins development:
-- Install Python, versions from 3.9 to 3.12 are currently supported
-- Create and activate a virtual environment (recommended)
+- Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - Run from hopeit.engine project root
 ```
-    make dev-deps && make install
+    make dev
 ```
-- Now hopeit.engine package should be installed into your virtual/conda env linked to the source code in ./src
+- Now everything you need is installed in .venv/
 - Then you can create your apps or plugins and run the server
 
 #### Install from Python Package Index
-
-- Install Python, versions from 3.9 to 3.12 are currently supported
-- Create and activate a virtual environment (recommended)
-- Install hopeit.engine
-
 Install core hopeit.engine lib:
 ```
 pip install "hopeit.engine"
-```
-Install extras needed to run as a server and command line tools:
-```
-pip install "hopeit.engine[web,cli]"
 ```
 
 #### Configure
@@ -51,13 +41,13 @@ pip install "hopeit.engine[web,cli]"
     --host: server host address or name, default is --host=0.0.0.0
     --port: indicates to listen on another port number, default is --port=8020
     --path: indicates to listen in a unix socket path, default is disabled    
-    --start-streams: indicates to auomatically start events of type STREAM when starting server
+    --start-streams: indicates to automatically start events of type STREAM when starting server
     
 ```
 
 - Example starting a single app that depends on plugins:
 ```
-    python engine/server/web.py --config-files=server-config.json,plugin-foler/config/plugin-config.json,app-folder/config/app-config.json
+    python engine/server/web.py --config-files=server-config.json,plugin-folder/config/plugin-config.json,app-folder/config/app-config.json
 ```
 
 ### Tools for Engine Development
@@ -72,24 +62,17 @@ pip install "hopeit.engine[web,cli]"
     make test
 ```
 
+- To fromat code
+```
+    make format
+```
+
 - To run static code checks (types, style)
 ```
-    make check
+    make lint
 ```
 
 - To create distribution library (hopeit.engine)
 ```
     make dist
-```
-
-- To install engine in local python environment
-```
-    make install
-```
-
-- Examples: to install plugin or app in virtual environment
-    - to use existing app and plugins, you will need to obtain also a configuration file for each app and plugin. install-app will only install source code.
-```
-    make PLUGINFOLDER=plugins/auth/basic-auth install-plugin
-    make APPFOLDER=apps/examples/simple-example install-app
 ```

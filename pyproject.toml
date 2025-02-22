@@ -31,6 +31,7 @@ classifiers = [
 dependencies = [
     "hopeit.engine",
     "hopeit.basic-auth",
+    "hopeit.apps-client",
     "hopeit.dataframes",
     "hopeit.config-manager",
     "hopeit.log-streamer",
@@ -41,6 +42,7 @@ dependencies = [
 [tool.uv.sources]
 hopeit-engine = { path="engine" } # workspace = true }
 hopeit-basic-auth = { path="plugins/auth/basic-auth" }
+hopeit-apps-client = { path="plugins/clients/apps-client" }
 hopeit-dataframes = { path="plugins/data/dataframes" }
 hopeit-config-manager = { path="plugins/ops/config-manager" }
 hopeit-log-streamer = { path="plugins/ops/log-streamer" }
@@ -86,6 +88,7 @@ dev-dependencies = [
 include = [
     "engine",
     "plugins/auth/bacis-auth",
+    "plugins/clients/apps-client",
     "plugins/data/dataframes",
     "plugins/ops/config-manager",
     "plugins/ops/log-streamer",
@@ -103,4 +106,4 @@ line-length = 100
 asyncio_mode = "auto"
 
 [tool.setuptools.dynamic]
-readme = { file = ["README.md"], content-type = "text/plain" }
+readme = { file = ["README.md"], content-type = "text/markdown" }

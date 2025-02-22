@@ -46,4 +46,4 @@ hopeit_openapi = "hopeit.cli.openapi:openapi"
 
 [tool.setuptools.dynamic]
 version = { attr = "hopeit.server.version.ENGINE_VERSION" }
-readme = { file = ["README.md"], content-type = "text/plain" }
+readme = { file = ["README.md"], content-type = "text/markdown" }

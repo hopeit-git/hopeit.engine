@@ -6,7 +6,8 @@ description = "hopeit.engine Example App"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.0rc0", 
+    "hopeit.engine>=0.26.0rc0",
+    "hopeit.basic-auth>=0.26.0rc0",
 ]
 
 [tool.setuptools]
@@ -19,4 +20,4 @@ where = ["src"]
 "hopeit.basic_auth" = ["py.typed"]
 
 [tool.setuptools.dynamic]
-readme = { file = ["README.md"], content-type = "text/plain" }
+readme = { file = ["README.md"], content-type = "text/markdown" }

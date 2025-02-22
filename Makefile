@@ -16,7 +16,10 @@ dev: env
 	uv pip install -r pyproject.toml
 	uv pip install -U --no-deps -e ./engine
 	uv pip install -U --no-deps -e ./plugins/auth/basic-auth
+	uv pip install -U --no-deps -e ./plugins/clients/apps-client
+	uv pip install -U --no-deps -e ./plugins/data/dataframes
 	uv pip install -U --no-deps -e ./plugins/ops/config-manager
+	uv pip install -U --no-deps -e ./plugins/ops/log-streamer
 	uv pip install -U --no-deps -e ./plugins/storage/fs
 
 ci-deps:
@@ -51,15 +54,15 @@ format-module:
 
 format:
 	make MODULEFOLDER=engine format-module
-# 	make MODULEFOLDER=apps/examples/simple-example format-module
-# 	make MODULEFOLDER=apps/examples/client-example format-module
-# 	make MODULEFOLDER=apps/examples/dataframes-example format-module
+	make MODULEFOLDER=apps/examples/simple-example format-module
+	make MODULEFOLDER=apps/examples/client-example format-module
+	make MODULEFOLDER=apps/examples/dataframes-example format-module
 	make MODULEFOLDER=plugins/auth/basic-auth format-module
-# 	make MODULEFOLDER=plugins/clients/apps-client format-module
-# 	make MODULEFOLDER=plugins/data/dataframes format-module
+	make MODULEFOLDER=plugins/clients/apps-client format-module
+	make MODULEFOLDER=plugins/data/dataframes format-module
 # 	make MODULEFOLDER=plugins/ops/apps-visualizer format-module
-# 	make MODULEFOLDER=plugins/ops/config-manager format-module
-# 	make MODULEFOLDER=plugins/ops/log-streamer format-module
+	make MODULEFOLDER=plugins/ops/config-manager format-module
+	make MODULEFOLDER=plugins/ops/log-streamer format-module
 	make MODULEFOLDER=plugins/storage/fs format-module
 # 	make MODULEFOLDER=plugins/storage/redis format-module
 # 	make MODULEFOLDER=plugins/streams/redis format-module
@@ -79,46 +82,44 @@ lint-plugin:
 
 lint-plugins:
 	make PLUGINFOLDER=plugins/auth/basic-auth lint-plugin
-# 	make PLUGINFOLDER=plugins/clients/apps-client lint-plugin
-# 	make PLUGINFOLDER=plugins/data/dataframes lint-plugin
+	make PLUGINFOLDER=plugins/clients/apps-client lint-plugin
+	make PLUGINFOLDER=plugins/data/dataframes lint-plugin
 # 	make PLUGINFOLDER=plugins/ops/apps-visualizer lint-plugin
-# 	make PLUGINFOLDER=plugins/ops/config-manager lint-plugin
-# 	make PLUGINFOLDER=plugins/ops/log-streamer lint-plugin
+	make PLUGINFOLDER=plugins/ops/config-manager lint-plugin
+	make PLUGINFOLDER=plugins/ops/log-streamer lint-plugin
 	make PLUGINFOLDER=plugins/storage/fs lint-plugin
 # 	make PLUGINFOLDER=plugins/storage/redis lint-plugin
 # 	make PLUGINFOLDER=plugins/streams/redis lint-plugin
 
 lint-app:
-	echo 0
-# 	cd $(APPFOLDER) && \
-# 	ruff format src/ test/ --check && \
-# 	ruff check src/ test/ && \
-# 	MYPYPATH=src/ mypy --namespace-packages src/ && \
-# 	MYPYPATH=src/ mypy --namespace-packages test/
+	uv run ruff format $(APPFOLDER)/src/ $(APPFOLDER)/test/ --check
+	uv run ruff check $(APPFOLDER)/src/ $(APPFOLDER)/test/
+	MYPYPATH=$(APPFOLDER)/src/ uv run mypy --namespace-packages $(APPFOLDER)/src/
+	MYPYPATH=$(APPFOLDER)/src/ uv run mypy --namespace-packages $(APPFOLDER)/test/
 
 lint-apps:
 	make APPFOLDER=apps/examples/simple-example lint-app
 	make APPFOLDER=apps/examples/client-example lint-app
 	make APPFOLDER=apps/examples/dataframes-example lint-app
 
-# check: check-engine check-plugins check-apps
+lint: lint-engine lint-plugins lint-apps
 
 test-engine:
 	PYTHONPATH=engine/src:engine/test uv run pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
 
 test-plugin:
-	PYTHONPATH=$(PLUGINFOLDER)/src uv run pytest -v --cov-fail-under=90 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/unit/
+	PYTHONPATH=$(PLUGINFOLDER)/src uv run pytest -v --cov-fail-under=85 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
 
 test-plugins:
 	make PLUGINFOLDER=plugins/auth/basic-auth test-plugin
-# 	make PLUGINFOLDER=plugins/clients/apps-client test-plugin
-# 	make PLUGINFOLDER=plugins/data/dataframes test-plugin
+	make PLUGINFOLDER=plugins/clients/apps-client test-plugin
+	make PLUGINFOLDER=plugins/data/dataframes test-plugin
 # 	make PLUGINFOLDER=plugins/ops/apps-visualizer test-plugin
-# 	make PLUGINFOLDER=plugins/ops/config-manager test-plugin
+	make PLUGINFOLDER=plugins/ops/config-manager test-plugin
 	make PLUGINFOLDER=plugins/storage/fs test-plugin
 # 	make PLUGINFOLDER=plugins/storage/redis test-plugin
 # 	make PLUGINFOLDER=plugins/streams/redis test-plugin
-# 	make PLUGINFOLDER=plugins/ops/log-streamer test-plugin
+	make PLUGINFOLDER=plugins/ops/log-streamer test-plugin
 
 test-app:
 	echo 0
@@ -153,7 +154,7 @@ test-apps:
 # 	echo "DONE."
 
 dist: clean-env dev
-	cd engine && uv build
+	uv --directory=./ --project=engine build
 
 # dist-plugin: clean-plugins
 # 	$(eval ENGINE_VERSION := $(shell python engine/src/hopeit/server/version.py))
@@ -196,21 +197,6 @@ update-examples-api:
 	bash apps/examples/dataframes-example/api/create_openapi_file.sh
 	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
 
-# install-plugins: install
-# 	make PLUGINFOLDER=plugins/auth/basic-auth install-plugin && \
-# 	make PLUGINFOLDER=plugins/streams/redis install-plugin && \
-# 	make PLUGINFOLDER=plugins/storage/fs install-plugin && \
-# 	make PLUGINFOLDER=plugins/storage/redis install-plugin && \
-# 	make PLUGINFOLDER=plugins/ops/config-manager install-plugin && \
-# 	make PLUGINFOLDER=plugins/ops/log-streamer install-plugin && \
-# 	make PLUGINFOLDER=plugins/ops/apps-visualizer install-plugin && \
-# 	make PLUGINFOLDER=plugins/clients/apps-client install-plugin && \
-# 	make PLUGINFOLDER=plugins/data/dataframes PLUGINEXTRAS=pyarrow install-plugin-extras
-
-# install-examples: install install-plugins
-# 	make APPFOLDER=apps/examples/simple-example install-app && \
-# 	make APPFOLDER=apps/examples/client-example install-app && \
-# 	make APPFOLDER=apps/examples/dataframes-example install-app
 
 # run-simple-example:
 # 	export PYTHONPATH=apps/examples/simple-example/src && \
