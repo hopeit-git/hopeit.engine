@@ -27,27 +27,6 @@ ci-deps:
 	uv sync --dev
 	uv pip install -r pyproject.toml
 
-# deps:
-# 	cd engine && \
-# 	pip install -U pip && \
-# 	pip install -U wheel && \
-# 	pip install -U -r requirements.txt
-
-# dev-deps: deps
-# 	cd engine && \
-# 	pip install -U -r requirements-dev.txt
-
-# locked-deps:
-# 	cd engine && \
-# 	pip install -U pip && \
-# 	pip install -U wheel && \
-# 	pip install -U -r requirements-dev.txt
-
-# ci-setup: locked-deps
-# 	make install && \
-# 	make install-plugins && \
-# 	make install-examples
-
 format-module:
 	uv run ruff format $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/
 	uv run ruff check $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/ --fix
@@ -64,8 +43,8 @@ format:
 	make MODULEFOLDER=plugins/ops/config-manager format-module
 	make MODULEFOLDER=plugins/ops/log-streamer format-module
 	make MODULEFOLDER=plugins/storage/fs format-module
-# 	make MODULEFOLDER=plugins/storage/redis format-module
-# 	make MODULEFOLDER=plugins/streams/redis format-module
+	make MODULEFOLDER=plugins/storage/redis format-module
+	make MODULEFOLDER=plugins/streams/redis format-module
 
 lint-engine:
 	uv run ruff format --check engine/src/ engine/test/

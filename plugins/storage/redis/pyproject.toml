@@ -1,17 +1,18 @@
 [project]
 name = "hopeit.redis-storage"
-version = "0.26.0rc1"
+version = "0.26.0rc3"
 
 description = "Hopeit Engine Redis Storage Toolkit"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.0rc1", 
+    "hopeit.engine>=0.26.0rc3", 
     "redis>=5.2.1",
 ]
 
 license = { text = "Apache 2" }
 authors = [
+    { name = "Leo Smerling & Pablo Canto", email = "contact@hopeit.com.ar" },    
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
     { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
 ]
@@ -44,10 +45,6 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.setuptools.package-data]
-"hopeit.fs_storage" = ["py.typed"]
-"hopeit.fs_storage.events" = ["py.typed"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["README.md"], content-type = "text/markdown" }

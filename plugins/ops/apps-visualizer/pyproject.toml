@@ -1,18 +1,19 @@
 [project]
 name = "hopeit.apps-visualizer"
-version = "0.26.0rc1"
+version = "0.26.0rc3"
 
 description = "Hopeit Engine Apps Visualizer Plugin"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.0rc1",
-    "hopeit.config-manager>=0.26.0rc1",
+    "hopeit.engine>=0.26.0rc3",
+    "hopeit.config-manager>=0.26.0rc3",
     "hopeit.log-streamer>=0.26.0.rc0",
 ]
 
 license = { text = "Apache 2" }
 authors = [
+    { name = "Leo Smerling & Pablo Canto", email = "contact@hopeit.com.ar" },
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
     { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
 ]
@@ -45,9 +46,6 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.setuptools.package-data]
-"hopeit.basic_auth" = ["py.typed"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["README.md"], content-type = "text/markdown" }

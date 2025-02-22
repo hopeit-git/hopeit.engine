@@ -20,6 +20,7 @@ dependencies = [
 
 license = { text = "Apache 2" }
 authors = [
+    { name = "Leo Smerling & Pablo Canto", email = "contact@hopeit.com.ar" },
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
     { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
 ]
@@ -50,26 +51,17 @@ classifiers = [
 [tool.setuptools]
 include-package-data = true
 
-# [tool.setuptools.package-data]
-# "hopeit.app" = ["py.typed"]
-# "hopeit.cli" = ["py.typed"]
-# "hopeit.dataobjects" = ["py.typed"]
-# "hopeit.server" = ["py.typed"]
-# "hopeit.streams" = ["py.typed"]
-# "hopeit.testing" = ["py.typed"]
-# "hopeit.toolkit" = ["py.typed"]
-
 [project.optional-dependencies]
 web = []
 cli = []
-redis-streams = ["hopeit.redis-streams==0.26.0rc1"]
-redis-storage = ["hopeit.redis-storage==0.26.0rc1"]
-fs-storage = ["hopeit.fs-storage==0.26.0rc1"]
-config-manager = ["hopeit.config-manager==0.26.0rc1"]
-log-streamer = ["hopeit.log-streamer==0.26.0rc1"]
-apps-visualizer = ["hopeit.apps-visualizer==0.26.0rc1"]
-apps-client = ["hopeit.apps-client==0.26.0rc1"]
-dataframes = ["hopeit.dataframes==0.26.0rc1"]
+redis-streams = ["hopeit.redis-streams==0.26.0rc3"]
+redis-storage = ["hopeit.redis-storage==0.26.0rc3"]
+fs-storage = ["hopeit.fs-storage==0.26.0rc3"]
+config-manager = ["hopeit.config-manager==0.26.0rc3"]
+log-streamer = ["hopeit.log-streamer==0.26.0rc3"]
+apps-visualizer = ["hopeit.apps-visualizer==0.26.0rc3"]
+apps-client = ["hopeit.apps-client==0.26.0rc3"]
+dataframes = ["hopeit.dataframes==0.26.0rc3"]
 
 [project.scripts]
 hopeit_server = "hopeit.cli.server:server"

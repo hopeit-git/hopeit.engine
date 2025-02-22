@@ -1,19 +1,20 @@
 [project]
 name = "client_example"
-version = "0.26.0rc1"
+version = "0.26.0rc3"
 
 description = "hopeit.engine Client Example App"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.0rc1",
-    "simple-example>=0.26.0rc1",
-    "hopeit.basic-auth>=0.26.0rc1",
-    "hopeit.apps-client>=0.26.0rc1",
+    "hopeit.engine>=0.26.0rc3",
+    "simple-example>=0.26.0rc3",
+    "hopeit.basic-auth>=0.26.0rc3",
+    "hopeit.apps-client>=0.26.0rc3",
 ]
 
 license = { text = "Apache 2" }
 authors = [
+    { name = "Leo Smerling & Pablo Canto", email = "contact@hopeit.com.ar" },
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
     { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
 ]
@@ -46,9 +47,6 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.setuptools.package-data]
-"hopeit.basic_auth" = ["py.typed"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["README.md"], content-type = "text/markdown" }
