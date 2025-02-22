@@ -34,7 +34,7 @@ jobs:
 
     - name: make lint
       run: |
-        make lint-${{ mattrix.module }}
+        make lint-${{ matrix.module }}
 #  & PID_CHECK_ENGINE=$!
 # make lint-plugins & PID_CHECK_PLUGINS=$!
 # make lint-apps & PID_CHECK_APPS=$!
@@ -52,7 +52,7 @@ jobs:
 
     - name: make test
       run: |
-        make test-${{ mattrix.module }}
+        make test-${{ matrix.module }}
 # & PID_TEST_ENGINE=$!
 # make test-plugins & PID_TEST_PLUGINS=$!
 # make test-apps & PID_TEST_APPS=$!
