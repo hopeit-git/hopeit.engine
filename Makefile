@@ -1,6 +1,6 @@
 SRC = $(wildcard src/*.py)
 
-.PHONY: env clean-env dev deps format lint test clean schemas dist-only
+.PHONY: env clean-env dev deps format lint test
 
 env:
 	uv venv --seed --python 3.12
@@ -145,42 +145,38 @@ update-examples-api:
 	bash apps/examples/dataframes-example/api/create_openapi_file.sh
 	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
 
-# run-simple-example:
-# 	export PYTHONPATH=apps/examples/simple-example/src && \
-# 	hopeit_server run \
-# 		--port=$(PORT) \
-# 		--start-streams \
-# 		--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json \
-# 		--api-file=apps/examples/simple-example/api/openapi.json
+run-simple-example:
+	uv run hopeit_server run \
+		--port=$(PORT) \
+		--start-streams \
+		--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json \
+		--api-file=apps/examples/simple-example/api/openapi.json
 
-# run-client-example:
-# 	export PYTHONPATH=apps/examples/simple-example/src && \
-# 	export HOPEIT_SIMPLE_EXAMPLE_HOSTS=$(HOSTS) && \
-# 	hopeit_server run \
-# 		--port=$(PORT) \
-# 		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/client-example/config/app-config.json \
-# 		--api-file=apps/examples/client-example/api/openapi.json
+run-client-example:
+	HOPEIT_SIMPLE_EXAMPLE_HOSTS=$(HOSTS) uv run hopeit_server run \
+		--port=$(PORT) \
+		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/client-example/config/app-config.json \
+		--api-file=apps/examples/client-example/api/openapi.json
 
-# run-apps-visualizer:
-# 	export HOPEIT_APPS_VISUALIZER_HOSTS=$(HOSTS) && \
-# 	hopeit_server run \
-# 		--port=$(PORT) \
-# 		--start-streams \
-# 		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json \
-# 		--api-file=plugins/ops/apps-visualizer/api/openapi.json
+run-apps-visualizer:
+	HOPEIT_APPS_VISUALIZER_HOSTS=$(HOSTS) uv run hopeit_server run \
+		--port=$(PORT) \
+		--start-streams \
+		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json \
+		--api-file=plugins/ops/apps-visualizer/api/openapi.json
 
-# run-log-streamer:
-# 	hopeit_server run \
-# 		--port=$(PORT) \
-# 		--start-streams \
-# 		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/log-streamer/config/plugin-config.json
+run-log-streamer:
+	uv run hopeit_server run \
+		--port=$(PORT) \
+		--start-streams \
+		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/log-streamer/config/plugin-config.json
 
-# start-redis:
-# 	cd docker && \
-# 	docker-compose up -d redis && \
-# 	cd ..
+start-redis:
+	cd docker && \
+	docker compose up -d redis && \
+	cd ..
 
-# stop-redis:
-# 	cd docker && \
-# 	docker-compose stop redis && \
-# 	cd ..
+stop-redis:
+	cd docker && \
+	docker compose stop redis && \
+	cd ..
