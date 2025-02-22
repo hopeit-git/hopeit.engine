@@ -1,13 +1,26 @@
-[build-system]
-requires = ["setuptools >= 64", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "hopeit.engine"
 description = "Hopeit Engine: Microservices with Streams"
-dynamic = ["version", "readme", "dependencies", "optional-dependencies"]
+
+dynamic = ["version", "readme"]
+
+dependencies = [
+    "pydantic>=2.10.6,<3",
+    "stringcase>=1.2.0",
+    "lz4>=4.4.3",
+    "PyJWT[crypto]>=2.10.1",
+    "deepdiff>=8.2.0",
+    "multidict>=6.1.0",
+    "aiohttp>=3.11.12,<4",
+    "aiohttp-cors>=0.7.0",
+    "aiohttp-swagger3>=0.10.0",
+    "gunicorn>=23.0.0",
+    "click>=8.1.8",
+]
+
 license = { text = "Apache 2" }
 authors = [
+    { name = "Leo Smerling & Pablo Canto", email = "contact@hopeit.com.ar" },
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
     { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
 ]
@@ -15,10 +28,10 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Intended Audience :: Developers",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Development Status :: 5 - Production/Stable",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",
@@ -27,7 +40,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Framework :: AsyncIO",
 ]
-requires-python = ">=3.9"
 
 [project.urls]
 "Homepage" = "https://github.com/hopeit-git/hopeit.engine"
@@ -39,17 +51,17 @@ requires-python = ">=3.9"
 [tool.setuptools]
 include-package-data = true
 
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.setuptools.package-data]
-"hopeit.app" = ["py.typed"]
-"hopeit.cli" = ["py.typed"]
-"hopeit.dataobjects" = ["py.typed"]
-"hopeit.server" = ["py.typed"]
-"hopeit.streams" = ["py.typed"]
-"hopeit.testing" = ["py.typed"]
-"hopeit.toolkit" = ["py.typed"]
+[project.optional-dependencies]
+web = []
+cli = []
+redis-streams = ["hopeit.redis-streams==0.26.0rc0"]
+redis-storage = ["hopeit.redis-storage==0.26.0rc0"]
+fs-storage = ["hopeit.fs-storage==0.26.0rc0"]
+config-manager = ["hopeit.config-manager==0.26.0rc0"]
+log-streamer = ["hopeit.log-streamer==0.26.0rc0"]
+apps-visualizer = ["hopeit.apps-visualizer==0.26.0rc0"]
+apps-client = ["hopeit.apps-client==0.26.0rc0"]
+dataframes = ["hopeit.dataframes==0.26.0rc0"]
 
 [project.scripts]
 hopeit_server = "hopeit.cli.server:server"
@@ -57,4 +69,4 @@ hopeit_openapi = "hopeit.cli.openapi:openapi"
 
 [tool.setuptools.dynamic]
 version = { attr = "hopeit.server.version.ENGINE_VERSION" }
-readme = { file = ["README.md"], content-type = "text/plain" }
+readme = { file = ["README.md"], content-type = "text/markdown" }

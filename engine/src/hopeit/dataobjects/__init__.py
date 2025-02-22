@@ -24,8 +24,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Dict, Type, TypeVar, Optional, Union, Any
 
-from pydantic import RootModel
-from pydantic.dataclasses import dataclass, Field as field
+from pydantic import RootModel, Field as field
+from pydantic.dataclasses import dataclass
 from pydantic.fields import FieldInfo
 
 
@@ -36,7 +36,6 @@ __all__ = [
     "dataobject",
     "DataObject",
     "copy_payload",
-    "payload",
     "dataclass",
     "field",
     "fields",

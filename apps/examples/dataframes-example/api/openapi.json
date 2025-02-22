@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.25",
+    "version": "0.26",
     "title": "Dataframes Example",
     "description": "Dataframes Example"
   },
   "paths": {
-    "/api/basic-auth/0x25/decode": {
+    "/api/basic-auth/0x26/decode": {
       "get": {
         "summary": "Basic Auth: Decode",
         "description": "Returns decoded auth info",
@@ -44,7 +44,7 @@
           }
         },
         "tags": [
-          "basic_auth.0x25"
+          "basic_auth.0x26"
         ],
         "security": [
           {
@@ -53,7 +53,7 @@
         ]
       }
     },
-    "/api/config-manager/0x25/runtime-apps-config": {
+    "/api/config-manager/0x26/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -109,11 +109,11 @@
           }
         },
         "tags": [
-          "config_manager.0x25"
+          "config_manager.0x26"
         ]
       }
     },
-    "/api/config-manager/0x25/cluster-apps-config": {
+    "/api/config-manager/0x26/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -169,11 +169,11 @@
           }
         },
         "tags": [
-          "config_manager.0x25"
+          "config_manager.0x26"
         ]
       }
     },
-    "/api/dataframes-example/0x25/prepare-data": {
+    "/api/dataframes-example/0x26/prepare-data": {
       "get": {
         "summary": "Prepare Data",
         "description": "Prepare Data",
@@ -211,7 +211,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x25"
+          "dataframes_example.0x26"
         ],
         "security": [
           {
@@ -220,7 +220,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x25/train-model": {
+    "/api/dataframes-example/0x26/train-model": {
       "post": {
         "summary": "Training Pipeline",
         "description": "Training Pipeline",
@@ -269,7 +269,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x25"
+          "dataframes_example.0x26"
         ],
         "security": [
           {
@@ -278,7 +278,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x25/predict": {
+    "/api/dataframes-example/0x26/predict": {
       "post": {
         "summary": "Predict",
         "description": "Predict",
@@ -336,7 +336,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x25"
+          "dataframes_example.0x26"
         ],
         "security": [
           {
@@ -345,7 +345,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x25/predict-offline": {
+    "/api/dataframes-example/0x26/predict-offline": {
       "post": {
         "summary": "Predict Offline",
         "description": "Predict Offline",
@@ -403,7 +403,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x25"
+          "dataframes_example.0x26"
         ],
         "security": [
           {
@@ -412,7 +412,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x25/offline-prediction-results": {
+    "/api/dataframes-example/0x26/offline-prediction-results": {
       "post": {
         "summary": "Offline Prediction Results",
         "description": "Offline Prediction Results",
@@ -464,7 +464,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x25"
+          "dataframes_example.0x26"
         ],
         "security": [
           {
@@ -473,7 +473,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x25/experiment": {
+    "/api/dataframes-example/0x26/experiment": {
       "get": {
         "summary": "Experiment",
         "description": "Experiment",
@@ -548,7 +548,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x25"
+          "dataframes_example.0x26"
         ],
         "security": [
           {
@@ -557,7 +557,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x25/basic-auth/0x25/login": {
+    "/api/dataframes-example/0x26/basic-auth/0x26/login": {
       "get": {
         "summary": "Basic Auth: Login",
         "description": "Handles users login using basic-auth\nand generate access tokens for external services invoking apps\nplugged in with basic-auth plugin.",
@@ -605,7 +605,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x25"
+          "dataframes_example.0x26"
         ],
         "security": [
           {
@@ -614,7 +614,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x25/basic-auth/0x25/refresh": {
+    "/api/dataframes-example/0x26/basic-auth/0x26/refresh": {
       "get": {
         "summary": "Basic Auth: Refresh",
         "description": "This event can be used for obtain new access token and update refresh token (http cookie),\nwith no need to re-login the user if there is a valid refresh token active.",
@@ -662,16 +662,16 @@
           }
         },
         "tags": [
-          "dataframes_example.0x25"
+          "dataframes_example.0x26"
         ],
         "security": [
           {
-            "dataframes_example.0x25.refresh": []
+            "dataframes_example.0x26.refresh": []
           }
         ]
       }
     },
-    "/api/dataframes-example/0x25/basic-auth/0x25/logout": {
+    "/api/dataframes-example/0x26/basic-auth/0x26/logout": {
       "get": {
         "summary": "Basic Auth: Logout",
         "description": "Invalidates previous refresh cookies.",
@@ -728,11 +728,11 @@
           }
         },
         "tags": [
-          "dataframes_example.0x25"
+          "dataframes_example.0x26"
         ],
         "security": [
           {
-            "dataframes_example.0x25.refresh": []
+            "dataframes_example.0x26.refresh": []
           }
         ]
       }
@@ -1322,7 +1322,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.25.4",
+            "default": "0.26.0rc0",
             "title": "Engine Version",
             "type": "string"
           }
@@ -1846,10 +1846,10 @@
         "type": "http",
         "scheme": "bearer"
       },
-      "dataframes_example.0x25.refresh": {
+      "dataframes_example.0x26.refresh": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "dataframes_example.0x25.refresh"
+        "name": "dataframes_example.0x26.refresh"
       }
     }
   },

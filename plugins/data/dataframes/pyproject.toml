@@ -4,10 +4,21 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hopeit.dataframes"
-description = "Hopeit Engine Dataframes Toolkit"
-dynamic = ["version", "readme", "dependencies", "optional-dependencies"]
+version = "0.26.0rc0"
+
+description = "Hopeit Engine Dataframes for Pandas"
+dynamic = ["readme"]
+
+dependencies = [
+    "hopeit.engine>=0.26.0rc0",
+    "hopeit.fs-storage>=0.26.0rc0",
+    "pandas>=2.2.3",
+    "numpy>=1.26.4"
+]
+
 license = { text = "Apache 2" }
 authors = [
+    { name = "Leo Smerling & Pablo Canto", email = "contact@hopeit.com.ar" },
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
     { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
 ]
@@ -15,10 +26,11 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Intended Audience :: Developers",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Development Status :: 5 - Production/Stable",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
@@ -26,8 +38,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Framework :: AsyncIO",
 ]
-requires-python = ">=3.9"
-
 
 [project.urls]
 "Homepage" = "https://github.com/hopeit-git/hopeit.engine"
@@ -42,10 +52,5 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.setuptools.package-data]
-"hopeit.dataframes" = ["py.typed"]
-"hopeit.dataframes.serialization" = ["py.typed"]
-"hopeit.dataframes.setup" = ["py.typed"]
-
 [tool.setuptools.dynamic]
-readme = { file = ["README.md"], content-type = "text/plain" }
+readme = { file = ["README.md"], content-type = "text/markdown" }

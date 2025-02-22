@@ -1,13 +1,18 @@
-[build-system]
-requires = ["setuptools >= 64", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "hopeit.log-streamer"
+version = "0.26.0rc0"
+
 description = "Hopeit Engine Log Streamer Plugin"
-dynamic = ["version", "readme", "dependencies"]
+dynamic = ["readme"]
+
+dependencies = [
+    "hopeit.engine>=0.26.0rc0",
+    "watchdog>=6.0.0",
+]
+
 license = { text = "Apache 2" }
 authors = [
+    { name = "Leo Smerling & Pablo Canto", email = "contact@hopeit.com.ar" },
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
     { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
 ]
@@ -15,10 +20,10 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Intended Audience :: Developers",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Development Status :: 5 - Production/Stable",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",
@@ -27,7 +32,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Framework :: AsyncIO",
 ]
-requires-python = ">=3.9"
 
 [project.urls]
 "Homepage" = "https://github.com/hopeit-git/hopeit.engine"
@@ -42,8 +46,5 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.setuptools.package-data]
-"hopeit.log_streamer" = ["py.typed"]
-
 [tool.setuptools.dynamic]
-readme = { file = ["README.md"], content-type = "text/plain" }
+readme = { file = ["README.md"], content-type = "text/markdown" }

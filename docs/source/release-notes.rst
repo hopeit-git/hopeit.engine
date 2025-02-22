@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+Version 0.26.0
+______________
+
+- Migrated build system to `uv`
+
+
 Version 0.25.4
 ______________
 
