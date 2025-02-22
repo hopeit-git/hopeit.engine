@@ -1,6 +1,6 @@
 # This workflow will install hopeit.engine dev Python dependencies, run tests in multiple version of Python
 
-name: hopeit.engine QA
+name: hopeit.engine CI
 
 on:
   push:
@@ -12,30 +12,30 @@ on:
     - dev
 
 jobs:
-  build:
+  ci-checks:
 
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.12", "3.11", "3.10", "3.9"]
+        python-version: ["3.13", "3.12"] #, "3.11", "3.10", "3.10"]
       max-parallel: 5
 
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+    - name: Install the latest version of uv
+      uses: astral-sh/setup-uv@v3
       with:
-        python-version: ${{ matrix.python-version }}
+        version: "latest"
     
-    - name: Install modules
-      run: make ci-setup
+    - name: ci-deps
+      run: PYTHONVERSION=${{ matrix.python-version }} make ci-deps
 
     - name: Linting
       run: |
-        make check-engine & PID_CHECK_ENGINE=$!
-        make check-plugins & PID_CHECK_PLUGINS=$!
-        make check-apps & PID_CHECK_APPS=$!
+        make lint-engine & PID_CHECK_ENGINE=$!
+        make lint-plugins & PID_CHECK_PLUGINS=$!
+        make lint-apps & PID_CHECK_APPS=$!
         wait $PID_CHECK_ENGINE || CHECK_ENGINE_STATUS=$?
         wait $PID_CHECK_PLUGINS || CHECK_PLUGINS_STATUS=$?
         wait $PID_CHECK_APPS || CHECK_APPS_STATUS=$?

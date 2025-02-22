@@ -1,6 +1,6 @@
 SRC = $(wildcard src/*.py)
 
-.PHONY: env clean-env dev deps check test install clean schemas dist-only
+.PHONY: env clean-env dev deps format lint test clean schemas dist-only
 
 env:
 	uv venv --seed --python 3.12
@@ -16,6 +16,11 @@ dev: env
 	uv pip install -r pyproject.toml
 	uv pip install -U --no-deps -e ./engine
 	uv pip install -U --no-deps -e ./plugins/storage/fs
+
+ci-deps:
+	uv venv --seed --python $(PYTHONVERSION)
+	uv sync --dev
+	uv pip install -r pyproject.toml
 
 # deps:
 # 	cd engine && \
@@ -38,39 +43,39 @@ dev: env
 # 	make install-plugins && \
 # 	make install-examples
 
-# format-module:
-# 	ruff format $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/ && \
-# 	ruff check $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/ --fix
+format-module:
+	uv run ruff format $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/
+	uv run ruff check $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/ --fix
 
-# format:
-# 	make MODULEFOLDER=engine format-module && \
-# 	make MODULEFOLDER=apps/examples/simple-example format-module && \
-# 	make MODULEFOLDER=apps/examples/client-example format-module && \
+format:
+	make MODULEFOLDER=engine format-module
+# 	make MODULEFOLDER=apps/examples/simple-example format-module
+# 	make MODULEFOLDER=apps/examples/client-example format-module
 # 	make MODULEFOLDER=apps/examples/dataframes-example format-module
-# 	make MODULEFOLDER=plugins/auth/basic-auth format-module && \
-# 	make MODULEFOLDER=plugins/clients/apps-client format-module && \
-# 	make MODULEFOLDER=plugins/data/dataframes format-module && \
-# 	make MODULEFOLDER=plugins/ops/apps-visualizer format-module && \
-# 	make MODULEFOLDER=plugins/ops/config-manager format-module && \
-# 	make MODULEFOLDER=plugins/ops/log-streamer format-module && \
-# 	make MODULEFOLDER=plugins/storage/fs format-module && \
-# 	make MODULEFOLDER=plugins/storage/redis format-module && \
+# 	make MODULEFOLDER=plugins/auth/basic-auth format-module
+# 	make MODULEFOLDER=plugins/clients/apps-client format-module
+# 	make MODULEFOLDER=plugins/data/dataframes format-module
+# 	make MODULEFOLDER=plugins/ops/apps-visualizer format-module
+# 	make MODULEFOLDER=plugins/ops/config-manager format-module
+# 	make MODULEFOLDER=plugins/ops/log-streamer format-module
+	make MODULEFOLDER=plugins/storage/fs format-module
+# 	make MODULEFOLDER=plugins/storage/redis format-module
 # 	make MODULEFOLDER=plugins/streams/redis format-module
 
-check-engine:
-	uv run ruff format --check engine/src/ engine/test/ && \
-	uv run ruff check engine/src/ engine/test/ && \
-	MYPYPATH=engine/src/ uv run mypy --namespace-packages -p hopeit && \
-	MYPYPATH=engine/src:engine/test/ uv run mypy --namespace-packages engine/test/unit/ && \
+lint-engine:
+	uv run ruff format --check engine/src/ engine/test/
+	uv run ruff check engine/src/ engine/test/
+	MYPYPATH=engine/src/ uv run mypy --namespace-packages -p hopeit
+	MYPYPATH=engine/src:engine/test/ uv run mypy --namespace-packages engine/test/unit/
 	MYPYPATH=engine/src:engine/test/ uv run mypy --namespace-packages engine/test/integration/
 
-check-plugin:
+lint-plugin:
 	uv run ruff format --check $(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
 	uv run ruff check $(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
 	MYPYPATH=$(PLUGINFOLDER)/src/ uv run mypy --namespace-packages -p hopeit
 	MYPYPATH=$(PLUGINFOLDER)/src:$(PLUGINFOLDER)/test uv run mypy --namespace-packages $(PLUGINFOLDER)/test/
 
-check-plugins:
+lint-plugins:
 # 	make PLUGINFOLDER=plugins/auth/basic-auth check-plugin
 # 	make PLUGINFOLDER=plugins/clients/apps-client check-plugin
 # 	make PLUGINFOLDER=plugins/data/dataframes check-plugin
@@ -81,17 +86,18 @@ check-plugins:
 # 	make PLUGINFOLDER=plugins/storage/redis check-plugin
 # 	make PLUGINFOLDER=plugins/streams/redis check-plugin
 
-# check-app:
+lint-app:
+	echo 0
 # 	cd $(APPFOLDER) && \
 # 	ruff format src/ test/ --check && \
 # 	ruff check src/ test/ && \
 # 	MYPYPATH=src/ mypy --namespace-packages src/ && \
 # 	MYPYPATH=src/ mypy --namespace-packages test/
 
-# check-apps:
-# 	make APPFOLDER=apps/examples/simple-example check-app && \
-# 	make APPFOLDER=apps/examples/client-example check-app && \
-# 	make APPFOLDER=apps/examples/dataframes-example check-app
+lint-apps:
+	make APPFOLDER=apps/examples/simple-example check-app && \
+	make APPFOLDER=apps/examples/client-example check-app && \
+	make APPFOLDER=apps/examples/dataframes-example check-app
 
 # check: check-engine check-plugins check-apps
 
@@ -112,12 +118,13 @@ test-plugins:
 # 	make PLUGINFOLDER=plugins/streams/redis test-plugin
 # 	make PLUGINFOLDER=plugins/ops/log-streamer test-plugin
 
-# test-app:
+test-app:
+	echo 0
 # 	PYTHONPATH=$(APPFOLDER)/test pytest -v --cov-fail-under=90 --cov-report=term --cov=$(APPFOLDER)/src/ $(APPFOLDER)/test/
 
-# test-apps:
-# 	make APPFOLDER=apps/examples/simple-example test-app && \
-# 	make APPFOLDER=apps/examples/client-example test-app
+test-apps:
+	make APPFOLDER=apps/examples/simple-example test-app && \
+	make APPFOLDER=apps/examples/client-example test-app
 
 # test: test-engine test-plugins test-apps
 
