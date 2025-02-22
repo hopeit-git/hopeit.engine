@@ -1,40 +1,15 @@
-[build-system]
-requires = ["setuptools >= 64", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "hopeit.apps-visualizer"
-description = "Hopeit Engine Apps Visualizer Plugin"
-dynamic = ["version", "readme", "dependencies"]
-license = { text = "Apache 2" }
-authors = [
-    { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
-    { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
-]
-classifiers = [
-    "License :: OSI Approved :: Apache Software License",
-    "Intended Audience :: Developers",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Development Status :: 5 - Production/Stable",
-    "Operating System :: POSIX :: Linux",
-    "Operating System :: MacOS :: MacOS X",
-    "Operating System :: Microsoft :: Windows",
-    "Topic :: Internet :: WWW/HTTP",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Framework :: AsyncIO",
-]
-requires-python = ">=3.9"
+version = "0.26.0rc0"
 
-[project.urls]
-"Homepage" = "https://github.com/hopeit-git/hopeit.engine"
-"CI: GitHub Actions" = "https://github.com/hopeit-git/hopeit.engine/actions?query=workflow"
-"Docs: RTD" = "https://hopeitengine.readthedocs.io/en/latest/"
-"GitHub: issues" = "https://github.com/hopeit-git/hopeit.engine/issues"
-"GitHub: repo" = "https://github.com/hopeit-git/hopeit.engine"
+description = "Hopeit Engine Apps Visualizer Plugin"
+dynamic = ["readme"]
+
+dependencies = [
+    "hopeit.engine>=0.26.0rc0",
+    "hopeit.config-manager>=0.26.0rc0",
+    "hopeit.log-streamer>=0.26.0.rc0",
+]
 
 [tool.setuptools]
 include-package-data = true
@@ -43,11 +18,7 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-"hopeit.apps_visualizer" = ["py.typed"]
-"hopeit.apps_visualizer.apps" = ["py.typed"]
-"hopeit.apps_visualizer.event_stats" = ["py.typed"]
-"hopeit.apps_visualizer.graphs" = ["py.typed"]
-"hopeit.apps_visualizer.site" = ["*.html", "py.typed"]
+"hopeit.basic_auth" = ["py.typed"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["README.md"], content-type = "text/markdown" }

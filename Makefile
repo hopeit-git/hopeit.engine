@@ -60,7 +60,7 @@ format:
 	make MODULEFOLDER=plugins/auth/basic-auth format-module
 	make MODULEFOLDER=plugins/clients/apps-client format-module
 	make MODULEFOLDER=plugins/data/dataframes format-module
-# 	make MODULEFOLDER=plugins/ops/apps-visualizer format-module
+	make MODULEFOLDER=plugins/ops/apps-visualizer format-module
 	make MODULEFOLDER=plugins/ops/config-manager format-module
 	make MODULEFOLDER=plugins/ops/log-streamer format-module
 	make MODULEFOLDER=plugins/storage/fs format-module
@@ -84,7 +84,7 @@ lint-plugins:
 	make PLUGINFOLDER=plugins/auth/basic-auth lint-plugin
 	make PLUGINFOLDER=plugins/clients/apps-client lint-plugin
 	make PLUGINFOLDER=plugins/data/dataframes lint-plugin
-# 	make PLUGINFOLDER=plugins/ops/apps-visualizer lint-plugin
+	make PLUGINFOLDER=plugins/ops/apps-visualizer lint-plugin
 	make PLUGINFOLDER=plugins/ops/config-manager lint-plugin
 	make PLUGINFOLDER=plugins/ops/log-streamer lint-plugin
 	make PLUGINFOLDER=plugins/storage/fs lint-plugin
@@ -114,7 +114,7 @@ test-plugins:
 	make PLUGINFOLDER=plugins/auth/basic-auth test-plugin
 	make PLUGINFOLDER=plugins/clients/apps-client test-plugin
 	make PLUGINFOLDER=plugins/data/dataframes test-plugin
-# 	make PLUGINFOLDER=plugins/ops/apps-visualizer test-plugin
+	make PLUGINFOLDER=plugins/ops/apps-visualizer test-plugin
 	make PLUGINFOLDER=plugins/ops/config-manager test-plugin
 	make PLUGINFOLDER=plugins/storage/fs test-plugin
 # 	make PLUGINFOLDER=plugins/storage/redis test-plugin
@@ -122,11 +122,10 @@ test-plugins:
 	make PLUGINFOLDER=plugins/ops/log-streamer test-plugin
 
 test-app:
-	echo 0
-# 	PYTHONPATH=$(APPFOLDER)/test pytest -v --cov-fail-under=90 --cov-report=term --cov=$(APPFOLDER)/src/ $(APPFOLDER)/test/
+	PYTHONPATH=$(APPFOLDER)/src:$(APPFOLDER)/test uv run pytest -v --cov-fail-under=90 --cov-report=term --cov=$(APPFOLDER)/src/ $(APPFOLDER)/test/
 
 test-apps:
-	make APPFOLDER=apps/examples/simple-example test-app && \
+	make APPFOLDER=apps/examples/simple-example test-app
 	make APPFOLDER=apps/examples/client-example test-app
 
 # test: test-engine test-plugins test-apps
