@@ -76,15 +76,15 @@ lint-plugin:
 	MYPYPATH=$(PLUGINFOLDER)/src:$(PLUGINFOLDER)/test uv run mypy --namespace-packages $(PLUGINFOLDER)/test/
 
 lint-plugins:
-# 	make PLUGINFOLDER=plugins/auth/basic-auth check-plugin
-# 	make PLUGINFOLDER=plugins/clients/apps-client check-plugin
-# 	make PLUGINFOLDER=plugins/data/dataframes check-plugin
-# 	make PLUGINFOLDER=plugins/ops/apps-visualizer check-plugin
-# 	make PLUGINFOLDER=plugins/ops/config-manager check-plugin
-# 	make PLUGINFOLDER=plugins/ops/log-streamer check-plugin
-	make PLUGINFOLDER=plugins/storage/fs check-plugin
-# 	make PLUGINFOLDER=plugins/storage/redis check-plugin
-# 	make PLUGINFOLDER=plugins/streams/redis check-plugin
+# 	make PLUGINFOLDER=plugins/auth/basic-auth lint-plugin
+# 	make PLUGINFOLDER=plugins/clients/apps-client lint-plugin
+# 	make PLUGINFOLDER=plugins/data/dataframes lint-plugin
+# 	make PLUGINFOLDER=plugins/ops/apps-visualizer lint-plugin
+# 	make PLUGINFOLDER=plugins/ops/config-manager lint-plugin
+# 	make PLUGINFOLDER=plugins/ops/log-streamer lint-plugin
+	make PLUGINFOLDER=plugins/storage/fs lint-plugin
+# 	make PLUGINFOLDER=plugins/storage/redis lint-plugin
+# 	make PLUGINFOLDER=plugins/streams/redis lint-plugin
 
 lint-app:
 	echo 0
@@ -95,9 +95,9 @@ lint-app:
 # 	MYPYPATH=src/ mypy --namespace-packages test/
 
 lint-apps:
-	make APPFOLDER=apps/examples/simple-example check-app && \
-	make APPFOLDER=apps/examples/client-example check-app && \
-	make APPFOLDER=apps/examples/dataframes-example check-app
+	make APPFOLDER=apps/examples/simple-example lint-app
+	make APPFOLDER=apps/examples/client-example lint-app
+	make APPFOLDER=apps/examples/dataframes-example lint-app
 
 # check: check-engine check-plugins check-apps
 

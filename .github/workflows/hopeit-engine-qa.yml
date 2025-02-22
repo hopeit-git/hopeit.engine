@@ -23,15 +23,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install the latest version of uv
+    - name: install uv
       uses: astral-sh/setup-uv@v3
       with:
         version: "latest"
     
-    - name: ci-deps
+    - name: make ci-deps
       run: PYTHONVERSION=${{ matrix.python-version }} make ci-deps
 
-    - name: Linting
+    - name: make lint
       run: |
         make lint-engine & PID_CHECK_ENGINE=$!
         make lint-plugins & PID_CHECK_PLUGINS=$!
@@ -48,7 +48,7 @@ jobs:
           exit 1
         fi
 
-    - name: Tests
+    - name: make test
       run: |
         make test-engine & PID_TEST_ENGINE=$!
         make test-plugins & PID_TEST_PLUGINS=$!
