@@ -30,8 +30,22 @@ classifiers = [
 ]
 dependencies = [
     "hopeit.engine",
+    "hopeit.basic-auth",
+    "hopeit.dataframes",
+    "hopeit.config-manager",
+    "hopeit.log-streamer",
     "hopeit.fs-storage",
+    "simple-example",
 ]
+
+[tool.uv.sources]
+hopeit-engine = { path="engine" } # workspace = true }
+hopeit-basic-auth = { path="plugins/auth/basic-auth" }
+hopeit-dataframes = { path="plugins/data/dataframes" }
+hopeit-config-manager = { path="plugins/ops/config-manager" }
+hopeit-log-streamer = { path="plugins/ops/log-streamer" }
+hopeit-fs-storage = { path="plugins/storage/fs" } # workspace = true }
+simple-example = { path="apps/examples/simple-example" }
 
 [project.urls]
 "Homepage" = "https://github.com/hopeit-git/hopeit.engine"
@@ -56,10 +70,10 @@ dev-dependencies = [
     "isort>=5.13.2",
     "aiofiles>=24.1.0",
     "nest-asyncio>=1.6.0",
-    # Type stubs
+    # type stubs
     "types-aiofiles>=24.1.0",
     "types-redis>=4.6.0",
-    # Plugin test dependencies
+    # web test dependencies
     "uvloop>=0.21.0",
     # data/dataframes plugin tests
     "pandas-stubs>=2.2.3",
@@ -68,14 +82,15 @@ dev-dependencies = [
     "scikit-learn>=1.6.1",
 ]
 
-[tool.uv.sources]
-hopeit-engine = { path="engine" } # workspace = true }
-hopeit-fs-storage = { path="plugins/storage/fs" } # workspace = true }
-
 [tool.pyright]
 include = [
     "engine",
+    "plugins/auth/bacis-auth",
+    "plugins/data/dataframes",
+    "plugins/ops/config-manager",
+    "plugins/ops/log-streamer",
     "plugins/storage/fs",
+    "apps/examples/simple-example",
 ]
 
 [tool.ruff]

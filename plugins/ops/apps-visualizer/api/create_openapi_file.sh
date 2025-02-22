@@ -1,7 +1,5 @@
 #!/bin/bash
-export PYTHONPATH=./plugins/ops/apps-visualizer/src/ && \
-export HOPEIT_APPS_VISUALIZER_HOSTS="in-process" && \
-hopeit_openapi create \
+PYTHONPATH=./plugins/ops/apps-visualizer/src/ HOPEIT_APPS_VISUALIZER_HOSTS="in-process" hopeit_openapi create \
 --title="Simple Example" \
 --description="Simple Example" \
 --api-version="$(python -m hopeit.server.version APPS_API_VERSION)" \

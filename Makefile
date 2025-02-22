@@ -15,6 +15,8 @@ clean-env:
 dev: env
 	uv pip install -r pyproject.toml
 	uv pip install -U --no-deps -e ./engine
+	uv pip install -U --no-deps -e ./plugins/auth/basic-auth
+	uv pip install -U --no-deps -e ./plugins/ops/config-manager
 	uv pip install -U --no-deps -e ./plugins/storage/fs
 
 ci-deps:
@@ -52,7 +54,7 @@ format:
 # 	make MODULEFOLDER=apps/examples/simple-example format-module
 # 	make MODULEFOLDER=apps/examples/client-example format-module
 # 	make MODULEFOLDER=apps/examples/dataframes-example format-module
-# 	make MODULEFOLDER=plugins/auth/basic-auth format-module
+	make MODULEFOLDER=plugins/auth/basic-auth format-module
 # 	make MODULEFOLDER=plugins/clients/apps-client format-module
 # 	make MODULEFOLDER=plugins/data/dataframes format-module
 # 	make MODULEFOLDER=plugins/ops/apps-visualizer format-module
@@ -76,7 +78,7 @@ lint-plugin:
 	MYPYPATH=$(PLUGINFOLDER)/src:$(PLUGINFOLDER)/test uv run mypy --namespace-packages $(PLUGINFOLDER)/test/
 
 lint-plugins:
-# 	make PLUGINFOLDER=plugins/auth/basic-auth lint-plugin
+	make PLUGINFOLDER=plugins/auth/basic-auth lint-plugin
 # 	make PLUGINFOLDER=plugins/clients/apps-client lint-plugin
 # 	make PLUGINFOLDER=plugins/data/dataframes lint-plugin
 # 	make PLUGINFOLDER=plugins/ops/apps-visualizer lint-plugin
@@ -102,13 +104,13 @@ lint-apps:
 # check: check-engine check-plugins check-apps
 
 test-engine:
-	PYTHONPATH=engine/test uv run pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
+	PYTHONPATH=engine/src:engine/test uv run pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
 
 test-plugin:
-	uv run pytest -v --cov-fail-under=90 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
+	PYTHONPATH=$(PLUGINFOLDER)/src uv run pytest -v --cov-fail-under=90 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/unit/
 
 test-plugins:
-# 	make PLUGINFOLDER=plugins/auth/basic-auth test-plugin
+	make PLUGINFOLDER=plugins/auth/basic-auth test-plugin
 # 	make PLUGINFOLDER=plugins/clients/apps-client test-plugin
 # 	make PLUGINFOLDER=plugins/data/dataframes test-plugin
 # 	make PLUGINFOLDER=plugins/ops/apps-visualizer test-plugin
@@ -188,11 +190,11 @@ pypi-test:
 # 	pip install twine && \
 # 	python -m twine upload -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --repository testpypi $(PLUGINFOLDER)/dist/*
 
-# update-examples-api:
-# 	bash apps/examples/simple-example/api/create_openapi_file.sh && \
-# 	bash apps/examples/client-example/api/create_openapi_file.sh && \
-# 	bash apps/examples/dataframes-example/api/create_openapi_file.sh && \
-# 	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
+update-examples-api:
+	bash apps/examples/simple-example/api/create_openapi_file.sh
+	bash apps/examples/client-example/api/create_openapi_file.sh
+	bash apps/examples/dataframes-example/api/create_openapi_file.sh
+	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
 
 # install-plugins: install
 # 	make PLUGINFOLDER=plugins/auth/basic-auth install-plugin && \

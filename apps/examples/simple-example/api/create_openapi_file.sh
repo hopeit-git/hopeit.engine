@@ -1,6 +1,5 @@
 #!/bin/bash
-export PYTHONPATH=./apps/examples/simple-example/src && \
-hopeit_openapi create \
+PYTHONPATH=./apps/examples/simple-example/src hopeit_openapi create \
 --title="Simple Example" \
 --description="Simple Example" \
 --api-version="$(python -m hopeit.server.version APPS_API_VERSION)" \
