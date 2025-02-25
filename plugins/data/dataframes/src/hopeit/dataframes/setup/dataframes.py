@@ -32,5 +32,6 @@ def register_serialization(settings: DatasetSerialization):
         protocol=settings.protocol,
         location=settings.location,
         partition_dateformat=settings.partition_dateformat,
+        storage_settings=settings.storage_settings,
     )
     setattr(Dataset, "_Dataset__storage", storage)

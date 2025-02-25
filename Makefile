@@ -24,6 +24,10 @@ dev: env
 	uv pip install -U --no-deps -e ./plugins/storage/fs
 	uv pip install -U --no-deps -e ./plugins/storage/redis
 	uv pip install -U --no-deps -e ./plugins/streams/redis
+	uv pip install -U --no-deps -e ./apps/examples/simple-example
+	uv pip install -U --no-deps -e ./apps/examples/client-example
+	uv pip install -U --no-deps -e ./apps/examples/dataframes-example
+
 
 ci-deps:
 	uv venv --seed --python $(PYTHONVERSION)

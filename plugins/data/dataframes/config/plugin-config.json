@@ -10,7 +10,11 @@
     "dataset_serialization": {
       "protocol": "hopeit.dataframes.serialization.files.DatasetFileStorage",
       "location": "apps/examples/dataframes-example/data/{auto}",
-      "partition_dateformat": "%Y/%m/%d/%H/"
+      "partition_dateformat": "%Y/%m/%d/%H/",
+      "storage_settings": {
+        "compression": "zstd",
+        "compression_level": 22
+      }
     }
   },
   "events": {

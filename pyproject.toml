@@ -111,6 +111,7 @@ include = [
     "apps/examples/client-example",
     "apps/examples/dataframes-example",
 ]
+reportArgumentType = false
 
 [tool.ruff]
 line-length = 100
