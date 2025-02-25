@@ -11,7 +11,7 @@ DataFrameType = TypeVar("DataFrameType")
 
 
 class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
-    def __init__(self, datatype: Type[DataBlockType], df: pd.DataFrame):
+    def __init__(self, datatype: Type[DataBlockType], df: pd.DataFrame) -> None:
         self.datatype = datatype
         self.df = df
 
@@ -132,7 +132,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             ) from e
 
     @classmethod
-    def _adapt_to_schema(cls, datablock: DataBlockType, keys: list[str], df: pd.DataFrame):
+    def _adapt_to_schema(cls, datablock: DataBlockType, keys: list[str], df: pd.DataFrame) -> None:
         for key in keys:
             datatype = find_dataframe_type(getattr(datablock, key).datatype)  # type: ignore[var-annotated]
             valid_df = datatype._from_df(df)._df

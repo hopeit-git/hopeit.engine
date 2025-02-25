@@ -26,11 +26,12 @@ def setup(payload: None, context: EventContext) -> None:
     register_serialization(settings)
 
 
-def register_serialization(settings: DatasetSerialization):
+def register_serialization(settings: DatasetSerialization) -> None:
     impl = find_protocol_impl(settings.protocol)
     storage = impl(
         protocol=settings.protocol,
         location=settings.location,
         partition_dateformat=settings.partition_dateformat,
+        storage_settings=settings.storage_settings,
     )
     setattr(Dataset, "_Dataset__storage", storage)

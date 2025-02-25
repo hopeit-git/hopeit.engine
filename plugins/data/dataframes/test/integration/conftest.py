@@ -247,7 +247,7 @@ def sample_pandas_df() -> pd.DataFrame:
 
 
 @pytest.fixture
-def plugin_config() -> EventContext:
+def plugin_config() -> AppConfig:
     return AppConfig(
         app=AppDescriptor(name="hopeit.dataframes.test", version="test"),
         engine=AppEngineConfig(
@@ -258,6 +258,10 @@ def plugin_config() -> EventContext:
                 "protocol": "hopeit.dataframes.serialization.files.DatasetFileStorage",
                 "location": "/tmp/hopeit/dataframes/test",
                 "partition_dateformat": "%Y/%m/%d/%H/",
+                "storage_settings": {
+                    "compression": "zstd",
+                    "compression_level": 22,
+                },
             }
         },
         events={

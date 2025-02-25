@@ -6,6 +6,11 @@ ______________
 
 - Migrated build system to `uv`
 
+- Plugins:
+  
+  - Dataframes:
+    - Support configurable compression settings for parquet storage (pyarrow)
+
 
 Version 0.25.4
 ______________

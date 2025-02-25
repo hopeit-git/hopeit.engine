@@ -124,7 +124,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(self, **series: pd.Series):  # pylint: disable=bad-staticmethod-argument
+    def __init_from_series__(self, **series: pd.Series) -> None:  # pylint: disable=bad-staticmethod-argument
         df = pd.DataFrame(series)
         df.index.name = None  # Removes index name to avoid colisions with series name
         if self.__data_object__["validate"]:
@@ -240,9 +240,10 @@ def dataframe(
             return amended_class
         return cls
 
-    def add_dataframe_metadata(cls):
+    def add_dataframe_metadata(cls) -> None:
         serialized_fields = {k: (v.annotation, v) for k, v in fields(cls).items()}
-        dataobject_type = create_model(cls.__name__ + "DataObject", **serialized_fields)
+        dataobject_name = str(cls.__name__) + "DataObject"
+        dataobject_type = create_model(dataobject_name, **serialized_fields)  # type: ignore[call-overload]
         dataobject_type = dataobject(dataobject_type, unsafe=True)
 
         setattr(cls, "DataObject", dataobject_type)
@@ -255,7 +256,7 @@ def dataframe(
             ),
         )
 
-    def add_dataobject_annotations(cls, unsafe: bool, validate: bool, schema: bool):
+    def add_dataobject_annotations(cls, unsafe: bool, validate: bool, schema: bool) -> None:
         setattr(
             cls,
             "__data_object__",

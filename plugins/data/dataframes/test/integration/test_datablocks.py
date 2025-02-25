@@ -1,3 +1,4 @@
+from typing import cast
 from hopeit.dataframes.datablocks import TempDataBlock
 import numpy as np
 import pandas as pd
@@ -11,11 +12,12 @@ from conftest import (
     MyDataBlockItem,
     Part1,
     Part2,
+    Part2Compat,
     setup_serialization_context,
 )
 
 
-async def test_datablock_creation_and_load(plugin_config, datablock_df):
+async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
     datablock = await DataBlocks.from_df(MyDataBlock, datablock_df, block_id="b1", block_field=42)
@@ -98,22 +100,24 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df):
     )
 
 
-async def test_tempdatablock(datablock_df):
-    temp_datablock = TempDataBlock(MyDataBlock, datablock_df)
+async def test_tempdatablock(datablock_df) -> None:
+    temp_datablock: TempDataBlock[MyDataBlock, MyDataBlockItem] = TempDataBlock(
+        MyDataBlock, datablock_df
+    )
     dataobjects = temp_datablock.to_dataobjects(MyDataBlockItem, normalize_null_values=True)
 
     assert dataobjects == [
         MyDataBlockItem(
             block_id="b1",
             block_field=42,
-            part1=Part1.DataObject(field0="item1", field1="f11", field2=2.1),
-            part2=Part2.DataObject(field0="item1", field3="f31", field4=4.1, field5_opt=5.1),
+            part1=Part1.DataObject(field0="item1", field1="f11", field2=2.1),  # type: ignore[attr-defined]
+            part2=Part2.DataObject(field0="item1", field3="f31", field4=4.1, field5_opt=5.1),  # type: ignore[attr-defined]
         ),
         MyDataBlockItem(
             block_id="b1",
             block_field=42,
-            part1=Part1.DataObject(field0="item2", field1="f12", field2=2.2),
-            part2=Part2.DataObject(field0="item2", field3="f32", field4=4.2, field5_opt=None),
+            part1=Part1.DataObject(field0="item2", field1="f12", field2=2.2),  # type: ignore[attr-defined]
+            part2=Part2.DataObject(field0="item2", field3="f32", field4=4.2, field5_opt=None),  # type: ignore[attr-defined]
         ),
     ]
 
@@ -122,7 +126,7 @@ async def test_tempdatablock(datablock_df):
     pd.testing.assert_frame_equal(datablock_df, new_datablock.df)
 
 
-async def test_schema_evolution_compatible(plugin_config, datablock_df):
+async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
     datablock: MyDataBlock = await DataBlocks.from_df(
@@ -167,7 +171,7 @@ async def test_schema_evolution_compatible(plugin_config, datablock_df):
     )
 
 
-async def test_schema_evolution_not_compatible(plugin_config, datablock_df):
+async def test_schema_evolution_not_compatible(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
     datablock: MyDataBlock = await DataBlocks.from_df(
@@ -185,14 +189,14 @@ async def test_schema_evolution_not_compatible(plugin_config, datablock_df):
             datatype="conftest.Part1NoCompat",  # This is just to emulate Part1 has a new schema
             schema=datablock.part1.schema,  # It was saved using the old schema
         ),
-        part2=datablock.part2,
+        part2=cast(Dataset[Part2Compat], datablock.part2),
     )
 
     with pytest.raises(KeyError):
         await DataBlocks.df(datablock_not_compat)
 
 
-async def test_schema_evolution_load_partial_compatible(plugin_config, datablock_df):
+async def test_schema_evolution_load_partial_compatible(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
     datablock: MyDataBlock = await DataBlocks.from_df(
@@ -210,7 +214,7 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
             datatype="conftest.Part1NoCompat",  # This is just to emulate Part1 has a new schema
             schema=datablock.part1.schema,  # It was saved using the old schema
         ),
-        part2=datablock.part2,
+        part2=cast(Dataset[Part2Compat], datablock.part2),
     )
 
     loaded_df = await DataBlocks.df(

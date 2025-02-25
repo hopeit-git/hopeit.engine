@@ -1,7 +1,7 @@
 """Support for `@dataframes` serialization to files"""
 
 import io
-from typing import Generic, Optional, Type, TypeVar
+from typing import Generic, Literal, Optional, Type, TypeVar
 from uuid import uuid4
 
 import pandas as pd
@@ -17,10 +17,20 @@ except ImportError as e:
 
 from hopeit.dataframes.dataframe import DataFrameMixin
 from hopeit.dataframes.serialization.dataset import Dataset
-from hopeit.dataobjects import DataObject
+from hopeit.dataobjects import DataObject, dataclass, dataobject
+from hopeit.dataobjects.payload import Payload
 from hopeit.fs_storage import FileStorage
 
 DataFrameT = TypeVar("DataFrameT", bound=DataFrameMixin)
+
+
+@dataobject
+@dataclass
+class DatasetFileStorageEngineSettings:
+    """Pyarrow settings for parquet file storage"""
+
+    compression: Literal["snappy", "gzip", "brotli", "lz4", "zstd"] | None = None
+    compression_level: int | str | None = None
 
 
 class DatasetFileStorage(Generic[DataFrameT]):
@@ -29,9 +39,19 @@ class DatasetFileStorage(Generic[DataFrameT]):
     with `hopeit.engine` file storage plugins
     """
 
-    def __init__(self, *, location: str, partition_dateformat: Optional[str], **kwargs):
+    def __init__(
+        self,
+        *,
+        location: str,
+        partition_dateformat: Optional[str],
+        storage_settings: dict[str, str | int],
+        **kwargs,
+    ):
         self.storage: FileStorage = FileStorage(
             path=location, partition_dateformat=partition_dateformat
+        )
+        self.storage_settings: DatasetFileStorageEngineSettings = Payload.from_obj(
+            storage_settings, DatasetFileStorageEngineSettings
         )
 
     async def save(self, dataframe: DataFrameT) -> Dataset:
@@ -42,7 +62,9 @@ class DatasetFileStorage(Generic[DataFrameT]):
         key = f"{datatype.__qualname__.lower()}_{uuid4()}.parquet"
         data = io.BytesIO(
             dataframe._df.to_parquet(  # pylint: disable=protected-access
-                engine="pyarrow"
+                engine="pyarrow",
+                compression=self.storage_settings.compression,
+                compression_level=self.storage_settings.compression_level,
             )
         )
         location = await self.storage.store_file(file_name=key, value=data)

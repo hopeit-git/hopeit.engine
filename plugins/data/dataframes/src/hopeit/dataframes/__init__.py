@@ -92,7 +92,7 @@ class DataFrames(Generic[DataFrameT, DataObject]):
     """
 
     @staticmethod
-    def setup(settings: DatasetSerialization):
+    def setup(settings: DatasetSerialization) -> None:
         register_serialization(settings)
 
     @staticmethod
