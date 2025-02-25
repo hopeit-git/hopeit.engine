@@ -112,6 +112,8 @@ include = [
     "apps/examples/dataframes-example",
 ]
 reportArgumentType = false
+reportFunctionMemberAccess = false
+reportGeneralTypeIssues = "warning"
 
 [tool.ruff]
 line-length = 100

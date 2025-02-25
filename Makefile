@@ -63,8 +63,8 @@ lint-engine:
 lint-plugin:
 	uv run ruff format --check $(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
 	uv run ruff check $(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
-	MYPYPATH=$(PLUGINFOLDER)/src/ uv run mypy --namespace-packages -p hopeit
-	MYPYPATH=$(PLUGINFOLDER)/src:$(PLUGINFOLDER)/test uv run mypy --namespace-packages $(PLUGINFOLDER)/test/
+	PYTHONPATH=$(PLUGINFOLDER)/src MYPYPATH=$(PLUGINFOLDER)/src/ uv run mypy --namespace-packages -p hopeit
+	PYTHONPATH=$(PLUGINFOLDER)/src MYPYPATH=$(PLUGINFOLDER)/src:$(PLUGINFOLDER)/test uv run mypy --namespace-packages $(PLUGINFOLDER)/test/
 
 lint-plugins:
 	make PLUGINFOLDER=plugins/auth/basic-auth lint-plugin

@@ -26,7 +26,7 @@ def setup(payload: None, context: EventContext) -> None:
     register_serialization(settings)
 
 
-def register_serialization(settings: DatasetSerialization):
+def register_serialization(settings: DatasetSerialization) -> None:
     impl = find_protocol_impl(settings.protocol)
     storage = impl(
         protocol=settings.protocol,

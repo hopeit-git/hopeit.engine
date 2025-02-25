@@ -1,3 +1,4 @@
+from unittest.mock import MagicMock
 from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
 from hopeit.dataobjects import copy_payload
 import numpy as np
@@ -144,6 +145,27 @@ async def test_dataframe_dataset_serialization(
     loaded_obj = await dataobject.data.load()
 
     assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
+
+
+async def test_dataframe_dataset_serialization_storage_settings_used(
+    monkeypatch, sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
+):
+    await setup_serialization_context(plugin_config)
+
+    initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
+
+    df_mock = MagicMock()
+    df_mock.return_value = b""
+    monkeypatch.setattr(initial_data._df, "to_parquet", df_mock)  # type: ignore[attr-defined]
+
+    _ = MyTestDataObject(
+        name="test",
+        data=await Dataset.save(initial_data),
+    )
+
+    assert df_mock.call_count == 1
+    assert df_mock.call_args[1]["compression"] == "zstd"
+    assert df_mock.call_args[1]["compression_level"] == 22
 
 
 async def test_dataframe_dataset_deserialization_compatible(

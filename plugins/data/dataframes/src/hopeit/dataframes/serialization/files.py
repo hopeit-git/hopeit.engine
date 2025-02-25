@@ -27,6 +27,8 @@ DataFrameT = TypeVar("DataFrameT", bound=DataFrameMixin)
 @dataobject
 @dataclass
 class DatasetFileStorageEngineSettings:
+    """Pyarrow settings for parquet file storage"""
+
     compression: Literal["snappy", "gzip", "brotli", "lz4", "zstd"] | None = None
     compression_level: int | str | None = None
 
