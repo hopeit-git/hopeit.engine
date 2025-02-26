@@ -196,6 +196,16 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          {
+            "name": "X-Track-Database-Key",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.database_key",
+            "schema": {
+              "type": "string",
+              "default": "test.database_key"
+            }
           }
         ],
         "responses": {
@@ -242,6 +252,16 @@
             "schema": {
               "type": "string",
               "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Database-Key",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.database_key",
+            "schema": {
+              "type": "string",
+              "default": "test.database_key"
             }
           }
         ],
@@ -310,6 +330,16 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          {
+            "name": "X-Track-Database-Key",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.database_key",
+            "schema": {
+              "type": "string",
+              "default": "test.database_key"
+            }
           }
         ],
         "requestBody": {
@@ -377,6 +407,16 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          {
+            "name": "X-Track-Database-Key",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.database_key",
+            "schema": {
+              "type": "string",
+              "default": "test.database_key"
+            }
           }
         ],
         "requestBody": {
@@ -434,6 +474,16 @@
             "schema": {
               "type": "string",
               "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Database-Key",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.database_key",
+            "schema": {
+              "type": "string",
+              "default": "test.database_key"
             }
           }
         ],
@@ -514,6 +564,16 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          {
+            "name": "X-Track-Database-Key",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.database_key",
+            "schema": {
+              "type": "string",
+              "default": "test.database_key"
+            }
           }
         ],
         "responses": {
@@ -580,6 +640,16 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          {
+            "name": "X-Track-Database-Key",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.database_key",
+            "schema": {
+              "type": "string",
+              "default": "test.database_key"
+            }
           }
         ],
         "responses": {
@@ -637,6 +707,16 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          {
+            "name": "X-Track-Database-Key",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.database_key",
+            "schema": {
+              "type": "string",
+              "default": "test.database_key"
+            }
           }
         ],
         "responses": {
@@ -693,6 +773,16 @@
             "schema": {
               "type": "string",
               "format": "date-time"
+            }
+          },
+          {
+            "name": "X-Track-Database-Key",
+            "in": "header",
+            "required": true,
+            "description": "Track information: track.database_key",
+            "schema": {
+              "type": "string",
+              "default": "test.database_key"
             }
           }
         ],

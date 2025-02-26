@@ -80,8 +80,8 @@ lint-plugins:
 lint-app:
 	uv run ruff format $(APPFOLDER)/src/ $(APPFOLDER)/test/ --check
 	uv run ruff check $(APPFOLDER)/src/ $(APPFOLDER)/test/
-	MYPYPATH=$(APPFOLDER)/src/ uv run mypy --namespace-packages $(APPFOLDER)/src/
-	MYPYPATH=$(APPFOLDER)/src/ uv run mypy --namespace-packages $(APPFOLDER)/test/
+	PYTHONPATH=$(APPFOLDER)/src/ MYPYPATH=$(APPFOLDER)/src/ uv run mypy --namespace-packages $(APPFOLDER)/src/
+	PYTHONPATH=$(APPFOLDER)/src/ MYPYPATH=$(APPFOLDER)/src/ uv run mypy --namespace-packages $(APPFOLDER)/test/
 
 lint-apps:
 	make APPFOLDER=apps/examples/simple-example lint-app

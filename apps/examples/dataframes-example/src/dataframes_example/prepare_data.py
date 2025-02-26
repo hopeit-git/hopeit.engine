@@ -46,4 +46,5 @@ async def save_raw_data(iris: Iris, context: EventContext) -> InputData:
 
     logger.info(context, "Saving input data..", extra=extra(**Payload.to_obj(settings)))  # type: ignore[arg-type]
 
-    return InputData(iris=await Dataset.save(iris))
+    # Saving data to `default` database (no `database_key` specified)
+    return InputData(iris=await Dataset.save(iris, context))

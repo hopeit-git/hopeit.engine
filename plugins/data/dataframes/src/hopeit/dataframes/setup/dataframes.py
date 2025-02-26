@@ -7,8 +7,6 @@ types
 
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_logger
-from hopeit.dataframes.serialization.dataset import Dataset, find_protocol_impl
-from hopeit.dataframes.serialization.settings import DatasetSerialization
 
 logger = app_logger()
 
@@ -20,18 +18,18 @@ def setup(payload: None, context: EventContext) -> None:
     `DataSerialization` settings configured in plugin configuration file
     """
     logger.info(context, "Configuring Dataset serialization...")
-    settings: DatasetSerialization = context.settings(
-        key="dataset_serialization", datatype=DatasetSerialization
-    )
-    register_serialization(settings)
+    # settings: DatasetSerialization = context.settings(
+    #     key="dataset_serialization", datatype=DatasetSerialization
+    # )
+    # register_serialization(settings)
 
 
-def register_serialization(settings: DatasetSerialization) -> None:
-    impl = find_protocol_impl(settings.protocol)
-    storage = impl(
-        protocol=settings.protocol,
-        location=settings.location,
-        partition_dateformat=settings.partition_dateformat,
-        storage_settings=settings.storage_settings,
-    )
-    setattr(Dataset, "_Dataset__storage", storage)
+# def register_serialization(settings: DatasetSerialization) -> None:
+#     impl = find_protocol_impl(settings.protocol)
+#     storage = impl(
+#         protocol=settings.protocol,
+#         location=settings.location,
+#         partition_dateformat=settings.partition_dateformat,
+#         storage_settings=settings.storage_settings,
+#     )
+#     # setattr(Dataset, "_Dataset__storage", storage)

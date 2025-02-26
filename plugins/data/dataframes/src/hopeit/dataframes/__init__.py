@@ -77,10 +77,11 @@ from typing import Dict, Generic, Iterator, List, Type
 import numpy as np
 import pandas as pd
 from hopeit.dataframes.dataframe import DataFrameT, dataframe
-from hopeit.dataframes.datablocks import DataBlocks
 from hopeit.dataframes.serialization.dataset import Dataset
-from hopeit.dataframes.serialization.settings import DatasetSerialization
-from hopeit.dataframes.setup.dataframes import register_serialization
+from hopeit.dataframes.datablocks import DataBlocks
+# from hopeit.dataframes.serialization.settings import DatasetSerialization
+
+# from hopeit.dataframes.setup.dataframes import register_serialization
 from hopeit.dataobjects import DataObject
 
 __all__ = ["DataBlocks", "DataFrames", "Dataset", "dataframe"]
@@ -91,9 +92,9 @@ class DataFrames(Generic[DataFrameT, DataObject]):
     Dataframes manipulation utilities methods
     """
 
-    @staticmethod
-    def setup(settings: DatasetSerialization) -> None:
-        register_serialization(settings)
+    # @staticmethod
+    # def setup(settings: DatasetSerialization) -> None:
+    #     register_serialization(settings)
 
     @staticmethod
     def from_df(

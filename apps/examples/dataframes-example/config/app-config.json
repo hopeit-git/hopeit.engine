@@ -14,7 +14,9 @@
         }
     ],
     "engine": {
-        "track_headers": [],
+        "track_headers": [
+            "database_key"
+        ],
         "cors_origin": "*"
     },
     "settings": {
@@ -40,7 +42,7 @@
         "prepare_data": {
             "type": "GET",
             "setting_keys": [
-                "data_storage"
+                "data_storage", "dataframes"
             ]
         },
         "train_model": {

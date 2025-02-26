@@ -1,9 +1,12 @@
 from typing import Generic, Optional, Type, TypeVar, get_args, get_origin
 
+from hopeit.app.context import EventContext
 import pandas as pd
 from hopeit.dataobjects import fields
 
-from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError, find_dataframe_type
+from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
+from hopeit.dataframes.serialization.protocol import find_dataframe_type
+from hopeit.dataframes.serialization.settings import get_dataset_storage
 
 DataBlockType = TypeVar("DataBlockType")
 DataBlockItemType = TypeVar("DataBlockItemType")
@@ -102,10 +105,14 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     async def from_df(
         datatype: Type[DataBlockType],
         df: pd.DataFrame,
+        context: EventContext,
+        *,
+        database_key: str | None = None,
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> DataBlockType:
         blocks = {}
-        block_dataset = await Dataset._save_df(df, datatype)
+        storage = get_dataset_storage(context, database_key)
+        block_dataset = await Dataset._save_df(storage, df, datatype)
         for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
             if get_origin(field_info.annotation) is Dataset:
                 block_type = get_args(field_info.annotation)[0]

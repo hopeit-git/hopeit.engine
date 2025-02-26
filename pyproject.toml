@@ -114,6 +114,7 @@ include = [
 reportArgumentType = false
 reportFunctionMemberAccess = false
 reportGeneralTypeIssues = "warning"
+reportCallIssue = "warning"
 
 [tool.ruff]
 line-length = 100

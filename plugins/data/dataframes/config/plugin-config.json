@@ -15,6 +15,32 @@
         "compression": "zstd",
         "compression_level": 22
       }
+    },
+    "dataframes": {
+      "databases": {
+        "default": {
+          "dataset_serialization": {
+            "protocol": "hopeit.dataframes.serialization.files.DatasetFileStorage",
+            "location": "apps/examples/dataframes-example/data/default",
+            "partition_dateformat": "%Y/%m/%d/%H/",
+            "storage_settings": {
+              "compression": "zstd",
+              "compression_level": 22
+            }
+          }
+        },
+        "{{ context.track_ids.account_id }}": {
+          "dataset_serialization": {
+            "protocol": "hopeit.dataframes.serialization.files.DatasetFileStorage",
+            "location": "apps/examples/dataframes-example/data/{{ context.track_ids.account_id }}",
+            "partition_dateformat": "%Y/%m/%d/%H/",
+            "storage_settings": {
+              "compression": "zstd",
+              "compression_level": 22
+            }
+          }
+        }
+      }
     }
   },
   "events": {

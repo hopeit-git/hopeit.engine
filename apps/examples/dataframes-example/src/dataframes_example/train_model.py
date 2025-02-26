@@ -87,7 +87,8 @@ async def prepare_datasets(experiment: Experiment, context: EventContext) -> Exp
         extra=extra(experiment_id=experiment.experiment_id),
     )
 
-    input_data: Iris = await experiment.input_data.load()
+    # Loads raw data from default database
+    input_data: Iris = await experiment.input_data.load(context)
     X = DataFrames.from_dataframe(IrisFeatures, input_data)
     y = DataFrames.from_dataframe(IrisLabels, input_data)
 
@@ -95,10 +96,20 @@ async def prepare_datasets(experiment: Experiment, context: EventContext) -> Exp
         DataFrames.df(X), DataFrames.df(y), test_size=0.2, random_state=42
     )
 
-    experiment.train_features = await Dataset.save(DataFrames.from_df(IrisFeatures, X_train))
-    experiment.train_labels = await Dataset.save(DataFrames.from_df(IrisLabels, y_train))
-    experiment.test_features = await Dataset.save(DataFrames.from_df(IrisFeatures, X_test))
-    experiment.test_labels = await Dataset.save(DataFrames.from_df(IrisLabels, y_test))
+    # Uses database specified in header to save experiment dataframes
+    database_key = context.track_ids["database_key"]
+    experiment.train_features = await Dataset.save(
+        DataFrames.from_df(IrisFeatures, X_train), context, database_key
+    )
+    experiment.train_labels = await Dataset.save(
+        DataFrames.from_df(IrisLabels, y_train), context, database_key
+    )
+    experiment.test_features = await Dataset.save(
+        DataFrames.from_df(IrisFeatures, X_test), context, database_key
+    )
+    experiment.test_labels = await Dataset.save(
+        DataFrames.from_df(IrisLabels, y_test), context, database_key
+    )
     return experiment
 
 
@@ -114,8 +125,9 @@ async def train_model(experiment: Experiment, context: EventContext) -> Experime
     assert experiment.train_features is not None
     assert experiment.train_labels is not None
 
-    train_features: IrisFeatures = await experiment.train_features.load()
-    train_labels: IrisLabels = await experiment.train_labels.load()
+    database_key = context.track_ids["database_key"]
+    train_features: IrisFeatures = await experiment.train_features.load(context, database_key)
+    train_labels: IrisLabels = await experiment.train_labels.load(context, database_key)
 
     clf = DecisionTreeClassifier(random_state=42)
     clf.fit(DataFrames.df(train_features), DataFrames.df(train_labels))
@@ -159,8 +171,9 @@ async def evaluate_model(experiment: Experiment, context: EventContext) -> Exper
         extra=extra(experiment_id=experiment.experiment_id),
     )
 
-    test_features: IrisFeatures = await experiment.test_features.load()
-    test_labels: IrisLabels = await experiment.test_labels.load()
+    database_key = context.track_ids["database_key"]
+    test_features: IrisFeatures = await experiment.test_features.load(context, database_key)
+    test_labels: IrisLabels = await experiment.test_labels.load(context, database_key)
 
     y = clf.predict(DataFrames.df(test_features))
     pred_labels = IrisLabels(variety=pd.Series(y))
