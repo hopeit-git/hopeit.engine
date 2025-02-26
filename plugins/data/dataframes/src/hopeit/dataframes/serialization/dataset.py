@@ -2,12 +2,11 @@
 
 from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
-from hopeit.app.context import EventContext
 from hopeit.dataobjects import dataclass, dataobject, field
 import pandas as pd
 from pydantic import TypeAdapter
 
-from hopeit.dataframes.serialization.settings import get_dataset_storage
+from hopeit.dataframes.setup.registry import get_dataset_storage
 from hopeit.dataframes.serialization.protocol import find_dataframe_type
 
 DataFrameT = TypeVar("DataFrameT")
@@ -35,14 +34,14 @@ class Dataset(Generic[DataFrameT]):
 
     @classmethod
     async def save(
-        cls, dataframe: DataFrameT, context: EventContext, database_key: str | None = None
+        cls, dataframe: DataFrameT, database_key: str | None = None
     ) -> "Dataset[DataFrameT]":
-        storage = get_dataset_storage(context, database_key)
+        storage = await get_dataset_storage(database_key)
         return await storage.save(dataframe)  # type: ignore[attr-defined]
 
-    async def load(self, context: EventContext, database_key: str | None = None) -> DataFrameT:
+    async def load(self, database_key: str | None = None) -> DataFrameT:
         try:
-            storage = get_dataset_storage(context, database_key)
+            storage = await get_dataset_storage(database_key)
             df = await self._load_df(storage)
             return self._convert(df)
         except (RuntimeError, IOError, KeyError) as e:

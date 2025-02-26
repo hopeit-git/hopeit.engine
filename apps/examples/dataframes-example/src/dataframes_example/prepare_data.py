@@ -5,11 +5,9 @@ from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 from hopeit.dataframes import DataFrames, Dataset
 from hopeit.dataobjects import fields
-from hopeit.dataobjects.payload import Payload
 from sklearn import datasets  # type: ignore
 
 from dataframes_example.iris import InputData, Iris
-from dataframes_example.settings import DataStorage
 
 logger, extra = app_extra_logger()
 
@@ -42,9 +40,7 @@ def download_data(payload: None, context: EventContext) -> Iris:
 
 
 async def save_raw_data(iris: Iris, context: EventContext) -> InputData:
-    settings: DataStorage = context.settings(key="data_storage", datatype=DataStorage)
-
-    logger.info(context, "Saving input data..", extra=extra(**Payload.to_obj(settings)))  # type: ignore[arg-type]
+    logger.info(context, "Saving input data..")  # type: ignore[arg-type]
 
     # Saving data to `default` database (no `database_key` specified)
-    return InputData(iris=await Dataset.save(iris, context))
+    return InputData(iris=await Dataset.save(iris))

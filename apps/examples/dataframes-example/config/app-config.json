@@ -21,13 +21,13 @@
     },
     "settings": {
         "data_storage": {
-            "ingest_data_path": "apps/examples/dataframes-example/data/raw"
+            "ingest_data_path": "work/dataframes-example/data/raw"
         },
         "model_storage": {
-            "path": "apps/examples/dataframes-example/data/{auto}"
+            "path": "work/dataframes-example/data/{auto}"
         },
         "experiment_storage": {
-            "path": "apps/examples/dataframes-example/data/{auto}",
+            "path": "work/dataframes-example/data/{auto}",
             "partition_dateformat": "%Y/%m/%d/%H/"
         }
     },

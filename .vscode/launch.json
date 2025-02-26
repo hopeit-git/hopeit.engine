@@ -51,6 +51,7 @@
             "request": "launch",
             "module": "hopeit.server.web",
             "env": {
+                "REDIS_CONNECTION_STR": "redis://localhost:6379"
             },
             "args": [
                 "--port=8040",

@@ -173,6 +173,64 @@
         ]
       }
     },
+    "/api/dataframes/0x26/setup/register-database": {
+      "post": {
+        "summary": "Register Database",
+        "description": "Register Database",
+        "parameters": [
+          {
+            "name": "X-Track-Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Track-Request-Ts",
+            "in": "header",
+            "required": false,
+            "description": "Track information: Request-Ts",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "DataframesDatabaseSettings",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataframesDatabaseSettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "DataframesDatabaseSettings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataframesDatabaseSettings"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "dataframes.0x26"
+        ],
+        "security": [
+          {
+            "auth.bearer": []
+          }
+        ]
+      }
+    },
     "/api/dataframes-example/0x26/prepare-data": {
       "get": {
         "summary": "Prepare Data",
@@ -1412,7 +1470,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.26.0rc1",
+            "default": "0.26.0rc2",
             "title": "Engine Version",
             "type": "string"
           }
@@ -1557,6 +1615,61 @@
           "apps"
         ],
         "title": "RuntimeApps",
+        "type": "object"
+      },
+      "DatasetSerialization": {
+        "properties": {
+          "protocol": {
+            "title": "Protocol",
+            "type": "string"
+          },
+          "location": {
+            "title": "Location",
+            "type": "string"
+          },
+          "partition_dateformat": {
+            "default": null,
+            "nullable": true,
+            "title": "Partition Dateformat",
+            "type": "string"
+          },
+          "storage_settings": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Storage Settings",
+            "type": "object"
+          }
+        },
+        "required": [
+          "protocol",
+          "location"
+        ],
+        "title": "DatasetSerialization",
+        "type": "object"
+      },
+      "DataframesDatabaseSettings": {
+        "properties": {
+          "database_key": {
+            "title": "Database Key",
+            "type": "string"
+          },
+          "dataset_serialization": {
+            "$ref": "#/components/schemas/DatasetSerialization"
+          }
+        },
+        "required": [
+          "database_key",
+          "dataset_serialization"
+        ],
+        "title": "DataframesDatabaseSettings",
         "type": "object"
       },
       "Iris": {
