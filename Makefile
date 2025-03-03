@@ -35,8 +35,8 @@ ci-deps:
 	uv pip install -r pyproject.toml
 
 format-module:
-	uv run ruff format $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/
-	uv run ruff check $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/ --fix
+	uv run --no-sync ruff format $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/
+	uv run --no-sync ruff check $(MODULEFOLDER)/src/ $(MODULEFOLDER)/test/ --fix
 
 format:
 	make MODULEFOLDER=engine format-module
@@ -54,17 +54,17 @@ format:
 	make MODULEFOLDER=plugins/streams/redis format-module
 
 lint-engine:
-	uv run ruff format --check engine/src/ engine/test/
-	uv run ruff check engine/src/ engine/test/
-	MYPYPATH=engine/src/ uv run mypy --namespace-packages -p hopeit
-	MYPYPATH=engine/src:engine/test/ uv run mypy --namespace-packages engine/test/unit/
-	MYPYPATH=engine/src:engine/test/ uv run mypy --namespace-packages engine/test/integration/
+	uv run --no-sync ruff format --check engine/src/ engine/test/
+	uv run --no-sync ruff check engine/src/ engine/test/
+	MYPYPATH=engine/src/ uv run --no-sync mypy --namespace-packages -p hopeit
+	MYPYPATH=engine/src:engine/test/ uv run --no-sync mypy --namespace-packages engine/test/unit/
+	MYPYPATH=engine/src:engine/test/ uv run --no-sync mypy --namespace-packages engine/test/integration/
 
 lint-plugin:
-	uv run ruff format --check $(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
-	uv run ruff check $(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
-	PYTHONPATH=$(PLUGINFOLDER)/src MYPYPATH=$(PLUGINFOLDER)/src/ uv run mypy --namespace-packages -p hopeit
-	PYTHONPATH=$(PLUGINFOLDER)/src MYPYPATH=$(PLUGINFOLDER)/src:$(PLUGINFOLDER)/test uv run mypy --namespace-packages $(PLUGINFOLDER)/test/
+	uv run --no-sync ruff format --check $(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
+	uv run --no-sync ruff check $(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
+	PYTHONPATH=$(PLUGINFOLDER)/src MYPYPATH=$(PLUGINFOLDER)/src/ uv run --no-sync mypy --namespace-packages -p hopeit
+	PYTHONPATH=$(PLUGINFOLDER)/src MYPYPATH=$(PLUGINFOLDER)/src:$(PLUGINFOLDER)/test uv run --no-sync mypy --namespace-packages $(PLUGINFOLDER)/test/
 
 lint-plugins:
 	make PLUGINFOLDER=plugins/auth/basic-auth lint-plugin
@@ -78,10 +78,10 @@ lint-plugins:
 	make PLUGINFOLDER=plugins/streams/redis lint-plugin
 
 lint-app:
-	uv run ruff format $(APPFOLDER)/src/ $(APPFOLDER)/test/ --check
-	uv run ruff check $(APPFOLDER)/src/ $(APPFOLDER)/test/
-	PYTHONPATH=$(APPFOLDER)/src/ MYPYPATH=$(APPFOLDER)/src/ uv run mypy --namespace-packages $(APPFOLDER)/src/
-	PYTHONPATH=$(APPFOLDER)/src/ MYPYPATH=$(APPFOLDER)/src/ uv run mypy --namespace-packages $(APPFOLDER)/test/
+	uv run --no-sync ruff format $(APPFOLDER)/src/ $(APPFOLDER)/test/ --check
+	uv run --no-sync ruff check $(APPFOLDER)/src/ $(APPFOLDER)/test/
+	PYTHONPATH=$(APPFOLDER)/src/ MYPYPATH=$(APPFOLDER)/src/ uv run --no-sync mypy --namespace-packages $(APPFOLDER)/src/
+	PYTHONPATH=$(APPFOLDER)/src/ MYPYPATH=$(APPFOLDER)/src/ uv run --no-sync mypy --namespace-packages $(APPFOLDER)/test/
 
 lint-apps:
 	make APPFOLDER=apps/examples/simple-example lint-app
@@ -91,10 +91,10 @@ lint-apps:
 lint: lint-engine lint-plugins lint-apps
 
 test-engine:
-	PYTHONPATH=engine/src:engine/test uv run pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
+	PYTHONPATH=engine/src:engine/test uv run --no-sync pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
 
 test-plugin:
-	PYTHONPATH=$(PLUGINFOLDER)/src uv run pytest -v --cov-fail-under=85 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
+	PYTHONPATH=$(PLUGINFOLDER)/src uv run --no-sync pytest -v --cov-fail-under=85 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
 
 test-plugins:
 	make PLUGINFOLDER=plugins/auth/basic-auth test-plugin
@@ -108,7 +108,7 @@ test-plugins:
 	make PLUGINFOLDER=plugins/ops/log-streamer test-plugin
 
 test-app:
-	PYTHONPATH=$(APPFOLDER)/src:$(APPFOLDER)/test uv run pytest -v --cov-fail-under=90 --cov-report=term --cov=$(APPFOLDER)/src/ $(APPFOLDER)/test/
+	PYTHONPATH=$(APPFOLDER)/src:$(APPFOLDER)/test uv run --no-sync pytest -v --cov-fail-under=90 --cov-report=term --cov=$(APPFOLDER)/src/ $(APPFOLDER)/test/
 
 test-apps:
 	make APPFOLDER=apps/examples/simple-example test-app
@@ -150,27 +150,27 @@ update-examples-api:
 	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
 
 run-simple-example:
-	uv run hopeit_server run \
+	uv run --no-sync hopeit_server run \
 		--port=$(PORT) \
 		--start-streams \
 		--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json \
 		--api-file=apps/examples/simple-example/api/openapi.json
 
 run-client-example:
-	HOPEIT_SIMPLE_EXAMPLE_HOSTS=$(HOSTS) uv run hopeit_server run \
+	HOPEIT_SIMPLE_EXAMPLE_HOSTS=$(HOSTS) uv run --no-sync hopeit_server run \
 		--port=$(PORT) \
 		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/client-example/config/app-config.json \
 		--api-file=apps/examples/client-example/api/openapi.json
 
 run-apps-visualizer:
-	HOPEIT_APPS_VISUALIZER_HOSTS=$(HOSTS) uv run hopeit_server run \
+	HOPEIT_APPS_VISUALIZER_HOSTS=$(HOSTS) uv run --no-sync hopeit_server run \
 		--port=$(PORT) \
 		--start-streams \
 		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json \
 		--api-file=plugins/ops/apps-visualizer/api/openapi.json
 
 run-log-streamer:
-	uv run hopeit_server run \
+	uv run --no-sync hopeit_server run \
 		--port=$(PORT) \
 		--start-streams \
 		--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/log-streamer/config/plugin-config.json

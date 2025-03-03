@@ -34,8 +34,7 @@
     },
     "setup.register_database": {
       "type": "POST",
-      "plug_mode": "Standalone",
-      "setting_keys": ["dataframes"]
+      "plug_mode": "Standalone"
     }
   }
 }

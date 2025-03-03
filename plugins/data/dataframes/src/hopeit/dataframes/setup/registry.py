@@ -1,67 +1,58 @@
+from typing import Optional
 from hopeit.dataframes.serialization.settings import (
     DataframesDatabaseSettings,
     DataframesSettings,
     DatasetSerialization,
 )
 from hopeit.fs_storage import FileStorage
-from hopeit.redis_storage import RedisStorage
 
 from hopeit.dataframes.serialization.protocol import find_protocol_impl
 
 DEFAULT_DATABASE_KEY = "default"
 db_cache: dict[str, object] = {}
-
-
-registry: RedisStorage = RedisStorage()
+persitent_registry: Optional[FileStorage] = None
 
 
 class DataframesDatabaseRegistryError(Exception):
     pass
 
 
-def _get_fs(settings: DataframesSettings) -> FileStorage:
-    return FileStorage(path=settings.registry.save_location)
-
-
-async def save_database_settings(
-    settings: DataframesSettings, database_settings: DataframesDatabaseSettings
-) -> None:
-    await _get_fs(settings).store(database_settings.database_key, database_settings)
+async def save_database_settings(database_settings: DataframesDatabaseSettings) -> None:
+    assert persitent_registry, "Registry not initialized. Call `init_registry`"
+    await persitent_registry.store(database_settings.database_key, database_settings)
 
 
 async def load_database_settings(
     settings: DataframesSettings, database_key: str
 ) -> DataframesDatabaseSettings | None:
+    assert persitent_registry, "Registry not initialized. Call `init_registry`"
     key = f"{settings.registry.save_location}/{database_key}"
-    return await registry.get(key, datatype=DataframesDatabaseSettings)
+    return await persitent_registry.get(key, datatype=DataframesDatabaseSettings)
 
 
 async def init_registry(settings: DataframesSettings) -> None:
+    global persitent_registry
+    persitent_registry = FileStorage(path=settings.registry.save_location)
     impl = _get_storage_impl(settings.default_database.dataset_serialization)
     db_cache[DEFAULT_DATABASE_KEY] = impl
 
-    registry.connect(
-        address=settings.registry.connection_str,
-        username=settings.registry.username.get_secret_value(),
-        password=settings.registry.password.get_secret_value(),
-    )
-    for database_key in await list_databases(settings):
-        await activate_database(settings, database_key)
 
-
-async def activate_database(settings: DataframesSettings, database_key: str) -> None:
-    db = await _get_fs(settings).get(database_key, datatype=DataframesDatabaseSettings)
-    if db is None:
-        raise DataframesDatabaseRegistryError(f"Database {database_key} not found in registry.")
-    await registry.store(database_key, db)
+# async def activate_database(settings: DataframesSettings, database_key: str) -> None:
+#     assert persitent_registry, "Registry not initialized. Call `init_registry`"
+#     db = await persitent_registry.get(database_key, datatype=DataframesDatabaseSettings)
+#     if db is None:
+#         raise DataframesDatabaseRegistryError(f"Database {database_key} not found in registry.")
+#     await persitent_registry.store(database_key, db)
 
 
 async def list_databases(settings: DataframesSettings) -> list[str]:
-    return [item.item_id for item in await _get_fs(settings).list_objects()]
+    assert persitent_registry, "Registry not initialized. Call `init_registry`"
+    return [item.item_id for item in await persitent_registry.list_objects()]
 
 
 async def db(database_key: str | None) -> DataframesDatabaseSettings | None:
-    return await registry.get(
+    assert persitent_registry, "Registry not initialized. Call `init_registry`"
+    return await persitent_registry.get(
         database_key or DEFAULT_DATABASE_KEY, datatype=DataframesDatabaseSettings
     )
 

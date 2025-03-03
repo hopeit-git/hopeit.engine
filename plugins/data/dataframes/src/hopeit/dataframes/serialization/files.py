@@ -1,9 +1,13 @@
 """Support for `@dataframes` serialization to files"""
 
+from datetime import UTC, datetime
 import io
 from typing import Generic, Literal, Optional, Type, TypeVar
 from uuid import uuid4
+from pathlib import Path
 
+import aiofiles
+import aiofiles.os
 import pandas as pd
 from pydantic import TypeAdapter
 
@@ -17,9 +21,8 @@ except ImportError as e:
 
 from hopeit.dataframes.dataframe import DataFrameMixin
 from hopeit.dataframes.serialization.dataset import Dataset
-from hopeit.dataobjects import DataObject, dataclass, dataobject
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.dataobjects.payload import Payload
-from hopeit.fs_storage import FileStorage
 
 DataFrameT = TypeVar("DataFrameT", bound=DataFrameMixin)
 
@@ -45,63 +48,90 @@ class DatasetFileStorage(Generic[DataFrameT]):
         location: str,
         partition_dateformat: Optional[str],
         storage_settings: dict[str, str | int],
-        **kwargs,
+        **kwargs,  # Needed to support other storage implementations
     ):
-        self.storage: FileStorage = FileStorage(
-            path=location, partition_dateformat=partition_dateformat
-        )
+        self.path = Path(location)
+        self.partition_dateformat = partition_dateformat
         self.storage_settings: DatasetFileStorageEngineSettings = Payload.from_obj(
             storage_settings, DatasetFileStorageEngineSettings
         )
 
-    async def save(self, dataframe: DataFrameT) -> Dataset:
+    async def save(
+        self,
+        dataframe: DataFrameT,
+        *,
+        partition_dt: Optional[datetime],
+        collection: Optional[str],
+        save_schema: bool,
+    ) -> Dataset:
         """Saves @dataframe annotated object as parquet to file system
         and returns Dataset metadata to be used for retrieval
         """
-        datatype = type(dataframe)
-        key = f"{datatype.__qualname__.lower()}_{uuid4()}.parquet"
-        data = io.BytesIO(
-            dataframe._df.to_parquet(  # pylint: disable=protected-access
-                engine="pyarrow",
-                compression=self.storage_settings.compression,
-                compression_level=self.storage_settings.compression_level,
-            )
-        )
-        location = await self.storage.store_file(file_name=key, value=data)
-        partition_key = self.storage.partition_key(location)
-
-        return Dataset(
-            protocol=f"{__name__}.{type(self).__name__}",
-            partition_key=partition_key,
-            key=key,
-            datatype=f"{datatype.__module__}.{datatype.__qualname__}",
-            schema=TypeAdapter(datatype).json_schema(),
+        datatype: Type[DataFrameT] = type(dataframe)
+        return await self.save_df(
+            dataframe._df,
+            datatype,
+            partition_dt=partition_dt,
+            collection=collection,
+            save_schema=save_schema,
         )
 
-    async def save_df(self, df: pd.DataFrame, datatype: Type[DataObject]) -> Dataset:
+    async def save_df(
+        self,
+        df: pd.DataFrame,
+        datatype: Type[DataFrameT],
+        *,
+        partition_dt: Optional[datetime],
+        collection: Optional[str],
+        save_schema: bool,
+    ) -> Dataset:
         """Saves pandas df object as parquet to file system
         and returns Dataset metadata to be used when retrieval
         is handled externally
         """
-        key = f"{datatype.__qualname__.lower()}_{uuid4()}.parquet"
-        data = io.BytesIO(
-            df.to_parquet(  # pylint: disable=protected-access
-                engine="pyarrow"
+        path = self.path
+        partition_key = ""
+        if collection is None:
+            collection = datatype.__qualname__.lower()
+        path = path / collection
+        if self.partition_dateformat:
+            partition_key = (partition_dt or datetime.now(tz=UTC)).strftime(
+                self.partition_dateformat
             )
-        )
-        location = await self.storage.store_file(file_name=key, value=data)
-        partition_key = self.storage.partition_key(location)
+            path = path / partition_key
+        key = f"{datatype.__qualname__.lower()}_{uuid4().hex}.parquet"
+
+        # Async save parquet file
+        await aiofiles.os.makedirs(path, exist_ok=True)
+        path = path / key
+
+        async with aiofiles.open(path, "wb") as f:
+            await f.write(
+                df.to_parquet(
+                    engine="pyarrow",
+                    compression=self.storage_settings.compression,
+                    compression_level=self.storage_settings.compression_level,
+                )
+            )
 
         return Dataset(
             protocol=f"{__name__}.{type(self).__name__}",
             partition_key=partition_key,
             key=key,
             datatype=f"{datatype.__module__}.{datatype.__qualname__}",
-            schema=TypeAdapter(datatype).json_schema(),
+            partition_dt=partition_dt,
+            collection=collection,
+            schema=TypeAdapter(datatype).json_schema() if save_schema else None,
         )
 
     async def load_df(self, dataset: Dataset, columns: Optional[list[str]] = None) -> pd.DataFrame:
-        data = await self.storage.get_file(dataset.key, partition_key=dataset.partition_key)
-        if data is None:
-            raise FileNotFoundError(dataset.key)
-        return pd.read_parquet(io.BytesIO(data), engine="pyarrow", columns=columns)
+        path = self.path
+        if dataset.collection:
+            path = path / dataset.collection
+        if dataset.partition_key:
+            path = path / dataset.partition_key
+        path = path / dataset.key
+
+        # Async load parquet into pandas dataframe
+        async with aiofiles.open(path, "rb") as f:
+            return pd.read_parquet(io.BytesIO(await f.read()), engine="pyarrow", columns=columns)

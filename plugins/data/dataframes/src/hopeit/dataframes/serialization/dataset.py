@@ -1,8 +1,9 @@
 """Dataset objects definition, used as a result of serialized dataframes"""
 
+from datetime import datetime
 from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
-from hopeit.dataobjects import dataclass, dataobject, field
+from hopeit.dataobjects import dataclass, dataobject
 import pandas as pd
 from pydantic import TypeAdapter
 
@@ -30,16 +31,26 @@ class Dataset(Generic[DataFrameT]):
     partition_key: str
     key: str
     datatype: str
-    schema: Dict[str, Any] = field(default_factory=dict)
+    partition_dt: Optional[datetime] = None
+    collection: Optional[str] = None
+    schema: Optional[Dict[str, Any]] = None
 
     @classmethod
     async def save(
-        cls, dataframe: DataFrameT, database_key: str | None = None
+        cls,
+        dataframe: DataFrameT,
+        *,
+        database_key: Optional[str] = None,
+        partition_dt: Optional[datetime] = None,
+        collection: Optional[str] = None,
+        save_schema: bool = False,
     ) -> "Dataset[DataFrameT]":
         storage = await get_dataset_storage(database_key)
-        return await storage.save(dataframe)  # type: ignore[attr-defined]
+        return await storage.save(  # type: ignore[attr-defined]
+            dataframe, partition_dt=partition_dt, collection=collection, save_schema=save_schema
+        )
 
-    async def load(self, database_key: str | None = None) -> DataFrameT:
+    async def load(self, database_key: Optional[str] = None) -> DataFrameT:
         try:
             storage = await get_dataset_storage(database_key)
             df = await self._load_df(storage)

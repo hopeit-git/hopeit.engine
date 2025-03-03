@@ -1724,7 +1724,22 @@
             "title": "Datatype",
             "type": "string"
           },
+          "partition_dt": {
+            "default": null,
+            "format": "date-time",
+            "nullable": true,
+            "title": "Partition Dt",
+            "type": "string"
+          },
+          "collection": {
+            "default": null,
+            "nullable": true,
+            "title": "Collection",
+            "type": "string"
+          },
           "schema": {
+            "default": null,
+            "nullable": true,
             "title": "Schema",
             "type": "object"
           }
@@ -1769,7 +1784,22 @@
             "title": "Datatype",
             "type": "string"
           },
+          "partition_dt": {
+            "default": null,
+            "format": "date-time",
+            "nullable": true,
+            "title": "Partition Dt",
+            "type": "string"
+          },
+          "collection": {
+            "default": null,
+            "nullable": true,
+            "title": "Collection",
+            "type": "string"
+          },
           "schema": {
+            "default": null,
+            "nullable": true,
             "title": "Schema",
             "type": "object"
           }
@@ -1802,7 +1832,22 @@
             "title": "Datatype",
             "type": "string"
           },
+          "partition_dt": {
+            "default": null,
+            "format": "date-time",
+            "nullable": true,
+            "title": "Partition Dt",
+            "type": "string"
+          },
+          "collection": {
+            "default": null,
+            "nullable": true,
+            "title": "Collection",
+            "type": "string"
+          },
           "schema": {
+            "default": null,
+            "nullable": true,
             "title": "Schema",
             "type": "object"
           }
