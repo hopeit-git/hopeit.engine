@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Generic, Optional, Type, TypeVar, get_args, get_origin
 
 import pandas as pd
@@ -66,7 +67,13 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
 
 class DataBlocks(Generic[DataBlockType, DataFrameType]):
     @classmethod
-    async def df(cls, datablock: DataBlockType, select: Optional[list[str]] = None) -> pd.DataFrame:
+    async def df(
+        cls,
+        datablock: DataBlockType,
+        *,
+        select: Optional[list[str]] = None,
+        database_key: Optional[str] = None,
+    ) -> pd.DataFrame:
         keys = [
             field_name
             for field_name, field_info in fields(datablock).items()  # type: ignore[arg-type]
@@ -88,7 +95,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
         # Load data from first dataset (datablock uses a single file for all datasets)
         dataset: Dataset = getattr(datablock, keys[0])
-        result_df = await DataBlocks._load_datablock_df(dataset, field_names)
+        result_df = await DataBlocks._load_datablock_df(dataset, field_names, database_key)
 
         # Add missing optional fields using class schema (allows schema evolution)
         cls._adapt_to_schema(datablock, keys, result_df)
@@ -105,12 +112,23 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         datatype: Type[DataBlockType],
         df: pd.DataFrame,
         *,
-        database_key: str | None = None,
+        datablock_database_key: Optional[str] = None,
+        datablock_partition_dt: Optional[datetime] = None,
+        datablock_collection: Optional[str] = None,
+        datablock_save_schema: bool = False,
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> DataBlockType:
         blocks = {}
-        storage = get_dataset_storage(database_key)
-        block_dataset = await Dataset._save_df(storage, df, datatype)
+        storage = get_dataset_storage(datablock_database_key)
+        block_dataset = await Dataset._save_df(
+            storage,
+            df,
+            datatype,
+            database_key=datablock_database_key,
+            partition_dt=datablock_partition_dt,
+            collection=datablock_collection,
+            save_schema=datablock_save_schema,
+        )
         for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
             if get_origin(field_info.annotation) is Dataset:
                 block_type = get_args(field_info.annotation)[0]
@@ -126,10 +144,11 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
     @staticmethod
     async def _load_datablock_df(
-        dataset: Dataset, columns: Optional[list[str]] = None
+        dataset: Dataset, columns: Optional[list[str]] = None, database_key: Optional[str] = None
     ) -> pd.DataFrame:
         try:
-            return await dataset._load_df(columns)
+            storage = await get_dataset_storage(database_key or dataset.database_key)
+            return await dataset._load_df(storage, columns)
         except (RuntimeError, IOError, KeyError) as e:
             raise DatasetLoadError(
                 f"Error {type(e).__name__}: {e} loading datablock of type {dataset.datatype} "

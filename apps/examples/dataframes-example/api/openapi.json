@@ -1731,6 +1731,12 @@
             "title": "Partition Dt",
             "type": "string"
           },
+          "database_key": {
+            "default": null,
+            "nullable": true,
+            "title": "Database Key",
+            "type": "string"
+          },
           "collection": {
             "default": null,
             "nullable": true,
@@ -1791,6 +1797,12 @@
             "title": "Partition Dt",
             "type": "string"
           },
+          "database_key": {
+            "default": null,
+            "nullable": true,
+            "title": "Database Key",
+            "type": "string"
+          },
           "collection": {
             "default": null,
             "nullable": true,
@@ -1837,6 +1849,12 @@
             "format": "date-time",
             "nullable": true,
             "title": "Partition Dt",
+            "type": "string"
+          },
+          "database_key": {
+            "default": null,
+            "nullable": true,
+            "title": "Database Key",
             "type": "string"
           },
           "collection": {

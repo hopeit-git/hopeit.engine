@@ -32,6 +32,7 @@ class Dataset(Generic[DataFrameT]):
     key: str
     datatype: str
     partition_dt: Optional[datetime] = None
+    database_key: Optional[str] = None
     collection: Optional[str] = None
     schema: Optional[Dict[str, Any]] = None
 
@@ -47,12 +48,16 @@ class Dataset(Generic[DataFrameT]):
     ) -> "Dataset[DataFrameT]":
         storage = await get_dataset_storage(database_key)
         return await storage.save(  # type: ignore[attr-defined]
-            dataframe, partition_dt=partition_dt, collection=collection, save_schema=save_schema
+            dataframe,
+            partition_dt=partition_dt,
+            database_key=database_key,
+            collection=collection,
+            save_schema=save_schema,
         )
 
     async def load(self, database_key: Optional[str] = None) -> DataFrameT:
         try:
-            storage = await get_dataset_storage(database_key)
+            storage = await get_dataset_storage(database_key or self.database_key)
             df = await self._load_df(storage)
             return self._convert(df)
         except (RuntimeError, IOError, KeyError) as e:
@@ -76,11 +81,29 @@ class Dataset(Generic[DataFrameT]):
             partition_key=self.partition_key,
             key=self.key,
             datatype=f"{datatype.__module__}.{datatype.__qualname__}",  # type: ignore[attr-defined]
-            schema=TypeAdapter(datatype).json_schema(),
+            partition_dt=self.partition_dt,
+            database_key=self.database_key,
+            collection=self.collection,
+            schema=TypeAdapter(datatype).json_schema() if self.schema else None,
         )
 
     @classmethod
     async def _save_df(
-        cls, storage: object, df: pd.DataFrame, datatype: Type[GenericDataFrameT]
+        cls,
+        storage: object,
+        df: pd.DataFrame,
+        datatype: Type[GenericDataFrameT],
+        *,
+        database_key: Optional[str],
+        partition_dt: Optional[datetime],
+        collection: Optional[str],
+        save_schema: bool,
     ) -> "Dataset[GenericDataFrameT]":
-        return await storage.save_df(df, datatype)  # type: ignore[attr-defined]
+        return await storage.save_df(  # type: ignore[attr-defined]
+            df,
+            datatype,
+            database_key=database_key,
+            partition_dt=partition_dt,
+            collection=collection,
+            save_schema=save_schema,
+        )

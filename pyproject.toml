@@ -90,7 +90,7 @@ dev-dependencies = [
     "uvloop>=0.21.0",
     # data/dataframes plugin tests
     "pandas-stubs>=2.2.3",
-    "pyarrow>=19.0.1",
+    "pyarrow-stubs>=17.17",
     # examples/dataframes-example deps
     "scikit-learn>=1.6.1",
 ]

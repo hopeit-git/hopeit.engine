@@ -1,14 +1,14 @@
 """Support for `@dataframes` serialization to files"""
 
 from datetime import UTC, datetime
-import io
+import os
 from typing import Generic, Literal, Optional, Type, TypeVar
 from uuid import uuid4
 from pathlib import Path
 
 import aiofiles
-import aiofiles.os
 import pandas as pd
+import pyarrow
 from pydantic import TypeAdapter
 
 try:
@@ -32,8 +32,9 @@ DataFrameT = TypeVar("DataFrameT", bound=DataFrameMixin)
 class DatasetFileStorageEngineSettings:
     """Pyarrow settings for parquet file storage"""
 
-    compression: Literal["snappy", "gzip", "brotli", "lz4", "zstd"] | None = None
+    compression: Literal["snappy", "gzip", "brotli", "lz4", "zstd"] | None = "zstd"
     compression_level: int | str | None = None
+    read_chunk_size: int = 2**20  # 1Mb
 
 
 class DatasetFileStorage(Generic[DataFrameT]):
@@ -61,6 +62,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         dataframe: DataFrameT,
         *,
         partition_dt: Optional[datetime],
+        database_key: Optional[str],
         collection: Optional[str],
         save_schema: bool,
     ) -> Dataset:
@@ -72,6 +74,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
             dataframe._df,
             datatype,
             partition_dt=partition_dt,
+            database_key=database_key,
             collection=collection,
             save_schema=save_schema,
         )
@@ -82,6 +85,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         datatype: Type[DataFrameT],
         *,
         partition_dt: Optional[datetime],
+        database_key: Optional[str],
         collection: Optional[str],
         save_schema: bool,
     ) -> Dataset:
@@ -101,10 +105,10 @@ class DatasetFileStorage(Generic[DataFrameT]):
             path = path / partition_key
         key = f"{datatype.__qualname__.lower()}_{uuid4().hex}.parquet"
 
-        # Async save parquet file
-        await aiofiles.os.makedirs(path, exist_ok=True)
+        os.makedirs(path, exist_ok=True)
         path = path / key
 
+        # Async save parquet file
         async with aiofiles.open(path, "wb") as f:
             await f.write(
                 df.to_parquet(
@@ -120,6 +124,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
             key=key,
             datatype=f"{datatype.__module__}.{datatype.__qualname__}",
             partition_dt=partition_dt,
+            database_key=database_key,
             collection=collection,
             schema=TypeAdapter(datatype).json_schema() if save_schema else None,
         )
@@ -132,6 +137,9 @@ class DatasetFileStorage(Generic[DataFrameT]):
             path = path / dataset.partition_key
         path = path / dataset.key
 
-        # Async load parquet into pandas dataframe
+        # Async load parquet into pandas dataframe in chunks
         async with aiofiles.open(path, "rb") as f:
-            return pd.read_parquet(io.BytesIO(await f.read()), engine="pyarrow", columns=columns)
+            buffer = pyarrow.BufferOutputStream()
+            while chunk := await f.read(self.storage_settings.read_chunk_size):
+                buffer.write(chunk)
+            return pd.read_parquet(buffer.getvalue(), engine="pyarrow", columns=columns)  # type: ignore[arg-type]

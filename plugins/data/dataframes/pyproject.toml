@@ -13,6 +13,7 @@ dependencies = [
     "hopeit.engine>=0.26.0rc2",
     "hopeit.fs-storage>=0.26.0rc2",
     "pandas>=2.2.3",
+    "pyarrow>=19.0.1",
     "numpy>=1.26.4"
 ]
 

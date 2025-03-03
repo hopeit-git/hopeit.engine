@@ -129,7 +129,7 @@ clean-dist-plugin:
 	rm -rf $(PLUGINFOLDER)/dist
 
 schemas:
-	uv --directory=engine/config/schemas run python update_config_schemas.py
+	uv --directory=engine/config/schemas run --no-sync python update_config_schemas.py
 
 publish-engine-pypi:
 	uv publish -u=__token__ -p=$(PYPI_API_TOKEN) engine/dist/*
@@ -144,10 +144,10 @@ publish-plugin-pypi-test:
 	uv publish -u=__token__ -p=$(TEST_PYPI_API_TOKEN) --publish-url=https://test.pypi.org/legacy/  $(PLUGINFOLDER)/dist/*
 
 update-examples-api:
-	bash apps/examples/simple-example/api/create_openapi_file.sh
-	bash apps/examples/client-example/api/create_openapi_file.sh
-	bash apps/examples/dataframes-example/api/create_openapi_file.sh
-	bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
+	uv run --no-sync bash apps/examples/simple-example/api/create_openapi_file.sh
+	uv run --no-sync bash apps/examples/client-example/api/create_openapi_file.sh
+	uv run --no-sync bash apps/examples/dataframes-example/api/create_openapi_file.sh
+	uv run --no-sync bash plugins/ops/apps-visualizer/api/create_openapi_file.sh
 
 run-simple-example:
 	uv run --no-sync hopeit_server run \
