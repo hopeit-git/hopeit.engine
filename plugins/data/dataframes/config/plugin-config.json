@@ -9,8 +9,7 @@
   "settings" : {
     "dataframes": {
       "registry": {
-          "save_location": "work/dataframes/registry",
-          "connection_str": "${REDIS_CONNECTION_STR}"
+          "save_location": "work/dataframes/registry"
       },
       "default_database": {
         "database_key": "default",

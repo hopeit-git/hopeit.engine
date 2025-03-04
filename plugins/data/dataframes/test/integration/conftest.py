@@ -1,6 +1,8 @@
 from datetime import date, datetime, timezone
+from pathlib import Path
 from typing import List, Optional
 
+from hopeit.dataframes.serialization.settings import DataframesSettings
 import numpy as np
 import pandas as pd
 import pytest
@@ -254,20 +256,24 @@ def plugin_config() -> AppConfig:
             import_modules=["hopeit.dataframes"],
         ),
         settings={
-            "dataset_serialization": {
-                "protocol": "hopeit.dataframes.serialization.files.DatasetFileStorage",
-                "location": "/tmp/hopeit/dataframes/test",
-                "partition_dateformat": "%Y/%m/%d/%H/",
-                "storage_settings": {
-                    "compression": "zstd",
-                    "compression_level": 22,
+            "dataframes": {
+                "registry": {"save_location": "/tmp/hopeit/dataframes/test/registry"},
+                "default_database": {
+                    "database_key": "default",
+                    "dataset_serialization": {
+                        "protocol": "hopeit.dataframes.serialization.files.DatasetFileStorage",
+                        "location": "/tmp/hopeit/dataframes/test/data/default",
+                        "partition_dateformat": "%Y/%m/%d/%H/",
+                        "storage_settings": {"compression": "zstd", "compression_level": 22},
+                    },
                 },
             }
         },
         events={
-            "setup.dataframes": EventDescriptor(
-                type=EventType.SETUP, setting_keys=["dataset_serialization"]
-            )
+            "setup.dataframes": EventDescriptor(type=EventType.SETUP, setting_keys=["dataframes"]),
+            "setup.register_database": EventDescriptor(
+                type=EventType.POST, setting_keys=["dataframes"]
+            ),
         },
         server=server_config(),
     ).setup()
@@ -290,9 +296,45 @@ def datablock_df() -> pd.DataFrame:
 
 
 async def setup_serialization_context(plugin_config) -> EventContext:
+    # Initializes default database
     context = create_test_context(
         app_config=plugin_config,
         event_name="setup.dataframes",
     )
     await execute_event(plugin_config, "setup.dataframes", payload=None)
+
+    # Registers `test_db` custom database
+    settings: DataframesSettings = context.settings(key="dataframes", datatype=DataframesSettings)
+    payload = settings.default_database
+    payload.database_key = "test_db"
+    payload.dataset_serialization.location = payload.dataset_serialization.location.replace(
+        "/default", "/test_db"
+    )
+    context = create_test_context(
+        app_config=plugin_config,
+        event_name="setup.register_database",
+    )
+    await execute_event(plugin_config, "setup.register_database", payload=payload)
+
     return context
+
+
+def get_saved_file_path(plugin_config, dataset: Dataset) -> Path:
+    context = create_test_context(
+        app_config=plugin_config,
+        event_name="setup.dataframes",
+    )
+    settings: DataframesSettings = context.settings(key="dataframes", datatype=DataframesSettings)
+    payload = settings.default_database
+    path = Path(
+        payload.dataset_serialization.location.replace(
+            "/default", f"/{dataset.database_key or 'default'}"
+        )
+    )
+    if dataset.group_key:
+        path = path / dataset.group_key
+    if dataset.collection:
+        path = path / dataset.collection
+    if dataset.partition_key:
+        path = path / dataset.partition_key
+    return path / dataset.key

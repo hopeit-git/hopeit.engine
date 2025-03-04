@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from pydantic import TypeAdapter, ValidationError
 import pytest
+import os
 
 from conftest import (
     MyNumericalData,
@@ -17,6 +18,7 @@ from conftest import (
     MyTestDataSchemaCompatible,
     MyTestDataSchemaNotCompatible,
     MyTestJsonDataObject,
+    get_saved_file_path,
     setup_serialization_context,
 )
 from hopeit.app.config import AppConfig
@@ -124,7 +126,7 @@ def test_dataobject_normalized_null_values(two_element_pandas_df_with_nulls):
     assert_frame_equal(DataFrames.df(data), DataFrames.df(back_to_dataframe))
 
 
-async def test_dataframe_dataset_serialization(
+async def test_dataframe_dataset_serialization_defaults(
     sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
 ):
     await setup_serialization_context(plugin_config)
@@ -140,7 +142,115 @@ async def test_dataframe_dataset_serialization(
     assert isinstance(dataobject.data.partition_key, str)
     assert isinstance(dataobject.data.key, str)
     assert dataobject.data.protocol == "hopeit.dataframes.serialization.files.DatasetFileStorage"
+
+    assert os.path.exists(get_saved_file_path(plugin_config, dataobject.data))
+
+    loaded_obj = await dataobject.data.load()
+
+    assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
+
+
+async def test_dataframe_dataset_serialization_save_schema(
+    sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
+):
+    await setup_serialization_context(plugin_config)
+
+    initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
+    dataobject = MyTestDataObject(
+        name="test",
+        data=await Dataset.save(initial_data, save_schema=True),
+    )
+
+    assert isinstance(dataobject.data, Dataset)
+    assert dataobject.data.datatype == "conftest.MyTestData"
+    assert isinstance(dataobject.data.partition_key, str)
+    assert isinstance(dataobject.data.key, str)
+    assert dataobject.data.protocol == "hopeit.dataframes.serialization.files.DatasetFileStorage"
+
     assert dataobject.data.schema == TypeAdapter(MyTestData).json_schema()
+
+    loaded_obj = await dataobject.data.load()
+
+    assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
+
+
+async def test_dataframe_dataset_serialization_custom_database(
+    sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
+):
+    await setup_serialization_context(plugin_config)
+
+    initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
+    dataobject = MyTestDataObject(
+        name="test",
+        data=await Dataset.save(initial_data, database_key="test_db"),
+    )
+
+    assert isinstance(dataobject.data, Dataset)
+    assert dataobject.data.datatype == "conftest.MyTestData"
+    assert isinstance(dataobject.data.partition_key, str)
+    assert isinstance(dataobject.data.key, str)
+    assert dataobject.data.protocol == "hopeit.dataframes.serialization.files.DatasetFileStorage"
+
+    assert dataobject.data.database_key == "test_db"
+    assert os.path.exists(get_saved_file_path(plugin_config, dataobject.data))
+
+    loaded_obj = await dataobject.data.load()
+
+    assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
+
+
+async def test_dataframe_dataset_serialization_custom_group(
+    sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
+):
+    await setup_serialization_context(plugin_config)
+
+    initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
+    dataobject = MyTestDataObject(
+        name="test",
+        data=await Dataset.save(initial_data, database_key="test_db", group_key="custom/group"),
+    )
+
+    assert isinstance(dataobject.data, Dataset)
+    assert dataobject.data.datatype == "conftest.MyTestData"
+    assert isinstance(dataobject.data.partition_key, str)
+    assert isinstance(dataobject.data.key, str)
+    assert dataobject.data.protocol == "hopeit.dataframes.serialization.files.DatasetFileStorage"
+
+    assert dataobject.data.database_key == "test_db"
+    assert dataobject.data.group_key == "custom/group"
+    assert os.path.exists(get_saved_file_path(plugin_config, dataobject.data))
+
+    loaded_obj = await dataobject.data.load()
+
+    assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
+
+
+async def test_dataframe_dataset_serialization_custom_collection(
+    sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
+):
+    await setup_serialization_context(plugin_config)
+
+    initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
+    dataobject = MyTestDataObject(
+        name="test",
+        data=await Dataset.save(
+            initial_data,
+            database_key="test_db",
+            group_key="custom/group",
+            collection="my_collection",
+        ),
+    )
+
+    assert isinstance(dataobject.data, Dataset)
+    assert dataobject.data.datatype == "conftest.MyTestData"
+    assert isinstance(dataobject.data.partition_key, str)
+    assert isinstance(dataobject.data.key, str)
+    assert dataobject.data.protocol == "hopeit.dataframes.serialization.files.DatasetFileStorage"
+
+    assert dataobject.data.database_key == "test_db"
+    assert dataobject.data.group_key == "custom/group"
+    assert dataobject.data.collection == "my_collection"
+    assert os.path.exists(get_saved_file_path(plugin_config, dataobject.data))
 
     loaded_obj = await dataobject.data.load()
 

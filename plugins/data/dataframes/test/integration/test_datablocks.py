@@ -1,3 +1,4 @@
+import os
 from typing import cast
 from hopeit.dataframes.datablocks import TempDataBlock
 import numpy as np
@@ -13,6 +14,7 @@ from conftest import (
     Part1,
     Part2,
     Part2Compat,
+    get_saved_file_path,
     setup_serialization_context,
 )
 
@@ -30,6 +32,7 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
             partition_key=datablock.part1.partition_key,
             key=datablock.part1.key,
             datatype="conftest.Part1",
+            collection="mydatablock",
             schema={
                 "properties": {
                     "field0": {"title": "Field0", "type": "string"},
@@ -46,6 +49,7 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
             partition_key=datablock.part1.partition_key,
             key=datablock.part1.key,
             datatype="conftest.Part2",
+            collection="mydatablock",
             schema={
                 "properties": {
                     "field0": {"title": "Field0", "type": "string"},
@@ -63,6 +67,11 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
             },
         ),
     )
+
+    # Check single file is created
+    saved_location = get_saved_file_path(plugin_config, datablock.part1)
+    assert os.path.exists(saved_location)
+    assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
 
     # test get dataframe
     loaded_df = await DataBlocks.df(datablock)
@@ -96,6 +105,255 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
 
     pd.testing.assert_frame_equal(
         datablock_df[["field0", "field3", "field4", "field5_opt", "block_id", "block_field"]],
+        loaded_df,
+    )
+
+
+async def test_datablock_custom_database(plugin_config, datablock_df) -> None:
+    await setup_serialization_context(plugin_config)
+
+    datablock = await DataBlocks.from_df(
+        MyDataBlock, datablock_df, datablock_database_key="test_db", block_id="b1", block_field=42
+    )
+
+    assert datablock == MyDataBlock(
+        block_id="b1",
+        block_field=42,
+        part1=Dataset(
+            protocol="hopeit.dataframes.serialization.files.DatasetFileStorage",
+            partition_key=datablock.part1.partition_key,
+            key=datablock.part1.key,
+            datatype="conftest.Part1",
+            database_key="test_db",
+            collection="mydatablock",
+            schema={
+                "properties": {
+                    "field0": {"title": "Field0", "type": "string"},
+                    "field1": {"title": "Field1", "type": "string"},
+                    "field2": {"title": "Field2", "type": "number"},
+                },
+                "required": ["field0", "field1", "field2"],
+                "title": "Part1",
+                "type": "object",
+            },
+        ),
+        part2=Dataset(
+            protocol="hopeit.dataframes.serialization.files.DatasetFileStorage",
+            partition_key=datablock.part1.partition_key,
+            key=datablock.part1.key,
+            datatype="conftest.Part2",
+            database_key="test_db",
+            collection="mydatablock",
+            schema={
+                "properties": {
+                    "field0": {"title": "Field0", "type": "string"},
+                    "field3": {"title": "Field3", "type": "string"},
+                    "field4": {"title": "Field4", "type": "number"},
+                    "field5_opt": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}],
+                        "default": None,
+                        "title": "Field5 Opt",
+                    },
+                },
+                "required": ["field0", "field3", "field4"],
+                "title": "Part2",
+                "type": "object",
+            },
+        ),
+    )
+
+    # Check single file is created
+    saved_location = get_saved_file_path(plugin_config, datablock.part1)
+    assert os.path.exists(saved_location)
+    assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
+
+    # test get dataframe
+    loaded_df = await DataBlocks.df(datablock)
+
+    pd.testing.assert_frame_equal(
+        datablock_df[
+            [
+                "field0",
+                "field1",
+                "field2",
+                "field3",
+                "field4",
+                "field5_opt",
+                "block_id",
+                "block_field",
+            ]
+        ],
+        loaded_df,
+    )
+
+
+async def test_datablock_custom_group(plugin_config, datablock_df) -> None:
+    await setup_serialization_context(plugin_config)
+
+    datablock = await DataBlocks.from_df(
+        MyDataBlock,
+        datablock_df,
+        datablock_database_key="test_db",
+        datablock_group_key="datablock/test_group",
+        block_id="b1",
+        block_field=42,
+    )
+
+    assert datablock == MyDataBlock(
+        block_id="b1",
+        block_field=42,
+        part1=Dataset(
+            protocol="hopeit.dataframes.serialization.files.DatasetFileStorage",
+            partition_key=datablock.part1.partition_key,
+            key=datablock.part1.key,
+            datatype="conftest.Part1",
+            database_key="test_db",
+            group_key="datablock/test_group",
+            collection="mydatablock",
+            schema={
+                "properties": {
+                    "field0": {"title": "Field0", "type": "string"},
+                    "field1": {"title": "Field1", "type": "string"},
+                    "field2": {"title": "Field2", "type": "number"},
+                },
+                "required": ["field0", "field1", "field2"],
+                "title": "Part1",
+                "type": "object",
+            },
+        ),
+        part2=Dataset(
+            protocol="hopeit.dataframes.serialization.files.DatasetFileStorage",
+            partition_key=datablock.part1.partition_key,
+            key=datablock.part1.key,
+            datatype="conftest.Part2",
+            database_key="test_db",
+            group_key="datablock/test_group",
+            collection="mydatablock",
+            schema={
+                "properties": {
+                    "field0": {"title": "Field0", "type": "string"},
+                    "field3": {"title": "Field3", "type": "string"},
+                    "field4": {"title": "Field4", "type": "number"},
+                    "field5_opt": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}],
+                        "default": None,
+                        "title": "Field5 Opt",
+                    },
+                },
+                "required": ["field0", "field3", "field4"],
+                "title": "Part2",
+                "type": "object",
+            },
+        ),
+    )
+
+    # Check single file is created
+    saved_location = get_saved_file_path(plugin_config, datablock.part1)
+    assert os.path.exists(saved_location)
+    assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
+
+    # test get dataframe
+    loaded_df = await DataBlocks.df(datablock)
+
+    pd.testing.assert_frame_equal(
+        datablock_df[
+            [
+                "field0",
+                "field1",
+                "field2",
+                "field3",
+                "field4",
+                "field5_opt",
+                "block_id",
+                "block_field",
+            ]
+        ],
+        loaded_df,
+    )
+
+
+async def test_datablock_custom_collection(plugin_config, datablock_df) -> None:
+    await setup_serialization_context(plugin_config)
+
+    datablock = await DataBlocks.from_df(
+        MyDataBlock,
+        datablock_df,
+        datablock_database_key="test_db",
+        datablock_group_key="datablock/test_group",
+        datablock_collection="mycollection",
+        block_id="b1",
+        block_field=42,
+    )
+
+    assert datablock == MyDataBlock(
+        block_id="b1",
+        block_field=42,
+        part1=Dataset(
+            protocol="hopeit.dataframes.serialization.files.DatasetFileStorage",
+            partition_key=datablock.part1.partition_key,
+            key=datablock.part1.key,
+            datatype="conftest.Part1",
+            database_key="test_db",
+            group_key="datablock/test_group",
+            collection="mycollection",
+            schema={
+                "properties": {
+                    "field0": {"title": "Field0", "type": "string"},
+                    "field1": {"title": "Field1", "type": "string"},
+                    "field2": {"title": "Field2", "type": "number"},
+                },
+                "required": ["field0", "field1", "field2"],
+                "title": "Part1",
+                "type": "object",
+            },
+        ),
+        part2=Dataset(
+            protocol="hopeit.dataframes.serialization.files.DatasetFileStorage",
+            partition_key=datablock.part1.partition_key,
+            key=datablock.part1.key,
+            datatype="conftest.Part2",
+            database_key="test_db",
+            group_key="datablock/test_group",
+            collection="mycollection",
+            schema={
+                "properties": {
+                    "field0": {"title": "Field0", "type": "string"},
+                    "field3": {"title": "Field3", "type": "string"},
+                    "field4": {"title": "Field4", "type": "number"},
+                    "field5_opt": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}],
+                        "default": None,
+                        "title": "Field5 Opt",
+                    },
+                },
+                "required": ["field0", "field3", "field4"],
+                "title": "Part2",
+                "type": "object",
+            },
+        ),
+    )
+
+    # Check single file is created
+    saved_location = get_saved_file_path(plugin_config, datablock.part1)
+    assert os.path.exists(saved_location)
+    assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
+
+    # test get dataframe
+    loaded_df = await DataBlocks.df(datablock)
+
+    pd.testing.assert_frame_equal(
+        datablock_df[
+            [
+                "field0",
+                "field1",
+                "field2",
+                "field3",
+                "field4",
+                "field5_opt",
+                "block_id",
+                "block_field",
+            ]
+        ],
         loaded_df,
     )
 
@@ -141,6 +399,7 @@ async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
         part2=Dataset(
             protocol=datablock.part2.protocol,
             partition_key=datablock.part2.partition_key,
+            collection=datablock.part2.collection,
             key=datablock.part2.key,
             datatype="conftest.Part2Compat",  # This is just to emulate Part2 has a new schema
             schema=datablock.part2.schema,  # It was saved using the old schema
@@ -185,6 +444,7 @@ async def test_schema_evolution_not_compatible(plugin_config, datablock_df) -> N
         part1=Dataset(
             protocol=datablock.part1.protocol,
             partition_key=datablock.part1.partition_key,
+            collection=datablock.part2.collection,
             key=datablock.part1.key,
             datatype="conftest.Part1NoCompat",  # This is just to emulate Part1 has a new schema
             schema=datablock.part1.schema,  # It was saved using the old schema
@@ -210,6 +470,7 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
         part1=Dataset(
             protocol=datablock.part1.protocol,
             partition_key=datablock.part1.partition_key,
+            collection=datablock.part2.collection,
             key=datablock.part1.key,
             datatype="conftest.Part1NoCompat",  # This is just to emulate Part1 has a new schema
             schema=datablock.part1.schema,  # It was saved using the old schema

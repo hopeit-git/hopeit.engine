@@ -116,11 +116,10 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         datablock_database_key: Optional[str] = None,
         datablock_group_key: Optional[str] = None,
         datablock_collection: Optional[str] = None,
-        datablock_save_schema: bool = False,
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> DataBlockType:
         blocks = {}
-        storage = get_dataset_storage(datablock_database_key)
+        storage = await get_dataset_storage(datablock_database_key)
         block_dataset = await Dataset._save_df(
             storage,
             df,
@@ -129,7 +128,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             partition_dt=datablock_partition_dt,
             group_key=datablock_group_key,
             collection=datablock_collection,
-            save_schema=datablock_save_schema,
+            save_schema=True,  # Required for datablocks
         )
         for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
             if get_origin(field_info.annotation) is Dataset:
