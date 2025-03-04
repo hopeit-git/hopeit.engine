@@ -37,14 +37,6 @@ async def init_registry(settings: DataframesSettings) -> None:
     db_cache[DEFAULT_DATABASE_KEY] = impl
 
 
-# async def activate_database(settings: DataframesSettings, database_key: str) -> None:
-#     assert persitent_registry, "Registry not initialized. Call `init_registry`"
-#     db = await persitent_registry.get(database_key, datatype=DataframesDatabaseSettings)
-#     if db is None:
-#         raise DataframesDatabaseRegistryError(f"Database {database_key} not found in registry.")
-#     await persitent_registry.store(database_key, db)
-
-
 async def list_databases(settings: DataframesSettings) -> list[str]:
     assert persitent_registry, "Registry not initialized. Call `init_registry`"
     return [item.item_id for item in await persitent_registry.list_objects()]

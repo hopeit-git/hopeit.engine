@@ -1,11 +1,8 @@
 """Support for plugin configuration"""
 
-from functools import partial
 from typing import Optional
 
 from hopeit.dataobjects import dataclass, dataobject, field
-
-from pydantic import SecretStr
 
 
 @dataobject
@@ -28,9 +25,6 @@ class DataframesDatabaseSettings:
 @dataclass
 class DataframesRegistryConfig:
     save_location: str
-    connection_str: str = "<<NotSpecified>>"
-    username: SecretStr = field(default_factory=partial(SecretStr, ""))
-    password: SecretStr = field(default_factory=partial(SecretStr, ""))
 
 
 @dataobject

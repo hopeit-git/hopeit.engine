@@ -20,6 +20,7 @@ async def register_database(
     payload: DataframesDatabaseSettings, context: EventContext
 ) -> DataframesDatabaseSettings:
     await registry.save_database_settings(payload)
-    # await asyncio.sleep(0.0)
-    # await registry.activate_database(settings, payload.database_key)
-    return payload
+    registered_db = await registry.db(payload.database_key)
+    if registered_db is None:
+        raise RuntimeError("Failed to register database.")
+    return registered_db

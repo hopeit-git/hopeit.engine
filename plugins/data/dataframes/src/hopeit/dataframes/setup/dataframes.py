@@ -28,14 +28,3 @@ async def setup(payload: None, context: EventContext) -> None:
     await registry.init_registry(settings)
 
     logger.info(context, "Dataframes setup complete.")
-
-
-# def register_serialization(settings: DatasetSerialization) -> None:
-#     impl = find_protocol_impl(settings.protocol)
-#     storage = impl(
-#         protocol=settings.protocol,
-#         location=settings.location,
-#         partition_dateformat=settings.partition_dateformat,
-#         storage_settings=settings.storage_settings,
-#     )
-#     # setattr(Dataset, "_Dataset__storage", storage)

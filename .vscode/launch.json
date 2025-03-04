@@ -50,9 +50,6 @@
             "type": "debugpy",
             "request": "launch",
             "module": "hopeit.server.web",
-            "env": {
-                "REDIS_CONNECTION_STR": "redis://localhost:6379"
-            },
             "args": [
                 "--port=8040",
                 "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/data/dataframes/config/plugin-config.json,apps/examples/dataframes-example/config/app-config.json",

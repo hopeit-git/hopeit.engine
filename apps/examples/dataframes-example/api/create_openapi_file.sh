@@ -1,5 +1,5 @@
 #!/bin/bash
-REDIS_CONNECTION_STR="" PYTHONPATH=./apps/examples/dataframes-example/src hopeit_openapi create \
+PYTHONPATH=./apps/examples/dataframes-example/src hopeit_openapi create \
 --title="Dataframes Example" \
 --description="Dataframes Example" \
 --api-version="$(python -m hopeit.server.version APPS_API_VERSION)" \
