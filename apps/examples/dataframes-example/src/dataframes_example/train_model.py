@@ -100,26 +100,30 @@ async def prepare_datasets(experiment: Experiment, context: EventContext) -> Exp
     database_key = context.track_ids["track.database_key"]
     experiment.train_features = await Dataset.save(
         DataFrames.from_df(IrisFeatures, X_train),
-        database_key=database_key,
         partition_dt=experiment.experiment_dt,
+        database_key=database_key,
+        group_key="demo/iris",
         collection="train_data",
     )
     experiment.train_labels = await Dataset.save(
         DataFrames.from_df(IrisLabels, y_train),
-        database_key=database_key,
         partition_dt=experiment.experiment_dt,
+        database_key=database_key,
+        group_key="demo/iris",
         collection="train_data",
     )
     experiment.test_features = await Dataset.save(
         DataFrames.from_df(IrisFeatures, X_test),
-        database_key=database_key,
         partition_dt=experiment.experiment_dt,
+        database_key=database_key,
+        group_key="demo/iris",
         collection="test_data",
     )
     experiment.test_labels = await Dataset.save(
         DataFrames.from_df(IrisLabels, y_test),
-        database_key=database_key,
         partition_dt=experiment.experiment_dt,
+        database_key=database_key,
+        group_key="demo/iris",
         collection="test_data",
     )
     return experiment

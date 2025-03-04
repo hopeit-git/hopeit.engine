@@ -63,6 +63,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         *,
         partition_dt: Optional[datetime],
         database_key: Optional[str],
+        group_key: Optional[str],
         collection: Optional[str],
         save_schema: bool,
     ) -> Dataset:
@@ -75,6 +76,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
             datatype,
             partition_dt=partition_dt,
             database_key=database_key,
+            group_key=group_key,
             collection=collection,
             save_schema=save_schema,
         )
@@ -86,6 +88,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         *,
         partition_dt: Optional[datetime],
         database_key: Optional[str],
+        group_key: Optional[str],
         collection: Optional[str],
         save_schema: bool,
     ) -> Dataset:
@@ -95,6 +98,8 @@ class DatasetFileStorage(Generic[DataFrameT]):
         """
         path = self.path
         partition_key = ""
+        if group_key:
+            path = path / group_key
         if collection is None:
             collection = datatype.__qualname__.lower()
         path = path / collection
@@ -125,12 +130,15 @@ class DatasetFileStorage(Generic[DataFrameT]):
             datatype=f"{datatype.__module__}.{datatype.__qualname__}",
             partition_dt=partition_dt,
             database_key=database_key,
+            group_key=group_key,
             collection=collection,
             schema=TypeAdapter(datatype).json_schema() if save_schema else None,
         )
 
     async def load_df(self, dataset: Dataset, columns: Optional[list[str]] = None) -> pd.DataFrame:
         path = self.path
+        if dataset.group_key:
+            path = path / dataset.group_key
         if dataset.collection:
             path = path / dataset.collection
         if dataset.partition_key:

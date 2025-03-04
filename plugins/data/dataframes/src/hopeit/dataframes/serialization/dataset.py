@@ -33,6 +33,7 @@ class Dataset(Generic[DataFrameT]):
     datatype: str
     partition_dt: Optional[datetime] = None
     database_key: Optional[str] = None
+    group_key: Optional[str] = None
     collection: Optional[str] = None
     schema: Optional[Dict[str, Any]] = None
 
@@ -41,8 +42,9 @@ class Dataset(Generic[DataFrameT]):
         cls,
         dataframe: DataFrameT,
         *,
-        database_key: Optional[str] = None,
         partition_dt: Optional[datetime] = None,
+        database_key: Optional[str] = None,
+        group_key: Optional[str] = None,
         collection: Optional[str] = None,
         save_schema: bool = False,
     ) -> "Dataset[DataFrameT]":
@@ -51,6 +53,7 @@ class Dataset(Generic[DataFrameT]):
             dataframe,
             partition_dt=partition_dt,
             database_key=database_key,
+            group_key=group_key,
             collection=collection,
             save_schema=save_schema,
         )
@@ -83,6 +86,7 @@ class Dataset(Generic[DataFrameT]):
             datatype=f"{datatype.__module__}.{datatype.__qualname__}",  # type: ignore[attr-defined]
             partition_dt=self.partition_dt,
             database_key=self.database_key,
+            group_key=self.group_key,
             collection=self.collection,
             schema=TypeAdapter(datatype).json_schema() if self.schema else None,
         )
@@ -94,16 +98,18 @@ class Dataset(Generic[DataFrameT]):
         df: pd.DataFrame,
         datatype: Type[GenericDataFrameT],
         *,
-        database_key: Optional[str],
         partition_dt: Optional[datetime],
+        database_key: Optional[str],
+        group_key: Optional[str],
         collection: Optional[str],
         save_schema: bool,
     ) -> "Dataset[GenericDataFrameT]":
         return await storage.save_df(  # type: ignore[attr-defined]
             df,
             datatype,
-            database_key=database_key,
             partition_dt=partition_dt,
+            database_key=database_key,
+            group_key=group_key,
             collection=collection,
             save_schema=save_schema,
         )

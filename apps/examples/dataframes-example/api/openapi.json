@@ -1737,6 +1737,12 @@
             "title": "Database Key",
             "type": "string"
           },
+          "group_key": {
+            "default": null,
+            "nullable": true,
+            "title": "Group Key",
+            "type": "string"
+          },
           "collection": {
             "default": null,
             "nullable": true,
@@ -1803,6 +1809,12 @@
             "title": "Database Key",
             "type": "string"
           },
+          "group_key": {
+            "default": null,
+            "nullable": true,
+            "title": "Group Key",
+            "type": "string"
+          },
           "collection": {
             "default": null,
             "nullable": true,
@@ -1855,6 +1867,12 @@
             "default": null,
             "nullable": true,
             "title": "Database Key",
+            "type": "string"
+          },
+          "group_key": {
+            "default": null,
+            "nullable": true,
+            "title": "Group Key",
             "type": "string"
           },
           "collection": {

@@ -112,8 +112,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         datatype: Type[DataBlockType],
         df: pd.DataFrame,
         *,
-        datablock_database_key: Optional[str] = None,
         datablock_partition_dt: Optional[datetime] = None,
+        datablock_database_key: Optional[str] = None,
+        datablock_group_key: Optional[str] = None,
         datablock_collection: Optional[str] = None,
         datablock_save_schema: bool = False,
         **kwargs,  # Non-Dataset field values for DataBlockType
@@ -126,6 +127,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             datatype,
             database_key=datablock_database_key,
             partition_dt=datablock_partition_dt,
+            group_key=datablock_group_key,
             collection=datablock_collection,
             save_schema=datablock_save_schema,
         )
