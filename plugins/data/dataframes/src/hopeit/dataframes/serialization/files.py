@@ -1,6 +1,6 @@
 """Support for `@dataframes` serialization to files"""
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 import os
 from typing import Generic, Literal, Optional, Type, TypeVar, Union
 from uuid import uuid4
@@ -104,7 +104,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
             collection = datatype.__qualname__.lower()
         path = path / collection
         if self.partition_dateformat:
-            partition_key = (partition_dt or datetime.now(tz=UTC)).strftime(
+            partition_key = (partition_dt or datetime.now(tz=timezone.utc)).strftime(
                 self.partition_dateformat
             )
             path = path / partition_key
