@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 import os
-from typing import Generic, Literal, Optional, Type, TypeVar
+from typing import Generic, Literal, Optional, Type, TypeVar, Union
 from uuid import uuid4
 from pathlib import Path
 
@@ -32,8 +32,8 @@ DataFrameT = TypeVar("DataFrameT", bound=DataFrameMixin)
 class DatasetFileStorageEngineSettings:
     """Pyarrow settings for parquet file storage"""
 
-    compression: Literal["snappy", "gzip", "brotli", "lz4", "zstd"] | None = "zstd"
-    compression_level: int | str | None = None
+    compression: Optional[Literal["snappy", "gzip", "brotli", "lz4", "zstd"]] = "zstd"
+    compression_level: Union[int, str, None] = None
     read_chunk_size: int = 2**20  # 1Mb
 
 

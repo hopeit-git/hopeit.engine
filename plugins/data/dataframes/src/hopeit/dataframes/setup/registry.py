@@ -24,7 +24,7 @@ async def save_database_settings(database_settings: DataframesDatabaseSettings) 
 
 async def load_database_settings(
     settings: DataframesSettings, database_key: str
-) -> DataframesDatabaseSettings | None:
+) -> Optional[DataframesDatabaseSettings]:
     assert persitent_registry, "Registry not initialized. Call `init_registry`"
     key = f"{settings.registry.save_location}/{database_key}"
     return await persitent_registry.get(key, datatype=DataframesDatabaseSettings)
@@ -50,7 +50,7 @@ async def list_databases(settings: DataframesSettings) -> list[str]:
     return [item.item_id for item in await persitent_registry.list_objects()]
 
 
-async def db(database_key: str | None) -> DataframesDatabaseSettings | None:
+async def db(database_key: Optional[str]) -> Optional[DataframesDatabaseSettings]:
     assert persitent_registry, "Registry not initialized. Call `init_registry`"
     return await persitent_registry.get(
         database_key or DEFAULT_DATABASE_KEY, datatype=DataframesDatabaseSettings
@@ -67,7 +67,7 @@ def _get_storage_impl(settings: DatasetSerialization) -> object:
     )
 
 
-async def get_dataset_storage(database_key: str | None = None) -> object:
+async def get_dataset_storage(database_key: Optional[str] = None) -> object:
     impl = db_cache.get(database_key or DEFAULT_DATABASE_KEY)
     if impl is None:
         db_settings = await db(database_key)
