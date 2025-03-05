@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Generic, Optional, Type, TypeVar, get_args, get_origin
 
 import pandas as pd
-from hopeit.dataobjects import fields
+from hopeit.dataobjects import dataobject, dataclass, fields
 
 from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
 from hopeit.dataframes.serialization.protocol import find_dataframe_type
@@ -11,6 +11,19 @@ from hopeit.dataframes.setup.registry import get_dataset_storage
 DataBlockType = TypeVar("DataBlockType")
 DataBlockItemType = TypeVar("DataBlockItemType")
 DataFrameType = TypeVar("DataFrameType")
+
+
+@dataobject
+@dataclass
+class DataBlockMetadata:
+    partition_dt: Optional[datetime] = None
+    database_key: Optional[str] = None
+    group_key: Optional[str] = None
+    collection: Optional[str] = None
+
+    @classmethod
+    def default(cls) -> "DataBlockMetadata":
+        return cls()
 
 
 class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
@@ -111,25 +124,26 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     async def from_df(
         datatype: Type[DataBlockType],
         df: pd.DataFrame,
-        *,
-        datablock_partition_dt: Optional[datetime] = None,
-        datablock_database_key: Optional[str] = None,
-        datablock_group_key: Optional[str] = None,
-        datablock_collection: Optional[str] = None,
+        metadata: DataBlockMetadata | None = None,
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> DataBlockType:
-        blocks = {}
-        storage = await get_dataset_storage(datablock_database_key)
+        if metadata is None:
+            metadata = DataBlockMetadata.default()
+
+        storage = await get_dataset_storage(metadata.database_key)
+
         block_dataset = await Dataset._save_df(
             storage,
             df,
             datatype,
-            database_key=datablock_database_key,
-            partition_dt=datablock_partition_dt,
-            group_key=datablock_group_key,
-            collection=datablock_collection,
+            database_key=metadata.database_key,
+            partition_dt=metadata.partition_dt,
+            group_key=metadata.group_key,
+            collection=metadata.collection,
             save_schema=True,  # Required for datablocks
         )
+
+        blocks = {}
         for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
             if get_origin(field_info.annotation) is Dataset:
                 block_type = get_args(field_info.annotation)[0]

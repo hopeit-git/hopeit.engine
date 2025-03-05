@@ -3,6 +3,7 @@ Storage/persistence asynchronous stores and gets dataobjects from filesystem.
 
 """
 
+from datetime import datetime
 import io
 import os
 import shutil
@@ -128,7 +129,9 @@ class FileStorage(Generic[DataObject]):
             os.makedirs(path.resolve().as_posix(), exist_ok=True)
         return await self._save_file(payload_str, path=path, file_name=key + SUFFIX)
 
-    async def store_file(self, file_name: str, value: io.BytesIO) -> str:
+    async def store_file(
+        self, file_name: str, value: io.BytesIO, *, partition_dt: datetime | None = None
+    ) -> str:
         """
         Stores a file-like object.
 
@@ -139,7 +142,7 @@ class FileStorage(Generic[DataObject]):
         path = self.path
         partition_key = ""
         if self.partition_dateformat:
-            partition_key = get_file_partition_key(self.partition_dateformat)
+            partition_key = get_file_partition_key(partition_dt, self.partition_dateformat)
             path = path / partition_key
             os.makedirs(path.resolve().as_posix(), exist_ok=True)
         file_path = path / file_name
