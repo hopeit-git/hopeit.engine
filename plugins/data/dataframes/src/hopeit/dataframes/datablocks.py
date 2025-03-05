@@ -1,3 +1,9 @@
+"""
+DataBlocks is a utility that allows users of the dataframes plugin to create dataobjects
+that contain combined properties with one or multiple Datasets but can be manipulated
+and saved as a single flat pandas DataFrame.
+"""
+
 from datetime import datetime
 from typing import Generic, Optional, Type, TypeVar, get_args, get_origin
 
@@ -27,6 +33,12 @@ class DataBlockMetadata:
 
 
 class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
+    """
+    TempDataBlock allows to convers a pandas Dataframe to a from dataobjects
+    using DatabBlockType and DataBlockItemType schemas. So from a flat pandas
+    dataframe, an object containing subsections of the data can be created.
+    """
+
     def __init__(self, datatype: Type[DataBlockType], df: pd.DataFrame) -> None:
         self.datatype = datatype
         self.df = df
@@ -79,6 +91,11 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
 
 
 class DataBlocks(Generic[DataBlockType, DataFrameType]):
+    """
+    DataBlocks is a utility class that allows users to create dataobjects containing multiple Datasets.
+    These dataobjects can be converted and saved as a single pandas DataFrame.
+    """
+
     @classmethod
     async def df(
         cls,
@@ -87,6 +104,18 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         select: Optional[list[str]] = None,
         database_key: Optional[str] = None,
     ) -> pd.DataFrame:
+        """
+        Converts a DataBlockType object to a pandas DataFrame, by reading the subyacent Dataset/s and
+        putting al the fields defined in the DataBlockType in a flat pandas DataFrame.
+
+        Args:
+            datablock (DataBlockType): The data block to convert.
+            select (Optional[list[str]]): Optional list of field names to select.
+            database_key (Optional[str]): Optional database key for loading data.
+
+        Returns:
+            pd.DataFrame: The resulting pandas DataFrame.
+        """
         keys = [
             field_name
             for field_name, field_info in fields(datablock).items()  # type: ignore[arg-type]
@@ -127,6 +156,21 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         metadata: DataBlockMetadata | None = None,
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> DataBlockType:
+        """
+        Creates a DataBlockType object from a pandas DataFrame, by saving the pandas Dataframe to a single
+        location, usually a file, and returning a dataobject with Datasets that reference the saved data.
+        The returned DataBlock can be retrieved in one shot using `DataBlocks.df` to get back a flat pandas
+        DataFrame, or each of the individual DataSets can be loaded independently.
+
+        Args:
+            datatype (Type[DataBlockType]): The type of the data block.
+            df (pd.DataFrame): The pandas DataFrame to convert.
+            metadata (Optional[DataBlockMetadata]): Optional metadata for the data block.
+            **kwargs: Additional non-Dataset field values for the DataBlockType.
+
+        Returns:
+            DataBlockType: The resulting data block.
+        """
         if metadata is None:
             metadata = DataBlockMetadata.default()
 
