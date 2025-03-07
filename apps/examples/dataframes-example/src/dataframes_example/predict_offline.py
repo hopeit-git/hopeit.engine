@@ -37,4 +37,4 @@ async def predict(
 
     df["variety"] = model.predict(df)
 
-    return await DataBlocks.from_df(IrisOfflinePredictionDataBlock, df, batch_id=uuid.uuid4().hex)
+    return await DataBlocks.save(IrisOfflinePredictionDataBlock, df, batch_id=uuid.uuid4().hex)

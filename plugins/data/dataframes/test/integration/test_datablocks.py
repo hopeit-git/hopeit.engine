@@ -24,7 +24,7 @@ from conftest import (
 async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
-    datablock = await DataBlocks.from_df(MyDataBlock, datablock_df, block_id="b1", block_field=42)
+    datablock = await DataBlocks.save(MyDataBlock, datablock_df, block_id="b1", block_field=42)
 
     assert datablock == MyDataBlock(
         block_id="b1",
@@ -76,7 +76,7 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
     assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
 
     # test get dataframe
-    loaded_df = await DataBlocks.df(datablock)
+    loaded_df = await DataBlocks.load(datablock)
 
     pd.testing.assert_frame_equal(
         datablock_df[
@@ -95,7 +95,7 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
     )
 
     # test get dataframe
-    loaded_df = await DataBlocks.df(datablock, select=["part1"])
+    loaded_df = await DataBlocks.load(datablock, select=["part1"])
 
     pd.testing.assert_frame_equal(
         datablock_df[["field0", "field1", "field2", "block_id", "block_field"]],
@@ -103,7 +103,7 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
     )
 
     # test get dataframe
-    loaded_df = await DataBlocks.df(datablock, select=["part2"])
+    loaded_df = await DataBlocks.load(datablock, select=["part2"])
 
     pd.testing.assert_frame_equal(
         datablock_df[["field0", "field3", "field4", "field5_opt", "block_id", "block_field"]],
@@ -114,7 +114,7 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
 async def test_datablock_custom_database(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
-    datablock = await DataBlocks.from_df(
+    datablock = await DataBlocks.save(
         MyDataBlock,
         datablock_df,
         DataBlockMetadata(database_key="test_db"),
@@ -174,7 +174,7 @@ async def test_datablock_custom_database(plugin_config, datablock_df) -> None:
     assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
 
     # test get dataframe
-    loaded_df = await DataBlocks.df(datablock)
+    loaded_df = await DataBlocks.load(datablock)
 
     pd.testing.assert_frame_equal(
         datablock_df[
@@ -196,7 +196,7 @@ async def test_datablock_custom_database(plugin_config, datablock_df) -> None:
 async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
-    datablock = await DataBlocks.from_df(
+    datablock = await DataBlocks.save(
         MyDataBlock,
         datablock_df,
         DataBlockMetadata(
@@ -261,7 +261,7 @@ async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> N
     assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
 
     # test get dataframe
-    loaded_df = await DataBlocks.df(datablock)
+    loaded_df = await DataBlocks.load(datablock)
 
     pd.testing.assert_frame_equal(
         datablock_df[
@@ -283,7 +283,7 @@ async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> N
 async def test_datablock_custom_group(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
-    datablock = await DataBlocks.from_df(
+    datablock = await DataBlocks.save(
         MyDataBlock,
         datablock_df,
         DataBlockMetadata(
@@ -348,7 +348,7 @@ async def test_datablock_custom_group(plugin_config, datablock_df) -> None:
     assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
 
     # test get dataframe
-    loaded_df = await DataBlocks.df(datablock)
+    loaded_df = await DataBlocks.load(datablock)
 
     pd.testing.assert_frame_equal(
         datablock_df[
@@ -370,7 +370,7 @@ async def test_datablock_custom_group(plugin_config, datablock_df) -> None:
 async def test_datablock_custom_collection(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
-    datablock = await DataBlocks.from_df(
+    datablock = await DataBlocks.save(
         MyDataBlock,
         datablock_df,
         DataBlockMetadata(
@@ -436,7 +436,7 @@ async def test_datablock_custom_collection(plugin_config, datablock_df) -> None:
     assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
 
     # test get dataframe
-    loaded_df = await DataBlocks.df(datablock)
+    loaded_df = await DataBlocks.load(datablock)
 
     pd.testing.assert_frame_equal(
         datablock_df[
@@ -484,7 +484,7 @@ async def test_tempdatablock(datablock_df) -> None:
 async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
-    datablock: MyDataBlock = await DataBlocks.from_df(
+    datablock: MyDataBlock = await DataBlocks.save(
         MyDataBlock, datablock_df, block_id="b1", block_field=42
     )
 
@@ -503,7 +503,7 @@ async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
         ),
     )
     # test get dataframe
-    loaded_df = await DataBlocks.df(datablock_compat)
+    loaded_df = await DataBlocks.load(datablock_compat)
 
     datablock_df["field6_opt"] = np.nan
     datablock_df["field7_opt"] = pd.Series(np.nan, dtype=object)
@@ -530,7 +530,7 @@ async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
 async def test_schema_evolution_not_compatible(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
-    datablock: MyDataBlock = await DataBlocks.from_df(
+    datablock: MyDataBlock = await DataBlocks.save(
         MyDataBlock, datablock_df, block_id="b1", block_field=42
     )
 
@@ -550,13 +550,13 @@ async def test_schema_evolution_not_compatible(plugin_config, datablock_df) -> N
     )
 
     with pytest.raises(KeyError):
-        await DataBlocks.df(datablock_not_compat)
+        await DataBlocks.load(datablock_not_compat)
 
 
 async def test_schema_evolution_load_partial_compatible(plugin_config, datablock_df) -> None:
     await setup_serialization_context(plugin_config)
 
-    datablock: MyDataBlock = await DataBlocks.from_df(
+    datablock: MyDataBlock = await DataBlocks.save(
         MyDataBlock, datablock_df, block_id="b1", block_field=42
     )
 
@@ -575,7 +575,7 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
         part2=cast(Dataset[Part2Compat], datablock.part2),
     )
 
-    loaded_df = await DataBlocks.df(
+    loaded_df = await DataBlocks.load(
         datablock_not_compat, select=["part2"]
     )  # part2 is still compatible
 

@@ -25,7 +25,7 @@ async def load_datablock(
     datablock: IrisOfflinePredictionDataBlock,
     context: EventContext,
 ) -> list[IrisOfflinePredictionDataBlockItem]:
-    df = await DataBlocks.df(datablock)
+    df = await DataBlocks.load(datablock)
     return TempDataBlock(IrisOfflinePredictionDataBlock, df).to_dataobjects(
         IrisOfflinePredictionDataBlockItem  # type: ignore[arg-type]
     )

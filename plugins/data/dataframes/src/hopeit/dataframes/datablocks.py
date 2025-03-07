@@ -97,7 +97,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     """
 
     @classmethod
-    async def df(
+    async def load(
         cls,
         datablock: DataBlockType,
         *,
@@ -150,7 +150,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         return result_df
 
     @staticmethod
-    async def from_df(
+    async def save(
         datatype: Type[DataBlockType],
         df: pd.DataFrame,
         metadata: DataBlockMetadata | None = None,
