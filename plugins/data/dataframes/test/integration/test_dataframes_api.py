@@ -145,7 +145,7 @@ async def test_dataframe_dataset_serialization_defaults(
 
     assert os.path.exists(get_saved_file_path(plugin_config, dataobject.data))
 
-    loaded_obj = await dataobject.data.load()
+    loaded_obj = await Dataset.load(dataobject.data)
 
     assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
 
@@ -169,7 +169,7 @@ async def test_dataframe_dataset_serialization_save_schema(
 
     assert dataobject.data.schema == TypeAdapter(MyTestData).json_schema()
 
-    loaded_obj = await dataobject.data.load()
+    loaded_obj = await Dataset.load(dataobject.data)
 
     assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
 
@@ -194,7 +194,7 @@ async def test_dataframe_dataset_serialization_custom_database(
     assert dataobject.data.database_key == "test_db"
     assert os.path.exists(get_saved_file_path(plugin_config, dataobject.data))
 
-    loaded_obj = await dataobject.data.load()
+    loaded_obj = await Dataset.load(dataobject.data, database_key="test_db")
 
     assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
 
@@ -220,7 +220,7 @@ async def test_dataframe_dataset_serialization_custom_group(
     assert dataobject.data.group_key == "custom/group"
     assert os.path.exists(get_saved_file_path(plugin_config, dataobject.data))
 
-    loaded_obj = await dataobject.data.load()
+    loaded_obj = await Dataset.load(dataobject.data, database_key="test_db")
 
     assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
 
@@ -252,7 +252,7 @@ async def test_dataframe_dataset_serialization_custom_collection(
     assert dataobject.data.collection == "my_collection"
     assert os.path.exists(get_saved_file_path(plugin_config, dataobject.data))
 
-    loaded_obj = await dataobject.data.load()
+    loaded_obj = await Dataset.load(dataobject.data, database_key="test_db")
 
     assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
 
@@ -291,7 +291,7 @@ async def test_dataframe_dataset_deserialization_compatible(
 
     modified_obj: Dataset[MyTestDataSchemaCompatible] = copy_payload(dataobject.data)  # type: ignore[assignment]
     modified_obj.datatype = "conftest.MyTestDataSchemaCompatible"
-    loaded_obj = await modified_obj.load()
+    loaded_obj = await Dataset.load(modified_obj)
 
     expected_df = DataFrames.df(initial_data)
     expected_df["new_optional_field"] = "(default)"
@@ -316,7 +316,7 @@ async def test_dataframe_dataset_deserialization_not_compatible(
     modified_obj.datatype = "conftest.MyTestDataSchemaNotCompatible"
 
     with pytest.raises(DatasetLoadError):
-        await modified_obj.load()
+        await Dataset.load(modified_obj)
 
 
 async def test_dataframe_json_object_serialization(

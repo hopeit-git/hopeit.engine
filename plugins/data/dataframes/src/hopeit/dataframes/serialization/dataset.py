@@ -58,15 +58,18 @@ class Dataset(Generic[DataFrameT]):
             save_schema=save_schema,
         )
 
-    async def load(self, database_key: Optional[str] = None) -> DataFrameT:
+    @classmethod
+    async def load(
+        cls, dataset: "Dataset[DataFrameT]", database_key: Optional[str] = None
+    ) -> DataFrameT:
         try:
-            storage = await get_dataset_storage(database_key or self.database_key)
-            df = await self._load_df(storage)
-            return self._convert(df)
+            storage = await get_dataset_storage(database_key)
+            df = await dataset._load_df(storage)
+            return dataset._convert(df)
         except (RuntimeError, IOError, KeyError) as e:
             raise DatasetLoadError(
-                f"Error {type(e).__name__}: {e} loading dataset of type {self.datatype} "
-                f"at location {self.partition_key}/{self.key}"
+                f"Error {type(e).__name__}: {e} loading dataset of type {dataset.datatype} "
+                f"at location {dataset.partition_key}/{dataset.key}"
             ) from e
 
     async def _load_df(self, storage: object, columns: Optional[list[str]] = None) -> pd.DataFrame:
