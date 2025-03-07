@@ -88,7 +88,7 @@ async def prepare_datasets(experiment: Experiment, context: EventContext) -> Exp
     )
 
     # Loads raw data from default database
-    input_data: Iris = await experiment.input_data.load()
+    input_data: Iris = await Dataset.load(experiment.input_data)
     X = DataFrames.from_dataframe(IrisFeatures, input_data)
     y = DataFrames.from_dataframe(IrisLabels, input_data)
 
@@ -142,8 +142,12 @@ async def train_model(experiment: Experiment, context: EventContext) -> Experime
     assert experiment.train_labels is not None
 
     database_key = context.track_ids["track.database_key"]
-    train_features: IrisFeatures = await experiment.train_features.load(database_key)
-    train_labels: IrisLabels = await experiment.train_labels.load(database_key)
+    train_features: IrisFeatures = await Dataset.load(
+        experiment.train_features, database_key=database_key
+    )
+    train_labels: IrisLabels = await Dataset.load(
+        experiment.train_labels, database_key=database_key
+    )
 
     clf = DecisionTreeClassifier(random_state=42)
     clf.fit(DataFrames.df(train_features), DataFrames.df(train_labels))
@@ -188,8 +192,10 @@ async def evaluate_model(experiment: Experiment, context: EventContext) -> Exper
     )
 
     database_key = context.track_ids["track.database_key"]
-    test_features: IrisFeatures = await experiment.test_features.load(database_key)
-    test_labels: IrisLabels = await experiment.test_labels.load(database_key)
+    test_features: IrisFeatures = await Dataset.load(
+        experiment.test_features, database_key=database_key
+    )
+    test_labels: IrisLabels = await Dataset.load(experiment.test_labels, database_key=database_key)
 
     y = clf.predict(DataFrames.df(test_features))
     pred_labels = IrisLabels(variety=pd.Series(y))
