@@ -7,8 +7,8 @@ from datetime import datetime, timezone
 from hopeit.dataobjects import DataObject
 
 
-def get_file_partition_key(partition_dateformat: str) -> str:
-    ts = datetime.now(tz=timezone.utc)
+def get_file_partition_key(partition_dt: datetime | None, partition_dateformat: str) -> str:
+    ts = partition_dt or datetime.now(tz=timezone.utc)
     return ts.astimezone(timezone.utc).strftime(partition_dateformat.strip("/")) + "/"
 
 

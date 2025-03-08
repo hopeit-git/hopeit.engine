@@ -7,31 +7,24 @@ types
 
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_logger
-from hopeit.dataframes.serialization.dataset import Dataset, find_protocol_impl
-from hopeit.dataframes.serialization.settings import DatasetSerialization
+from hopeit.dataframes.serialization.settings import DataframesSettings
+
+from hopeit.dataframes.setup import registry
 
 logger = app_logger()
 
 __steps__ = ["setup"]
 
 
-def setup(payload: None, context: EventContext) -> None:
+async def setup(payload: None, context: EventContext) -> None:
     """Setups serizaltion wrappers in hopeit.engine based on
     `DataSerialization` settings configured in plugin configuration file
     """
     logger.info(context, "Configuring Dataset serialization...")
-    settings: DatasetSerialization = context.settings(
-        key="dataset_serialization", datatype=DatasetSerialization
-    )
-    register_serialization(settings)
 
+    settings = context.settings(key="dataframes", datatype=DataframesSettings)
 
-def register_serialization(settings: DatasetSerialization) -> None:
-    impl = find_protocol_impl(settings.protocol)
-    storage = impl(
-        protocol=settings.protocol,
-        location=settings.location,
-        partition_dateformat=settings.partition_dateformat,
-        storage_settings=settings.storage_settings,
-    )
-    setattr(Dataset, "_Dataset__storage", storage)
+    logger.info(context, "Initializaing Dataframes Database registry...")
+    await registry.init_registry(settings)
+
+    logger.info(context, "Dataframes setup complete.")

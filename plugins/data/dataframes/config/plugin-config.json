@@ -7,13 +7,21 @@
     "import_modules": ["hopeit.dataframes"]
   },
   "settings" : {
-    "dataset_serialization": {
-      "protocol": "hopeit.dataframes.serialization.files.DatasetFileStorage",
-      "location": "apps/examples/dataframes-example/data/{auto}",
-      "partition_dateformat": "%Y/%m/%d/%H/",
-      "storage_settings": {
-        "compression": "zstd",
-        "compression_level": 22
+    "dataframes": {
+      "registry": {
+          "save_location": "work/dataframes/registry"
+      },
+      "default_database": {
+        "database_key": "default",
+        "dataset_serialization": {
+          "protocol": "hopeit.dataframes.serialization.files.DatasetFileStorage",
+          "location": "work/dataframes/default",
+          "partition_dateformat": "%Y/%m/%d/%H/",
+          "storage_settings": {
+            "compression": "zstd",
+            "compression_level": 22
+          }
+        }
       }
     }
   },
@@ -21,7 +29,11 @@
     "setup.dataframes": {
       "type": "SETUP",
       "plug_mode": "Standalone",
-      "setting_keys": ["dataset_serialization"]
+      "setting_keys": ["dataframes"]
+    },
+    "setup.register_database": {
+      "type": "POST",
+      "plug_mode": "Standalone"
     }
   }
 }

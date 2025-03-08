@@ -141,5 +141,7 @@ docker/data/
 engine/dist/
 engine/build/
 *.egg-info/
-work/**
+work
 .secrets/**
+.ruff_cache
+.secrets

@@ -3,6 +3,7 @@ Storage/persistence asynchronous stores and gets dataobjects from filesystem.
 
 """
 
+from datetime import datetime
 import io
 import os
 import shutil
@@ -64,7 +65,6 @@ class FileStorage(Generic[DataObject]):
         :param path: str, base path to be used to store and retrieve objects
         """
         self.path: Path = Path(path)
-        os.makedirs(self.path.resolve().as_posix(), exist_ok=True)
         self.partition_dateformat = (partition_dateformat or "").strip("/")
 
     @classmethod
@@ -125,10 +125,12 @@ class FileStorage(Generic[DataObject]):
         path = self.path
         if self.partition_dateformat:
             path = path / get_partition_key(value, self.partition_dateformat)
-            os.makedirs(path.resolve().as_posix(), exist_ok=True)
+        os.makedirs(path.resolve().as_posix(), exist_ok=True)
         return await self._save_file(payload_str, path=path, file_name=key + SUFFIX)
 
-    async def store_file(self, file_name: str, value: io.BytesIO) -> str:
+    async def store_file(
+        self, file_name: str, value: io.BytesIO, *, partition_dt: datetime | None = None
+    ) -> str:
         """
         Stores a file-like object.
 
@@ -139,9 +141,9 @@ class FileStorage(Generic[DataObject]):
         path = self.path
         partition_key = ""
         if self.partition_dateformat:
-            partition_key = get_file_partition_key(self.partition_dateformat)
+            partition_key = get_file_partition_key(partition_dt, self.partition_dateformat)
             path = path / partition_key
-            os.makedirs(path.resolve().as_posix(), exist_ok=True)
+        os.makedirs(path.resolve().as_posix(), exist_ok=True)
         file_path = path / file_name
         async with aiofiles.open(file_path, "wb") as f:
             await f.write(value.read())

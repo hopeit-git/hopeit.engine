@@ -36,13 +36,11 @@ class MyWebResponse:
     dataset_name: str
     example_data: List[MyData.DataObject]
 
-# This step is not needed if SETUP event is configured in app
-DataFrames.setup(DatasetSerialization(
-      protocol="hopeit.dataframes.serialization.files.DatasetFileStorage",
-      location="/tmp/data",
-      partition_dateformat="%Y/%m/%d/%H/",
-))
+# Initialization: this step is not needed if SETUP event is configured in app
+settings = DataframesSettings(...)  # settings example in `plugin-config.json`
+await registry.init_registry(settings)
 
+# Usage
 df = pd.DataFrame([  # Create or load a pandas DataFrame
     {"field1": 1, "field2": "text1"},
     {"field1": 2, "field2": "text2"},
@@ -77,10 +75,8 @@ from typing import Dict, Generic, Iterator, List, Type
 import numpy as np
 import pandas as pd
 from hopeit.dataframes.dataframe import DataFrameT, dataframe
-from hopeit.dataframes.datablocks import DataBlocks
 from hopeit.dataframes.serialization.dataset import Dataset
-from hopeit.dataframes.serialization.settings import DatasetSerialization
-from hopeit.dataframes.setup.dataframes import register_serialization
+from hopeit.dataframes.datablocks import DataBlocks
 from hopeit.dataobjects import DataObject
 
 __all__ = ["DataBlocks", "DataFrames", "Dataset", "dataframe"]
@@ -90,10 +86,6 @@ class DataFrames(Generic[DataFrameT, DataObject]):
     """
     Dataframes manipulation utilities methods
     """
-
-    @staticmethod
-    def setup(settings: DatasetSerialization) -> None:
-        register_serialization(settings)
 
     @staticmethod
     def from_df(

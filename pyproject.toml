@@ -90,7 +90,7 @@ dev-dependencies = [
     "uvloop>=0.21.0",
     # data/dataframes plugin tests
     "pandas-stubs>=2.2.3",
-    "pyarrow>=19.0.1",
+    "pyarrow-stubs>=17.17",
     # examples/dataframes-example deps
     "scikit-learn>=1.6.1",
 ]
@@ -111,9 +111,30 @@ include = [
     "apps/examples/client-example",
     "apps/examples/dataframes-example",
 ]
+exclude = [
+    "engine/build",
+    "plugins/auth/basic-auth/build",
+    "plugins/clients/apps-client/build",
+    "plugins/data/dataframes/build",
+    "plugins/ops/apps-visualizer/build",
+    "plugins/ops/config-manager/build",
+    "plugins/ops/log-streamer/build",
+    "plugins/storage/fs/build",
+    "plugins/storage/redis/build",
+    "plugins/streams/redis/build",
+    "apps/examples/simple-example/build",
+    "apps/examples/client-example/build",
+    "apps/examples/dataframes-example/build",
+    "**/*.egg-info",
+    "**/__pycache__",
+    "**/.mypy_cache",
+    "**/.pytest_cache",
+    "**/.ruff_cache"
+]
 reportArgumentType = false
 reportFunctionMemberAccess = false
 reportGeneralTypeIssues = "warning"
+reportCallIssue = "warning"
 
 [tool.ruff]
 line-length = 100
