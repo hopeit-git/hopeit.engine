@@ -5,7 +5,7 @@ and saved as a single flat pandas DataFrame.
 """
 
 from datetime import datetime
-from typing import Generic, Optional, Type, TypeVar, get_args, get_origin
+from typing import AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, get_origin
 
 import pandas as pd
 from hopeit.dataobjects import dataobject, dataclass, fields
@@ -30,6 +30,13 @@ class DataBlockMetadata:
     @classmethod
     def default(cls) -> "DataBlockMetadata":
         return cls()
+
+
+@dataobject
+@dataclass
+class DataBlockQuery:
+    from_partition_dt: datetime
+    to_partition_dt: datetime
 
 
 class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
@@ -137,7 +144,8 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
         # Load data from first dataset (datablock uses a single file for all datasets)
         dataset: Dataset = getattr(datablock, keys[0])
-        result_df = await DataBlocks._load_datablock_df(dataset, field_names, database_key)
+        storage = await get_dataset_storage(database_key)
+        result_df = await DataBlocks._load_datablock_df(storage, dataset, field_names, database_key)
 
         # Add missing optional fields using class schema (allows schema evolution)
         cls._adapt_to_schema(datablock, keys, result_df)
@@ -201,12 +209,76 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     def default(datatype: Type[DataBlockType]) -> DataBlockType:
         return datatype(**{field_name: [] for field_name in list(fields(datatype))})  # type: ignore[type-var]
 
+    @classmethod
+    async def load_batch(
+        cls,
+        datatype: Type[DataBlockType],
+        query: DataBlockQuery,
+        metadata: DataBlockMetadata | None = None,
+        *,
+        select: Optional[list[str]] = None,
+        **kwargs,  # Non-Dataset field values for DataBlockType
+    ) -> AsyncGenerator[pd.DataFrame, None]:
+        if metadata is None:
+            metadata = DataBlockMetadata.default()
+
+        storage = await get_dataset_storage(metadata.database_key)
+
+        async for block_dataset in storage._get_batch(  # type: ignore[attr-defined]
+            datatype,
+            database_key=metadata.database_key,
+            from_partition_dt=query.from_partition_dt,
+            to_partition_dt=query.to_partition_dt,
+            group_key=metadata.group_key,
+            collection=metadata.collection,
+        ):
+            dataset_types = [
+                (field_name, get_args(field_info.annotation)[0])
+                for field_name, field_info in fields(datatype).items()  # type: ignore[type-var]
+                if get_origin(field_info.annotation) is Dataset
+                and (select is None or field_name in select)
+            ]
+            field_names = list(
+                dict.fromkeys(
+                    [
+                        field_name
+                        for _, dataset_type in dataset_types
+                        for field_name, _ in fields(dataset_type).items()
+                    ]
+                )
+            )
+            result_df = await DataBlocks._load_datablock_df(
+                storage, block_dataset, field_names, metadata.database_key
+            )
+
+            # Adding constant value fields
+            for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
+                if get_origin(field_info.annotation) is not Dataset:
+                    result_df[field_name] = kwargs.get(field_name)
+
+            yield result_df
+
+    @staticmethod
+    def _get_datablock_keys(
+        datablocktype: Type[DataBlockType],
+        *,
+        select: Optional[list[str]] = None,
+    ) -> list[str]:
+        return [
+            field_name
+            for field_name, field_info in fields(datablocktype).items()  # type: ignore[type-var]
+            if get_origin(field_info.annotation) is Dataset
+            and (select is None or field_name in select)
+        ]
+
     @staticmethod
     async def _load_datablock_df(
-        dataset: Dataset, columns: Optional[list[str]] = None, database_key: Optional[str] = None
+        storage: object,
+        dataset: Dataset,
+        columns: Optional[list[str]] = None,
+        database_key: Optional[str] = None,
     ) -> pd.DataFrame:
         try:
-            storage = await get_dataset_storage(database_key or dataset.database_key)
             return await dataset._load_df(storage, columns)
         except (RuntimeError, IOError, KeyError) as e:
             raise DatasetLoadError(

@@ -174,7 +174,7 @@ async def test_datablock_custom_database(plugin_config, datablock_df) -> None:
     assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
 
     # test get dataframe
-    loaded_df = await DataBlocks.load(datablock)
+    loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
     pd.testing.assert_frame_equal(
         datablock_df[
@@ -261,7 +261,7 @@ async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> N
     assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
 
     # test get dataframe
-    loaded_df = await DataBlocks.load(datablock)
+    loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
     pd.testing.assert_frame_equal(
         datablock_df[
@@ -348,7 +348,7 @@ async def test_datablock_custom_group(plugin_config, datablock_df) -> None:
     assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
 
     # test get dataframe
-    loaded_df = await DataBlocks.load(datablock)
+    loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
     pd.testing.assert_frame_equal(
         datablock_df[
@@ -436,7 +436,7 @@ async def test_datablock_custom_collection(plugin_config, datablock_df) -> None:
     assert get_saved_file_path(plugin_config, datablock.part2) == saved_location
 
     # test get dataframe
-    loaded_df = await DataBlocks.load(datablock)
+    loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
     pd.testing.assert_frame_equal(
         datablock_df[

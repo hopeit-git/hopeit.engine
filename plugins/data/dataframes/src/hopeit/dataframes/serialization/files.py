@@ -1,8 +1,9 @@
 """Support for `@dataframes` serialization to files"""
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from glob import glob
 import os
-from typing import Generic, Literal, Optional, Type, TypeVar, Union
+from typing import AsyncGenerator, Generic, Literal, Optional, Type, TypeVar, Union
 from uuid import uuid4
 from pathlib import Path
 
@@ -134,6 +135,65 @@ class DatasetFileStorage(Generic[DataFrameT]):
             collection=collection,
             schema=TypeAdapter(datatype).json_schema() if save_schema else None,
         )
+
+    async def _get_batch(
+        self,
+        datatype: Type[DataFrameT],
+        *,
+        from_partition_dt: datetime,
+        to_partition_dt: datetime,
+        database_key: Optional[str],
+        group_key: Optional[str],
+        collection: Optional[str],
+    ) -> AsyncGenerator[Dataset, None]:
+        """
+        Returns a list of Dataset found in a range of partitions
+        """
+        path = self.path
+        partition_key = ""
+        if group_key:
+            path = path / group_key
+        if collection is None:
+            collection = datatype.__qualname__.lower()
+        path = path / collection
+
+        explored_partitions = set()
+        partition_increments = timedelta(days=1)
+        partition_dateformat = ""
+        partition_comps = []
+        if self.partition_dateformat:
+            partition_comps = [x for x in self.partition_dateformat.split("/") if len(x)]
+            partition_dateformat = "/".join(partition_comps[0 : min(3, len(partition_comps))])
+            if len(partition_comps) > 3:
+                partition_dateformat += "/" + "/".join(["*" for _ in partition_comps[3:]])
+
+        partition_dt = from_partition_dt
+        while partition_dt <= to_partition_dt:
+            search_path = path
+            if partition_dateformat:
+                partition_key = partition_dt.strftime(partition_dateformat)
+                search_path = search_path / partition_key
+
+            search_path = search_path / f"{datatype.__qualname__.lower()}*.parquet"
+
+            dir_name = search_path.as_posix()
+            if dir_name not in explored_partitions:
+                explored_partitions.add(dir_name)
+                for entry in glob(dir_name):
+                    comps = entry.split("/")
+                    yield Dataset(
+                        protocol=f"{__name__}.{type(self).__name__}",
+                        partition_key="/".join(comps[-len(partition_comps) - 1 : -1]),
+                        key=comps[-1],
+                        datatype=f"{datatype.__module__}.{datatype.__qualname__}",
+                        partition_dt=partition_dt,
+                        database_key=database_key,
+                        group_key=group_key,
+                        collection=collection,
+                        schema=None,  # This is a temporary dataset, not intended to be saved
+                    )
+
+            partition_dt += partition_increments
 
     async def load_df(self, dataset: Dataset, columns: Optional[list[str]] = None) -> pd.DataFrame:
         path = self.path
