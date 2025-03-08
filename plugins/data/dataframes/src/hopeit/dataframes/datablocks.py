@@ -37,6 +37,7 @@ class DataBlockMetadata:
 class DataBlockQuery:
     from_partition_dt: datetime
     to_partition_dt: datetime
+    select: list[str] | None = None
 
 
 class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
@@ -215,8 +216,6 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         datatype: Type[DataBlockType],
         query: DataBlockQuery,
         metadata: DataBlockMetadata | None = None,
-        *,
-        select: Optional[list[str]] = None,
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> AsyncGenerator[pd.DataFrame, None]:
         if metadata is None:
@@ -236,7 +235,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
                 (field_name, get_args(field_info.annotation)[0])
                 for field_name, field_info in fields(datatype).items()  # type: ignore[type-var]
                 if get_origin(field_info.annotation) is Dataset
-                and (select is None or field_name in select)
+                and (query.select is None or field_name in query.select)
             ]
             field_names = list(
                 dict.fromkeys(
