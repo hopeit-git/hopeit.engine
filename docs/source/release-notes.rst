@@ -10,6 +10,9 @@ ______________
   
   - Dataframes:
     - Support configurable compression settings for parquet storage (pyarrow)
+    - Support multiple database instances for dataframes storage
+    - Support hierarchical configuration of database/group/collection for dataframes storage
+    - Support load Datablocks in batches from dataframes storage
 
 
 Version 0.25.4
