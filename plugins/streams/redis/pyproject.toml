@@ -6,7 +6,7 @@ description = "Hopeit Engine Redis Streams Plugin"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.0rc3",
+    "hopeit.engine>=0.26.0rc4",
     "redis>=5.2.1",
 ]
 
