@@ -1,6 +1,6 @@
 [project]
 name = "hopeit.log-streamer"
-version = "0.26.0rc3"
+version = "0.26.0rc4"
 
 description = "Hopeit Engine Log Streamer Plugin"
 dynamic = ["readme"]

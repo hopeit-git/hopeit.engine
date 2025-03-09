@@ -1,6 +1,6 @@
 [project]
 name = "simple_example"
-version = "0.26.0rc3"
+version = "0.26.0rc4"
 
 description = "hopeit.engine Example App"
 dynamic = ["readme"]

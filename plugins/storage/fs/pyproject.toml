@@ -1,6 +1,6 @@
 [project]
 name = "hopeit.fs-storage"
-version = "0.26.0rc3"
+version = "0.26.0rc4"
 
 description = "Hopeit Engine File System Storage Toolkit"
 dynamic = ["readme"]
