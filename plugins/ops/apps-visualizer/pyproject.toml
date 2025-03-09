@@ -1,14 +1,14 @@
 [project]
 name = "hopeit.apps-visualizer"
-version = "0.26.0rc3"
+version = "0.26.0rc4"
 
 description = "Hopeit Engine Apps Visualizer Plugin"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.0rc3",
-    "hopeit.config-manager>=0.26.0rc3",
-    "hopeit.log-streamer>=0.26.0rc3",
+    "hopeit.engine>=0.26.0rc4",
+    "hopeit.config-manager>=0.26.0rc4",
+    "hopeit.log-streamer>=0.26.0rc4",
 ]
 
 license = { text = "Apache 2" }
@@ -49,3 +49,6 @@ where = ["src"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["README.md"], content-type = "text/markdown" }
+
+[tool.setuptools.package-data]
+mypkg = ["*.html"]
