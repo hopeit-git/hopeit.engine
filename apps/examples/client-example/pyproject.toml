@@ -1,15 +1,15 @@
 [project]
 name = "client_example"
-version = "0.26.0rc2"
+version = "0.26.0rc3"
 
 description = "hopeit.engine Client Example App"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.0rc2",
-    "simple-example>=0.26.0rc2",
-    "hopeit.basic-auth>=0.26.0rc2",
-    "hopeit.apps-client>=0.26.0rc2",
+    "hopeit.engine>=0.26.0rc3",
+    "simple-example>=0.26.0rc3",
+    "hopeit.basic-auth>=0.26.0rc3",
+    "hopeit.apps-client>=0.26.0rc3",
 ]
 
 license = { text = "Apache 2" }

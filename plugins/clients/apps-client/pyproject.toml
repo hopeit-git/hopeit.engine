@@ -1,12 +1,12 @@
 [project]
 name = "hopeit.apps-client"
-version = "0.26.0rc2"
+version = "0.26.0rc3"
 
 description = "Hopeit Apps Client Plugin"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.0rc2",
+    "hopeit.engine>=0.26.0rc3",
 ]
 
 license = { text = "Apache 2" }
