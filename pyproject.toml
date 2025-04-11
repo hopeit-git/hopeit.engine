@@ -1,6 +1,6 @@
 [project]
 name = "hopeit.engine.workspace"
-version = "0.26.0rc4"
+version = "0.26.0"
 
 dynamic = ["readme"]
 
