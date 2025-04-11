@@ -181,7 +181,7 @@ FandS AI, uses **hopeit.engine** to develop and deploy the ML and business logic
 
 ## Features
 
-- Enables the development of microservices in Python (3.9+).
+- Enables the development of microservices in Python (3.10+).
 - Provides a web server for API endpoints. *
 - OpenAPI schema validation and docs. *
 - Inter-app connectivity via http client with retrying and circuit breaker. *
@@ -255,7 +255,7 @@ If an external request triggers a process that requires background tasks to run,
 
 ![hopeit.engine QA](https://github.com/hopeit-git/hopeit.engine/workflows/hopeit.engine%20QA/badge.svg)
 
-> - Tested on Python 3.9, 3.10, 3.11 and 3.12
+> - Tested on Python 3.10, 3.11, 3.12 and 3.13
 > - Types and code style checks with [*mypy*](https://pypi.org/project/mypy), [*ruff*](https://github.com/astral-sh/ruff)
 > - *hopeit.engine* unit tested using [*pytest*](https://pypi.org/project/pytest/), required coverage > 90%
 > - HTTP server integration tests using [*pytest_aiohttp*](https://pypi.org/project/pytest-aiohttp/)
