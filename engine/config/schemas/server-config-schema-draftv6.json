@@ -164,7 +164,7 @@
       "$ref": "#/$defs/APIConfig"
     },
     "engine_version": {
-      "default": "0.25.4",
+      "default": "0.26.0",
       "title": "Engine Version",
       "type": "string"
     }

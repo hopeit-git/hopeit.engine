@@ -81,7 +81,7 @@ tutorials <https://hopeitengine.readthedocs.io/en/latest/index.html>`__.
 Features
 --------
 
--  Enables development of microservices in Python (3.9+).
+-  Enables development of microservices in Python (3.10+).
 -  Provides web server for API endpoints. \*
 -  Open API schema validation and docs. \*
 -  Modular and testable application design: each microservice is an app

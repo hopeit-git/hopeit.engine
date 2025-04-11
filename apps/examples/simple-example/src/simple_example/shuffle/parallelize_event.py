@@ -76,7 +76,7 @@ async def fork_something(
 
 async def __postprocess__(
     payload: Something, context: EventContext, response: PostprocessHook
-) -> str:  # noqa: C0103
+) -> str:
     assert context.event_info.write_stream
     msg = f"events submitted to stream: {context.event_info.write_stream.name}"
     logger.info(context, msg)

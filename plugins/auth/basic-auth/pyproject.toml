@@ -1,12 +1,12 @@
 [project]
 name = "hopeit.basic-auth"
-version = "0.26.0rc4"
+version = "0.26.0"
 
 description = "Hopeit Engine Example Basic Auth Plugin"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.0rc4", 
+    "hopeit.engine>=0.26.0", 
 ]
 
 license = { text = "Apache 2" }
