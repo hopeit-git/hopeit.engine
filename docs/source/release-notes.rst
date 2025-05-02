@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+Version 0.26.1
+______________
+
+- Plugins:
+  
+  - fs-storage: enforced utf-8 encoding for json file creating and reading
+
+
 Version 0.26.0
 ______________
 
