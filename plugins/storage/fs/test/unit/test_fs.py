@@ -148,9 +148,11 @@ class MockFile:
         pass
 
     @staticmethod
-    def open(path, mode="r"):
+    def open(path, mode="r", encoding: str = ""):
         assert path
         assert mode
+        if "b" not in mode:
+            assert encoding == "utf-8"
         if "FILENOTFOUND" in str(path):
             raise FileNotFoundError(str(path))
         elif "VALIDFILEWITHTS" in str(path):
