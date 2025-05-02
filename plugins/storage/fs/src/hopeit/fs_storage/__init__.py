@@ -214,7 +214,7 @@ class FileStorage(Generic[DataObject]):
         """
         file_path = path / file_name
         try:
-            async with aiofiles.open(file_path) as f:  # type: ignore
+            async with aiofiles.open(file_path, encoding="utf-8") as f:  # type: ignore
                 return await f.read()
         except FileNotFoundError:
             return None
@@ -229,7 +229,7 @@ class FileStorage(Generic[DataObject]):
         """
         file_path = path / file_name
         tmp_path = path / str(f".{uuid.uuid4()}")
-        async with aiofiles.open(tmp_path, "w") as f:  # type: ignore
+        async with aiofiles.open(tmp_path, "w", encoding="utf-8") as f:  # type: ignore
             await f.write(payload_str)
             await f.flush()
         shutil.move(str(tmp_path), str(file_path))
