@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+Version 0.26.2
+______________
+
+- Plugins:
+  
+  - dataframes: 
+    - `schema_evolution` (default=False) flag on `Dataset.load` to speed up loading when no need check series types
+    - `schema_evolution` (default=False) flag on `Datablocks.load` to speed up loading when no need support schema changes
+
+
 Version 0.26.1
 ______________
 

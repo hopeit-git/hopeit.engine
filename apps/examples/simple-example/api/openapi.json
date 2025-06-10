@@ -1826,7 +1826,6 @@
           },
           "settings": {
             "additionalProperties": {
-              "additionalProperties": true,
               "type": "object"
             },
             "title": "Settings",
@@ -1834,7 +1833,6 @@
           },
           "effective_settings": {
             "additionalProperties": {
-              "additionalProperties": true,
               "type": "object"
             },
             "default": null,
@@ -2267,7 +2265,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.26.1",
+            "default": "0.26.2",
             "title": "Engine Version",
             "type": "string"
           }
