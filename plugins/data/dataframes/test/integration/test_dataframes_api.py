@@ -150,6 +150,30 @@ async def test_dataframe_dataset_serialization_defaults(
     assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
 
 
+async def test_dataframe_dataset_serialization_force_series_conversion(
+    sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
+):
+    await setup_serialization_context(plugin_config)
+
+    initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
+    dataobject = MyTestDataObject(
+        name="test",
+        data=await Dataset.save(initial_data),
+    )
+
+    assert isinstance(dataobject.data, Dataset)
+    assert dataobject.data.datatype == "conftest.MyTestData"
+    assert isinstance(dataobject.data.partition_key, str)
+    assert isinstance(dataobject.data.key, str)
+    assert dataobject.data.protocol == "hopeit.dataframes.serialization.files.DatasetFileStorage"
+
+    assert os.path.exists(get_saved_file_path(plugin_config, dataobject.data))
+
+    loaded_obj = await Dataset.load(dataobject.data, force_series_conversion=True)
+
+    assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
+
+
 async def test_dataframe_dataset_serialization_save_schema(
     sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
 ):
@@ -291,7 +315,16 @@ async def test_dataframe_dataset_deserialization_compatible(
 
     modified_obj: Dataset[MyTestDataSchemaCompatible] = copy_payload(dataobject.data)  # type: ignore[assignment]
     modified_obj.datatype = "conftest.MyTestDataSchemaCompatible"
-    loaded_obj = await Dataset.load(modified_obj)
+    loaded_obj = await Dataset.load(modified_obj, force_series_conversion=False)
+
+    expected_df = DataFrames.df(initial_data)
+    expected_df["new_optional_field"] = "(default)"
+
+    assert_frame_equal(
+        expected_df[["number", "timestamp", "new_optional_field"]], DataFrames.df(loaded_obj)
+    )
+
+    loaded_obj = await Dataset.load(modified_obj, force_series_conversion=True)
 
     expected_df = DataFrames.df(initial_data)
     expected_df["new_optional_field"] = "(default)"
@@ -316,7 +349,10 @@ async def test_dataframe_dataset_deserialization_not_compatible(
     modified_obj.datatype = "conftest.MyTestDataSchemaNotCompatible"
 
     with pytest.raises(DatasetLoadError):
-        await Dataset.load(modified_obj)
+        await Dataset.load(modified_obj, force_series_conversion=False)
+
+    with pytest.raises(DatasetLoadError):
+        await Dataset.load(modified_obj, force_series_conversion=True)
 
 
 async def test_dataframe_json_object_serialization(
