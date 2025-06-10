@@ -63,12 +63,12 @@ class Dataset(Generic[DataFrameT]):
         cls,
         dataset: "Dataset[DataFrameT]",
         database_key: Optional[str] = None,
-        force_series_conversion: bool = False,
+        schema_evolution: bool = False,
     ) -> DataFrameT:
         try:
             storage = await get_dataset_storage(database_key)
             df = await dataset._load_df(storage)
-            if force_series_conversion:
+            if schema_evolution:
                 return dataset._convert(df)
             return dataset._convert_unsafe(df)
         except (RuntimeError, IOError, KeyError) as e:

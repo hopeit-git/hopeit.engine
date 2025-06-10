@@ -116,7 +116,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         Union[datetime, None]: _series_to_utc_datetime_nullable,
     }
 
-    def __init__(self, **series: pd.Series) -> None:
+    def __init__(self, _bypass_validation: bool = False, **series: pd.Series) -> None:
         # Fields added here only to allow mypy to provide correct type hints
         self.__data_object__: Dict[str, Any] = {}
         self.__dataframe__: DataFrameMetadata = None  # type: ignore
@@ -124,12 +124,10 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(
-        self, *, __bypass_validation: bool = False, **series: pd.Series
-    ) -> None:  # pylint: disable=bad-staticmethod-argument
+    def __init_from_series__(self, _bypass_validation: bool = False, **series: pd.Series) -> None:  # pylint: disable=bad-staticmethod-argument
         df = pd.DataFrame(series)
         df.index.name = None  # Removes index name to avoid colisions with series name
-        if not __bypass_validation and self.__data_object__["validate"]:
+        if (not _bypass_validation) and self.__data_object__["validate"]:
             df = pd.DataFrame(self._coerce_datatypes(df))
         setattr(self, "__df", df[self.__dataframe__.columns])
 
@@ -151,7 +149,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     def _from_df_unsafe(cls, df: pd.DataFrame, **series: pd.Series) -> DataFrameT:
         for col, values in series.items():
             df[col] = values
-        obj = cls(__bypass_validation=True, **df._series)  # type: ignore[arg-type]
+        obj = cls(True, **df._series)  # type: ignore[arg-type]
         return obj  # type: ignore
 
     @property

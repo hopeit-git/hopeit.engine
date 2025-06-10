@@ -111,6 +111,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         *,
         select: Optional[list[str]] = None,
         database_key: Optional[str] = None,
+        schema_evolution: bool = False,
     ) -> pd.DataFrame:
         """
         Converts a DataBlockType object to a pandas DataFrame, by reading the subyacent Dataset/s and
@@ -149,7 +150,8 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         result_df = await DataBlocks._load_datablock_df(storage, dataset, field_names, database_key)
 
         # Add missing optional fields using class schema (allows schema evolution)
-        cls._adapt_to_schema(datablock, keys, result_df)
+        if schema_evolution:
+            cls._adapt_to_schema(datablock, keys, result_df)
 
         # Adding constant value fields
         for field_name, field_info in fields(datablock).items():  # type: ignore[arg-type]

@@ -150,7 +150,7 @@ async def test_dataframe_dataset_serialization_defaults(
     assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
 
 
-async def test_dataframe_dataset_serialization_force_series_conversion(
+async def test_dataframe_dataset_serialization_schema_evolution(
     sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
 ):
     await setup_serialization_context(plugin_config)
@@ -169,7 +169,7 @@ async def test_dataframe_dataset_serialization_force_series_conversion(
 
     assert os.path.exists(get_saved_file_path(plugin_config, dataobject.data))
 
-    loaded_obj = await Dataset.load(dataobject.data, force_series_conversion=True)
+    loaded_obj = await Dataset.load(dataobject.data, schema_evolution=True)
 
     assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
 
@@ -315,7 +315,7 @@ async def test_dataframe_dataset_deserialization_compatible(
 
     modified_obj: Dataset[MyTestDataSchemaCompatible] = copy_payload(dataobject.data)  # type: ignore[assignment]
     modified_obj.datatype = "conftest.MyTestDataSchemaCompatible"
-    loaded_obj = await Dataset.load(modified_obj, force_series_conversion=False)
+    loaded_obj = await Dataset.load(modified_obj, schema_evolution=True)
 
     expected_df = DataFrames.df(initial_data)
     expected_df["new_optional_field"] = "(default)"
@@ -324,7 +324,7 @@ async def test_dataframe_dataset_deserialization_compatible(
         expected_df[["number", "timestamp", "new_optional_field"]], DataFrames.df(loaded_obj)
     )
 
-    loaded_obj = await Dataset.load(modified_obj, force_series_conversion=True)
+    loaded_obj = await Dataset.load(modified_obj, schema_evolution=True)
 
     expected_df = DataFrames.df(initial_data)
     expected_df["new_optional_field"] = "(default)"
@@ -349,10 +349,7 @@ async def test_dataframe_dataset_deserialization_not_compatible(
     modified_obj.datatype = "conftest.MyTestDataSchemaNotCompatible"
 
     with pytest.raises(DatasetLoadError):
-        await Dataset.load(modified_obj, force_series_conversion=False)
-
-    with pytest.raises(DatasetLoadError):
-        await Dataset.load(modified_obj, force_series_conversion=True)
+        await Dataset.load(modified_obj, schema_evolution=True)
 
 
 async def test_dataframe_json_object_serialization(
