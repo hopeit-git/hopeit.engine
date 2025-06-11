@@ -1826,6 +1826,7 @@
           },
           "settings": {
             "additionalProperties": {
+              "additionalProperties": true,
               "type": "object"
             },
             "title": "Settings",
@@ -1833,6 +1834,7 @@
           },
           "effective_settings": {
             "additionalProperties": {
+              "additionalProperties": true,
               "type": "object"
             },
             "default": null,

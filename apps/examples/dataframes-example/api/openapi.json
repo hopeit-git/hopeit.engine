@@ -1031,6 +1031,7 @@
           },
           "settings": {
             "additionalProperties": {
+              "additionalProperties": true,
               "type": "object"
             },
             "title": "Settings",
@@ -1038,6 +1039,7 @@
           },
           "effective_settings": {
             "additionalProperties": {
+              "additionalProperties": true,
               "type": "object"
             },
             "default": null,
@@ -1750,6 +1752,7 @@
             "type": "string"
           },
           "schema": {
+            "additionalProperties": true,
             "default": null,
             "nullable": true,
             "title": "Schema",
@@ -1822,6 +1825,7 @@
             "type": "string"
           },
           "schema": {
+            "additionalProperties": true,
             "default": null,
             "nullable": true,
             "title": "Schema",
@@ -1882,6 +1886,7 @@
             "type": "string"
           },
           "schema": {
+            "additionalProperties": true,
             "default": null,
             "nullable": true,
             "title": "Schema",

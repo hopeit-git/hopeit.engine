@@ -174,7 +174,7 @@ async def step_respawn(payload: MockData, context: EventContext) -> Spawn[MockDa
         yield MockData(payload.value + " respawn:" + str(j))
 
 
-def test_context() -> EventContext:
+def _get_event_context() -> EventContext:
     app_config = AppConfig(
         app=AppDescriptor(name="test_steps", version="test_version"),
         events={"test_steps": EventDescriptor(type=EventType.POST)},
@@ -197,7 +197,7 @@ async def test_execute_linear_steps():
         (2, "step3", (step3, MockData, MockData, False)),
     ]
     async for result in execute_steps(
-        steps=steps, payload=MockData("input"), context=test_context()
+        steps=steps, payload=MockData("input"), context=_get_event_context()
     ):
         assert result == MockData("input step1 step2 step3")
 
@@ -213,10 +213,10 @@ async def test_execute_decision_steps():
         (5, "step5b", (step5b, str, MockResult, False)),
         (6, "step6", (step6, MockResult, MockResult, False)),
     ]
-    async for result in execute_steps(steps=steps, payload=MockData("a"), context=test_context()):
+    async for result in execute_steps(steps=steps, payload=MockData("a"), context=_get_event_context()):
         assert result == MockResult("a step1 step2 step3 step4 step5a step6")
 
-    async for result in execute_steps(steps=steps, payload=MockData("b"), context=test_context()):
+    async for result in execute_steps(steps=steps, payload=MockData("b"), context=_get_event_context()):
         assert result == MockResult("b step1 step2 step3 step4 step5b step6")
 
 
@@ -234,7 +234,7 @@ async def test_execute_spawn_initial_steps():
     ]
     i = 0
     async for result in execute_steps(
-        steps=steps, payload=None, context=test_context(), query_arg1="a"
+        steps=steps, payload=None, context=_get_event_context(), query_arg1="a"
     ):
         assert result == MockResult(f"a {i} step1 step2 step3 step4 step5a step6")
         i += 1
@@ -242,7 +242,7 @@ async def test_execute_spawn_initial_steps():
 
     i = 0
     async for result in execute_steps(
-        steps=steps, payload=None, context=test_context(), query_arg1="b"
+        steps=steps, payload=None, context=_get_event_context(), query_arg1="b"
     ):
         assert result == MockResult(f"b {i} step1 step2 step3 step4 step5b step6")
         i += 1
@@ -264,7 +264,7 @@ async def test_execute_multiple_spawn_steps():
     ]
     i, j, count = 0, 0, 0
     async for result in execute_steps(
-        steps=steps, payload=None, context=test_context(), query_arg1="a"
+        steps=steps, payload=None, context=_get_event_context(), query_arg1="a"
     ):
         assert result == MockResult(f"a {i} step1 step2 step3 respawn:{j} step4 step5a step6")
         i, j = i + 1 if j == 2 else i, j + 1 if j < 2 else 0
@@ -274,7 +274,7 @@ async def test_execute_multiple_spawn_steps():
 
     i, j, count = 0, 0, 0
     async for result in execute_steps(
-        steps=steps, payload=None, context=test_context(), query_arg1="b"
+        steps=steps, payload=None, context=_get_event_context(), query_arg1="b"
     ):
         assert result == MockResult(f"b {i} step1 step2 step3 respawn:{j} step4 step5b step6")
         i, j = i + 1 if j == 2 else i, j + 1 if j < 2 else 0
@@ -285,7 +285,7 @@ async def test_execute_multiple_spawn_steps():
 
 @pytest.mark.asyncio
 async def test_invoke_single_step():
-    result = await invoke_single_step(step1, payload=MockData("input"), context=test_context())
+    result = await invoke_single_step(step1, payload=MockData("input"), context=_get_event_context())
     assert result == MockData("input step1")
 
 

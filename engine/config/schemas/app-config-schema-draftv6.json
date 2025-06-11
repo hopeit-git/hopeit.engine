@@ -631,7 +631,6 @@
     },
     "settings": {
       "additionalProperties": {
-        "additionalProperties": true,
         "type": "object"
       },
       "title": "Settings",
@@ -641,7 +640,6 @@
       "anyOf": [
         {
           "additionalProperties": {
-            "additionalProperties": true,
             "type": "object"
           },
           "type": "object"

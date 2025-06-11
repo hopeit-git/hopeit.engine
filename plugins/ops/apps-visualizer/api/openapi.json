@@ -445,6 +445,7 @@
           },
           "settings": {
             "additionalProperties": {
+              "additionalProperties": true,
               "type": "object"
             },
             "title": "Settings",
@@ -452,6 +453,7 @@
           },
           "effective_settings": {
             "additionalProperties": {
+              "additionalProperties": true,
               "type": "object"
             },
             "default": null,
@@ -1061,6 +1063,7 @@
         "properties": {
           "data": {
             "additionalProperties": {
+              "additionalProperties": true,
               "type": "object"
             },
             "title": "Data",
