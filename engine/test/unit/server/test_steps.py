@@ -213,10 +213,14 @@ async def test_execute_decision_steps():
         (5, "step5b", (step5b, str, MockResult, False)),
         (6, "step6", (step6, MockResult, MockResult, False)),
     ]
-    async for result in execute_steps(steps=steps, payload=MockData("a"), context=_get_event_context()):
+    async for result in execute_steps(
+        steps=steps, payload=MockData("a"), context=_get_event_context()
+    ):
         assert result == MockResult("a step1 step2 step3 step4 step5a step6")
 
-    async for result in execute_steps(steps=steps, payload=MockData("b"), context=_get_event_context()):
+    async for result in execute_steps(
+        steps=steps, payload=MockData("b"), context=_get_event_context()
+    ):
         assert result == MockResult("b step1 step2 step3 step4 step5b step6")
 
 
@@ -285,7 +289,9 @@ async def test_execute_multiple_spawn_steps():
 
 @pytest.mark.asyncio
 async def test_invoke_single_step():
-    result = await invoke_single_step(step1, payload=MockData("input"), context=_get_event_context())
+    result = await invoke_single_step(
+        step1, payload=MockData("input"), context=_get_event_context()
+    )
     assert result == MockData("input step1")
 
 
