@@ -116,7 +116,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         Union[datetime, None]: _series_to_utc_datetime_nullable,
     }
 
-    def __init__(self, _bypass_validation: bool = False, **series: pd.Series) -> None:
+    def __init__(self, **series: pd.Series) -> None:
         # Fields added here only to allow mypy to provide correct type hints
         self.__data_object__: Dict[str, Any] = {}
         self.__dataframe__: DataFrameMetadata = None  # type: ignore
@@ -124,16 +124,15 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(self, _bypass_validation: bool = False, **series: pd.Series) -> None:  # pylint: disable=bad-staticmethod-argument
+    def __init_from_series__(self, **series: pd.Series) -> None:  # pylint: disable=bad-staticmethod-argument
         df = pd.DataFrame(series)
         df.index.name = None  # Removes index name to avoid colisions with series name
-        if (not _bypass_validation) and self.__data_object__["validate"]:
-            df = pd.DataFrame(self._coerce_datatypes(df))
+        if self.__data_object__["validate"]:
+            self._coerce_datatypes(df)
         setattr(self, "__df", df[self.__dataframe__.columns])
 
     @classmethod
     def _from_df(cls, df: pd.DataFrame, **series: Any) -> DataFrameT:
-        df = df if cls.__data_object__["unsafe"] else pd.DataFrame(df)
         obj = cls(**{**df._series, **series})  # pylint: disable=protected-access
         return obj  # type: ignore
 
@@ -144,13 +143,6 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     @classmethod
     def _from_dataobjects(cls, items: Iterator[DataObject]) -> DataFrameT:
         return cls._from_df(pd.DataFrame(Payload.to_obj(item) for item in items))  # type: ignore[misc]
-
-    @classmethod
-    def _from_df_unsafe(cls, df: pd.DataFrame, **series: pd.Series) -> DataFrameT:
-        for col, values in series.items():
-            df[col] = values
-        obj = cls(True, **df._series)  # type: ignore[arg-type]
-        return obj  # type: ignore
 
     @property
     def _df(self) -> pd.DataFrame:
@@ -210,13 +202,11 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     def _coerce_datatypes(
         self,
         df: pd.DataFrame,
-    ) -> Dict[str, pd.Series]:
-        return {
-            name: self.DATATYPE_MAPPING[field.annotation](  # type: ignore[index, operator]
+    ) -> None:
+        for name, field in self.__dataframe__.fields.items():
+            df[name] = self.DATATYPE_MAPPING[field.annotation](  # type: ignore[index, operator]
                 name, self._get_series(df, name, field)
             )
-            for name, field in self.__dataframe__.fields.items()
-        }
 
 
 def dataframe(

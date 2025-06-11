@@ -63,14 +63,11 @@ class Dataset(Generic[DataFrameT]):
         cls,
         dataset: "Dataset[DataFrameT]",
         database_key: Optional[str] = None,
-        schema_evolution: bool = False,
     ) -> DataFrameT:
         try:
             storage = await get_dataset_storage(database_key)
             df = await dataset._load_df(storage)
-            if schema_evolution:
-                return dataset._convert(df)
-            return dataset._convert_unsafe(df)
+            return dataset._convert(df)
         except (RuntimeError, IOError, KeyError) as e:
             raise DatasetLoadError(
                 f"Error {type(e).__name__}: {e} loading dataset of type {dataset.datatype} "
@@ -84,11 +81,6 @@ class Dataset(Generic[DataFrameT]):
         """Converts loaded pandas Dataframe to @dataframe annotated object using Dataset metadata"""
         datatype: Type[DataFrameT] = find_dataframe_type(self.datatype)
         return datatype._from_df(df)  # type: ignore[attr-defined]
-
-    def _convert_unsafe(self, df: pd.DataFrame) -> DataFrameT:
-        """Converts loaded pandas Dataframe to @dataframe annotated object without parsing series"""
-        datatype: Type[DataFrameT] = find_dataframe_type(self.datatype)
-        return datatype._from_df_unsafe(df)  # type: ignore[attr-defined]
 
     def _adapt(self, datatype: DataFrameT) -> "Dataset[DataFrameT]":
         """Adapts a more generic dataset that contains combined fields to be type specific"""

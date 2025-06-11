@@ -503,7 +503,7 @@ async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
         ),
     )
     # test get dataframe
-    loaded_df = await DataBlocks.load(datablock_compat, schema_evolution=True)
+    loaded_df = await DataBlocks.load(datablock_compat)
 
     datablock_df["field6_opt"] = np.nan
     datablock_df["field7_opt"] = pd.Series(np.nan, dtype=object)
@@ -550,7 +550,7 @@ async def test_schema_evolution_not_compatible(plugin_config, datablock_df) -> N
     )
 
     with pytest.raises(KeyError):
-        await DataBlocks.load(datablock_not_compat, schema_evolution=True)
+        await DataBlocks.load(datablock_not_compat)
 
 
 async def test_schema_evolution_load_partial_compatible(plugin_config, datablock_df) -> None:
