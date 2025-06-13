@@ -60,7 +60,9 @@ class Dataset(Generic[DataFrameT]):
 
     @classmethod
     async def load(
-        cls, dataset: "Dataset[DataFrameT]", database_key: Optional[str] = None
+        cls,
+        dataset: "Dataset[DataFrameT]",
+        database_key: Optional[str] = None,
     ) -> DataFrameT:
         try:
             storage = await get_dataset_storage(database_key)

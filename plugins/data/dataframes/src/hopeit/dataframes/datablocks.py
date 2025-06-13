@@ -148,7 +148,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         storage = await get_dataset_storage(database_key)
         result_df = await DataBlocks._load_datablock_df(storage, dataset, field_names, database_key)
 
-        # Add missing optional fields using class schema (allows schema evolution)
+        # Enfore datatypes and add missing optional fields using class schema (allows schema evolution)
         cls._adapt_to_schema(datablock, keys, result_df)
 
         # Adding constant value fields

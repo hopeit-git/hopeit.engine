@@ -129,7 +129,7 @@ clean-dist-plugin:
 	rm -rf $(PLUGINFOLDER)/dist
 
 schemas:
-	uv --directory=engine/config/schemas run --active --no-sync python update_config_schemas.py
+	uv --directory=engine/config/schemas run --no-project --no-sync python update_config_schemas.py
 
 publish-engine-pypi:
 	uv publish -u=__token__ -p=$(PYPI_API_TOKEN) engine/dist/*

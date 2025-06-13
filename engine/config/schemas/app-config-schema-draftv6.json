@@ -474,7 +474,7 @@
           "$ref": "#/$defs/APIConfig"
         },
         "engine_version": {
-          "default": "0.26.1",
+          "default": "0.26.2",
           "title": "Engine Version",
           "type": "string"
         }
@@ -631,7 +631,6 @@
     },
     "settings": {
       "additionalProperties": {
-        "additionalProperties": true,
         "type": "object"
       },
       "title": "Settings",
@@ -641,7 +640,6 @@
       "anyOf": [
         {
           "additionalProperties": {
-            "additionalProperties": true,
             "type": "object"
           },
           "type": "object"

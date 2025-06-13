@@ -150,6 +150,30 @@ async def test_dataframe_dataset_serialization_defaults(
     assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
 
 
+async def test_dataframe_dataset_serialization_schema_evolution(
+    sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
+):
+    await setup_serialization_context(plugin_config)
+
+    initial_data = DataFrames.from_df(MyTestData, sample_pandas_df)
+    dataobject = MyTestDataObject(
+        name="test",
+        data=await Dataset.save(initial_data),
+    )
+
+    assert isinstance(dataobject.data, Dataset)
+    assert dataobject.data.datatype == "conftest.MyTestData"
+    assert isinstance(dataobject.data.partition_key, str)
+    assert isinstance(dataobject.data.key, str)
+    assert dataobject.data.protocol == "hopeit.dataframes.serialization.files.DatasetFileStorage"
+
+    assert os.path.exists(get_saved_file_path(plugin_config, dataobject.data))
+
+    loaded_obj = await Dataset.load(dataobject.data)
+
+    assert_frame_equal(DataFrames.df(initial_data), DataFrames.df(loaded_obj))
+
+
 async def test_dataframe_dataset_serialization_save_schema(
     sample_pandas_df: pd.DataFrame, plugin_config: AppConfig
 ):

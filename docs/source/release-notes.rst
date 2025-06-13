@@ -1,6 +1,20 @@
 Release Notes
 =============
 
+Version 0.26.2
+______________
+
+- Plugins:
+  
+  - dataframes: 
+    
+    - Avoid copying pandas dataframe on each `@dataframe` creation.
+    
+      - Note: `unsafe` flag in `@dataframe` decorator has no effect until further notice.
+    
+    - Inline type coercion decreases memory usage on Dataset and Datablock load.
+
+
 Version 0.26.1
 ______________
 
