@@ -220,11 +220,6 @@ class AppsClient(Client):
         self._create_session()
         if self.settings.auth_strategy == ClientAuthStrategy.CLIENT_APP_PUBLIC_KEY:
             self._ensure_token(self._now_ts())
-        logger.info(
-            __name__,
-            "Client ready.",
-            extra=extra(app=self.app_key, app_connection=self.app_conn_key),
-        )
         return self
 
     async def stop(self):
@@ -289,16 +284,17 @@ class AppsClient(Client):
             host = self.conn_state.load_balancer.host(host_index)
             route = self.routes[event_name]
             url = host + route
-            logger.info(
-                context,
-                f"{'Calling' if retry_count == 0 else 'Retrying call to'} external app...",
-                extra=extra(
-                    app_connection=self.app_conn_key,
-                    event=event_name,
-                    url=url,
-                    retry_count=retry_count,
-                ),
-            )
+            if retry_count > 0:
+                logger.warning(
+                    context,
+                    "Retrying call...",
+                    extra=extra(
+                        app_connection=self.app_conn_key,
+                        event=event_name,
+                        url=url,
+                        retry_count=retry_count,
+                    ),
+                )
 
             try:
                 if event_info.type == EventConnectionType.GET:

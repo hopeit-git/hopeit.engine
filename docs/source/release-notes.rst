@@ -1,6 +1,18 @@
 Release Notes
 =============
 
+Version 0.26.3
+______________
+
+- Engine:
+
+  - `console_only` option in server `LoggingConfig`
+
+- Plugins:
+
+  - apps-client: reduce info logging
+
+
 Version 0.26.2
 ______________
 

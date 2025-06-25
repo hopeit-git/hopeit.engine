@@ -1384,6 +1384,11 @@
             "default": "logs/",
             "title": "Log Path",
             "type": "string"
+          },
+          "console_only": {
+            "default": false,
+            "title": "Console Only",
+            "type": "boolean"
           }
         },
         "title": "LoggingConfig",

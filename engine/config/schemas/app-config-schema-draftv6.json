@@ -415,6 +415,11 @@
           "default": "logs/",
           "title": "Log Path",
           "type": "string"
+        },
+        "console_only": {
+          "default": false,
+          "title": "Console Only",
+          "type": "boolean"
         }
       },
       "title": "LoggingConfig",
@@ -631,6 +636,7 @@
     },
     "settings": {
       "additionalProperties": {
+        "additionalProperties": true,
         "type": "object"
       },
       "title": "Settings",
@@ -640,6 +646,7 @@
       "anyOf": [
         {
           "additionalProperties": {
+            "additionalProperties": true,
             "type": "object"
           },
           "type": "object"
