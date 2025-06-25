@@ -180,7 +180,7 @@ def mock_app_config():
                 stream_manager="mock_engine.MockStreamManager",
                 delay_auto_start_seconds=0,
             ),
-            logging=LoggingConfig(log_level="DEBUG", log_path="work/logs/test/"),
+            logging=LoggingConfig(log_level="DEBUG", console_only=True),
         ),
     ).setup()
 
@@ -202,7 +202,7 @@ def mock_client_app_config():
                 stream_manager="mock_engine.MockStreamManager",
                 delay_auto_start_seconds=0,
             ),
-            logging=LoggingConfig(log_level="DEBUG", log_path="work/logs/test/"),
+            logging=LoggingConfig(log_level="DEBUG", console_only=True),
         ),
     ).setup()
 
@@ -244,7 +244,7 @@ def mock_api_app_config():
             "mock_file_response_content_type": EventDescriptor(type=EventType.GET),
         },
         server=ServerConfig(
-            logging=LoggingConfig(log_level="DEBUG", log_path="work/logs/test/"),
+            logging=LoggingConfig(log_level="DEBUG", console_only=True),
             auth=AuthConfig(
                 secrets_location="/tmp",
                 auth_passphrase="test",

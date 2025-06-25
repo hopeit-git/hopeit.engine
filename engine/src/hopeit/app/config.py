@@ -446,7 +446,7 @@ class AppConfig:
     settings: AppSettings = field(default_factory=dict)
     effective_settings: Optional[AppSettings] = None
 
-    def app_key(self):
+    def app_key(self) -> str:
         return self.app.app_key()
 
     def setup(self):
@@ -455,7 +455,7 @@ class AppConfig:
         self._setup_event_extra_settings()
         return self
 
-    def _setup_streams_settings(self):
+    def _setup_streams_settings(self) -> None:
         """
         Prepares missing or default values for events stream configuration:
 
@@ -477,7 +477,7 @@ class AppConfig:
                 settings.stream.compression = self.engine.default_stream_compression
             if settings.stream.serialization is None:
                 settings.stream.serialization = self.engine.default_stream_serialization
-            self.effective_settings[event_name] = Payload.to_obj(settings)
+            self.effective_settings[event_name] = Payload.to_obj(settings)  # type: ignore[index, assignment]
 
     def _setup_event_extra_settings(self):
         """

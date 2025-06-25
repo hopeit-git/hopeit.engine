@@ -142,9 +142,10 @@ def _setup_standard_logger(
     logger.setLevel(config.log_level)
     formatter = logging.Formatter(log_format)
     formatter.converter = time.gmtime  # type: ignore
-    file_handler = _file_handler(logger_name, formatter, config.log_path)
-    logger.addHandler(file_handler)
-    if config.log_level == "DEBUG":
+    if not config.console_only:
+        file_handler = _file_handler(logger_name, formatter, config.log_path)
+        logger.addHandler(file_handler)
+    if config.console_only or config.log_level == "DEBUG":
         ch = _console_handler(logger_name, formatter)
         logger.addHandler(ch)
     return logger
