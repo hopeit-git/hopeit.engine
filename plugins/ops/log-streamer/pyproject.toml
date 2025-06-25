@@ -1,12 +1,12 @@
 [project]
 name = "hopeit.log-streamer"
-version = "0.26.2"
+version = "0.26.3"
 
 description = "Hopeit Engine Log Streamer Plugin"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.2",
+    "hopeit.engine>=0.26.3",
     "watchdog>=6.0.0",
 ]
 

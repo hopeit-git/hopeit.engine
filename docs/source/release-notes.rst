@@ -19,7 +19,7 @@ ______________
     Use `pip install hopeit.dataframes[fs-storage, pandas]` for full runtime installation.
 
 
-Version 0.26.2
+Version 0.26.3
 ______________
 
 - Plugins:
