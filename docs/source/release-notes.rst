@@ -1,7 +1,17 @@
 Release Notes
 =============
 
-Version 0.26.3
+Version 0.26.4
+______________
+
+- Plugins:
+
+  - dataframes: fixed `pandas` as optional dependency
+    Use `pip install hopeit.dataframes` for only `@dataframe` annotation support
+    Use `pip install hopeit.dataframes[pandas]` for full runtime installation.
+    
+    
+Version 0.26.4
 ______________
 
 - Engine:
@@ -14,12 +24,12 @@ ______________
 
   - apps-client: reduce info logging
 
-  - dataframes: made `fs-storage` and `pandas` optional extra deps.
+  - dataframes: made `pandas` optional extra deps. -- BROKEN -- Fixed in 0.26.4
     Use `pip install hopeit.dataframes` for only `@dataframe` annotation support
     Use `pip install hopeit.dataframes[pandas]` for full runtime installation.
 
 
-Version 0.26.3
+Version 0.26.4
 ______________
 
 - Plugins:
