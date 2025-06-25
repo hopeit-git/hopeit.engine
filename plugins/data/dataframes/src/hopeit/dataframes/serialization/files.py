@@ -8,16 +8,15 @@ from uuid import uuid4
 from pathlib import Path
 
 import aiofiles
-import pandas as pd
-import pyarrow
 from pydantic import TypeAdapter
 
 try:
+    import pandas as pd
     import pyarrow  # type: ignore  # noqa  # pylint: disable=unused-import
 except ImportError as e:
     raise ImportError(
-        "`pyarrow` needs to be installed to use `DatasetFileStorage`",
-        "Run `pip install hopeit.dataframes[pyarrow]`",
+        "`pandas` and `pyarrow` needs to be installed to use `DatasetFileStorage`",
+        "Run `pip install hopeit.dataframes[pandas]`",
     ) from e
 
 from hopeit.dataframes.dataframe import DataFrameMixin

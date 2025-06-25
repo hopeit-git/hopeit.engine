@@ -7,7 +7,11 @@ and saved as a single flat pandas DataFrame.
 from datetime import datetime
 from typing import AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, get_origin
 
-import pandas as pd
+try:
+    import pandas as pd
+except ImportError:
+    import hopeit.dataframes.pandas.pandas_mock as pd
+
 from hopeit.dataobjects import dataobject, dataclass, fields
 
 from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
