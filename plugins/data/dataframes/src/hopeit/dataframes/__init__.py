@@ -70,14 +70,16 @@ print(Payload.to_json(my_json_response))
 ```
 """
 
-from typing import Dict, Generic, Iterator, List, Type, TYPE_CHECKING
+from typing import Dict, Generic, Iterator, List, Type
 
 try:
     import numpy as np
     import pandas as pd
 except ImportError:
-    import hopeit.dataframes.pandas.numpy_mock as np
-    import hopeit.dataframes.pandas.pandas_mock as pd
+    # Supports using `@dataframe` annotation for dataobjects definitions
+    # without installing pandas and numpy. Useful for API-only projects.
+    import hopeit.dataframes.pandas.numpy_mock as np  # type: ignore[no-redef]
+    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
 
 from hopeit.dataframes.dataframe import DataFrameT, dataframe
 from hopeit.dataframes.serialization.dataset import Dataset

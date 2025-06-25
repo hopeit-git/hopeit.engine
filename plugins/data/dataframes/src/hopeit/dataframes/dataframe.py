@@ -10,8 +10,8 @@ try:
     import numpy as np
     import pandas as pd
 except ImportError:
-    import hopeit.dataframes.pandas.numpy_mock as np
-    import hopeit.dataframes.pandas.pandas_mock as pd
+    import hopeit.dataframes.pandas.numpy_mock as np  # type: ignore[no-redef]
+    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
 
 from pydantic import create_model
 from pydantic.fields import FieldInfo

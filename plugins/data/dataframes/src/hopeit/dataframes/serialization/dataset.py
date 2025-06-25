@@ -8,7 +8,7 @@ from hopeit.dataobjects import dataclass, dataobject
 try:
     import pandas as pd
 except ImportError:
-    import hopeit.dataframes.pandas.pandas_mock as pd
+    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
 
 from pydantic import TypeAdapter
 

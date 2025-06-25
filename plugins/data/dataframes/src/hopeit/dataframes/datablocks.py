@@ -10,7 +10,7 @@ from typing import AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, g
 try:
     import pandas as pd
 except ImportError:
-    import hopeit.dataframes.pandas.pandas_mock as pd
+    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
 
 from hopeit.dataobjects import dataobject, dataclass, fields
 
