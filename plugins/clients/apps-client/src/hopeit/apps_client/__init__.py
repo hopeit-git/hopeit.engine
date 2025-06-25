@@ -22,7 +22,7 @@ from hopeit.dataobjects.payload import Payload
 from hopeit.toolkit import auth
 from hopeit.server.api import app_route_name
 from hopeit.server.logger import engine_extra_logger
-from hopeit.server.names import spinalcase  # type: ignore
+from hopeit.server.names import spinalcase
 
 logger, extra = engine_extra_logger()
 

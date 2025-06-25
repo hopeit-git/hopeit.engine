@@ -59,7 +59,7 @@ from hopeit.server.names import route_name
 from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
 
-from hopeit.server.names import snakecase, titlecase  # type: ignore
+from hopeit.server.names import snakecase, titlecase
 
 __all__ = [
     "parse_args",

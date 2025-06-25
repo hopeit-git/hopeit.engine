@@ -9,14 +9,6 @@ version = "0.26.2"
 description = "Hopeit Engine Dataframes for Pandas"
 dynamic = ["readme"]
 
-dependencies = [
-    "hopeit.engine>=0.26.2",
-    "hopeit.fs-storage>=0.26.2",
-    "pandas>=2.2.3",
-    "pyarrow>=19.0.1",
-    "numpy>=1.26.4"
-]
-
 license = { text = "Apache 2" }
 authors = [
     { name = "Leo Smerling & Pablo Canto", email = "contact@hopeit.com.ar" },
@@ -38,6 +30,20 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Framework :: AsyncIO",
+]
+
+dependencies = [
+    "hopeit.engine>=0.26.2",
+]
+
+[project.optional-dependencies]
+fs-storage = [
+    "hopeit.fs-storage>=0.26.2"
+]
+pandas = [
+    "pandas>=2.2.3",
+    "pyarrow>=19.0.1",
+    "numpy>=1.26.4"
 ]
 
 [project.urls]
