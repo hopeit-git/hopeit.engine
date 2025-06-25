@@ -23,7 +23,7 @@ import re
 
 from aiohttp import web
 from multidict import CIMultiDictProxy, MultiDict, CIMultiDict, MultiMapping, istr
-from stringcase import titlecase  # type: ignore
+from hopeit.server.names import titlecase  # type: ignore
 
 from hopeit.app.config import (
     AppConfig,

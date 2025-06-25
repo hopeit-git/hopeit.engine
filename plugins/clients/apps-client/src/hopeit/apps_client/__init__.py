@@ -12,7 +12,6 @@ from datetime import datetime, timezone
 from functools import partial
 
 import aiohttp
-from stringcase import spinalcase  # type: ignore
 
 from hopeit.app.client import AppConnectionNotFound, Client, ClientException, UnhandledResponse
 from hopeit.app.context import EventContext
@@ -21,8 +20,9 @@ from hopeit.app.errors import Unauthorized
 from hopeit.dataobjects import EventPayload, EventPayloadType, dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
 from hopeit.toolkit import auth
-from hopeit.server.logger import engine_extra_logger
 from hopeit.server.api import app_route_name
+from hopeit.server.logger import engine_extra_logger
+from hopeit.server.names import spinalcase  # type: ignore
 
 logger, extra = engine_extra_logger()
 

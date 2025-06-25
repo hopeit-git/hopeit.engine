@@ -6,7 +6,6 @@ dynamic = ["version", "readme"]
 
 dependencies = [
     "pydantic>=2.10.6,<3",
-    "stringcase>=1.2.0",
     "lz4>=4.4.3",
     "PyJWT[crypto]>=2.10.1",
     "deepdiff>=8.2.0",

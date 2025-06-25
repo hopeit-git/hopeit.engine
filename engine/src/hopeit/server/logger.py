@@ -10,7 +10,7 @@ from datetime import datetime
 from functools import partial
 from logging.handlers import WatchedFileHandler
 from typing import Dict, Iterable, Union, List, Tuple, Callable, Any
-from stringcase import snakecase  # type: ignore
+from hopeit.server.names import snakecase  # type: ignore
 
 from hopeit.server import version
 from hopeit.app.config import AppDescriptor, AppConfig, EventSettings

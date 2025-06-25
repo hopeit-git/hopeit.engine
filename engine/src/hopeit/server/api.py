@@ -31,7 +31,7 @@ from aiohttp_swagger3.swagger_route import SwaggerRoute
 from pydantic import TypeAdapter
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaValue
 from pydantic_core import core_schema
-from stringcase import titlecase  # type: ignore
+from hopeit.server.names import titlecase  # type: ignore
 
 from hopeit.dataobjects import BinaryAttachment, BinaryDownload
 from hopeit.app.config import (

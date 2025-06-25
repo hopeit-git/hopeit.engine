@@ -7,6 +7,7 @@ ______________
 - Engine:
 
   - `console_only` option in server `LoggingConfig`
+  - removed `stringcase` dependency
 
 - Plugins:
 
