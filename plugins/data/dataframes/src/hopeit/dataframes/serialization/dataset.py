@@ -4,7 +4,12 @@ from datetime import datetime
 from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
 from hopeit.dataobjects import dataclass, dataobject
-import pandas as pd
+
+try:
+    import pandas as pd
+except ImportError:
+    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
+
 from pydantic import TypeAdapter
 
 from hopeit.dataframes.setup.registry import get_dataset_storage

@@ -6,8 +6,13 @@ import dataclasses
 from datetime import date, datetime, timezone
 from typing import Any, Callable, Dict, Generic, Iterator, List, Type, TypeVar, Union
 
-import numpy as np
-import pandas as pd
+try:
+    import numpy as np
+    import pandas as pd
+except ImportError:
+    import hopeit.dataframes.pandas.numpy_mock as np  # type: ignore[no-redef]
+    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
+
 from pydantic import create_model
 from pydantic.fields import FieldInfo
 
