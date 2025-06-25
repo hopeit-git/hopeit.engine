@@ -34,12 +34,10 @@ classifiers = [
 
 dependencies = [
     "hopeit.engine>=0.26.3",
+    "hopeit.fs-storage>=0.26.3"
 ]
 
 [project.optional-dependencies]
-fs-storage = [
-    "hopeit.fs-storage>=0.26.3"
-]
 pandas = [
     "pandas>=2.2.3",
     "pyarrow>=19.0.1",

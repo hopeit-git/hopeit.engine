@@ -16,7 +16,7 @@ ______________
 
   - dataframes: made `fs-storage` and `pandas` optional extra deps.
     Use `pip install hopeit.dataframes` for only `@dataframe` annotation support
-    Use `pip install hopeit.dataframes[fs-storage, pandas]` for full runtime installation.
+    Use `pip install hopeit.dataframes[pandas]` for full runtime installation.
 
 
 Version 0.26.3
