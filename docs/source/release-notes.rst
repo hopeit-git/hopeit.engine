@@ -1,7 +1,25 @@
 Release Notes
 =============
 
-Version 0.26.2
+Version 0.26.3
+______________
+
+- Engine:
+
+  - `console_only` option in server `LoggingConfig`
+  
+  - removed `stringcase` dependency
+
+- Plugins:
+
+  - apps-client: reduce info logging
+
+  - dataframes: made `fs-storage` and `pandas` optional extra deps.
+    Use `pip install hopeit.dataframes` for only `@dataframe` annotation support
+    Use `pip install hopeit.dataframes[pandas]` for full runtime installation.
+
+
+Version 0.26.3
 ______________
 
 - Plugins:

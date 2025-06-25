@@ -45,12 +45,12 @@ A comprehensive framework for modular and scalable architectures to develop and 
 
 Typical installation to use `aiohttp` server and command-line utilities.
 ```
-pip install hopeit.engine[web,cli]
+pip install hopeit.engine
 ```
 
 To enable stream processing via Redis:
 ```
-pip install hopeit.engine[web,cli,redis-streams]
+pip install hopeit.engine[redis-streams]
 ```
 
 

@@ -2179,6 +2179,11 @@
             "default": "logs/",
             "title": "Log Path",
             "type": "string"
+          },
+          "console_only": {
+            "default": false,
+            "title": "Console Only",
+            "type": "boolean"
           }
         },
         "title": "LoggingConfig",
@@ -2267,7 +2272,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.26.2",
+            "default": "0.26.3",
             "title": "Engine Version",
             "type": "string"
           }

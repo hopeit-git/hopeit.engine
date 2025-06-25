@@ -9,7 +9,7 @@
   },
   "logging": {
     "log_level": "DEBUG",
-    "log_path": "work/logs/apps/"
+    "console_only": true
   },
   "auth": {
     "auth_passphrase": "dev-local",

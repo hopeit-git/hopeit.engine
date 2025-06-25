@@ -4,18 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hopeit.dataframes"
-version = "0.26.2"
+version = "0.26.3"
 
 description = "Hopeit Engine Dataframes for Pandas"
 dynamic = ["readme"]
-
-dependencies = [
-    "hopeit.engine>=0.26.2",
-    "hopeit.fs-storage>=0.26.2",
-    "pandas>=2.2.3",
-    "pyarrow>=19.0.1",
-    "numpy>=1.26.4"
-]
 
 license = { text = "Apache 2" }
 authors = [
@@ -38,6 +30,18 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Framework :: AsyncIO",
+]
+
+dependencies = [
+    "hopeit.engine>=0.26.3",
+    "hopeit.fs-storage>=0.26.3"
+]
+
+[project.optional-dependencies]
+pandas = [
+    "pandas>=2.2.3",
+    "pyarrow>=19.0.1",
+    "numpy>=1.26.4"
 ]
 
 [project.urls]

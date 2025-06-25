@@ -6,7 +6,6 @@ dynamic = ["version", "readme"]
 
 dependencies = [
     "pydantic>=2.10.6,<3",
-    "stringcase>=1.2.0",
     "lz4>=4.4.3",
     "PyJWT[crypto]>=2.10.1",
     "deepdiff>=8.2.0",
@@ -54,14 +53,14 @@ include-package-data = true
 [project.optional-dependencies]
 web = []
 cli = []
-redis-streams = ["hopeit.redis-streams==0.26.2"]
-redis-storage = ["hopeit.redis-storage==0.26.2"]
-fs-storage = ["hopeit.fs-storage==0.26.2"]
-config-manager = ["hopeit.config-manager==0.26.2"]
-log-streamer = ["hopeit.log-streamer==0.26.2"]
-apps-visualizer = ["hopeit.apps-visualizer==0.26.2"]
-apps-client = ["hopeit.apps-client==0.26.2"]
-dataframes = ["hopeit.dataframes==0.26.2"]
+redis-streams = ["hopeit.redis-streams==0.26.3"]
+redis-storage = ["hopeit.redis-storage==0.26.3"]
+fs-storage = ["hopeit.fs-storage==0.26.3"]
+config-manager = ["hopeit.config-manager==0.26.3"]
+log-streamer = ["hopeit.log-streamer==0.26.3"]
+apps-visualizer = ["hopeit.apps-visualizer==0.26.3"]
+apps-client = ["hopeit.apps-client==0.26.3"]
+dataframes = ["hopeit.dataframes==0.26.3"]
 
 [project.scripts]
 hopeit_server = "hopeit.cli.server:server"

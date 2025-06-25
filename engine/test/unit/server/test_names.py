@@ -1,4 +1,14 @@
-from hopeit.server.names import route_name, module_name, auto_path, auto_path_prefixed
+import pytest
+
+from hopeit.server.names import (
+    route_name,
+    module_name,
+    auto_path,
+    auto_path_prefixed,
+    snakecase,
+    spinalcase,
+    titlecase,
+)
 
 
 def test_route_name():
@@ -25,3 +35,51 @@ def test_auto_path():
 
 def test_auto_path_prefixed():
     assert auto_path_prefixed("simple.example", "1.0") == "simple.example.1x0"
+
+
+@pytest.mark.parametrize(
+    "input_str, expected",
+    [
+        ("", ""),
+        ("simple", "simple"),
+        ("MyTest", "my_test"),
+        ("myTestCase", "my_test_case"),
+        ("spinal-case", "spinal_case"),
+        ("already_snake", "already_snake"),
+        ("A", "a"),
+        ("URLValue", "u_r_l_value"),
+    ],
+)
+def test_snakecase(input_str, expected):
+    assert snakecase(input_str) == expected
+
+
+@pytest.mark.parametrize(
+    "input_str, expected",
+    [
+        ("", ""),
+        ("simple", "simple"),
+        ("MyTest", "my-test"),
+        ("myTestCase", "my-test-case"),
+        ("spinal_case", "spinal-case"),
+        ("already-spinal", "already-spinal"),
+        ("A", "a"),
+        ("URLValue", "u-r-l-value"),
+    ],
+)
+def test_spinalcase(input_str, expected):
+    assert spinalcase(input_str) == expected
+
+
+@pytest.mark.parametrize(
+    "input_str, expected",
+    [
+        ("", ""),
+        ("simple", "Simple"),
+        ("my_test", "My Test"),
+        ("MyTestString", "My Test String"),
+        ("mixed-input.string here", "Mixed Input String Here"),
+    ],
+)
+def test_titlecase(input_str, expected):
+    assert titlecase(input_str) == expected

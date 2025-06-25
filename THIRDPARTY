@@ -25,10 +25,6 @@ pydantic
     Link: https://github.com/pydantic/pydantic
     License: MIT (https://github.com/pydantic/pydantic/blob/main/LICENSE)
 
-stringcase
-    Link: https://github.com/okunishinishi/python-stringcase
-    License: MIT (https://github.com/okunishinishi/python-stringcase/blob/master/LICENSE)
-
 aioredis
     Link: https://github.com/aio-libs/aioredis
     License: MIT (https://github.com/aio-libs/aioredis/blob/master/LICENSE)

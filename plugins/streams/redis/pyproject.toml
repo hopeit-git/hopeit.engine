@@ -1,12 +1,12 @@
 [project]
 name = "hopeit.redis-streams"
-version = "0.26.2"
+version = "0.26.3"
 
 description = "Hopeit Engine Redis Streams Plugin"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.26.2",
+    "hopeit.engine>=0.26.3",
     "redis>=5.2.1",
 ]
 

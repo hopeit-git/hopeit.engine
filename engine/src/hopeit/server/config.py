@@ -70,6 +70,7 @@ class StreamsConfig:
 class LoggingConfig:
     log_level: str = "INFO"
     log_path: str = "logs/"
+    console_only: bool = False
 
 
 class AuthType(str, Enum):
