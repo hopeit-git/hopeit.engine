@@ -2,19 +2,10 @@
 CLI server commands
 """
 
-import sys
 from typing import List
 
-try:
-    import click
-    from hopeit.server import wsgi
-except ModuleNotFoundError:
-    print(
-        "ERROR: Missing dependencies."
-        "\n       To use hopeit_server command line tool"
-        "\n       install using `pip install hopeit.engine[web,cli]`"
-    )
-    sys.exit(1)
+import click
+from hopeit.server import wsgi
 
 
 @click.group()
