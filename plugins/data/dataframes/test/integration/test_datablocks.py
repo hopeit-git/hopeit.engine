@@ -479,9 +479,21 @@ async def test_tempdatablock(datablock_df) -> None:
 
     new_datablock = TempDataBlock.from_dataobjects(MyDataBlock, dataobjects)
 
-    pd.testing.assert_frame_equal(datablock_df[[
-        "block_id", "block_field", "field0", "field1", "field2", "field3", "field4", "field5_opt"
-    ]], new_datablock.df)
+    pd.testing.assert_frame_equal(
+        datablock_df[
+            [
+                "block_id",
+                "block_field",
+                "field0",
+                "field1",
+                "field2",
+                "field3",
+                "field4",
+                "field5_opt",
+            ]
+        ],
+        new_datablock.df,
+    )
 
 
 async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
