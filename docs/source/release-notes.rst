@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+Version 0.26.5
+______________
+
+- Plugins:
+
+  - dataframes: add `schema_validation` parameter to `DataBlocks.load` and `DataBlocks.load_batch`
+    to allow disable schema enforcing for performance reasons when schema evolution is not needed.
+  
+
 Version 0.26.4
 ______________
 
@@ -11,7 +20,7 @@ ______________
     Use `pip install hopeit.dataframes[pandas]` for full runtime installation.
     
     
-Version 0.26.4
+Version 0.26.3
 ______________
 
 - Engine:

@@ -13,6 +13,7 @@ from conftest import (
     MyDataBlock,
     MyDataBlockCompat,
     MyDataBlockItem,
+    MyDataBlockNoCompat,
     Part1,
     Part2,
     Part2Compat,
@@ -478,7 +479,21 @@ async def test_tempdatablock(datablock_df) -> None:
 
     new_datablock = TempDataBlock.from_dataobjects(MyDataBlock, dataobjects)
 
-    pd.testing.assert_frame_equal(datablock_df, new_datablock.df)
+    pd.testing.assert_frame_equal(
+        datablock_df[
+            [
+                "block_id",
+                "block_field",
+                "field0",
+                "field1",
+                "field2",
+                "field3",
+                "field4",
+                "field5_opt",
+            ]
+        ],
+        new_datablock.df,
+    )
 
 
 async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
@@ -535,7 +550,7 @@ async def test_schema_evolution_not_compatible(plugin_config, datablock_df) -> N
     )
 
     # Simulating a change in the schemas
-    datablock_not_compat = MyDataBlockCompat(
+    datablock_not_compat = MyDataBlockNoCompat(
         block_id=datablock.block_id,
         block_field=datablock.block_field,
         part1=Dataset(
@@ -561,7 +576,7 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
     )
 
     # Simulating a change in the schemas
-    datablock_not_compat = MyDataBlockCompat(
+    datablock_not_compat = MyDataBlockNoCompat(
         block_id=datablock.block_id,
         block_field=datablock.block_field,
         part1=Dataset(
@@ -579,6 +594,8 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
         datablock_not_compat, select=["part2"]
     )  # part2 is still compatible
 
+    print(loaded_df.columns)
+
     pd.testing.assert_frame_equal(
         datablock_df[
             [
@@ -586,6 +603,8 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
                 "field3",
                 "field4",
                 "field5_opt",
+                "field6_opt",
+                "field7_opt",
                 "block_id",
                 "block_field",
             ]

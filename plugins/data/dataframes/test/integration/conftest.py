@@ -199,6 +199,15 @@ class MyDataBlockCompat:
 
 @dataobject
 @dataclass
+class MyDataBlockNoCompat:
+    block_id: str
+    block_field: Optional[int]
+    part1: Dataset[Part1NoCompat]
+    part2: Dataset[Part2Compat]
+
+
+@dataobject
+@dataclass
 class MyDataBlockItem:
     block_id: str
     block_field: Optional[int]
@@ -290,7 +299,9 @@ def datablock_df() -> pd.DataFrame:
             "field2": [2.1, 2.2],
             "field3": ["f31", "f32"],
             "field4": [4.1, 4.2],
-            "field5_opt": [5.1, None],
+            "field5_opt": [5.1, np.nan],
+            "field6_opt": [np.nan, np.nan],
+            "field7_opt": [None, None],
         }
     )
 

@@ -15,7 +15,6 @@ except ImportError:
 from hopeit.dataobjects import dataobject, dataclass, fields
 
 from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
-from hopeit.dataframes.serialization.protocol import find_dataframe_type
 from hopeit.dataframes.setup.registry import get_dataset_storage
 
 DataBlockType = TypeVar("DataBlockType")
@@ -114,6 +113,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         datablock: DataBlockType,
         *,
         select: Optional[list[str]] = None,
+        schema_validation: bool = True,
         database_key: Optional[str] = None,
     ) -> pd.DataFrame:
         """
@@ -128,37 +128,25 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         Returns:
             pd.DataFrame: The resulting pandas DataFrame.
         """
-        keys = [
-            field_name
-            for field_name, field_info in fields(datablock).items()  # type: ignore[arg-type]
-            if get_origin(field_info.annotation) is Dataset
-            and (select is None or field_name in select)
-        ]
-
-        # Filter/validate selected field names using saved schema,
-        # generates a single field for every common/duplicated field in the datasets
-        field_names = list(
-            dict.fromkeys(
-                [
-                    field_name
-                    for key in keys
-                    for field_name in getattr(datablock, key).schema["properties"].keys()
-                ]
-            )
-        )
+        dataset_types = cls._get_dataset_types(type(datablock), select=select)
+        field_names = cls._get_field_names(dataset_types)
 
         # Load data from first dataset (datablock uses a single file for all datasets)
-        dataset: Dataset = getattr(datablock, keys[0])
+        dataset: Dataset = getattr(datablock, dataset_types[0][0])
         storage = await get_dataset_storage(database_key)
-        result_df = await DataBlocks._load_datablock_df(storage, dataset, field_names, database_key)
+        result_df = await DataBlocks._load_datablock_df(
+            storage, dataset, columns=None, database_key=database_key
+        )
 
         # Enfore datatypes and add missing optional fields using class schema (allows schema evolution)
-        cls._adapt_to_schema(datablock, keys, result_df)
+        if schema_validation:
+            cls._adapt_to_schema(dataset_types, result_df)
+            result_df = result_df[field_names]
 
-        # Adding constant value fields
+        # Adding constant value fields from serialized datablock
         for field_name, field_info in fields(datablock).items():  # type: ignore[arg-type]
             if get_origin(field_info.annotation) is not Dataset:
-                result_df[field_name] = getattr(datablock, field_name)  # type: ignore[index]
+                result_df.loc[:, field_name] = getattr(datablock, field_name)  # type: ignore[index]
 
         return result_df
 
@@ -211,6 +199,29 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         return datatype(**blocks)
 
     @staticmethod
+    def _get_dataset_types(
+        datatype: Type[DataBlockType], *, select: list[str] | None = None
+    ) -> list[tuple[str, DataFrameType]]:
+        return [
+            (field_name, get_args(field_info.annotation)[0])
+            for field_name, field_info in fields(datatype).items()  # type: ignore[type-var]
+            if get_origin(field_info.annotation) is Dataset
+            and (select is None or field_name in select)
+        ]
+
+    @staticmethod
+    def _get_field_names(dataset_types: list[tuple[str, DataFrameType]]) -> list[str]:
+        return list(
+            dict.fromkeys(
+                [
+                    field_name
+                    for _, dataset_type in dataset_types
+                    for field_name, _ in fields(dataset_type).items()  # type: ignore[arg-type]
+                ]
+            )
+        )
+
+    @staticmethod
     def default(datatype: Type[DataBlockType]) -> DataBlockType:
         return datatype(**{field_name: [] for field_name in list(fields(datatype))})  # type: ignore[type-var]
 
@@ -220,12 +231,16 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         datatype: Type[DataBlockType],
         query: DataBlockQuery,
         metadata: DataBlockMetadata | None = None,
+        schema_validation: bool = True,
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> AsyncGenerator[pd.DataFrame, None]:
         if metadata is None:
             metadata = DataBlockMetadata.default()
 
         storage = await get_dataset_storage(metadata.database_key)
+
+        dataset_types = cls._get_dataset_types(datatype, select=query.select)
+        field_names = cls._get_field_names(dataset_types)
 
         async for block_dataset in storage._get_batch(  # type: ignore[attr-defined]
             datatype,
@@ -235,29 +250,19 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             group_key=metadata.group_key,
             collection=metadata.collection,
         ):
-            dataset_types = [
-                (field_name, get_args(field_info.annotation)[0])
-                for field_name, field_info in fields(datatype).items()  # type: ignore[type-var]
-                if get_origin(field_info.annotation) is Dataset
-                and (query.select is None or field_name in query.select)
-            ]
-            field_names = list(
-                dict.fromkeys(
-                    [
-                        field_name
-                        for _, dataset_type in dataset_types
-                        for field_name, _ in fields(dataset_type).items()
-                    ]
-                )
-            )
             result_df = await DataBlocks._load_datablock_df(
-                storage, block_dataset, field_names, metadata.database_key
+                storage, block_dataset, columns=None, database_key=metadata.database_key
             )
 
-            # Adding constant value fields
+            # Enfore datatypes and add missing optional fields using class schema (allows schema evolution)
+            if schema_validation:
+                cls._adapt_to_schema(dataset_types, result_df)
+                result_df = result_df[field_names]
+
+            # Adding constant value fields from kwargs
             for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
                 if get_origin(field_info.annotation) is not Dataset:
-                    result_df[field_name] = kwargs.get(field_name)
+                    result_df.loc[:, field_name] = kwargs.get(field_name)
 
             yield result_df
 
@@ -290,9 +295,10 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             ) from e
 
     @classmethod
-    def _adapt_to_schema(cls, datablock: DataBlockType, keys: list[str], df: pd.DataFrame) -> None:
-        for key in keys:
-            datatype = find_dataframe_type(getattr(datablock, key).datatype)  # type: ignore[var-annotated]
-            valid_df = datatype._from_df(df)._df
+    def _adapt_to_schema(
+        cls, dataset_types: list[tuple[str, DataFrameType]], df: pd.DataFrame
+    ) -> None:
+        for _, datatype in dataset_types:
+            valid_df = datatype._from_df(df)._df  # type: ignore[attr-defined]
             for col in valid_df.columns:
                 df[col] = valid_df[col]
