@@ -4,7 +4,9 @@ from typing import List, Optional
 
 from hopeit.dataframes.serialization.settings import DataframesSettings
 import numpy as np
-import pandas as pd
+
+# import pandas as pd
+import polars as pl
 import pytest
 from hopeit.app.config import (
     AppConfig,
@@ -216,8 +218,8 @@ class MyDataBlockItem:
 
 
 @pytest.fixture
-def one_element_pandas_df() -> pd.DataFrame:
-    return pd.DataFrame(
+def one_element_pandas_df() -> pl.DataFrame:
+    return pl.DataFrame(
         [
             {
                 "number": 1,
@@ -229,8 +231,8 @@ def one_element_pandas_df() -> pd.DataFrame:
 
 
 @pytest.fixture
-def two_element_pandas_df_with_nulls() -> pd.DataFrame:
-    return pd.DataFrame(
+def two_element_pandas_df_with_nulls() -> pl.DataFrame:
+    return pl.DataFrame(
         [
             {
                 "id": "1",
@@ -238,14 +240,14 @@ def two_element_pandas_df_with_nulls() -> pd.DataFrame:
                 "name": "test1",
                 "timestamp": datetime.now(tz=timezone.utc),
             },
-            {"id": "2", "number": np.nan, "name": None, "timestamp": pd.NaT},
+            {"id": "2", "number": np.nan, "name": None, "timestamp": None},
         ]
     )
 
 
 @pytest.fixture
-def sample_pandas_df() -> pd.DataFrame:
-    return pd.DataFrame(
+def sample_pandas_df() -> pl.DataFrame:
+    return pl.DataFrame(
         [
             {
                 "number": n,
@@ -289,8 +291,8 @@ def plugin_config() -> AppConfig:
 
 
 @pytest.fixture
-def datablock_df() -> pd.DataFrame:
-    return pd.DataFrame(
+def datablock_df() -> pl.DataFrame:
+    return pl.DataFrame(
         {
             "block_id": ["b1", "b1"],
             "block_field": [42, 42],
@@ -299,8 +301,8 @@ def datablock_df() -> pd.DataFrame:
             "field2": [2.1, 2.2],
             "field3": ["f31", "f32"],
             "field4": [4.1, 4.2],
-            "field5_opt": [5.1, np.nan],
-            "field6_opt": [np.nan, np.nan],
+            "field5_opt": [5.1, None],
+            "field6_opt": [None, None],
             "field7_opt": [None, None],
         }
     )

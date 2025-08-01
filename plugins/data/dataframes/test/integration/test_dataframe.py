@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timezone, date
 # import numpy as np
 # import pandas as pd
 import polars as pl
-from polars.testing import assert_frame_equal, assert_series_equal
+from polars.testing import assert_series_equal
 import pytest
 
 from conftest import DEFAULT_DATE, DEFAULT_DATETIME, MyTestAllTypesData, MyTestAllTypesDefaultValues
@@ -18,7 +18,11 @@ def test_coerce_types_happy():
         float_value=[1.1, 2.2, 3],
         str_value=["a", "B", "test"],
         date_value=[test_date, test_date, date.fromisoformat("2024-01-01")],
-        datetime_value=[test_datetime, test_datetime, datetime.fromisoformat("2024-01-01T00:00:00Z")],
+        datetime_value=[
+            test_datetime,
+            test_datetime,
+            datetime.fromisoformat("2024-01-01T00:00:00Z"),
+        ],
         bool_value=[True, False, True],
         int_value_optional=[0, 1, None],
         float_value_optional=[1.1, 2.2, None],
@@ -28,7 +32,9 @@ def test_coerce_types_happy():
         bool_value_optional=[True, False, None],
     )
 
-    assert_series_equal(data.int_value, pl.Series(name="int_value", values=[0, 1, 2], dtype=pl.Int32))
+    assert_series_equal(
+        data.int_value, pl.Series(name="int_value", values=[0, 1, 2], dtype=pl.Int32)
+    )
     assert_series_equal(data.float_value, pl.Series(name="float_value", values=[1.1, 2.2, 3.0]))
     assert_series_equal(data.str_value, pl.Series(name="str_value", values=["a", "B", "test"]))
     assert_series_equal(
@@ -52,14 +58,13 @@ def test_coerce_types_happy():
                 test_datetime,
                 datetime.fromisoformat("2024-01-01T00:00:00Z"),
             ],
-            dtype=pl.Datetime
+            dtype=pl.Datetime,
         ),
     )
+    assert_series_equal(data.bool_value, pl.Series(name="bool_value", values=[True, False, True]))
     assert_series_equal(
-        data.bool_value, pl.Series(name="bool_value", values=[True, False, True])
-    )
-    assert_series_equal(
-        data.int_value_optional, pl.Series(name="int_value_optional", values=[0, 1, None], dtype=pl.Int32)
+        data.int_value_optional,
+        pl.Series(name="int_value_optional", values=[0, 1, None], dtype=pl.Int32),
     )
     assert_series_equal(
         data.float_value_optional, pl.Series(name="float_value_optional", values=[1.1, 2.2, None])
@@ -102,7 +107,10 @@ def test_coerce_types_defaults():
     )
     assert_series_equal(
         data.float_value,
-        pl.Series(name="float_value", values=[1.0, 1.0, 1.0], ),
+        pl.Series(
+            name="float_value",
+            values=[1.0, 1.0, 1.0],
+        ),
     )
     assert_series_equal(
         data.str_value,
@@ -110,9 +118,7 @@ def test_coerce_types_defaults():
     )
     assert_series_equal(
         data.date_value,
-        pl.Series(
-            name="date_value", values=[DEFAULT_DATE, DEFAULT_DATE, DEFAULT_DATE]
-        ),
+        pl.Series(name="date_value", values=[DEFAULT_DATE, DEFAULT_DATE, DEFAULT_DATE]),
     )
     assert_series_equal(
         data.datetime_value,
@@ -121,16 +127,14 @@ def test_coerce_types_defaults():
             values=[DEFAULT_DATETIME, DEFAULT_DATETIME, DEFAULT_DATETIME],
         ),
     )
-    assert_series_equal(
-        data.bool_value, pl.Series(name="bool_value", values=[False, False, False])
-    )
+    assert_series_equal(data.bool_value, pl.Series(name="bool_value", values=[False, False, False]))
     assert_series_equal(
         data.float_value_optional,
         pl.Series(name="float_value_optional", values=[None, None, None], dtype=pl.Float64),
     )
     assert_series_equal(
         data.str_value_optional,
-        pl.Series(name="str_value_optional", values=[None, None, None],  dtype=pl.String),
+        pl.Series(name="str_value_optional", values=[None, None, None], dtype=pl.String),
     )
     assert_series_equal(
         data.date_value_optional,
@@ -139,7 +143,9 @@ def test_coerce_types_defaults():
     assert_series_equal(
         data.datetime_value_optional,
         pl.Series(
-             name="datetime_value_optional", values=[None, None, None], dtype=pl.Datetime(time_zone=UTC)
+            name="datetime_value_optional",
+            values=[None, None, None],
+            dtype=pl.Datetime(time_zone=UTC),
         ),
     )
     assert_series_equal(
@@ -163,7 +169,10 @@ def test_coerce_types_none_to_defaults():
     )
     assert_series_equal(
         data.float_value,
-        pl.Series(name="float_value", values=[1.0, 1.0, 1.0],),
+        pl.Series(
+            name="float_value",
+            values=[1.0, 1.0, 1.0],
+        ),
     )
     assert_series_equal(
         data.str_value,
@@ -171,9 +180,7 @@ def test_coerce_types_none_to_defaults():
     )
     assert_series_equal(
         data.date_value,
-        pl.Series(
-             name="date_value", values=[DEFAULT_DATE, DEFAULT_DATE, DEFAULT_DATE]
-        ),
+        pl.Series(name="date_value", values=[DEFAULT_DATE, DEFAULT_DATE, DEFAULT_DATE]),
     )
     assert_series_equal(
         data.datetime_value,
@@ -197,7 +204,9 @@ def test_coerce_types_none_to_defaults():
     assert_series_equal(
         data.datetime_value_optional,
         pl.Series(
-            name="datetime_value_optional", values=[None, None, None], dtype=pl.Datetime(time_zone=UTC)
+            name="datetime_value_optional",
+            values=[None, None, None],
+            dtype=pl.Datetime(time_zone=UTC),
         ),
     )
 

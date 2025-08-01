@@ -73,7 +73,8 @@ print(Payload.to_json(my_json_response))
 from typing import Dict, Generic, Iterator, List, Type
 
 # try:
-#     import numpy as np
+import numpy as np
+
 #     import pandas as pd
 import polars as pl
 # except ImportError:
