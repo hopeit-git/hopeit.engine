@@ -181,7 +181,7 @@ async def test_datablock_custom_database(plugin_config, datablock_df) -> None:
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
     assert_frame_equal(
-        datablock_df[
+        datablock_df.select(
             [
                 "field0",
                 "field1",
@@ -192,7 +192,7 @@ async def test_datablock_custom_database(plugin_config, datablock_df) -> None:
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
 
@@ -268,7 +268,7 @@ async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> N
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
     assert_frame_equal(
-        datablock_df[
+        datablock_df.select(
             [
                 "field0",
                 "field1",
@@ -279,7 +279,7 @@ async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> N
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
 
@@ -355,7 +355,7 @@ async def test_datablock_custom_group(plugin_config, datablock_df) -> None:
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
     assert_frame_equal(
-        datablock_df[
+        datablock_df.select(
             [
                 "field0",
                 "field1",
@@ -366,7 +366,7 @@ async def test_datablock_custom_group(plugin_config, datablock_df) -> None:
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
 
@@ -443,7 +443,7 @@ async def test_datablock_custom_collection(plugin_config, datablock_df) -> None:
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
     assert_frame_equal(
-        datablock_df[
+        datablock_df.select(
             [
                 "field0",
                 "field1",
@@ -454,7 +454,7 @@ async def test_datablock_custom_collection(plugin_config, datablock_df) -> None:
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
 
