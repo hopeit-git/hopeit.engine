@@ -33,7 +33,7 @@ def test_coerce_types_happy():
     )
 
     assert_series_equal(
-        data.int_value, pl.Series(name="int_value", values=[0, 1, 2], dtype=pl.Int32)
+        data.int_value, pl.Series(name="int_value", values=[0, 1, 2], dtype=pl.Int64)
     )
     assert_series_equal(data.float_value, pl.Series(name="float_value", values=[1.1, 2.2, 3.0]))
     assert_series_equal(data.str_value, pl.Series(name="str_value", values=["a", "B", "test"]))
@@ -64,7 +64,7 @@ def test_coerce_types_happy():
     assert_series_equal(data.bool_value, pl.Series(name="bool_value", values=[True, False, True]))
     assert_series_equal(
         data.int_value_optional,
-        pl.Series(name="int_value_optional", values=[0, 1, None], dtype=pl.Int32),
+        pl.Series(name="int_value_optional", values=[0, 1, None], dtype=pl.Int64),
     )
     assert_series_equal(
         data.float_value_optional, pl.Series(name="float_value_optional", values=[1.1, 2.2, None])
@@ -103,7 +103,7 @@ def test_coerce_types_defaults():
     data = MyTestAllTypesDefaultValues(id=["1", "2", "3"])
     assert_series_equal(
         data.int_value,
-        pl.Series(name="int_value", values=[1, 1, 1], dtype=pl.Int32),
+        pl.Series(name="int_value", values=[1, 1, 1], dtype=pl.Int64),
     )
     assert_series_equal(
         data.float_value,
@@ -165,7 +165,7 @@ def test_coerce_types_none_to_defaults():
     )
     assert_series_equal(
         data.int_value,
-        pl.Series(name="int_value", values=[1, 1, 1], dtype=pl.Int32),
+        pl.Series(name="int_value", values=[1, 1, 1], dtype=pl.Int64),
     )
     assert_series_equal(
         data.float_value,

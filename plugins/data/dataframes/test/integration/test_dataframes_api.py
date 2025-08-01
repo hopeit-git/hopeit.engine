@@ -34,7 +34,7 @@ def test_dataframes_from_df(sample_df: pl.DataFrame):
 
 
 def test_dataframes_from_df_not_nullable_number(sample_df: pl.DataFrame):
-    invalid_df = sample_df.with_columns([pl.lit(None).cast(pl.Int32()).alias("number")])
+    invalid_df = sample_df.with_columns([pl.lit(None).cast(pl.Int64()).alias("number")])
     with pytest.raises(TypeError):
         DataFrames.from_df(MyTestData, invalid_df)
 
@@ -130,7 +130,7 @@ def test_dataframes_from_array():
     array = np.array([(n, 1.1 * n) for n in range(100)])
     numerical_data = DataFrames.from_array(MyNumericalData, array)
     assert_series_equal(
-        numerical_data.number, pl.Series(name="number", values=array.T[0], dtype=pl.Int32)
+        numerical_data.number, pl.Series(name="number", values=array.T[0], dtype=pl.Int64)
     )
     assert_series_equal(numerical_data.value, pl.Series(name="value", values=array.T[1]))
 

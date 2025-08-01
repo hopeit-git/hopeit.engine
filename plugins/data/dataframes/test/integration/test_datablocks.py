@@ -3,7 +3,8 @@ import os
 from typing import cast
 from hopeit.dataframes.datablocks import TempDataBlock
 import numpy as np
-import pandas as pd
+import polars as pl
+from polars.testing import assert_frame_equal
 
 from hopeit.dataframes import DataBlocks, Dataset
 from hopeit.dataframes.datablocks import DataBlockMetadata
@@ -79,8 +80,8 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock)
 
-    pd.testing.assert_frame_equal(
-        datablock_df[
+    assert_frame_equal(
+        datablock_df.select(
             [
                 "field0",
                 "field1",
@@ -91,23 +92,25 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
 
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, select=["part1"])
 
-    pd.testing.assert_frame_equal(
-        datablock_df[["field0", "field1", "field2", "block_id", "block_field"]],
+    assert_frame_equal(
+        datablock_df.select(["field0", "field1", "field2", "block_id", "block_field"]),
         loaded_df,
     )
 
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, select=["part2"])
 
-    pd.testing.assert_frame_equal(
-        datablock_df[["field0", "field3", "field4", "field5_opt", "block_id", "block_field"]],
+    assert_frame_equal(
+        datablock_df.select(
+            ["field0", "field3", "field4", "field5_opt", "block_id", "block_field"]
+        ),
         loaded_df,
     )
 
@@ -177,7 +180,7 @@ async def test_datablock_custom_database(plugin_config, datablock_df) -> None:
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
-    pd.testing.assert_frame_equal(
+    assert_frame_equal(
         datablock_df[
             [
                 "field0",
@@ -264,7 +267,7 @@ async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> N
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
-    pd.testing.assert_frame_equal(
+    assert_frame_equal(
         datablock_df[
             [
                 "field0",
@@ -351,7 +354,7 @@ async def test_datablock_custom_group(plugin_config, datablock_df) -> None:
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
-    pd.testing.assert_frame_equal(
+    assert_frame_equal(
         datablock_df[
             [
                 "field0",
@@ -439,7 +442,7 @@ async def test_datablock_custom_collection(plugin_config, datablock_df) -> None:
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
-    pd.testing.assert_frame_equal(
+    assert_frame_equal(
         datablock_df[
             [
                 "field0",
@@ -479,7 +482,7 @@ async def test_tempdatablock(datablock_df) -> None:
 
     new_datablock = TempDataBlock.from_dataobjects(MyDataBlock, dataobjects)
 
-    pd.testing.assert_frame_equal(
+    assert_frame_equal(
         datablock_df[
             [
                 "block_id",
@@ -521,9 +524,9 @@ async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
     loaded_df = await DataBlocks.load(datablock_compat)
 
     datablock_df["field6_opt"] = np.nan
-    datablock_df["field7_opt"] = pd.Series(np.nan, dtype=object)
+    datablock_df["field7_opt"] = pl.Series(np.nan, dtype=object)
 
-    pd.testing.assert_frame_equal(
+    assert_frame_equal(
         datablock_df[
             [
                 "field0",
@@ -596,7 +599,7 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
 
     print(loaded_df.columns)
 
-    pd.testing.assert_frame_equal(
+    assert_frame_equal(
         datablock_df[
             [
                 "field0",

@@ -45,13 +45,13 @@ def not_null_check(series: pl.Series) -> bool:
 
 
 DATATYPE_MAPPING = {
-    int: (pl.Int32(), (not_null_check,)),
+    int: (pl.Int64(), (not_null_check,)),
     bool: (pl.Boolean(), (not_null_check,)),
     float: (pl.Float64(), (not_null_check,)),
     str: (pl.String(), (not_null_check,)),
     date: (pl.Date(), (not_null_check,)),
     datetime: (pl.Datetime(time_zone=UTC), (not_null_check,)),
-    Union[int, None]: (pl.Int32(), ()),
+    Union[int, None]: (pl.Int64(), ()),
     Union[bool, None]: (pl.Boolean(), ()),
     Union[float, None]: (pl.Float64(), ()),
     Union[str, None]: (pl.String(), ()),

@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, get_origin
 
 # try:
+from hopeit.dataframes.dataframe import DATATYPE_MAPPING
 import polars as pl
 # except ImportError:
 #     import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
@@ -140,15 +141,30 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
         # Enfore datatypes and add missing optional fields using class schema (allows schema evolution)
         if schema_validation:
-            cls._adapt_to_schema(dataset_types, result_df)
-            result_df = result_df[field_names]
+            result_df = cls._adapt_to_schema(dataset_types, result_df, select_cols=field_names)
 
         # Adding constant value fields from serialized datablock
-        for field_name, field_info in fields(datablock).items():  # type: ignore[arg-type]
-            if get_origin(field_info.annotation) is not Dataset:
-                result_df.loc[:, field_name] = getattr(datablock, field_name)  # type: ignore[index]
+        result_df = result_df.with_columns(
+            [
+                pl.lit(getattr(datablock, field_name))
+                .cast(cls._get_col_type(field_name, field_info.annotation))
+                .alias(field_name)
+                for field_name, field_info in fields(datablock).items()
+                if get_origin(field_info.annotation) is not Dataset
+            ]
+        )
+        # for field_name, field_info in fields(datablock).items():  # type: ignore[arg-type]
+        #     if get_origin(field_info.annotation) is not Dataset:
+        #         result_df.loc[:, field_name] = getattr(datablock, field_name)  # type: ignore[index]
 
         return result_df
+
+    @staticmethod
+    def _get_col_type(field_name: str, annotation: type):
+        typedef = DATATYPE_MAPPING.get(annotation)
+        if typedef is None:
+            raise TypeError(f"Datablocks: unsupported field type: {field_name}: {annotation}")
+        return typedef[0]
 
     @staticmethod
     async def save(
@@ -256,8 +272,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
             # Enfore datatypes and add missing optional fields using class schema (allows schema evolution)
             if schema_validation:
-                cls._adapt_to_schema(dataset_types, result_df)
-                result_df = result_df[field_names]
+                result_df = cls._adapt_to_schema(dataset_types, result_df, select_cols=field_names)
 
             # Adding constant value fields from kwargs
             for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
@@ -296,9 +311,20 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
     @classmethod
     def _adapt_to_schema(
-        cls, dataset_types: list[tuple[str, DataFrameType]], df: pl.DataFrame
-    ) -> None:
-        for _, datatype in dataset_types:
-            valid_df = datatype._from_df(df)._df  # type: ignore[attr-defined]
-            for col in valid_df.columns:
-                df[col] = valid_df[col]
+        cls,
+        dataset_types: list[tuple[str, DataFrameType]],
+        df: pl.DataFrame,
+        select_cols: list[str],
+    ) -> pl.DataFrame:
+        cols = {
+            series.name: series
+            for _, datatype in dataset_types
+            for series in datatype._from_df(df)._df
+            if series.name in select_cols
+        }
+        return pl.DataFrame(list(cols.values()))
+        # for _, datatype in dataset_types:
+        #     valid_df = datatype._from_df(df)._df  # type: ignore[attr-defined]
+
+        #     for col in valid_df.columns:
+        #         df[col] = valid_df[col]
