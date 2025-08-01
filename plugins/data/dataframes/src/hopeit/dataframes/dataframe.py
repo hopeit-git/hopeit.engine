@@ -43,6 +43,7 @@ class DataFrameMetadata:
 def not_null_check(series: pl.Series) -> bool:
     return series.null_count() == 0
 
+
 DATATYPE_MAPPING = {
     int: (pl.Int32(), (not_null_check,)),
     bool: (pl.Boolean(), (not_null_check,)),
@@ -94,8 +95,8 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
         # Create dataframe using schema columns only
         df = pl.DataFrame(
-            {col: data for col, data in series.items() if col in self.__dataframe__.columns}, 
-            schema=self.__dataframe__.schema if validate else None
+            {col: data for col, data in series.items() if col in self.__dataframe__.columns},
+            schema=self.__dataframe__.schema if validate else None,
         )
 
         # Validate (i.e. not nullable fields)
@@ -189,7 +190,6 @@ def dataframe(
                 )
             schema_fields[field_name] = datatype[0]
         return pl.Schema(schema_fields)
-    
 
     def add_dataframe_mixin(cls) -> Type[DataFrameMixin]:
         if hasattr(cls, "__annotations__") and hasattr(cls, "__dataclass_fields__"):

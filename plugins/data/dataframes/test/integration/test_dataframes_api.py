@@ -5,7 +5,7 @@ import numpy as np
 
 # import pandas as pd
 import polars as pl
-from pydantic import TypeAdapter, ValidationError
+from pydantic import TypeAdapter
 import pytest
 import os
 
@@ -46,13 +46,15 @@ def test_dataframes_from_df_not_nullable_string(sample_df: pl.DataFrame):
 
 
 def test_dataframes_from_df_all_null_values(sample_df: pl.DataFrame):
-    valid_df = sample_df.with_columns([
-        pl.lit(None).cast(pl.Float64()).alias("optional_value"),
-        pl.lit(None).cast(pl.String()).alias("optional_label")
-    ])
+    valid_df = sample_df.with_columns(
+        [
+            pl.lit(None).cast(pl.Float64()).alias("optional_value"),
+            pl.lit(None).cast(pl.String()).alias("optional_label"),
+        ]
+    )
     initial_data = DataFrames.from_df(MyTestDataOptionalValues, valid_df)
     assert len(DataFrames.df(initial_data)) == 100
-    assert initial_data.optional_value.null_count() == 100 
+    assert initial_data.optional_value.null_count() == 100
     assert initial_data.optional_label.null_count() == 100
 
 
@@ -62,35 +64,47 @@ def test_dataframes_from_df_some_null_values(sample_df: pl.DataFrame):
     # sample_df.loc[1, "optional_value"] = np.nan
     # sample_df.loc[2, "optional_label"] = np.nan
 
-    valid_df = pl.concat([
-        sample_df.lazy().filter(
-            pl.col("number") != 1
-        ).with_columns([
-            pl.lit(100.0).alias("optional_value"),
-            pl.lit("optional").alias("optional_label")
-        ]),    
-        sample_df.lazy().filter(
-            pl.col("number") == 1
-        ).with_columns([
-            pl.lit(None).cast(pl.Float64()).alias("optional_value"),
-            pl.lit(None).cast(pl.String()).alias("optional_label")
-        ])
-    ])
-    
+    valid_df = pl.concat(
+        [
+            sample_df.lazy()
+            .filter(pl.col("number") != 1)
+            .with_columns(
+                [pl.lit(100.0).alias("optional_value"), pl.lit("optional").alias("optional_label")]
+            ),
+            sample_df.lazy()
+            .filter(pl.col("number") == 1)
+            .with_columns(
+                [
+                    pl.lit(None).cast(pl.Float64()).alias("optional_value"),
+                    pl.lit(None).cast(pl.String()).alias("optional_label"),
+                ]
+            ),
+        ]
+    )
+
     initial_data = DataFrames.from_df(MyTestDataOptionalValues, valid_df.collect())
 
     assert len(DataFrames.df(initial_data)) == 100
-    assert DataFrames.df(initial_data).filter( pl.col("number") == 1)["optional_value"].to_list() == [None]
-    assert DataFrames.df(initial_data).filter( pl.col("number") != 1)["optional_value"].to_list() == [100.0] * 99
-    assert DataFrames.df(initial_data).filter( pl.col("number") == 1)["optional_label"].to_list() == [None]
-    assert DataFrames.df(initial_data).filter( pl.col("number") != 1)["optional_label"].to_list() == ["optional"] * 99
+    assert DataFrames.df(initial_data).filter(pl.col("number") == 1)[
+        "optional_value"
+    ].to_list() == [None]
+    assert (
+        DataFrames.df(initial_data).filter(pl.col("number") != 1)["optional_value"].to_list()
+        == [100.0] * 99
+    )
+    assert DataFrames.df(initial_data).filter(pl.col("number") == 1)[
+        "optional_label"
+    ].to_list() == [None]
+    assert (
+        DataFrames.df(initial_data).filter(pl.col("number") != 1)["optional_label"].to_list()
+        == ["optional"] * 99
+    )
 
 
 def test_dataframes_from_df_set_optional_values(sample_df: pl.DataFrame):
-    valid_df = sample_df.with_columns([
-        pl.lit(100.0).alias("optional_value"),
-        pl.lit("optional").alias("optional_label")
-    ])
+    valid_df = sample_df.with_columns(
+        [pl.lit(100.0).alias("optional_value"), pl.lit("optional").alias("optional_label")]
+    )
     initial_data = DataFrames.from_df(MyTestDataOptionalValues, valid_df)
     assert len(DataFrames.df(initial_data)) == 100
     assert (initial_data.optional_value == 100.0).all()  # type: ignore[union-attr, attr-defined]
@@ -115,8 +129,10 @@ def test_dataframes_from_dataframe(sample_df: pl.DataFrame):
 def test_dataframes_from_array():
     array = np.array([(n, 1.1 * n) for n in range(100)])
     numerical_data = DataFrames.from_array(MyNumericalData, array)
-    assert_series_equal(numerical_data.number, pl.Series(name="number", values=array.T[0], dtype=pl.Int32))
-    assert_series_equal(numerical_data.value, pl.Series( name="value", values=array.T[1]))
+    assert_series_equal(
+        numerical_data.number, pl.Series(name="number", values=array.T[0], dtype=pl.Int32)
+    )
+    assert_series_equal(numerical_data.value, pl.Series(name="value", values=array.T[1]))
 
 
 def test_dataobject_dataframes_conversion(one_element_pandas_df):
@@ -307,7 +323,7 @@ async def test_dataframe_dataset_serialization_storage_settings_used(
 
     df_mock = MagicMock()
     df_mock.return_value = b""
-    monkeypatch.setattr(initial_data._df, "to_parquet", df_mock)  # type: ignore[attr-defined]
+    monkeypatch.setattr(initial_data._df, "write_parquet", df_mock)  # type: ignore[attr-defined]
 
     _ = MyTestDataObject(
         name="test",
@@ -334,8 +350,9 @@ async def test_dataframe_dataset_deserialization_compatible(
     modified_obj.datatype = "conftest.MyTestDataSchemaCompatible"
     loaded_obj = await Dataset.load(modified_obj)
 
-    expected_df = DataFrames.df(initial_data)
-    expected_df["new_optional_field"] = "(default)"
+    expected_df = DataFrames.df(initial_data).with_columns(
+        [pl.lit("(default)").alias("new_optional_field")]
+    )
 
     assert_frame_equal(
         expected_df[["number", "timestamp", "new_optional_field"]], DataFrames.df(loaded_obj)

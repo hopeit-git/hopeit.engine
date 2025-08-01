@@ -5,10 +5,10 @@ from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
 from hopeit.dataobjects import dataclass, dataobject
 
-try:
-    import pandas as pd
-except ImportError:
-    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
+# try:
+import polars as pl
+# except ImportError:
+#     import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
 
 from pydantic import TypeAdapter
 
@@ -73,16 +73,16 @@ class Dataset(Generic[DataFrameT]):
             storage = await get_dataset_storage(database_key)
             df = await dataset._load_df(storage)
             return dataset._convert(df)
-        except (RuntimeError, IOError, KeyError) as e:
+        except (RuntimeError, IOError, KeyError, TypeError) as e:
             raise DatasetLoadError(
                 f"Error {type(e).__name__}: {e} loading dataset of type {dataset.datatype} "
                 f"at location {dataset.partition_key}/{dataset.key}"
             ) from e
 
-    async def _load_df(self, storage: object, columns: Optional[list[str]] = None) -> pd.DataFrame:
+    async def _load_df(self, storage: object, columns: Optional[list[str]] = None) -> pl.DataFrame:
         return await storage.load_df(self, columns)  # type: ignore[attr-defined]
 
-    def _convert(self, df: pd.DataFrame) -> DataFrameT:
+    def _convert(self, df: pl.DataFrame) -> DataFrameT:
         """Converts loaded pandas Dataframe to @dataframe annotated object using Dataset metadata"""
         datatype: Type[DataFrameT] = find_dataframe_type(self.datatype)
         return datatype._from_df(df)  # type: ignore[attr-defined]
@@ -105,7 +105,7 @@ class Dataset(Generic[DataFrameT]):
     async def _save_df(
         cls,
         storage: object,
-        df: pd.DataFrame,
+        df: pl.DataFrame,
         datatype: Type[GenericDataFrameT],
         *,
         partition_dt: Optional[datetime],

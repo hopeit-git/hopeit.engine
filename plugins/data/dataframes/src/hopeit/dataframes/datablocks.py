@@ -7,10 +7,10 @@ and saved as a single flat pandas DataFrame.
 from datetime import datetime
 from typing import AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, get_origin
 
-try:
-    import pandas as pd
-except ImportError:
-    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
+# try:
+import polars as pl
+# except ImportError:
+#     import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
 
 from hopeit.dataobjects import dataobject, dataclass, fields
 
@@ -50,7 +50,7 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
     dataframe, an object containing subsections of the data can be created.
     """
 
-    def __init__(self, datatype: Type[DataBlockType], df: pd.DataFrame) -> None:
+    def __init__(self, datatype: Type[DataBlockType], df: pl.DataFrame) -> None:
         self.datatype = datatype
         self.df = df
 
@@ -58,7 +58,7 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
     def from_dataobjects(
         cls, datatype: Type[DataBlockType], items: list[DataBlockItemType]
     ) -> "TempDataBlock[DataBlockType, DataBlockItemType]":
-        result_df: Optional[pd.DataFrame] = None
+        result_df: Optional[pl.DataFrame] = None
         for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
             if get_origin(field_info.annotation) is Dataset:
                 block_items = (getattr(item, field_name) for item in items)
@@ -66,7 +66,7 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
                 block = block_type._from_dataobjects(block_items)
                 block_df = block._df
             else:
-                block_df = pd.DataFrame({field_name: [getattr(item, field_name) for item in items]})
+                block_df = pl.DataFrame({field_name: [getattr(item, field_name) for item in items]})
 
             if result_df is None:
                 result_df = block_df
@@ -115,7 +115,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         select: Optional[list[str]] = None,
         schema_validation: bool = True,
         database_key: Optional[str] = None,
-    ) -> pd.DataFrame:
+    ) -> pl.DataFrame:
         """
         Converts a DataBlockType object to a pandas DataFrame, by reading the subyacent Dataset/s and
         putting al the fields defined in the DataBlockType in a flat pandas DataFrame.
@@ -126,7 +126,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             database_key (Optional[str]): Optional database key for loading data.
 
         Returns:
-            pd.DataFrame: The resulting pandas DataFrame.
+            pl.DataFrame: The resulting pandas DataFrame.
         """
         dataset_types = cls._get_dataset_types(type(datablock), select=select)
         field_names = cls._get_field_names(dataset_types)
@@ -153,7 +153,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     @staticmethod
     async def save(
         datatype: Type[DataBlockType],
-        df: pd.DataFrame,
+        df: pl.DataFrame,
         metadata: DataBlockMetadata | None = None,
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> DataBlockType:
@@ -165,7 +165,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
         Args:
             datatype (Type[DataBlockType]): The type of the data block.
-            df (pd.DataFrame): The pandas DataFrame to convert.
+            df (pl.DataFrame): The pandas DataFrame to convert.
             metadata (Optional[DataBlockMetadata]): Optional metadata for the data block.
             **kwargs: Additional non-Dataset field values for the DataBlockType.
 
@@ -233,7 +233,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         metadata: DataBlockMetadata | None = None,
         schema_validation: bool = True,
         **kwargs,  # Non-Dataset field values for DataBlockType
-    ) -> AsyncGenerator[pd.DataFrame, None]:
+    ) -> AsyncGenerator[pl.DataFrame, None]:
         if metadata is None:
             metadata = DataBlockMetadata.default()
 
@@ -285,7 +285,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         dataset: Dataset,
         columns: Optional[list[str]] = None,
         database_key: Optional[str] = None,
-    ) -> pd.DataFrame:
+    ) -> pl.DataFrame:
         try:
             return await dataset._load_df(storage, columns)
         except (RuntimeError, IOError, KeyError) as e:
@@ -296,7 +296,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
     @classmethod
     def _adapt_to_schema(
-        cls, dataset_types: list[tuple[str, DataFrameType]], df: pd.DataFrame
+        cls, dataset_types: list[tuple[str, DataFrameType]], df: pl.DataFrame
     ) -> None:
         for _, datatype in dataset_types:
             valid_df = datatype._from_df(df)._df  # type: ignore[attr-defined]
