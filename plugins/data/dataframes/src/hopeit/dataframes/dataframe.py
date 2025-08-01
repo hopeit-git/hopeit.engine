@@ -3,15 +3,17 @@ DataFrames type abstractions.
 """
 
 import dataclasses
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime, timezone
 from typing import Any, Callable, Dict, Generic, Iterator, List, Type, TypeVar, Union
 
-try:
-    import numpy as np
-    import pandas as pd
-except ImportError:
-    import hopeit.dataframes.pandas.numpy_mock as np  # type: ignore[no-redef]
-    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
+# try:
+    # import numpy as np
+    # import pandas as pd
+import polars as pl
+# except ImportError:
+    # import hopeit.dataframes.pandas.numpy_mock as np  # type: ignore[no-redef]
+    # import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
+    # import hopeit.dataframes.polars.polars_mock as pl  # type: ignore[no-redef]
 
 from pydantic import create_model
 from pydantic.fields import FieldInfo
@@ -35,67 +37,70 @@ class DataFrameMetadata:
     fields: Dict[str, FieldInfo]
 
 
+# # Functions to do type coercion
+# def _series_to_int(field_name: str, x: pd.Series) -> pd.Series:
+#     if x.isnull().values.any():  # type: ignore[union-attr]
+#         raise ValueError(f"Field `{field_name}` is not nullable")
+#     return x.astype(np.int64)
+
+
+# def _series_to_bool(field_name: str, x: pd.Series) -> pd.Series:
+#     if x.isnull().values.any():  # type: ignore[union-attr]
+#         raise ValueError(f"Field `{field_name}` is not nullable")
+#     return x.astype(bool)
+
+
+# def _series_to_float(field_name: str, x: pd.Series) -> pd.Series:
+#     if x.isnull().values.any():  # type: ignore[union-attr]
+#         raise ValueError(f"Field `{field_name}` is not nullable")
+#     return x.astype(np.float64)
+
+
+# def _series_to_str(field_name: str, x: pd.Series) -> pd.Series:
+#     if x.isnull().values.any():  # type: ignore[union-attr]
+#         raise ValueError(f"Field `{field_name}` is not nullable")
+#     return x.astype(str)
+
+
 # Functions to do type coercion
-def _series_to_int(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return x.astype(np.int64)
+# def _series_to_int_nullable(_field_name: str, x: pl.Series) -> pl.Series:
+#     return x.drop_nulls().castas_type(np.int64)
 
 
-def _series_to_bool(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return x.astype(bool)
+# def _series_to_bool_nullable(_field_name: str, x: pd.Series) -> pd.Series:
+#     return x.dropna().astype(bool)
 
 
-def _series_to_float(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return x.astype(np.float64)
+# def _series_to_float_nullable(_field_name: str, x: pd.Series) -> pd.Series:
+#     return x.dropna().astype(np.float64)
 
 
-def _series_to_str(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return x.astype(str)
+# def _series_to_str_nullable(_field_name: str, x: pd.Series) -> pd.Series:
+#     return x.dropna().astype(str)
 
 
-# Functions to do type coercion
-def _series_to_int_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return x.dropna().astype(np.int64)
+# def _series_to_datetime(field_name: str, x: pd.Series) -> pd.Series:
+#     if x.isnull().values.any():  # type: ignore[union-attr]
+#         raise ValueError(f"Field `{field_name}` is not nullable")
+#     return pd.to_datetime(x)
 
 
-def _series_to_bool_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return x.dropna().astype(bool)
+# def _series_to_utc_datetime(field_name: str, x: pd.Series) -> pd.Series:
+#     if x.isnull().values.any():  # type: ignore[union-attr]
+#         raise ValueError(f"Field `{field_name}` is not nullable")
+#     return pd.to_datetime(x, utc=True)
 
 
-def _series_to_float_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return x.dropna().astype(np.float64)
+# def _series_to_datetime_nullable(_field_name: str, x: pd.Series) -> pd.Series:
+#     return pd.to_datetime(x.dropna())
 
 
-def _series_to_str_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return x.dropna().astype(str)
+# def _series_to_utc_datetime_nullable(_field_name: str, x: pd.Series) -> pd.Series:
+#     return pd.to_datetime(x.dropna(), utc=True)
 
 
-def _series_to_datetime(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return pd.to_datetime(x)
-
-
-def _series_to_utc_datetime(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return pd.to_datetime(x, utc=True)
-
-
-def _series_to_datetime_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return pd.to_datetime(x.dropna())
-
-
-def _series_to_utc_datetime_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return pd.to_datetime(x.dropna(), utc=True)
-
+def not_null_check(series: pl.Series) -> bool:
+    return series.null_count() == 0
 
 class DataFrameMixin(Generic[DataFrameT, DataObject]):
     """
@@ -107,67 +112,98 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     DataFrameValueType = Union[int, bool, float, str, date, datetime, None]
 
     DATATYPE_MAPPING = {
-        int: _series_to_int,
-        bool: _series_to_bool,
-        float: _series_to_float,
-        str: _series_to_str,
-        date: _series_to_datetime,
-        datetime: _series_to_utc_datetime,
-        Union[int, None]: _series_to_int_nullable,
-        Union[bool, None]: _series_to_bool_nullable,
-        Union[float, None]: _series_to_float_nullable,
-        Union[str, None]: _series_to_str_nullable,
-        Union[date, None]: _series_to_datetime_nullable,
-        Union[datetime, None]: _series_to_utc_datetime_nullable,
+        int: (pl.Int32(), (not_null_check,)),
+        bool: (pl.Boolean(),(not_null_check,)),
+        float: (pl.Float64(),(not_null_check,)),
+        str: (pl.String(),(not_null_check,)),
+        date: (pl.Date(),(not_null_check,)),
+        datetime: (pl.Datetime(time_zone=UTC), (not_null_check,)),
+        Union[int, None]: (pl.Int32(), ()),
+        Union[bool, None]: (pl.Boolean(), ()),
+        Union[float, None]: (pl.Float64(), ()),
+        Union[str, None]: (pl.String(), ()),
+        Union[date, None]: (pl.Date(), ()),
+        Union[datetime, None]: (pl.Datetime(time_zone=UTC), ()),
     }
 
-    def __init__(self, **series: pd.Series) -> None:
+    def __init__(self, **series: pl.Series) -> None:
         # Fields added here only to allow mypy to provide correct type hints
         self.__data_object__: Dict[str, Any] = {}
         self.__dataframe__: DataFrameMetadata = None  # type: ignore
-        self.__df = pd.DataFrame()
+        self.__df = pl.DataFrame()
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(self, **series: pd.Series) -> None:  # pylint: disable=bad-staticmethod-argument
-        df = pd.DataFrame(series)
-        df.index.name = None  # Removes index name to avoid colisions with series name
-        if self.__data_object__["validate"]:
-            self._coerce_datatypes(df)
+    def __init_from_series__(self, **series: pl.Series) -> None:  # pylint: disable=bad-staticmethod-argument
+        validate = self.__data_object__["validate"]
+
+        # Assign default values for missing fields
+        max_len:int | None = None
+        for field_name, field_info in fields(self).items():
+            if series.get(field_name) is None:
+                max_len = max_len or max(len(data) for data in series.values() if data is not None)
+                default_value = field_info.get_default()
+                if default_value is not PydanticUndefined:
+                    series[field_name] = pl.Series(name=field_name, values=[default_value] * (max_len or 1))
+                else:
+                    series[field_name] = None  # Ensures a None series to make pl fail schema validation
+
+        # Create dataframe
+        df = pl.DataFrame(series, schema=self.schema() if validate else None)
+
+        # Validate (i.e. not nullable fields)
+        if validate:
+            for field_name, field_info in fields(self).items():
+                 for func in self.DATATYPE_MAPPING.get(field_info.annotation)[1]:
+                    if not func(df[field_name]):
+                        raise TypeError(f"{type(self).__name__} validation failed for field: {field_name}: {func.__name__}")
+
         setattr(self, "__df", df[self.__dataframe__.columns])
 
+
     @classmethod
-    def _from_df(cls, df: pd.DataFrame, **series: Any) -> DataFrameT:
-        obj = cls(**{**df._series, **series})  # pylint: disable=protected-access
+    def schema(cls) -> pl.Schema:
+        schema_fields: dict[str, pl.DataType] = {}
+        for field_name, field_info in fields(cls).items():
+            datatype = cls.DATATYPE_MAPPING.get(field_info.annotation)
+            if datatype is None:
+                raise TypeError(f"{cls.__name__}: Unsupported type for field {field_name}: {field_info.annotation}")
+            schema_fields[field_name] = datatype[0]
+        return pl.Schema(schema_fields)
+
+    @classmethod
+    def _from_df(cls, df: pl.DataFrame, **series: Any) -> DataFrameT:
+        df_series = {name: df[name] for name in df.columns}
+        obj = cls(**{**df_series, **series})
         return obj  # type: ignore
 
     @classmethod
-    def _from_array(cls, array: np.ndarray) -> DataFrameT:
-        return cls._from_df(pd.DataFrame(array, columns=cls.__dataframe__.columns))
+    def _from_array(cls, array: "np.ndarray") -> DataFrameT:
+        return cls._from_df(pl.from_numpy(array))
 
     @classmethod
     def _from_dataobjects(cls, items: Iterator[DataObject]) -> DataFrameT:
-        return cls._from_df(pd.DataFrame(Payload.to_obj(item) for item in items))  # type: ignore[misc]
+        return cls._from_df(pl.DataFrame(Payload.to_obj(item) for item in items))  # type: ignore[misc]
 
     @property
-    def _df(self) -> pd.DataFrame:
+    def _df(self) -> pl.DataFrame:
         return getattr(self, "__df")
 
     def __getitem__(self, key) -> "DataFrameT":
         return self._from_df(self.__df[key])
 
-    def _normalize_null_values(
-        self, value: Union[DataFrameValueType, pd.Timestamp]
-    ) -> DataFrameValueType:
-        return None if pd.isnull(value) else value
+    # def _normalize_null_values(
+    #     self, value: DataFrameValueType
+    # ) -> DataFrameValueType:
+    #     return None if pl.is_null(value) else value
 
     def _to_dataobjects(self, normalize_null_values: bool) -> List[DataObject]:
-        if normalize_null_values:
-            return [
-                self.DataObject(**{k: self._normalize_null_values(v) for k, v in fields.items()})
-                for fields in self.__df.to_dict(orient="records")
-            ]
-        return [self.DataObject(**fields) for fields in self.__df.to_dict(orient="records")]
+        # if normalize_null_values:
+        #     return [
+        #         self.DataObject(**{k: self._normalize_null_values(v) for k, v in fields.items()})
+        #         for fields in self.__df.to_dict(orient="records")
+        #     ]
+        return [Payload.from_obj(obj, datatype=self.DataObject) for obj in self.__df.to_dicts()]
 
     def event_id(self, *args, **kwargs) -> str:
         return ""
@@ -192,26 +228,26 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     def _get_series(
         self,
-        df: pd.DataFrame,
+        df: pl.DataFrame,
         field_name: str,
         field_info: FieldInfo,
-    ) -> pd.Series:
+    ) -> pl.Series:
         try:
             return df[field_name]
         except KeyError:
             default_value = field_info.get_default()
             if default_value is not PydanticUndefined:
-                return pd.Series([default_value] * len(df))
+                return pl.Series(name=field_name, values=[default_value] * len(df))
             raise
 
-    def _coerce_datatypes(
-        self,
-        df: pd.DataFrame,
-    ) -> None:
-        for name, field in self.__dataframe__.fields.items():
-            df[name] = self.DATATYPE_MAPPING[field.annotation](  # type: ignore[index, operator]
-                name, self._get_series(df, name, field)
-            )
+    # def _coerce_datatypes(
+    #     self,
+    #     df: pd.DataFrame,
+    # ) -> None:
+    #     for name, field in self.__dataframe__.fields.items():
+    #         df[name] = self.DATATYPE_MAPPING[field.annotation](  # type: ignore[index, operator]
+    #             name, self._get_series(df, name, field)
+    #         )
 
 
 def dataframe(

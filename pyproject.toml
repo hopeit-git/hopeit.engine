@@ -33,7 +33,7 @@ dependencies = [
     "hopeit.engine",
     "hopeit.basic-auth",
     "hopeit.apps-client",
-    "hopeit.dataframes[pandas]",
+    "hopeit.dataframes[polars, pandas]",
     "hopeit.apps-visualizer",
     "hopeit.config-manager",
     "hopeit.log-streamer",

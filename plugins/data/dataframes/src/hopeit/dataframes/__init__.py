@@ -72,14 +72,15 @@ print(Payload.to_json(my_json_response))
 
 from typing import Dict, Generic, Iterator, List, Type
 
-try:
-    import numpy as np
-    import pandas as pd
-except ImportError:
-    # Supports using `@dataframe` annotation for dataobjects definitions
-    # without installing pandas and numpy. Useful for API-only projects.
-    import hopeit.dataframes.pandas.numpy_mock as np  # type: ignore[no-redef]
-    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
+# try:
+#     import numpy as np
+#     import pandas as pd
+import polars as pl
+# except ImportError:
+#     # Supports using `@dataframe` annotation for dataobjects definitions
+#     # without installing pandas and numpy. Useful for API-only projects.
+#     import hopeit.dataframes.pandas.numpy_mock as np  # type: ignore[no-redef]
+#     import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
 
 from hopeit.dataframes.dataframe import DataFrameT, dataframe
 from hopeit.dataframes.serialization.dataset import Dataset
@@ -96,7 +97,7 @@ class DataFrames(Generic[DataFrameT, DataObject]):
 
     @staticmethod
     def from_df(
-        datatype: Type[DataFrameT], df: pd.DataFrame, **series: Dict[str, pd.Series]
+        datatype: Type[DataFrameT], df: pl.DataFrame, **series: Dict[str, pl.Series]
     ) -> DataFrameT:
         """Create a `@dataframe` instance of a particular `datatype` from a pandas DataFrame.
         Optionally, add or override series.
@@ -105,7 +106,7 @@ class DataFrames(Generic[DataFrameT, DataObject]):
 
     @staticmethod
     def from_dataframe(
-        datatype: Type[DataFrameT], obj: DataFrameT, **series: Dict[str, pd.Series]
+        datatype: Type[DataFrameT], obj: DataFrameT, **series: Dict[str, pl.Series]
     ) -> DataFrameT:
         """Creates a new `@dataframe` object extracting fields from another `@dataframe`"""
         return datatype._from_df(obj._df, **series)  # type: ignore  # pylint: disable=protected-access
@@ -123,11 +124,11 @@ class DataFrames(Generic[DataFrameT, DataObject]):
         return obj._to_dataobjects(normalize_null_values)  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
-    def from_array(datatype: Type[DataFrameT], array: np.ndarray) -> DataFrameT:
+    def from_array(datatype: Type[DataFrameT], array: "np.ndarray") -> DataFrameT:
         """Creates `@dataframe` object from a numpy array"""
         return datatype._from_array(array)  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
-    def df(obj: DataFrameT) -> pd.DataFrame:
+    def df(obj: DataFrameT) -> pl.DataFrame:
         """Provides acces to the internal pandas dataframe of a `@dataframe` object"""
         return obj._df  # type: ignore  # pylint: disable=protected-access

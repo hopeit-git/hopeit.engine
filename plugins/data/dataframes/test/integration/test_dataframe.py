@@ -1,7 +1,9 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone, date
 
-import numpy as np
-import pandas as pd
+# import numpy as np
+# import pandas as pd
+import polars as pl
+from polars.testing import assert_frame_equal, assert_series_equal
 import pytest
 
 from conftest import DEFAULT_DATE, DEFAULT_DATETIME, MyTestAllTypesData, MyTestAllTypesDefaultValues
@@ -14,9 +16,9 @@ def test_coerce_types_happy():
     data = MyTestAllTypesData(
         int_value=[0, 1, 2],
         float_value=[1.1, 2.2, 3],
-        str_value=["a", "B", 42],
-        date_value=[test_date, test_date, "2024-01-01"],
-        datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
+        str_value=["a", "B", "test"],
+        date_value=[test_date, test_date, date.fromisoformat("2024-01-01")],
+        datetime_value=[test_datetime, test_datetime, datetime.fromisoformat("2024-01-01T00:00:00Z")],
         bool_value=[True, False, True],
         int_value_optional=[0, 1, None],
         float_value_optional=[1.1, 2.2, None],
@@ -26,122 +28,123 @@ def test_coerce_types_happy():
         bool_value_optional=[True, False, None],
     )
 
-    pd.testing.assert_series_equal(data.int_value, pd.Series([0, 1, 2], name="int_value"))
-    pd.testing.assert_series_equal(data.float_value, pd.Series([1.1, 2.2, 3.0], name="float_value"))
-    pd.testing.assert_series_equal(data.str_value, pd.Series(["a", "B", "42"], name="str_value"))
-    pd.testing.assert_series_equal(
+    assert_series_equal(data.int_value, pl.Series(name="int_value", values=[0, 1, 2], dtype=pl.Int32))
+    assert_series_equal(data.float_value, pl.Series(name="float_value", values=[1.1, 2.2, 3.0]))
+    assert_series_equal(data.str_value, pl.Series(name="str_value", values=["a", "B", "test"]))
+    assert_series_equal(
         data.date_value,
-        pd.Series(
-            [
-                pd.Timestamp(test_date),
-                pd.Timestamp(test_date),
-                pd.Timestamp("2024-01-01"),
-            ],
+        pl.Series(
             name="date_value",
+            values=[
+                test_date,
+                test_date,
+                date.fromisoformat("2024-01-01"),
+            ],
+            dtype=pl.Date,
         ),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.datetime_value,
-        pd.Series(
-            [
-                pd.Timestamp(test_datetime),
-                pd.Timestamp(test_datetime),
-                pd.Timestamp("2024-01-01T00:00:00Z"),
-            ],
+        pl.Series(
             name="datetime_value",
+            values=[
+                test_datetime,
+                test_datetime,
+                datetime.fromisoformat("2024-01-01T00:00:00Z"),
+            ],
+            dtype=pl.Datetime
         ),
     )
-    pd.testing.assert_series_equal(
-        data.bool_value, pd.Series([True, False, True], name="bool_value")
+    assert_series_equal(
+        data.bool_value, pl.Series(name="bool_value", values=[True, False, True])
     )
-    pd.testing.assert_series_equal(
-        data.int_value_optional, pd.Series([0, 1, np.nan], name="int_value_optional")
+    assert_series_equal(
+        data.int_value_optional, pl.Series(name="int_value_optional", values=[0, 1, None], dtype=pl.Int32)
     )
-    pd.testing.assert_series_equal(
-        data.float_value_optional, pd.Series([1.1, 2.2, np.nan], name="float_value_optional")
+    assert_series_equal(
+        data.float_value_optional, pl.Series(name="float_value_optional", values=[1.1, 2.2, None])
     )
-    pd.testing.assert_series_equal(
-        data.str_value_optional, pd.Series(["a", "B", np.nan], name="str_value_optional")
+    assert_series_equal(
+        data.str_value_optional, pl.Series(name="str_value_optional", values=["a", "B", None])
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.date_value_optional,
-        pd.Series(
-            [
-                pd.Timestamp(test_date),
-                pd.NaT,
-                pd.NaT,
-            ],
+        pl.Series(
             name="date_value_optional",
-        ),
-    )
-    pd.testing.assert_series_equal(
-        data.datetime_value_optional,
-        pd.Series(
-            [
-                pd.Timestamp(test_datetime),
-                pd.Timestamp(test_datetime),
-                pd.NaT,
+            values=[
+                test_date,
+                None,
+                None,
             ],
-            name="datetime_value_optional",
         ),
     )
-    pd.testing.assert_series_equal(
-        data.bool_value_optional, pd.Series([True, False, np.nan], name="bool_value_optional")
+    assert_series_equal(
+        data.datetime_value_optional,
+        pl.Series(
+            name="datetime_value_optional",
+            values=[
+                test_datetime,
+                test_datetime,
+                None,
+            ],
+        ),
+    )
+    assert_series_equal(
+        data.bool_value_optional, pl.Series(name="bool_value_optional", values=[True, False, None])
     )
 
 
 def test_coerce_types_defaults():
     data = MyTestAllTypesDefaultValues(id=["1", "2", "3"])
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.int_value,
-        pd.Series([1, 1, 1], name="int_value"),
+        pl.Series(name="int_value", values=[1, 1, 1], dtype=pl.Int32),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.float_value,
-        pd.Series([1.0, 1.0, 1.0], name="float_value"),
+        pl.Series(name="float_value", values=[1.0, 1.0, 1.0], ),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.str_value,
-        pd.Series(["(default)", "(default)", "(default)"], name="str_value", dtype="object"),
+        pl.Series(name="str_value", values=["(default)", "(default)", "(default)"]),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.date_value,
-        pd.Series(
-            [DEFAULT_DATE, DEFAULT_DATE, DEFAULT_DATE], name="date_value", dtype="datetime64[ns]"
+        pl.Series(
+            name="date_value", values=[DEFAULT_DATE, DEFAULT_DATE, DEFAULT_DATE]
         ),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.datetime_value,
-        pd.Series(
-            [DEFAULT_DATETIME, DEFAULT_DATETIME, DEFAULT_DATETIME],
+        pl.Series(
             name="datetime_value",
-            dtype="datetime64[ns, UTC]",
+            values=[DEFAULT_DATETIME, DEFAULT_DATETIME, DEFAULT_DATETIME],
         ),
     )
-    pd.testing.assert_series_equal(
-        data.bool_value, pd.Series([False, False, False], name="bool_value")
+    assert_series_equal(
+        data.bool_value, pl.Series(name="bool_value", values=[False, False, False])
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.float_value_optional,
-        pd.Series([np.nan, np.nan, np.nan], name="float_value_optional"),
+        pl.Series(name="float_value_optional", values=[None, None, None], dtype=pl.Float64),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.str_value_optional,
-        pd.Series([np.nan, np.nan, np.nan], name="str_value_optional", dtype="object"),
+        pl.Series(name="str_value_optional", values=[None, None, None],  dtype=pl.String),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.date_value_optional,
-        pd.Series([pd.NaT, pd.NaT, pd.NaT], name="date_value_optional", dtype="datetime64[ns]"),
+        pl.Series(name="date_value_optional", values=[None, None, None], dtype=pl.Date()),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.datetime_value_optional,
-        pd.Series(
-            [pd.NaT, pd.NaT, pd.NaT], name="datetime_value_optional", dtype="datetime64[ns, UTC]"
+        pl.Series(
+             name="datetime_value_optional", values=[None, None, None], dtype=pl.Datetime(time_zone=UTC)
         ),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.bool_value_optional,
-        pd.Series([np.nan, np.nan, np.nan], dtype=object, name="bool_value_optional"),
+        pl.Series(name="bool_value_optional", values=[None, None, None], dtype=pl.Boolean),
     )
 
 
@@ -154,48 +157,47 @@ def test_coerce_types_none_to_defaults():
         date_value_optional=None,
         datetime_value_optional=None,
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.int_value,
-        pd.Series([1, 1, 1], name="int_value"),
+        pl.Series(name="int_value", values=[1, 1, 1], dtype=pl.Int32),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.float_value,
-        pd.Series([1.0, 1.0, 1.0], name="float_value"),
+        pl.Series(name="float_value", values=[1.0, 1.0, 1.0],),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.str_value,
-        pd.Series(["(default)", "(default)", "(default)"], name="str_value", dtype="object"),
+        pl.Series(name="str_value", values=["(default)", "(default)", "(default)"]),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.date_value,
-        pd.Series(
-            [DEFAULT_DATE, DEFAULT_DATE, DEFAULT_DATE], name="date_value", dtype="datetime64[ns]"
+        pl.Series(
+             name="date_value", values=[DEFAULT_DATE, DEFAULT_DATE, DEFAULT_DATE]
         ),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.datetime_value,
-        pd.Series(
-            [DEFAULT_DATETIME, DEFAULT_DATETIME, DEFAULT_DATETIME],
+        pl.Series(
             name="datetime_value",
-            dtype="datetime64[ns, UTC]",
+            values=[DEFAULT_DATETIME, DEFAULT_DATETIME, DEFAULT_DATETIME],
         ),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.float_value_optional,
-        pd.Series([np.nan, np.nan, np.nan], name="float_value_optional"),
+        pl.Series(name="float_value_optional", values=[None, None, None], dtype=pl.Float64),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.str_value_optional,
-        pd.Series([np.nan, np.nan, np.nan], name="str_value_optional", dtype="object"),
+        pl.Series(name="str_value_optional", values=[None, None, None], dtype=pl.String),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.date_value_optional,
-        pd.Series([pd.NaT, pd.NaT, pd.NaT], name="date_value_optional", dtype="datetime64[ns]"),
+        pl.Series(name="date_value_optional", values=[None, None, None], dtype=pl.Date),
     )
-    pd.testing.assert_series_equal(
+    assert_series_equal(
         data.datetime_value_optional,
-        pd.Series(
-            [pd.NaT, pd.NaT, pd.NaT], name="datetime_value_optional", dtype="datetime64[ns, UTC]"
+        pl.Series(
+            name="datetime_value_optional", values=[None, None, None], dtype=pl.Datetime(time_zone=UTC)
         ),
     )
 
@@ -204,46 +206,46 @@ def test_coerce_types_unhappy_bad_types():
     test_date = datetime.now().date()
     test_datetime = datetime.now(tz=timezone.utc)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesDefaultValues(
             id=["1", "2", "3"],
             int_value=[0, 1, "a"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesDefaultValues(
             id=["1", "2", "3"],
             float_value=[1.1, 2.2, "a"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesDefaultValues(
             id=["1", "2", "3"],
             date_value=[test_date, test_date, "invalid-date"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesDefaultValues(
             id=["1", "2", "3"],
             datetime_value=[test_datetime, test_datetime, "invalid-date"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesDefaultValues(
             id=["1", "2", "3"],
-            int_value=None,
+            int_value_optional=[None, None, "a"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesDefaultValues(
             id=["1", "2", "3"],
-            float_value=None,
+            float_value_optional=[None, None, "a"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesDefaultValues(
             id=["1", "2", "3"],
-            str_value=None,
+            str_value_optional=[None, None, 123],
         )
 
 
@@ -251,45 +253,60 @@ def test_coerce_types_unhappy_none_fields():
     test_date = datetime.now().date()
     test_datetime = datetime.now(tz=timezone.utc)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=None,
+            bool_value=[True, True, False],
             float_value=[1.1, 2.2, 3],
             str_value=["a", "B", 42],
             date_value=[test_date, test_date, "2024-01-01"],
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
+            bool_value=None,
+            float_value=[1.1, 2.2, 3],
+            str_value=["a", "B", 42],
+            date_value=[test_date, test_date, "2024-01-01"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
+        )
+
+    with pytest.raises(TypeError):
+        MyTestAllTypesData(
+            int_value=[1, 2, 3],
+            bool_value=[True, True, False],
             float_value=None,
             str_value=["a", "B", 42],
             date_value=[test_date, test_date, "2024-01-01"],
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
+            bool_value=[True, True, False],
             float_value=[1.1, 2.2, 3],
             str_value=None,
             date_value=[test_date, test_date, "2024-01-01"],
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
+            bool_value=[True, True, False],
             float_value=[1.1, 2.2, 3],
             str_value=["a", "B", 42],
             date_value=None,
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
+            bool_value=[True, True, False],
             float_value=[1.1, 2.2, 3],
             str_value=["a", "B", 42],
             date_value=[test_date, test_date, "2024-01-01"],
@@ -301,7 +318,7 @@ def test_coerce_types_unhappy_none_values():
     test_date = datetime.now().date()
     test_datetime = datetime.now(tz=timezone.utc)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, None],
             float_value=[1.1, 2.2, 3],
@@ -310,7 +327,7 @@ def test_coerce_types_unhappy_none_values():
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
             float_value=[1.1, 2.2, None],
@@ -319,7 +336,7 @@ def test_coerce_types_unhappy_none_values():
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
             float_value=[1.1, 2.2, 3],
@@ -328,7 +345,7 @@ def test_coerce_types_unhappy_none_values():
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
             float_value=[1.1, 2.2, 3],
@@ -337,7 +354,7 @@ def test_coerce_types_unhappy_none_values():
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
             float_value=[1.1, 2.2, 3],
@@ -351,7 +368,7 @@ def test_coerce_types_unhappy_missing_fields():
     test_date = datetime.now().date()
     test_datetime = datetime.now(tz=timezone.utc)
 
-    with pytest.raises(KeyError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             float_value=[1.1, 2.2, 3],
             str_value=["a", "B", 42],
@@ -359,7 +376,7 @@ def test_coerce_types_unhappy_missing_fields():
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(KeyError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
             str_value=["a", "B", 42],
@@ -367,7 +384,7 @@ def test_coerce_types_unhappy_missing_fields():
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(KeyError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
             float_value=[1.1, 2.2, 3],
@@ -375,7 +392,7 @@ def test_coerce_types_unhappy_missing_fields():
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(KeyError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
             float_value=[1.1, 2.2, 3],
@@ -383,7 +400,7 @@ def test_coerce_types_unhappy_missing_fields():
             datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00Z"],
         )
 
-    with pytest.raises(KeyError):
+    with pytest.raises(TypeError):
         MyTestAllTypesData(
             int_value=[1, 2, 3],
             float_value=[1.1, 2.2, 3],
