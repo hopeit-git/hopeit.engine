@@ -92,8 +92,11 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
                 else:
                     series[field_name] = None  # type: ignore[assignment]
 
-        # Create dataframe
-        df = pl.DataFrame(series, schema=self.__dataframe__.schema if validate else None)
+        # Create dataframe using schema columns only
+        df = pl.DataFrame(
+            {col: data for col, data in series.items() if col in self.__dataframe__.columns}, 
+            schema=self.__dataframe__.schema if validate else None
+        )
 
         # Validate (i.e. not nullable fields)
         if validate:
@@ -108,13 +111,13 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     @classmethod
     def _from_df(cls, df: pl.DataFrame, **series: Any) -> DataFrameT:
-        df_series = {name: df[name] for name in df.columns}
+        df_series = {series.name: series for series in df}
         obj = cls(**{**df_series, **series})
         return obj  # type: ignore
 
     @classmethod
     def _from_array(cls, array: "np.ndarray") -> DataFrameT:
-        return cls._from_df(pl.from_numpy(array))
+        return cls._from_df(pl.from_numpy(array, schema=cls.__dataframe__.schema))
 
     @classmethod
     def _from_dataobjects(cls, items: Iterator[DataObject]) -> DataFrameT:
@@ -127,17 +130,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     def __getitem__(self, key) -> "DataFrameT":
         return self._from_df(self.__df[key])
 
-    # def _normalize_null_values(
-    #     self, value: DataFrameValueType
-    # ) -> DataFrameValueType:
-    #     return None if pl.is_null(value) else value
-
-    def _to_dataobjects(self, normalize_null_values: bool) -> List[DataObject]:
-        # if normalize_null_values:
-        #     return [
-        #         self.DataObject(**{k: self._normalize_null_values(v) for k, v in fields.items()})
-        #         for fields in self.__df.to_dict(orient="records")
-        #     ]
+    def _to_dataobjects(self) -> List[DataObject]:
         return [Payload.from_obj(obj, datatype=self.DataObject) for obj in self.__df.to_dicts()]
 
     def event_id(self, *args, **kwargs) -> str:

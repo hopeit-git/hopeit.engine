@@ -240,13 +240,13 @@ def two_element_pandas_df_with_nulls() -> pl.DataFrame:
                 "name": "test1",
                 "timestamp": datetime.now(tz=timezone.utc),
             },
-            {"id": "2", "number": np.nan, "name": None, "timestamp": None},
+            {"id": "2", "number": None, "name": None, "timestamp": None},
         ]
     )
 
 
 @pytest.fixture
-def sample_pandas_df() -> pl.DataFrame:
+def sample_df() -> pl.DataFrame:
     return pl.DataFrame(
         [
             {

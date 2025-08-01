@@ -120,9 +120,9 @@ class DataFrames(Generic[DataFrameT, DataObject]):
         return datatype._from_dataobjects(dataobjects)  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
-    def to_dataobjects(obj: DataFrameT, *, normalize_null_values: bool = False) -> List[DataObject]:
+    def to_dataobjects(obj: DataFrameT) -> List[DataObject]:
         """Converts `@dataframe` object to a list of standard `@dataobject`s"""
-        return obj._to_dataobjects(normalize_null_values)  # type: ignore  # pylint: disable=protected-access
+        return obj._to_dataobjects()  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
     def from_array(datatype: Type[DataFrameT], array: "np.ndarray") -> DataFrameT:
