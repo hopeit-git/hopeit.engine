@@ -14,7 +14,7 @@ from pydantic import TypeAdapter
 try:
     import polars as pl
 except ImportError:
-    pl = None  # Polars is optional; set to None if not installed
+    pl = None  # type: ignore[assignment] # Polars is optional; set to None if not installed
 
 from hopeit.dataframes.dataframe import DataFrameMixin
 from hopeit.dataframes.serialization.dataset import Dataset
@@ -81,7 +81,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
 
     async def save_df(
         self,
-        df: pl.DataFrame,
+        df: "pl.DataFrame",
         datatype: Type[DataFrameT],
         *,
         partition_dt: Optional[datetime],
@@ -191,7 +191,9 @@ class DatasetFileStorage(Generic[DataFrameT]):
 
             partition_dt += partition_increments
 
-    async def load_df(self, dataset: Dataset, columns: Optional[list[str]] = None) -> pl.DataFrame:
+    async def load_df(
+        self, dataset: Dataset, columns: Optional[list[str]] = None
+    ) -> "pl.DataFrame":
         path = self.path
         if dataset.group_key:
             path = path / dataset.group_key

@@ -8,7 +8,7 @@ from hopeit.dataobjects import dataclass, dataobject
 try:
     import polars as pl
 except ImportError:
-    pl = None  # Polars is optional; set to None if not installed
+    pl = None  # type: ignore[assignment] # Polars is optional; set to None if not installed
 
 from pydantic import TypeAdapter
 
@@ -79,10 +79,12 @@ class Dataset(Generic[DataFrameT]):
                 f"at location {dataset.partition_key}/{dataset.key}"
             ) from e
 
-    async def _load_df(self, storage: object, columns: Optional[list[str]] = None) -> pl.DataFrame:
+    async def _load_df(
+        self, storage: object, columns: Optional[list[str]] = None
+    ) -> "pl.DataFrame":
         return await storage.load_df(self, columns)  # type: ignore[attr-defined]
 
-    def _convert(self, df: pl.DataFrame) -> DataFrameT:
+    def _convert(self, df: "pl.DataFrame") -> DataFrameT:
         """Converts loaded polars Dataframe to @dataframe annotated object using Dataset metadata"""
         datatype: Type[DataFrameT] = find_dataframe_type(self.datatype)
         return datatype._from_df(df)  # type: ignore[attr-defined]
@@ -105,7 +107,7 @@ class Dataset(Generic[DataFrameT]):
     async def _save_df(
         cls,
         storage: object,
-        df: pl.DataFrame,
+        df: "pl.DataFrame",
         datatype: Type[GenericDataFrameT],
         *,
         partition_dt: Optional[datetime],

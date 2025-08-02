@@ -11,8 +11,9 @@ from typing import AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, g
 try:
     import polars as pl
 except ImportError:
-    pl = None  # Polars is optional; set to None if not installed
+    pl = None  # type: ignore[assignment] # Polars is optional; set to None if not installed
 
+from hopeit.dataframes.dataframe import DataTypeMapping
 from hopeit.dataobjects import dataobject, dataclass, fields
 
 from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
@@ -44,25 +45,25 @@ class DataBlockQuery:
     select: list[str] | None = None
 
 
-def get_datablock_schema(cls: Type[DataBlockType]) -> pl.Schema:
+def get_datablock_schema(cls: Type[DataBlockType]) -> "pl.Schema":
     schema_fields: dict[str, pl.DataType] = {}
     for block_field, block_info in fields(cls).items():  # type: ignore[type-var]
         if get_origin(block_info.annotation) is Dataset:
             block_type = get_args(block_info.annotation)[0]
             for field_name, field_info in fields(block_type).items():  # type: ignore[type-var]
-                datatype = DATATYPE_MAPPING.get(field_info.annotation)
+                datatype = DataTypeMapping.get_schema_type(field_info.annotation)  # type: ignore[arg-type]
                 if datatype is None:
                     raise TypeError(
                         f"{cls.__name__}: Unsupported type for field {field_name}: {field_info.annotation}"
                     )
-                schema_fields[field_name] = datatype[0]
+                schema_fields[field_name] = datatype
         else:
-            datatype = DATATYPE_MAPPING.get(block_info.annotation)
+            datatype = DataTypeMapping.get_schema_type(block_info.annotation)  # type: ignore[arg-type]
             if datatype is None:
                 raise TypeError(
                     f"{cls.__name__}: Unsupported type for field {block_field}: {block_info.annotation}"
                 )
-            schema_fields[block_field] = datatype[0]
+            schema_fields[block_field] = datatype
 
     return pl.Schema(schema_fields)
 
@@ -74,7 +75,7 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
     dataframe, an object containing subsections of the data can be created.
     """
 
-    def __init__(self, datatype: Type[DataBlockType], df: pl.DataFrame) -> None:
+    def __init__(self, datatype: Type[DataBlockType], df: "pl.DataFrame") -> None:
         self.datatype = datatype
         self.df = df
 
@@ -149,7 +150,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         select: Optional[list[str]] = None,
         schema_validation: bool = True,
         database_key: Optional[str] = None,
-    ) -> pl.DataFrame:
+    ) -> "pl.DataFrame":
         """
         Converts a DataBlockType object to a polars DataFrame, by reading the subyacent Dataset/s and
         putting al the fields defined in the DataBlockType in a flat polars DataFrame.
@@ -194,15 +195,15 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
     @staticmethod
     def _get_col_type(field_name: str, annotation: type):
-        typedef = DATATYPE_MAPPING.get(annotation)
+        typedef = DataTypeMapping.get_schema_type(annotation)
         if typedef is None:
             raise TypeError(f"Datablocks: unsupported field type: {field_name}: {annotation}")
-        return typedef[0]
+        return typedef
 
     @staticmethod
     async def save(
         datatype: Type[DataBlockType],
-        df: pl.DataFrame,
+        df: "pl.DataFrame",
         metadata: DataBlockMetadata | None = None,
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> DataBlockType:
@@ -282,7 +283,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         metadata: DataBlockMetadata | None = None,
         schema_validation: bool = True,
         **kwargs,  # Non-Dataset field values for DataBlockType
-    ) -> AsyncGenerator[pl.DataFrame, None]:
+    ) -> AsyncGenerator["pl.DataFrame", None]:
         if metadata is None:
             metadata = DataBlockMetadata.default()
 
@@ -342,7 +343,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         dataset: Dataset,
         columns: Optional[list[str]] = None,
         database_key: Optional[str] = None,
-    ) -> pl.DataFrame:
+    ) -> "pl.DataFrame":
         try:
             return await dataset._load_df(storage, columns)
         except (RuntimeError, IOError, KeyError) as e:
@@ -355,9 +356,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     def _adapt_to_schema(
         cls,
         dataset_types: list[tuple[str, DataFrameType]],
-        df: pl.DataFrame,
+        df: "pl.DataFrame",
         select_cols: list[str],
-    ) -> pl.DataFrame:
+    ) -> "pl.DataFrame":
         cols = {
             series.name: series
             for _, datatype in dataset_types

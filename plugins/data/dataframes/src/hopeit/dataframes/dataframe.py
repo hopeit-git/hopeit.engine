@@ -4,12 +4,24 @@ DataFrames type abstractions.
 
 import dataclasses
 from datetime import UTC, date, datetime, timezone
-from typing import Any, Callable, Dict, Generic, Iterator, List, Type, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 try:
     import polars as pl
 except ImportError:
-    pl = None  # Polars is optional; set to None if not installed
+    pl = None  # type: ignore[assignment] # Polars is optional; set to None if not installed
 
 from pydantic import create_model
 from pydantic.fields import FieldInfo
@@ -31,28 +43,64 @@ DataFrameT = TypeVar("DataFrameT")
 class DataFrameMetadata:
     columns: List[str]
     fields: Dict[str, FieldInfo]
-    schema: pl.Schema
+    schema: Optional["pl.Schema"]
 
 
 # Validation
-def not_null_check(series: pl.Series) -> bool:
+def not_null_check(series: "pl.Series") -> bool:
     return series.null_count() == 0
 
 
-DATATYPE_MAPPING = {
-    int: (pl.Int64(), (not_null_check,)),
-    bool: (pl.Boolean(), (not_null_check,)),
-    float: (pl.Float64(), (not_null_check,)),
-    str: (pl.String(), (not_null_check,)),
-    date: (pl.Date(), (not_null_check,)),
-    datetime: (pl.Datetime(time_zone=UTC), (not_null_check,)),
-    Union[int, None]: (pl.Int64(), ()),
-    Union[bool, None]: (pl.Boolean(), ()),
-    Union[float, None]: (pl.Float64(), ()),
-    Union[str, None]: (pl.String(), ()),
-    Union[date, None]: (pl.Date(), ()),
-    Union[datetime, None]: (pl.Datetime(time_zone=UTC), ()),
-}
+class DataTypeMapping:
+    mapping: Dict[Type, Tuple[Optional["pl.DataType"], Tuple[Callable, ...]]] = {
+        int: (None, ()),
+        bool: (None, ()),
+        float: (None, ()),
+        str: (None, ()),
+        date: (None, ()),
+        datetime: (None, ()),
+        Union[int, None]: (None, ()),  # type: ignore[dict-item]
+        Union[bool, None]: (None, ()),  # type: ignore[dict-item]
+        Union[float, None]: (None, ()),  # type: ignore[dict-item]
+        Union[str, None]: (None, ()),  # type: ignore[dict-item]
+        Union[date, None]: (None, ()),  # type: ignore[dict-item]
+        Union[datetime, None]: (None, ()),  # type: ignore[dict-item]
+    }
+
+    @classmethod
+    def lazy_init(cls):
+        cls.mapping = {
+            int: (pl.Int64(), (not_null_check,)),
+            bool: (pl.Boolean(), (not_null_check,)),
+            float: (pl.Float64(), (not_null_check,)),
+            str: (pl.String(), (not_null_check,)),
+            date: (pl.Date(), (not_null_check,)),
+            datetime: (pl.Datetime(time_zone=UTC), (not_null_check,)),
+            Union[int, None]: (pl.Int64(), ()),
+            Union[bool, None]: (pl.Boolean(), ()),
+            Union[float, None]: (pl.Float64(), ()),
+            Union[str, None]: (pl.String(), ()),
+            Union[date, None]: (pl.Date(), ()),
+            Union[datetime, None]: (pl.Datetime(time_zone=UTC), ()),
+        }
+
+    @classmethod
+    def get_validators(cls, field_type: Type) -> Tuple[Callable, ...]:
+        entry = cls.mapping.get(field_type)
+        if entry:
+            return entry[1]
+        return ()
+
+    @classmethod
+    def get_schema_type(cls, field_type: Type) -> Optional["pl.DataType"]:
+        entry = cls.mapping.get(field_type)
+        if entry:
+            return entry[0]
+        return None
+
+
+if pl is not None:
+    DataTypeMapping.lazy_init()
 
 
 class DataFrameMixin(Generic[DataFrameT, DataObject]):
@@ -64,7 +112,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     DataFrameValueType = Union[int, bool, float, str, date, datetime, None]
 
-    def __init__(self, **series: pl.Series) -> None:
+    def __init__(self, **series: "pl.Series") -> None:
         # Fields added here only to allow mypy to provide correct type hints
         self.__data_object__: Dict[str, Any] = {}
         self.__dataframe__: DataFrameMetadata = None  # type: ignore
@@ -72,7 +120,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(self, **series: pl.Series) -> None:  # pylint: disable=bad-staticmethod-argument
+    def __init_from_series__(self, **series: "pl.Series") -> None:  # pylint: disable=bad-staticmethod-argument
         validate: bool = self.__data_object__["validate"]
 
         # Assign default values for missing fields
@@ -97,7 +145,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         # Validate (i.e. not nullable fields)
         if validate:
             for field_name, field_info in self.__dataframe__.fields.items():
-                for func in DATATYPE_MAPPING[field_info.annotation][1]:
+                for func in DataTypeMapping.get_validators(field_info.annotation):
                     if not func(df[field_name]):
                         raise TypeError(
                             f"{type(self).__name__} validation failed for field: {field_name}: {func.__name__}"
@@ -106,21 +154,17 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         setattr(self, "__df", df[self.__dataframe__.columns])
 
     @classmethod
-    def _from_df(cls, df: pl.DataFrame, **series: Any) -> DataFrameT:
+    def _from_df(cls, df: "pl.DataFrame", **series: Any) -> DataFrameT:
         df_series = {series.name: series for series in df}
         obj = cls(**{**df_series, **series})
         return obj  # type: ignore
-
-    # @classmethod
-    # def _from_array(cls, array: "np.ndarray") -> DataFrameT:
-    #     return cls._from_df(pl.from_numpy(array, schema=cls.__dataframe__.schema))
 
     @classmethod
     def _from_dataobjects(cls, items: Iterator[DataObject]) -> DataFrameT:
         return cls._from_df(pl.DataFrame(Payload.to_obj(item) for item in items))  # type: ignore[misc]
 
     @property
-    def _df(self) -> pl.DataFrame:
+    def _df(self) -> "pl.DataFrame":
         return getattr(self, "__df")
 
     def __getitem__(self, key) -> "DataFrameT":
@@ -152,10 +196,10 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     def _get_series(
         self,
-        df: pl.DataFrame,
+        df: "pl.DataFrame",
         field_name: str,
         field_info: FieldInfo,
-    ) -> pl.Series:
+    ) -> "pl.Series":
         try:
             return df[field_name]
         except KeyError:
@@ -175,15 +219,15 @@ def dataframe(
     Decorator for dataclasses intended to be used as dataframes.
     """
 
-    def get_dataframe_schema(cls) -> pl.Schema:
+    def get_dataframe_schema(cls) -> "pl.Schema":
         schema_fields: dict[str, pl.DataType] = {}
         for field_name, field_info in fields(cls).items():  # type: ignore[type-var]
-            datatype = DATATYPE_MAPPING.get(field_info.annotation)
+            datatype = DataTypeMapping.get_schema_type(field_info.annotation)  # type: ignore[arg-type]
             if datatype is None:
                 raise TypeError(
                     f"{cls.__name__}: Unsupported type for field {field_name}: {field_info.annotation}"
                 )
-            schema_fields[field_name] = datatype[0]
+            schema_fields[field_name] = datatype
         return pl.Schema(schema_fields)
 
     def add_dataframe_mixin(cls) -> Type[DataFrameMixin]:
@@ -210,7 +254,7 @@ def dataframe(
             DataFrameMetadata(
                 columns=list(fields(cls).keys()),
                 fields=dict(fields(cls).items()),
-                schema=get_dataframe_schema(cls),
+                schema=None if pl is None else get_dataframe_schema(cls),
             ),
         )
 

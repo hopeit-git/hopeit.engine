@@ -77,13 +77,6 @@ class MyTestDataSchemaNotCompatible:
 
 @dataframe
 @dataclass
-class MyNumericalData:
-    number: int
-    value: float
-
-
-@dataframe
-@dataclass
 class MyPartialTestData:
     number: int
     name: str

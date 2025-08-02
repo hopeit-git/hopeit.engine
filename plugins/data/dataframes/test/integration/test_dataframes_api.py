@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock
 from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
 from hopeit.dataobjects import copy_payload
-import numpy as np
 
 import polars as pl
 from pydantic import TypeAdapter
@@ -9,7 +8,6 @@ import pytest
 import os
 
 from conftest import (
-    MyNumericalData,
     MyPartialTestData,
     MyTestData,
     MyTestDataAllOptional,
@@ -123,15 +121,6 @@ def test_dataframes_from_dataframe(sample_df: pl.DataFrame):
     assert len(DataFrames.df(partial_data)) == 100
     assert_series_equal(partial_data.number, initial_data.number)  # type: ignore
     assert_series_equal(partial_data.name, initial_data.name)  # type: ignore
-
-
-def test_dataframes_from_array():
-    array = np.array([(n, 1.1 * n) for n in range(100)])
-    numerical_data = DataFrames.from_array(MyNumericalData, array)
-    assert_series_equal(
-        numerical_data.number, pl.Series(name="number", values=array.T[0], dtype=pl.Int64)
-    )
-    assert_series_equal(numerical_data.value, pl.Series(name="value", values=array.T[1]))
 
 
 def test_dataobject_dataframes_conversion(one_element_polars_df):
