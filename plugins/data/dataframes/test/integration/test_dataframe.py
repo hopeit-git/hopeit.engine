@@ -19,7 +19,7 @@ def test_coerce_types_happy():
         datetime_value=[
             test_datetime,
             test_datetime,
-            datetime.fromisoformat("2024-01-01T00:00:00+00"),
+            datetime.fromisoformat("2024-01-01T00:00:00+00:00"),
         ],
         bool_value=[True, False, True],
         int_value_optional=[0, 1, None],
@@ -267,7 +267,7 @@ def test_coerce_types_unhappy_none_fields():
             float_value=[1.1, 2.2, 3],
             str_value=["a", "B", 42],
             date_value=[test_date, test_date, "2024-01-01"],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -277,7 +277,7 @@ def test_coerce_types_unhappy_none_fields():
             float_value=[1.1, 2.2, 3],
             str_value=["a", "B", 42],
             date_value=[test_date, test_date, "2024-01-01"],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -287,7 +287,7 @@ def test_coerce_types_unhappy_none_fields():
             float_value=None,
             str_value=["a", "B", 42],
             date_value=[test_date, test_date, "2024-01-01"],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -297,7 +297,7 @@ def test_coerce_types_unhappy_none_fields():
             float_value=[1.1, 2.2, 3],
             str_value=None,
             date_value=[test_date, test_date, "2024-01-01"],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -307,7 +307,7 @@ def test_coerce_types_unhappy_none_fields():
             float_value=[1.1, 2.2, 3],
             str_value=["a", "B", 42],
             date_value=None,
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -331,7 +331,7 @@ def test_coerce_types_unhappy_none_values():
             float_value=[1.1, 2.2, 3],
             str_value=["a", "B", 42],
             date_value=[test_date, test_date, "2024-01-01"],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -340,7 +340,7 @@ def test_coerce_types_unhappy_none_values():
             float_value=[1.1, 2.2, None],
             str_value=["a", "B", 42],
             date_value=[test_date, test_date, "2024-01-01"],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -349,7 +349,7 @@ def test_coerce_types_unhappy_none_values():
             float_value=[1.1, 2.2, 3],
             str_value=["a", "b", None],
             date_value=[test_date, test_date, "2024-01-01"],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -358,7 +358,7 @@ def test_coerce_types_unhappy_none_values():
             float_value=[1.1, 2.2, 3],
             str_value=["a", "B", 42],
             date_value=[test_date, test_date, None],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -380,7 +380,7 @@ def test_coerce_types_unhappy_missing_fields():
             float_value=[1.1, 2.2, 3],
             str_value=["a", "B", 42],
             date_value=[test_date, test_date, "2024-01-01"],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -388,7 +388,7 @@ def test_coerce_types_unhappy_missing_fields():
             int_value=[1, 2, 3],
             str_value=["a", "B", 42],
             date_value=[test_date, test_date, "2024-01-01"],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -396,7 +396,7 @@ def test_coerce_types_unhappy_missing_fields():
             int_value=[1, 2, 3],
             float_value=[1.1, 2.2, 3],
             date_value=[test_date, test_date, "2024-01-01"],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):
@@ -404,7 +404,7 @@ def test_coerce_types_unhappy_missing_fields():
             int_value=[1, 2, 3],
             float_value=[1.1, 2.2, 3],
             str_value=["a", "B", 42],
-            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00"],
+            datetime_value=[test_datetime, test_datetime, "2024-01-01T00:00:00+00:00"],
         )
 
     with pytest.raises(TypeError):

@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "hopeit.dataframes"
 version = "0.27.0"
 
-description = "Hopeit Engine Dataframes for Pandas"
+description = "Hopeit Engine Dataframes for Polars"
 dynamic = ["readme"]
 
 license = { text = "Apache 2" }
