@@ -14,7 +14,6 @@ class MockData:
         return self.chunks.pop() if len(self.chunks) > 0 else b""
 
 
-@pytest.mark.asyncio
 async def test_preprocess_file_hook_read_chunks():
     attachment_data = b"testdatatestdatatestdatatestdata"
     reader = MockData()
@@ -25,7 +24,6 @@ async def test_preprocess_file_hook_read_chunks():
     assert data == attachment_data
 
 
-@pytest.mark.asyncio
 async def test_preprocess_file_hook_read_chunked():
     attachment_data = b"testdatatestdatatestdatatestdata"
     reader = MockData()
@@ -38,7 +36,6 @@ async def test_preprocess_file_hook_read_chunked():
     assert data == attachment_data
 
 
-@pytest.mark.asyncio
 async def test_preprocess_file_hook_read_once():
     attachment_data = b"testdatatestdatatestdatatestdata"
     reader = MockData()
@@ -47,7 +44,6 @@ async def test_preprocess_file_hook_read_once():
     assert data == attachment_data
 
 
-@pytest.mark.asyncio
 async def test_preprocess_file_hook_read_none():
     reader = MockData()
     hook = PreprocessFileHook(name="test_name", file_name="test_file_name", data=reader)
@@ -55,7 +51,6 @@ async def test_preprocess_file_hook_read_none():
     assert data == b""
 
 
-@pytest.mark.asyncio
 async def test_preprocess_hook_read_chunks():
     attachment_data = b"testdatatestdatatestdatatestdata"
     fields = {
@@ -81,7 +76,6 @@ async def test_preprocess_hook_read_chunks():
     assert args == fields
 
 
-@pytest.mark.asyncio
 async def test_preprocess_hook_read():
     attachment_data = b"testdatatestdatatestdatatestdata"
     fields = {
@@ -109,7 +103,6 @@ async def test_preprocess_hook_read():
     assert args == fields
 
 
-@pytest.mark.asyncio
 async def test_preprocess_hook_read_once():
     attachment_data = b"testdatatestdatatestdatatestdata"
     fields = {
@@ -133,7 +126,6 @@ async def test_preprocess_hook_read_once():
     assert args == fields
 
 
-@pytest.mark.asyncio
 async def test_preprocess_hook_parsed_args():
     fields = {"a": "field-a", "b": "field-b"}
     reader = MockMultipartReader(fields=fields, attachments={})
@@ -142,7 +134,6 @@ async def test_preprocess_hook_parsed_args():
     assert args == fields
 
 
-@pytest.mark.asyncio
 async def test_postprocess_host_create_stream_response():
     hook = PostprocessHook()
     context = MagicMock()
@@ -176,7 +167,6 @@ class MockStreamResponse:
         self.data += data
 
 
-@pytest.mark.asyncio
 async def test_postprocess_host_create_web_stream_response(monkeypatch):
     monkeypatch.setattr(context_mod.web, "StreamResponse", MockStreamResponse)
 

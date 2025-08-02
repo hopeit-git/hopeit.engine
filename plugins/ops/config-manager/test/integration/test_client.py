@@ -1,12 +1,9 @@
-import pytest
-
 from hopeit.config_manager import ServerStatus, client
 
 from . import mock_client, mock_context, app_config
 import hopeit.server.logger as server_logging
 
 
-@pytest.mark.asyncio
 async def test_client(
     monkeypatch, cluster_apps_response, server1_apps_response, server2_apps_response
 ):
@@ -22,7 +19,6 @@ async def test_client(
     assert result == cluster_apps_response
 
 
-@pytest.mark.asyncio
 async def test_client_timeout(
     monkeypatch, cluster_apps_response, server1_apps_response, server2_apps_response
 ):
@@ -41,7 +37,6 @@ async def test_client_timeout(
     }
 
 
-@pytest.mark.asyncio
 async def test_client_expand_events(
     monkeypatch, effective_events_example, server1_apps_response, server2_apps_response
 ):
@@ -62,7 +57,6 @@ async def test_client_expand_events(
         assert v.effective_events == effective_events_example
 
 
-@pytest.mark.asyncio
 async def test_client_ignore_hosts_errors(
     monkeypatch, cluster_apps_response, server1_apps_response, server2_apps_response
 ):

@@ -1,7 +1,6 @@
 import redis.asyncio as redis
 from redis import ResponseError
 
-import pytest
 from datetime import datetime, timezone
 
 from hopeit.app.config import Compression, Serialization
@@ -151,25 +150,21 @@ async def ack_read_stream():
     assert mgr._read_pool.xack_msg_id == msg_id
 
 
-@pytest.mark.asyncio
 async def test_write_stream(monkeypatch):
     monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await write_stream()
 
 
-@pytest.mark.asyncio
 async def test_ensure_consume_group(monkeypatch):
     monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await ensure_consumer_group()
 
 
-@pytest.mark.asyncio
 async def test_read_stream(monkeypatch):
     monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await read_stream()
 
 
-@pytest.mark.asyncio
 async def test_read_stream_queue_name(monkeypatch):
     monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     monkeypatch.setattr(TestStreamData, "test_queue", "custom")
@@ -179,7 +174,6 @@ async def test_read_stream_queue_name(monkeypatch):
     await read_stream()
 
 
-@pytest.mark.asyncio
 async def test_read_stream_default_queue_name_when_missing(monkeypatch):
     monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     test_msg = deepcopy(MockRedisPool.test_msg)
@@ -188,13 +182,11 @@ async def test_read_stream_default_queue_name_when_missing(monkeypatch):
     await read_stream()
 
 
-@pytest.mark.asyncio
 async def test_read_stream_empty_batch(monkeypatch):
     monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await read_stream_empty_batch()
 
 
-@pytest.mark.asyncio
 async def test_ack_read_stream(monkeypatch):
     monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
     await ack_read_stream()

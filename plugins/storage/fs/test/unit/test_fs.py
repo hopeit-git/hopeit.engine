@@ -10,7 +10,6 @@ import aiofiles
 import hopeit.fs_storage as fs_module
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.fs_storage import FileStorage, FileStorageSettings, ItemLocator
-import pytest
 
 
 @dataobject(event_ts="ts")
@@ -206,7 +205,6 @@ def mock_glob_partitions(wc: str) -> List[str]:
     raise ValueError(f"glob received unexpected wildcard: {wc}")
 
 
-@pytest.mark.asyncio
 async def test_save_load_file(monkeypatch):
     monkeypatch.setattr(aiofiles, "open", MockFile.open)
     monkeypatch.setattr(os, "makedirs", MockOs.makedirs)
@@ -215,17 +213,14 @@ async def test_save_load_file(monkeypatch):
     await save_and_load_file()
 
 
-@pytest.mark.asyncio
 async def test_delete_file(monkeypatch):
     await delete_files()
 
 
-@pytest.mark.asyncio
 async def test_delete_file_in_partition(monkeypatch):
     await delete_files_in_partition()
 
 
-@pytest.mark.asyncio
 async def test_save_load_file_in_partition(monkeypatch):
     monkeypatch.setattr(aiofiles, "open", MockFile.open)
     monkeypatch.setattr(os, "makedirs", MockOs.makedirs)
@@ -235,7 +230,6 @@ async def test_save_load_file_in_partition(monkeypatch):
     await save_and_load_file_in_partition_without_ts()
 
 
-@pytest.mark.asyncio
 async def test_save_load_file_in_partition_default_ts(monkeypatch):
     monkeypatch.setattr(aiofiles, "open", MockFile.open)
     monkeypatch.setattr(os, "makedirs", MockOs.makedirs)
@@ -244,13 +238,11 @@ async def test_save_load_file_in_partition_default_ts(monkeypatch):
     await save_and_load_file_in_partition_default_ts()
 
 
-@pytest.mark.asyncio
 async def test_load_missing_file(monkeypatch):
     monkeypatch.setattr(aiofiles, "open", MockFile.open)
     await load_missing_file()
 
 
-@pytest.mark.asyncio
 async def test_list_objects(monkeypatch):
     monkeypatch.setattr(os, "makedirs", MockOs.makedirs)
     monkeypatch.setattr(fs_module, "glob", mock_glob)
@@ -281,7 +273,6 @@ async def test_list_objects(monkeypatch):
     ]
 
 
-@pytest.mark.asyncio
 async def test_list_objects_within_partitions(monkeypatch):
     monkeypatch.setattr(os, "makedirs", MockOs.makedirs)
     monkeypatch.setattr(fs_module, "glob", mock_glob_partitions)
@@ -301,7 +292,6 @@ async def test_list_objects_within_partitions(monkeypatch):
     assert files == [ItemLocator("1", "2022/03/01")]
 
 
-@pytest.mark.asyncio
 async def test_get_store_file():
     key = "BINARYFILE"
     fs = FileStorage(path=f"/tmp/{key}/")
@@ -312,7 +302,6 @@ async def test_get_store_file():
     assert loaded == binary_file
 
 
-@pytest.mark.asyncio
 async def test_get_store_file_in_partition():
     key = "BINARYFILE"
     fs = FileStorage(path=f"/tmp/{key}/", partition_dateformat="%Y/%m/%d")
@@ -326,7 +315,6 @@ async def test_get_store_file_in_partition():
     assert fs.partition_key(location) == partition_key
 
 
-@pytest.mark.asyncio
 async def test_with_settings():
     setting = FileStorageSettings(path="/tmp/", partition_dateformat="%Y/%m/%d")
     fs = FileStorage.with_settings(settings=setting)

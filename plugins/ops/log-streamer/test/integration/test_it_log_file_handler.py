@@ -9,7 +9,6 @@ from pathlib import Path
 from hopeit.log_streamer import LogFileHandler, start_observer
 
 
-@pytest.mark.asyncio
 async def test_read_one_batch(raw_log_entries, log_config, service_context):
     handler = LogFileHandler(log_config, service_context)
     os.makedirs(log_config.logs_path, exist_ok=True)
@@ -30,7 +29,6 @@ async def test_read_one_batch(raw_log_entries, log_config, service_context):
     observer.join()
 
 
-@pytest.mark.asyncio
 @pytest.mark.skipif(
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux",
@@ -75,7 +73,6 @@ async def test_checkpoint(raw_log_entries, raw_log_entries2, log_config, service
     observer.join()
 
 
-@pytest.mark.asyncio
 @pytest.mark.skipif(
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux",
@@ -124,7 +121,6 @@ async def test_checkpoint_expire(raw_log_entries, raw_log_entries2, log_config, 
     observer.join()
 
 
-@pytest.mark.asyncio
 @pytest.mark.skipif(
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux",
@@ -184,7 +180,6 @@ async def test_checkpoint_same_timestamp(
     observer.join()
 
 
-@pytest.mark.asyncio
 @pytest.mark.skipif(
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux",
@@ -227,7 +222,6 @@ async def test_move_file(raw_log_entries, raw_log_entries2, log_config, service_
     observer.join()
 
 
-@pytest.mark.asyncio
 @pytest.mark.skipif(
     platform.system().lower() != "linux",
     reason="LogFileReader uses watchdog that works with no additional helpers only in Linux",

@@ -575,7 +575,7 @@ def loop():
 
 
 @pytest.mark.order(1)
-@pytest.mark.asyncio
+#
 async def test_endpoints(
     monkeypatch,
     mock_app_config,
@@ -635,7 +635,7 @@ async def test_endpoints(
 
 
 @pytest.mark.order(2)
-@pytest.mark.asyncio
+#
 async def test_start_streams_on_startup(
     monkeypatch,
     mock_app_config,

@@ -1,5 +1,3 @@
-import pytest  # type: ignore
-
 from hopeit.dataobjects import copy_payload
 from hopeit.testing.apps import execute_event
 from hopeit.server.version import APPS_API_VERSION
@@ -11,7 +9,6 @@ from simple_example.shuffle.spawn_event import SomethingStored
 APP_VERSION = APPS_API_VERSION.replace(".", "x")
 
 
-@pytest.mark.asyncio
 async def test_spawn_event(
     monkeypatch,
     app_config,  # noqa: F811

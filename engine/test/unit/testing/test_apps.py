@@ -53,13 +53,11 @@ def test_create_test_context(mock_app_config):
     assert result.auth_info == {"auth_type": AuthType.UNSECURED, "allowed": "true"}
 
 
-@pytest.mark.asyncio
 async def test_execute_event(mock_app_config):
     result = await execute_event(mock_app_config, "mock_event", None, query_arg1="ok")
     assert result == "ok: ok"
 
 
-@pytest.mark.asyncio
 async def test_execute_event_and_postprocess(mock_app_config):
     result, pp_result, response = await execute_event(
         mock_app_config, "mock_event", None, query_arg1="ok", postprocess=True
@@ -71,7 +69,6 @@ async def test_execute_event_and_postprocess(mock_app_config):
     assert response.cookies == {"Test-Cookie": ("ok", tuple(), {})}
 
 
-@pytest.mark.asyncio
 async def test_execute_event_failed_case(mock_app_config):
     with pytest.raises(AssertionError):
         await execute_event(
@@ -79,7 +76,6 @@ async def test_execute_event_failed_case(mock_app_config):
         )
 
 
-@pytest.mark.asyncio
 async def test_execute_event_special_case(mock_app_config):
     result, pp_result, response = await execute_event(
         mock_app_config, "mock_event", None, query_arg1="no-ok", postprocess=True
@@ -89,7 +85,6 @@ async def test_execute_event_special_case(mock_app_config):
     assert response.status == 400
 
 
-@pytest.mark.asyncio
 async def test_execute_spawn_event(mock_app_config):
     result = await execute_event(mock_app_config, "mock_spawn_event", "ok")
     assert result == [
@@ -99,7 +94,6 @@ async def test_execute_spawn_event(mock_app_config):
     ]
 
 
-@pytest.mark.asyncio
 async def test_execute_service(mock_app_config):
     result = await execute_service(mock_app_config, "mock_service_event", max_events=3)
     assert result == [
@@ -109,13 +103,11 @@ async def test_execute_service(mock_app_config):
     ]
 
 
-@pytest.mark.asyncio
 async def test_execute_service_unhappy(mock_app_config):
     with pytest.raises(TestingException):
         await execute_service(mock_app_config, "mock_service_event_unhappy", max_events=3)
 
 
-@pytest.mark.asyncio
 async def test_execute_shuffle_event(mock_app_config):
     result = await execute_event(mock_app_config, "mock_shuffle_event", "ok")
     assert result == [
@@ -125,7 +117,6 @@ async def test_execute_shuffle_event(mock_app_config):
     ]
 
 
-@pytest.mark.asyncio
 async def test_execute_shuffle_event_default_step(mock_app_config):
     result = await execute_event(mock_app_config, "mock_shuffle_event", "none")
     assert result == [
@@ -135,7 +126,6 @@ async def test_execute_shuffle_event_default_step(mock_app_config):
     ]
 
 
-@pytest.mark.asyncio
 async def test_execute_parallelize_event(mock_app_config):
     result, pp_result, response = await execute_event(
         mock_app_config,
@@ -147,7 +137,6 @@ async def test_execute_parallelize_event(mock_app_config):
     assert pp_result == "Events submitted."
 
 
-@pytest.mark.asyncio
 async def test_execute_parallelize_event_no_shuffle(mock_app_config):
     def mock_steps(module, context):
         setattr(module, "__steps__", ["produce_messages", "process_a", "process_b"])
@@ -161,7 +150,6 @@ async def test_execute_parallelize_event_no_shuffle(mock_app_config):
     assert result == ["a: part-a", "b: part-b"]
 
 
-@pytest.mark.asyncio
 async def test_execute_shuffle_event_default_step_fail(mock_app_config):
     with pytest.raises(AssertionError):
         await execute_event(mock_app_config, "mock_shuffle_event", "fail")
@@ -174,7 +162,6 @@ def mock_module(module: ModuleType, context: EventContext):
     setattr(module, "handle_ok_case", mock_handle_ok_case)
 
 
-@pytest.mark.asyncio
 async def test_execute_event_with_mocks(mock_app_config):
     result = await execute_event(
         mock_app_config, "mock_event", None, mocks=[mock_module], query_arg1="ok"
@@ -183,7 +170,6 @@ async def test_execute_event_with_mocks(mock_app_config):
     importlib.reload(mock_event)
 
 
-@pytest.mark.asyncio
 async def test_execute_multipart_event(mock_app_config):
     fields = {
         "field1": "value1",
@@ -207,7 +193,6 @@ async def test_execute_multipart_event(mock_app_config):
     )
 
 
-@pytest.mark.asyncio
 async def test_execute_event_preprocess(mock_app_config):
     def mock_hooks(
         module,
@@ -232,7 +217,6 @@ async def test_execute_event_preprocess(mock_app_config):
     assert response.headers["recognized"] == "ok: Testing!"
 
 
-@pytest.mark.asyncio
 async def test_execute_event_preprocess_no_datatype(mock_app_config):
     def mock_hooks(
         module,

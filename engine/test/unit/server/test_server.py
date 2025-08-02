@@ -18,7 +18,6 @@ async def start_server(app_config: AppConfig, plugin: AppConfig) -> engine.Serve
     return server
 
 
-@pytest.mark.asyncio
 async def test_app_start(monkeypatch, mock_app_config, mock_plugin_config):
     monkeypatch.setattr(engine, "AppEngine", MockAppEngine)
     server = await start_server(mock_app_config, mock_plugin_config)

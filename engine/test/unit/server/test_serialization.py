@@ -42,7 +42,6 @@ ser = {
 }
 
 
-@pytest.mark.asyncio
 async def test_serialize():
     print(sys.version_info, sys.version)
     assert (
@@ -73,7 +72,6 @@ async def test_serialize():
         )
 
 
-@pytest.mark.asyncio
 async def test_deserialize():
     assert (
         await deserialize(
@@ -113,7 +111,6 @@ async def test_deserialize():
         )
 
 
-@pytest.mark.asyncio
 async def test_serialize_primitives():
     assert await serialize("test", Serialization.JSON_UTF8, Compression.NONE) == b'{"value":"test"}'
     assert (
@@ -193,7 +190,6 @@ async def test_serialize_primitives():
     )
 
 
-@pytest.mark.asyncio
 async def test_serialize_collections():
     assert (
         await serialize({"test": "value"}, Serialization.JSON_UTF8, Compression.NONE)

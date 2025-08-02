@@ -1,11 +1,8 @@
-import pytest
-
 from hopeit.testing.apps import execute_event
 
 from . import mock_runtime
 
 
-@pytest.mark.asyncio
 async def test_site_main(monkeypatch, mock_lock, plugin_config, effective_events):
     async with mock_lock:
         mock_runtime(monkeypatch, effective_events)

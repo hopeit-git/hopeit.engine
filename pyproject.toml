@@ -74,7 +74,7 @@ dev-dependencies = [
     "pytest>=8.3.3",
     "pytest-cov>=6.0.0",
     "pytest-aiohttp>=1.0.5",
-    "pytest-asyncio>=0.25.3",
+    "pytest-asyncio>=0.25.3,<1.1",  # Used by pytest-aiohttp
     "pytest-order>=1.3.0",
     "pytest-mock>=3.14.0",
     "coverage>=7.6.12",
@@ -89,7 +89,6 @@ dev-dependencies = [
     # web test dependencies
     "uvloop>=0.21.0",
     # data/dataframes plugin tests
-    "pandas-stubs>=2.2.3",
     "pyarrow-stubs>=17.17",
     # examples/dataframes-example deps
     "scikit-learn>=1.6.1",

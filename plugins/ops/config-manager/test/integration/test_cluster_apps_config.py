@@ -1,11 +1,8 @@
-import pytest
-
 from hopeit.testing.apps import config, execute_event
 
 from . import mock_client
 
 
-@pytest.mark.asyncio
 async def test_cluster_apps_config(
     monkeypatch, cluster_apps_response, server1_apps_response, server2_apps_response
 ):
@@ -24,7 +21,6 @@ async def test_cluster_apps_config(
     assert result == cluster_apps_response
 
 
-@pytest.mark.asyncio
 async def test_cluster_apps_config_expand_events(
     monkeypatch, effective_events_example, server1_apps_response, server2_apps_response
 ):

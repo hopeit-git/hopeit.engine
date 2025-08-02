@@ -79,14 +79,12 @@ def _event_context(mock_app_config, plugin_config):  # noqa: F811
     )
 
 
-@pytest.mark.asyncio
 async def test_login(mock_app_config, plugin_config):  # noqa: F811
     auth.init(mock_app_config.app_key(), mock_app_config.server.auth)
     context = _event_context(mock_app_config, plugin_config)
     await execute_flow(context)
 
 
-@pytest.mark.asyncio
 async def test_login_unauthorized(mock_app_config, plugin_config):  # noqa: F811
     auth.init(mock_app_config.app_key(), mock_app_config.server.auth)
     context = _event_context(mock_app_config, plugin_config)

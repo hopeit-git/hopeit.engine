@@ -92,21 +92,18 @@ async def mock_handle_spawn_event(app_config, *, payload, expected, stream_name)
     assert event_count == 3
 
 
-@pytest.mark.asyncio
 async def test_handle_async_event_ok_case(mock_app_config):
     await mock_handle_request_response_event(
         mock_app_config, payload=MockData("ok"), expected=MockResult("ok: ok")
     )
 
 
-@pytest.mark.asyncio
 async def test_handle_async_event_special_case(mock_app_config):
     await mock_handle_request_response_event(
         mock_app_config, payload=MockData("no-ok"), expected=MockResult("None")
     )
 
 
-@pytest.mark.asyncio
 async def test_handle_spawn_event(monkeypatch, mock_app_config):
     expected_prefix = MockData("stream: ok.")
     monkeypatch.setattr(MockStreamManager, "test_payload", expected_prefix)
@@ -118,7 +115,6 @@ async def test_handle_spawn_event(monkeypatch, mock_app_config):
     )
 
 
-@pytest.mark.asyncio
 async def test_postprocess(mock_plugin_config):
     await mock_handle_postprocess(
         mock_plugin_config,
