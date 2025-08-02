@@ -55,7 +55,7 @@ redis:
 
 polars:
     Link: https://github.com/pola-rs/polars
-    License: Unrestricted (https://github.com/pola-rs/polars/blob/main/LICENSE)
+    License: MIT (https://github.com/pola-rs/polars/blob/main/LICENSE)
 
 
 The following libraries are used to test and develop hopeit.engine:
@@ -90,7 +90,3 @@ coverage-badge
 mypy
     Link: https://github.com/python/mypy
     License: MIT (https://github.com/python/mypy/blob/master/LICENSE)
-
-wheel
-    Link: https://github.com/pypa/wheel
-    License: MIT (https://github.com/pypa/wheel/blob/master/LICENSE.txt)

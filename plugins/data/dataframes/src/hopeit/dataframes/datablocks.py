@@ -187,9 +187,6 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
                 if get_origin(field_info.annotation) is not Dataset
             ]
         )
-        # for field_name, field_info in fields(datablock).items():  # type: ignore[arg-type]
-        #     if get_origin(field_info.annotation) is not Dataset:
-        #         result_df.loc[:, field_name] = getattr(datablock, field_name)  # type: ignore[index]
 
         return result_df
 
@@ -318,9 +315,6 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
                     if get_origin(field_info.annotation) is not Dataset
                 ]
             )
-            # for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
-            #     if get_origin(field_info.annotation) is not Dataset:
-            #         result_df.loc[:, field_name] = kwargs.get(field_name)
 
             yield result_df
 
@@ -366,8 +360,3 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             if series.name in select_cols
         }
         return pl.DataFrame(list(cols.values()))
-        # for _, datatype in dataset_types:
-        #     valid_df = datatype._from_df(df)._df  # type: ignore[attr-defined]
-
-        #     for col in valid_df.columns:
-        #         df[col] = valid_df[col]
