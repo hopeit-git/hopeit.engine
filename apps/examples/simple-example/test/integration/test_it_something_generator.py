@@ -4,7 +4,6 @@ from hopeit.testing.apps import execute_event, execute_service
 from model import Something, User
 
 
-@pytest.mark.asyncio
 async def test_it_something_generator_with_setup_service(app_config, something_params_example):  # noqa: F811
     results = await execute_event(app_config=app_config, event_name="setup_something", payload=None)
     results = await execute_service(
@@ -16,7 +15,6 @@ async def test_it_something_generator_with_setup_service(app_config, something_p
     ]
 
 
-@pytest.mark.asyncio
 async def test_it_something_generator(app_config, something_params_example):  # noqa: F811
     result = await execute_event(
         app_config=app_config,
@@ -29,7 +27,6 @@ async def test_it_something_generator(app_config, something_params_example):  # 
     )
 
 
-@pytest.mark.asyncio
 async def test_it_something_generator_service(app_config, something_params_example):
     with pytest.raises(RuntimeError) as exc_info:
         await execute_service(

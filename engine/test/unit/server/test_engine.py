@@ -76,7 +76,6 @@ def setup_mocks(monkeypatch):
     monkeypatch.setattr(EventHandler, "postprocess", MockEventHandler.postprocess)
 
 
-@pytest.mark.asyncio
 async def test_execute(monkeypatch, mock_app_config, mock_plugin_config):
     payload = MockData("ok")
     expected = MockResult("ok: ok")
@@ -103,7 +102,6 @@ async def test_execute(monkeypatch, mock_app_config, mock_plugin_config):
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_execute_plugin(monkeypatch, mock_app_config, mock_plugin_config):
     expected = "PluginEvent"
     expected_response = {
@@ -136,7 +134,6 @@ async def test_execute_plugin(monkeypatch, mock_app_config, mock_plugin_config):
     await plugin_engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_execute_provided_request_id(monkeypatch, mock_app_config, mock_plugin_config):
     payload = MockData("ok")
     expected = MockResult("ok: ok")
@@ -164,7 +161,6 @@ async def test_execute_provided_request_id(monkeypatch, mock_app_config, mock_pl
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_stream(monkeypatch, mock_app_config, mock_plugin_config):
     payload = MockData("ok")
     expected = MockResult("ok: ok")
@@ -183,7 +179,6 @@ async def test_read_stream(monkeypatch, mock_app_config, mock_plugin_config):
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_stream_dataobject_payload(monkeypatch, mock_app_config, mock_plugin_config):
     payload = MockData("ok")
     expected = """{"value": "ok"}"""
@@ -198,7 +193,6 @@ async def test_read_stream_dataobject_payload(monkeypatch, mock_app_config, mock
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_write_stream_auto_queue(
     monkeypatch,
     mock_app_config,
@@ -234,7 +228,6 @@ async def test_read_write_stream_auto_queue(
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_write_stream_propagate_queue(
     monkeypatch,
     mock_app_config,
@@ -274,7 +267,6 @@ async def test_read_write_stream_propagate_queue(
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_write_stream_drop_queue(
     monkeypatch,
     mock_app_config,
@@ -314,7 +306,6 @@ async def test_read_write_stream_drop_queue(
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_write_stream_new_queue(
     monkeypatch,
     mock_app_config,
@@ -351,7 +342,6 @@ async def test_read_write_stream_new_queue(
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_write_stream_new_queue_propagate_auto(
     monkeypatch,
     mock_app_config,
@@ -391,7 +381,6 @@ async def test_read_write_stream_new_queue_propagate_auto(
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_write_stream_new_queue_propagate(
     monkeypatch,
     mock_app_config,
@@ -432,7 +421,6 @@ async def test_read_write_stream_new_queue_propagate(
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_write_stream_new_queue_drop(
     monkeypatch,
     mock_app_config,
@@ -473,7 +461,6 @@ async def test_read_write_stream_new_queue_drop(
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_write_stream_multiple_queues(
     monkeypatch,
     mock_app_config,
@@ -524,7 +511,6 @@ async def test_read_write_stream_multiple_queues(
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_write_stream_multiple_queues_propagate(
     monkeypatch,
     mock_app_config,
@@ -578,7 +564,6 @@ async def test_read_write_stream_multiple_queues_propagate(
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_write_stream_multiple_queues_propagate_AUTO(
     monkeypatch,
     mock_app_config,
@@ -640,7 +625,6 @@ async def test_read_write_stream_multiple_queues_propagate_AUTO(
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_service_loop(monkeypatch, mock_app_config, mock_plugin_config):
     payload = "stream: service.0"
     expected = MockData("stream: service.0")
@@ -657,7 +641,6 @@ async def test_service_loop(monkeypatch, mock_app_config, mock_plugin_config):
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_service_loop_timeout(monkeypatch, mock_app_config, mock_plugin_config):
     payload = MockData("timeout")
     expected = MockData("stream: service.1")
@@ -674,7 +657,6 @@ async def test_service_loop_timeout(monkeypatch, mock_app_config, mock_plugin_co
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_stream_timeout_ok(monkeypatch, mock_app_config, mock_plugin_config):
     payload = MockData("ok")
     expected = MockResult("ok: ok")
@@ -703,7 +685,6 @@ async def test_read_stream_timeout_fail(monkeypatch, mock_app_config, mock_plugi
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_stream_event_fail_and_process_next(
     monkeypatch, mock_app_config, mock_plugin_config
 ):
@@ -740,7 +721,6 @@ async def test_read_stream_event_fail_and_process_next(
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_stream_stop_and_recover(monkeypatch, mock_app_config, mock_plugin_config):
     payload = MockData("ok")
     expected = MockResult("ok: ok")
@@ -772,7 +752,6 @@ async def test_read_stream_stop_and_recover(monkeypatch, mock_app_config, mock_p
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_read_stream_failed(monkeypatch, mock_app_config, mock_plugin_config):
     payload = MockData("fail")
     setup_mocks(monkeypatch)
@@ -788,7 +767,6 @@ async def test_read_stream_failed(monkeypatch, mock_app_config, mock_plugin_conf
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_write_stream(monkeypatch, mock_app_config, mock_plugin_config):
     payload = MockData("ok")
     expected = MockResult("ok: ok")
@@ -820,7 +798,6 @@ async def test_write_stream(monkeypatch, mock_app_config, mock_plugin_config):
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_write_stream_batch(monkeypatch, mock_app_config, mock_plugin_config):
     payload = "ok"
     expected = MockData("stream: ok.3")
@@ -852,7 +829,6 @@ async def test_write_stream_batch(monkeypatch, mock_app_config, mock_plugin_conf
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_execute_collector(monkeypatch, mock_app_config, mock_plugin_config):
     payload = MockData(value="ok")
     expected = MockResult(value="step3: ok")
@@ -879,7 +855,6 @@ async def test_execute_collector(monkeypatch, mock_app_config, mock_plugin_confi
     await engine.stop()
 
 
-@pytest.mark.asyncio
 async def test_start_all_groups(monkeypatch, mock_app_config, mock_plugin_config):
     setup_mocks(monkeypatch)
     engine = await create_engine(
@@ -890,7 +865,6 @@ async def test_start_all_groups(monkeypatch, mock_app_config, mock_plugin_config
     )
 
 
-@pytest.mark.asyncio
 async def test_start_single_group(monkeypatch, mock_app_config, mock_plugin_config):
     setup_mocks(monkeypatch)
     engine = await create_engine(
@@ -915,7 +889,6 @@ async def test_start_single_group(monkeypatch, mock_app_config, mock_plugin_conf
     )
 
 
-@pytest.mark.asyncio
 async def test_start_multiple_groups(monkeypatch, mock_app_config, mock_plugin_config):
     setup_mocks(monkeypatch)
     engine = await create_engine(
@@ -942,7 +915,6 @@ async def test_start_multiple_groups(monkeypatch, mock_app_config, mock_plugin_c
     )
 
 
-@pytest.mark.asyncio
 async def test_start_default_group(monkeypatch, mock_app_config, mock_plugin_config):
     setup_mocks(monkeypatch)
     engine = await create_engine(

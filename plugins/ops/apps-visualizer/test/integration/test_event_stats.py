@@ -1,7 +1,6 @@
 from typing import Deque
 from collections import deque
 
-import pytest
 
 from hopeit.testing.apps import execute_event
 from hopeit.server.version import APPS_ROUTE_VERSION
@@ -18,7 +17,6 @@ def mock_recent_entries(module, context):
     setattr(module, "recent_entries", recent_entries)
 
 
-@pytest.mark.asyncio
 async def test_live_stats(
     monkeypatch, log_entries: LogBatch, mock_lock, plugin_config, effective_events
 ):
@@ -158,7 +156,6 @@ async def test_live_stats(
         )
 
 
-@pytest.mark.asyncio
 async def test_live_stats_expanded_view(
     monkeypatch, log_entries: LogBatch, mock_lock, plugin_config, effective_events
 ):

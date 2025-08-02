@@ -131,7 +131,6 @@ async def _stream_startup_hook(*args, **kwargs):
         (None, None),
     ],
 )
-@pytest.mark.asyncio
 async def test_server_initialization(monkeypatch, api_file, api_auto):
     async def _shutdown(*args, **kwargs):
         await asyncio.sleep(1)

@@ -2,7 +2,6 @@ from glob import glob
 import asyncio
 from hopeit.fs_storage.events.stream_batch_storage import FlushSignal
 
-import pytest  # type: ignore
 
 from hopeit.testing.apps import execute_event
 from hopeit.dataobjects.payload import Payload
@@ -10,7 +9,6 @@ from hopeit.dataobjects.payload import Payload
 from . import MyObject
 
 
-@pytest.mark.asyncio
 async def test_buffer_objects_and_flush_partitions(app_config, test_objs):  # noqa: F811
     test_save_path = app_config.settings["test_stream_batch_storage"]["path"]
 
@@ -36,7 +34,6 @@ async def test_buffer_objects_and_flush_partitions(app_config, test_objs):  # no
         assert obj == saved
 
 
-@pytest.mark.asyncio
 async def test_buffer_object_and_flush_signal(app_config, test_objs):  # noqa: F811
     test_save_path = app_config.settings["test_stream_batch_storage"]["path"]
 

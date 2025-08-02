@@ -189,7 +189,6 @@ def _get_event_context() -> EventContext:
     )
 
 
-@pytest.mark.asyncio
 async def test_execute_linear_steps():
     steps = [
         (0, "step1", (step1, MockData, MockData, False)),
@@ -202,7 +201,6 @@ async def test_execute_linear_steps():
         assert result == MockData("input step1 step2 step3")
 
 
-@pytest.mark.asyncio
 async def test_execute_decision_steps():
     steps = [
         (0, "step1", (step1, MockData, MockData, False)),
@@ -224,7 +222,6 @@ async def test_execute_decision_steps():
         assert result == MockResult("b step1 step2 step3 step4 step5b step6")
 
 
-@pytest.mark.asyncio
 async def test_execute_spawn_initial_steps():
     steps = [
         (0, "step_spawn", (step_spawn, None, Spawn[MockData], True)),
@@ -253,7 +250,6 @@ async def test_execute_spawn_initial_steps():
     assert i == 3
 
 
-@pytest.mark.asyncio
 async def test_execute_multiple_spawn_steps():
     steps = [
         (0, "step_spawn", (step_spawn, None, Spawn[MockData], True)),
@@ -287,7 +283,6 @@ async def test_execute_multiple_spawn_steps():
     assert count == 9
 
 
-@pytest.mark.asyncio
 async def test_invoke_single_step():
     result = await invoke_single_step(
         step1, payload=MockData("input"), context=_get_event_context()

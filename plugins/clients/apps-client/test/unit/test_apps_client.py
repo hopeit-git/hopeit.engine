@@ -26,7 +26,6 @@ from . import (
 )
 
 
-@pytest.mark.asyncio
 async def test_client_get(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(
@@ -54,7 +53,6 @@ async def test_client_get(monkeypatch, mock_client_app_config, mock_auth):
         )
 
 
-@pytest.mark.asyncio
 async def test_client_app_plugin(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app_plugin(
@@ -84,7 +82,6 @@ async def test_client_app_plugin(monkeypatch, mock_client_app_config, mock_auth)
         )
 
 
-@pytest.mark.asyncio
 async def test_client_app_unsecured(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app_unsecured(
@@ -117,7 +114,6 @@ async def test_client_app_unsecured(monkeypatch, mock_client_app_config, mock_au
         )
 
 
-@pytest.mark.asyncio
 async def test_client_post(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(
@@ -147,7 +143,6 @@ async def test_client_post(monkeypatch, mock_client_app_config, mock_auth):
         ]
 
 
-@pytest.mark.asyncio
 async def test_client_connection_not_found(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(
@@ -171,7 +166,6 @@ async def test_client_connection_not_found(monkeypatch, mock_client_app_config, 
             )
 
 
-@pytest.mark.asyncio
 async def test_load_balancer_next_host(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(
@@ -230,7 +224,6 @@ async def test_load_balancer_next_host(monkeypatch, mock_client_app_config, mock
         )
 
 
-@pytest.mark.asyncio
 async def test_load_balancer_retry(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         set_settings(mock_client_app_config, retries=1)
@@ -261,7 +254,6 @@ async def test_load_balancer_retry(monkeypatch, mock_client_app_config, mock_aut
         )
 
 
-@pytest.mark.asyncio
 async def test_load_balancer_retry_and_fail(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         set_settings(mock_client_app_config, retries=1)
@@ -290,7 +282,6 @@ async def test_load_balancer_retry_and_fail(monkeypatch, mock_client_app_config,
             assert MockClientSession.call_log == {"http://test-host1": 1, "http://test-host2": 1}
 
 
-@pytest.mark.asyncio
 async def test_load_balancer_disable_retry(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         set_settings(mock_client_app_config, retries=0)
@@ -318,7 +309,6 @@ async def test_load_balancer_disable_retry(monkeypatch, mock_client_app_config, 
             assert MockClientSession.call_log == {"http://test-host1": 1}
 
 
-@pytest.mark.asyncio
 async def test_load_balancer_unauthorized(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         set_settings(mock_client_app_config, retries=0)
@@ -350,7 +340,6 @@ def set_settings(app_config: AppConfig, **kwargs):
     app_config.settings["test_app_connection"].update(kwargs)
 
 
-@pytest.mark.asyncio
 async def test_load_balancer_cb_open(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         set_settings(
@@ -391,7 +380,6 @@ async def test_load_balancer_cb_open(monkeypatch, mock_client_app_config, mock_a
         ]
 
 
-@pytest.mark.asyncio
 async def test_load_balancer_no_hosts_available(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         set_settings(
@@ -439,7 +427,6 @@ async def test_load_balancer_no_hosts_available(monkeypatch, mock_client_app_con
             assert MockClientSession.call_log == {"http://test-host1": 10, "http://test-host2": 10}
 
 
-@pytest.mark.asyncio
 async def test_load_balancer_cb_recover(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         set_settings(
@@ -539,7 +526,6 @@ async def test_load_balancer_cb_recover(monkeypatch, mock_client_app_config, moc
         ]
 
 
-@pytest.mark.asyncio
 async def test_client_session_lifecycle(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(
@@ -557,7 +543,6 @@ async def test_client_session_lifecycle(monkeypatch, mock_client_app_config, moc
         assert MockClientSession.session_open is False
 
 
-@pytest.mark.asyncio
 async def test_client_responses(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(
@@ -589,7 +574,6 @@ async def test_client_responses(monkeypatch, mock_client_app_config, mock_auth):
         )
 
 
-@pytest.mark.asyncio
 async def test_client_get_str(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(
@@ -618,7 +602,6 @@ async def test_client_get_str(monkeypatch, mock_client_app_config, mock_auth):
         )
 
 
-@pytest.mark.asyncio
 async def test_client_list_responses(monkeypatch, mock_client_app_config, mock_auth):
     async with MockClientSession.lock:
         await init_mock_client_app(

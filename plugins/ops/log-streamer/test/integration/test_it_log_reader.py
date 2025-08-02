@@ -1,5 +1,4 @@
 from hopeit.dataobjects.payload import Payload
-import pytest
 
 import asyncio
 import os
@@ -10,7 +9,6 @@ from hopeit.testing.apps import config, execute_event
 from hopeit.log_streamer import log_reader
 
 
-@pytest.mark.asyncio
 async def test_log_reader(raw_log_entries, expected_log_entries):
     app_config = config("plugins/ops/log-streamer/config/plugin-config.json")
     result = await execute_event(app_config, "log_reader", raw_log_entries)
@@ -27,7 +25,6 @@ async def write_logs(log_config, raw_log_entries):
         f.flush()
 
 
-@pytest.mark.asyncio
 async def test_service(monkeypatch, raw_log_entries, log_config, service_context):
     monkeypatch.setattr(service_context.settings, "extras", {"_": Payload.to_obj(log_config)})
     loop = asyncio.get_event_loop()

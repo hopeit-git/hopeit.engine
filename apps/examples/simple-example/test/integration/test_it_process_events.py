@@ -1,4 +1,3 @@
-import pytest
 
 from hopeit.server.version import APPS_ROUTE_VERSION  # type: ignore
 
@@ -7,7 +6,6 @@ from hopeit.fs_storage.partition import get_partition_key
 from simple_example.streams.process_events import SomethingStored
 
 
-@pytest.mark.asyncio
 async def test_it_process_events(
     app_config,  # noqa: F811
     something_submitted,

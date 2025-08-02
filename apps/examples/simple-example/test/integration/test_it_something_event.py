@@ -1,9 +1,7 @@
-import pytest  # type: ignore
 
 from hopeit.testing.apps import execute_event
 
 
-@pytest.mark.asyncio
 async def test_it_process_something(
     app_config,  # noqa: F811
     something_submitted,
@@ -16,7 +14,6 @@ async def test_it_process_something(
     assert result == something_submitted
 
 
-@pytest.mark.asyncio
 async def test_it_process_something_check_history(
     app_config,  # noqa: F811
     something_with_status_submitted_example,  # noqa: F811

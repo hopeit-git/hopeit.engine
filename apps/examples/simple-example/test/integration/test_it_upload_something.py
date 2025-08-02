@@ -1,4 +1,3 @@
-import pytest  # type: ignore
 
 from hopeit.testing.apps import execute_event
 from hopeit.server.version import APPS_API_VERSION
@@ -6,7 +5,6 @@ from hopeit.server.version import APPS_API_VERSION
 APP_VERSION = APPS_API_VERSION.replace(".", "x")
 
 
-@pytest.mark.asyncio
 async def test_it_save_something(app_config, something_params_example, something_upload_example):  # noqa: F811
     fields = {
         "id": something_params_example.id,
@@ -38,7 +36,6 @@ async def test_it_save_something(app_config, something_params_example, something
     assert data == upload["attachment"]
 
 
-@pytest.mark.asyncio
 async def test_it_save_something_missing_field(
     app_config, something_params_example, something_upload_example
 ):  # noqa: F811

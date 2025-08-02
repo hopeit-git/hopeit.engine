@@ -69,7 +69,6 @@ def test_as_data_event():
         StreamManager.as_data_event(MockInvalidDataEvent("ok"))
 
 
-@pytest.mark.asyncio
 async def test_stream_circuit_breaker_ensure_consumer_group():
     stream_manager = MockStreamManager()
     stream_manager.connected = True
@@ -127,7 +126,6 @@ async def test_stream_circuit_breaker_ensure_consumer_group():
     await check_result(state=0, backoff=0.0)
 
 
-@pytest.mark.asyncio
 async def test_stream_circuit_breaker_read_stream():
     stream_manager = MockStreamManager()
     stream_manager.connected = True
@@ -187,7 +185,6 @@ async def test_stream_circuit_breaker_read_stream():
     await check_result(state=0, backoff=0.0)
 
 
-@pytest.mark.asyncio
 async def test_stream_circuit_breaker_write_stream():
     stream_manager = MockStreamManager()
     stream_manager.connected = True

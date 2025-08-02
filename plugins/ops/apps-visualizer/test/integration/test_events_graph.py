@@ -1,11 +1,9 @@
-import pytest
 
 from hopeit.testing.apps import execute_event
 
 from . import mock_runtime
 
 
-@pytest.mark.asyncio
 async def test_simple_example_events_diagram(
     monkeypatch, mock_lock, events_graph_data_standard, plugin_config, effective_events
 ):
@@ -18,7 +16,6 @@ async def test_simple_example_events_diagram(
         assert result.options.expanded_view is False
 
 
-@pytest.mark.asyncio
 async def test_simple_example_events_diagram_expanded_view(
     monkeypatch, mock_lock, events_graph_data_expanded, plugin_config, effective_events
 ):
@@ -35,7 +32,6 @@ async def test_simple_example_events_diagram_expanded_view(
         assert result.options.expanded_view is True
 
 
-@pytest.mark.asyncio
 async def test_simple_example_events_diagram_filter_apps(
     monkeypatch, mock_lock, events_graph_data_standard, plugin_config, effective_events
 ):

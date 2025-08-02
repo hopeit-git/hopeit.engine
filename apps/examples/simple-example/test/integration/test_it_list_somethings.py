@@ -46,7 +46,6 @@ def sample_file_id():
     return test_id
 
 
-@pytest.mark.asyncio
 async def test_query_item(app_config, sample_file_id):  # noqa: F811
     results = await execute_event(
         app_config=app_config,

@@ -33,7 +33,6 @@ def sample_file_id():
     return test_id, "2020/05/01/00"
 
 
-@pytest.mark.asyncio
 async def test_query_item(app_config, sample_file_id):  # noqa: F811
     status = Status(datetime.now(tz=timezone.utc), StatusType.LOADED)
     result, pp_result, res = await execute_event(
@@ -50,7 +49,6 @@ async def test_query_item(app_config, sample_file_id):  # noqa: F811
     assert result.status == status
 
 
-@pytest.mark.asyncio
 async def test_query_item_not_found(app_config):  # noqa: F811
     status = Status(datetime.now(tz=timezone.utc), StatusType.LOADED)
     item_id = str(uuid.uuid4())

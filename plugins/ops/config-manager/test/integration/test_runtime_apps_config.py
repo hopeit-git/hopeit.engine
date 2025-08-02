@@ -1,4 +1,3 @@
-import pytest
 from hopeit.app.config import EventPlugMode
 
 from hopeit.server import runtime
@@ -7,7 +6,6 @@ from hopeit.testing.apps import config, execute_event
 from . import MockServer
 
 
-@pytest.mark.asyncio
 async def test_runtime_apps_config(monkeypatch, runtime_apps_response):
     app_config = config("apps/examples/simple-example/config/app-config.json")
     basic_auth_config = config("plugins/auth/basic-auth/config/plugin-config.json")
@@ -21,7 +19,6 @@ async def test_runtime_apps_config(monkeypatch, runtime_apps_response):
     assert result == runtime_apps_response
 
 
-@pytest.mark.asyncio
 async def test_runtime_apps_config_expand_events(monkeypatch, effective_events_example):
     app_config = config("apps/examples/simple-example/config/app-config.json")
     basic_auth_config = config("plugins/auth/basic-auth/config/plugin-config.json")

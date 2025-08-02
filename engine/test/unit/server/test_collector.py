@@ -8,7 +8,6 @@ from hopeit.server.events import get_event_settings
 from mock_app import mock_app_config  # type: ignore
 
 
-@pytest.mark.asyncio
 async def test_async_collector(mock_app_config):
     settings = get_event_settings(mock_app_config.effective_settings, "mock_event")
     context = EventContext(

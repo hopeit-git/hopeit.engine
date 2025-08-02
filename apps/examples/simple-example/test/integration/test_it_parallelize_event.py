@@ -1,10 +1,8 @@
-import pytest  # type: ignore
 
 from hopeit.dataobjects import copy_payload
 from hopeit.testing.apps import execute_event
 
 
-@pytest.mark.asyncio
 async def test_parallelize_event(
     monkeypatch,
     app_config,  # noqa: F811
