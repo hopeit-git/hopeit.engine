@@ -1,4 +1,3 @@
-
 from hopeit.dataobjects import copy_payload
 from hopeit.testing.apps import execute_event
 from hopeit.server.version import APPS_API_VERSION

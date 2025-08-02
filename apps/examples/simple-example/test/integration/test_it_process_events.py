@@ -1,4 +1,3 @@
-
 from hopeit.server.version import APPS_ROUTE_VERSION  # type: ignore
 
 from hopeit.testing.apps import execute_event

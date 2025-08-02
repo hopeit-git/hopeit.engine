@@ -1,4 +1,3 @@
-
 from hopeit.config_manager import ServerStatus, client
 
 from . import mock_client, mock_context, app_config

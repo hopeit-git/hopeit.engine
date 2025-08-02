@@ -1,4 +1,3 @@
-
 from hopeit.dataobjects import copy_payload
 from hopeit.testing.apps import execute_event
 

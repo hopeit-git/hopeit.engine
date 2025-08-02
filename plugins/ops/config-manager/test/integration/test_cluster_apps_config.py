@@ -1,4 +1,3 @@
-
 from hopeit.testing.apps import config, execute_event
 
 from . import mock_client
