@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hopeit.dataframes"
-version = "0.26.5"
+version = "0.27.0"
 
 description = "Hopeit Engine Dataframes for Pandas"
 dynamic = ["readme"]
@@ -33,21 +33,14 @@ classifiers = [
 ]
 
 dependencies = [
-    "hopeit.engine>=0.26.5",
-    "hopeit.fs-storage>=0.26.5",
+    "hopeit.engine>=0.27.0",
+    "hopeit.fs-storage>=0.27.0",
 ]
 
 [project.optional-dependencies]
 polars = [
     "polars>=1.32.0",
 ]
-# pandas = [
-#     "pandas>=2.2.3",
-#     "pyarrow>=19.0.1",
-# ]
-# numpy = [
-#     "numpy>=1.26.4"
-# ]
 
 [project.urls]
 "Homepage" = "https://github.com/hopeit-git/hopeit.engine"

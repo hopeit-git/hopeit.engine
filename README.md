@@ -38,7 +38,7 @@ A comprehensive framework for modular and scalable architectures to develop and 
 
 **Fast and Robust**: it relies on `pydantic 2.x` for dataclasses serialization and schemas, on `aiohttp` for web services and supports pluggable stream managers to connect to your preferred event queue like `Redis Streams`. It is async by default and performance is comparable to REST frameworks like `FastAPI`.
 
-**Data-driven & AI Applications**: it is particularly well-suited for running data-driven applications like machine-learning training and serving thanks to the tight integration with `pandas` using the `hopeit.dataframes` plugin, allowing serialization and data transfer via endpoints and streams.
+**Data-driven & AI Applications**: it is particularly well-suited for running data-driven applications like machine-learning training and serving thanks to the tight integration with `polars` using the `hopeit.dataframes` plugin, allowing serialization and data transfer via endpoints and streams.
 
 
 ### Installation
@@ -122,7 +122,7 @@ pip install hopeit.engine[redis-storage]
 
 **hopeit.dataframes**
 
-Plugin to support working with `pandas` dataframes as they were objects,
+Plugin to work with `polars` dataframes as they were dataobjects,
 supporting them as web request and response payloads and transferring them
 through streams.
 
@@ -203,7 +203,7 @@ Check [*LICENSE*](LICENSE) file. The library also takes advantage of other well-
 - HTTP endpoints and clients are based on [*aiohttp*](https://pypi.org/project/aiohttp/)
 - Dataclasses schemas and serialization are provided by [*pydantic*](https://github.com/pydantic/pydantic)
 - Plugin for stream processing is supported using [*Redis*](https://redis.io/) and connected using [*aioredis*](https://pypi.org/project/aioredis/)
-- Dataframes plugin is implemented using [*Pandas*](https://github.com/pandas-dev/pandas)
+- Dataframes plugin is implemented using [*Polars*](https://github.com/pola-rs/polars)
 
 
 For a full list of required libraries and licenses check [*THIRDPARTY*](THIRDPARTY) file.

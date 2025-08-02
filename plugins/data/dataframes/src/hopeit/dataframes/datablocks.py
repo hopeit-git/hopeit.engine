@@ -1,18 +1,17 @@
 """
 DataBlocks is a utility that allows users of the dataframes plugin to create dataobjects
 that contain combined properties with one or multiple Datasets but can be manipulated
-and saved as a single flat pandas DataFrame.
+and saved as a single flat polars DataFrame.
 """
 
 from datetime import datetime
 from types import NoneType
 from typing import AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, get_origin
 
-# try:
-from hopeit.dataframes.dataframe import DATATYPE_MAPPING
-import polars as pl
-# except ImportError:
-#     import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
+try:
+    import polars as pl
+except ImportError:
+    pl = None  # Polars is optional; set to None if not installed
 
 from hopeit.dataobjects import dataobject, dataclass, fields
 
@@ -70,8 +69,8 @@ def get_datablock_schema(cls: Type[DataBlockType]) -> pl.Schema:
 
 class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
     """
-    TempDataBlock allows to convers a pandas Dataframe to a from dataobjects
-    using DatabBlockType and DataBlockItemType schemas. So from a flat pandas
+    TempDataBlock allows to convers a polars Dataframe to a from dataobjects
+    using DatabBlockType and DataBlockItemType schemas. So from a flat polars
     dataframe, an object containing subsections of the data can be created.
     """
 
@@ -139,7 +138,7 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
 class DataBlocks(Generic[DataBlockType, DataFrameType]):
     """
     DataBlocks is a utility class that allows users to create dataobjects containing multiple Datasets.
-    These dataobjects can be converted and saved as a single pandas DataFrame.
+    These dataobjects can be converted and saved as a single polars DataFrame.
     """
 
     @classmethod
@@ -152,8 +151,8 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         database_key: Optional[str] = None,
     ) -> pl.DataFrame:
         """
-        Converts a DataBlockType object to a pandas DataFrame, by reading the subyacent Dataset/s and
-        putting al the fields defined in the DataBlockType in a flat pandas DataFrame.
+        Converts a DataBlockType object to a polars DataFrame, by reading the subyacent Dataset/s and
+        putting al the fields defined in the DataBlockType in a flat polars DataFrame.
 
         Args:
             datablock (DataBlockType): The data block to convert.
@@ -161,7 +160,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             database_key (Optional[str]): Optional database key for loading data.
 
         Returns:
-            pl.DataFrame: The resulting pandas DataFrame.
+            pl.DataFrame: The resulting polars DataFrame.
         """
         dataset_types = cls._get_dataset_types(type(datablock), select=select)
         field_names = cls._get_field_names(dataset_types)
@@ -208,14 +207,14 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> DataBlockType:
         """
-        Creates a DataBlockType object from a pandas DataFrame, by saving the pandas Dataframe to a single
+        Creates a DataBlockType object from a polars DataFrame, by saving the polars Dataframe to a single
         location, usually a file, and returning a dataobject with Datasets that reference the saved data.
-        The returned DataBlock can be retrieved in one shot using `DataBlocks.df` to get back a flat pandas
+        The returned DataBlock can be retrieved in one shot using `DataBlocks.df` to get back a flat polars
         DataFrame, or each of the individual DataSets can be loaded independently.
 
         Args:
             datatype (Type[DataBlockType]): The type of the data block.
-            df (pl.DataFrame): The pandas DataFrame to convert.
+            df (pl.DataFrame): The polars DataFrame to convert.
             metadata (Optional[DataBlockMetadata]): Optional metadata for the data block.
             **kwargs: Additional non-Dataset field values for the DataBlockType.
 

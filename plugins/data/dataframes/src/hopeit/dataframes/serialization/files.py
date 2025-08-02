@@ -11,14 +11,10 @@ from pathlib import Path
 import aiofiles
 from pydantic import TypeAdapter
 
-# try:
-import polars as pl
-# import pyarrow  # type: ignore  # noqa  # pylint: disable=unused-import
-# except ImportError as e:
-#     raise ImportError(
-#         "`pandas` and `pyarrow` needs to be installed to use `DatasetFileStorage`",
-#         "Run `pip install hopeit.dataframes[pandas]`",
-#     ) from e
+try:
+    import polars as pl
+except ImportError:
+    pl = None  # Polars is optional; set to None if not installed
 
 from hopeit.dataframes.dataframe import DataFrameMixin
 from hopeit.dataframes.serialization.dataset import Dataset
@@ -42,8 +38,7 @@ class DatasetFileStorageEngineSettings:
 
 class DatasetFileStorage(Generic[DataFrameT]):
     """Support to store dataframes as files,
-    using pandas parquet format support in combination
-    with `hopeit.engine` file storage plugins
+    using polars parquet format support
     """
 
     def __init__(
@@ -95,7 +90,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         collection: Optional[str],
         save_schema: bool,
     ) -> Dataset:
-        """Saves pandas df object as parquet to file system
+        """Saves polars df object as parquet to file system
         and returns Dataset metadata to be used when retrieval
         is handled externally
         """

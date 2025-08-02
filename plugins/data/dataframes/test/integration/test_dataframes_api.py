@@ -3,7 +3,6 @@ from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
 from hopeit.dataobjects import copy_payload
 import numpy as np
 
-# import pandas as pd
 import polars as pl
 from pydantic import TypeAdapter
 import pytest
@@ -135,8 +134,8 @@ def test_dataframes_from_array():
     assert_series_equal(numerical_data.value, pl.Series(name="value", values=array.T[1]))
 
 
-def test_dataobject_dataframes_conversion(one_element_pandas_df):
-    data = DataFrames.from_df(MyTestData, one_element_pandas_df)
+def test_dataobject_dataframes_conversion(one_element_polars_df):
+    data = DataFrames.from_df(MyTestData, one_element_polars_df)
     objects = DataFrames.to_dataobjects(data)
     assert objects == [
         MyTestData.DataObject(number=1, name="test1", timestamp=objects[0].timestamp)
@@ -145,8 +144,8 @@ def test_dataobject_dataframes_conversion(one_element_pandas_df):
     assert_frame_equal(DataFrames.df(data), DataFrames.df(back_to_dataframe))
 
 
-def test_dataobject_with_null_values(two_element_pandas_df_with_nulls):
-    data = DataFrames.from_df(MyTestDataAllOptional, two_element_pandas_df_with_nulls)
+def test_dataobject_with_null_values(two_element_polars_df_with_nulls):
+    data = DataFrames.from_df(MyTestDataAllOptional, two_element_polars_df_with_nulls)
 
     objects = DataFrames.to_dataobjects(data)
     assert objects == [

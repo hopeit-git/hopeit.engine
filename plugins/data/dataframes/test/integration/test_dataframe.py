@@ -1,7 +1,5 @@
 from datetime import UTC, datetime, timezone, date
 
-# import numpy as np
-# import pandas as pd
 import polars as pl
 from polars.testing import assert_series_equal
 import pytest

@@ -4,7 +4,6 @@ from typing import List, Optional
 
 from hopeit.dataframes.serialization.settings import DataframesSettings
 
-# import pandas as pd
 import polars as pl
 import pytest
 from hopeit.app.config import (
@@ -217,7 +216,7 @@ class MyDataBlockItem:
 
 
 @pytest.fixture
-def one_element_pandas_df() -> pl.DataFrame:
+def one_element_polars_df() -> pl.DataFrame:
     return pl.DataFrame(
         [
             {
@@ -230,7 +229,7 @@ def one_element_pandas_df() -> pl.DataFrame:
 
 
 @pytest.fixture
-def two_element_pandas_df_with_nulls() -> pl.DataFrame:
+def two_element_polars_df_with_nulls() -> pl.DataFrame:
     return pl.DataFrame(
         [
             {

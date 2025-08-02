@@ -53,9 +53,9 @@ redis:
     Link: https://redis.io/
     License: BSD (https://redis.io/topics/license)
 
-pandas:
-    Link: https://github.com/pandas-dev/pandas
-    License: BSD 3-Clause (https://github.com/pandas-dev/pandas/blob/main/LICENSE)
+polars:
+    Link: https://github.com/pola-rs/polars
+    License: Unrestricted (https://github.com/pola-rs/polars/blob/main/LICENSE)
 
 
 The following libraries are used to test and develop hopeit.engine:

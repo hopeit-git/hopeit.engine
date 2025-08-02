@@ -1,6 +1,21 @@
 Release Notes
 =============
 
+Version 0.27.0
+______________
+
+- Plugins:
+
+  - dataframes:
+
+    - Using `polars` as dataframes backend (`pandas` is no longer supported).
+    - BREAKING CHANGE: `DataFrames.df` `from_df` and `DataBlocks` all now expect and returns `polars.DataFrame`.
+     Use `polars.DataFrame.to_pandas()` and `polars.from_pandas` for backwards compatibility.
+    - BREAKING CHANGE: `DataFrames.from_array` is no longer supported. Use 
+    `DataFrames.from_df(polars.from_numpy(array, schema=DataFrames.schema(MyDataType)))` 
+    instead.
+
+
 Version 0.26.5
 ______________
 
@@ -38,7 +53,7 @@ ______________
     Use `pip install hopeit.dataframes[pandas]` for full runtime installation.
 
 
-Version 0.26.4
+Version 0.26.2
 ______________
 
 - Plugins:

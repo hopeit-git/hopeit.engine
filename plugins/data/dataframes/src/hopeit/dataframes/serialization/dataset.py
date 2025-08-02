@@ -5,10 +5,10 @@ from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
 from hopeit.dataobjects import dataclass, dataobject
 
-# try:
-import polars as pl
-# except ImportError:
-#     import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
+try:
+    import polars as pl
+except ImportError:
+    pl = None  # Polars is optional; set to None if not installed
 
 from pydantic import TypeAdapter
 
@@ -83,7 +83,7 @@ class Dataset(Generic[DataFrameT]):
         return await storage.load_df(self, columns)  # type: ignore[attr-defined]
 
     def _convert(self, df: pl.DataFrame) -> DataFrameT:
-        """Converts loaded pandas Dataframe to @dataframe annotated object using Dataset metadata"""
+        """Converts loaded polars Dataframe to @dataframe annotated object using Dataset metadata"""
         datatype: Type[DataFrameT] = find_dataframe_type(self.datatype)
         return datatype._from_df(df)  # type: ignore[attr-defined]
 

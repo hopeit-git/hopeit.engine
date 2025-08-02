@@ -14,12 +14,12 @@ pip install hopeit.engine[dataframes]
 
 ### hopeit.dataframes
 
-This plugin introduces dataclasses annotations to work with `pandas` dataframes
+This plugin introduces dataclasses annotations to work with `polars` dataframes
 as other dataobjects:
 
 `@dataframe` annotation allows a dataclass to become the schema and container for a dataframe
 `@dataframeobject` annotation, acts as @dataobject with support to have dataframe annotated fields
-`DataFrames` class, provides an api to create, serialize, and access pandas dataframe
+`DataFrames` class, provides an api to create, serialize, and access polars dataframe
 
 Features:
 -Type coercion for @dataframe fields

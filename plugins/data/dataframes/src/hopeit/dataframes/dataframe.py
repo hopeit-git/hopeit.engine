@@ -6,14 +6,10 @@ import dataclasses
 from datetime import UTC, date, datetime, timezone
 from typing import Any, Callable, Dict, Generic, Iterator, List, Type, TypeVar, Union
 
-# try:
-
-# import pandas as pd
-import polars as pl
-# except ImportError:
-# import hopeit.dataframes.pandas.numpy_mock as np  # type: ignore[no-redef]
-# import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
-# import hopeit.dataframes.polars.polars_mock as pl  # type: ignore[no-redef]
+try:
+    import polars as pl
+except ImportError:
+    pl = None  # Polars is optional; set to None if not installed
 
 from pydantic import create_model
 from pydantic.fields import FieldInfo
