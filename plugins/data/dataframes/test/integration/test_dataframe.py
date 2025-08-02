@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timezone, date
+from datetime import datetime, timezone, date
 
 import polars as pl
 from polars.testing import assert_series_equal
@@ -143,7 +143,7 @@ def test_coerce_types_defaults():
         pl.Series(
             name="datetime_value_optional",
             values=[None, None, None],
-            dtype=pl.Datetime(time_zone=UTC),
+            dtype=pl.Datetime(time_zone=timezone.utc),
         ),
     )
     assert_series_equal(
@@ -204,7 +204,7 @@ def test_coerce_types_none_to_defaults():
         pl.Series(
             name="datetime_value_optional",
             values=[None, None, None],
-            dtype=pl.Datetime(time_zone=UTC),
+            dtype=pl.Datetime(time_zone=timezone.utc),
         ),
     )
 

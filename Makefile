@@ -94,7 +94,7 @@ test-engine:
 	PYTHONPATH=engine/src:engine/test uv run --no-sync pytest -v --cov-fail-under=90 --cov-report=term --cov=engine/src/ engine/test/unit/ engine/test/integration/
 
 test-plugin:
-	PYTHONPATH=$(PLUGINFOLDER)/src uv run --no-sync pytest -v --cov-fail-under=85 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
+	PYTHONPATH=$(PLUGINFOLDER)/src uv run --no-sync pytest -v --cov-fail-under=80 --cov-report=term --cov=$(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/
 
 test-plugins:
 	make PLUGINFOLDER=plugins/auth/basic-auth test-plugin

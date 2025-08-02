@@ -3,7 +3,7 @@ DataFrames type abstractions.
 """
 
 import dataclasses
-from datetime import UTC, date, datetime, timezone
+from datetime import date, datetime, timezone
 from typing import (
     Any,
     Callable,
@@ -75,13 +75,13 @@ class DataTypeMapping:
             float: (pl.Float64(), (not_null_check,)),
             str: (pl.String(), (not_null_check,)),
             date: (pl.Date(), (not_null_check,)),
-            datetime: (pl.Datetime(time_zone=UTC), (not_null_check,)),
+            datetime: (pl.Datetime(time_zone=timezone.utc), (not_null_check,)),
             Union[int, None]: (pl.Int64(), ()),
             Union[bool, None]: (pl.Boolean(), ()),
             Union[float, None]: (pl.Float64(), ()),
             Union[str, None]: (pl.String(), ()),
             Union[date, None]: (pl.Date(), ()),
-            Union[datetime, None]: (pl.Datetime(time_zone=UTC), ()),
+            Union[datetime, None]: (pl.Datetime(time_zone=timezone.utc), ()),
         }
 
     @classmethod
