@@ -4,6 +4,7 @@ import uuid
 from dataframes_example.iris import (
     IrisBatchPredictionRequest,
     IrisFeatures,
+    IrisLabels,
     IrisOfflinePredictionDataBlock,
 )
 from dataframes_example.model_storage import load_experiment_model
@@ -12,6 +13,7 @@ from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.dataframes import DataFrames, DataBlocks
 
+import polars as pl
 from sklearn.tree import DecisionTreeClassifier  # type: ignore
 
 __steps__ = ["predict"]
@@ -35,6 +37,10 @@ async def predict(
         DataFrames.from_dataobjects(IrisFeatures, (item.features for item in request.items))
     )
 
-    df["variety"] = model.predict(df)
+    predictions = DataFrames.from_df(
+        IrisLabels, pl.from_numpy(model.predict(df), schema=DataFrames.schema(IrisLabels))
+    )
+
+    df = df.with_columns([predictions.variety])
 
     return await DataBlocks.save(IrisOfflinePredictionDataBlock, df, batch_id=uuid.uuid4().hex)

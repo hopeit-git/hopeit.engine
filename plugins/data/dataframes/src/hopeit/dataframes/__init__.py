@@ -73,8 +73,6 @@ print(Payload.to_json(my_json_response))
 from typing import Dict, Generic, Iterator, List, Type
 
 # try:
-import numpy as np
-
 #     import pandas as pd
 import polars as pl
 # except ImportError:
@@ -124,12 +122,16 @@ class DataFrames(Generic[DataFrameT, DataObject]):
         """Converts `@dataframe` object to a list of standard `@dataobject`s"""
         return obj._to_dataobjects()  # type: ignore  # pylint: disable=protected-access
 
-    @staticmethod
-    def from_array(datatype: Type[DataFrameT], array: "np.ndarray") -> DataFrameT:
-        """Creates `@dataframe` object from a numpy array"""
-        return datatype._from_array(array)  # type: ignore  # pylint: disable=protected-access
+    # @staticmethod
+    # def from_array(datatype: Type[DataFrameT], array: "np.ndarray") -> DataFrameT:
+    #     """Creates `@dataframe` object from a numpy array"""
+    #     return datatype._from_array(array)  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
     def df(obj: DataFrameT) -> pl.DataFrame:
         """Provides acces to the internal pandas dataframe of a `@dataframe` object"""
         return obj._df  # type: ignore  # pylint: disable=protected-access
+
+    @staticmethod
+    def schema(datatype: Type[DataFrameT]) -> pl.Schema:
+        return datatype.__dataframe__.schema  # type: ignore  # pylint: disable=protected-access

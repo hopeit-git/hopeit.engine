@@ -9,6 +9,8 @@ from dataframes_example.iris import (
 )
 from dataframes_example.model_storage import load_experiment_model
 
+import polars as pl
+
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.dataframes import DataFrames
@@ -36,7 +38,9 @@ async def predict(
 
     model_predictions = model.predict(DataFrames.df(features))
 
-    predictions = DataFrames.from_array(IrisLabels, model_predictions)
+    predictions = DataFrames.from_df(
+        IrisLabels, pl.from_numpy(model_predictions, schema=DataFrames.schema(IrisLabels))
+    )
 
     return IrisBatchPredictionResponse(
         items=[  # type: ignore

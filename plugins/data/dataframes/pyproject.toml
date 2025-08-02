@@ -41,11 +41,13 @@ dependencies = [
 polars = [
     "polars>=1.32.0",
 ]
-pandas = [
-    "pandas>=2.2.3",
-    "pyarrow>=19.0.1",
-    "numpy>=1.26.4"
-]
+# pandas = [
+#     "pandas>=2.2.3",
+#     "pyarrow>=19.0.1",
+# ]
+# numpy = [
+#     "numpy>=1.26.4"
+# ]
 
 [project.urls]
 "Homepage" = "https://github.com/hopeit-git/hopeit.engine"

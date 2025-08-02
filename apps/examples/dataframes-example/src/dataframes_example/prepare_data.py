@@ -5,6 +5,8 @@ from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 from hopeit.dataframes import DataFrames, Dataset
 from hopeit.dataobjects import fields
+
+import polars as pl
 from sklearn import datasets  # type: ignore
 
 from dataframes_example.iris import InputData, Iris
@@ -28,11 +30,13 @@ def download_data(payload: None, context: EventContext) -> Iris:
 
     iris = DataFrames.from_df(
         Iris,
-        raw.frame.rename(
-            columns={
-                field.serialization_alias: field_name
-                for field_name, field in fields(Iris).items()  # type: ignore[type-var]
-            }
+        pl.from_pandas(
+            raw.frame.rename(
+                columns={
+                    field.serialization_alias: field_name
+                    for field_name, field in fields(Iris).items()  # type: ignore[type-var]
+                }
+            )
         ),
     )
 

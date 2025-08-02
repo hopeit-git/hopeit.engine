@@ -13,7 +13,7 @@ from pydantic import TypeAdapter
 
 # try:
 import polars as pl
-import pyarrow  # type: ignore  # noqa  # pylint: disable=unused-import
+# import pyarrow  # type: ignore  # noqa  # pylint: disable=unused-import
 # except ImportError as e:
 #     raise ImportError(
 #         "`pandas` and `pyarrow` needs to be installed to use `DatasetFileStorage`",

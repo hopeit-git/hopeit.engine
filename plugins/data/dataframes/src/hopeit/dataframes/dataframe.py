@@ -7,7 +7,6 @@ from datetime import UTC, date, datetime, timezone
 from typing import Any, Callable, Dict, Generic, Iterator, List, Type, TypeVar, Union
 
 # try:
-import numpy as np
 
 # import pandas as pd
 import polars as pl
@@ -116,9 +115,9 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         obj = cls(**{**df_series, **series})
         return obj  # type: ignore
 
-    @classmethod
-    def _from_array(cls, array: "np.ndarray") -> DataFrameT:
-        return cls._from_df(pl.from_numpy(array, schema=cls.__dataframe__.schema))
+    # @classmethod
+    # def _from_array(cls, array: "np.ndarray") -> DataFrameT:
+    #     return cls._from_df(pl.from_numpy(array, schema=cls.__dataframe__.schema))
 
     @classmethod
     def _from_dataobjects(cls, items: Iterator[DataObject]) -> DataFrameT:
