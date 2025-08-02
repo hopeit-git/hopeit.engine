@@ -54,8 +54,8 @@ def test_dataframes_from_df_all_null_values(sample_df: pl.DataFrame):
     )
     initial_data = DataFrames.from_df(MyTestDataOptionalValues, valid_df)
     assert len(DataFrames.df(initial_data)) == 100
-    assert initial_data.optional_value.null_count() == 100
-    assert initial_data.optional_label.null_count() == 100
+    assert initial_data.optional_value.null_count() == 100  # type: ignore[union-attr]
+    assert initial_data.optional_label.null_count() == 100  # type: ignore[union-attr]
 
 
 def test_dataframes_from_df_some_null_values(sample_df: pl.DataFrame):

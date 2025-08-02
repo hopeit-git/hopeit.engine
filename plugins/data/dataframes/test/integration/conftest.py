@@ -303,7 +303,8 @@ def datablock_df() -> pl.DataFrame:
             "field5_opt": [5.1, None],
             "field6_opt": [None, None],
             "field7_opt": [None, None],
-        }
+        },
+        schema_overrides={"field6_opt": pl.Int64, "field7_opt": pl.String},
     )
 
 

@@ -5,6 +5,7 @@ and saved as a single flat pandas DataFrame.
 """
 
 from datetime import datetime
+from types import NoneType
 from typing import AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, get_origin
 
 # try:
@@ -44,6 +45,29 @@ class DataBlockQuery:
     select: list[str] | None = None
 
 
+def get_datablock_schema(cls: Type[DataBlockType]) -> pl.Schema:
+    schema_fields: dict[str, pl.DataType] = {}
+    for block_field, block_info in fields(cls).items():  # type: ignore[type-var]
+        if get_origin(block_info.annotation) is Dataset:
+            block_type = get_args(block_info.annotation)[0]
+            for field_name, field_info in fields(block_type).items():  # type: ignore[type-var]
+                datatype = DATATYPE_MAPPING.get(field_info.annotation)
+                if datatype is None:
+                    raise TypeError(
+                        f"{cls.__name__}: Unsupported type for field {field_name}: {field_info.annotation}"
+                    )
+                schema_fields[field_name] = datatype[0]
+        else:
+            datatype = DATATYPE_MAPPING.get(block_info.annotation)
+            if datatype is None:
+                raise TypeError(
+                    f"{cls.__name__}: Unsupported type for field {block_field}: {block_info.annotation}"
+                )
+            schema_fields[block_field] = datatype[0]
+
+    return pl.Schema(schema_fields)
+
+
 class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
     """
     TempDataBlock allows to convers a pandas Dataframe to a from dataobjects
@@ -57,30 +81,42 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
 
     @classmethod
     def from_dataobjects(
-        cls, datatype: Type[DataBlockType], items: list[DataBlockItemType]
+        cls, datatype: Type[DataBlockType], items: list[DataBlockItemType], *, strict=True
     ) -> "TempDataBlock[DataBlockType, DataBlockItemType]":
-        result_df: Optional[pl.DataFrame] = None
+        schema = get_datablock_schema(datatype)
+        result_df = pl.DataFrame(schema=schema)
+        if len(items) == 0:
+            return cls(datatype, result_df)
         for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
             if get_origin(field_info.annotation) is Dataset:
                 block_items = (getattr(item, field_name) for item in items)
                 block_type = get_args(field_info.annotation)[0]
                 block = block_type._from_dataobjects(block_items)
-                block_df = block._df
+                new_series = [series for series in block._df]
             else:
-                block_df = pl.DataFrame({field_name: [getattr(item, field_name) for item in items]})
+                new_series = [
+                    pl.Series(
+                        name=field_name,
+                        values=[getattr(item, field_name) for item in items],
+                        dtype=schema.get(field_name),
+                    )
+                ]
 
-            if result_df is None:
-                result_df = block_df
+            if len(result_df) == 0:
+                result_df = pl.DataFrame(new_series)
             else:
-                # Skips duplicated column names to they are included only once
-                result_df = result_df.join(
-                    block_df[[col for col in block_df.columns if col not in result_df.columns]]
-                )
-        assert result_df is not None
+                result_df = result_df.with_columns([series for series in new_series])
+
+        if strict and result_df.schema != schema:
+            raise TypeError(
+                f"{datatype.__name__}: Schema mismatch. Use `strict=False` to create TempDataBlock anyway."
+            )
+
         return cls(datatype, result_df)
 
     def to_dataobjects(
-        self, item_type: Type[DataBlockItemType], *, normalize_null_values: bool = False
+        self,
+        item_type: Type[DataBlockItemType],
     ) -> list[DataBlockItemType]:
         keys: list[str] = []
         entries: list[list] = []
@@ -89,9 +125,7 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
                 block_type = get_args(field_info.annotation)[0]
                 keys.append(field_name)
                 dataframe = block_type._from_df(self.df)
-                entries.append(
-                    dataframe._to_dataobjects(normalize_null_values=normalize_null_values)
-                )
+                entries.append(dataframe._to_dataobjects())
             else:
                 keys.append(field_name)
                 entries.append(self.df[field_name].to_list())
@@ -147,9 +181,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         result_df = result_df.with_columns(
             [
                 pl.lit(getattr(datablock, field_name))
-                .cast(cls._get_col_type(field_name, field_info.annotation))
+                .cast(cls._get_col_type(field_name, field_info.annotation or NoneType))
                 .alias(field_name)
-                for field_name, field_info in fields(datablock).items()
+                for field_name, field_info in fields(datablock).items()  # type: ignore[arg-type]
                 if get_origin(field_info.annotation) is not Dataset
             ]
         )
@@ -275,9 +309,18 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
                 result_df = cls._adapt_to_schema(dataset_types, result_df, select_cols=field_names)
 
             # Adding constant value fields from kwargs
-            for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
-                if get_origin(field_info.annotation) is not Dataset:
-                    result_df.loc[:, field_name] = kwargs.get(field_name)
+            result_df = result_df.with_columns(
+                [
+                    pl.lit(kwargs.get(field_name))
+                    .cast(cls._get_col_type(field_name, field_info.annotation or NoneType))
+                    .alias(field_name)
+                    for field_name, field_info in fields(datatype).items()  # type: ignore[type-var]
+                    if get_origin(field_info.annotation) is not Dataset
+                ]
+            )
+            # for field_name, field_info in fields(datatype).items():  # type: ignore[type-var]
+            #     if get_origin(field_info.annotation) is not Dataset:
+            #         result_df.loc[:, field_name] = kwargs.get(field_name)
 
             yield result_df
 
@@ -319,7 +362,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         cols = {
             series.name: series
             for _, datatype in dataset_types
-            for series in datatype._from_df(df)._df
+            for series in datatype._from_df(df)._df  # type: ignore[attr-defined]
             if series.name in select_cols
         }
         return pl.DataFrame(list(cols.values()))

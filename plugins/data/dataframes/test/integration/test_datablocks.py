@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 import os
 from typing import cast
 from hopeit.dataframes.datablocks import TempDataBlock
-import numpy as np
 import polars as pl
 from polars.testing import assert_frame_equal
 
@@ -463,7 +462,7 @@ async def test_tempdatablock(datablock_df) -> None:
     temp_datablock: TempDataBlock[MyDataBlock, MyDataBlockItem] = TempDataBlock(
         MyDataBlock, datablock_df
     )
-    dataobjects = temp_datablock.to_dataobjects(MyDataBlockItem, normalize_null_values=True)
+    dataobjects = temp_datablock.to_dataobjects(MyDataBlockItem)
 
     assert dataobjects == [
         MyDataBlockItem(
@@ -480,10 +479,10 @@ async def test_tempdatablock(datablock_df) -> None:
         ),
     ]
 
-    new_datablock = TempDataBlock.from_dataobjects(MyDataBlock, dataobjects)
+    new_datablock = TempDataBlock.from_dataobjects(MyDataBlock, dataobjects, strict=True)
 
     assert_frame_equal(
-        datablock_df[
+        datablock_df.select(
             [
                 "block_id",
                 "block_field",
@@ -494,7 +493,7 @@ async def test_tempdatablock(datablock_df) -> None:
                 "field4",
                 "field5_opt",
             ]
-        ],
+        ),
         new_datablock.df,
     )
 
@@ -523,11 +522,13 @@ async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock_compat)
 
-    datablock_df["field6_opt"] = np.nan
-    datablock_df["field7_opt"] = pl.Series(np.nan, dtype=object)
-
     assert_frame_equal(
-        datablock_df[
+        datablock_df.with_columns(
+            [
+                pl.lit(None).cast(pl.Int64).alias("field6_opt"),
+                pl.lit(None).cast(pl.String).alias("field7_opt"),
+            ]
+        ).select(
             [
                 "field0",
                 "field1",
@@ -540,7 +541,7 @@ async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
 
@@ -567,7 +568,7 @@ async def test_schema_evolution_not_compatible(plugin_config, datablock_df) -> N
         part2=cast(Dataset[Part2Compat], datablock.part2),
     )
 
-    with pytest.raises(KeyError):
+    with pytest.raises(TypeError):
         await DataBlocks.load(datablock_not_compat)
 
 
@@ -600,7 +601,7 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
     print(loaded_df.columns)
 
     assert_frame_equal(
-        datablock_df[
+        datablock_df.select(
             [
                 "field0",
                 "field3",
@@ -611,6 +612,6 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
