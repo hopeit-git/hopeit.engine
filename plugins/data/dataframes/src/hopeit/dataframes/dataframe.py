@@ -21,7 +21,7 @@ from typing import (
 try:
     import polars as pl
 except ImportError:
-    pl = None  # type: ignore[assignment] # Polars is optional; set to None if not installed
+    import hopeit.dataframes.polars as pl  # type: ignore  # Polars is optional; set to a mock if not installed
 
 from pydantic import create_model
 from pydantic.fields import FieldInfo
@@ -43,11 +43,11 @@ DataFrameT = TypeVar("DataFrameT")
 class DataFrameMetadata:
     columns: List[str]
     fields: Dict[str, FieldInfo]
-    schema: Optional["pl.Schema"]
+    schema: Optional[pl.Schema]
 
 
 # Validation
-def not_null_check(series: "pl.Series") -> bool:
+def not_null_check(series: pl.Series) -> bool:
     return series.null_count() == 0
 
 
@@ -112,7 +112,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     DataFrameValueType = Union[int, bool, float, str, date, datetime, None]
 
-    def __init__(self, **series: "pl.Series") -> None:
+    def __init__(self, **series: pl.Series) -> None:
         # Fields added here only to allow mypy to provide correct type hints
         self.__data_object__: Dict[str, Any] = {}
         self.__dataframe__: DataFrameMetadata = None  # type: ignore
@@ -120,7 +120,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(self, **series: "pl.Series") -> None:  # pylint: disable=bad-staticmethod-argument
+    def __init_from_series__(self, **series: pl.Series) -> None:  # pylint: disable=bad-staticmethod-argument
         validate: bool = self.__data_object__["validate"]
 
         # Assign default values for missing fields
@@ -154,7 +154,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         setattr(self, "__df", df[self.__dataframe__.columns])
 
     @classmethod
-    def _from_df(cls, df: "pl.DataFrame", **series: Any) -> DataFrameT:
+    def _from_df(cls, df: pl.DataFrame, **series: Any) -> DataFrameT:
         df_series = {series.name: series for series in df}
         obj = cls(**{**df_series, **series})
         return obj  # type: ignore
@@ -164,7 +164,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         return cls._from_df(pl.DataFrame(Payload.to_obj(item) for item in items))  # type: ignore[misc]
 
     @property
-    def _df(self) -> "pl.DataFrame":
+    def _df(self) -> pl.DataFrame:
         return getattr(self, "__df")
 
     def __getitem__(self, key) -> "DataFrameT":
@@ -196,10 +196,10 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     def _get_series(
         self,
-        df: "pl.DataFrame",
+        df: pl.DataFrame,
         field_name: str,
         field_info: FieldInfo,
-    ) -> "pl.Series":
+    ) -> pl.Series:
         try:
             return df[field_name]
         except KeyError:
@@ -219,7 +219,7 @@ def dataframe(
     Decorator for dataclasses intended to be used as dataframes.
     """
 
-    def get_dataframe_schema(cls) -> "pl.Schema":
+    def get_dataframe_schema(cls) -> pl.Schema:
         schema_fields: dict[str, pl.DataType] = {}
         for field_name, field_info in fields(cls).items():  # type: ignore[type-var]
             datatype = DataTypeMapping.get_schema_type(field_info.annotation)  # type: ignore[arg-type]

@@ -95,12 +95,39 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
         loaded_df,
     )
 
+    # test lazy dataframe
+    lazy_df = await DataBlocks.scan(datablock)
+
+    assert_frame_equal(
+        datablock_df.select(
+            [
+                "field0",
+                "field1",
+                "field2",
+                "field3",
+                "field4",
+                "field5_opt",
+                "block_id",
+                "block_field",
+            ]
+        ),
+        lazy_df.collect(),
+    )
+
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, select=["part1"])
 
     assert_frame_equal(
         datablock_df.select(["field0", "field1", "field2", "block_id", "block_field"]),
         loaded_df,
+    )
+
+    # test partial lazyframe
+    lazy_df = await DataBlocks.scan(datablock, select=["part1"])
+
+    assert_frame_equal(
+        datablock_df.select(["field0", "field1", "field2", "block_id", "block_field"]),
+        lazy_df.collect(),
     )
 
     # test get dataframe
@@ -111,6 +138,16 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
             ["field0", "field3", "field4", "field5_opt", "block_id", "block_field"]
         ),
         loaded_df,
+    )
+
+    # test get lazyframe
+    lazy_df = await DataBlocks.scan(datablock, select=["part2"])
+
+    assert_frame_equal(
+        datablock_df.select(
+            ["field0", "field3", "field4", "field5_opt", "block_id", "block_field"]
+        ),
+        lazy_df.collect(),
     )
 
 

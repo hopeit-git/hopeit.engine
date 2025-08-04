@@ -14,7 +14,7 @@ from pydantic import TypeAdapter
 try:
     import polars as pl
 except ImportError:
-    pl = None  # type: ignore[assignment] # Polars is optional; set to None if not installed
+    import hopeit.dataframes.polars as pl  # type: ignore  # Polars is optional; set to a mock if not installed
 
 from hopeit.dataframes.dataframe import DataFrameMixin
 from hopeit.dataframes.serialization.dataset import Dataset
@@ -81,7 +81,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
 
     async def save_df(
         self,
-        df: "pl.DataFrame",
+        df: pl.DataFrame,
         datatype: Type[DataFrameT],
         *,
         partition_dt: Optional[datetime],
@@ -191,9 +191,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
 
             partition_dt += partition_increments
 
-    async def load_df(
-        self, dataset: Dataset, columns: Optional[list[str]] = None
-    ) -> "pl.DataFrame":
+    async def load_df(self, dataset: Dataset, columns: Optional[list[str]] = None) -> pl.DataFrame:
         path = self.path
         if dataset.group_key:
             path = path / dataset.group_key
@@ -212,3 +210,15 @@ class DatasetFileStorage(Generic[DataFrameT]):
                 buf.write(chunk)
         buf.seek(0)
         return pl.read_parquet(buf, columns=columns)
+
+    def scan_df(self, dataset: Dataset, schema: Optional[pl.Schema] = None) -> pl.LazyFrame:
+        path = self.path
+        if dataset.group_key:
+            path = path / dataset.group_key
+        if dataset.collection:
+            path = path / dataset.collection
+        if dataset.partition_key:
+            path = path / dataset.partition_key
+        path = path / dataset.key
+
+        return pl.scan_parquet(path, glob=False, schema=schema, extra_columns="ignore")

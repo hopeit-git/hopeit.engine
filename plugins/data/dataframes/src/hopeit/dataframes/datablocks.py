@@ -11,7 +11,7 @@ from typing import AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, g
 try:
     import polars as pl
 except ImportError:
-    pl = None  # type: ignore[assignment] # Polars is optional; set to None if not installed
+    import hopeit.dataframes.polars as pl  # type: ignore  # Polars is optional; set to a mock if not installed
 
 from hopeit.dataframes.dataframe import DataTypeMapping
 from hopeit.dataobjects import dataobject, dataclass, fields
@@ -45,7 +45,7 @@ class DataBlockQuery:
     select: list[str] | None = None
 
 
-def get_datablock_schema(cls: Type[DataBlockType]) -> "pl.Schema":
+def get_datablock_schema(cls: Type[DataBlockType]) -> pl.Schema:
     schema_fields: dict[str, pl.DataType] = {}
     for block_field, block_info in fields(cls).items():  # type: ignore[type-var]
         if get_origin(block_info.annotation) is Dataset:
@@ -75,7 +75,7 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
     dataframe, an object containing subsections of the data can be created.
     """
 
-    def __init__(self, datatype: Type[DataBlockType], df: "pl.DataFrame") -> None:
+    def __init__(self, datatype: Type[DataBlockType], df: pl.DataFrame) -> None:
         self.datatype = datatype
         self.df = df
 
@@ -150,10 +150,10 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         select: Optional[list[str]] = None,
         schema_validation: bool = True,
         database_key: Optional[str] = None,
-    ) -> "pl.DataFrame":
+    ) -> pl.DataFrame:
         """
         Converts a DataBlockType object to a polars DataFrame, by reading the subyacent Dataset/s and
-        putting al the fields defined in the DataBlockType in a flat polars DataFrame.
+        putting the fields defined in the DataBlockType in a flat polars DataFrame.
 
         Args:
             datablock (DataBlockType): The data block to convert.
@@ -170,7 +170,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         dataset: Dataset = getattr(datablock, dataset_types[0][0])
         storage = await get_dataset_storage(database_key)
         result_df = await DataBlocks._load_datablock_df(
-            storage, dataset, columns=None, database_key=database_key
+            storage,
+            dataset,
+            columns=None,
         )
 
         # Enfore datatypes and add missing optional fields using class schema (allows schema evolution)
@@ -190,6 +192,55 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
         return result_df
 
+    @classmethod
+    async def scan(
+        cls,
+        datablock: DataBlockType,
+        *,
+        select: Optional[list[str]] = None,
+        schema_validation: bool = True,
+        database_key: Optional[str] = None,
+    ) -> pl.LazyFrame:
+        """
+        Converts a DataBlockType object to a polars LazyFrame, by reading the subyacent Dataset/s and
+        putting the fields defined in the DataBlockType in a flat polars LazyFrame.
+
+        NOTE: Reading of data relies on polars scan_parquet which is not async.
+        Use `polars.LazyFrame.collect_async()` to perform a non-blocking read, or
+        use `DataBlocks.load` to read data using async I/O, with the caveat that it won't be lazy.
+
+        Args:
+            datablock (DataBlockType): The data block to convert.
+            select (Optional[list[str]]): Optional list of field names to select.
+            database_key (Optional[str]): Optional database key for loading data.
+
+        Returns:
+            pl.DataFrame: The resulting polars DataFrame.
+        """
+        schema = get_datablock_schema(type(datablock)) if schema_validation else None
+
+        # Load data from first dataset (datablock uses a single file for all datasets)
+        dataset_types = cls._get_dataset_types(type(datablock), select=select)
+        dataset: Dataset = getattr(datablock, dataset_types[0][0])
+        storage = await get_dataset_storage(database_key)
+        result_df = DataBlocks._scan_datablock_df(
+            storage,
+            dataset,
+            schema=schema,
+        )
+
+        # Lazily selecting field and adding constant value fields from serialized datablock
+        field_names = cls._get_field_names(dataset_types)
+        return result_df.select([pl.col(field_name) for field_name in field_names]).with_columns(
+            [
+                pl.lit(getattr(datablock, field_name))
+                .cast(cls._get_col_type(field_name, field_info.annotation or NoneType))
+                .alias(field_name)
+                for field_name, field_info in fields(datablock).items()  # type: ignore[arg-type]
+                if get_origin(field_info.annotation) is not Dataset
+            ]
+        )
+
     @staticmethod
     def _get_col_type(field_name: str, annotation: type):
         typedef = DataTypeMapping.get_schema_type(annotation)
@@ -200,7 +251,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     @staticmethod
     async def save(
         datatype: Type[DataBlockType],
-        df: "pl.DataFrame",
+        df: pl.DataFrame,
         metadata: DataBlockMetadata | None = None,
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> DataBlockType:
@@ -280,7 +331,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         metadata: DataBlockMetadata | None = None,
         schema_validation: bool = True,
         **kwargs,  # Non-Dataset field values for DataBlockType
-    ) -> AsyncGenerator["pl.DataFrame", None]:
+    ) -> AsyncGenerator[pl.DataFrame, None]:
         if metadata is None:
             metadata = DataBlockMetadata.default()
 
@@ -298,7 +349,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             collection=metadata.collection,
         ):
             result_df = await DataBlocks._load_datablock_df(
-                storage, block_dataset, columns=None, database_key=metadata.database_key
+                storage,
+                block_dataset,
+                columns=None,
             )
 
             # Enfore datatypes and add missing optional fields using class schema (allows schema evolution)
@@ -336,8 +389,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         storage: object,
         dataset: Dataset,
         columns: Optional[list[str]] = None,
-        database_key: Optional[str] = None,
-    ) -> "pl.DataFrame":
+    ) -> pl.DataFrame:
         try:
             return await dataset._load_df(storage, columns)
         except (RuntimeError, IOError, KeyError) as e:
@@ -346,13 +398,26 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
                 f"at location {dataset.partition_key}/{dataset.key}"
             ) from e
 
-    @classmethod
+    @staticmethod
+    def _scan_datablock_df(
+        storage: object,
+        dataset: Dataset,
+        schema: Optional[pl.Schema] = None,
+    ) -> pl.LazyFrame:
+        try:
+            return dataset._scan_df(storage, schema=schema)
+        except (RuntimeError, IOError, KeyError) as e:
+            raise DatasetLoadError(
+                f"Error {type(e).__name__}: {e} loading datablock of type {dataset.datatype} "
+                f"at location {dataset.partition_key}/{dataset.key}"
+            ) from e
+
+    @staticmethod
     def _adapt_to_schema(
-        cls,
         dataset_types: list[tuple[str, DataFrameType]],
-        df: "pl.DataFrame",
+        df: pl.DataFrame,
         select_cols: list[str],
-    ) -> "pl.DataFrame":
+    ) -> pl.DataFrame:
         cols = {
             series.name: series
             for _, datatype in dataset_types
@@ -360,3 +425,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             if series.name in select_cols
         }
         return pl.DataFrame(list(cols.values()))
+
+    @staticmethod
+    def schema(datablocktype: Type[DataBlockType]) -> pl.Schema:
+        return get_datablock_schema(datablocktype)
