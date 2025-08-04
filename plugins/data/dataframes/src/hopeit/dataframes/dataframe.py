@@ -96,6 +96,13 @@ class DataTypeMapping:
         entry = cls.mapping.get(field_type)
         if entry:
             return entry[0]
+        # Enum fields in datablocks
+        if issubclass(field_type, str):
+            entry = cls.mapping.get(str)
+        elif issubclass(field_type, int):
+            entry = cls.mapping.get(int)
+        if entry:
+            return entry[0]
         return None
 
 
