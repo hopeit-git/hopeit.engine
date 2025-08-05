@@ -221,4 +221,6 @@ class DatasetFileStorage(Generic[DataFrameT]):
             path = path / dataset.partition_key
         path = path / dataset.key
 
-        return pl.scan_parquet(path, glob=False, schema=schema, extra_columns="ignore")
+        return pl.scan_parquet(
+            path, glob=False, schema=schema, missing_columns="insert", extra_columns="ignore"
+        )

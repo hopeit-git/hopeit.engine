@@ -70,7 +70,7 @@ print(Payload.to_json(my_json_response))
 ```
 """
 
-from typing import Dict, Generic, Iterator, List, Type
+from typing import Any, Dict, Generic, Iterator, List, Type
 
 try:
     import polars as pl
@@ -100,6 +100,21 @@ class DataFrames(Generic[DataFrameT, DataObject]):
         return datatype._from_df(df, **series)  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
+    def from_pandas(
+        datatype: Type[DataFrameT], pandas_df: Any, **series: Dict[str, pl.Series]
+    ) -> DataFrameT:
+        """Create a `@dataframe` instance of a particular `datatype` from a polars DataFrame.
+        Optionally, add or override series.
+        """
+        return datatype._from_df(  # type: ignore[attr-defined]
+            pl.from_pandas(
+                pandas_df,
+                schema_overrides=datatype.__dataframe__.schema,  # type: ignore[attr-defined]
+            ),
+            **series,
+        )  # type: ignore  # pylint: disable=protected-access
+
+    @staticmethod
     def from_dataframe(
         datatype: Type[DataFrameT], obj: DataFrameT, **series: Dict[str, pl.Series]
     ) -> DataFrameT:
@@ -122,6 +137,11 @@ class DataFrames(Generic[DataFrameT, DataObject]):
     def df(obj: DataFrameT) -> pl.DataFrame:
         """Provides acces to the internal `polars` dataframe of a `@dataframe` object"""
         return obj._df  # type: ignore  # pylint: disable=protected-access
+
+    @staticmethod
+    def to_pandas(obj: DataFrameT) -> Any:
+        """Returns internal dataframe converted to pandas"""
+        return obj._df.to_pandas()  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
     def schema(datatype: Type[DataFrameT]) -> pl.Schema:

@@ -75,13 +75,13 @@ class DataTypeMapping:
             float: (pl.Float64(), (not_null_check,)),
             str: (pl.String(), (not_null_check,)),
             date: (pl.Date(), (not_null_check,)),
-            datetime: (pl.Datetime(time_zone=timezone.utc), (not_null_check,)),
+            datetime: (pl.Datetime(time_unit="us", time_zone=timezone.utc), (not_null_check,)),
             Union[int, None]: (pl.Int64(), ()),
             Union[bool, None]: (pl.Boolean(), ()),
             Union[float, None]: (pl.Float64(), ()),
             Union[str, None]: (pl.String(), ()),
             Union[date, None]: (pl.Date(), ()),
-            Union[datetime, None]: (pl.Datetime(time_zone=timezone.utc), ()),
+            Union[datetime, None]: (pl.Datetime(time_unit="us", time_zone=timezone.utc), ()),
         }
 
     @classmethod
@@ -106,7 +106,7 @@ class DataTypeMapping:
         return None
 
 
-if pl is not None:
+if not hasattr(pl, "HOPEIT_DATAFRAMES_POLARS_IS_MOCK"):
     DataTypeMapping.lazy_init()
 
 

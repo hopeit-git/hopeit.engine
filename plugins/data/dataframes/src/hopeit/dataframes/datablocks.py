@@ -6,7 +6,7 @@ and saved as a single flat polars DataFrame.
 
 from datetime import datetime
 from types import NoneType
-from typing import AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, get_origin
+from typing import Any, AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, get_origin
 
 try:
     import polars as pl
@@ -277,7 +277,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
         block_dataset = await Dataset._save_df(
             storage,
-            df,
+            df.cast(get_datablock_schema(datatype)),  # type: ignore[arg-type]
             datatype,
             database_key=metadata.database_key,
             partition_dt=metadata.partition_dt,
@@ -429,3 +429,11 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     @staticmethod
     def schema(datablocktype: Type[DataBlockType]) -> pl.Schema:
         return get_datablock_schema(datablocktype)
+
+    @staticmethod
+    def to_pandas(datablocktype: type[DataBlockType], df: pl.DataFrame) -> "Any":
+        return df.cast(get_datablock_schema(datablocktype)).to_pandas()  # type: ignore[arg-type]
+
+    @staticmethod
+    def from_pandas(datablocktype: type[DataBlockType], pandas_df: "Any") -> pl.DataFrame:
+        return pl.from_pandas(pandas_df, schema_overrides=get_datablock_schema(datablocktype))
