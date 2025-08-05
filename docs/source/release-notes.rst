@@ -8,12 +8,12 @@ ______________
 
   - dataframes:
 
-    - Using `polars` as dataframes backend (`pandas` is no longer supported).
+    - Using `polars` as dataframes backend (`pandas` is no longer natively supported).
     - BREAKING CHANGE: `DataFrames.df` `from_df` and `DataBlocks` all now expect and returns `polars.DataFrame`.
-     Use `polars.DataFrame.to_pandas()` and `polars.from_pandas` for backwards compatibility.
+     Use `DataFrames.to_pandas(...)` and `DataFrames.from_pandas(...)` `DataBlocks.to_pandas(...)` and
+     `DataBlocks.from_pandas(...)` for backwards compatibility.
     - BREAKING CHANGE: `DataFrames.from_array` is no longer supported. Use 
-    `DataFrames.from_df(polars.from_numpy(array, schema=DataFrames.schema(MyDataType)))` 
-    instead.
+    `DataFrames.from_df(polars.from_numpy(array, schema=DataFrames.schema(MyDataType)))` instead.
 
 
 Version 0.26.5
