@@ -70,7 +70,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         """
         datatype: Type[DataFrameT] = type(dataframe)
         return await self.save_df(
-            dataframe._df,
+            dataframe._df.select(datatype.__dataframe__.columns),
             datatype,
             partition_dt=partition_dt,
             database_key=database_key,

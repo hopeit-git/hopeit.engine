@@ -158,7 +158,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
                             f"{type(self).__name__} validation failed for field: {field_name}: {func.__name__}"
                         )
 
-        setattr(self, "__df", df[self.__dataframe__.columns])
+        setattr(self, "__df", df)
 
     @classmethod
     def _from_df(cls, df: pl.DataFrame, **series: Any) -> DataFrameT:
