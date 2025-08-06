@@ -708,6 +708,67 @@ async def test_datablock_load_batch(plugin_config, datablock_df, datablock2_df) 
 
     assert len(collected_batches) == len(expected_batches)
 
+    # test get_batch with select datasets (part1)
+    expected_batches = [datablock_df, datablock2_df]
+    collected_batches = []
+    async for batch_df in DataBlocks.load_batch(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
+            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+            select=["part1"],
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    ):
+        collected_batches.append(batch_df)
+
+    collected_batches = sorted(collected_batches, key=lambda x: str(x["field0"].min()))
+
+    for batch_df, expected_df in zip(collected_batches, expected_batches):
+        assert_frame_equal(
+            batch_df,
+            expected_df.select(
+                [
+                    "field0",
+                    "field1",
+                    "field2",
+                ]
+            ),
+        )
+
+    assert len(collected_batches) == len(expected_batches)
+
+    # test get_batch with select datasets (part2)
+    expected_batches = [datablock_df, datablock2_df]
+    collected_batches = []
+    async for batch_df in DataBlocks.load_batch(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
+            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+            select=["part2"],
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    ):
+        collected_batches.append(batch_df)
+
+    collected_batches = sorted(collected_batches, key=lambda x: str(x["field3"].min()))
+
+    for batch_df, expected_df in zip(collected_batches, expected_batches):
+        assert_frame_equal(
+            batch_df,
+            expected_df.select(
+                [
+                    "field0",
+                    "field3",
+                    "field4",
+                    "field5_opt",
+                ]
+            ),
+        )
+
+    assert len(collected_batches) == len(expected_batches)
+
 
 async def test_datablock_query(plugin_config, datablock_df, datablock2_df) -> None:
     await setup_serialization_context(plugin_config)
@@ -756,6 +817,55 @@ async def test_datablock_query(plugin_config, datablock_df, datablock2_df) -> No
                 "field0",
                 "field1",
                 "field2",
+                "field3",
+                "field4",
+                "field5_opt",
+            ]
+        ),
+    )
+
+    # Test query with select datasets (part1)
+    result_df = await DataBlocks.query(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datablock1.part1.partition_dt,
+            to_partition_dt=datablock2.part1.partition_dt,
+            select=["part1"],
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+
+    expected_df = pl.concat([datablock_df, datablock2_df])
+
+    assert_frame_equal(
+        result_df.sort("field0").collect(),
+        expected_df.select(
+            [
+                "field0",
+                "field1",
+                "field2",
+            ]
+        ),
+    )
+
+    # Test query with select datasets (part2)
+    result_df = await DataBlocks.query(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datablock1.part1.partition_dt,
+            to_partition_dt=datablock2.part1.partition_dt,
+            select=["part2"],
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+
+    expected_df = pl.concat([datablock_df, datablock2_df])
+
+    assert_frame_equal(
+        result_df.sort("field0").collect(),
+        expected_df.select(
+            [
+                "field0",
                 "field3",
                 "field4",
                 "field5_opt",

@@ -338,6 +338,12 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         schema = get_datablock_schema(datatype)
         storage = await get_dataset_storage(metadata.database_key)
 
+        if query.select:
+            dataset_types = cls._get_dataset_types(datatype, select=query.select)
+            field_names = cls._get_field_names(dataset_types)
+        else:
+            field_names = schema.names()
+
         frames: list[pl.LazyFrame] = []
 
         async for block_dataset in storage._get_batch(  # type: ignore[attr-defined]
@@ -353,7 +359,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
                     storage,
                     block_dataset,
                     schema=schema if schema_validation else None,
-                )
+                ).select(field_names)
             )
 
         if len(frames) == 0:
@@ -376,8 +382,11 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         storage = await get_dataset_storage(metadata.database_key)
         schema = get_datablock_schema(datatype)
 
-        # dataset_types = cls._get_dataset_types(datatype, select=query.select)
-        # field_names = cls._get_field_names(dataset_types)
+        if query.select:
+            dataset_types = cls._get_dataset_types(datatype, select=query.select)
+            field_names = cls._get_field_names(dataset_types)
+        else:
+            field_names = schema.names()
 
         async for block_dataset in storage._get_batch(  # type: ignore[attr-defined]
             datatype,
@@ -395,9 +404,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
             # Enfore datatypes and add missing optional fields using class schema (allows schema evolution)
             if schema_validation:
-                result_df = result_df.cast(schema).select(schema.names())  # type: ignore[arg-type]
+                result_df = result_df.cast(schema)  # type: ignore[arg-type]
 
-            yield result_df
+            yield result_df.select(field_names)
 
     @staticmethod
     def _get_datablock_keys(
