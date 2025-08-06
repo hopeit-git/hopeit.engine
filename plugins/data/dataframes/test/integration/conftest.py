@@ -300,6 +300,25 @@ def datablock_df() -> pl.DataFrame:
     )
 
 
+@pytest.fixture
+def datablock2_df() -> pl.DataFrame:
+    return pl.DataFrame(
+        {
+            "block_id": ["b2", "b2"],
+            "block_field": [43, 43],
+            "field0": ["item3", "item4"],
+            "field1": ["f13", "f14"],
+            "field2": [2.3, 2.4],
+            "field3": ["f33", "f34"],
+            "field4": [4.3, 4.4],
+            "field5_opt": [5.3, None],
+            "field6_opt": [6, None],
+            "field7_opt": ["opt3", None],
+        },
+        schema_overrides={"field6_opt": pl.Int64, "field7_opt": pl.String},
+    )
+
+
 async def setup_serialization_context(plugin_config) -> EventContext:
     # Initializes default database
     context = create_test_context(

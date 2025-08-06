@@ -324,21 +324,21 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         return datatype(**{field_name: [] for field_name in list(fields(datatype))})  # type: ignore[type-var]
 
     @classmethod
-    async def load_batch(
+    async def query(
         cls,
         datatype: Type[DataBlockType],
         query: DataBlockQuery,
         metadata: DataBlockMetadata | None = None,
         schema_validation: bool = True,
-        **kwargs,  # Non-Dataset field values for DataBlockType
-    ) -> AsyncGenerator[pl.DataFrame, None]:
+        # **kwargs,  # Non-Dataset field values for DataBlockType
+    ) -> pl.LazyFrame:
         if metadata is None:
             metadata = DataBlockMetadata.default()
 
+        schema = get_datablock_schema(datatype)
         storage = await get_dataset_storage(metadata.database_key)
 
-        dataset_types = cls._get_dataset_types(datatype, select=query.select)
-        field_names = cls._get_field_names(dataset_types)
+        frames: list[pl.LazyFrame] = []
 
         async for block_dataset in storage._get_batch(  # type: ignore[attr-defined]
             datatype,
@@ -348,7 +348,43 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             group_key=metadata.group_key,
             collection=metadata.collection,
         ):
-            result_df = await DataBlocks._load_datablock_df(
+            frames.append(
+                cls._scan_datablock_df(
+                    storage,
+                    block_dataset,
+                    schema=schema if schema_validation else None,
+                )
+            )
+
+        return pl.concat(frames)
+
+    @classmethod
+    async def load_batch(
+        cls,
+        datatype: Type[DataBlockType],
+        query: DataBlockQuery,
+        metadata: DataBlockMetadata | None = None,
+        schema_validation: bool = True,
+        # **kwargs,  # Non-Dataset field values for DataBlockType
+    ) -> AsyncGenerator[pl.DataFrame, None]:
+        if metadata is None:
+            metadata = DataBlockMetadata.default()
+
+        storage = await get_dataset_storage(metadata.database_key)
+        schema = get_datablock_schema(datatype)
+
+        # dataset_types = cls._get_dataset_types(datatype, select=query.select)
+        # field_names = cls._get_field_names(dataset_types)
+
+        async for block_dataset in storage._get_batch(  # type: ignore[attr-defined]
+            datatype,
+            database_key=metadata.database_key,
+            from_partition_dt=query.from_partition_dt,
+            to_partition_dt=query.to_partition_dt,
+            group_key=metadata.group_key,
+            collection=metadata.collection,
+        ):
+            result_df = await cls._load_datablock_df(
                 storage,
                 block_dataset,
                 columns=None,
@@ -356,18 +392,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
             # Enfore datatypes and add missing optional fields using class schema (allows schema evolution)
             if schema_validation:
-                result_df = cls._adapt_to_schema(dataset_types, result_df, select_cols=field_names)
-
-            # Adding constant value fields from kwargs
-            result_df = result_df.with_columns(
-                [
-                    pl.lit(kwargs.get(field_name))
-                    .cast(cls._get_col_type(field_name, field_info.annotation or NoneType))
-                    .alias(field_name)
-                    for field_name, field_info in fields(datatype).items()  # type: ignore[type-var]
-                    if get_origin(field_info.annotation) is not Dataset
-                ]
-            )
+                result_df = result_df.cast(schema).select(schema.names())  # type: ignore[arg-type]
 
             yield result_df
 

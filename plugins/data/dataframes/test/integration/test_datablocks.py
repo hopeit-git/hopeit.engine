@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 import os
 from typing import cast
-from hopeit.dataframes.datablocks import TempDataBlock
+import uuid
+from hopeit.dataframes.datablocks import DataBlockQuery, TempDataBlock
 import polars as pl
 from polars.testing import assert_frame_equal
 
@@ -651,4 +652,106 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
             ]
         ),
         loaded_df,
+    )
+
+
+async def test_datablock_load_batch(plugin_config, datablock_df, datablock2_df) -> None:
+    await setup_serialization_context(plugin_config)
+
+    group_key = uuid.uuid4().hex
+    datablock1 = await DataBlocks.save(
+        MyDataBlock,
+        datablock_df,
+        block_id="b1",
+        block_field=42,
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+    datablock2 = await DataBlocks.save(
+        MyDataBlock,
+        datablock2_df,
+        block_id="b2",
+        block_field=43,
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+
+    # test get dataframe
+    expected_batches = [datablock_df, datablock2_df]
+    collected_batches = []
+    async for batch_df in DataBlocks.load_batch(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
+            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    ):
+        collected_batches.append(batch_df)
+
+    collected_batches = sorted(collected_batches, key=lambda x: str(x["field0"].min()))
+
+    for batch_df, expected_df in zip(collected_batches, expected_batches):
+        assert_frame_equal(
+            batch_df,
+            expected_df.select(
+                [
+                    "block_id",
+                    "block_field",
+                    "field0",
+                    "field1",
+                    "field2",
+                    "field3",
+                    "field4",
+                    "field5_opt",
+                ]
+            ),
+        )
+
+    assert len(collected_batches) == len(expected_batches)
+
+
+async def test_datablock_query(plugin_config, datablock_df, datablock2_df) -> None:
+    await setup_serialization_context(plugin_config)
+
+    group_key = uuid.uuid4().hex
+    datablock1 = await DataBlocks.save(
+        MyDataBlock,
+        datablock_df,
+        block_id="b1",
+        block_field=42,
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+    datablock2 = await DataBlocks.save(
+        MyDataBlock,
+        datablock2_df,
+        block_id="b2",
+        block_field=43,
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+
+    # test get dataframe
+    result_df = await DataBlocks.query(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
+            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+
+    expected_df = pl.concat([datablock_df, datablock2_df])
+
+    assert_frame_equal(
+        result_df.sort("field0").collect(),
+        expected_df.select(
+            [
+                "block_id",
+                "block_field",
+                "field0",
+                "field1",
+                "field2",
+                "field3",
+                "field4",
+                "field5_opt",
+            ]
+        ),
     )

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 
 try:
@@ -19,15 +19,22 @@ except ImportError:
     HOPEIT_DATAFRAMES_POLARS_IS_MOCK = True
 
     if TYPE_CHECKING:
-        # Mock of polars to handle `@dataframe` annotation without `polars` installed
+        # Mock of polars to handle `@dataframe` annotation without `polars` installed during type checking
         class DataFrame:  # type: ignore
-            pass
+            def __getattribute__(self, name) -> Any:
+                pass
+
+            def __getitem__(*args, **kwargs) -> Any:
+                pass
 
         class LazyFrame:  # type: ignore
-            pass
+            def __getattribute__(self, name) -> Any:
+                pass
 
         class Schema:  # type: ignore
-            pass
+            def __getattribute__(self, name) -> Any:
+                pass
 
         class Series:  # type: ignore
-            pass
+            def __getattribute__(self, name) -> Any:
+                pass
