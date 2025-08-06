@@ -21,6 +21,9 @@ except ImportError:
     if TYPE_CHECKING:
         # Mock of polars to handle `@dataframe` annotation without `polars` installed during type checking
         class DataFrame:  # type: ignore
+            def __init__(self, *args, **kwargs) -> None:
+                pass
+
             def __getattribute__(self, name) -> Any:
                 pass
 

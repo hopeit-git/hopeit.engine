@@ -755,3 +755,22 @@ async def test_datablock_query(plugin_config, datablock_df, datablock2_df) -> No
             ]
         ),
     )
+
+
+async def test_datablock_query_no_data(plugin_config, datablock_df, datablock2_df) -> None:
+    await setup_serialization_context(plugin_config)
+
+    group_key = uuid.uuid4().hex
+
+    # test get dataframe
+    result_df = await DataBlocks.query(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datetime.strptime("1999/01/01/00/", "%Y/%m/%d/%H/"),
+            to_partition_dt=datetime.strptime("1999/01/02/00/", "%Y/%m/%d/%H/"),
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+
+    assert len(result_df.collect()) == 0
+    assert result_df.schema == DataBlocks.schema(MyDataBlock)

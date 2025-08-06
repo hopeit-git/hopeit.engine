@@ -356,6 +356,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
                 )
             )
 
+        if len(frames) == 0:
+            return pl.DataFrame(schema=schema).lazy()
+
         return pl.concat(frames)
 
     @classmethod
