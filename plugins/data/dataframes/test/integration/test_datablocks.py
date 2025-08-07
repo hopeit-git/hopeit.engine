@@ -15,6 +15,7 @@ from conftest import (
     MyDataBlockCompat,
     MyDataBlockItem,
     MyDataBlockNoCompat,
+    MyPartitionedDataBlock,
     Part1,
     Part2,
     Part2Compat,
@@ -891,3 +892,61 @@ async def test_datablock_query_no_data(plugin_config, datablock_df, datablock2_d
 
     assert len(result_df.collect()) == 0
     assert result_df.schema == DataBlocks.schema(MyDataBlock)
+
+
+async def test_datablock_sink_partitions(plugin_config, partitioned_datablock_df) -> None:
+    await setup_serialization_context(plugin_config)
+
+    group_key = uuid.uuid4().hex
+
+    datablocks = []
+    async for datablock in DataBlocks.sink_partitions(
+        MyPartitionedDataBlock,
+        partitioned_datablock_df.lazy(),
+        partition_by=["item_dt", "field0"],
+        partition_interval="1d",
+        metadata=DataBlockMetadata(
+            group_key=group_key, partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=UTC)
+        ),
+        block_id="b1",
+        block_field=42,
+    ):
+        datablocks.append(datablock)
+
+    # test get dataframe lazily
+    result_df = (
+        (
+            await DataBlocks.query(
+                MyPartitionedDataBlock,
+                DataBlockQuery(
+                    from_partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=UTC),
+                    to_partition_dt=datetime(2025, 1, 3, 0, 0, 0, 0, tzinfo=UTC),
+                ),
+                metadata=DataBlockMetadata(group_key=group_key),
+            )
+        )
+        .sort("item_dt")
+        .collect()
+    )
+
+    expected_df = partitioned_datablock_df.with_columns(
+        [pl.col("item_dt").dt.truncate("1d").alias("partition_item_dt")]
+    )
+
+    assert_frame_equal(result_df, expected_df)
+
+    # test get dataframe as batches
+    batches = []
+    async for df in DataBlocks.load_batch(
+        MyPartitionedDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=UTC),
+            to_partition_dt=datetime(2025, 1, 3, 0, 0, 0, 0, tzinfo=UTC),
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    ):
+        batches.append(df)
+
+    result_df = pl.concat(batches)
+
+    assert_frame_equal(result_df.sort("item_dt"), expected_df)

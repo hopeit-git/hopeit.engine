@@ -6,7 +6,16 @@ and saved as a single flat polars DataFrame.
 
 from datetime import datetime
 from types import NoneType
-from typing import Any, AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, get_origin
+from typing import (
+    Any,
+    AsyncGenerator,
+    Generic,
+    Optional,
+    Type,
+    TypeVar,
+    get_args,
+    get_origin,
+)
 
 try:
     import polars as pl
@@ -295,6 +304,89 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
                 blocks[field_name] = kwargs[field_name]
 
         return datatype(**blocks)
+
+    @staticmethod
+    async def sink_partitions(
+        datatype: Type[DataBlockType],
+        df: pl.LazyFrame,
+        partition_by: list[str],
+        partition_interval: str = "1d",
+        metadata: DataBlockMetadata | None = None,
+        **kwargs,  # Non-Dataset field values for DataBlockType
+    ) -> AsyncGenerator[DataBlockType, None]:
+        """
+        Saves DataBlockType objects from a polars DataFrame, by saving the polars Dataframe to multiple files
+        partitioned by the specified datetime fields, and using the provided time unit.
+        This method yields dataobjects with Datasets that reference the saved data.
+        The returned DataBlocks can be retrieved later with `DataBlocks.load_batch` or `DataBlocks.query`
+        in order to iterate over the created partitions.
+        Args:
+            datatype (Type[DataBlockType]): The type of the data block.
+            df (pl.LazyFrame): The polars LazyFrame to convert.
+            metadata (Optional[DataBlockMetadata]): Optional metadata for the data block.
+            partition_by: list of fields used for partitioning.
+            partition_interval: for datetime fields specified in partition_by, they will be truncated to this time unit.
+                (Default: "1d" = 1 day)
+            **kwargs: Additional non-Dataset field values for the DataBlockType.
+
+        Returns:
+            DataBlockType: yields the resulting data blocks.
+        """
+        if metadata is None:
+            metadata = DataBlockMetadata.default()
+
+        schema = get_datablock_schema(datatype)
+
+        eff_partition_fields = []
+        partition_dt_index = -1
+        for i, partition_field in enumerate(partition_by):
+            if isinstance(schema.get(partition_field), pl.Datetime):
+                field_name = f"partition_{partition_field}"
+                df = df.with_columns(
+                    [pl.col(partition_field).dt.truncate(partition_interval).alias(field_name)]
+                )
+                eff_partition_fields.append(field_name)
+                partition_dt_index = i
+            else:
+                eff_partition_fields.append(partition_field)
+
+        partition_keys = (
+            await df.select([pl.col(field_name) for field_name in eff_partition_fields])
+            .unique(subset=eff_partition_fields)
+            .collect_async()
+        )
+
+        for keys in partition_keys.rows():
+            part_df = df.filter(
+                [
+                    pl.col(field_name) == value
+                    for field_name, value in zip(eff_partition_fields, keys)
+                ]
+            )
+
+            part_metatada = DataBlockMetadata(
+                partition_dt=metadata.partition_dt
+                if partition_dt_index < 0
+                else keys[partition_dt_index],
+                database_key=metadata.database_key,
+                group_key=metadata.group_key,
+                collection=metadata.collection,
+            )
+            datablock = await DataBlocks.save(
+                datatype,
+                await part_df.collect_async(),
+                part_metatada,
+                # Add generated partition fields if any
+                **{
+                    **{
+                        field_name: value
+                        for field_name, value in zip(eff_partition_fields, keys)
+                        if field_name not in partition_by
+                    },
+                    **kwargs,
+                },
+            )
+            yield datablock
 
     @staticmethod
     def _get_dataset_types(

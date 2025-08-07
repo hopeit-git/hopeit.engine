@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
@@ -137,6 +137,13 @@ class MyTestAllTypesDefaultValues:
 
 @dataframe
 @dataclass
+class Part0:
+    item_dt: datetime  # To use as partition key
+    field0: str  # common field
+
+
+@dataframe
+@dataclass
 class Part1:
     field0: str  # common field
     field1: str
@@ -179,6 +186,17 @@ class MyDataBlock:
     block_field: Optional[int]
     part1: Dataset[Part1]
     part2: Dataset[Part2]
+
+
+@dataobject
+@dataclass
+class MyPartitionedDataBlock:
+    block_id: str
+    block_field: Optional[int]
+    part0: Dataset[Part0]
+    part1: Dataset[Part1]
+    part2: Dataset[Part2]
+    partition_item_dt: datetime
 
 
 @dataobject
@@ -314,6 +332,27 @@ def datablock2_df() -> pl.DataFrame:
             "field5_opt": [5.3, None],
             "field6_opt": [6, None],
             "field7_opt": ["opt3", None],
+        },
+        schema_overrides={"field6_opt": pl.Int64, "field7_opt": pl.String},
+    )
+
+
+@pytest.fixture
+def partitioned_datablock_df() -> pl.DataFrame:
+    return pl.DataFrame(
+        {
+            "block_id": ["b1", "b1"],
+            "block_field": [42, 42],
+            "item_dt": [
+                datetime(2025, 1, 1, 10, 11, 12, tzinfo=UTC),
+                datetime(2025, 1, 2, 13, 14, 15, tzinfo=UTC),
+            ],
+            "field0": ["item1", "item2"],
+            "field1": ["f11", "f12"],
+            "field2": [2.1, 2.2],
+            "field3": ["f31", "f32"],
+            "field4": [4.1, 4.2],
+            "field5_opt": [5.1, None],
         },
         schema_overrides={"field6_opt": pl.Int64, "field7_opt": pl.String},
     )
