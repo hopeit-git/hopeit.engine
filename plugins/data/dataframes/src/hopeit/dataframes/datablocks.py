@@ -186,7 +186,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
         # Enfore datatypes and add missing optional fields using class schema (allows schema evolution)
         if schema_validation:
-            result_df = cls._adapt_to_schema(dataset_types, result_df, select_cols=field_names)
+            result_df = cls._adapt_to_schema(result_df, dataset_types, select_cols=field_names)
 
         # Adding constant value fields from serialized datablock
         result_df = result_df.with_columns(
@@ -543,17 +543,22 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
     @staticmethod
     def _adapt_to_schema(
-        dataset_types: list[tuple[str, DataFrameType]],
         df: pl.DataFrame,
+        dataset_types: list[tuple[str, DataFrameType]],
         select_cols: list[str],
     ) -> pl.DataFrame:
-        cols = {
-            series.name: series
-            for _, datatype in dataset_types
-            for series in datatype._from_df(df)._df  # type: ignore[attr-defined]
-            if series.name in select_cols
-        }
-        return pl.DataFrame(list(cols.values()))
+        datasets: dict[str, pl.DataFrame] = {}
+        for dataset_name, datatype in dataset_types:
+            schema: pl.Schema = datatype.__dataframe__.schema  # type: ignore[attr-defined]
+            for field_name in schema.names():
+                if (field_name in select_cols) and (field_name not in df.columns):
+                    dataset_df = datasets.get(dataset_name)
+                    if dataset_df is None:
+                        dataset_df = datatype._from_df(df)._df  # type: ignore[attr-defined]
+                        datasets[dataset_name] = dataset_df
+
+                    df = df.with_columns(dataset_df[field_name])
+        return df.select([pl.col(field_name) for field_name in select_cols])
 
     @staticmethod
     def schema(datablocktype: Type[DataBlockType]) -> pl.Schema:
