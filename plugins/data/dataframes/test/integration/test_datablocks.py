@@ -695,8 +695,6 @@ async def test_datablock_load_batch(plugin_config, datablock_df, datablock2_df) 
             batch_df,
             expected_df.select(
                 [
-                    "block_id",
-                    "block_field",
                     "field0",
                     "field1",
                     "field2",
@@ -813,8 +811,6 @@ async def test_datablock_query(plugin_config, datablock_df, datablock2_df) -> No
         result_df.sort("field0").collect(),
         expected_df.select(
             [
-                "block_id",
-                "block_field",
                 "field0",
                 "field1",
                 "field2",
@@ -891,7 +887,7 @@ async def test_datablock_query_no_data(plugin_config, datablock_df, datablock2_d
     )
 
     assert len(result_df.collect()) == 0
-    assert result_df.schema == DataBlocks.schema(MyDataBlock)
+    assert result_df.columns == ["field0", "field1", "field2", "field3", "field4", "field5_opt"]
 
 
 async def test_datablock_sink_partitions(plugin_config, partitioned_datablock_df) -> None:
@@ -931,7 +927,7 @@ async def test_datablock_sink_partitions(plugin_config, partitioned_datablock_df
 
     expected_df = partitioned_datablock_df.with_columns(
         [pl.col("item_dt").dt.truncate("1d").alias("partition_item_dt")]
-    )
+    ).drop(["block_field", "block_id", "partition_item_dt"])
 
     assert_frame_equal(result_df, expected_df)
 

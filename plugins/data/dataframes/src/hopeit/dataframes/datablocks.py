@@ -13,6 +13,7 @@ from typing import (
     Optional,
     Type,
     TypeVar,
+    Union,
     get_args,
     get_origin,
 )
@@ -31,6 +32,7 @@ from hopeit.dataframes.setup.registry import get_dataset_storage
 DataBlockType = TypeVar("DataBlockType")
 DataBlockItemType = TypeVar("DataBlockItemType")
 DataFrameType = TypeVar("DataFrameType")
+PolarsDataFrameT = TypeVar("PolarsDataFrameT", bound=Union[pl.DataFrame, pl.LazyFrame])
 
 
 @dataobject
@@ -54,7 +56,7 @@ class DataBlockQuery:
     select: list[str] | None = None
 
 
-def get_datablock_schema(cls: Type[DataBlockType]) -> pl.Schema:
+def get_datablock_schema(cls: Type[DataBlockType], *, datasets_only: bool = False) -> pl.Schema:
     schema_fields: dict[str, pl.DataType] = {}
     for block_field, block_info in fields(cls).items():  # type: ignore[type-var]
         if get_origin(block_info.annotation) is Dataset:
@@ -66,7 +68,7 @@ def get_datablock_schema(cls: Type[DataBlockType]) -> pl.Schema:
                         f"{cls.__name__}: Unsupported type for field {field_name}: {field_info.annotation}"
                     )
                 schema_fields[field_name] = datatype
-        else:
+        elif not datasets_only:
             datatype = DataTypeMapping.get_schema_type(block_info.annotation)  # type: ignore[arg-type]
             if datatype is None:
                 raise TypeError(
@@ -189,17 +191,18 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             result_df = cls._adapt_to_schema(result_df, dataset_types, select_cols=field_names)
 
         # Adding constant value fields from serialized datablock
-        result_df = result_df.with_columns(
-            [
-                pl.lit(getattr(datablock, field_name))
-                .cast(cls._get_col_type(field_name, field_info.annotation or NoneType))
-                .alias(field_name)
-                for field_name, field_info in fields(datablock).items()  # type: ignore[arg-type]
-                if get_origin(field_info.annotation) is not Dataset
-            ]
-        )
+        return cls._add_datablock_atomic_fields(result_df, datablock, field_names)
+        # result_df = result_df.with_columns(
+        #     [
+        #         pl.lit(getattr(datablock, field_name))
+        #         .cast(cls._get_col_type(field_name, field_info.annotation or NoneType))
+        #         .alias(field_name)
+        #         for field_name, field_info in fields(datablock).items()  # type: ignore[arg-type]
+        #         if get_origin(field_info.annotation) is not Dataset
+        #     ]
+        # )
 
-        return result_df
+        # return result_df
 
     @classmethod
     async def scan(
@@ -226,7 +229,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         Returns:
             pl.DataFrame: The resulting polars DataFrame.
         """
-        schema = get_datablock_schema(type(datablock)) if schema_validation else None
+        schema = (
+            get_datablock_schema(type(datablock), datasets_only=True) if schema_validation else None
+        )
 
         # Load data from first dataset (datablock uses a single file for all datasets)
         dataset_types = cls._get_dataset_types(type(datablock), select=select)
@@ -239,8 +244,17 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         )
 
         # Lazily selecting field and adding constant value fields from serialized datablock
-        field_names = cls._get_field_names(dataset_types)
-        return result_df.select([pl.col(field_name) for field_name in field_names]).with_columns(
+        return cls._add_datablock_atomic_fields(
+            result_df, datablock, cls._get_field_names(dataset_types)
+        )
+
+    @classmethod
+    def _add_datablock_atomic_fields(
+        cls, df: PolarsDataFrameT, datablock: DataBlockType, field_names: list[str]
+    ) -> PolarsDataFrameT:
+        return df.select(  # type: ignore[return-value]
+            [pl.col(field_name) for field_name in field_names]
+        ).with_columns(
             [
                 pl.lit(getattr(datablock, field_name))
                 .cast(cls._get_col_type(field_name, field_info.annotation or NoneType))
@@ -257,11 +271,13 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             raise TypeError(f"Datablocks: unsupported field type: {field_name}: {annotation}")
         return typedef
 
-    @staticmethod
+    @classmethod
     async def save(
+        cls,
         datatype: Type[DataBlockType],
         df: pl.DataFrame,
         metadata: DataBlockMetadata | None = None,
+        enforce_schema: bool = True,
         **kwargs,  # Non-Dataset field values for DataBlockType
     ) -> DataBlockType:
         """
@@ -283,10 +299,19 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             metadata = DataBlockMetadata.default()
 
         storage = await get_dataset_storage(metadata.database_key)
+        dataset_types = cls._get_dataset_types(datatype)
+        field_names = cls._get_field_names(dataset_types)
+
+        # Enfore datatypes and add missing optional fields using class schema
+        # so this dataframe can be lazily loaded with DataBlocks.scan that does not support schema
+        # evolution on read
+        if enforce_schema:
+            df = df.cast(get_datablock_schema(datatype, datasets_only=True))  # type: ignore[arg-type]
+            df = cls._adapt_to_schema(df, dataset_types, select_cols=field_names)
 
         block_dataset = await Dataset._save_df(
             storage,
-            df.cast(get_datablock_schema(datatype)),  # type: ignore[arg-type]
+            df,
             datatype,
             database_key=metadata.database_key,
             partition_dt=metadata.partition_dt,
@@ -300,7 +325,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             if get_origin(field_info.annotation) is Dataset:
                 block_type = get_args(field_info.annotation)[0]
                 blocks[field_name] = block_dataset._adapt(block_type)
-            else:
+            elif field_name in kwargs:
                 blocks[field_name] = kwargs[field_name]
 
         return datatype(**blocks)
@@ -427,7 +452,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         if metadata is None:
             metadata = DataBlockMetadata.default()
 
-        schema = get_datablock_schema(datatype)
+        schema = get_datablock_schema(datatype, datasets_only=True)
         storage = await get_dataset_storage(metadata.database_key)
 
         if query.select:
@@ -472,7 +497,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
             metadata = DataBlockMetadata.default()
 
         storage = await get_dataset_storage(metadata.database_key)
-        schema = get_datablock_schema(datatype)
+        schema = get_datablock_schema(datatype, datasets_only=True)
 
         if query.select:
             dataset_types = cls._get_dataset_types(datatype, select=query.select)
