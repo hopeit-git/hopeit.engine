@@ -4,14 +4,24 @@ DataFrames type abstractions.
 
 import dataclasses
 from datetime import date, datetime, timezone
-from typing import Any, Callable, Dict, Generic, Iterator, List, Type, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 try:
-    import numpy as np
-    import pandas as pd
+    import polars as pl
 except ImportError:
-    import hopeit.dataframes.pandas.numpy_mock as np  # type: ignore[no-redef]
-    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
+    import hopeit.dataframes.polars as pl  # type: ignore  # Polars is optional; set to a mock if not installed
 
 from pydantic import create_model
 from pydantic.fields import FieldInfo
@@ -33,68 +43,71 @@ DataFrameT = TypeVar("DataFrameT")
 class DataFrameMetadata:
     columns: List[str]
     fields: Dict[str, FieldInfo]
+    schema: Optional[pl.Schema]
 
 
-# Functions to do type coercion
-def _series_to_int(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return x.astype(np.int64)
+# Validation
+def not_null_check(series: pl.Series) -> bool:
+    return series.null_count() == 0
 
 
-def _series_to_bool(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return x.astype(bool)
+class DataTypeMapping:
+    mapping: Dict[Type, Tuple[Optional["pl.DataType"], Tuple[Callable, ...]]] = {
+        int: (None, ()),
+        bool: (None, ()),
+        float: (None, ()),
+        str: (None, ()),
+        date: (None, ()),
+        datetime: (None, ()),
+        Union[int, None]: (None, ()),  # type: ignore[dict-item]
+        Union[bool, None]: (None, ()),  # type: ignore[dict-item]
+        Union[float, None]: (None, ()),  # type: ignore[dict-item]
+        Union[str, None]: (None, ()),  # type: ignore[dict-item]
+        Union[date, None]: (None, ()),  # type: ignore[dict-item]
+        Union[datetime, None]: (None, ()),  # type: ignore[dict-item]
+    }
+
+    @classmethod
+    def lazy_init(cls):
+        cls.mapping = {
+            int: (pl.Int64(), (not_null_check,)),
+            bool: (pl.Boolean(), (not_null_check,)),
+            float: (pl.Float64(), (not_null_check,)),
+            str: (pl.String(), (not_null_check,)),
+            date: (pl.Date(), (not_null_check,)),
+            datetime: (pl.Datetime(time_unit="us", time_zone=timezone.utc), (not_null_check,)),
+            Union[int, None]: (pl.Int64(), ()),
+            Union[bool, None]: (pl.Boolean(), ()),
+            Union[float, None]: (pl.Float64(), ()),
+            Union[str, None]: (pl.String(), ()),
+            Union[date, None]: (pl.Date(), ()),
+            Union[datetime, None]: (pl.Datetime(time_unit="us", time_zone=timezone.utc), ()),
+        }
+
+    @classmethod
+    def get_validators(cls, field_type: Type) -> Tuple[Callable, ...]:
+        entry = cls.mapping.get(field_type)
+        if entry:
+            return entry[1]
+        return ()
+
+    @classmethod
+    def get_schema_type(cls, field_type: Type) -> Optional["pl.DataType"]:
+        entry = cls.mapping.get(field_type)
+        if entry:
+            return entry[0]
+        # Enum fields in datablocks
+        if issubclass(field_type, str):
+            entry = cls.mapping.get(str)
+        elif issubclass(field_type, int):
+            entry = cls.mapping.get(int)
+        if entry:
+            return entry[0]
+        return None
 
 
-def _series_to_float(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return x.astype(np.float64)
-
-
-def _series_to_str(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return x.astype(str)
-
-
-# Functions to do type coercion
-def _series_to_int_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return x.dropna().astype(np.int64)
-
-
-def _series_to_bool_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return x.dropna().astype(bool)
-
-
-def _series_to_float_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return x.dropna().astype(np.float64)
-
-
-def _series_to_str_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return x.dropna().astype(str)
-
-
-def _series_to_datetime(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return pd.to_datetime(x)
-
-
-def _series_to_utc_datetime(field_name: str, x: pd.Series) -> pd.Series:
-    if x.isnull().values.any():  # type: ignore[union-attr]
-        raise ValueError(f"Field `{field_name}` is not nullable")
-    return pd.to_datetime(x, utc=True)
-
-
-def _series_to_datetime_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return pd.to_datetime(x.dropna())
-
-
-def _series_to_utc_datetime_nullable(_field_name: str, x: pd.Series) -> pd.Series:
-    return pd.to_datetime(x.dropna(), utc=True)
+if not hasattr(pl, "HOPEIT_DATAFRAMES_POLARS_IS_MOCK"):
+    DataTypeMapping.lazy_init()
 
 
 class DataFrameMixin(Generic[DataFrameT, DataObject]):
@@ -106,68 +119,66 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     DataFrameValueType = Union[int, bool, float, str, date, datetime, None]
 
-    DATATYPE_MAPPING = {
-        int: _series_to_int,
-        bool: _series_to_bool,
-        float: _series_to_float,
-        str: _series_to_str,
-        date: _series_to_datetime,
-        datetime: _series_to_utc_datetime,
-        Union[int, None]: _series_to_int_nullable,
-        Union[bool, None]: _series_to_bool_nullable,
-        Union[float, None]: _series_to_float_nullable,
-        Union[str, None]: _series_to_str_nullable,
-        Union[date, None]: _series_to_datetime_nullable,
-        Union[datetime, None]: _series_to_utc_datetime_nullable,
-    }
-
-    def __init__(self, **series: pd.Series) -> None:
+    def __init__(self, **series: pl.Series) -> None:
         # Fields added here only to allow mypy to provide correct type hints
         self.__data_object__: Dict[str, Any] = {}
         self.__dataframe__: DataFrameMetadata = None  # type: ignore
-        self.__df = pd.DataFrame()
+        self.__df = pl.DataFrame()
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(self, **series: pd.Series) -> None:  # pylint: disable=bad-staticmethod-argument
-        df = pd.DataFrame(series)
-        df.index.name = None  # Removes index name to avoid colisions with series name
-        if self.__data_object__["validate"]:
-            self._coerce_datatypes(df)
-        setattr(self, "__df", df[self.__dataframe__.columns])
+    def __init_from_series__(self, **series: pl.Series) -> None:  # pylint: disable=bad-staticmethod-argument
+        validate: bool = self.__data_object__["validate"]
+
+        # Assign default values for missing fields
+        max_len: int | None = None
+        for field_name, field_info in self.__dataframe__.fields.items():
+            if series.get(field_name) is None:
+                max_len = max_len or max(len(data) for data in series.values() if data is not None)
+                default_value = field_info.get_default()
+                if default_value is not PydanticUndefined:
+                    series[field_name] = pl.Series(
+                        name=field_name, values=[default_value] * (max_len or 1)
+                    )
+                else:
+                    series[field_name] = None  # type: ignore[assignment]
+
+        # Create dataframe using schema columns only
+        df = pl.DataFrame(
+            {col: data for col, data in series.items() if col in self.__dataframe__.columns},
+            schema=self.__dataframe__.schema if validate else None,
+        )
+
+        # Validate (i.e. not nullable fields)
+        if validate:
+            for field_name, field_info in self.__dataframe__.fields.items():
+                for func in DataTypeMapping.get_validators(field_info.annotation):
+                    if not func(df[field_name]):
+                        raise TypeError(
+                            f"{type(self).__name__} validation failed for field: {field_name}: {func.__name__}"
+                        )
+
+        setattr(self, "__df", df)
 
     @classmethod
-    def _from_df(cls, df: pd.DataFrame, **series: Any) -> DataFrameT:
-        obj = cls(**{**df._series, **series})  # pylint: disable=protected-access
+    def _from_df(cls, df: pl.DataFrame, **series: Any) -> DataFrameT:
+        df_series = {series.name: series for series in df}
+        obj = cls(**{**df_series, **series})
         return obj  # type: ignore
 
     @classmethod
-    def _from_array(cls, array: np.ndarray) -> DataFrameT:
-        return cls._from_df(pd.DataFrame(array, columns=cls.__dataframe__.columns))
-
-    @classmethod
     def _from_dataobjects(cls, items: Iterator[DataObject]) -> DataFrameT:
-        return cls._from_df(pd.DataFrame(Payload.to_obj(item) for item in items))  # type: ignore[misc]
+        return cls._from_df(pl.DataFrame(Payload.to_obj(item) for item in items))  # type: ignore[misc]
 
     @property
-    def _df(self) -> pd.DataFrame:
+    def _df(self) -> pl.DataFrame:
         return getattr(self, "__df")
 
     def __getitem__(self, key) -> "DataFrameT":
         return self._from_df(self.__df[key])
 
-    def _normalize_null_values(
-        self, value: Union[DataFrameValueType, pd.Timestamp]
-    ) -> DataFrameValueType:
-        return None if pd.isnull(value) else value
-
-    def _to_dataobjects(self, normalize_null_values: bool) -> List[DataObject]:
-        if normalize_null_values:
-            return [
-                self.DataObject(**{k: self._normalize_null_values(v) for k, v in fields.items()})
-                for fields in self.__df.to_dict(orient="records")
-            ]
-        return [self.DataObject(**fields) for fields in self.__df.to_dict(orient="records")]
+    def _to_dataobjects(self) -> List[DataObject]:
+        return [Payload.from_obj(obj, datatype=self.DataObject) for obj in self.__df.to_dicts()]
 
     def event_id(self, *args, **kwargs) -> str:
         return ""
@@ -192,26 +203,17 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     def _get_series(
         self,
-        df: pd.DataFrame,
+        df: pl.DataFrame,
         field_name: str,
         field_info: FieldInfo,
-    ) -> pd.Series:
+    ) -> pl.Series:
         try:
             return df[field_name]
         except KeyError:
             default_value = field_info.get_default()
             if default_value is not PydanticUndefined:
-                return pd.Series([default_value] * len(df))
+                return pl.Series(name=field_name, values=[default_value] * len(df))
             raise
-
-    def _coerce_datatypes(
-        self,
-        df: pd.DataFrame,
-    ) -> None:
-        for name, field in self.__dataframe__.fields.items():
-            df[name] = self.DATATYPE_MAPPING[field.annotation](  # type: ignore[index, operator]
-                name, self._get_series(df, name, field)
-            )
 
 
 def dataframe(
@@ -223,6 +225,17 @@ def dataframe(
     """
     Decorator for dataclasses intended to be used as dataframes.
     """
+
+    def get_dataframe_schema(cls) -> pl.Schema:
+        schema_fields: dict[str, pl.DataType] = {}
+        for field_name, field_info in fields(cls).items():  # type: ignore[type-var]
+            datatype = DataTypeMapping.get_schema_type(field_info.annotation)  # type: ignore[arg-type]
+            if datatype is None:
+                raise TypeError(
+                    f"{cls.__name__}: Unsupported type for field {field_name}: {field_info.annotation}"
+                )
+            schema_fields[field_name] = datatype
+        return pl.Schema(schema_fields)
 
     def add_dataframe_mixin(cls) -> Type[DataFrameMixin]:
         if hasattr(cls, "__annotations__") and hasattr(cls, "__dataclass_fields__"):
@@ -248,6 +261,7 @@ def dataframe(
             DataFrameMetadata(
                 columns=list(fields(cls).keys()),
                 fields=dict(fields(cls).items()),
+                schema=None if pl is None else get_dataframe_schema(cls),
             ),
         )
 

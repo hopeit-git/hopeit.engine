@@ -5,12 +5,13 @@
 import uuid
 from datetime import datetime, timezone
 
-import pandas as pd
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 from hopeit.dataframes import DataFrames, Dataset
 from hopeit.server.steps import SHUFFLE
+
+import polars as pl
 
 from sklearn.metrics import accuracy_score  # type: ignore
 from sklearn.model_selection import train_test_split  # type: ignore
@@ -198,7 +199,7 @@ async def evaluate_model(experiment: Experiment, context: EventContext) -> Exper
     test_labels: IrisLabels = await Dataset.load(experiment.test_labels, database_key=database_key)
 
     y = clf.predict(DataFrames.df(test_features))
-    pred_labels = IrisLabels(variety=pd.Series(y))
+    pred_labels = IrisLabels(variety=pl.Series(y))  # type: ignore[arg-type]
     accuracy = accuracy_score(DataFrames.df(test_labels), DataFrames.df(pred_labels))
 
     experiment.eval_metrics = EvalMetrics(accuracy_score=accuracy)

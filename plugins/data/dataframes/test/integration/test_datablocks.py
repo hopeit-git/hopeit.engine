@@ -1,19 +1,22 @@
 from datetime import datetime, timezone
 import os
 from typing import cast
-from hopeit.dataframes.datablocks import TempDataBlock
-import numpy as np
-import pandas as pd
+import uuid
 
 from hopeit.dataframes import DataBlocks, Dataset
-from hopeit.dataframes.datablocks import DataBlockMetadata
+from hopeit.dataframes.datablocks import DataBlockMetadata, DataBlockQuery, TempDataBlock
+
+import polars as pl
+from polars.testing import assert_frame_equal
 import pytest
+
 
 from conftest import (
     MyDataBlock,
     MyDataBlockCompat,
     MyDataBlockItem,
     MyDataBlockNoCompat,
+    MyPartitionedDataBlock,
     Part1,
     Part2,
     Part2Compat,
@@ -79,8 +82,8 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock)
 
-    pd.testing.assert_frame_equal(
-        datablock_df[
+    assert_frame_equal(
+        datablock_df.select(
             [
                 "field0",
                 "field1",
@@ -91,24 +94,63 @@ async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
+    )
+
+    # test lazy dataframe
+    lazy_df = await DataBlocks.scan(datablock)
+
+    assert_frame_equal(
+        datablock_df.select(
+            [
+                "field0",
+                "field1",
+                "field2",
+                "field3",
+                "field4",
+                "field5_opt",
+                "block_id",
+                "block_field",
+            ]
+        ),
+        lazy_df.collect(),
     )
 
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, select=["part1"])
 
-    pd.testing.assert_frame_equal(
-        datablock_df[["field0", "field1", "field2", "block_id", "block_field"]],
+    assert_frame_equal(
+        datablock_df.select(["field0", "field1", "field2", "block_id", "block_field"]),
         loaded_df,
+    )
+
+    # test partial lazyframe
+    lazy_df = await DataBlocks.scan(datablock, select=["part1"])
+
+    assert_frame_equal(
+        datablock_df.select(["field0", "field1", "field2", "block_id", "block_field"]),
+        lazy_df.collect(),
     )
 
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, select=["part2"])
 
-    pd.testing.assert_frame_equal(
-        datablock_df[["field0", "field3", "field4", "field5_opt", "block_id", "block_field"]],
+    assert_frame_equal(
+        datablock_df.select(
+            ["field0", "field3", "field4", "field5_opt", "block_id", "block_field"]
+        ),
         loaded_df,
+    )
+
+    # test get lazyframe
+    lazy_df = await DataBlocks.scan(datablock, select=["part2"])
+
+    assert_frame_equal(
+        datablock_df.select(
+            ["field0", "field3", "field4", "field5_opt", "block_id", "block_field"]
+        ),
+        lazy_df.collect(),
     )
 
 
@@ -177,8 +219,8 @@ async def test_datablock_custom_database(plugin_config, datablock_df) -> None:
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
-    pd.testing.assert_frame_equal(
-        datablock_df[
+    assert_frame_equal(
+        datablock_df.select(
             [
                 "field0",
                 "field1",
@@ -189,7 +231,7 @@ async def test_datablock_custom_database(plugin_config, datablock_df) -> None:
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
 
@@ -264,8 +306,8 @@ async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> N
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
-    pd.testing.assert_frame_equal(
-        datablock_df[
+    assert_frame_equal(
+        datablock_df.select(
             [
                 "field0",
                 "field1",
@@ -276,7 +318,7 @@ async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> N
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
 
@@ -351,8 +393,8 @@ async def test_datablock_custom_group(plugin_config, datablock_df) -> None:
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
-    pd.testing.assert_frame_equal(
-        datablock_df[
+    assert_frame_equal(
+        datablock_df.select(
             [
                 "field0",
                 "field1",
@@ -363,7 +405,7 @@ async def test_datablock_custom_group(plugin_config, datablock_df) -> None:
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
 
@@ -439,8 +481,8 @@ async def test_datablock_custom_collection(plugin_config, datablock_df) -> None:
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock, database_key="test_db")
 
-    pd.testing.assert_frame_equal(
-        datablock_df[
+    assert_frame_equal(
+        datablock_df.select(
             [
                 "field0",
                 "field1",
@@ -451,7 +493,7 @@ async def test_datablock_custom_collection(plugin_config, datablock_df) -> None:
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
 
@@ -460,7 +502,7 @@ async def test_tempdatablock(datablock_df) -> None:
     temp_datablock: TempDataBlock[MyDataBlock, MyDataBlockItem] = TempDataBlock(
         MyDataBlock, datablock_df
     )
-    dataobjects = temp_datablock.to_dataobjects(MyDataBlockItem, normalize_null_values=True)
+    dataobjects = temp_datablock.to_dataobjects(MyDataBlockItem)
 
     assert dataobjects == [
         MyDataBlockItem(
@@ -477,10 +519,10 @@ async def test_tempdatablock(datablock_df) -> None:
         ),
     ]
 
-    new_datablock = TempDataBlock.from_dataobjects(MyDataBlock, dataobjects)
+    new_datablock = TempDataBlock.from_dataobjects(MyDataBlock, dataobjects, strict=True)
 
-    pd.testing.assert_frame_equal(
-        datablock_df[
+    assert_frame_equal(
+        datablock_df.select(
             [
                 "block_id",
                 "block_field",
@@ -491,7 +533,7 @@ async def test_tempdatablock(datablock_df) -> None:
                 "field4",
                 "field5_opt",
             ]
-        ],
+        ),
         new_datablock.df,
     )
 
@@ -520,11 +562,13 @@ async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
     # test get dataframe
     loaded_df = await DataBlocks.load(datablock_compat)
 
-    datablock_df["field6_opt"] = np.nan
-    datablock_df["field7_opt"] = pd.Series(np.nan, dtype=object)
-
-    pd.testing.assert_frame_equal(
-        datablock_df[
+    assert_frame_equal(
+        datablock_df.with_columns(
+            [
+                pl.lit(None).cast(pl.Int64).alias("field6_opt"),
+                pl.lit(None).cast(pl.String).alias("field7_opt"),
+            ]
+        ).select(
             [
                 "field0",
                 "field1",
@@ -537,7 +581,7 @@ async def test_schema_evolution_compatible(plugin_config, datablock_df) -> None:
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
 
@@ -564,7 +608,7 @@ async def test_schema_evolution_not_compatible(plugin_config, datablock_df) -> N
         part2=cast(Dataset[Part2Compat], datablock.part2),
     )
 
-    with pytest.raises(KeyError):
+    with pytest.raises(TypeError):
         await DataBlocks.load(datablock_not_compat)
 
 
@@ -596,8 +640,8 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
 
     print(loaded_df.columns)
 
-    pd.testing.assert_frame_equal(
-        datablock_df[
+    assert_frame_equal(
+        datablock_df.select(
             [
                 "field0",
                 "field3",
@@ -608,6 +652,298 @@ async def test_schema_evolution_load_partial_compatible(plugin_config, datablock
                 "block_id",
                 "block_field",
             ]
-        ],
+        ),
         loaded_df,
     )
+
+
+async def test_datablock_load_batch(plugin_config, datablock_df, datablock2_df) -> None:
+    await setup_serialization_context(plugin_config)
+
+    group_key = uuid.uuid4().hex
+    datablock1 = await DataBlocks.save(
+        MyDataBlock,
+        datablock_df,
+        block_id="b1",
+        block_field=42,
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+    datablock2 = await DataBlocks.save(
+        MyDataBlock,
+        datablock2_df,
+        block_id="b2",
+        block_field=43,
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+
+    # test get dataframe
+    expected_batches = [datablock_df, datablock2_df]
+    collected_batches = []
+    async for batch_df in DataBlocks.load_batch(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
+            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    ):
+        collected_batches.append(batch_df)
+
+    collected_batches = sorted(collected_batches, key=lambda x: str(x["field0"].min()))
+
+    for batch_df, expected_df in zip(collected_batches, expected_batches):
+        assert_frame_equal(
+            batch_df,
+            expected_df.select(
+                [
+                    "field0",
+                    "field1",
+                    "field2",
+                    "field3",
+                    "field4",
+                    "field5_opt",
+                ]
+            ),
+        )
+
+    assert len(collected_batches) == len(expected_batches)
+
+    # test get_batch with select datasets (part1)
+    expected_batches = [datablock_df, datablock2_df]
+    collected_batches = []
+    async for batch_df in DataBlocks.load_batch(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
+            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+            select=["part1"],
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    ):
+        collected_batches.append(batch_df)
+
+    collected_batches = sorted(collected_batches, key=lambda x: str(x["field0"].min()))
+
+    for batch_df, expected_df in zip(collected_batches, expected_batches):
+        assert_frame_equal(
+            batch_df,
+            expected_df.select(
+                [
+                    "field0",
+                    "field1",
+                    "field2",
+                ]
+            ),
+        )
+
+    assert len(collected_batches) == len(expected_batches)
+
+    # test get_batch with select datasets (part2)
+    expected_batches = [datablock_df, datablock2_df]
+    collected_batches = []
+    async for batch_df in DataBlocks.load_batch(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
+            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+            select=["part2"],
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    ):
+        collected_batches.append(batch_df)
+
+    collected_batches = sorted(collected_batches, key=lambda x: str(x["field3"].min()))
+
+    for batch_df, expected_df in zip(collected_batches, expected_batches):
+        assert_frame_equal(
+            batch_df,
+            expected_df.select(
+                [
+                    "field0",
+                    "field3",
+                    "field4",
+                    "field5_opt",
+                ]
+            ),
+        )
+
+    assert len(collected_batches) == len(expected_batches)
+
+
+async def test_datablock_query(plugin_config, datablock_df, datablock2_df) -> None:
+    await setup_serialization_context(plugin_config)
+
+    group_key = uuid.uuid4().hex
+    datablock1 = await DataBlocks.save(
+        MyDataBlock,
+        datablock_df,
+        block_id="b1",
+        block_field=42,
+        metadata=DataBlockMetadata(
+            group_key=group_key, partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        ),
+    )
+    datablock2 = await DataBlocks.save(
+        MyDataBlock,
+        datablock2_df,
+        block_id="b2",
+        block_field=43,
+        metadata=DataBlockMetadata(
+            group_key=group_key, partition_dt=datetime(2025, 1, 31, 0, 0, 0, tzinfo=timezone.utc)
+        ),
+    )
+
+    assert datablock1.part1.partition_dt is not None
+    assert datablock2.part1.partition_dt is not None
+
+    # test get dataframe
+    result_df = await DataBlocks.query(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datablock1.part1.partition_dt,
+            to_partition_dt=datablock2.part1.partition_dt,
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+
+    expected_df = pl.concat([datablock_df, datablock2_df])
+
+    assert_frame_equal(
+        result_df.sort("field0").collect(),
+        expected_df.select(
+            [
+                "field0",
+                "field1",
+                "field2",
+                "field3",
+                "field4",
+                "field5_opt",
+            ]
+        ),
+    )
+
+    # Test query with select datasets (part1)
+    result_df = await DataBlocks.query(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datablock1.part1.partition_dt,
+            to_partition_dt=datablock2.part1.partition_dt,
+            select=["part1"],
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+
+    expected_df = pl.concat([datablock_df, datablock2_df])
+
+    assert_frame_equal(
+        result_df.sort("field0").collect(),
+        expected_df.select(
+            [
+                "field0",
+                "field1",
+                "field2",
+            ]
+        ),
+    )
+
+    # Test query with select datasets (part2)
+    result_df = await DataBlocks.query(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datablock1.part1.partition_dt,
+            to_partition_dt=datablock2.part1.partition_dt,
+            select=["part2"],
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+
+    expected_df = pl.concat([datablock_df, datablock2_df])
+
+    assert_frame_equal(
+        result_df.sort("field0").collect(),
+        expected_df.select(
+            [
+                "field0",
+                "field3",
+                "field4",
+                "field5_opt",
+            ]
+        ),
+    )
+
+
+async def test_datablock_query_no_data(plugin_config, datablock_df, datablock2_df) -> None:
+    await setup_serialization_context(plugin_config)
+
+    group_key = uuid.uuid4().hex
+
+    # test get dataframe
+    result_df = await DataBlocks.query(
+        MyDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datetime(1999, 1, 1),
+            to_partition_dt=datetime(1999, 1, 31),
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    )
+
+    assert len(result_df.collect()) == 0
+    assert result_df.columns == ["field0", "field1", "field2", "field3", "field4", "field5_opt"]
+
+
+async def test_datablock_sink_partitions(plugin_config, partitioned_datablock_df) -> None:
+    await setup_serialization_context(plugin_config)
+
+    group_key = uuid.uuid4().hex
+
+    datablocks = []
+    async for datablock in DataBlocks.sink_partitions(
+        MyPartitionedDataBlock,
+        partitioned_datablock_df.lazy(),
+        partition_by=["item_dt", "field0"],
+        partition_interval="1d",
+        metadata=DataBlockMetadata(
+            group_key=group_key, partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        ),
+        block_id="b1",
+        block_field=42,
+    ):
+        datablocks.append(datablock)
+
+    # test get dataframe lazily
+    result_df = (
+        (
+            await DataBlocks.query(
+                MyPartitionedDataBlock,
+                DataBlockQuery(
+                    from_partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+                    to_partition_dt=datetime(2025, 1, 3, 0, 0, 0, 0, tzinfo=timezone.utc),
+                ),
+                metadata=DataBlockMetadata(group_key=group_key),
+            )
+        )
+        .sort("item_dt")
+        .collect()
+    )
+
+    expected_df = partitioned_datablock_df.with_columns(
+        [pl.col("item_dt").dt.truncate("1d").alias("partition_item_dt")]
+    ).drop(["block_field", "block_id", "partition_item_dt"])
+
+    assert_frame_equal(result_df, expected_df)
+
+    # test get dataframe as batches
+    batches = []
+    async for df in DataBlocks.load_batch(
+        MyPartitionedDataBlock,
+        DataBlockQuery(
+            from_partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+            to_partition_dt=datetime(2025, 1, 3, 0, 0, 0, 0, tzinfo=timezone.utc),
+        ),
+        metadata=DataBlockMetadata(group_key=group_key),
+    ):
+        batches.append(df)
+
+    result_df = pl.concat(batches)
+
+    assert_frame_equal(result_df.sort("item_dt"), expected_df)

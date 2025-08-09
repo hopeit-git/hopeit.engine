@@ -53,9 +53,9 @@ redis:
     Link: https://redis.io/
     License: BSD (https://redis.io/topics/license)
 
-pandas:
-    Link: https://github.com/pandas-dev/pandas
-    License: BSD 3-Clause (https://github.com/pandas-dev/pandas/blob/main/LICENSE)
+polars:
+    Link: https://github.com/pola-rs/polars
+    License: MIT (https://github.com/pola-rs/polars/blob/main/LICENSE)
 
 
 The following libraries are used to test and develop hopeit.engine:
@@ -90,7 +90,3 @@ coverage-badge
 mypy
     Link: https://github.com/python/mypy
     License: MIT (https://github.com/python/mypy/blob/master/LICENSE)
-
-wheel
-    Link: https://github.com/pypa/wheel
-    License: MIT (https://github.com/pypa/wheel/blob/master/LICENSE.txt)

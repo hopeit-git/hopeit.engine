@@ -38,7 +38,7 @@ A comprehensive framework for modular and scalable architectures to develop and 
 
 **Fast and Robust**: it relies on `pydantic 2.x` for dataclasses serialization and schemas, on `aiohttp` for web services and supports pluggable stream managers to connect to your preferred event queue like `Redis Streams`. It is async by default and performance is comparable to REST frameworks like `FastAPI`.
 
-**Data-driven & AI Applications**: it is particularly well-suited for running data-driven applications like machine-learning training and serving thanks to the tight integration with `pandas` using the `hopeit.dataframes` plugin, allowing serialization and data transfer via endpoints and streams.
+**Data-driven & AI Applications**: it is particularly well-suited for running data-driven applications like machine-learning training and serving thanks to the tight integration with `polars` using the `hopeit.dataframes` plugin, allowing serialization and data transfer via endpoints and streams.
 
 
 ### Installation
@@ -122,7 +122,7 @@ pip install hopeit.engine[redis-storage]
 
 **hopeit.dataframes**
 
-Plugin to support working with `pandas` dataframes as they were objects,
+Plugin to work with `polars` dataframes as they were dataobjects,
 supporting them as web request and response payloads and transferring them
 through streams.
 
@@ -142,7 +142,7 @@ Plugins supporting integration with *Amazon Web Services* can be found in
 
 **Easy learning:** if you want to learn how to develop microservices, *hopeit.engine* is a good starting point, since it will quickly make you productive and at the same time you will learn all the necessary steps and features that a production-grade microservice should have. Only basic Python knowledge is required. *hopeit.engine* was successfully adopted by Full-stack and Backend Software Developers, Data Engineers, and Data Scientists coming from different backgrounds.
 
-**Data-driven**: *hopeit.engine* was thought keeping in mind that most business logic and decisions are, and will be, driven by data. Working with data is a key part of the library. We embrace [*pydantic dataclasses*](https://docs.pydantic.dev/latest/concepts/dataclasses/) and enforce data-types checking on input and output data. The library and plugins provide OpenAPI validation and documentation and a way to share data between applications using streams. *hopeit.engine* is Data Science/Machine Learning friendly. We try to keep the library compatible with Python ecosystem around Machine Learning: Pandas, Jupyter Notebooks and the Scientific Stack. We aim to enable Data Teams to create their own services in a way people with different skills can contribute.
+**Data-driven**: *hopeit.engine* was thought keeping in mind that most business logic and decisions are, and will be, driven by data. Working with data is a key part of the library. We embrace [*pydantic dataclasses*](https://docs.pydantic.dev/latest/concepts/dataclasses/) and enforce data-types checking on input and output data. The library and plugins provide OpenAPI validation and documentation and a way to share data between applications using streams. *hopeit.engine* is Data Science/Machine Learning friendly. We try to keep the library compatible with Python ecosystem around Machine Learning: Polars & Pandas, Jupyter Notebooks and the Scientific Stack. We aim to enable Data Teams to create their own services in a way people with different skills can contribute.
 
 **Streams**: *hopeit.engine* provides the main necessary features for your system to accomplish the objectives of modern, reactive systems: responsiveness, resiliency, scalability and message-driven. The architecture enforced by *hopeit.engine* will lead you to develop small stateless services, primarily running asynchronous operations, that can recover from failure, can scale up quickly and handle more load, and communicate asynchronously with other services and process data using streams.
 
@@ -203,7 +203,7 @@ Check [*LICENSE*](LICENSE) file. The library also takes advantage of other well-
 - HTTP endpoints and clients are based on [*aiohttp*](https://pypi.org/project/aiohttp/)
 - Dataclasses schemas and serialization are provided by [*pydantic*](https://github.com/pydantic/pydantic)
 - Plugin for stream processing is supported using [*Redis*](https://redis.io/) and connected using [*aioredis*](https://pypi.org/project/aioredis/)
-- Dataframes plugin is implemented using [*Pandas*](https://github.com/pandas-dev/pandas)
+- Dataframes plugin is implemented using [*Polars*](https://github.com/pola-rs/polars)
 
 
 For a full list of required libraries and licenses check [*THIRDPARTY*](THIRDPARTY) file.

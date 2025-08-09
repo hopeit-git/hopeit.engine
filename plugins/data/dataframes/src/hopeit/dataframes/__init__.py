@@ -2,7 +2,7 @@
 hopeit.engine dataframes plugin entry point
 
 This module exposes the 2 main constructions to be used inside apps,
-to extend @dataobject functionallity supporting working with `pandas DataFrames`
+to extend @dataobject functionallity supporting working with `polars DataFrames`
 `@dataframe` dataclass annotation
 `DataFrames` class to handle manipulation of dataframe/dataframeobjects
 
@@ -10,7 +10,7 @@ Usage:
 ```
 from typing import List
 
-import pandas as pd
+import polars as pl
 
 from hopeit.dataframes.serialization.settings import DatasetSerialization
 from hopeit.dataframes import DataFrames, Dataset, dataframe
@@ -41,7 +41,7 @@ settings = DataframesSettings(...)  # settings example in `plugin-config.json`
 await registry.init_registry(settings)
 
 # Usage
-df = pd.DataFrame([  # Create or load a pandas DataFrame
+df = pd.DataFrame([  # Create or load a polars DataFrame
     {"field1": 1, "field2": "text1"},
     {"field1": 2, "field2": "text2"},
 ])
@@ -70,16 +70,12 @@ print(Payload.to_json(my_json_response))
 ```
 """
 
-from typing import Dict, Generic, Iterator, List, Type
+from typing import Any, Dict, Generic, Iterator, List, Type
 
 try:
-    import numpy as np
-    import pandas as pd
+    import polars as pl
 except ImportError:
-    # Supports using `@dataframe` annotation for dataobjects definitions
-    # without installing pandas and numpy. Useful for API-only projects.
-    import hopeit.dataframes.pandas.numpy_mock as np  # type: ignore[no-redef]
-    import hopeit.dataframes.pandas.pandas_mock as pd  # type: ignore[no-redef]
+    import hopeit.dataframes.polars as pl  # type: ignore  # Polars is optional; set to a mock if not installed
 
 from hopeit.dataframes.dataframe import DataFrameT, dataframe
 from hopeit.dataframes.serialization.dataset import Dataset
@@ -96,16 +92,31 @@ class DataFrames(Generic[DataFrameT, DataObject]):
 
     @staticmethod
     def from_df(
-        datatype: Type[DataFrameT], df: pd.DataFrame, **series: Dict[str, pd.Series]
+        datatype: Type[DataFrameT], df: pl.DataFrame, **series: Dict[str, pl.Series]
     ) -> DataFrameT:
-        """Create a `@dataframe` instance of a particular `datatype` from a pandas DataFrame.
+        """Create a `@dataframe` instance of a particular `datatype` from a polars DataFrame.
         Optionally, add or override series.
         """
         return datatype._from_df(df, **series)  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
+    def from_pandas(
+        datatype: Type[DataFrameT], pandas_df: Any, **series: Dict[str, pl.Series]
+    ) -> DataFrameT:
+        """Create a `@dataframe` instance of a particular `datatype` from a polars DataFrame.
+        Optionally, add or override series.
+        """
+        return datatype._from_df(  # type: ignore[attr-defined]
+            pl.from_pandas(
+                pandas_df,
+                schema_overrides=datatype.__dataframe__.schema,  # type: ignore[attr-defined]
+            ),
+            **series,
+        )  # type: ignore  # pylint: disable=protected-access
+
+    @staticmethod
     def from_dataframe(
-        datatype: Type[DataFrameT], obj: DataFrameT, **series: Dict[str, pd.Series]
+        datatype: Type[DataFrameT], obj: DataFrameT, **series: Dict[str, pl.Series]
     ) -> DataFrameT:
         """Creates a new `@dataframe` object extracting fields from another `@dataframe`"""
         return datatype._from_df(obj._df, **series)  # type: ignore  # pylint: disable=protected-access
@@ -118,16 +129,25 @@ class DataFrames(Generic[DataFrameT, DataObject]):
         return datatype._from_dataobjects(dataobjects)  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
-    def to_dataobjects(obj: DataFrameT, *, normalize_null_values: bool = False) -> List[DataObject]:
+    def to_dataobjects(obj: DataFrameT) -> List[DataObject]:
         """Converts `@dataframe` object to a list of standard `@dataobject`s"""
-        return obj._to_dataobjects(normalize_null_values)  # type: ignore  # pylint: disable=protected-access
+        return obj._to_dataobjects()  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
-    def from_array(datatype: Type[DataFrameT], array: np.ndarray) -> DataFrameT:
-        """Creates `@dataframe` object from a numpy array"""
-        return datatype._from_array(array)  # type: ignore  # pylint: disable=protected-access
-
-    @staticmethod
-    def df(obj: DataFrameT) -> pd.DataFrame:
-        """Provides acces to the internal pandas dataframe of a `@dataframe` object"""
+    def df(obj: DataFrameT) -> pl.DataFrame:
+        """Provides acces to the internal `polars` dataframe of a `@dataframe` object"""
         return obj._df  # type: ignore  # pylint: disable=protected-access
+
+    @staticmethod
+    def to_pandas(obj: DataFrameT) -> Any:
+        """Returns internal dataframe converted to pandas"""
+        return obj._df.to_pandas()  # type: ignore  # pylint: disable=protected-access
+
+    @staticmethod
+    def schema(datatype: Type[DataFrameT]) -> pl.Schema:
+        if pl is None:
+            raise RuntimeError(
+                "`polars` needs to be installed to access dataframe schema. "
+                "Run `pip install hopeit.dataframes[polars]`"
+            )
+        return datatype.__dataframe__.schema  # type: ignore  # pylint: disable=protected-access

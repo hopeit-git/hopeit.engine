@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import List, Optional
 
 from hopeit.dataframes.serialization.settings import DataframesSettings
-import numpy as np
-import pandas as pd
+
+import polars as pl
 import pytest
 from hopeit.app.config import (
     AppConfig,
@@ -77,13 +77,6 @@ class MyTestDataSchemaNotCompatible:
 
 @dataframe
 @dataclass
-class MyNumericalData:
-    number: int
-    value: float
-
-
-@dataframe
-@dataclass
 class MyPartialTestData:
     number: int
     name: str
@@ -144,6 +137,13 @@ class MyTestAllTypesDefaultValues:
 
 @dataframe
 @dataclass
+class Part0:
+    item_dt: datetime  # To use as partition key
+    field0: str  # common field
+
+
+@dataframe
+@dataclass
 class Part1:
     field0: str  # common field
     field1: str
@@ -190,6 +190,17 @@ class MyDataBlock:
 
 @dataobject
 @dataclass
+class MyPartitionedDataBlock:
+    block_id: str
+    block_field: Optional[int]
+    part0: Dataset[Part0]
+    part1: Dataset[Part1]
+    part2: Dataset[Part2]
+    partition_item_dt: datetime
+
+
+@dataobject
+@dataclass
 class MyDataBlockCompat:
     block_id: str
     block_field: Optional[int]
@@ -216,8 +227,8 @@ class MyDataBlockItem:
 
 
 @pytest.fixture
-def one_element_pandas_df() -> pd.DataFrame:
-    return pd.DataFrame(
+def one_element_polars_df() -> pl.DataFrame:
+    return pl.DataFrame(
         [
             {
                 "number": 1,
@@ -229,8 +240,8 @@ def one_element_pandas_df() -> pd.DataFrame:
 
 
 @pytest.fixture
-def two_element_pandas_df_with_nulls() -> pd.DataFrame:
-    return pd.DataFrame(
+def two_element_polars_df_with_nulls() -> pl.DataFrame:
+    return pl.DataFrame(
         [
             {
                 "id": "1",
@@ -238,14 +249,14 @@ def two_element_pandas_df_with_nulls() -> pd.DataFrame:
                 "name": "test1",
                 "timestamp": datetime.now(tz=timezone.utc),
             },
-            {"id": "2", "number": np.nan, "name": None, "timestamp": pd.NaT},
+            {"id": "2", "number": None, "name": None, "timestamp": None},
         ]
     )
 
 
 @pytest.fixture
-def sample_pandas_df() -> pd.DataFrame:
-    return pd.DataFrame(
+def sample_df() -> pl.DataFrame:
+    return pl.DataFrame(
         [
             {
                 "number": n,
@@ -289,8 +300,8 @@ def plugin_config() -> AppConfig:
 
 
 @pytest.fixture
-def datablock_df() -> pd.DataFrame:
-    return pd.DataFrame(
+def datablock_df() -> pl.DataFrame:
+    return pl.DataFrame(
         {
             "block_id": ["b1", "b1"],
             "block_field": [42, 42],
@@ -299,10 +310,51 @@ def datablock_df() -> pd.DataFrame:
             "field2": [2.1, 2.2],
             "field3": ["f31", "f32"],
             "field4": [4.1, 4.2],
-            "field5_opt": [5.1, np.nan],
-            "field6_opt": [np.nan, np.nan],
+            "field5_opt": [5.1, None],
+            "field6_opt": [None, None],
             "field7_opt": [None, None],
-        }
+        },
+        schema_overrides={"field6_opt": pl.Int64, "field7_opt": pl.String},
+    )
+
+
+@pytest.fixture
+def datablock2_df() -> pl.DataFrame:
+    return pl.DataFrame(
+        {
+            "block_id": ["b2", "b2"],
+            "block_field": [43, 43],
+            "field0": ["item3", "item4"],
+            "field1": ["f13", "f14"],
+            "field2": [2.3, 2.4],
+            "field3": ["f33", "f34"],
+            "field4": [4.3, 4.4],
+            "field5_opt": [5.3, None],
+            "field6_opt": [6, None],
+            "field7_opt": ["opt3", None],
+        },
+        schema_overrides={"field6_opt": pl.Int64, "field7_opt": pl.String},
+    )
+
+
+@pytest.fixture
+def partitioned_datablock_df() -> pl.DataFrame:
+    return pl.DataFrame(
+        {
+            "block_id": ["b1", "b1"],
+            "block_field": [42, 42],
+            "item_dt": [
+                datetime(2025, 1, 1, 10, 11, 12, tzinfo=timezone.utc),
+                datetime(2025, 1, 2, 13, 14, 15, tzinfo=timezone.utc),
+            ],
+            "field0": ["item1", "item2"],
+            "field1": ["f11", "f12"],
+            "field2": [2.1, 2.2],
+            "field3": ["f31", "f32"],
+            "field4": [4.1, 4.2],
+            "field5_opt": [5.1, None],
+        },
+        schema_overrides={"field6_opt": pl.Int64, "field7_opt": pl.String},
     )
 
 

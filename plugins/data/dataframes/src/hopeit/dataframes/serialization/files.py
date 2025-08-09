@@ -3,7 +3,8 @@
 from datetime import datetime, timedelta, timezone
 from glob import glob
 import os
-from typing import AsyncGenerator, Generic, Literal, Optional, Type, TypeVar, Union
+import io
+from typing import AsyncGenerator, Generic, Literal, Optional, Type, TypeVar
 from uuid import uuid4
 from pathlib import Path
 
@@ -11,13 +12,9 @@ import aiofiles
 from pydantic import TypeAdapter
 
 try:
-    import pandas as pd
-    import pyarrow  # type: ignore  # noqa  # pylint: disable=unused-import
-except ImportError as e:
-    raise ImportError(
-        "`pandas` and `pyarrow` needs to be installed to use `DatasetFileStorage`",
-        "Run `pip install hopeit.dataframes[pandas]`",
-    ) from e
+    import polars as pl
+except ImportError:
+    import hopeit.dataframes.polars as pl  # type: ignore  # Polars is optional; set to a mock if not installed
 
 from hopeit.dataframes.dataframe import DataFrameMixin
 from hopeit.dataframes.serialization.dataset import Dataset
@@ -32,15 +29,16 @@ DataFrameT = TypeVar("DataFrameT", bound=DataFrameMixin)
 class DatasetFileStorageEngineSettings:
     """Pyarrow settings for parquet file storage"""
 
-    compression: Optional[Literal["snappy", "gzip", "brotli", "lz4", "zstd"]] = "zstd"
-    compression_level: Union[int, str, None] = None
+    compression: Optional[
+        Literal["lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd"]
+    ] = "zstd"
+    compression_level: Optional[int] = None
     read_chunk_size: int = 2**20  # 1Mb
 
 
 class DatasetFileStorage(Generic[DataFrameT]):
     """Support to store dataframes as files,
-    using pandas parquet format support in combination
-    with `hopeit.engine` file storage plugins
+    using polars parquet format support
     """
 
     def __init__(
@@ -72,7 +70,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         """
         datatype: Type[DataFrameT] = type(dataframe)
         return await self.save_df(
-            dataframe._df,
+            dataframe._df.select(datatype.__dataframe__.columns),
             datatype,
             partition_dt=partition_dt,
             database_key=database_key,
@@ -83,7 +81,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
 
     async def save_df(
         self,
-        df: pd.DataFrame,
+        df: pl.DataFrame,
         datatype: Type[DataFrameT],
         *,
         partition_dt: Optional[datetime],
@@ -92,7 +90,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         collection: Optional[str],
         save_schema: bool,
     ) -> Dataset:
-        """Saves pandas df object as parquet to file system
+        """Saves polars df object as parquet to file system
         and returns Dataset metadata to be used when retrieval
         is handled externally
         """
@@ -110,18 +108,17 @@ class DatasetFileStorage(Generic[DataFrameT]):
             path = path / partition_key
         key = f"{datatype.__qualname__.lower()}_{uuid4().hex}.parquet"
 
+        # Async save parquet file via in-memory buffer
+        buf = io.BytesIO()
+        df.write_parquet(
+            buf,
+            compression=self.storage_settings.compression or "zstd",
+            compression_level=self.storage_settings.compression_level,
+        )
         os.makedirs(path, exist_ok=True)
         path = path / key
-
-        # Async save parquet file
         async with aiofiles.open(path, "wb") as f:
-            await f.write(
-                df.to_parquet(
-                    engine="pyarrow",
-                    compression=self.storage_settings.compression,
-                    compression_level=self.storage_settings.compression_level,
-                )
-            )
+            await f.write(buf.getvalue())
 
         return Dataset(
             protocol=f"{__name__}.{type(self).__name__}",
@@ -194,7 +191,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
 
             partition_dt += partition_increments
 
-    async def load_df(self, dataset: Dataset, columns: Optional[list[str]] = None) -> pd.DataFrame:
+    async def load_df(self, dataset: Dataset, columns: Optional[list[str]] = None) -> pl.DataFrame:
         path = self.path
         if dataset.group_key:
             path = path / dataset.group_key
@@ -204,9 +201,30 @@ class DatasetFileStorage(Generic[DataFrameT]):
             path = path / dataset.partition_key
         path = path / dataset.key
 
-        # Async load parquet into pandas dataframe in chunks
+        buf = io.BytesIO()
         async with aiofiles.open(path, "rb") as f:
-            buffer = pyarrow.BufferOutputStream()
-            while chunk := await f.read(self.storage_settings.read_chunk_size):
-                buffer.write(chunk)
-            return pd.read_parquet(buffer.getvalue(), engine="pyarrow", columns=columns)  # type: ignore[arg-type]
+            while True:
+                chunk = await f.read(self.storage_settings.read_chunk_size)  # 8 MiB chunks
+                if not chunk:  # Do not change this check!
+                    break
+                buf.write(chunk)
+        buf.seek(0)
+        return pl.read_parquet(buf, columns=columns)
+
+    def scan_df(self, dataset: Dataset, schema: Optional[pl.Schema] = None) -> pl.LazyFrame:
+        path = self.path
+        if dataset.group_key:
+            path = path / dataset.group_key
+        if dataset.collection:
+            path = path / dataset.collection
+        if dataset.partition_key:
+            path = path / dataset.partition_key
+        path = path / dataset.key
+
+        return pl.scan_parquet(
+            path,
+            glob=False,
+            schema=schema,
+            missing_columns="insert",
+            extra_columns="ignore",
+        )
