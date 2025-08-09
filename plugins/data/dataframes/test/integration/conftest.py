@@ -1,4 +1,4 @@
-from datetime import UTC, date, datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
@@ -344,8 +344,8 @@ def partitioned_datablock_df() -> pl.DataFrame:
             "block_id": ["b1", "b1"],
             "block_field": [42, 42],
             "item_dt": [
-                datetime(2025, 1, 1, 10, 11, 12, tzinfo=UTC),
-                datetime(2025, 1, 2, 13, 14, 15, tzinfo=UTC),
+                datetime(2025, 1, 1, 10, 11, 12, tzinfo=timezone.utc),
+                datetime(2025, 1, 2, 13, 14, 15, tzinfo=timezone.utc),
             ],
             "field0": ["item1", "item2"],
             "field1": ["f11", "f12"],

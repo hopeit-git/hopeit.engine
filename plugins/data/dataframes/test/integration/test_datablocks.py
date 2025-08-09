@@ -2,13 +2,14 @@ from datetime import UTC, datetime, timezone
 import os
 from typing import cast
 import uuid
-from hopeit.dataframes.datablocks import DataBlockQuery, TempDataBlock
-import polars as pl
-from polars.testing import assert_frame_equal
 
 from hopeit.dataframes import DataBlocks, Dataset
-from hopeit.dataframes.datablocks import DataBlockMetadata
+from hopeit.dataframes.datablocks import DataBlockMetadata, DataBlockQuery, TempDataBlock
+
+import polars as pl
+from polars.testing import assert_frame_equal
 import pytest
+
 
 from conftest import (
     MyDataBlock,
