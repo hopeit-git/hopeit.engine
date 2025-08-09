@@ -9,9 +9,13 @@ ______________
   - dataframes:
 
     - Using `polars` as dataframes backend (`pandas` is no longer natively supported).
+
+    - DataBlocks: Added support for scan/query batches using polars `LazyFrame`
+
     - BREAKING CHANGE: `DataFrames.df` `from_df` and `DataBlocks` all now expect and returns `polars.DataFrame`.
      Use `DataFrames.to_pandas(...)` and `DataFrames.from_pandas(...)` `DataBlocks.to_pandas(...)` and
      `DataBlocks.from_pandas(...)` for backwards compatibility.
+     
     - BREAKING CHANGE: `DataFrames.from_array` is no longer supported. Use 
     `DataFrames.from_df(polars.from_numpy(array, schema=DataFrames.schema(MyDataType)))` instead.
 

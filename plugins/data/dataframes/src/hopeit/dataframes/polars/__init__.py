@@ -38,6 +38,10 @@ except ImportError:
             def __getattribute__(self, name) -> Any:
                 pass
 
+        class Expr:  # type: ignore
+            def __getattribute__(self, name) -> Any:
+                pass
+
         class Series:  # type: ignore
             def __init__(self, *args, **kwargs) -> None:
                 pass
