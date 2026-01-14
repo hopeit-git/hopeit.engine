@@ -3,7 +3,6 @@ Webrunner module based on gunicorn
 """
 
 from typing import List, Optional
-from abc import abstractmethod
 import multiprocessing
 import gunicorn.app.base  # type: ignore
 
@@ -19,7 +18,6 @@ class WSGIApplication(gunicorn.app.base.BaseApplication):
     WSGI HTTP Server
     """
 
-    @abstractmethod
     def __init__(self, app, options=None):
         self.options = options or {}
         self.application = app

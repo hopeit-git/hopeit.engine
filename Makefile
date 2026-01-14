@@ -31,7 +31,6 @@ dev: env
 	uv pip install -U --no-deps -e ./apps/examples/client-example
 	uv pip install -U --no-deps -e ./apps/examples/dataframes-example
 
-
 ci-deps:
 	uv venv --seed --python $(PYTHON_ARG)
 	uv sync --dev

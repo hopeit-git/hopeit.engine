@@ -88,6 +88,7 @@ dev = [
     # type stubs
     "types-aiofiles>=24.1.0",
     "types-redis>=4.6.0",
+    "types-gunicorn>=23.0.0",
     # web test dependencies
     "uvloop>=0.21.0",
     # examples/dataframes-example runtime deps
