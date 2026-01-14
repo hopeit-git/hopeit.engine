@@ -166,7 +166,7 @@ async def execute_event(
         settings=app_config.effective_settings,  # type: ignore
     )
 
-    preprocess_hook, postprocess_hook = None, None
+    preprocess_hook, postprocess_hook = None, None  # type: ignore[var-annotated]
     if preprocess:
         preprocess_hook = PreprocessHook(
             headers=CIMultiDictProxy(CIMultiDict()),

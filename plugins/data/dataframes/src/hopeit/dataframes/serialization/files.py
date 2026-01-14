@@ -112,7 +112,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         buf = io.BytesIO()
         df.write_parquet(
             buf,
-            compression=self.storage_settings.compression or "zstd",
+            compression=self.storage_settings.compression or "zstd",  # type: ignore[arg-type]
             compression_level=self.storage_settings.compression_level,
         )
         os.makedirs(path, exist_ok=True)

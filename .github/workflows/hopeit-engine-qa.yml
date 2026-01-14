@@ -19,7 +19,7 @@ jobs:
       matrix:
         module: ["engine", "plugins", "apps"]
         stage: ["lint", "test"]
-        python-version: ["3.12", "3.11", "3.10", "3.13"]
+        python-version: ["3.12", "3.11", "3.10", "3.13", "3.14"]
       max-parallel: 5
 
     steps:

@@ -3,7 +3,7 @@ SRC = $(wildcard src/*.py)
 .PHONY: env clean-env dev deps format lint test
 
 env:
-	uv venv --seed --python 3.12
+	uv venv --seed --python 3.14.2
 	uv sync --dev
 
 clean-env:

@@ -4,7 +4,7 @@ version = "0.27.0"
 
 dynamic = ["readme"]
 
-requires-python = ">=3.10"
+requires-python = ">=3.10,<15.0"
 
 description = "Hopeit Engine: Microservices with Streams"
 license = { text = "Apache 2" }
@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Development Status :: 5 - Production/Stable",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",
@@ -69,7 +70,9 @@ dataframes-example = { path="apps/examples/dataframes-example" }
 
 [tool.uv]
 package = false
-dev-dependencies = [
+
+[dependency-groups]
+dev = [
     "mypy>=1.13.0",
     "pytest>=8.3.3",
     "pytest-cov>=6.0.0",
