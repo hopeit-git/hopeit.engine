@@ -1,9 +1,12 @@
 SRC = $(wildcard src/*.py)
+# Override with `make PYTHON_VERSION=3.13` or `make PYTHONVERSION=3.13`.
+PYTHON_VERSION ?= 3.12
+PYTHON_ARG := $(if $(PYTHONVERSION),$(PYTHONVERSION),$(PYTHON_VERSION))
 
 .PHONY: env clean-env dev deps format lint test
 
 env:
-	uv venv --seed --python 3.14.2
+	uv venv --seed --python $(PYTHON_ARG)
 	uv sync --dev
 
 clean-env:
@@ -30,7 +33,7 @@ dev: env
 
 
 ci-deps:
-	uv venv --seed --python $(PYTHONVERSION)
+	uv venv --seed --python $(PYTHON_ARG)
 	uv sync --dev
 	uv pip install -r pyproject.toml
 

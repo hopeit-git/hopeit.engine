@@ -58,10 +58,19 @@ def run_app(
 
     bind = f"{host if host else '0.0.0.0'}:{port}"
 
+    if worker_class == "GunicornWebWorker":
+        resolved_worker_class = "hopeit.server.gunicorn_worker.GunicornWebWorker"
+    elif worker_class == "GunicornUVLoopWebWorker":
+        resolved_worker_class = "hopeit.server.gunicorn_worker.GunicornUVLoopWebWorker"
+    elif "." in worker_class:
+        resolved_worker_class = worker_class
+    else:
+        resolved_worker_class = f"aiohttp.{worker_class}"
+
     options = {
         "bind": bind,
         "workers": workers,
-        "worker_class": f"aiohttp.{worker_class}",
+        "worker_class": resolved_worker_class,
         "proc_name": "hopeit_server",
         "timeout": worker_timeout,
     }
