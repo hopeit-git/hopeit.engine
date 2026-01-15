@@ -1,13 +1,13 @@
 [project]
 name = "dataframes_example"
-version = "0.27.0"
+version = "0.28.0"
 
 description = "hopeit.engine dataframes example app"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.27.0",
-    "hopeit.dataframes[polars]>=0.27.0",
+    "hopeit.engine>=0.28.0",
+    "hopeit.dataframes[polars]>=0.28.0",
 ]
 
 license = { text = "Apache 2" }

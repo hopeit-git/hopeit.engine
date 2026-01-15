@@ -1,14 +1,14 @@
 [project]
 name = "hopeit.apps-visualizer"
-version = "0.27.0"
+version = "0.28.0"
 
 description = "Hopeit Engine Apps Visualizer Plugin"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.27.0",
-    "hopeit.config-manager>=0.27.0",
-    "hopeit.log-streamer>=0.27.0",
+    "hopeit.engine>=0.28.0",
+    "hopeit.config-manager>=0.28.0",
+    "hopeit.log-streamer>=0.28.0",
 ]
 
 license = { text = "Apache 2" }
