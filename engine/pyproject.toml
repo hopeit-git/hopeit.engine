@@ -18,14 +18,13 @@ dependencies = [
     "uvloop>=0.22; platform_system != 'Windows'"
 ]
 
-license = { text = "Apache 2" }
+license = { text = "Apache-2.0" }
 authors = [
     { name = "Leo Smerling & Pablo Canto", email = "contact@hopeit.com.ar" },
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
     { name = "Pablo Canto", email = "contact@hopeit.com.ar" },
 ]
 classifiers = [
-    "License :: OSI Approved :: Apache Software License",
     "Intended Audience :: Developers",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
@@ -55,14 +54,14 @@ include-package-data = true
 [project.optional-dependencies]
 web = []
 cli = []
-redis-streams = ["hopeit.redis-streams==0.28.0"]
-redis-storage = ["hopeit.redis-storage==0.28.0"]
-fs-storage = ["hopeit.fs-storage==0.28.0"]
-config-manager = ["hopeit.config-manager==0.28.0"]
-log-streamer = ["hopeit.log-streamer==0.28.0"]
-apps-visualizer = ["hopeit.apps-visualizer==0.28.0"]
-apps-client = ["hopeit.apps-client==0.28.0"]
-dataframes = ["hopeit.dataframes==0.28.0"]
+redis-streams = ["hopeit.redis-streams==0.28.1"]
+redis-storage = ["hopeit.redis-storage==0.28.1"]
+fs-storage = ["hopeit.fs-storage==0.28.1"]
+config-manager = ["hopeit.config-manager==0.28.1"]
+log-streamer = ["hopeit.log-streamer==0.28.1"]
+apps-visualizer = ["hopeit.apps-visualizer==0.28.1"]
+apps-client = ["hopeit.apps-client==0.28.1"]
+dataframes = ["hopeit.dataframes==0.28.1"]
 
 [project.scripts]
 hopeit_server = "hopeit.cli.server:server"

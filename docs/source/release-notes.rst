@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 0.28.1
+______________
+
+- Engine:
+
+  - Packaging: use SPDX license identifier in `pyproject.toml` to avoid setuptools deprecation warnings.
+
 Version 0.28.0
 ______________
 
