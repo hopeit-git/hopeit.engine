@@ -110,8 +110,6 @@ def run_app(
     if path:
         options["bind"] = f"unix:{path}"
 
-    print("WSGI", options, worker_class)
-
     app = init_web_server(
         config_files=config_files,
         api_file=api_file,
