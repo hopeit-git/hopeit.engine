@@ -90,7 +90,6 @@ dev = [
     "types-redis>=4.6.0",
     "types-gunicorn>=23.0.0",
     # web test dependencies
-    "uvloop>=0.21.0",
     # examples/dataframes-example runtime deps
     "numpy>=2",
     "scikit-learn>=1.6.1",

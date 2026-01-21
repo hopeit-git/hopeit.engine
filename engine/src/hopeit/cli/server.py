@@ -50,7 +50,6 @@ def server():
 )
 @click.option(
     "--worker-class",
-    type=click.Choice(["GunicornWebWorker", "GunicornUVLoopWebWorker"]),
     default="GunicornWebWorker",
     help="Gunicorn aiohttp worker class. Default value is GunicornWebWorker. "
     "GunicornUVLoopWebWorker requires `pip install uvloop`",
