@@ -56,6 +56,7 @@ def run_app(
 
     bind = f"{host if host else '0.0.0.0'}:{port}"
 
+    # Map known short names to Hopeit workers, accept full dotted paths, otherwise default to aiohttp workers.
     if worker_class == "GunicornWebWorker":
         resolved_worker_class = "hopeit.server.gunicorn_worker.GunicornWebWorker"
     elif worker_class == "GunicornUVLoopWebWorker":
