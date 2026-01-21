@@ -25,7 +25,7 @@ logger = engine_logger()
 
 
 class TestingException(Exception):
-    pass
+    __test__ = False
 
 
 def config(path: Union[str, Path]) -> AppConfig:
