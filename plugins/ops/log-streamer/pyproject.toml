@@ -1,12 +1,12 @@
 [project]
 name = "hopeit.log-streamer"
-version = "0.27.0"
+version = "0.28.0"
 
 description = "Hopeit Engine Log Streamer Plugin"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.27.0",
+    "hopeit.engine>=0.28.0",
     "watchdog>=6.0.0",
 ]
 
@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Development Status :: 5 - Production/Stable",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",

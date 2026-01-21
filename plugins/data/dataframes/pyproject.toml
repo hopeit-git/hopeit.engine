@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hopeit.dataframes"
-version = "0.27.0"
+version = "0.28.0"
 
 description = "Hopeit Engine Dataframes for Polars"
 dynamic = ["readme"]
@@ -23,6 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Development Status :: 5 - Production/Stable",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",
@@ -33,8 +34,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "hopeit.engine>=0.27.0",
-    "hopeit.fs-storage>=0.27.0",
+    "hopeit.engine>=0.28.0",
+    "hopeit.fs-storage>=0.28.0",
 ]
 
 [project.optional-dependencies]

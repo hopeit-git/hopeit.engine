@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+Version 0.28.0
+______________
+
+- Engine:
+
+  - Python 3.14 compatibility (CI matrix and package classifiers).
+
+  - Fix: handle missing event loop in Gunicorn aiohttp workers.
+
 Version 0.27.0
 ______________
 

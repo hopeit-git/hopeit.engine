@@ -255,7 +255,7 @@ If an external request triggers a process that requires background tasks to run,
 
 ![hopeit.engine QA](https://github.com/hopeit-git/hopeit.engine/workflows/hopeit.engine%20QA/badge.svg)
 
-> - Tested on Python 3.10, 3.11, 3.12 and 3.13
+> - Tested on Python 3.10, 3.11, 3.12, 3.13 and 3.14
 > - Types and code style checks with [*mypy*](https://pypi.org/project/mypy), [*ruff*](https://github.com/astral-sh/ruff)
 > - *hopeit.engine* unit tested using [*pytest*](https://pypi.org/project/pytest/), required coverage > 90%
 > - HTTP server integration tests using [*pytest_aiohttp*](https://pypi.org/project/pytest-aiohttp/)

@@ -1,9 +1,11 @@
 SRC = $(wildcard src/*.py)
+# Override with `make PYTHONVERSION=3.14`.
+PYTHONVERSION ?= 3.12
 
 .PHONY: env clean-env dev deps format lint test
 
 env:
-	uv venv --seed --python 3.12
+	uv venv --seed --python $(PYTHONVERSION)
 	uv sync --dev
 
 clean-env:
@@ -27,7 +29,6 @@ dev: env
 	uv pip install -U --no-deps -e ./apps/examples/simple-example
 	uv pip install -U --no-deps -e ./apps/examples/client-example
 	uv pip install -U --no-deps -e ./apps/examples/dataframes-example
-
 
 ci-deps:
 	uv venv --seed --python $(PYTHONVERSION)
@@ -154,7 +155,7 @@ run-simple-example:
 		--port=$(PORT) \
 		--start-streams \
 		--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json \
-		--api-file=apps/examples/simple-example/api/openapi.json
+		--api-file=apps/examples/simple-example/api/openapi.json \
 
 run-client-example:
 	HOPEIT_SIMPLE_EXAMPLE_HOSTS=$(HOSTS) uv run --no-sync hopeit_server run \
