@@ -156,7 +156,6 @@ run-simple-example:
 		--start-streams \
 		--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json \
 		--api-file=apps/examples/simple-example/api/openapi.json \
-		--worker-class=GunicornUVLoopWebWorker
 
 run-client-example:
 	HOPEIT_SIMPLE_EXAMPLE_HOSTS=$(HOSTS) uv run --no-sync hopeit_server run \
