@@ -15,8 +15,6 @@ dependencies = [
     "aiohttp-swagger3>=0.10.0",
     "gunicorn>=23.0.0",
     "click>=8.3.1",
-    # "uvloop>=0.21,<0.22; python_version < '3.14' and platform_system != 'Windows'",
-    # "uvloop>=0.21; python_version >= '3.14' and platform_system != 'Windows'",
     "uvloop>=0.22; platform_system != 'Windows'"
 ]
 
