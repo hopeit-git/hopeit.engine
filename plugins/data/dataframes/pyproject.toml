@@ -9,7 +9,7 @@ version = "0.28.1"
 description = "Hopeit Engine Dataframes for Polars"
 dynamic = ["readme"]
 
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 authors = [
     { name = "Leo Smerling & Pablo Canto", email = "contact@hopeit.com.ar" },
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },

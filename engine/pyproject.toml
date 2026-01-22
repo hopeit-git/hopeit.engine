@@ -18,7 +18,7 @@ dependencies = [
     "uvloop>=0.22; platform_system != 'Windows'"
 ]
 
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 authors = [
     { name = "Leo Smerling & Pablo Canto", email = "contact@hopeit.com.ar" },
     { name = "Leo Smerling", email = "contact@hopeit.com.ar" },
