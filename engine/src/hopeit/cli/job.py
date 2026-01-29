@@ -1,0 +1,74 @@
+"""
+CLI job command
+"""
+
+import asyncio
+
+import click
+
+from hopeit.dataobjects.payload import Payload
+from hopeit.server.job import resolve_payload, run_job
+from hopeit.server.logger import engine_logger
+
+engine_logger().init_cli("job")
+
+
+@click.command()
+@click.option(
+    "--config-files",
+    required=True,
+    help="Comma-separated list of server, plugins and app config files.",
+)
+@click.option("--event-name", required=True, help="Event name to execute.")
+@click.option(
+    "--payload",
+    default=None,
+    help="JSON string payload. Use @file or @- for stdin.",
+)
+@click.option(
+    "--input-file",
+    default=None,
+    help="Read payload from file (same as --payload=@file).",
+)
+@click.option(
+    "--start-streams",
+    is_flag=True,
+    default=False,
+    help="Auto start reading stream and service events.",
+)
+@click.option(
+    "--max-events",
+    type=int,
+    default=None,
+    help="Limit number of consumed events for STREAM runs.",
+)
+def job(
+    config_files: str,
+    event_name: str,
+    payload: str,
+    input_file: str,
+    start_streams: bool,
+    max_events: int,
+):
+    """
+    Execute a single event as a job.
+    """
+    payload_str = resolve_payload(payload, input_file)
+    result = asyncio.run(
+        run_job(
+            config_files=config_files.split(","),
+            event_name=event_name,
+            payload=payload_str,
+            start_streams=start_streams,
+            max_events=max_events,
+        )
+    )
+    if result is not None:
+        click.echo(Payload.to_json(result))
+
+
+cli = job
+
+
+if __name__ == "__main__":
+    cli()

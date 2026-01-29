@@ -1,5 +1,5 @@
 {
-    "version": "0.2.0",    
+    "version": "0.2.0",
     "configurations": [
         {
             "name": "simple-example",
@@ -10,7 +10,7 @@
                 "--port=8020",
                 "--start-streams",
                 "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
-                "--api-file=apps/examples/simple-example/api/openapi.json"                
+                "--api-file=apps/examples/simple-example/api/openapi.json"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
@@ -55,6 +55,32 @@
                 "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/data/dataframes/config/plugin-config.json,apps/examples/dataframes-example/config/app-config.json",
                 "--api-file=apps/examples/dataframes-example/api/openapi.json",
                 "--start-streams",
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "simple-example-job[streams.something_event]",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "hopeit.server.job",
+            "args": [
+                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--event-name=streams.something_event",
+                "--input-file=apps/examples/simple-example/resources/job-payload.json",
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "simple-example-job[streams.process_events]",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "hopeit.server.job",
+            "args": [
+                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--event-name=streams.process_events",
+                "--max-events=2",
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"

@@ -66,6 +66,7 @@ dataframes = ["hopeit.dataframes==0.28.1"]
 [project.scripts]
 hopeit_server = "hopeit.cli.server:server"
 hopeit_openapi = "hopeit.cli.openapi:openapi"
+hopeit_job = "hopeit.cli.job:job"
 
 [tool.setuptools.dynamic]
 version = { attr = "hopeit.server.version.ENGINE_VERSION" }
