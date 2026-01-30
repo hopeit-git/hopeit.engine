@@ -60,12 +60,13 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "simple-example-job[streams.something_event]",
+            "name": "job-example[streams.something_event]",
             "type": "debugpy",
             "request": "launch",
             "module": "hopeit.server.job",
             "args": [
-                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--start-streams",
+                "--config-files=engine/config/dev-local.json,apps/examples/simple-example/config/job-config.json",
                 "--event-name=streams.something_event",
                 "--input-file=apps/examples/simple-example/resources/job-payload.json",
             ],
@@ -73,12 +74,13 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "simple-example-job[streams.process_events]",
+            "name": "job-example[streams.process_events]",
             "type": "debugpy",
             "request": "launch",
             "module": "hopeit.server.job",
             "args": [
-                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--start-streams",
+                "--config-files=engine/config/dev-local.json,apps/examples/simple-example/config/job-config.json",
                 "--event-name=streams.process_events",
                 "--max-events=2",
             ],

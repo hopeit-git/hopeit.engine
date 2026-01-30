@@ -43,7 +43,7 @@ async def __preprocess__(
 ) -> Union[str, SomethingParams]:
     user_agent = request.headers.get("user-agent")
     if (user_agent is None) or (user_agent.strip() == ""):
-        logger.info(context, "Missing required user-agent")
+        logger.error(context, "Missing required user-agent")
         request.set_status(400)
         return "Missing required user-agent"
 

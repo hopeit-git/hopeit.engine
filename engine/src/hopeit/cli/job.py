@@ -34,7 +34,7 @@ engine_logger().init_cli("job")
     "--start-streams",
     is_flag=True,
     default=False,
-    help="Auto start reading stream and service events.",
+    help="Enable stream-related execution (STREAM events / SHUFFLE chains).",
 )
 @click.option(
     "--max-events",

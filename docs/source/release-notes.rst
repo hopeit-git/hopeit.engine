@@ -1,6 +1,44 @@
 Release Notes
 =============
 
+Version 0.29.0
+______________
+
+- Engine:
+
+  - New `hopeit_job` runner to execute a single event without starting the web server,
+    including payload parsing based on event input type and file/stdin payload support.
+
+  - Supported events:
+
+    - GET, POST, and STREAM.
+
+  - Usage notes:
+
+    - Run a POST/GET event with an inline JSON payload:
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --payload='{"value": 1}'`
+
+    - Run with payload from file or stdin:
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --input-file=payload.json`
+      `cat payload.json | hopeit_job --config-files=server.json,app.json --event-name=my.event --input-file=-`
+
+    - SETUP events are executed before the requested event.
+
+    - GET/POST jobs that write to streams require `--start-streams`. Only the first-hop
+      SHUFFLE stage of the same event is started (if present).
+
+    - Consume a STREAM event until empty or just one:
+      `hopeit_job --config-files=server.json,app.json --event-name=streams.my_event --start-streams`
+      `hopeit_job --config-files=server.json,app.json --event-name=streams.my_event --start-streams --max-events=1`
+
+    - STREAM jobs with only a write stream (no read stream) run in produce-only mode and
+      do not start any consumers.
+
+- Examples:
+
+  - Added launch configuration entries that run two `simple.example` events as a use case
+    using `hopeit_job`.
+
 Version 0.28.1
 ______________
 

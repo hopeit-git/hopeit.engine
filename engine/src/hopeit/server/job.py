@@ -6,11 +6,19 @@ from collections import namedtuple
 import argparse
 import asyncio
 import sys
+import uuid
+from datetime import datetime, timezone
 from typing import List, Optional, Tuple, Type
 
 from multidict import CIMultiDict, CIMultiDictProxy
 
-from hopeit.app.config import AppConfig, EventDescriptor, EventSettings, EventType
+from hopeit.app.config import (
+    AppConfig,
+    EventDescriptor,
+    EventPlugMode,
+    EventSettings,
+    EventType,
+)
 from hopeit.app.config import parse_app_config_json
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import EventPayload, EventPayloadType
@@ -69,7 +77,7 @@ def parse_args(args) -> ParsedArgs:
     --event-name: event name to execute
     --payload: json string payload, optionally use @file or @- for stdin
     --input-file: read payload from file (same as --payload=@file)
-    --start-streams: auto start reading stream and service events
+    --start-streams: enable stream-related execution (STREAM events / SHUFFLE chains)
     --max-events: limit number of consumed events for STREAM runs
     """
     parser = argparse.ArgumentParser(description="hopeit job runner")
@@ -109,6 +117,10 @@ def _load_app_config(path: str) -> AppConfig:
 
 
 def _select_app_config(app_configs: List[AppConfig], event_name: str) -> AppConfig:
+    """
+    Find the single app config that owns the base event name.
+    Raises if not found or if multiple apps define the same event.
+    """
     base_event, _ = event_and_step(event_name)
     matches = [config for config in app_configs if base_event in config.events]
     if len(matches) == 0:
@@ -119,22 +131,19 @@ def _select_app_config(app_configs: List[AppConfig], event_name: str) -> AppConf
     return matches[0]
 
 
-def _start_configs_for_event(app_configs: List[AppConfig], event_name: str) -> List[AppConfig]:
-    owner = _select_app_config(app_configs, event_name)
+def _plugins_for_app(app_config: AppConfig, app_configs: List[AppConfig]) -> List[AppConfig]:
+    """
+    Resolve plugin configs required by an app, preserving app plugin order.
+    Raises if any plugin config is missing from the provided config list.
+    """
     configs_by_key = {config.app_key(): config for config in app_configs}
-    ordered: List[AppConfig] = []
-    seen = set()
-    for plugin in owner.plugins:
+    plugins: List[AppConfig] = []
+    for plugin in app_config.plugins:
         key = plugin.app_key()
         if key not in configs_by_key:
             raise ValueError(f"Missing plugin config for app_key={key}")
-        if key not in seen:
-            ordered.append(configs_by_key[key])
-            seen.add(key)
-    owner_key = owner.app_key()
-    if owner_key not in seen:
-        ordered.append(owner)
-    return ordered
+        plugins.append(configs_by_key[key])
+    return plugins
 
 
 def _create_context(
@@ -148,7 +157,7 @@ def _create_context(
         plugin_config=app_config,
         event_name=event_name,
         settings=event_settings,
-        track_ids={},
+        track_ids=_job_track_ids(app_config, event_name),
         auth_info={},
     )
 
@@ -223,6 +232,8 @@ async def run_job(
 ) -> Optional[EventPayload]:
     """
     Starts engine and apps from config files and executes a single event.
+
+    Only GET, POST and STREAM events are supported.
     """
     if len(config_files) < 2:
         raise ValueError("config_files must include server config and at least one app config")
@@ -231,52 +242,98 @@ async def run_job(
     app_configs = [_load_app_config(path) for path in config_files[1:]]
     for config in app_configs:
         config.server = server_config
-    start_configs = _start_configs_for_event(app_configs, event_name)
+    owner_config = _select_app_config(app_configs, event_name)
 
     await runtime.server.start(config=server_config)
     background_tasks: List[Tuple[AppEngine, str, asyncio.Task]] = []
     try:
-        owner_config = start_configs[-1]
-        plugin_configs = start_configs[:-1]
-        logger.info(__name__, f"Starting app={owner_config.app_key()}...")
-        app_engine = await AppEngine(
-            app_config=owner_config,
-            plugins=plugin_configs,
-            enabled_groups=[],
-            stop_wait_on_streams=False,
-        ).start(init_auth=False)
-        runtime.server.app_engines[owner_config.app_key()] = app_engine
+        for config in app_configs:
+            logger.info(__name__, f"Starting app={config.app_key()}...")
+            app_engine = await AppEngine(
+                app_config=config,
+                plugins=_plugins_for_app(config, app_configs),
+                enabled_groups=[],
+                stop_wait_on_streams=False,
+            ).start(init_auth=False)
+            runtime.server.app_engines[config.app_key()] = app_engine
+
+        app_engine = runtime.server.app_engines[owner_config.app_key()]
+        await _run_setup_events(app_engine)
+        for plugin in owner_config.plugins:
+            plugin_engine = runtime.server.app_engines[plugin.app_key()]
+            await _run_setup_events(
+                app_engine, plugin_engine=plugin_engine, plug_mode=EventPlugMode.ON_APP
+            )
         event_info = app_engine.effective_events[event_name]
 
-        if event_info.type in (EventType.STREAM, EventType.SERVICE):
-            if event_info.type == EventType.STREAM:
-                if payload is not None:
+        if event_info.type in (EventType.GET, EventType.POST):
+            if event_info.write_stream is not None:
+                if not start_streams:
                     logger.warning(
                         __name__,
-                        "STREAM events consume from streams; payload was provided and will be ignored.",
+                        "Event '%s' writes to stream; use --start-streams to enable stream consumers.",
+                        event_name,
                     )
-                    return None
-                return await app_engine.consume_stream(
+                    raise NotImplementedError(
+                        f"Stream-related events require --start-streams: {event_name}"
+                    )
+                background_tasks = _start_related_streams(
+                    app_engine=app_engine,
                     event_name=event_name,
-                    max_events=max_events,
                 )
-            return await app_engine.service_loop(event_name=event_name)
-
-        if start_streams or _has_shuffle_stages(app_engine, event_name):
-            background_tasks = _start_related_streams(
+                await _wait_streams_ready(
+                    background_tasks, server_config.streams.delay_auto_start_seconds
+                )
+            return await _execute_event(
                 app_engine=app_engine,
                 event_name=event_name,
-            )
-            await _wait_streams_ready(
-                background_tasks, server_config.streams.delay_auto_start_seconds
+                event_info=event_info,
+                payload=payload,
             )
 
-        return await _execute_event(
-            app_engine=app_engine,
-            event_name=event_name,
-            event_info=event_info,
-            payload=payload,
-        )
+        if event_info.type == EventType.STREAM:
+            if event_info.read_stream is None:
+                if event_info.write_stream is not None:
+                    logger.info(
+                        __name__,
+                        "STREAM event has no read_stream; producing only to %s.",
+                        event_info.write_stream.name,
+                    )
+                return await _execute_event(
+                    app_engine=app_engine,
+                    event_name=event_name,
+                    event_info=event_info,
+                    payload=payload,
+                )
+            if not start_streams:
+                logger.warning(
+                    __name__,
+                    "STREAM events require --start-streams: %s",
+                    event_name,
+                )
+                raise NotImplementedError(f"STREAM events require --start-streams: {event_name}")
+            if payload is not None:
+                logger.warning(
+                    __name__,
+                    "STREAM events consume from streams; payload was provided and will be ignored.",
+                )
+                return None
+            return await app_engine.consume_stream(
+                event_name=event_name,
+                max_events=max_events,
+            )
+
+        if event_info.type not in (EventType.GET, EventType.POST, EventType.STREAM):
+            logger.warning(
+                __name__,
+                "Event type %s is not supported by job runner: %s",
+                event_info.type,
+                event_name,
+            )
+            raise NotImplementedError(f"Unsupported event type for job runner: {event_info.type}")
+
+        raise NotImplementedError(f"Unsupported event type: {event_info.type}")
+
     except Exception as e:  # pylint: disable=broad-except
         logger.error(__name__, e)
         raise
@@ -302,7 +359,7 @@ async def _wait_streams_ready(
     if pending:
         logger.warning(
             __name__,
-            "Some stream/service events not running yet: %s",
+            "Some stream events not running yet: %s",
             [name for _, name in pending],
         )
 
@@ -327,31 +384,41 @@ def _start_related_streams(
     *,
     app_engine: AppEngine,
     event_name: str,
+    include_self: bool = True,
 ) -> List[Tuple[AppEngine, str, asyncio.Task]]:
     """
-    Starts only stream/service events required to process the given event output,
-    following stream chains (including SHUFFLE/spawn stages).
+    Starts only stream events required to process the first stream output produced
+    by the given event (including SHUFFLE/spawn first stage).
     """
     targets: List[Tuple[AppEngine, str]] = []
-    pending_streams: List[str] = []
-    seen_streams = set()
+    base_event_name, _ = event_and_step(event_name)
 
     event_info = app_engine.effective_events[event_name]
-    if event_info.type in (EventType.STREAM, EventType.SERVICE):
+    if include_self and event_info.type == EventType.STREAM:
         targets.append((app_engine, event_name))
-    if event_info.write_stream is not None:
-        pending_streams.append(event_info.write_stream.name)
-
-    while pending_streams:
-        stream_name = pending_streams.pop(0)
-        if stream_name in seen_streams:
-            continue
-        seen_streams.add(stream_name)
-        for evt_name, evt_info in app_engine.effective_events.items():
-            if evt_info.read_stream and evt_info.read_stream.name == stream_name:
-                targets.append((app_engine, evt_name))
-                if evt_info.write_stream is not None:
-                    pending_streams.append(evt_info.write_stream.name)
+    stream_names = [event_info.write_stream.name] if event_info.write_stream is not None else []
+    if stream_names:
+        logger.info(
+            __name__,
+            "Starting first-hop stream consumers for write_stream=%s",
+            stream_names[0],
+        )
+    for evt_name, evt_info in app_engine.effective_events.items():
+        evt_base, stage = event_and_step(evt_name)
+        if (
+            stage is not None
+            and evt_base == base_event_name
+            and evt_info.read_stream
+            and evt_info.read_stream.name in stream_names
+        ):
+            if evt_info.type == EventType.SERVICE:
+                logger.warning(
+                    __name__,
+                    "SERVICE event skipped while resolving SHUFFLE streams: %s",
+                    evt_name,
+                )
+                continue
+            targets.append((app_engine, evt_name))
 
     unique: List[Tuple[AppEngine, str]] = []
     seen_events = set()
@@ -372,28 +439,60 @@ def _start_related_streams(
                     asyncio.create_task(app_engine.read_stream(event_name=evt_name)),
                 )
             )
-        elif evt_info.type == EventType.SERVICE:
-            tasks.append(
-                (
-                    app_engine,
-                    evt_name,
-                    asyncio.create_task(app_engine.service_loop(event_name=evt_name)),
-                )
-            )
     return tasks
 
 
-def _has_shuffle_stages(app_engine: AppEngine, event_name: str) -> bool:
-    for evt_name in app_engine.effective_events.keys():
-        base_event, stage = event_and_step(evt_name)
-        if base_event == event_name and stage is not None:
-            return True
-    return False
+async def _execute_setup_event(
+    app_engine: AppEngine,
+    event_name: str,
+    plugin_engine: Optional[AppEngine] = None,
+) -> None:
+    event_settings = get_event_settings(app_engine.settings, event_name)
+    context = EventContext(
+        app_config=app_engine.app_config,
+        plugin_config=app_engine.app_config if plugin_engine is None else plugin_engine.app_config,
+        event_name=event_name,
+        settings=event_settings,
+        track_ids=_job_track_ids(app_engine.app_config, event_name),
+        auth_info={},
+    )
+    logger.start(context)
+    if plugin_engine is None:
+        await app_engine.execute(context=context, query_args=None, payload=None)
+    else:
+        await plugin_engine.execute(context=context, query_args=None, payload=None)
+    logger.done(context, extra=metrics(context))
+
+
+async def _run_setup_events(
+    app_engine: AppEngine,
+    *,
+    plugin_engine: Optional[AppEngine] = None,
+    plug_mode: Optional[EventPlugMode] = None,
+) -> None:
+    engine = plugin_engine or app_engine
+    for event_name, event_info in engine.effective_events.items():
+        if event_info.type != EventType.SETUP:
+            continue
+        if plug_mode and event_info.plug_mode != plug_mode:
+            continue
+        await _execute_setup_event(app_engine, event_name, plugin_engine=plugin_engine)
+
+
+def _job_track_ids(app_config: AppConfig, event_name: str) -> dict:
+    now = datetime.now(tz=timezone.utc).isoformat()
+    return {
+        "track.operation_id": str(uuid.uuid4()),
+        "track.request_id": str(uuid.uuid4()),
+        "track.request_ts": now,
+        "track.client_app_key": app_config.app_key(),
+        "track.client_event_name": event_name,
+    }
 
 
 if __name__ == "__main__":
     sys_args = parse_args(sys.argv[1:])
-    asyncio.run(
+    result = asyncio.run(
         run_job(
             config_files=sys_args.config_files,
             event_name=sys_args.event_name,
@@ -402,3 +501,5 @@ if __name__ == "__main__":
             max_events=sys_args.max_events,
         )
     )
+    if result is not None:
+        print(Payload.to_json(result))

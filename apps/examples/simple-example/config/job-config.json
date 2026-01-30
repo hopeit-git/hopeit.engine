@@ -1,0 +1,81 @@
+{
+  "app": {
+    "name": "job-example",
+    "version": "${HOPEIT_APPS_API_VERSION}"
+  },
+  "plugins": [],
+  "engine": {
+    "import_modules": [
+      "simple_example"
+    ],
+    "read_stream_timeout": 1000,
+    "read_stream_interval": 1000,
+    "track_headers": [
+      "caller",
+      "session_id"
+    ],
+    "cors_origin": "*"
+  },
+  "env": {
+    "storage": {
+      "base_path": "/tmp/hopeit/"
+    }
+  },
+  "settings": {
+    "fs_storage": {
+      "path": "{env.storage.base_path}/{auto}",
+      "partition_dateformat": "%Y/%m/%d/%H/"
+    },
+    "streams.something_event": {
+      "logging": {
+        "extra_fields": [
+          "something_id"
+        ]
+      }
+    },
+    "streams.process_events": {
+      "logging": {
+        "stream_fields": [
+          "name",
+          "msg_id",
+          "consumer_group",
+          "event_id",
+          "event_ts",
+          "submit_ts",
+          "read_ts"
+        ],
+        "extra_fields": [
+          "something_id"
+        ]
+      }
+    }
+  },
+  "events": {
+    "setup_something": {
+      "type": "SETUP"
+    },
+    "streams.something_event": {
+      "type": "POST",
+      "write_stream": {
+        "name": "{auto}",
+        "queues": [
+          "high-prio"
+        ]
+      }
+    },
+    "streams.process_events": {
+      "type": "STREAM",
+      "read_stream": {
+        "name": "{events.streams.something_event.write_stream.name}",
+        "consumer_group": "{auto}",
+        "queues": [
+          "high-prio",
+          "AUTO"
+        ]
+      },
+      "setting_keys": [
+        "fs_storage"
+      ]
+    }
+  }
+}
