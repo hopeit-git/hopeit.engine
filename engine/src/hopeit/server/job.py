@@ -99,7 +99,7 @@ def parse_args(args) -> ParsedArgs:
     --event-name: event name to execute
     --payload: json string payload, optionally use @file or @- for stdin
     --input-file: read payload from file (same as --payload=@file)
-    --start-streams: enable stream-related execution (STREAM events / SHUFFLE chains)
+    --start-streams: enable STREAM consumption
     --max-events: limit number of consumed events for STREAM runs
     --track: extra track ids (repeatable), format key=value (key can omit 'track.' prefix)
     """
@@ -279,7 +279,6 @@ async def run_job(
     owner_config = _select_app_config(app_configs, event_name)
 
     await runtime.server.start(config=server_config)
-    background_tasks: List[Tuple[AppEngine, str, asyncio.Task]] = []
     try:
         for config in app_configs:
             logger.info(__name__, f"Starting app={config.app_key()}...")
@@ -305,23 +304,6 @@ async def run_job(
         event_info = app_engine.effective_events[event_name]
 
         if event_info.type in (EventType.GET, EventType.POST):
-            if event_info.write_stream is not None:
-                if not start_streams:
-                    logger.warning(
-                        __name__,
-                        "Event '%s' writes to stream; use --start-streams to enable stream consumers.",
-                        event_name,
-                    )
-                    raise NotImplementedError(
-                        f"Stream-related events require --start-streams: {event_name}"
-                    )
-                background_tasks = _start_related_streams(
-                    app_engine=app_engine,
-                    event_name=event_name,
-                )
-                await _wait_streams_ready(
-                    background_tasks, server_config.streams.delay_auto_start_seconds
-                )
             return await _execute_event(
                 app_engine=app_engine,
                 event_name=event_name,
@@ -385,108 +367,8 @@ async def run_job(
         logger.error(__name__, e)
         raise
     finally:
-        if background_tasks:
-            await _stop_background_tasks(background_tasks)
         await runtime.server.stop()
 
-
-async def _wait_streams_ready(
-    tasks: List[Tuple[AppEngine, str, asyncio.Task]],
-    delay_auto_start_seconds: int,
-) -> None:
-    if not tasks:
-        return
-    timeout = max(1.0, float(delay_auto_start_seconds) + 2.0)
-    loop = asyncio.get_event_loop()
-    end_ts = loop.time() + timeout
-    pending = {(app_engine, name) for app_engine, name, _ in tasks}
-    while pending and loop.time() < end_ts:
-        pending = {(ae, name) for ae, name, _ in tasks if not ae.is_running(name)}
-        await asyncio.sleep(0.05)
-    if pending:
-        logger.warning(
-            __name__,
-            "Some stream events not running yet: %s",
-            [name for _, name in pending],
-        )
-
-
-async def _stop_background_tasks(
-    tasks: List[Tuple[AppEngine, str, asyncio.Task]],
-) -> None:
-    for app_engine, event_name, _ in tasks:
-        if app_engine.is_running(event_name):
-            await app_engine.stop_event(event_name)
-    try:
-        await asyncio.wait_for(
-            asyncio.gather(*(task for _, _, task in tasks), return_exceptions=True),
-            timeout=5.0,
-        )
-    except asyncio.TimeoutError:
-        for _, _, task in tasks:
-            task.cancel()
-
-
-def _start_related_streams(
-    *,
-    app_engine: AppEngine,
-    event_name: str,
-    include_self: bool = True,
-) -> List[Tuple[AppEngine, str, asyncio.Task]]:
-    """
-    Starts only stream events required to process the first stream output produced
-    by the given event (including SHUFFLE/spawn first stage).
-    """
-    targets: List[Tuple[AppEngine, str]] = []
-    base_event_name, _ = event_and_step(event_name)
-
-    event_info = app_engine.effective_events[event_name]
-    if include_self and event_info.type == EventType.STREAM:
-        targets.append((app_engine, event_name))
-    stream_names = [event_info.write_stream.name] if event_info.write_stream is not None else []
-    if stream_names:
-        logger.info(
-            __name__,
-            "Starting first-hop stream consumers for write_stream=%s",
-            stream_names[0],
-        )
-    for evt_name, evt_info in app_engine.effective_events.items():
-        evt_base, stage = event_and_step(evt_name)
-        if (
-            stage is not None
-            and evt_base == base_event_name
-            and evt_info.read_stream
-            and evt_info.read_stream.name in stream_names
-        ):
-            if evt_info.type == EventType.SERVICE:
-                logger.warning(
-                    __name__,
-                    "SERVICE event skipped while resolving SHUFFLE streams: %s",
-                    evt_name,
-                )
-                continue
-            targets.append((app_engine, evt_name))
-
-    unique: List[Tuple[AppEngine, str]] = []
-    seen_events = set()
-    for app_engine, evt_name in targets:
-        key = (app_engine.app_key, evt_name)
-        if key not in seen_events:
-            unique.append((app_engine, evt_name))
-            seen_events.add(key)
-
-    tasks: List[Tuple[AppEngine, str, asyncio.Task]] = []
-    for app_engine, evt_name in unique:
-        evt_info = app_engine.effective_events[evt_name]
-        if evt_info.type == EventType.STREAM and evt_info.read_stream is not None:
-            tasks.append(
-                (
-                    app_engine,
-                    evt_name,
-                    asyncio.create_task(app_engine.read_stream(event_name=evt_name)),
-                )
-            )
-    return tasks
 
 
 async def _execute_setup_event(

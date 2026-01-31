@@ -27,8 +27,8 @@ ______________
 
     - SETUP events are executed before the requested event.
 
-    - GET/POST jobs that write to streams require `--start-streams`. Only the first-hop
-      SHUFFLE stage of the same event is started (if present).
+    - Jobs never auto-start stream consumers. GET/POST runs that write to streams will
+      not start any readers.
 
     - Consume a STREAM event until empty or just one:
       `hopeit_job --config-files=server.json,app.json --event-name=streams.my_event --start-streams`

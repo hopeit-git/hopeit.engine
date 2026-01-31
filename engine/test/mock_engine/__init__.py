@@ -237,7 +237,6 @@ class MockServer(Server):
         self,
         app_config: AppConfig,
         enabled_groups: List[str],
-        init_auth: bool = True,
     ):
         self.app = MockAppEngine(
             app_config=app_config,

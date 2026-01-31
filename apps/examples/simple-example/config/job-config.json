@@ -48,6 +48,13 @@
           "something_id"
         ]
       }
+    },
+    "shuffle.spawn_event": {
+      "logging": {
+        "extra_fields": [
+          "something_id"
+        ]
+      }
     }
   },
   "events": {
@@ -72,6 +79,15 @@
           "high-prio",
           "AUTO"
         ]
+      },
+      "setting_keys": [
+        "fs_storage"
+      ]
+    },
+    "shuffle.spawn_event": {
+      "type": "POST",
+      "write_stream": {
+        "name": "{events.streams.something_event.write_stream.name}"
       },
       "setting_keys": [
         "fs_storage"
