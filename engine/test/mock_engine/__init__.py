@@ -26,6 +26,7 @@ class MockAppEngine(AppEngine):
         app_config: AppConfig,
         plugins: List[AppConfig],
         enabled_groups: List[str],
+        stop_wait_on_streams: bool = True,
         init_auth: bool = True,
     ):
         """

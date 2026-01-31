@@ -70,6 +70,7 @@ class AppEngine:
         :enabled_groups: List of str, list of enabled event groups
         :streams_enabled: bool, for testing, set to False to disable automatic starting streams
         :stop_wait_on_streams: bool, if True waits before closing stream manager on stop
+        :init_auth: bool, if True initialize auth subsystem during start
         """
         self.app_config = app_config
         self.app_key = app_config.app_key()
@@ -835,7 +836,6 @@ class Server:
         self,
         app_config: AppConfig,
         enabled_groups: List[str],
-        init_auth: bool = True,
     ):
         """
         Starts and register a Hopeit App into this engine instance
