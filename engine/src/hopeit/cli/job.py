@@ -42,6 +42,12 @@ engine_logger().init_cli("job")
     help="Enable STREAM consumption.",
 )
 @click.option(
+    "--in-process-shuffle",
+    is_flag=True,
+    default=False,
+    help="Execute SHUFFLE stages in-process (no stream consumers).",
+)
+@click.option(
     "--max-events",
     type=int,
     default=None,
@@ -54,6 +60,7 @@ def job(
     input_file: str,
     track: tuple[str, ...],
     start_streams: bool,
+    in_process_shuffle: bool,
     max_events: int,
 ):
     """
@@ -69,6 +76,7 @@ def job(
             start_streams=start_streams,
             max_events=max_events,
             track_ids=track_ids,
+            in_process_shuffle=in_process_shuffle,
         )
     )
     if result is not None:

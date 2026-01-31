@@ -17,6 +17,7 @@ from hopeit.app.config import (
     EventDescriptor,
     EventPlugMode,
     EventSettings,
+    StreamQueue,
     EventType,
 )
 from hopeit.app.config import parse_app_config_json
@@ -45,6 +46,7 @@ ParsedArgs = namedtuple(
         "start_streams",
         "max_events",
         "track_ids",
+        "in_process_shuffle",
     ],
 )
 
@@ -102,6 +104,7 @@ def parse_args(args) -> ParsedArgs:
     --start-streams: enable STREAM consumption
     --max-events: limit number of consumed events for STREAM runs
     --track: extra track ids (repeatable), format key=value (key can omit 'track.' prefix)
+    --in-process-shuffle: execute SHUFFLE stages in-process (no stream consumers)
     """
     parser = argparse.ArgumentParser(description="hopeit job runner")
     parser.add_argument("--config-files", required=True)
@@ -111,6 +114,7 @@ def parse_args(args) -> ParsedArgs:
     parser.add_argument("--start-streams", action="store_true")
     parser.add_argument("--max-events", type=int)
     parser.add_argument("--track", action="append", default=[])
+    parser.add_argument("--in-process-shuffle", action="store_true")
 
     parsed_args = parser.parse_args(args=args)
     payload = resolve_payload(parsed_args.payload, parsed_args.input_file)
@@ -122,6 +126,7 @@ def parse_args(args) -> ParsedArgs:
         start_streams=bool(parsed_args.start_streams),
         max_events=parsed_args.max_events,
         track_ids=parse_track_ids(parsed_args.track),
+        in_process_shuffle=bool(parsed_args.in_process_shuffle),
     )
 
 
@@ -250,6 +255,133 @@ async def _execute_event(
         raise
 
 
+def _shuffle_stage_event_names(app_engine: AppEngine, event_name: str) -> List[str]:
+    base_event, _ = event_and_step(event_name)
+    stage_events: List[str] = []
+    for evt_name in app_engine.effective_events.keys():
+        evt_base, stage = event_and_step(evt_name)
+        if evt_base != base_event:
+            continue
+        if evt_name != base_event and stage is None:
+            continue
+        stage_events.append(evt_name)
+    return stage_events
+
+
+async def _execute_shuffle_in_process(
+    *,
+    app_engine: AppEngine,
+    event_name: str,
+    event_info: EventDescriptor,
+    payload: Optional[str],
+    track_ids: Optional[Dict[str, str]],
+    stage_events: List[str],
+) -> Optional[EventPayload]:
+    event_settings = get_event_settings(app_engine.settings, event_name)
+    context = _create_context(
+        app_config=app_engine.app_config,
+        event_name=event_name,
+        event_settings=event_settings,
+        track_ids=track_ids,
+    )
+    try:
+        logger.start(context)
+        datatype = find_datatype_handler(
+            app_config=app_engine.app_config,
+            event_name=event_name,
+            event_info=event_info,
+        )
+        parsed_payload, payload_raw = _parse_payload(payload, datatype)
+        preprocess_hook: PreprocessHook = PreprocessHook(
+            headers=CIMultiDictProxy(CIMultiDict()),
+            payload_raw=payload_raw,
+        )
+        result_payload = await app_engine.preprocess(
+            context=context,
+            query_args=None,
+            payload=parsed_payload,
+            request=preprocess_hook,
+        )
+        if (preprocess_hook.status is not None) and (preprocess_hook.status != 200):
+            logger.done(context, extra=metrics(context))
+            return None
+
+        assert app_engine.event_handler, "event_handler not created. Call `start()`."
+
+        last_output: Optional[EventPayload] = None
+        stage0_last_output: Optional[EventPayload] = None
+
+        async def run_stage(stage_index: int, stage_payload: Optional[EventPayload]) -> None:
+            nonlocal last_output
+            nonlocal stage0_last_output
+            stage_name = stage_events[stage_index]
+            stage_settings = get_event_settings(app_engine.settings, stage_name)
+            stage_context = _create_context(
+                app_config=app_engine.app_config,
+                event_name=stage_name,
+                event_settings=stage_settings,
+                track_ids=track_ids,
+            )
+            stage_event_info = app_engine.effective_events[stage_name]
+            if stage_index == len(stage_events) - 1:
+                batch: List[EventPayload] = []
+                assert app_engine.event_handler
+                async for output in app_engine.event_handler.handle_async_event(
+                    context=stage_context,
+                    query_args=None,
+                    payload=stage_payload,
+                ):
+                    if output is None:
+                        continue
+                    last_output = output
+                    if stage_event_info.write_stream is not None:
+                        assert app_engine.stream_manager, (
+                            "stream_manager not initialized. Call `start()`."
+                        )
+                        batch.append(output)
+                        if len(batch) >= stage_settings.stream.batch_size:
+                            await app_engine._write_stream_batch(  # pylint: disable=protected-access
+                                batch=batch,
+                                context=stage_context,
+                                event_info=stage_event_info,
+                                queue=StreamQueue.AUTO,
+                            )
+                            batch.clear()
+                if stage_event_info.write_stream is not None and batch:
+                    await app_engine._write_stream_batch(  # pylint: disable=protected-access
+                        batch=batch,
+                        context=stage_context,
+                        event_info=stage_event_info,
+                        queue=StreamQueue.AUTO,
+                    )
+                return
+            assert app_engine.event_handler
+            async for output in app_engine.event_handler.handle_async_event(
+                context=stage_context,
+                query_args=None,
+                payload=stage_payload,
+            ):
+                if output is None:
+                    continue
+                last_output = output
+                if stage_index == 0:
+                    stage0_last_output = output
+                await run_stage(stage_index + 1, output)
+
+        await run_stage(0, result_payload)
+        result = await app_engine.postprocess(
+            context=context,
+            payload=stage0_last_output,
+            response=PostprocessHook(),
+        )
+        logger.done(context, extra=metrics(context))
+        return result
+    except Exception as e:  # pylint: disable=broad-except
+        logger.error(context, e)
+        logger.failed(context, extra=metrics(context))
+        raise
+
+
 async def run_job(
     *,
     config_files: List[str],
@@ -258,6 +390,7 @@ async def run_job(
     start_streams: bool = False,
     max_events: Optional[int] = None,
     track_ids: Optional[Dict[str, str]] = None,
+    in_process_shuffle: bool = False,
 ) -> Optional[EventPayload]:
     """
     Starts engine and apps from config files and executes a single event.
@@ -304,6 +437,17 @@ async def run_job(
         event_info = app_engine.effective_events[event_name]
 
         if event_info.type in (EventType.GET, EventType.POST):
+            if in_process_shuffle:
+                stage_events = _shuffle_stage_event_names(app_engine, event_name)
+                if len(stage_events) > 1:
+                    return await _execute_shuffle_in_process(
+                        app_engine=app_engine,
+                        event_name=event_name,
+                        event_info=event_info,
+                        payload=payload,
+                        track_ids=track_ids,
+                        stage_events=stage_events,
+                    )
             return await _execute_event(
                 app_engine=app_engine,
                 event_name=event_name,
@@ -368,7 +512,6 @@ async def run_job(
         raise
     finally:
         await runtime.server.stop()
-
 
 
 async def _execute_setup_event(
@@ -443,6 +586,7 @@ if __name__ == "__main__":
             start_streams=sys_args.start_streams,
             max_events=sys_args.max_events,
             track_ids=sys_args.track_ids,
+            in_process_shuffle=sys_args.in_process_shuffle,
         )
     )
     if result is not None:

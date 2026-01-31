@@ -9,11 +9,24 @@ ______________
   - New `hopeit_job` runner to execute a single event without starting the web server,
     including payload parsing based on event input type and file/stdin payload support.
 
-  - Supported events:
+  - Supported events: GET, POST, and STREAM.
 
-    - GET, POST, and STREAM.
+  - Behavior:
 
-  - Usage notes:
+    - SETUP events run before the requested event.
+    - Streams:
+
+      - Default: jobs never auto-start stream consumers.
+      - STREAM jobs: if a payload is provided, stream consumption is skipped (payload is ignored).
+      - STREAM jobs with SHUFFLE: only the first stage runs; downstream SHUFFLE stages are not
+        consumed unless you use an in-process or external consumer strategy.
+      - GET/POST without SHUFFLE: write_stream is produced normally.
+      - GET/POST with SHUFFLE (default mode): the workflow stops after the SHUFFLE boundary
+        because no consumers are started for downstream stages.
+      - In-process SHUFFLE (`--in-process-shuffle`): stages run in-process, no consumers are started,
+        and the final stage output is still written to write_stream.
+
+  - Usage examples:
 
     - Run a POST/GET event with an inline JSON payload:
       `hopeit_job --config-files=server.json,app.json --event-name=my.event --payload='{"value": 1}'`
@@ -25,21 +38,14 @@ ______________
     - Provide custom track ids by repeating `--track`:
       `hopeit_job --config-files=server.json,app.json --event-name=my.event --track caller=cli --track session_id=abc123`
 
-    - SETUP events are executed before the requested event.
-
-    - Jobs never auto-start stream consumers. GET/POST runs that write to streams will
-      not start any readers.
-
     - Consume a STREAM event until empty or just one:
       `hopeit_job --config-files=server.json,app.json --event-name=streams.my_event --start-streams`
       `hopeit_job --config-files=server.json,app.json --event-name=streams.my_event --start-streams --max-events=1`
 
-    - STREAM jobs skip stream consumption if a payload is provided.
-
 
 - Examples:
 
-  - Added launch configuration entries that run two `simple.example` events as a use case
+  - Added launch configuration entries that run `simple.example` events as a use case
     using `hopeit_job`.
 
 Version 0.28.1
