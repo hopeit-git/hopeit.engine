@@ -7,7 +7,7 @@ import asyncio
 import click
 
 from hopeit.dataobjects.payload import Payload
-from hopeit.server.job import resolve_payload, run_job
+from hopeit.server.job import parse_track_ids, resolve_payload, run_job
 from hopeit.server.logger import engine_logger
 
 engine_logger().init_cli("job")
@@ -31,6 +31,11 @@ engine_logger().init_cli("job")
     help="Read payload from file (same as --payload=@file).",
 )
 @click.option(
+    "--track",
+    multiple=True,
+    help="Extra track ids (repeatable), format key=value (key can omit 'track.' prefix).",
+)
+@click.option(
     "--start-streams",
     is_flag=True,
     default=False,
@@ -47,6 +52,7 @@ def job(
     event_name: str,
     payload: str,
     input_file: str,
+    track: tuple[str, ...],
     start_streams: bool,
     max_events: int,
 ):
@@ -54,6 +60,7 @@ def job(
     Execute a single event as a job.
     """
     payload_str = resolve_payload(payload, input_file)
+    track_ids = parse_track_ids(list(track))
     result = asyncio.run(
         run_job(
             config_files=config_files.split(","),
@@ -61,6 +68,7 @@ def job(
             payload=payload_str,
             start_streams=start_streams,
             max_events=max_events,
+            track_ids=track_ids,
         )
     )
     if result is not None:

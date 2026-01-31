@@ -8,7 +8,7 @@ import asyncio
 import sys
 import uuid
 from datetime import datetime, timezone
-from typing import List, Optional, Tuple, Type
+from typing import Dict, List, Optional, Tuple, Type
 
 from multidict import CIMultiDict, CIMultiDictProxy
 
@@ -27,13 +27,14 @@ from hopeit.server import runtime
 from hopeit.server.config import ServerConfig, parse_server_config_json
 from hopeit.server.engine import AppEngine
 from hopeit.server.events import get_event_settings
-from hopeit.server.logger import engine_logger
+from hopeit.server.logger import engine_logger, extra_logger
 from hopeit.server.metrics import metrics
 from hopeit.server.steps import event_and_step, find_datatype_handler
 
-__all__ = ["parse_args", "resolve_payload", "run_job"]
+__all__ = ["parse_args", "parse_track_ids", "resolve_payload", "run_job"]
 
 logger = engine_logger()
+extra = extra_logger()
 
 ParsedArgs = namedtuple(
     "ParsedArgs",
@@ -43,6 +44,7 @@ ParsedArgs = namedtuple(
         "payload",
         "start_streams",
         "max_events",
+        "track_ids",
     ],
 )
 
@@ -70,6 +72,26 @@ def resolve_payload(payload: Optional[str], input_file: Optional[str]) -> Option
     return payload
 
 
+def parse_track_ids(track_items: Optional[List[str]]) -> Dict[str, str]:
+    """
+    Parse --track key=value pairs into a dict, normalizing keys to 'track.*'.
+    """
+    track_ids: Dict[str, str] = {}
+    if not track_items:
+        return track_ids
+    for item in track_items:
+        if "=" not in item:
+            raise ValueError(f"Invalid track format '{item}', expected key=value.")
+        raw_key, value = item.split("=", 1)
+        key = raw_key.strip()
+        if not key:
+            raise ValueError("Track key cannot be empty.")
+        if not key.startswith("track."):
+            key = f"track.{key}"
+        track_ids[key] = value
+    return track_ids
+
+
 def parse_args(args) -> ParsedArgs:
     """
     Parse command line arguments:
@@ -79,6 +101,7 @@ def parse_args(args) -> ParsedArgs:
     --input-file: read payload from file (same as --payload=@file)
     --start-streams: enable stream-related execution (STREAM events / SHUFFLE chains)
     --max-events: limit number of consumed events for STREAM runs
+    --track: extra track ids (repeatable), format key=value (key can omit 'track.' prefix)
     """
     parser = argparse.ArgumentParser(description="hopeit job runner")
     parser.add_argument("--config-files", required=True)
@@ -87,6 +110,7 @@ def parse_args(args) -> ParsedArgs:
     parser.add_argument("--input-file")
     parser.add_argument("--start-streams", action="store_true")
     parser.add_argument("--max-events", type=int)
+    parser.add_argument("--track", action="append", default=[])
 
     parsed_args = parser.parse_args(args=args)
     payload = resolve_payload(parsed_args.payload, parsed_args.input_file)
@@ -97,6 +121,7 @@ def parse_args(args) -> ParsedArgs:
         payload=payload,
         start_streams=bool(parsed_args.start_streams),
         max_events=parsed_args.max_events,
+        track_ids=parse_track_ids(parsed_args.track),
     )
 
 
@@ -151,13 +176,14 @@ def _create_context(
     app_config: AppConfig,
     event_name: str,
     event_settings: EventSettings,
+    track_ids: Optional[Dict[str, str]] = None,
 ) -> EventContext:
     return EventContext(
         app_config=app_config,
         plugin_config=app_config,
         event_name=event_name,
         settings=event_settings,
-        track_ids=_job_track_ids(app_config, event_name),
+        track_ids=_job_track_ids(app_config, event_name, track_ids),
         auth_info={},
     )
 
@@ -180,12 +206,14 @@ async def _execute_event(
     event_name: str,
     event_info: EventDescriptor,
     payload: Optional[str],
+    track_ids: Optional[Dict[str, str]] = None,
 ) -> Optional[EventPayload]:
     event_settings = get_event_settings(app_engine.settings, event_name)
     context = _create_context(
         app_config=app_engine.app_config,
         event_name=event_name,
         event_settings=event_settings,
+        track_ids=track_ids,
     )
     try:
         logger.start(context)
@@ -229,6 +257,7 @@ async def run_job(
     payload: Optional[str] = None,
     start_streams: bool = False,
     max_events: Optional[int] = None,
+    track_ids: Optional[Dict[str, str]] = None,
 ) -> Optional[EventPayload]:
     """
     Starts engine and apps from config files and executes a single event.
@@ -240,8 +269,13 @@ async def run_job(
 
     server_config = _load_engine_config(config_files[0])
     app_configs = [_load_app_config(path) for path in config_files[1:]]
+    track_ids = track_ids or {}
     for config in app_configs:
         config.server = server_config
+        if track_ids:
+            for key in track_ids:
+                if key not in config.engine.track_headers:
+                    config.engine.track_headers.append(key)
     owner_config = _select_app_config(app_configs, event_name)
 
     await runtime.server.start(config=server_config)
@@ -254,15 +288,19 @@ async def run_job(
                 plugins=_plugins_for_app(config, app_configs),
                 enabled_groups=[],
                 stop_wait_on_streams=False,
-            ).start(init_auth=False)
+                init_auth=False,
+            ).start()
             runtime.server.app_engines[config.app_key()] = app_engine
 
         app_engine = runtime.server.app_engines[owner_config.app_key()]
-        await _run_setup_events(app_engine)
+        await _run_setup_events(app_engine, track_ids=track_ids)
         for plugin in owner_config.plugins:
             plugin_engine = runtime.server.app_engines[plugin.app_key()]
             await _run_setup_events(
-                app_engine, plugin_engine=plugin_engine, plug_mode=EventPlugMode.ON_APP
+                app_engine,
+                plugin_engine=plugin_engine,
+                plug_mode=EventPlugMode.ON_APP,
+                track_ids=track_ids,
             )
         event_info = app_engine.effective_events[event_name]
 
@@ -289,6 +327,7 @@ async def run_job(
                 event_name=event_name,
                 event_info=event_info,
                 payload=payload,
+                track_ids=track_ids,
             )
 
         if event_info.type == EventType.STREAM:
@@ -304,7 +343,14 @@ async def run_job(
                     event_name=event_name,
                     event_info=event_info,
                     payload=payload,
+                    track_ids=track_ids,
                 )
+            if payload is not None:
+                logger.warning(
+                    __name__,
+                    "STREAM events consume from streams; payload was provided and will be ignored.",
+                )
+                return None
             if not start_streams:
                 logger.warning(
                     __name__,
@@ -312,15 +358,16 @@ async def run_job(
                     event_name,
                 )
                 raise NotImplementedError(f"STREAM events require --start-streams: {event_name}")
-            if payload is not None:
-                logger.warning(
-                    __name__,
-                    "STREAM events consume from streams; payload was provided and will be ignored.",
-                )
-                return None
-            return await app_engine.consume_stream(
+            logger.info(
+                __name__,
+                "Consuming stream (job)...",
+                extra=extra(prefix="stream.", app_key=app_engine.app_key, event_name=event_name),
+            )
+            return await app_engine.read_stream(
                 event_name=event_name,
                 max_events=max_events,
+                stop_when_empty=True,
+                wait_start=False,
             )
 
         if event_info.type not in (EventType.GET, EventType.POST, EventType.STREAM):
@@ -446,6 +493,7 @@ async def _execute_setup_event(
     app_engine: AppEngine,
     event_name: str,
     plugin_engine: Optional[AppEngine] = None,
+    track_ids: Optional[Dict[str, str]] = None,
 ) -> None:
     event_settings = get_event_settings(app_engine.settings, event_name)
     context = EventContext(
@@ -453,7 +501,7 @@ async def _execute_setup_event(
         plugin_config=app_engine.app_config if plugin_engine is None else plugin_engine.app_config,
         event_name=event_name,
         settings=event_settings,
-        track_ids=_job_track_ids(app_engine.app_config, event_name),
+        track_ids=_job_track_ids(app_engine.app_config, event_name, track_ids),
         auth_info={},
     )
     logger.start(context)
@@ -469,6 +517,7 @@ async def _run_setup_events(
     *,
     plugin_engine: Optional[AppEngine] = None,
     plug_mode: Optional[EventPlugMode] = None,
+    track_ids: Optional[Dict[str, str]] = None,
 ) -> None:
     engine = plugin_engine or app_engine
     for event_name, event_info in engine.effective_events.items():
@@ -476,18 +525,30 @@ async def _run_setup_events(
             continue
         if plug_mode and event_info.plug_mode != plug_mode:
             continue
-        await _execute_setup_event(app_engine, event_name, plugin_engine=plugin_engine)
+        await _execute_setup_event(
+            app_engine,
+            event_name,
+            plugin_engine=plugin_engine,
+            track_ids=track_ids,
+        )
 
 
-def _job_track_ids(app_config: AppConfig, event_name: str) -> dict:
+def _job_track_ids(
+    app_config: AppConfig,
+    event_name: str,
+    extra_track_ids: Optional[Dict[str, str]] = None,
+) -> Dict[str, str]:
     now = datetime.now(tz=timezone.utc).isoformat()
-    return {
+    track_ids = {
         "track.operation_id": str(uuid.uuid4()),
         "track.request_id": str(uuid.uuid4()),
         "track.request_ts": now,
         "track.client_app_key": app_config.app_key(),
         "track.client_event_name": event_name,
     }
+    if extra_track_ids:
+        track_ids.update(extra_track_ids)
+    return track_ids
 
 
 if __name__ == "__main__":
@@ -499,6 +560,7 @@ if __name__ == "__main__":
             payload=sys_args.payload,
             start_streams=sys_args.start_streams,
             max_events=sys_args.max_events,
+            track_ids=sys_args.track_ids,
         )
     )
     if result is not None:

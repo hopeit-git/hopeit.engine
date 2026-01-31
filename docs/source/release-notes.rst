@@ -22,6 +22,9 @@ ______________
       `hopeit_job --config-files=server.json,app.json --event-name=my.event --input-file=payload.json`
       `cat payload.json | hopeit_job --config-files=server.json,app.json --event-name=my.event --input-file=-`
 
+    - Provide custom track ids by repeating `--track`:
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --track caller=cli --track session_id=abc123`
+
     - SETUP events are executed before the requested event.
 
     - GET/POST jobs that write to streams require `--start-streams`. Only the first-hop
@@ -31,8 +34,8 @@ ______________
       `hopeit_job --config-files=server.json,app.json --event-name=streams.my_event --start-streams`
       `hopeit_job --config-files=server.json,app.json --event-name=streams.my_event --start-streams --max-events=1`
 
-    - STREAM jobs with only a write stream (no read stream) run in produce-only mode and
-      do not start any consumers.
+    - STREAM jobs skip stream consumption if a payload is provided.
+
 
 - Examples:
 
