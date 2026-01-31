@@ -895,7 +895,6 @@ class Server:
         app_config: AppConfig,
         enabled_groups: List[str],
         init_auth: bool = True,
-        plugin_configs: Optional[List[AppConfig]] = None,
     ):
         """
         Starts and register a Hopeit App into this engine instance
@@ -903,19 +902,9 @@ class Server:
         :param app_config: AppConfig, app configuration as specified in config module
         """
         logger.info(__name__, f"Starting app={app_config.app_key()}...")
-        if plugin_configs is None:
-            plugins = [
-                self.app_engine(app_key=plugin.app_key()).app_config
-                for plugin in app_config.plugins
-            ]
-        else:
-            plugins_by_key = {config.app_key(): config for config in plugin_configs}
-            plugins = []
-            for plugin in app_config.plugins:
-                key = plugin.app_key()
-                if key not in plugins_by_key:
-                    raise ValueError(f"Missing plugin config for app_key={key}")
-                plugins.append(plugins_by_key[key])
+        plugins = [
+            self.app_engine(app_key=plugin.app_key()).app_config for plugin in app_config.plugins
+        ]
         app_engine = await AppEngine(
             app_config=app_config, plugins=plugins, enabled_groups=enabled_groups
         ).start(init_auth=init_auth)
