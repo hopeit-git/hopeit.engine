@@ -233,16 +233,8 @@ class MockServer(Server):
     async def stop(self):
         pass
 
-    async def start_app(
-        self,
-        app_config: AppConfig,
-        enabled_groups: List[str],
-    ):
-        self.app = MockAppEngine(
-            app_config=app_config,
-            plugins=[],
-            enabled_groups=enabled_groups,
-        )
+    async def start_app(self, app_config: AppConfig, enabled_groups: List[str]):
+        self.app = MockAppEngine(app_config=app_config, plugins=[], enabled_groups=enabled_groups)
 
     def app_engine(self, *, app_key: str) -> AppEngine:
         return self.app

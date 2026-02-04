@@ -832,11 +832,7 @@ class Server:
             await app_engine.stop()
         logger.info(__name__, "Engine stopped.")
 
-    async def start_app(
-        self,
-        app_config: AppConfig,
-        enabled_groups: List[str],
-    ):
+    async def start_app(self, app_config: AppConfig, enabled_groups: List[str]):
         """
         Starts and register a Hopeit App into this engine instance
 
