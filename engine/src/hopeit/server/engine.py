@@ -109,9 +109,8 @@ class AppEngine:
         if streams_present and self.streams_enabled:
             stream_config = self.app_config.server.streams
             mgr = StreamManager.create(stream_config)
-            await mgr.connect(stream_config)
             self.stream_manager = StreamCircuitBreaker(
-                stream_manager=mgr,
+                stream_manager=await mgr.connect(stream_config),
                 initial_backoff_seconds=stream_config.initial_backoff_seconds,
                 num_failures_open_circuit_breaker=stream_config.num_failures_open_circuit_breaker,
                 max_backoff_seconds=stream_config.max_backoff_seconds,
@@ -343,6 +342,8 @@ class AppEngine:
         log_info: Dict[str, str],
         test_mode: bool,
         last_err: Optional[StreamOSError],
+        *,
+        batch_size: int,
     ) -> Tuple[
         Optional[Union[EventPayload, Exception]],
         Optional[EventContext],
@@ -370,7 +371,7 @@ class AppEngine:
                 datatypes=datatypes,
                 track_headers=self.app_config.engine.track_headers,
                 offset=offset,
-                batch_size=event_settings.stream.batch_size,
+                batch_size=batch_size,
                 timeout=self.app_config.engine.read_stream_timeout,
                 batch_interval=self.app_config.engine.read_stream_interval,
             ):
@@ -425,10 +426,10 @@ class AppEngine:
         self,
         *,
         event_name: str,
-        test_mode: bool = False,
         max_events: Optional[int] = None,
         stop_when_empty: bool = False,
         wait_start: bool = True,
+        test_mode: bool = False,
     ) -> Optional[Union[EventPayload, Exception]]:
         """
         Listens to a stream specified by event of type STREAM, and executes
@@ -439,10 +440,10 @@ class AppEngine:
         To interrupt listening for events, call `stop_event(event_name)`
 
         :param event_name: str, an event name contained in app_config
-        :param test_mode: bool, set to True to immediately stop and return results for testing
         :param max_events: optional limit for number of events to consume
         :param stop_when_empty: bool, stop after first empty read cycle
         :param wait_start: bool, delay start using configured auto-start delay
+        :param test_mode: bool, set to True to immediately stop and return results for testing
         :return: last result or exception, only intended to be used in test_mode
         """
         assert self.app_config.server is not None
@@ -501,59 +502,31 @@ class AppEngine:
             )
             offset = ">"
             last_res, last_context, last_err = None, None, None
+            batch_size = event_settings.stream.batch_size
             while self._running[event_name].locked():
-                original_batch_size = event_settings.stream.batch_size
-                if max_events is not None:
-                    remaining = max_events - stats.total_event_count
-                    if remaining <= 0:
-                        break
-                    event_settings.stream.batch_size = min(original_batch_size, remaining)
-                    if event_settings.stream.batch_size != original_batch_size:
-                        logger.debug(
-                            __name__,
-                            "max_events active: stream batch_size effective",
-                            extra=extra(
-                                prefix="stream.",
-                                **{
-                                    **log_info,
-                                    "max_events": max_events,
-                                    "remaining": remaining,
-                                    "batch_size": event_settings.stream.batch_size,
-                                },
-                            ),
-                        )
-                try:
-                    last_res, last_context, last_err = await self._read_stream_cycle(
-                        event_name,
-                        event_settings,
-                        stream_info,
-                        datatypes,
-                        offset,
-                        stats,
-                        log_info,
-                        test_mode,
-                        last_err,
-                    )
-                finally:
-                    event_settings.stream.batch_size = original_batch_size
-                if stop_when_empty and last_context is None:
+                remaining = (max_events or 0) - stats.total_event_count
+                if max_events and remaining <= 0:
                     break
-                if max_events is not None and stats.total_event_count >= max_events:
+                last_res, last_context, last_err = await self._read_stream_cycle(
+                    event_name,
+                    event_settings,
+                    stream_info,
+                    datatypes,
+                    offset,
+                    stats,
+                    log_info,
+                    test_mode,
+                    last_err,
+                    batch_size=min(remaining, batch_size),
+                )
+                if stop_when_empty and last_context is None:
                     break
             logger.info(
                 __name__,
                 "Stopped read_stream.",
                 extra=extra(prefix="stream.", **log_info),
             )
-            if stop_when_empty:
-                if stats.total_event_count > 0:
-                    logger.info(
-                        __name__,
-                        f"Consumed events={stats.total_event_count} event_name={event_name}",
-                    )
-                else:
-                    logger.warning(__name__, f"No stream events consumed in {event_name}")
-            elif last_context is None:
+            if last_context is None or (stop_when_empty and stats.total_event_count == 0):
                 logger.warning(__name__, f"No stream events consumed in {event_name}")
             return last_res
         except (AssertionError, NotImplementedError) as e:

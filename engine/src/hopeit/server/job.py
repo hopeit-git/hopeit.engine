@@ -456,14 +456,8 @@ async def run_job(
                 track_ids=track_ids,
             )
 
-        if event_info.type == EventType.STREAM:
-            if event_info.read_stream is None:
-                if event_info.write_stream is not None:
-                    logger.info(
-                        __name__,
-                        "STREAM event has no read_stream; producing only to %s.",
-                        event_info.write_stream.name,
-                    )
+        elif event_info.type == EventType.STREAM:
+            if payload is not None:
                 return await _execute_event(
                     app_engine=app_engine,
                     event_name=event_name,
@@ -471,32 +465,32 @@ async def run_job(
                     payload=payload,
                     track_ids=track_ids,
                 )
-            if payload is not None:
-                logger.warning(
+            else:
+                if not start_streams:
+                    logger.warning(
+                        __name__,
+                        "STREAM events require --start-streams: %s",
+                        event_name,
+                    )
+                    raise NotImplementedError(
+                        f"STREAM events require --start-streams: {event_name}"
+                    )
+                logger.info(
                     __name__,
-                    "STREAM events consume from streams; payload was provided and will be ignored.",
+                    "Consuming stream (job)...",
+                    extra=extra(
+                        prefix="stream.", app_key=app_engine.app_key, event_name=event_name
+                    ),
+                )
+                await app_engine.read_stream(
+                    event_name=event_name,
+                    max_events=max_events,
+                    stop_when_empty=True,
+                    wait_start=False,
                 )
                 return None
-            if not start_streams:
-                logger.warning(
-                    __name__,
-                    "STREAM events require --start-streams: %s",
-                    event_name,
-                )
-                raise NotImplementedError(f"STREAM events require --start-streams: {event_name}")
-            logger.info(
-                __name__,
-                "Consuming stream (job)...",
-                extra=extra(prefix="stream.", app_key=app_engine.app_key, event_name=event_name),
-            )
-            return await app_engine.read_stream(
-                event_name=event_name,
-                max_events=max_events,
-                stop_when_empty=True,
-                wait_start=False,
-            )
 
-        if event_info.type not in (EventType.GET, EventType.POST, EventType.STREAM):
+        else:
             logger.warning(
                 __name__,
                 "Event type %s is not supported by job runner: %s",
@@ -504,8 +498,6 @@ async def run_job(
                 event_name,
             )
             raise NotImplementedError(f"Unsupported event type for job runner: {event_info.type}")
-
-        raise NotImplementedError(f"Unsupported event type: {event_info.type}")
 
     except Exception as e:  # pylint: disable=broad-except
         logger.error(__name__, e)
