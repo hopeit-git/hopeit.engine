@@ -66,9 +66,9 @@
             "module": "hopeit.server.job",
             "args": [
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,apps/examples/simple-example/config/job-config.json",
+                "--config-files=engine/config/dev-noauth.json,apps/examples/simple-example/config/job-config.json",
                 "--event-name=streams.something_event",
-                "--input-file=apps/examples/simple-example/resources/job-payload.json",
+                "--payload=@apps/examples/simple-example/resources/job-payload.json",
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
@@ -80,7 +80,7 @@
             "module": "hopeit.server.job",
             "args": [
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,apps/examples/simple-example/config/job-config.json",
+                "--config-files=engine/config/dev-noauth.json,apps/examples/simple-example/config/job-config.json",
                 "--event-name=streams.process_events",
                 "--max-events=2",
             ],
@@ -94,26 +94,10 @@
             "module": "hopeit.server.job",
             "args": [
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,apps/examples/simple-example/config/job-config.json",
+                "--config-files=engine/config/dev-noauth.json,apps/examples/simple-example/config/job-config.json",
                 "--event-name=shuffle.spawn_event",
-                "--input-file=apps/examples/simple-example/resources/spawn-payload.json",
-                "--track=something_id=abc123",
-                "--in-process-shuffle"
-            ],
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
-        },
-          {
-            "name": "job-example[shuffle.spawn_event]",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "hopeit.server.job",
-            "args": [
-                "--start-streams",
-                "--config-files=engine/config/dev-local.json,apps/examples/simple-example/config/job-config.json",
-                "--event-name=shuffle.spawn_event",
-                "--input-file=apps/examples/simple-example/resources/spawn-payload.json",
-                "--track=something_id=abc123",
+                "--payload=@apps/examples/simple-example/resources/spawn-payload.json",
+                "--track={\"something_id\":\"abc123\"}"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"

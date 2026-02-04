@@ -5,10 +5,11 @@ Job runner module to execute a single event without starting a web server.
 from collections import namedtuple
 import argparse
 import asyncio
+import json
 import sys
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from multidict import CIMultiDict, CIMultiDictProxy
 
@@ -17,7 +18,6 @@ from hopeit.app.config import (
     EventDescriptor,
     EventPlugMode,
     EventSettings,
-    StreamQueue,
     EventType,
 )
 from hopeit.app.config import parse_app_config_json
@@ -32,7 +32,7 @@ from hopeit.server.logger import engine_logger, extra_logger
 from hopeit.server.metrics import metrics
 from hopeit.server.steps import event_and_step, find_datatype_handler
 
-__all__ = ["parse_args", "parse_track_ids", "resolve_payload", "run_job"]
+__all__ = ["parse_args", "parse_track_ids", "parse_query_args", "resolve_payload", "run_job"]
 
 logger = engine_logger()
 extra = extra_logger()
@@ -46,7 +46,7 @@ ParsedArgs = namedtuple(
         "start_streams",
         "max_events",
         "track_ids",
-        "in_process_shuffle",
+        "query_args",
     ],
 )
 
@@ -58,14 +58,11 @@ def _read_payload_source(source: str) -> str:
         return f.read()
 
 
-def resolve_payload(payload: Optional[str], input_file: Optional[str]) -> Optional[str]:
+def resolve_payload(payload: Optional[str]) -> Optional[str]:
     """
     Returns payload string, optionally reading content from file.
     Supports curl syntax with @file or @- for stdin.
     """
-    if input_file:
-        source = input_file[1:] if input_file.startswith("@") else input_file
-        return _read_payload_source(source)
     if payload and payload.startswith("@"):
         source = payload[1:]
         if not source:
@@ -74,24 +71,50 @@ def resolve_payload(payload: Optional[str], input_file: Optional[str]) -> Option
     return payload
 
 
-def parse_track_ids(track_items: Optional[List[str]]) -> Dict[str, str]:
+def _parse_json_kv_payload(payload: Optional[str], name: str) -> Dict[str, str]:
+    if payload is None:
+        return {}
+    if not payload.strip():
+        raise ValueError(f"{name} payload is empty.")
+    try:
+        data = json.loads(payload)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid {name} JSON payload: {e}") from e
+    if not isinstance(data, dict):
+        raise ValueError(f"{name} payload must be a JSON object.")
+    parsed: Dict[str, str] = {}
+    for key, value in data.items():
+        if not isinstance(key, str) or not key.strip():
+            raise ValueError(f"{name} key cannot be empty.")
+        if value is None:
+            parsed[key] = ""
+        elif isinstance(value, (str, int, float, bool)):
+            parsed[key] = str(value)
+        else:
+            raise ValueError(
+                f"{name} value for key '{key}' must be a scalar (string, number, boolean, null)."
+            )
+    return parsed
+
+
+def parse_track_ids(track_payload: Optional[str]) -> Dict[str, str]:
     """
-    Parse --track key=value pairs into a dict, normalizing keys to 'track.*'.
+    Parse --track JSON object into a dict, normalizing keys to 'track.*'.
     """
-    track_ids: Dict[str, str] = {}
-    if not track_items:
-        return track_ids
-    for item in track_items:
-        if "=" not in item:
-            raise ValueError(f"Invalid track format '{item}', expected key=value.")
-        raw_key, value = item.split("=", 1)
-        key = raw_key.strip()
-        if not key:
-            raise ValueError("Track key cannot be empty.")
+    track_ids = _parse_json_kv_payload(track_payload, "track")
+    normalized: Dict[str, str] = {}
+    for key, value in track_ids.items():
         if not key.startswith("track."):
             key = f"track.{key}"
-        track_ids[key] = value
-    return track_ids
+        normalized[key] = value
+    return normalized
+
+
+def parse_query_args(query_payload: Optional[str]) -> Dict[str, str]:
+    """
+    Parse --query-args JSON object into a dict.
+    """
+    return _parse_json_kv_payload(query_payload, "query-args")
 
 
 def parse_args(args) -> ParsedArgs:
@@ -100,24 +123,25 @@ def parse_args(args) -> ParsedArgs:
     --config-files: comma-separated list of server, plugins and app config files
     --event-name: event name to execute
     --payload: json string payload, optionally use @file or @- for stdin
-    --input-file: read payload from file (same as --payload=@file)
     --start-streams: enable STREAM consumption
     --max-events: limit number of consumed events for STREAM runs
-    --track: extra track ids (repeatable), format key=value (key can omit 'track.' prefix)
-    --in-process-shuffle: execute SHUFFLE stages in-process (no stream consumers)
+    --track: JSON object with track ids (use @file or @- for stdin)
+    --query-args: JSON object with query args (use @file or @- for stdin)
     """
     parser = argparse.ArgumentParser(description="hopeit job runner")
     parser.add_argument("--config-files", required=True)
     parser.add_argument("--event-name", required=True)
     parser.add_argument("--payload")
-    parser.add_argument("--input-file")
     parser.add_argument("--start-streams", action="store_true")
     parser.add_argument("--max-events", type=int)
-    parser.add_argument("--track", action="append", default=[])
-    parser.add_argument("--in-process-shuffle", action="store_true")
+    parser.add_argument("--track")
+    parser.add_argument("--query-args", dest="query_args")
 
     parsed_args = parser.parse_args(args=args)
-    payload = resolve_payload(parsed_args.payload, parsed_args.input_file)
+    payload = resolve_payload(parsed_args.payload)
+
+    track_payload = resolve_payload(parsed_args.track)
+    query_payload = resolve_payload(parsed_args.query_args)
 
     return ParsedArgs(
         config_files=parsed_args.config_files.split(","),
@@ -125,8 +149,8 @@ def parse_args(args) -> ParsedArgs:
         payload=payload,
         start_streams=bool(parsed_args.start_streams),
         max_events=parsed_args.max_events,
-        track_ids=parse_track_ids(parsed_args.track),
-        in_process_shuffle=bool(parsed_args.in_process_shuffle),
+        track_ids=parse_track_ids(track_payload),
+        query_args=parse_query_args(query_payload),
     )
 
 
@@ -212,6 +236,7 @@ async def _execute_event(
     event_info: EventDescriptor,
     payload: Optional[str],
     track_ids: Optional[Dict[str, str]] = None,
+    query_args: Optional[Dict[str, Any]] = None,
 ) -> Optional[EventPayload]:
     event_settings = get_event_settings(app_engine.settings, event_name)
     context = _create_context(
@@ -236,144 +261,19 @@ async def _execute_event(
         )
         result = await app_engine.preprocess(
             context=context,
-            query_args=None,
+            query_args=query_args,
             payload=parsed_payload,
             request=preprocess_hook,
         )
         if (preprocess_hook.status is None) or (preprocess_hook.status == 200):
-            result = await app_engine.execute(context=context, query_args=None, payload=result)
+            result = await app_engine.execute(
+                context=context, query_args=query_args, payload=result
+            )
             result = await app_engine.postprocess(
                 context=context, payload=result, response=PostprocessHook()
             )
         else:
             result = None
-        logger.done(context, extra=metrics(context))
-        return result
-    except Exception as e:  # pylint: disable=broad-except
-        logger.error(context, e)
-        logger.failed(context, extra=metrics(context))
-        raise
-
-
-def _shuffle_stage_event_names(app_engine: AppEngine, event_name: str) -> List[str]:
-    base_event, _ = event_and_step(event_name)
-    stage_events: List[str] = []
-    for evt_name in app_engine.effective_events.keys():
-        evt_base, stage = event_and_step(evt_name)
-        if evt_base != base_event:
-            continue
-        if evt_name != base_event and stage is None:
-            continue
-        stage_events.append(evt_name)
-    return stage_events
-
-
-async def _execute_shuffle_in_process(
-    *,
-    app_engine: AppEngine,
-    event_name: str,
-    event_info: EventDescriptor,
-    payload: Optional[str],
-    track_ids: Optional[Dict[str, str]],
-    stage_events: List[str],
-) -> Optional[EventPayload]:
-    event_settings = get_event_settings(app_engine.settings, event_name)
-    context = _create_context(
-        app_config=app_engine.app_config,
-        event_name=event_name,
-        event_settings=event_settings,
-        track_ids=track_ids,
-    )
-    try:
-        logger.start(context)
-        datatype = find_datatype_handler(
-            app_config=app_engine.app_config,
-            event_name=event_name,
-            event_info=event_info,
-        )
-        parsed_payload, payload_raw = _parse_payload(payload, datatype)
-        preprocess_hook: PreprocessHook = PreprocessHook(
-            headers=CIMultiDictProxy(CIMultiDict()),
-            payload_raw=payload_raw,
-        )
-        result_payload = await app_engine.preprocess(
-            context=context,
-            query_args=None,
-            payload=parsed_payload,
-            request=preprocess_hook,
-        )
-        if (preprocess_hook.status is not None) and (preprocess_hook.status != 200):
-            logger.done(context, extra=metrics(context))
-            return None
-
-        assert app_engine.event_handler, "event_handler not created. Call `start()`."
-
-        last_output: Optional[EventPayload] = None
-        stage0_last_output: Optional[EventPayload] = None
-
-        async def run_stage(stage_index: int, stage_payload: Optional[EventPayload]) -> None:
-            nonlocal last_output
-            nonlocal stage0_last_output
-            stage_name = stage_events[stage_index]
-            stage_settings = get_event_settings(app_engine.settings, stage_name)
-            stage_context = _create_context(
-                app_config=app_engine.app_config,
-                event_name=stage_name,
-                event_settings=stage_settings,
-                track_ids=track_ids,
-            )
-            stage_event_info = app_engine.effective_events[stage_name]
-            if stage_index == len(stage_events) - 1:
-                batch: List[EventPayload] = []
-                assert app_engine.event_handler
-                async for output in app_engine.event_handler.handle_async_event(
-                    context=stage_context,
-                    query_args=None,
-                    payload=stage_payload,
-                ):
-                    if output is None:
-                        continue
-                    last_output = output
-                    if stage_event_info.write_stream is not None:
-                        assert app_engine.stream_manager, (
-                            "stream_manager not initialized. Call `start()`."
-                        )
-                        batch.append(output)
-                        if len(batch) >= stage_settings.stream.batch_size:
-                            await app_engine._write_stream_batch(  # pylint: disable=protected-access
-                                batch=batch,
-                                context=stage_context,
-                                event_info=stage_event_info,
-                                queue=StreamQueue.AUTO,
-                            )
-                            batch.clear()
-                if stage_event_info.write_stream is not None and batch:
-                    await app_engine._write_stream_batch(  # pylint: disable=protected-access
-                        batch=batch,
-                        context=stage_context,
-                        event_info=stage_event_info,
-                        queue=StreamQueue.AUTO,
-                    )
-                return
-            assert app_engine.event_handler
-            async for output in app_engine.event_handler.handle_async_event(
-                context=stage_context,
-                query_args=None,
-                payload=stage_payload,
-            ):
-                if output is None:
-                    continue
-                last_output = output
-                if stage_index == 0:
-                    stage0_last_output = output
-                await run_stage(stage_index + 1, output)
-
-        await run_stage(0, result_payload)
-        result = await app_engine.postprocess(
-            context=context,
-            payload=stage0_last_output,
-            response=PostprocessHook(),
-        )
         logger.done(context, extra=metrics(context))
         return result
     except Exception as e:  # pylint: disable=broad-except
@@ -390,7 +290,7 @@ async def run_job(
     start_streams: bool = False,
     max_events: Optional[int] = None,
     track_ids: Optional[Dict[str, str]] = None,
-    in_process_shuffle: bool = False,
+    query_args: Optional[Dict[str, Any]] = None,
 ) -> Optional[EventPayload]:
     """
     Starts engine and apps from config files and executes a single event.
@@ -419,8 +319,7 @@ async def run_job(
                 app_config=config,
                 plugins=_plugins_for_app(config, app_configs),
                 enabled_groups=[],
-                stop_wait_on_streams=False,
-                init_auth=False,
+                streams_wait_on_stop=False,
             ).start()
             runtime.server.app_engines[config.app_key()] = app_engine
 
@@ -437,23 +336,13 @@ async def run_job(
         event_info = app_engine.effective_events[event_name]
 
         if event_info.type in (EventType.GET, EventType.POST):
-            if in_process_shuffle:
-                stage_events = _shuffle_stage_event_names(app_engine, event_name)
-                if len(stage_events) > 1:
-                    return await _execute_shuffle_in_process(
-                        app_engine=app_engine,
-                        event_name=event_name,
-                        event_info=event_info,
-                        payload=payload,
-                        track_ids=track_ids,
-                        stage_events=stage_events,
-                    )
             return await _execute_event(
                 app_engine=app_engine,
                 event_name=event_name,
                 event_info=event_info,
                 payload=payload,
                 track_ids=track_ids,
+                query_args=query_args,
             )
 
         elif event_info.type == EventType.STREAM:
@@ -578,7 +467,7 @@ if __name__ == "__main__":
             start_streams=sys_args.start_streams,
             max_events=sys_args.max_events,
             track_ids=sys_args.track_ids,
-            in_process_shuffle=sys_args.in_process_shuffle,
+            query_args=sys_args.query_args,
         )
     )
     if result is not None:

@@ -26,8 +26,7 @@ class MockAppEngine(AppEngine):
         app_config: AppConfig,
         plugins: List[AppConfig],
         enabled_groups: List[str],
-        stop_wait_on_streams: bool = True,
-        init_auth: bool = True,
+        streams_wait_on_stop: bool = True,
     ):
         """
         Creates an instance of the AppEngine
@@ -37,7 +36,6 @@ class MockAppEngine(AppEngine):
         self.effective_events = self._config_effective_events(app_config, enabled_groups)
         self.app_config = app_config
         self.plugins = plugins
-        self.init_auth = init_auth
 
     async def start(self):
         self.stream_manager = MockStreamManager(address="mock")

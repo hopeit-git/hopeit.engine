@@ -59,8 +59,7 @@ class AppEngine:
         plugins: List[AppConfig],
         enabled_groups: List[str],
         streams_enabled: bool = True,
-        stop_wait_on_streams: bool = True,
-        init_auth: bool = True,
+        streams_wait_on_stop: bool = True,
     ):
         """
         Creates an instance of the AppEngine
@@ -69,8 +68,7 @@ class AppEngine:
         :param plugins: List of AppConfig, Hopeit application configurations for enabled plugins
         :enabled_groups: List of str, list of enabled event groups
         :streams_enabled: bool, for testing, set to False to disable automatic starting streams
-        :stop_wait_on_streams: bool, if True waits before closing stream manager on stop
-        :init_auth: bool, if True initialize auth subsystem during start
+        :streams_wait_on_stop: bool, if True waits before closing stream manager on stop
         """
         self.app_config = app_config
         self.app_key = app_config.app_key()
@@ -79,8 +77,7 @@ class AppEngine:
         self.settings = get_runtime_settings(app_config, plugins)
         self.event_handler: Optional[EventHandler] = None
         self.streams_enabled = streams_enabled
-        self.stop_wait_on_streams = stop_wait_on_streams
-        self.init_auth = init_auth
+        self.streams_wait_on_stop = streams_wait_on_stop
         self.stream_manager: Optional[StreamManager] = None
         self._running: Dict[str, asyncio.Lock] = {
             event_name: asyncio.Lock()
@@ -115,8 +112,7 @@ class AppEngine:
                 num_failures_open_circuit_breaker=stream_config.num_failures_open_circuit_breaker,
                 max_backoff_seconds=stream_config.max_backoff_seconds,
             )
-        if self.init_auth:
-            auth.init(self.app_key, self.app_config.server.auth)
+        auth.init(self.app_key, self.app_config.server.auth)
         await register_app_connections(self.app_config)
         return self
 
@@ -129,7 +125,7 @@ class AppEngine:
             if running.locked():
                 await self.stop_event(event_name)
         if self.stream_manager:
-            if self.stop_wait_on_streams:
+            if self.streams_wait_on_stop:
                 await asyncio.sleep((self.app_config.engine.read_stream_timeout + 5000) / 1000)
             await self.stream_manager.close()
         await stop_app_connections(self.app_key)

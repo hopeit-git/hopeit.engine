@@ -19,24 +19,28 @@ ______________
       - Default: jobs never auto-start stream consumers.
       - STREAM jobs: if a payload is provided, stream consumption is skipped (payload is ignored).
       - STREAM jobs with SHUFFLE: only the first stage runs; downstream SHUFFLE stages are not
-        consumed unless you use an in-process or external consumer strategy.
+        consumed unless you use an external consumer strategy.
       - GET/POST without SHUFFLE: write_stream is produced normally.
       - GET/POST with SHUFFLE (default mode): the workflow stops after the SHUFFLE boundary
         because no consumers are started for downstream stages.
-      - In-process SHUFFLE (`--in-process-shuffle`): stages run in-process, no consumers are started,
-        and the final stage output is still written to write_stream.
 
   - Usage examples:
+
+    - `--payload`, `--track`, and `--query-args` accept either an inline JSON string/object or `@file`/`@-` (stdin).
 
     - Run a POST/GET event with an inline JSON payload:
       `hopeit_job --config-files=server.json,app.json --event-name=my.event --payload='{"value": 1}'`
 
     - Run with payload from file or stdin:
-      `hopeit_job --config-files=server.json,app.json --event-name=my.event --input-file=payload.json`
-      `cat payload.json | hopeit_job --config-files=server.json,app.json --event-name=my.event --input-file=-`
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --payload=@payload.json`
+      `cat payload.json | hopeit_job --config-files=server.json,app.json --event-name=my.event --payload=@-`
 
-    - Provide custom track ids by repeating `--track`:
-      `hopeit_job --config-files=server.json,app.json --event-name=my.event --track caller=cli --track session_id=abc123`
+    - Provide custom track ids:
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --track='{"caller":"cli","session_id":"abc123"}'`
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --track=@track.json`      
+
+    - Provide query args:
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --query-args='{"filter":"on","limit":5}'`
 
     - Consume a STREAM event until empty or just one:
       `hopeit_job --config-files=server.json,app.json --event-name=streams.my_event --start-streams`
