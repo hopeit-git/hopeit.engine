@@ -4,7 +4,7 @@ from typing import Optional, AsyncGenerator, Dict, List, Any, Union
 
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.dataobjects import DataObject, EventPayload
-from hopeit.server.events import EventHandler
+from hopeit.server.events import EventHandler, get_runtime_settings
 from hopeit.server.engine import Server
 from hopeit.streams import StreamManager, StreamEvent, StreamOSError
 from hopeit.app.config import (
@@ -35,7 +35,11 @@ class MockAppEngine(AppEngine):
         """
         self.effective_events = self._config_effective_events(app_config, enabled_groups)
         self.app_config = app_config
+        self.app_key = app_config.app_key()
         self.plugins = plugins
+        self.settings = get_runtime_settings(app_config, plugins)
+        self.streams_wait_on_stop = streams_wait_on_stop
+        self.read_stream_calls: List[Dict[str, Any]] = []
 
     async def start(self):
         self.stream_manager = MockStreamManager(address="mock")
@@ -47,6 +51,25 @@ class MockAppEngine(AppEngine):
 
     async def stop(self):
         await self.stream_manager.close()
+
+    async def read_stream(
+        self,
+        *,
+        event_name: str,
+        max_events: Optional[int] = None,
+        stop_when_empty: bool = False,
+        wait_start: bool = True,
+        test_mode: bool = False,
+    ) -> None:
+        self.read_stream_calls.append(
+            {
+                "event_name": event_name,
+                "max_events": max_events,
+                "stop_when_empty": stop_when_empty,
+                "wait_start": wait_start,
+                "test_mode": test_mode,
+            }
+        )
 
 
 class MockEventHandler(EventHandler):
