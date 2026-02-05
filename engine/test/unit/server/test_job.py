@@ -12,32 +12,15 @@ from hopeit.dataobjects.payload import Payload
 from hopeit.server import job, engine, runtime
 from hopeit.server.config import ServerConfig
 from mock_engine import MockAppEngine  # type: ignore
+from mock_app import MockData  # type: ignore
 
 
-@dataobject
-@dataclass
-class SamplePayload:
-    value: str
-
-
-class DummyLogger:
-    def start(self, *args, **kwargs):
-        return None
-
-    def done(self, *args, **kwargs):
-        return None
-
-    def failed(self, *args, **kwargs):
-        return None
-
-    def error(self, *args, **kwargs):
-        return None
-
-    def info(self, *args, **kwargs):
-        return None
-
-    def warning(self, *args, **kwargs):
-        return None
+def _init_job_logger(app_config: AppConfig) -> None:
+    if app_config.server is None:
+        app_config.server = ServerConfig()
+    app_config.server.logging.console_only = True
+    app_config.server.logging.log_level = "CRITICAL"
+    job.logger.init_app(app_config, [])
 
 
 def _make_runtime_server(monkeypatch) -> Tuple[engine.Server, AsyncMock, AsyncMock]:
@@ -229,9 +212,9 @@ def test_plugins_for_app_missing_plugin_raises():
 
 
 def test_parse_payload_variants():
-    payload = Payload.to_json(SamplePayload("hello"))
-    parsed, raw = job._parse_payload(payload, SamplePayload)
-    assert parsed == SamplePayload("hello")
+    payload = Payload.to_json(MockData("hello"))
+    parsed, raw = job._parse_payload(payload, MockData)
+    assert parsed == MockData("hello")
     assert raw == payload.encode()
 
     parsed, raw = job._parse_payload(payload, None)
@@ -271,9 +254,9 @@ async def test_execute_event_runs_preprocess_execute_postprocess(monkeypatch):
     )
     app_engine, preprocess_calls, execute_calls, postprocess_calls = _make_event_engine(app_config)
 
-    monkeypatch.setattr(job, "logger", DummyLogger())
-    monkeypatch.setattr(job, "find_datatype_handler", lambda **_: SamplePayload)
-    payload = Payload.to_json(SamplePayload("hello"))
+    _init_job_logger(app_config)
+    monkeypatch.setattr(job, "find_datatype_handler", lambda **_: MockData)
+    payload = Payload.to_json(MockData("hello"))
 
     result = await job._execute_event(
         app_engine=app_engine,
@@ -284,11 +267,11 @@ async def test_execute_event_runs_preprocess_execute_postprocess(monkeypatch):
         query_args={"limit": "1"},
     )
 
-    assert result == SamplePayload("hello")
+    assert result == MockData("hello")
     assert len(preprocess_calls) == 1
     context, query_args, parsed_payload, request = preprocess_calls[0]
     assert query_args == {"limit": "1"}
-    assert parsed_payload == SamplePayload("hello")
+    assert parsed_payload == MockData("hello")
     assert "track.request_id" in context.track_ids
     assert "track.request_ts" in context.track_ids
     assert len(execute_calls) == 1
@@ -314,7 +297,7 @@ async def test_execute_event_respects_preprocess_status(monkeypatch):
         execute=AsyncMock(side_effect=AssertionError("execute should not be called")),
         postprocess=AsyncMock(side_effect=AssertionError("postprocess should not be called")),
     )
-    monkeypatch.setattr(job, "logger", DummyLogger())
+    _init_job_logger(app_config)
     monkeypatch.setattr(job, "find_datatype_handler", lambda **_: None)
 
     result = await job._execute_event(
