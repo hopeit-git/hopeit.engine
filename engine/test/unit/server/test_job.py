@@ -1,35 +1,23 @@
 import io
+import re
 import sys
-from types import SimpleNamespace
-from typing import Any, Dict, Optional, List, Tuple
-from unittest.mock import AsyncMock
+from typing import Any, Dict, Optional, List
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from hopeit.app.config import AppConfig, AppDescriptor, EventDescriptor, EventType
-from hopeit.dataobjects import dataclass, dataobject
+from hopeit.app.config import AppConfig
 from hopeit.dataobjects.payload import Payload
 from hopeit.server import job, engine, runtime
 from hopeit.server.config import ServerConfig
 from mock_engine import MockAppEngine  # type: ignore
-from mock_app import MockData  # type: ignore
-
-
-def _init_job_logger(app_config: AppConfig) -> None:
-    if app_config.server is None:
-        app_config.server = ServerConfig()
-    app_config.server.logging.console_only = True
-    app_config.server.logging.log_level = "CRITICAL"
-    job.logger.init_app(app_config, [])
-
-
-def _make_runtime_server(monkeypatch) -> Tuple[engine.Server, AsyncMock, AsyncMock]:
-    runtime.server = engine.Server()
-    start_mock = AsyncMock(return_value=runtime.server)
-    stop_mock = AsyncMock()
-    monkeypatch.setattr(runtime.server, "start", start_mock)
-    monkeypatch.setattr(runtime.server, "stop", stop_mock)
-    return runtime.server, start_mock, stop_mock
+from mock_app import (  # type: ignore
+    MockData,
+    mock_app_config,
+    mock_api_app_config,
+    mock_client_app_config,
+)
+from mock_plugin import mock_plugin_config  # type: ignore
 
 
 def _make_event_engine(app_config: AppConfig):
@@ -49,30 +37,24 @@ def _make_event_engine(app_config: AppConfig):
         postprocess_calls.append((context, payload, response))
         return payload
 
-    app_engine = SimpleNamespace(
-        app_config=app_config,
-        settings=app_config.effective_settings,
-        preprocess=preprocess,
-        execute=execute,
-        postprocess=postprocess,
-    )
+    app_engine = MagicMock()
+    app_engine.app_config = app_config
+    app_engine.settings = app_config.effective_settings
+    app_engine.preprocess = preprocess
+    app_engine.execute = execute
+    app_engine.postprocess = postprocess
     return app_engine, preprocess_calls, execute_calls, postprocess_calls
 
 
-def _make_app_config(
-    name: str,
-    version: str,
-    events: Dict[str, EventDescriptor],
-    plugins: Optional[List[AppDescriptor]] = None,
-) -> AppConfig:
-    for event_info in events.values():
-        if event_info.impl is None:
-            event_info.impl = "mock_app.mock_event"
-    return AppConfig(
-        app=AppDescriptor(name=name, version=version),
-        events=events,
-        plugins=plugins or [],
-    ).setup()
+@pytest.fixture
+def silent_event_logger(monkeypatch):
+    def _noop(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr(job.logger, "start", _noop)
+    monkeypatch.setattr(job.logger, "done", _noop)
+    monkeypatch.setattr(job.logger, "failed", _noop)
+    monkeypatch.setattr(job.logger, "error", _noop)
 
 
 def test_resolve_payload_reads_sources(monkeypatch, tmp_path):
@@ -111,6 +93,12 @@ def test_parse_track_ids_rejects_empty_key():
         ("   ", "query-args payload is empty"),
         ("[]", "query-args payload must be a JSON object"),
         ('{"x": {"nested": 1}}', "query-args value for key 'x' must be a scalar"),
+        (
+            '["x"= {"nested": 1}}',
+            re.escape(
+                "Invalid query-args JSON payload: Expecting ',' delimiter: line 1 column 5 (char 4)"
+            ),
+        ),
     ],
 )
 def test_parse_query_args_invalid(payload, match):
@@ -155,60 +143,42 @@ def test_parse_args_reads_payload_track_and_query(tmp_path):
     assert result.query_args == {"limit": "5", "active": "True"}
 
 
-def test_select_app_config_by_event_and_step():
-    app_config = _make_app_config(
-        "app",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.GET)},
+def test_select_app_config_by_event_and_step(mock_app_config, mock_api_app_config):
+    assert (
+        job._select_app_config(
+            [mock_app_config, mock_api_app_config],
+            "mock_event$step",
+        )
+        is mock_app_config
     )
-    other_config = _make_app_config(
-        "other",
-        "1.0",
-        {"other.event": EventDescriptor(type=EventType.POST)},
-    )
-    assert job._select_app_config([app_config, other_config], "app.event$step") is app_config
+    with pytest.raises(ValueError, match="Event not found: missing_event"):
+        assert (
+            job._select_app_config(
+                [mock_app_config, mock_api_app_config],
+                "missing_event",
+            )
+            is mock_app_config
+        )
 
 
-def test_select_app_config_multiple_apps_raises():
-    config_a = _make_app_config(
-        "app-a",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.GET)},
-    )
-    config_b = _make_app_config(
-        "app-b",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.GET)},
-    )
+def test_select_app_config_multiple_apps_raises(mock_app_config, mock_client_app_config):
     with pytest.raises(ValueError, match="found in multiple apps"):
-        job._select_app_config([config_a, config_b], "app.event")
+        job._select_app_config([mock_app_config, mock_client_app_config], "mock_event")
 
 
-def test_plugins_for_app_preserves_order():
-    plugin_a = AppDescriptor("plugin-a", "1.0")
-    plugin_b = AppDescriptor("plugin-b", "1.0")
-    app_config = _make_app_config(
-        "app",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.GET)},
-        plugins=[plugin_a, plugin_b],
+def test_plugins_for_app_preserves_order(
+    mock_app_config, mock_plugin_config, mock_client_app_config
+):
+    result = job._plugins_for_app(
+        mock_app_config,
+        [mock_app_config, mock_client_app_config, mock_plugin_config],
     )
-    plugin_config_a = _make_app_config("plugin-a", "1.0", {})
-    plugin_config_b = _make_app_config("plugin-b", "1.0", {})
-
-    result = job._plugins_for_app(app_config, [app_config, plugin_config_b, plugin_config_a])
-    assert result == [plugin_config_a, plugin_config_b]
+    assert result == [mock_plugin_config]
 
 
-def test_plugins_for_app_missing_plugin_raises():
-    app_config = _make_app_config(
-        "app",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.GET)},
-        plugins=[AppDescriptor("missing", "1.0")],
-    )
+def test_plugins_for_app_missing_plugin_raises(mock_app_config):
     with pytest.raises(ValueError, match="Missing plugin config"):
-        job._plugins_for_app(app_config, [app_config])
+        job._plugins_for_app(mock_app_config, [mock_app_config])
 
 
 def test_parse_payload_variants():
@@ -226,42 +196,35 @@ def test_parse_payload_variants():
     assert raw is None
 
 
-def test_job_track_ids_includes_required_fields():
-    app_config = _make_app_config(
-        "app",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.GET)},
-    )
+def test_job_track_ids_includes_required_fields(mock_app_config):
     track_ids = job._job_track_ids(
-        app_config,
-        "app.event",
+        mock_app_config,
+        "mock_event",
         {"track.request_id": "fixed", "track.custom": "value"},
     )
 
     assert track_ids["track.request_id"] == "fixed"
     assert track_ids["track.custom"] == "value"
-    assert track_ids["track.client_app_key"] == app_config.app_key()
-    assert track_ids["track.client_event_name"] == "app.event"
+    assert track_ids["track.client_app_key"] == mock_app_config.app_key()
+    assert track_ids["track.client_event_name"] == "mock_event"
     assert "track.operation_id" in track_ids
     assert "track.request_ts" in track_ids
 
 
-async def test_execute_event_runs_preprocess_execute_postprocess(monkeypatch):
-    app_config = _make_app_config(
-        "app",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.POST)},
+async def test_execute_event_runs_preprocess_execute_postprocess(
+    monkeypatch, mock_app_config, silent_event_logger
+):
+    app_engine, preprocess_calls, execute_calls, postprocess_calls = _make_event_engine(
+        mock_app_config
     )
-    app_engine, preprocess_calls, execute_calls, postprocess_calls = _make_event_engine(app_config)
 
-    _init_job_logger(app_config)
     monkeypatch.setattr(job, "find_datatype_handler", lambda **_: MockData)
     payload = Payload.to_json(MockData("hello"))
 
     result = await job._execute_event(
         app_engine=app_engine,
-        event_name="app.event",
-        event_info=app_config.events["app.event"],
+        event_name="mock_post_event",
+        event_info=mock_app_config.events["mock_post_event"],
         payload=payload,
         track_ids={"track.foo": "bar"},
         query_args={"limit": "1"},
@@ -279,31 +242,27 @@ async def test_execute_event_runs_preprocess_execute_postprocess(monkeypatch):
     assert request.payload_raw == payload.encode()
 
 
-async def test_execute_event_respects_preprocess_status(monkeypatch):
-    app_config = _make_app_config(
-        "app",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.POST)},
-    )
-
+async def test_execute_event_respects_preprocess_status(
+    monkeypatch, mock_app_config, silent_event_logger
+):
     async def preprocess(*, context, query_args, payload, request):
         request.set_status(400)
         return payload
 
-    app_engine = SimpleNamespace(
-        app_config=app_config,
-        settings=app_config.effective_settings,
-        preprocess=preprocess,
-        execute=AsyncMock(side_effect=AssertionError("execute should not be called")),
-        postprocess=AsyncMock(side_effect=AssertionError("postprocess should not be called")),
+    app_engine = MagicMock()
+    app_engine.app_config = mock_app_config
+    app_engine.settings = mock_app_config.effective_settings
+    app_engine.preprocess = preprocess
+    app_engine.execute = AsyncMock(side_effect=AssertionError("execute should not be called"))
+    app_engine.postprocess = AsyncMock(
+        side_effect=AssertionError("postprocess should not be called")
     )
-    _init_job_logger(app_config)
     monkeypatch.setattr(job, "find_datatype_handler", lambda **_: None)
 
     result = await job._execute_event(
         app_engine=app_engine,
-        event_name="app.event",
-        event_info=app_config.events["app.event"],
+        event_name="mock_post_event",
+        event_info=mock_app_config.events["mock_post_event"],
         payload="{}",
         track_ids=None,
         query_args=None,
@@ -312,17 +271,20 @@ async def test_execute_event_respects_preprocess_status(monkeypatch):
     assert result is None
 
 
-async def test_run_job_executes_get_event(monkeypatch):
+async def test_run_job_executes_get_event(monkeypatch, mock_app_config, mock_plugin_config):
     server_config = ServerConfig()
-    app_config = _make_app_config(
-        "app",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.GET)},
-    )
 
-    runtime_server, start_mock, stop_mock = _make_runtime_server(monkeypatch)
+    runtime.server = engine.Server()
+    start_mock = AsyncMock(return_value=runtime.server)
+    stop_mock = AsyncMock()
+    monkeypatch.setattr(runtime.server, "start", start_mock)
+    monkeypatch.setattr(runtime.server, "stop", stop_mock)
     monkeypatch.setattr(job, "_load_engine_config", lambda _: server_config)
-    monkeypatch.setattr(job, "_load_app_config", lambda _: app_config)
+    monkeypatch.setattr(
+        job,
+        "_load_app_config",
+        lambda path: mock_app_config if path == "app.json" else mock_plugin_config,
+    )
     monkeypatch.setattr(job, "_run_setup_events", AsyncMock())
 
     execute_mock = AsyncMock(return_value={"ok": True})
@@ -330,8 +292,8 @@ async def test_run_job_executes_get_event(monkeypatch):
     monkeypatch.setattr(job, "AppEngine", MockAppEngine)
 
     result = await job.run_job(
-        config_files=["server.json", "app.json"],
-        event_name="app.event",
+        config_files=["server.json", "app.json", "plugin.json"],
+        event_name="mock_event",
         payload='{"hello": "world"}',
         track_ids={"track.foo": "bar"},
         query_args={"limit": "1"},
@@ -340,22 +302,27 @@ async def test_run_job_executes_get_event(monkeypatch):
     assert result == {"ok": True}
     start_mock.assert_awaited_once_with(config=server_config)
     stop_mock.assert_awaited_once()
-    assert app_config.server is server_config
-    assert "track.foo" in app_config.engine.track_headers
+    assert mock_app_config.server is server_config
+    assert "track.foo" in mock_app_config.engine.track_headers
     execute_mock.assert_awaited_once()
 
 
-async def test_run_job_stream_with_payload_executes_event(monkeypatch):
+async def test_run_job_stream_with_payload_executes_event(
+    monkeypatch, mock_app_config, mock_plugin_config
+):
     server_config = ServerConfig()
-    app_config = _make_app_config(
-        "app",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.STREAM)},
-    )
 
-    runtime_server, start_mock, stop_mock = _make_runtime_server(monkeypatch)
+    runtime.server = engine.Server()
+    start_mock = AsyncMock(return_value=runtime.server)
+    stop_mock = AsyncMock()
+    monkeypatch.setattr(runtime.server, "start", start_mock)
+    monkeypatch.setattr(runtime.server, "stop", stop_mock)
     monkeypatch.setattr(job, "_load_engine_config", lambda _: server_config)
-    monkeypatch.setattr(job, "_load_app_config", lambda _: app_config)
+    monkeypatch.setattr(
+        job,
+        "_load_app_config",
+        lambda path: mock_app_config if path == "app.json" else mock_plugin_config,
+    )
     monkeypatch.setattr(job, "_run_setup_events", AsyncMock())
 
     execute_mock = AsyncMock(return_value={"ok": True})
@@ -363,8 +330,8 @@ async def test_run_job_stream_with_payload_executes_event(monkeypatch):
     monkeypatch.setattr(job, "AppEngine", MockAppEngine)
 
     result = await job.run_job(
-        config_files=["server.json", "app.json"],
-        event_name="app.event",
+        config_files=["server.json", "app.json", "plugin.json"],
+        event_name="mock_stream_event",
         payload='{"hello": "world"}',
         track_ids=None,
         query_args={"ignored": "1"},
@@ -377,25 +344,30 @@ async def test_run_job_stream_with_payload_executes_event(monkeypatch):
     stop_mock.assert_awaited_once()
 
 
-async def test_run_job_stream_requires_start_streams(monkeypatch):
+async def test_run_job_stream_requires_start_streams(
+    monkeypatch, mock_app_config, mock_plugin_config
+):
     server_config = ServerConfig()
-    app_config = _make_app_config(
-        "app",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.STREAM)},
-    )
 
-    runtime_server, start_mock, stop_mock = _make_runtime_server(monkeypatch)
+    runtime.server = engine.Server()
+    start_mock = AsyncMock(return_value=runtime.server)
+    stop_mock = AsyncMock()
+    monkeypatch.setattr(runtime.server, "start", start_mock)
+    monkeypatch.setattr(runtime.server, "stop", stop_mock)
     monkeypatch.setattr(job, "_load_engine_config", lambda _: server_config)
-    monkeypatch.setattr(job, "_load_app_config", lambda _: app_config)
+    monkeypatch.setattr(
+        job,
+        "_load_app_config",
+        lambda path: mock_app_config if path == "app.json" else mock_plugin_config,
+    )
     monkeypatch.setattr(job, "_run_setup_events", AsyncMock())
     monkeypatch.setattr(job, "_execute_event", AsyncMock())
     monkeypatch.setattr(job, "AppEngine", MockAppEngine)
 
     with pytest.raises(NotImplementedError, match="require --start-streams"):
         await job.run_job(
-            config_files=["server.json", "app.json"],
-            event_name="app.event",
+            config_files=["server.json", "app.json", "plugin.json"],
+            event_name="mock_stream_event",
             payload=None,
             start_streams=False,
         )
@@ -403,17 +375,22 @@ async def test_run_job_stream_requires_start_streams(monkeypatch):
     stop_mock.assert_awaited_once()
 
 
-async def test_run_job_stream_reads_when_start_streams(monkeypatch):
+async def test_run_job_stream_reads_when_start_streams(
+    monkeypatch, mock_app_config, mock_plugin_config
+):
     server_config = ServerConfig()
-    app_config = _make_app_config(
-        "app",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.STREAM)},
-    )
 
-    runtime_server, start_mock, stop_mock = _make_runtime_server(monkeypatch)
+    runtime.server = engine.Server()
+    start_mock = AsyncMock(return_value=runtime.server)
+    stop_mock = AsyncMock()
+    monkeypatch.setattr(runtime.server, "start", start_mock)
+    monkeypatch.setattr(runtime.server, "stop", stop_mock)
     monkeypatch.setattr(job, "_load_engine_config", lambda _: server_config)
-    monkeypatch.setattr(job, "_load_app_config", lambda _: app_config)
+    monkeypatch.setattr(
+        job,
+        "_load_app_config",
+        lambda path: mock_app_config if path == "app.json" else mock_plugin_config,
+    )
     monkeypatch.setattr(job, "_run_setup_events", AsyncMock())
 
     execute_mock = AsyncMock()
@@ -421,8 +398,8 @@ async def test_run_job_stream_reads_when_start_streams(monkeypatch):
     monkeypatch.setattr(job, "AppEngine", MockAppEngine)
 
     result = await job.run_job(
-        config_files=["server.json", "app.json"],
-        event_name="app.event",
+        config_files=["server.json", "app.json", "plugin.json"],
+        event_name="mock_stream_event",
         payload=None,
         start_streams=True,
         max_events=3,
@@ -430,10 +407,10 @@ async def test_run_job_stream_reads_when_start_streams(monkeypatch):
 
     assert result is None
     execute_mock.assert_not_awaited()
-    app_engine = runtime_server.app_engines[app_config.app_key()]
+    app_engine = runtime.server.app_engines[mock_app_config.app_key()]
     assert app_engine.read_stream_calls == [
         {
-            "event_name": "app.event",
+            "event_name": "mock_stream_event",
             "max_events": 3,
             "stop_when_empty": True,
             "wait_start": False,
@@ -443,24 +420,27 @@ async def test_run_job_stream_reads_when_start_streams(monkeypatch):
     stop_mock.assert_awaited_once()
 
 
-async def test_run_job_unsupported_event_type(monkeypatch):
+async def test_run_job_unsupported_event_type(monkeypatch, mock_app_config, mock_plugin_config):
     server_config = ServerConfig()
-    app_config = _make_app_config(
-        "app",
-        "1.0",
-        {"app.event": EventDescriptor(type=EventType.SERVICE)},
-    )
 
-    runtime_server, start_mock, stop_mock = _make_runtime_server(monkeypatch)
+    runtime.server = engine.Server()
+    start_mock = AsyncMock(return_value=runtime.server)
+    stop_mock = AsyncMock()
+    monkeypatch.setattr(runtime.server, "start", start_mock)
+    monkeypatch.setattr(runtime.server, "stop", stop_mock)
     monkeypatch.setattr(job, "_load_engine_config", lambda _: server_config)
-    monkeypatch.setattr(job, "_load_app_config", lambda _: app_config)
+    monkeypatch.setattr(
+        job,
+        "_load_app_config",
+        lambda path: mock_app_config if path == "app.json" else mock_plugin_config,
+    )
     monkeypatch.setattr(job, "_run_setup_events", AsyncMock())
     monkeypatch.setattr(job, "AppEngine", MockAppEngine)
 
     with pytest.raises(NotImplementedError, match="Unsupported event type"):
         await job.run_job(
-            config_files=["server.json", "app.json"],
-            event_name="app.event",
+            config_files=["server.json", "app.json", "plugin.json"],
+            event_name="mock_service_event",
             payload=None,
         )
 
