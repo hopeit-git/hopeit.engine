@@ -16,13 +16,12 @@ ______________
     - SETUP events run before the requested event.
     - Streams:
 
-      - Default: jobs never auto-start stream consumers.
-      - STREAM jobs: if a payload is provided, stream consumption is skipped (payload is ignored).
-      - STREAM jobs with SHUFFLE: only the first stage runs; downstream SHUFFLE stages are not
-        consumed unless you use an external consumer strategy.
+      - Default: as a single-event job runner, `hopeit_job` does not auto-start stream consumers.
+      - SHUFFLE strategy (all event types): events are yielded to the target stream and the job
+        ends at the SHUFFLE boundary; downstream stages are not consumed because the job does
+        not start stream consumers (use an external consumer strategy if needed).
       - GET/POST without SHUFFLE: write_stream is produced normally.
-      - GET/POST with SHUFFLE (default mode): the workflow stops after the SHUFFLE boundary
-        because no consumers are started for downstream stages.
+      - STREAM jobs: if a payload is provided, stream consumption is skipped (payload is ignored).
 
   - Usage examples:
 
