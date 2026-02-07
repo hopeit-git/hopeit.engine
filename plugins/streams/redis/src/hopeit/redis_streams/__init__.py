@@ -43,7 +43,7 @@ class RedisStreamManager(StreamManager):
         self._write_pool: redis.Redis
         self._read_pool: redis.Redis
 
-    async def connect(self, config: StreamsConfig):
+    async def connect(self, config: StreamsConfig) -> StreamManager:
         """
         Connects to Redis using two connection pools, one to handle
         writing to stream and one for reading.
