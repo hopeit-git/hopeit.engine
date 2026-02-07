@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.28",
+    "version": "0.29",
     "title": "Dataframes Example",
     "description": "Dataframes Example"
   },
   "paths": {
-    "/api/basic-auth/0x28/decode": {
+    "/api/basic-auth/0x29/decode": {
       "get": {
         "summary": "Basic Auth: Decode",
         "description": "Returns decoded auth info",
@@ -44,7 +44,7 @@
           }
         },
         "tags": [
-          "basic_auth.0x28"
+          "basic_auth.0x29"
         ],
         "security": [
           {
@@ -53,7 +53,7 @@
         ]
       }
     },
-    "/api/config-manager/0x28/runtime-apps-config": {
+    "/api/config-manager/0x29/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -109,11 +109,11 @@
           }
         },
         "tags": [
-          "config_manager.0x28"
+          "config_manager.0x29"
         ]
       }
     },
-    "/api/config-manager/0x28/cluster-apps-config": {
+    "/api/config-manager/0x29/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -169,11 +169,11 @@
           }
         },
         "tags": [
-          "config_manager.0x28"
+          "config_manager.0x29"
         ]
       }
     },
-    "/api/dataframes/0x28/setup/register-database": {
+    "/api/dataframes/0x29/setup/register-database": {
       "post": {
         "summary": "Register Database",
         "description": "Register Database",
@@ -222,7 +222,7 @@
           }
         },
         "tags": [
-          "dataframes.0x28"
+          "dataframes.0x29"
         ],
         "security": [
           {
@@ -231,7 +231,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x28/prepare-data": {
+    "/api/dataframes-example/0x29/prepare-data": {
       "get": {
         "summary": "Prepare Data",
         "description": "Prepare Data",
@@ -279,7 +279,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x28"
+          "dataframes_example.0x29"
         ],
         "security": [
           {
@@ -288,7 +288,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x28/train-model": {
+    "/api/dataframes-example/0x29/train-model": {
       "post": {
         "summary": "Training Pipeline",
         "description": "Training Pipeline",
@@ -347,7 +347,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x28"
+          "dataframes_example.0x29"
         ],
         "security": [
           {
@@ -356,7 +356,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x28/predict": {
+    "/api/dataframes-example/0x29/predict": {
       "post": {
         "summary": "Predict",
         "description": "Predict",
@@ -424,7 +424,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x28"
+          "dataframes_example.0x29"
         ],
         "security": [
           {
@@ -433,7 +433,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x28/predict-offline": {
+    "/api/dataframes-example/0x29/predict-offline": {
       "post": {
         "summary": "Predict Offline",
         "description": "Predict Offline",
@@ -501,7 +501,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x28"
+          "dataframes_example.0x29"
         ],
         "security": [
           {
@@ -510,7 +510,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x28/offline-prediction-results": {
+    "/api/dataframes-example/0x29/offline-prediction-results": {
       "post": {
         "summary": "Offline Prediction Results",
         "description": "Offline Prediction Results",
@@ -572,7 +572,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x28"
+          "dataframes_example.0x29"
         ],
         "security": [
           {
@@ -581,7 +581,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x28/experiment": {
+    "/api/dataframes-example/0x29/experiment": {
       "get": {
         "summary": "Experiment",
         "description": "Experiment",
@@ -666,7 +666,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x28"
+          "dataframes_example.0x29"
         ],
         "security": [
           {
@@ -675,7 +675,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x28/basic-auth/0x28/login": {
+    "/api/dataframes-example/0x29/basic-auth/0x29/login": {
       "get": {
         "summary": "Basic Auth: Login",
         "description": "Handles users login using basic-auth\nand generate access tokens for external services invoking apps\nplugged in with basic-auth plugin.",
@@ -733,7 +733,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x28"
+          "dataframes_example.0x29"
         ],
         "security": [
           {
@@ -742,7 +742,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x28/basic-auth/0x28/refresh": {
+    "/api/dataframes-example/0x29/basic-auth/0x29/refresh": {
       "get": {
         "summary": "Basic Auth: Refresh",
         "description": "This event can be used for obtain new access token and update refresh token (http cookie),\nwith no need to re-login the user if there is a valid refresh token active.",
@@ -800,16 +800,16 @@
           }
         },
         "tags": [
-          "dataframes_example.0x28"
+          "dataframes_example.0x29"
         ],
         "security": [
           {
-            "dataframes_example.0x28.refresh": []
+            "dataframes_example.0x29.refresh": []
           }
         ]
       }
     },
-    "/api/dataframes-example/0x28/basic-auth/0x28/logout": {
+    "/api/dataframes-example/0x29/basic-auth/0x29/logout": {
       "get": {
         "summary": "Basic Auth: Logout",
         "description": "Invalidates previous refresh cookies.",
@@ -876,11 +876,11 @@
           }
         },
         "tags": [
-          "dataframes_example.0x28"
+          "dataframes_example.0x29"
         ],
         "security": [
           {
-            "dataframes_example.0x28.refresh": []
+            "dataframes_example.0x29.refresh": []
           }
         ]
       }
@@ -1477,7 +1477,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.28.1",
+            "default": "0.29.0",
             "title": "Engine Version",
             "type": "string"
           }
@@ -2140,10 +2140,10 @@
         "type": "http",
         "scheme": "bearer"
       },
-      "dataframes_example.0x28.refresh": {
+      "dataframes_example.0x29.refresh": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "dataframes_example.0x28.refresh"
+        "name": "dataframes_example.0x29.refresh"
       }
     }
   },
