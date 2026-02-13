@@ -513,7 +513,7 @@ class AppEngine:
                     log_info,
                     test_mode,
                     last_err,
-                    batch_size=min(remaining, batch_size),
+                    batch_size=min(remaining, batch_size) if max_events else batch_size,
                 )
                 if stop_when_empty and last_context is None:
                     break
