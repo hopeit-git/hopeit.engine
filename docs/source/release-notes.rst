@@ -17,11 +17,11 @@ ______________
     - Streams:
 
       - Default: as a single-event job runner, `hopeit_job` does not auto-start stream consumers.
-      - SHUFFLE strategy (all event types): events are yielded to the target stream and the job
+      - SHUFFLE strategy (all event types): events are yielded to the target stream, and the job
         ends at the SHUFFLE boundary; downstream stages are not consumed because the job does
         not start stream consumers (use an external consumer strategy if needed).
       - GET/POST without SHUFFLE: write_stream is produced normally.
-      - STREAM jobs: if a payload is provided, stream consumption is skipped (payload is ignored).
+      - STREAM jobs: if a payload is provided, stream consumption is skipped.
 
   - Usage examples:
 
