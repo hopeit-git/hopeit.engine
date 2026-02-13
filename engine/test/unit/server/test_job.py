@@ -20,7 +20,7 @@ from mock_app import (  # type: ignore
 from mock_plugin import mock_plugin_config  # type: ignore
 
 
-def _make_event_engine(app_config: AppConfig):
+def _make_app_engine(app_config: AppConfig):
     preprocess_calls: List[Any] = []
     execute_calls: List[Any] = []
     postprocess_calls: List[Any] = []
@@ -214,7 +214,7 @@ def test_job_track_ids_includes_required_fields(mock_app_config):
 async def test_execute_event_runs_preprocess_execute_postprocess(
     monkeypatch, mock_app_config, silent_event_logger
 ):
-    app_engine, preprocess_calls, execute_calls, postprocess_calls = _make_event_engine(
+    app_engine, preprocess_calls, execute_calls, postprocess_calls = _make_app_engine(
         mock_app_config
     )
 
