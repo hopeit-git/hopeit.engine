@@ -54,18 +54,19 @@ include-package-data = true
 [project.optional-dependencies]
 web = []
 cli = []
-redis-streams = ["hopeit.redis-streams==0.28.1"]
-redis-storage = ["hopeit.redis-storage==0.28.1"]
-fs-storage = ["hopeit.fs-storage==0.28.1"]
-config-manager = ["hopeit.config-manager==0.28.1"]
-log-streamer = ["hopeit.log-streamer==0.28.1"]
-apps-visualizer = ["hopeit.apps-visualizer==0.28.1"]
-apps-client = ["hopeit.apps-client==0.28.1"]
-dataframes = ["hopeit.dataframes==0.28.1"]
+redis-streams = ["hopeit.redis-streams==0.29.0"]
+redis-storage = ["hopeit.redis-storage==0.29.0"]
+fs-storage = ["hopeit.fs-storage==0.29.0"]
+config-manager = ["hopeit.config-manager==0.29.0"]
+log-streamer = ["hopeit.log-streamer==0.29.0"]
+apps-visualizer = ["hopeit.apps-visualizer==0.29.0"]
+apps-client = ["hopeit.apps-client==0.29.0"]
+dataframes = ["hopeit.dataframes==0.29.0"]
 
 [project.scripts]
 hopeit_server = "hopeit.cli.server:server"
 hopeit_openapi = "hopeit.cli.openapi:openapi"
+hopeit_job = "hopeit.cli.job:job"
 
 [tool.setuptools.dynamic]
 version = { attr = "hopeit.server.version.ENGINE_VERSION" }

@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hopeit.config-manager"
-version = "0.28.1"
+version = "0.29.0"
 
 description = "Hopeit Engine Config Manager Plugin"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.28.1", 
+    "hopeit.engine>=0.29.0", 
 ]
 
 license = "Apache-2.0"

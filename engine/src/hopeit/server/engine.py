@@ -59,6 +59,7 @@ class AppEngine:
         plugins: List[AppConfig],
         enabled_groups: List[str],
         streams_enabled: bool = True,
+        streams_wait_on_stop: bool = True,
     ):
         """
         Creates an instance of the AppEngine
@@ -67,6 +68,7 @@ class AppEngine:
         :param plugins: List of AppConfig, Hopeit application configurations for enabled plugins
         :enabled_groups: List of str, list of enabled event groups
         :streams_enabled: bool, for testing, set to False to disable automatic starting streams
+        :streams_wait_on_stop: bool, if True waits before closing stream manager on stop
         """
         self.app_config = app_config
         self.app_key = app_config.app_key()
@@ -75,6 +77,7 @@ class AppEngine:
         self.settings = get_runtime_settings(app_config, plugins)
         self.event_handler: Optional[EventHandler] = None
         self.streams_enabled = streams_enabled
+        self.streams_wait_on_stop = streams_wait_on_stop
         self.stream_manager: Optional[StreamManager] = None
         self._running: Dict[str, asyncio.Lock] = {
             event_name: asyncio.Lock()
@@ -87,6 +90,8 @@ class AppEngine:
         """
         Starts handlers, services and pools for this application
         """
+        assert self.app_config.server is not None
+
         self.event_handler = EventHandler(
             app_config=self.app_config,
             plugins=self.plugins,
@@ -120,7 +125,8 @@ class AppEngine:
             if running.locked():
                 await self.stop_event(event_name)
         if self.stream_manager:
-            await asyncio.sleep((self.app_config.engine.read_stream_timeout + 5000) / 1000)
+            if self.streams_wait_on_stop:
+                await asyncio.sleep((self.app_config.engine.read_stream_timeout + 5000) / 1000)
             await self.stream_manager.close()
         await stop_app_connections(self.app_key)
         logger.info(__name__, f"Stopped app={self.app_key}")
@@ -332,6 +338,8 @@ class AppEngine:
         log_info: Dict[str, str],
         test_mode: bool,
         last_err: Optional[StreamOSError],
+        *,
+        batch_size: int,
     ) -> Tuple[
         Optional[Union[EventPayload, Exception]],
         Optional[EventContext],
@@ -348,7 +356,6 @@ class AppEngine:
         last_res, last_context = None, None
 
         batch: List[Awaitable[Union[EventPayload, Exception]]] = []
-
         for queue in stream_info.queues:
             stream_name = stream_info.name
             if queue != StreamQueue.AUTO:
@@ -360,7 +367,7 @@ class AppEngine:
                 datatypes=datatypes,
                 track_headers=self.app_config.engine.track_headers,
                 offset=offset,
-                batch_size=event_settings.stream.batch_size,
+                batch_size=batch_size,
                 timeout=self.app_config.engine.read_stream_timeout,
                 batch_interval=self.app_config.engine.read_stream_interval,
             ):
@@ -412,7 +419,13 @@ class AppEngine:
         return last_res, last_context, last_err
 
     async def read_stream(
-        self, *, event_name: str, test_mode: bool = False
+        self,
+        *,
+        event_name: str,
+        max_events: Optional[int] = None,
+        stop_when_empty: bool = False,
+        wait_start: bool = True,
+        test_mode: bool = False,
     ) -> Optional[Union[EventPayload, Exception]]:
         """
         Listens to a stream specified by event of type STREAM, and executes
@@ -423,6 +436,9 @@ class AppEngine:
         To interrupt listening for events, call `stop_event(event_name)`
 
         :param event_name: str, an event name contained in app_config
+        :param max_events: optional limit for number of events to consume
+        :param stop_when_empty: bool, stop after first empty read cycle
+        :param wait_start: bool, delay start using configured auto-start delay
         :param test_mode: bool, set to True to immediately stop and return results for testing
         :return: last result or exception, only intended to be used in test_mode
         """
@@ -430,7 +446,7 @@ class AppEngine:
         stats = StreamStats()
         log_info = {"app_key": self.app_key, "event_name": event_name}
         wait = self.app_config.server.streams.delay_auto_start_seconds
-        if wait > 0:
+        if wait_start and wait > 0:
             wait = int(wait / 2) + random.randint(0, wait) - random.randint(0, int(wait / 2))
             logger.info(
                 __name__,
@@ -482,7 +498,11 @@ class AppEngine:
             )
             offset = ">"
             last_res, last_context, last_err = None, None, None
+            batch_size = event_settings.stream.batch_size
             while self._running[event_name].locked():
+                remaining = (max_events or 0) - stats.total_event_count
+                if max_events and remaining <= 0:
+                    break
                 last_res, last_context, last_err = await self._read_stream_cycle(
                     event_name,
                     event_settings,
@@ -493,19 +513,25 @@ class AppEngine:
                     log_info,
                     test_mode,
                     last_err,
+                    batch_size=min(remaining, batch_size) if max_events else batch_size,
                 )
+                if stop_when_empty and last_context is None:
+                    break
             logger.info(
                 __name__,
                 "Stopped read_stream.",
                 extra=extra(prefix="stream.", **log_info),
             )
-            if last_context is None:
+            if last_context is None or (stop_when_empty and stats.total_event_count == 0):
                 logger.warning(__name__, f"No stream events consumed in {event_name}")
             return last_res
         except (AssertionError, NotImplementedError) as e:
             logger.error(__name__, e)
             logger.error(__name__, f"Unexpectedly stopped read stream for event={event_name}")
             return e
+        finally:
+            if (stop_when_empty or max_events is not None) and self._running[event_name].locked():
+                self._running[event_name].release()
 
     async def _process_stream_event(
         self,

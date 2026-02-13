@@ -68,7 +68,7 @@ class StreamManager(ABC):
         )
         return impl(address=config.connection_str)
 
-    async def connect(self, config: StreamsConfig) -> None:
+    async def connect(self, config: StreamsConfig) -> "StreamManager":
         """
         Connects to streams service
         """
@@ -242,8 +242,9 @@ class StreamCircuitBreaker(StreamManager):
         self.backoff = 0.0
         self.lock = asyncio.Lock()
 
-    async def connect(self, config) -> None:
+    async def connect(self, config: StreamsConfig) -> "StreamManager":
         await self.stream_manager.connect(config)
+        return self
 
     async def close(self) -> None:
         await self.stream_manager.close()

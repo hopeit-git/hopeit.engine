@@ -1,6 +1,56 @@
 Release Notes
 =============
 
+Version 0.29.0
+______________
+
+- Engine:
+
+  - New `hopeit_job` runner to execute a single event without starting the web server,
+    including payload parsing based on event input type and file/stdin payload support.
+
+  - Supported events: GET, POST, and STREAM.
+
+  - Behavior:
+
+    - SETUP events run before the requested event.
+    - Streams:
+
+      - Default: as a single-event job runner, `hopeit_job` does not auto-start stream consumers.
+      - SHUFFLE strategy (all event types): events are yielded to the target stream, and the job
+        ends at the SHUFFLE boundary; downstream stages are not consumed because the job does
+        not start stream consumers (use an external consumer strategy if needed).
+      - GET/POST without SHUFFLE: write_stream is produced normally.
+      - STREAM jobs: if a payload is provided, stream consumption is skipped.
+
+  - Usage examples:
+
+    - `--payload`, `--track`, and `--query-args` accept either an inline JSON string/object or `@file`/`@-` (stdin).
+
+    - Run a POST/GET event with an inline JSON payload:
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --payload='{"value": 1}'`
+
+    - Run with payload from file or stdin:
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --payload=@payload.json`
+      `cat payload.json | hopeit_job --config-files=server.json,app.json --event-name=my.event --payload=@-`
+
+    - Provide custom track ids:
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --track='{"caller":"cli","session_id":"abc123"}'`
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --track=@track.json`      
+
+    - Provide query args:
+      `hopeit_job --config-files=server.json,app.json --event-name=my.event --query-args='{"filter":"on","limit":5}'`
+
+    - Consume a STREAM event until empty or just one:
+      `hopeit_job --config-files=server.json,app.json --event-name=streams.my_event --start-streams`
+      `hopeit_job --config-files=server.json,app.json --event-name=streams.my_event --start-streams --max-events=1`
+
+
+- Examples:
+
+  - Added launch configuration entries that run `simple.example` events as a use case
+    using `hopeit_job`.
+
 Version 0.28.1
 ______________
 

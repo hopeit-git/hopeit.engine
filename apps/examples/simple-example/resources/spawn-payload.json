@@ -1,0 +1,17 @@
+{
+  "id": "string",
+  "user": {
+    "id": "string",
+    "name": "string"
+  },
+  "status": {
+    "ts": "2026-02-12T00:00:00.000Z",
+    "type": "NEW"
+  },
+  "history": [
+    {
+      "ts": "2026-02-12T00:00:00.000Z",
+      "type": "NEW"
+    }
+  ]
+}

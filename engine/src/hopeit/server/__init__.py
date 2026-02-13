@@ -6,6 +6,7 @@ Modules Overview:
     * **api**: provides openapi support for endpoints defined in web module.
     * **web**: provides /api endpoints creation for GET and POST events, and provides
       /mgmt endpoints for STREAM and SERVICE events
+    * **job**: executes a single event without starting a web server
     * **engine**: provides App initialization and containers
     * **events**: provides handlers for execution of App Events
     * **streams**: provides read-write support for Redis Streams
@@ -23,6 +24,7 @@ __all__ = [
     "engine",
     "errors",
     "events",
+    "job",
     "imports",
     "logger",
     "metrics",
