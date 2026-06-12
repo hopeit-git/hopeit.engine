@@ -2322,7 +2322,7 @@
         "type": "string"
       },
       "StreamsConfig": {
-        "description": "Configuration class for stream connection settings.\n\n:stream_manager: str: Stream manager class name. Default is \"hopeit.streams.NoStreamManager\".\n:field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally\n:field username: SecretStr: Username for authentication. Default is an empty secret string.\n:field password: SecretStr: Password for authentication. Default is an empty secret string.\n:field delay_auto_start_seconds: int: Delay in seconds before auto-starting the stream.\n    Default is 3 seconds.\n:field initial_backoff_seconds: float: Initial backoff time in seconds for connection retries.\n    Default is 1.0 second.\n:field max_backoff_seconds: float: Maximum backoff time in seconds for connection retries.\n    Default is 60.0 seconds.\n:field num_failures_open_circuit_breaker: int: Number of failures before opening the circuit breaker.\n    Default is 1.\n\nNote:\n    hopeit.engine provides `hopeit.redis_streams.RedisStreamManager` as the default plugin for stream management.",
+        "description": "Configuration class for stream connection settings.\n\n:stream_manager: str: Stream manager class name. Default is \"hopeit.streams.NoStreamManager\".\n:field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally\n:field username: SecretStr: Username for authentication. Default is an empty secret string.\n:field password: SecretStr: Password for authentication. Default is an empty secret string.\n:field delay_auto_start_seconds: int: Delay in seconds before auto-starting the stream.\n    Default is 3 seconds.\n:field initial_backoff_seconds: float: Initial backoff time in seconds for connection retries.\n    Default is 1.0 second.\n:field max_backoff_seconds: float: Maximum backoff time in seconds for connection retries.\n    Default is 60.0 seconds.\n:field num_failures_open_circuit_breaker: int: Number of failures before opening the circuit breaker.\n    Default is 1.\n:field max_connections: int: Maximum Redis connections per stream connection pool.\n    Default is 100.\n:field blocking_pool_timeout: float: Maximum seconds to wait for an available Redis connection.\n    Default is 20.0.\n:field protocol: int: Redis protocol version to use. Default is 2.\n\nNote:\n    hopeit.engine provides `hopeit.redis_streams.RedisStreamManager` as the default plugin for stream management.",
         "properties": {
           "stream_manager": {
             "default": "hopeit.streams.NoStreamManager",
@@ -2364,6 +2364,21 @@
           "num_failures_open_circuit_breaker": {
             "default": 1,
             "title": "Num Failures Open Circuit Breaker",
+            "type": "integer"
+          },
+          "max_connections": {
+            "default": 100,
+            "title": "Max Connections",
+            "type": "integer"
+          },
+          "blocking_pool_timeout": {
+            "default": 20.0,
+            "title": "Blocking Pool Timeout",
+            "type": "number"
+          },
+          "protocol": {
+            "default": 2,
+            "title": "Protocol",
             "type": "integer"
           }
         },

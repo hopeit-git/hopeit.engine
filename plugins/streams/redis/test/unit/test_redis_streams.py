@@ -1,3 +1,5 @@
+import asyncio
+
 import redis.asyncio as redis
 from redis import ResponseError
 
@@ -8,7 +10,7 @@ from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.config import AuthType, StreamsConfig
 
 from hopeit.streams import StreamEvent
-from hopeit.redis_streams import RedisStreamManager
+from hopeit.redis_streams import BlockingConnectionPool, RedisStreamManager
 
 from . import MockEventHandler, TestStreamData
 from copy import deepcopy
@@ -29,6 +31,11 @@ class MockInvalidDataEvent:
 async def create_stream_manager():
     settings = StreamsConfig()
     return await RedisStreamManager(address=MockRedisPool.test_url).connect(settings)
+
+
+def patch_redis_client(monkeypatch):
+    monkeypatch.setattr(BlockingConnectionPool, "from_url", MockRedisPool.from_url)
+    monkeypatch.setattr(redis, "Redis", MockRedisPool.redis)
 
 
 async def write_stream():
@@ -151,22 +158,22 @@ async def ack_read_stream():
 
 
 async def test_write_stream(monkeypatch):
-    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
+    patch_redis_client(monkeypatch)
     await write_stream()
 
 
 async def test_ensure_consume_group(monkeypatch):
-    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
+    patch_redis_client(monkeypatch)
     await ensure_consumer_group()
 
 
 async def test_read_stream(monkeypatch):
-    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
+    patch_redis_client(monkeypatch)
     await read_stream()
 
 
 async def test_read_stream_queue_name(monkeypatch):
-    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
+    patch_redis_client(monkeypatch)
     monkeypatch.setattr(TestStreamData, "test_queue", "custom")
     test_msg = deepcopy(MockRedisPool.test_msg)
     test_msg[1][b"queue"] = b"custom"
@@ -175,7 +182,7 @@ async def test_read_stream_queue_name(monkeypatch):
 
 
 async def test_read_stream_default_queue_name_when_missing(monkeypatch):
-    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
+    patch_redis_client(monkeypatch)
     test_msg = deepcopy(MockRedisPool.test_msg)
     del test_msg[1][b"queue"]
     monkeypatch.setattr(MockRedisPool, "test_msg", test_msg)
@@ -183,13 +190,55 @@ async def test_read_stream_default_queue_name_when_missing(monkeypatch):
 
 
 async def test_read_stream_empty_batch(monkeypatch):
-    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
+    patch_redis_client(monkeypatch)
     await read_stream_empty_batch()
 
 
 async def test_ack_read_stream(monkeypatch):
-    monkeypatch.setattr(redis, "from_url", MockRedisPool.from_url)
+    patch_redis_client(monkeypatch)
     await ack_read_stream()
+
+
+async def test_connect_uses_blocking_pool_settings(monkeypatch):
+    patch_redis_client(monkeypatch)
+    settings = StreamsConfig(max_connections=3, blocking_pool_timeout=2.5, protocol=2)
+    mgr = await RedisStreamManager(address=MockRedisPool.test_url).connect(settings)
+    assert mgr._write_pool.connection_kwargs == {
+        "username": "",
+        "password": "",
+        "max_connections": 3,
+        "timeout": 2.5,
+        "protocol": 2,
+    }
+    assert mgr._read_pool.connection_kwargs == mgr._write_pool.connection_kwargs
+    assert mgr._write_pool is not mgr._read_pool
+    await mgr.close()
+    assert mgr._write_pool is None
+    assert mgr._read_pool is None
+
+
+async def test_write_stream_concurrent_low_max_connections(monkeypatch):
+    patch_redis_client(monkeypatch)
+    settings = StreamsConfig(max_connections=2, blocking_pool_timeout=2.5)
+    mgr = await RedisStreamManager(address=MockRedisPool.test_url).connect(settings)
+    payload = MockData("test_value", datetime.fromtimestamp(0, tz=timezone.utc))
+    results = await asyncio.gather(
+        *(
+            mgr.write_stream(
+                stream_name="test_stream",
+                queue=TestStreamData.test_queue,
+                payload=payload,
+                track_ids=MockEventHandler.test_track_ids,
+                auth_info={"auth_type": AuthType.UNSECURED, "allowed": "true"},
+                compression=Compression.NONE,
+                serialization=Serialization.JSON_UTF8,
+            )
+            for _ in range(10)
+        )
+    )
+    assert results == [1] * 10
+    assert mgr._write_pool.max_active_connections <= 2
+    await mgr.close()
 
 
 class MockRedisPool:
@@ -213,7 +262,12 @@ class MockRedisPool:
         },
     ]
 
-    def __init__(self):
+    def __init__(self, *, connection_kwargs=None):
+        self.connection_kwargs = connection_kwargs or {}
+        max_connections = self.connection_kwargs.get("max_connections")
+        self._semaphore = asyncio.Semaphore(max_connections) if max_connections else None
+        self._active_connections = 0
+        self.max_active_connections = 0
         self.xadd_name = None
         self.xadd_fields = None
         self.xadd_maxlen = None
@@ -225,18 +279,35 @@ class MockRedisPool:
         self.xread_consumername = None
         self.xack_msg_id = None
         self.closed = False
+        self.aclosed = False
 
     @staticmethod
-    def from_url(url, username, password):
+    def from_url(url, **kwargs):
         assert url == MockRedisPool.test_url
-        return MockRedisPool()
+        return MockRedisPool(connection_kwargs=kwargs)
+
+    @staticmethod
+    def redis(*, connection_pool):
+        return connection_pool
 
     async def xadd(self, name, fields, id=b"*", maxlen=None, approximate=True):
-        self.xadd_name = name
-        self.xadd_fields = fields
-        self.xadd_maxlen = maxlen
-        self.xadd_approximate = approximate
-        return 1
+        if self._semaphore:
+            async with self._semaphore:
+                return await self._xadd(name, fields, id, maxlen, approximate)
+        return await self._xadd(name, fields, id, maxlen, approximate)
+
+    async def _xadd(self, name, fields, id=b"*", maxlen=None, approximate=True):
+        self._active_connections += 1
+        self.max_active_connections = max(self.max_active_connections, self._active_connections)
+        await asyncio.sleep(0)
+        try:
+            self.xadd_name = name
+            self.xadd_fields = fields
+            self.xadd_maxlen = maxlen
+            self.xadd_approximate = approximate
+            return 1
+        finally:
+            self._active_connections -= 1
 
     async def xgroup_create(self, name, groupname, id="$", mkstream=False):
         if self.xgroup_name == name and self.xgroup_groupname == groupname:
@@ -263,3 +334,7 @@ class MockRedisPool:
 
     async def close(self):
         self.closed = True
+
+    async def aclose(self, close_connection_pool=None):
+        assert close_connection_pool is True
+        self.aclosed = True

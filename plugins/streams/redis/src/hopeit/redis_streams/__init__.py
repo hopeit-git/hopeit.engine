@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Any, Union
 
 import redis.asyncio as redis
+from redis.asyncio.connection import BlockingConnectionPool
 from redis import RedisError, ResponseError
 from redis.exceptions import ConnectionError as RedisConnectionError
 
@@ -51,20 +52,23 @@ class RedisStreamManager(StreamManager):
         """
         logger.info(__name__, f"Connecting address={self.address}...")
         try:
-            self._write_pool = redis.from_url(
-                self.address,
-                username=config.username.get_secret_value(),
-                password=config.password.get_secret_value(),
-            )
-            self._read_pool = redis.from_url(
-                self.address,
-                username=config.username.get_secret_value(),
-                password=config.password.get_secret_value(),
-            )
+            self._write_pool = self._redis_client(config)
+            self._read_pool = self._redis_client(config)
             return self
         except (OSError, RedisError, RedisConnectionError) as e:  # pragma: no cover
             logger.error(__name__, e)
             raise StreamOSError(e) from e
+
+    def _redis_client(self, config: StreamsConfig) -> redis.Redis:
+        connection_pool: BlockingConnectionPool = BlockingConnectionPool.from_url(
+            self.address,
+            username=config.username.get_secret_value(),
+            password=config.password.get_secret_value(),
+            max_connections=config.max_connections,
+            timeout=config.blocking_pool_timeout,
+            protocol=config.protocol,
+        )
+        return redis.Redis(connection_pool=connection_pool)
 
     async def close(self):
         """
@@ -73,7 +77,10 @@ class RedisStreamManager(StreamManager):
 
         async def _close(pool) -> None:
             if pool:
-                await pool.close()
+                if hasattr(pool, "aclose"):
+                    await pool.aclose(close_connection_pool=True)
+                else:
+                    await pool.close()
             return None
 
         self._read_pool = await _close(self._read_pool)
