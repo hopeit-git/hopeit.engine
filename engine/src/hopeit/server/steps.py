@@ -440,8 +440,7 @@ class CollectorStepsDescriptor:
 async def _run_collector(
     step_group: CollectorStepsDescriptor, payload: EventPayload, context: EventContext
 ):
-    assert step_group.steps is not None
-    return await AsyncCollector().input(payload).steps(*step_group.steps).run(context)
+    return await AsyncCollector().input(payload).steps(*step_group.steps).run(context)  # type: ignore[misc]
 
 
 def _signature(

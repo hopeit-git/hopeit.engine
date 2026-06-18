@@ -65,7 +65,7 @@ class RedisStreamManager(StreamManager):
             username=config.username.get_secret_value(),
             password=config.password.get_secret_value(),
             max_connections=config.max_connections,
-            timeout=config.blocking_pool_timeout,
+            timeout=config.pool_timeout,
             protocol=config.protocol,
         )
         return redis.Redis(connection_pool=connection_pool)

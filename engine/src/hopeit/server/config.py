@@ -52,8 +52,8 @@ class StreamsConfig:
         Default is 1.
     :field max_connections: int: Maximum Redis connections per stream connection pool.
         Default is 100.
-    :field blocking_pool_timeout: float: Maximum seconds to wait for an available Redis connection.
-        Default is 20.0.
+    :field pool_timeout: float: Maximum seconds to wait for an available Redis connection.
+        Default is 10.0.
     :field protocol: int: Redis protocol version to use. Default is 2.
 
     Note:
@@ -69,7 +69,7 @@ class StreamsConfig:
     max_backoff_seconds: float = 60.0
     num_failures_open_circuit_breaker: int = 1
     max_connections: int = 100
-    blocking_pool_timeout: float = 20.0
+    pool_timeout: float = 10.0
     protocol: int = 2
 
 

@@ -201,7 +201,7 @@ async def test_ack_read_stream(monkeypatch):
 
 async def test_connect_uses_blocking_pool_settings(monkeypatch):
     patch_redis_client(monkeypatch)
-    settings = StreamsConfig(max_connections=3, blocking_pool_timeout=2.5, protocol=2)
+    settings = StreamsConfig(max_connections=3, pool_timeout=2.5, protocol=2)
     mgr = await RedisStreamManager(address=MockRedisPool.test_url).connect(settings)
     assert mgr._write_pool.connection_kwargs == {
         "username": "",
@@ -219,7 +219,7 @@ async def test_connect_uses_blocking_pool_settings(monkeypatch):
 
 async def test_write_stream_concurrent_low_max_connections(monkeypatch):
     patch_redis_client(monkeypatch)
-    settings = StreamsConfig(max_connections=2, blocking_pool_timeout=2.5)
+    settings = StreamsConfig(max_connections=2, pool_timeout=2.5)
     mgr = await RedisStreamManager(address=MockRedisPool.test_url).connect(settings)
     payload = MockData("test_value", datetime.fromtimestamp(0, tz=timezone.utc))
     results = await asyncio.gather(
