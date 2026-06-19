@@ -6,8 +6,6 @@ from enum import Enum
 from typing import TypeVar, List, Optional
 import re
 import os
-from functools import partial
-from pydantic import SecretStr
 
 from hopeit.dataobjects import dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
@@ -62,15 +60,12 @@ class StreamsConfig:
 
     stream_manager: str = "hopeit.streams.NoStreamManager"
     connection_str: str = "<<NoStreamManager>>"
-    username: SecretStr = field(default_factory=partial(SecretStr, ""))
-    password: SecretStr = field(default_factory=partial(SecretStr, ""))
+    # username: SecretStr = field(default_factory=partial(SecretStr, ""))
+    # password: SecretStr = field(default_factory=partial(SecretStr, ""))
     delay_auto_start_seconds: int = 3
     initial_backoff_seconds: float = 1.0
     max_backoff_seconds: float = 60.0
     num_failures_open_circuit_breaker: int = 1
-    max_connections: int = 100
-    pool_timeout: float = 10.0
-    protocol: int = 2
 
 
 @dataobject

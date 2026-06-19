@@ -1,0 +1,31 @@
+{
+  "app": {
+    "name": "redis-streams",
+    "version": "${HOPEIT_APPS_API_VERSION}"
+  },
+  "engine": {
+    "import_modules": [
+      "hopeit.redis_streams"
+    ]
+  },
+  "settings": {
+    "redis_auth": {
+      "username": "${REDIS_USERNAME}",
+      "password": "${REDIS_PASSWORD}"
+    },
+    "redis_pool": {
+      "max_connections":  100,
+      "pool_timeout":  10.0,
+      "protocol":  2
+    }
+  },
+  "events": {
+    "setup_redis_pool": {
+      "type": "SETUP",
+      "setting_keys": [
+        "redis_auth",
+        "redis_pool"
+      ]
+    }
+  }
+}

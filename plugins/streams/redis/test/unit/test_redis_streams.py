@@ -1,16 +1,28 @@
 import asyncio
 
+from hopeit.redis_streams import setup_redis_pool
 import redis.asyncio as redis
 from redis import ResponseError
 
 from datetime import datetime, timezone
 
-from hopeit.app.config import Compression, Serialization
+from hopeit.app.config import (
+    AppConfig,
+    AppDescriptor,
+    AppEngineConfig,
+    Compression,
+    EventDescriptor,
+    EventType,
+    Serialization,
+)
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.config import AuthType, StreamsConfig
+from hopeit.server.version import APPS_API_VERSION
+from hopeit.testing.apps import create_test_context
 
 from hopeit.streams import StreamEvent
-from hopeit.redis_streams import BlockingConnectionPool, RedisStreamManager
+from hopeit.redis_streams import RedisStreamManager
+from hopeit.redis_streams.setup_redis_pool import BlockingConnectionPool
 
 from . import MockEventHandler, TestStreamData
 from copy import deepcopy
@@ -30,6 +42,33 @@ class MockInvalidDataEvent:
 
 async def create_stream_manager():
     settings = StreamsConfig()
+    plugin_config = AppConfig(
+        app=AppDescriptor(name="redis-streams", version=APPS_API_VERSION),
+        engine=AppEngineConfig(import_modules=["hopeit.redis_streams"]),
+        settings={
+            "redis_auth": {
+                "username": "",
+                "password": "",
+            },
+            "redis_pool": {
+                "max_connections": 100,
+                "pool_timeout": 10.0,
+                "protocol": 2,
+            },
+        },
+        events={
+            "setup_redis_pool": EventDescriptor(
+                type=EventType.SETUP,
+                setting_keys=[
+                    "redis_auth",
+                    "redis_pool",
+                ],
+            ),
+        },
+    ).setup()
+    context = create_test_context(plugin_config, "setup_redis_pool")
+    RedisStreamManager._RedisStreamManager__connection_factory = None
+    await setup_redis_pool.init_redis_streams(None, context)
     return await RedisStreamManager(address=MockRedisPool.test_url).connect(settings)
 
 

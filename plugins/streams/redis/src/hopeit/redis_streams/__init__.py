@@ -8,10 +8,9 @@ import json
 import base64
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Union
+from typing import Callable, Dict, List, Any, Optional, Union
 
 import redis.asyncio as redis
-from redis.asyncio.connection import BlockingConnectionPool
 from redis import RedisError, ResponseError
 from redis.exceptions import ConnectionError as RedisConnectionError
 
@@ -27,11 +26,30 @@ extra = extra_logger()
 
 DEFAULT_QUEUE = StreamQueue.AUTO.encode()
 
+ConnectionFactory = Callable[[StreamsConfig], redis.Redis]
+
 
 class RedisStreamManager(StreamManager):
     """
     Manages streams of a Hopeit App
     """
+
+    # __connection_factory must be initialized during redis_streams plugin setup event
+    __connection_factory: Optional[ConnectionFactory] = None
+
+    @classmethod
+    def connection_factory(cls, config: StreamsConfig) -> redis.Redis:
+        assert cls.__connection_factory is not None, (
+            "Redis Streams connection factory not initialized. Check if Redis Streams plugin `setup_redis_pool` event not configured"
+        )
+        return cls.__connection_factory(config)
+
+    @classmethod
+    def setup_connection_factory(cls, connection_factory: ConnectionFactory):
+        assert cls.__connection_factory is None, (
+            "Redis Streams connection factory already initialized."
+        )
+        cls.__connection_factory = connection_factory
 
     def __init__(self, *, address: str):
         """
@@ -52,23 +70,23 @@ class RedisStreamManager(StreamManager):
         """
         logger.info(__name__, f"Connecting address={self.address}...")
         try:
-            self._write_pool = self._redis_client(config)
-            self._read_pool = self._redis_client(config)
+            self._write_pool = self.connection_factory(config)
+            self._read_pool = self.connection_factory(config)
             return self
         except (OSError, RedisError, RedisConnectionError) as e:  # pragma: no cover
             logger.error(__name__, e)
             raise StreamOSError(e) from e
 
-    def _redis_client(self, config: StreamsConfig) -> redis.Redis:
-        connection_pool: BlockingConnectionPool = BlockingConnectionPool.from_url(
-            self.address,
-            username=config.username.get_secret_value(),
-            password=config.password.get_secret_value(),
-            max_connections=config.max_connections,
-            timeout=config.pool_timeout,
-            protocol=config.protocol,
-        )
-        return redis.Redis(connection_pool=connection_pool)
+    # def _redis_client(self, config: StreamsConfig) -> redis.Redis:
+    #     connection_pool: BlockingConnectionPool = BlockingConnectionPool.from_url(
+    #         self.address,
+    #         # username=config.username.get_secret_value(),
+    #         # password=config.password.get_secret_value(),
+    #         # max_connections=config.max_connections,
+    #         # timeout=config.pool_timeout,
+    #         # protocol=config.protocol,
+    #     )
+    #     return redis.Redis(connection_pool=connection_pool)
 
     async def close(self):
         """
