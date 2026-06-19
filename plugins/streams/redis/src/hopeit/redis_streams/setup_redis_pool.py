@@ -3,7 +3,6 @@
 from hopeit.app.context import EventContext
 from hopeit.redis_streams import RedisStreamManager
 from hopeit.redis_streams.settings import RedisAuthSettings, RedisPoolSettings
-from hopeit.server.config import StreamsConfig
 
 import redis.asyncio as redis
 from redis.asyncio import BlockingConnectionPool
@@ -18,11 +17,10 @@ async def init_redis_streams(payload: None, context: EventContext) -> None:
     auth_settings = context.settings(key="redis_auth", datatype=RedisAuthSettings)
     pool_settings = context.settings(key="redis_pool", datatype=RedisPoolSettings)
 
-    def connection_factory(config: StreamsConfig):
-        print(config)
+    def connection_factory(address: str):
         return redis.Redis(
             connection_pool=BlockingConnectionPool.from_url(
-                config.connection_str,
+                address,
                 username=auth_settings.username.get_secret_value(),
                 password=auth_settings.password.get_secret_value(),
                 max_connections=pool_settings.max_connections,

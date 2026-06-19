@@ -26,7 +26,7 @@ extra = extra_logger()
 
 DEFAULT_QUEUE = StreamQueue.AUTO.encode()
 
-ConnectionFactory = Callable[[StreamsConfig], redis.Redis]
+ConnectionFactory = Callable[[str], redis.Redis]
 
 
 class RedisStreamManager(StreamManager):
@@ -38,11 +38,11 @@ class RedisStreamManager(StreamManager):
     __connection_factory: Optional[ConnectionFactory] = None
 
     @classmethod
-    def connection_factory(cls, config: StreamsConfig) -> redis.Redis:
+    def connection_factory(cls, address: str) -> redis.Redis:
         assert cls.__connection_factory is not None, (
             "Redis Streams connection factory not initialized. Check if Redis Streams plugin `setup_redis_pool` event not configured"
         )
-        return cls.__connection_factory(config)
+        return cls.__connection_factory(address)
 
     @classmethod
     def setup_connection_factory(cls, connection_factory: ConnectionFactory):
@@ -70,8 +70,8 @@ class RedisStreamManager(StreamManager):
         """
         logger.info(__name__, f"Connecting address={self.address}...")
         try:
-            self._write_pool = self.connection_factory(config)
-            self._read_pool = self.connection_factory(config)
+            self._write_pool = self.connection_factory(self.address)
+            self._read_pool = self.connection_factory(self.address)
             return self
         except (OSError, RedisError, RedisConnectionError) as e:  # pragma: no cover
             logger.error(__name__, e)

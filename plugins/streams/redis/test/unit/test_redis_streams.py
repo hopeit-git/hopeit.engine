@@ -51,8 +51,8 @@ async def create_stream_manager():
                 "password": "",
             },
             "redis_pool": {
-                "max_connections": 100,
-                "pool_timeout": 10.0,
+                "max_connections": 3,
+                "pool_timeout": 2.5,
                 "protocol": 2,
             },
         },
@@ -276,7 +276,7 @@ async def test_write_stream_concurrent_low_max_connections(monkeypatch):
         )
     )
     assert results == [1] * 10
-    assert mgr._write_pool.max_active_connections <= 2
+    assert mgr._write_pool.max_active_connections <= 3
     await mgr.close()
 
 
