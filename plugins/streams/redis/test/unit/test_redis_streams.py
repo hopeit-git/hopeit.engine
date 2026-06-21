@@ -40,8 +40,10 @@ class MockInvalidDataEvent:
     value: str
 
 
-async def create_stream_manager():
-    settings = StreamsConfig()
+async def create_stream_manager(
+    *, max_connections: int = 3, pool_timeout: float = 2.5, protocol: int = 2
+):
+    stream_config = StreamsConfig()
     plugin_config = AppConfig(
         app=AppDescriptor(name="redis-streams", version=APPS_API_VERSION),
         engine=AppEngineConfig(import_modules=["hopeit.redis_streams"]),
@@ -51,9 +53,9 @@ async def create_stream_manager():
                 "password": "",
             },
             "redis_pool": {
-                "max_connections": 3,
-                "pool_timeout": 2.5,
-                "protocol": 2,
+                "max_connections": max_connections,
+                "pool_timeout": pool_timeout,
+                "protocol": protocol,
             },
         },
         events={
@@ -67,9 +69,9 @@ async def create_stream_manager():
         },
     ).setup()
     context = create_test_context(plugin_config, "setup_redis_pool")
-    RedisStreamManager._RedisStreamManager__connection_factory = None
+    setattr(RedisStreamManager, "_RedisStreamManager__connection_factory", None)
     await setup_redis_pool.init_redis_streams(None, context)
-    return await RedisStreamManager(address=MockRedisPool.test_url).connect(settings)
+    return await RedisStreamManager(address=MockRedisPool.test_url).connect(stream_config)
 
 
 def patch_redis_client(monkeypatch):
@@ -240,8 +242,7 @@ async def test_ack_read_stream(monkeypatch):
 
 async def test_connect_uses_blocking_pool_settings(monkeypatch):
     patch_redis_client(monkeypatch)
-    settings = StreamsConfig(max_connections=3, pool_timeout=2.5, protocol=2)
-    mgr = await RedisStreamManager(address=MockRedisPool.test_url).connect(settings)
+    mgr = await create_stream_manager(max_connections=3, pool_timeout=2.5, protocol=2)
     assert mgr._write_pool.connection_kwargs == {
         "username": "",
         "password": "",
@@ -258,8 +259,7 @@ async def test_connect_uses_blocking_pool_settings(monkeypatch):
 
 async def test_write_stream_concurrent_low_max_connections(monkeypatch):
     patch_redis_client(monkeypatch)
-    settings = StreamsConfig(max_connections=2, pool_timeout=2.5)
-    mgr = await RedisStreamManager(address=MockRedisPool.test_url).connect(settings)
+    mgr = await create_stream_manager(max_connections=2, pool_timeout=2.5)
     payload = MockData("test_value", datetime.fromtimestamp(0, tz=timezone.utc))
     results = await asyncio.gather(
         *(
@@ -276,7 +276,7 @@ async def test_write_stream_concurrent_low_max_connections(monkeypatch):
         )
     )
     assert results == [1] * 10
-    assert mgr._write_pool.max_active_connections <= 3
+    assert mgr._write_pool.max_active_connections <= 2
     await mgr.close()
 
 

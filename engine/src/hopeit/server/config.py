@@ -38,8 +38,6 @@ class StreamsConfig:
     :stream_manager: str: Stream manager class name. Default is "hopeit.streams.NoStreamManager".
     :field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379
         if using redis stream manager plugin to connect locally
-    :field username: SecretStr: Username for authentication. Default is an empty secret string.
-    :field password: SecretStr: Password for authentication. Default is an empty secret string.
     :field delay_auto_start_seconds: int: Delay in seconds before auto-starting the stream.
         Default is 3 seconds.
     :field initial_backoff_seconds: float: Initial backoff time in seconds for connection retries.
@@ -48,11 +46,6 @@ class StreamsConfig:
         Default is 60.0 seconds.
     :field num_failures_open_circuit_breaker: int: Number of failures before opening the circuit breaker.
         Default is 1.
-    :field max_connections: int: Maximum Redis connections per stream connection pool.
-        Default is 100.
-    :field pool_timeout: float: Maximum seconds to wait for an available Redis connection.
-        Default is 10.0.
-    :field protocol: int: Redis protocol version to use. Default is 2.
 
     Note:
         hopeit.engine provides `hopeit.redis_streams.RedisStreamManager` as the default plugin for stream management.
@@ -60,8 +53,6 @@ class StreamsConfig:
 
     stream_manager: str = "hopeit.streams.NoStreamManager"
     connection_str: str = "<<NoStreamManager>>"
-    # username: SecretStr = field(default_factory=partial(SecretStr, ""))
-    # password: SecretStr = field(default_factory=partial(SecretStr, ""))
     delay_auto_start_seconds: int = 3
     initial_backoff_seconds: float = 1.0
     max_backoff_seconds: float = 60.0

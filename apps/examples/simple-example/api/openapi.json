@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.29",
+    "version": "0.30",
     "title": "Simple Example",
     "description": "Simple Example"
   },
   "paths": {
-    "/api/basic-auth/0x29/decode": {
+    "/api/basic-auth/0x30/decode": {
       "get": {
         "summary": "Basic Auth: Decode",
         "description": "Returns decoded auth info",
@@ -44,7 +44,7 @@
           }
         },
         "tags": [
-          "basic_auth.0x29"
+          "basic_auth.0x30"
         ],
         "security": [
           {
@@ -53,7 +53,7 @@
         ]
       }
     },
-    "/api/config-manager/0x29/runtime-apps-config": {
+    "/api/config-manager/0x30/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -109,11 +109,11 @@
           }
         },
         "tags": [
-          "config_manager.0x29"
+          "config_manager.0x30"
         ]
       }
     },
-    "/api/config-manager/0x29/cluster-apps-config": {
+    "/api/config-manager/0x30/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -169,11 +169,11 @@
           }
         },
         "tags": [
-          "config_manager.0x29"
+          "config_manager.0x30"
         ]
       }
     },
-    "/api/simple-example/0x29/list-somethings": {
+    "/api/simple-example/0x30/list-somethings": {
       "get": {
         "summary": "Simple Example: List Objects",
         "description": "Lists all available Something objects",
@@ -243,7 +243,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -252,7 +252,7 @@
         ]
       }
     },
-    "/api/simple-example/0x29/list-somethings-unsecured": {
+    "/api/simple-example/0x30/list-somethings-unsecured": {
       "get": {
         "summary": "Simple Example: List Objects",
         "description": "Lists all available Something objects",
@@ -322,11 +322,11 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ]
       }
     },
-    "/api/simple-example/0x29/query-something": {
+    "/api/simple-example/0x30/query-something": {
       "get": {
         "summary": "Simple Example: Query Something",
         "description": "Loads Something from disk",
@@ -412,7 +412,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -516,7 +516,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -525,7 +525,7 @@
         ]
       }
     },
-    "/api/simple-example/0x29/save-something": {
+    "/api/simple-example/0x30/save-something": {
       "post": {
         "summary": "Simple Example: Save Something",
         "description": "Creates and saves Something",
@@ -622,7 +622,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -631,7 +631,7 @@
         ]
       }
     },
-    "/api/simple-example/0x29/download-something": {
+    "/api/simple-example/0x30/download-something": {
       "get": {
         "summary": "Simple Example: Download Something",
         "description": "Download image file. The PostprocessHook return the requested file as stream.",
@@ -718,7 +718,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -727,7 +727,7 @@
         ]
       }
     },
-    "/api/simple-example/0x29/download-something-streamed": {
+    "/api/simple-example/0x30/download-something-streamed": {
       "get": {
         "summary": "Simple Example: Download Something Streamed",
         "description": "Download streamd created content as file.\nThe PostprocessHook return the requested resource as stream using `prepare_stream_response`.",
@@ -795,11 +795,11 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ]
       }
     },
-    "/api/simple-example/0x29/upload-something": {
+    "/api/simple-example/0x30/upload-something": {
       "post": {
         "summary": "Simple Example: Multipart Upload files",
         "description": "Upload files using Multipart form request",
@@ -937,7 +937,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -946,7 +946,7 @@
         ]
       }
     },
-    "/api/simple-example/0x29/check-enum": {
+    "/api/simple-example/0x30/check-enum": {
       "get": {
         "summary": "Simple Example: Check enum values",
         "description": "Check enum values used in api schema",
@@ -1016,11 +1016,11 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ]
       }
     },
-    "/api/simple-example/0x29/streams/something-event": {
+    "/api/simple-example/0x30/streams/something-event": {
       "post": {
         "summary": "Simple Example: Something Event",
         "description": "Submits a Something object to a stream to be processed asynchronously by process-events app event",
@@ -1089,7 +1089,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -1098,7 +1098,7 @@
         ]
       }
     },
-    "/api/simple-example/0x29/collector/query-concurrently": {
+    "/api/simple-example/0x30/collector/query-concurrently": {
       "post": {
         "summary": "Simple Example: Query Concurrently",
         "description": "Loads 2 Something objects concurrently from disk and combine the results\nusing `collector` steps constructor (instantiating an `AsyncCollector`)",
@@ -1170,7 +1170,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -1179,7 +1179,7 @@
         ]
       }
     },
-    "/api/simple-example/0x29/collector/collect-spawn": {
+    "/api/simple-example/0x30/collector/collect-spawn": {
       "post": {
         "summary": "Simple Example: Collect and Spawn",
         "description": "Loads 2 Something objects concurrently from disk, combine the results\nusing `collector` steps constructor (instantiating an `AsyncCollector`)\nthen spawn the items found individually into a stream",
@@ -1257,7 +1257,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -1266,7 +1266,7 @@
         ]
       }
     },
-    "/api/simple-example/0x29/shuffle/spawn-event": {
+    "/api/simple-example/0x30/shuffle/spawn-event": {
       "post": {
         "summary": "Simple Example: Spawn Event",
         "description": "This example will spawn 3 data events, those are going to be send to a stream using SHUFFLE\nand processed in asynchronously / in parallel if multiple nodes are available",
@@ -1344,7 +1344,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -1353,7 +1353,7 @@
         ]
       }
     },
-    "/api/simple-example/0x29/shuffle/parallelize-event": {
+    "/api/simple-example/0x30/shuffle/parallelize-event": {
       "post": {
         "summary": "Simple Example: Parallelize Event",
         "description": "This example will spawn 2 copies of payload data, those are going to be send to a stream using SHUFFLE\nand processed in asynchronously / in parallel if multiple nodes are available,\nthen submitted to other stream to be updated and saved",
@@ -1431,7 +1431,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -1440,7 +1440,7 @@
         ]
       }
     },
-    "/api/simple-example/0x29/basic-auth/0x29/login": {
+    "/api/simple-example/0x30/basic-auth/0x30/login": {
       "get": {
         "summary": "Basic Auth: Login",
         "description": "Handles users login using basic-auth\nand generate access tokens for external services invoking apps\nplugged in with basic-auth plugin.",
@@ -1508,7 +1508,7 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
@@ -1517,7 +1517,7 @@
         ]
       }
     },
-    "/api/simple-example/0x29/basic-auth/0x29/refresh": {
+    "/api/simple-example/0x30/basic-auth/0x30/refresh": {
       "get": {
         "summary": "Basic Auth: Refresh",
         "description": "This event can be used for obtain new access token and update refresh token (http cookie),\nwith no need to re-login the user if there is a valid refresh token active.",
@@ -1585,16 +1585,16 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
-            "simple_example.0x29.refresh": []
+            "simple_example.0x30.refresh": []
           }
         ]
       }
     },
-    "/api/simple-example/0x29/basic-auth/0x29/logout": {
+    "/api/simple-example/0x30/basic-auth/0x30/logout": {
       "get": {
         "summary": "Basic Auth: Logout",
         "description": "Invalidates previous refresh cookies.",
@@ -1671,11 +1671,11 @@
           }
         },
         "tags": [
-          "simple_example.0x29"
+          "simple_example.0x30"
         ],
         "security": [
           {
-            "simple_example.0x29.refresh": []
+            "simple_example.0x30.refresh": []
           }
         ]
       }
@@ -2272,7 +2272,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.29.0",
+            "default": "0.30.0",
             "title": "Engine Version",
             "type": "string"
           }
@@ -2322,7 +2322,7 @@
         "type": "string"
       },
       "StreamsConfig": {
-        "description": "Configuration class for stream connection settings.\n\n:stream_manager: str: Stream manager class name. Default is \"hopeit.streams.NoStreamManager\".\n:field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally\n:field username: SecretStr: Username for authentication. Default is an empty secret string.\n:field password: SecretStr: Password for authentication. Default is an empty secret string.\n:field delay_auto_start_seconds: int: Delay in seconds before auto-starting the stream.\n    Default is 3 seconds.\n:field initial_backoff_seconds: float: Initial backoff time in seconds for connection retries.\n    Default is 1.0 second.\n:field max_backoff_seconds: float: Maximum backoff time in seconds for connection retries.\n    Default is 60.0 seconds.\n:field num_failures_open_circuit_breaker: int: Number of failures before opening the circuit breaker.\n    Default is 1.\n:field max_connections: int: Maximum Redis connections per stream connection pool.\n    Default is 100.\n:field blocking_pool_timeout: float: Maximum seconds to wait for an available Redis connection.\n    Default is 20.0.\n:field protocol: int: Redis protocol version to use. Default is 2.\n\nNote:\n    hopeit.engine provides `hopeit.redis_streams.RedisStreamManager` as the default plugin for stream management.",
+        "description": "Configuration class for stream connection settings.\n\n:stream_manager: str: Stream manager class name. Default is \"hopeit.streams.NoStreamManager\".\n:field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally\n:field delay_auto_start_seconds: int: Delay in seconds before auto-starting the stream.\n    Default is 3 seconds.\n:field initial_backoff_seconds: float: Initial backoff time in seconds for connection retries.\n    Default is 1.0 second.\n:field max_backoff_seconds: float: Maximum backoff time in seconds for connection retries.\n    Default is 60.0 seconds.\n:field num_failures_open_circuit_breaker: int: Number of failures before opening the circuit breaker.\n    Default is 1.\n\nNote:\n    hopeit.engine provides `hopeit.redis_streams.RedisStreamManager` as the default plugin for stream management.",
         "properties": {
           "stream_manager": {
             "default": "hopeit.streams.NoStreamManager",
@@ -2333,18 +2333,6 @@
             "default": "<<NoStreamManager>>",
             "title": "Connection Str",
             "type": "string"
-          },
-          "username": {
-            "format": "password",
-            "title": "Username",
-            "type": "string",
-            "writeOnly": true
-          },
-          "password": {
-            "format": "password",
-            "title": "Password",
-            "type": "string",
-            "writeOnly": true
           },
           "delay_auto_start_seconds": {
             "default": 3,
@@ -2364,21 +2352,6 @@
           "num_failures_open_circuit_breaker": {
             "default": 1,
             "title": "Num Failures Open Circuit Breaker",
-            "type": "integer"
-          },
-          "max_connections": {
-            "default": 100,
-            "title": "Max Connections",
-            "type": "integer"
-          },
-          "blocking_pool_timeout": {
-            "default": 20.0,
-            "title": "Blocking Pool Timeout",
-            "type": "number"
-          },
-          "protocol": {
-            "default": 2,
-            "title": "Protocol",
             "type": "integer"
           }
         },
@@ -2605,10 +2578,10 @@
         "type": "http",
         "scheme": "bearer"
       },
-      "simple_example.0x29.refresh": {
+      "simple_example.0x30.refresh": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "simple_example.0x29.refresh"
+        "name": "simple_example.0x30.refresh"
       }
     }
   },

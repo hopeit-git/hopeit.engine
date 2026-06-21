@@ -96,6 +96,7 @@ def test_hopeit_job():
         "-m",
         "hopeit.cli.job",
         "--config-files=engine/config/dev-noauth.json"
+        ",plugins/streams/redis/config/plugin-config.json"
         ",plugins/auth/basic-auth/config/plugin-config.json"
         ",apps/examples/simple-example/config/app-config.json",
         "--event-name=check_enum",
@@ -103,8 +104,11 @@ def test_hopeit_job():
     ]
 
     mock_env = os.environ.copy()
+    mock_env["REDIS_USERNAME"] = ""
+    mock_env["REDIS_PASSWORD"] = ""
     mock_env["PYTHONPATH"] = (
-        "apps/examples/simple-example/src/:plugins/auth/basic-auth/src/:" + mock_env["PYTHONPATH"]
+        "apps/examples/simple-example/src/:plugins/auth/basic-auth/src/:plugins/streams/redis/src/:"
+        + mock_env.get("PYTHONPATH", "")
     )
 
     hopeit_proc = subprocess.Popen(

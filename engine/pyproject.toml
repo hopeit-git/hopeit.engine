@@ -5,17 +5,17 @@ description = "Hopeit Engine: Microservices with Streams"
 dynamic = ["version", "readme"]
 
 dependencies = [
-    "pydantic>=2.12.5,<3",
+    "pydantic>=2.13.4,<3",
     "lz4>=4.4.5",
-    "PyJWT[crypto]>=2.10.1",
-    "deepdiff>=8.6.1",
-    "multidict>=6.7.0",
-    "aiohttp>=3.11.12,<4",
+    "PyJWT[crypto]>=2.13.0",
+    "deepdiff>=9.1.0",
+    "multidict>=6.7.1",
+    "aiohttp>=3.14.1,<4",
     "aiohttp-cors>=0.8.1",
     "aiohttp-swagger3>=0.10.0",
-    "gunicorn>=23.0.0",
-    "click>=8.3.1",
-    "uvloop>=0.22; platform_system != 'Windows'"
+    "gunicorn>=26.0.0",
+    "click>=8.4.1",
+    "uvloop>=0.22.1; platform_system != 'Windows'"
 ]
 
 license = "Apache-2.0"
@@ -54,14 +54,14 @@ include-package-data = true
 [project.optional-dependencies]
 web = []
 cli = []
-redis-streams = ["hopeit.redis-streams==0.29.0"]
-redis-storage = ["hopeit.redis-storage==0.29.0"]
-fs-storage = ["hopeit.fs-storage==0.29.0"]
-config-manager = ["hopeit.config-manager==0.29.0"]
-log-streamer = ["hopeit.log-streamer==0.29.0"]
-apps-visualizer = ["hopeit.apps-visualizer==0.29.0"]
-apps-client = ["hopeit.apps-client==0.29.0"]
-dataframes = ["hopeit.dataframes==0.29.0"]
+redis-streams = ["hopeit.redis-streams==0.30.0"]
+redis-storage = ["hopeit.redis-storage==0.30.0"]
+fs-storage = ["hopeit.fs-storage==0.30.0"]
+config-manager = ["hopeit.config-manager==0.30.0"]
+log-streamer = ["hopeit.log-streamer==0.30.0"]
+apps-visualizer = ["hopeit.apps-visualizer==0.30.0"]
+apps-client = ["hopeit.apps-client==0.30.0"]
+dataframes = ["hopeit.dataframes==0.30.0"]
 
 [project.scripts]
 hopeit_server = "hopeit.cli.server:server"

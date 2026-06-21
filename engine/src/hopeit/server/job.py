@@ -322,9 +322,12 @@ async def run_job(
                 streams_wait_on_stop=False,
             ).start()
             runtime.server.app_engines[config.app_key()] = app_engine
+            # Run standalone SETUP events before starting the next app. Some plugins
+            # initialize resources required by AppEngine.start(), so their config must
+            # precede dependent application configs in --config-files.
+            await _run_setup_events(app_engine, track_ids=track_ids)
 
         app_engine = runtime.server.app_engines[owner_config.app_key()]
-        await _run_setup_events(app_engine, track_ids=track_ids)
         for plugin in owner_config.plugins:
             plugin_engine = runtime.server.app_engines[plugin.app_key()]
             await _run_setup_events(

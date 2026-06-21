@@ -1,4 +1,4 @@
-"""Intial setup event for experiment and model storage"""
+"""SETUP event that configures Redis Streams clients with blocking connection pools."""
 
 from hopeit.app.context import EventContext
 from hopeit.redis_streams import RedisStreamManager
