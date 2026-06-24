@@ -12,6 +12,10 @@
                 "--config-files=engine/config/dev-local.json,plugins/streams/redis/config/plugin-config.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
                 "--api-file=apps/examples/simple-example/api/openapi.json"
             ],
+            "env": {
+                "REDIS_USERNAME": "",
+                "REDIS_PASSWORD": "",
+            },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },
