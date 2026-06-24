@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+Version 0.30.1
+______________
+
+- Plugins:
+
+  - redis-streams:
+
+    - Redis Stream connections now disable ``socket_timeout`` to avoid interrupting
+      blocking reads controlled by ``read_stream_timeout``.
+
 Version 0.30.0
 ______________
 
@@ -17,8 +27,7 @@ ______________
       Authentication, maximum connections, pool timeout, and Redis protocol version
       are configured by the plugin's ``redis_auth`` and ``redis_pool`` settings.
 
-BREAKING CHANGES
-^^^^^^^^^^^^^^^^
+**BREAKING CHANGES:**
 
 - Plugins:
 

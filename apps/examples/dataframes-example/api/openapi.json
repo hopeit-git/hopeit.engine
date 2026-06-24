@@ -1477,7 +1477,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.30.0",
+            "default": "0.30.1",
             "title": "Engine Version",
             "type": "string"
           }
