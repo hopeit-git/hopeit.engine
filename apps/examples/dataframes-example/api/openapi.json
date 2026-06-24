@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.29",
+    "version": "0.30",
     "title": "Dataframes Example",
     "description": "Dataframes Example"
   },
   "paths": {
-    "/api/basic-auth/0x29/decode": {
+    "/api/basic-auth/0x30/decode": {
       "get": {
         "summary": "Basic Auth: Decode",
         "description": "Returns decoded auth info",
@@ -44,7 +44,7 @@
           }
         },
         "tags": [
-          "basic_auth.0x29"
+          "basic_auth.0x30"
         ],
         "security": [
           {
@@ -53,7 +53,7 @@
         ]
       }
     },
-    "/api/config-manager/0x29/runtime-apps-config": {
+    "/api/config-manager/0x30/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -109,11 +109,11 @@
           }
         },
         "tags": [
-          "config_manager.0x29"
+          "config_manager.0x30"
         ]
       }
     },
-    "/api/config-manager/0x29/cluster-apps-config": {
+    "/api/config-manager/0x30/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -169,11 +169,11 @@
           }
         },
         "tags": [
-          "config_manager.0x29"
+          "config_manager.0x30"
         ]
       }
     },
-    "/api/dataframes/0x29/setup/register-database": {
+    "/api/dataframes/0x30/setup/register-database": {
       "post": {
         "summary": "Register Database",
         "description": "Register Database",
@@ -222,7 +222,7 @@
           }
         },
         "tags": [
-          "dataframes.0x29"
+          "dataframes.0x30"
         ],
         "security": [
           {
@@ -231,7 +231,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x29/prepare-data": {
+    "/api/dataframes-example/0x30/prepare-data": {
       "get": {
         "summary": "Prepare Data",
         "description": "Prepare Data",
@@ -279,7 +279,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x29"
+          "dataframes_example.0x30"
         ],
         "security": [
           {
@@ -288,7 +288,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x29/train-model": {
+    "/api/dataframes-example/0x30/train-model": {
       "post": {
         "summary": "Training Pipeline",
         "description": "Training Pipeline",
@@ -347,7 +347,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x29"
+          "dataframes_example.0x30"
         ],
         "security": [
           {
@@ -356,7 +356,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x29/predict": {
+    "/api/dataframes-example/0x30/predict": {
       "post": {
         "summary": "Predict",
         "description": "Predict",
@@ -424,7 +424,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x29"
+          "dataframes_example.0x30"
         ],
         "security": [
           {
@@ -433,7 +433,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x29/predict-offline": {
+    "/api/dataframes-example/0x30/predict-offline": {
       "post": {
         "summary": "Predict Offline",
         "description": "Predict Offline",
@@ -501,7 +501,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x29"
+          "dataframes_example.0x30"
         ],
         "security": [
           {
@@ -510,7 +510,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x29/offline-prediction-results": {
+    "/api/dataframes-example/0x30/offline-prediction-results": {
       "post": {
         "summary": "Offline Prediction Results",
         "description": "Offline Prediction Results",
@@ -572,7 +572,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x29"
+          "dataframes_example.0x30"
         ],
         "security": [
           {
@@ -581,7 +581,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x29/experiment": {
+    "/api/dataframes-example/0x30/experiment": {
       "get": {
         "summary": "Experiment",
         "description": "Experiment",
@@ -666,7 +666,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x29"
+          "dataframes_example.0x30"
         ],
         "security": [
           {
@@ -675,7 +675,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x29/basic-auth/0x29/login": {
+    "/api/dataframes-example/0x30/basic-auth/0x30/login": {
       "get": {
         "summary": "Basic Auth: Login",
         "description": "Handles users login using basic-auth\nand generate access tokens for external services invoking apps\nplugged in with basic-auth plugin.",
@@ -733,7 +733,7 @@
           }
         },
         "tags": [
-          "dataframes_example.0x29"
+          "dataframes_example.0x30"
         ],
         "security": [
           {
@@ -742,7 +742,7 @@
         ]
       }
     },
-    "/api/dataframes-example/0x29/basic-auth/0x29/refresh": {
+    "/api/dataframes-example/0x30/basic-auth/0x30/refresh": {
       "get": {
         "summary": "Basic Auth: Refresh",
         "description": "This event can be used for obtain new access token and update refresh token (http cookie),\nwith no need to re-login the user if there is a valid refresh token active.",
@@ -800,16 +800,16 @@
           }
         },
         "tags": [
-          "dataframes_example.0x29"
+          "dataframes_example.0x30"
         ],
         "security": [
           {
-            "dataframes_example.0x29.refresh": []
+            "dataframes_example.0x30.refresh": []
           }
         ]
       }
     },
-    "/api/dataframes-example/0x29/basic-auth/0x29/logout": {
+    "/api/dataframes-example/0x30/basic-auth/0x30/logout": {
       "get": {
         "summary": "Basic Auth: Logout",
         "description": "Invalidates previous refresh cookies.",
@@ -876,11 +876,11 @@
           }
         },
         "tags": [
-          "dataframes_example.0x29"
+          "dataframes_example.0x30"
         ],
         "security": [
           {
-            "dataframes_example.0x29.refresh": []
+            "dataframes_example.0x30.refresh": []
           }
         ]
       }
@@ -1477,7 +1477,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.29.0",
+            "default": "0.30.0",
             "title": "Engine Version",
             "type": "string"
           }
@@ -1527,7 +1527,7 @@
         "type": "string"
       },
       "StreamsConfig": {
-        "description": "Configuration class for stream connection settings.\n\n:stream_manager: str: Stream manager class name. Default is \"hopeit.streams.NoStreamManager\".\n:field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally\n:field username: SecretStr: Username for authentication. Default is an empty secret string.\n:field password: SecretStr: Password for authentication. Default is an empty secret string.\n:field delay_auto_start_seconds: int: Delay in seconds before auto-starting the stream.\n    Default is 3 seconds.\n:field initial_backoff_seconds: float: Initial backoff time in seconds for connection retries.\n    Default is 1.0 second.\n:field max_backoff_seconds: float: Maximum backoff time in seconds for connection retries.\n    Default is 60.0 seconds.\n:field num_failures_open_circuit_breaker: int: Number of failures before opening the circuit breaker.\n    Default is 1.\n\nNote:\n    hopeit.engine provides `hopeit.redis_streams.RedisStreamManager` as the default plugin for stream management.",
+        "description": "Configuration class for stream connection settings.\n\n:stream_manager: str: Stream manager class name. Default is \"hopeit.streams.NoStreamManager\".\n:field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally\n:field delay_auto_start_seconds: int: Delay in seconds before auto-starting the stream.\n    Default is 3 seconds.\n:field initial_backoff_seconds: float: Initial backoff time in seconds for connection retries.\n    Default is 1.0 second.\n:field max_backoff_seconds: float: Maximum backoff time in seconds for connection retries.\n    Default is 60.0 seconds.\n:field num_failures_open_circuit_breaker: int: Number of failures before opening the circuit breaker.\n    Default is 1.\n\nNote:\n    hopeit.engine provides `hopeit.redis_streams.RedisStreamManager` as the default plugin for stream management.",
         "properties": {
           "stream_manager": {
             "default": "hopeit.streams.NoStreamManager",
@@ -1538,18 +1538,6 @@
             "default": "<<NoStreamManager>>",
             "title": "Connection Str",
             "type": "string"
-          },
-          "username": {
-            "format": "password",
-            "title": "Username",
-            "type": "string",
-            "writeOnly": true
-          },
-          "password": {
-            "format": "password",
-            "title": "Password",
-            "type": "string",
-            "writeOnly": true
           },
           "delay_auto_start_seconds": {
             "default": 3,
@@ -2140,10 +2128,10 @@
         "type": "http",
         "scheme": "bearer"
       },
-      "dataframes_example.0x29.refresh": {
+      "dataframes_example.0x30.refresh": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "dataframes_example.0x29.refresh"
+        "name": "dataframes_example.0x30.refresh"
       }
     }
   },

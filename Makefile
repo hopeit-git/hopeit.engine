@@ -57,9 +57,9 @@ format:
 lint-engine:
 	uv run --no-sync ruff format --check engine/src/ engine/test/
 	uv run --no-sync ruff check engine/src/ engine/test/
-	MYPYPATH=engine/src/ uv run --no-sync mypy --namespace-packages -p hopeit
-	MYPYPATH=engine/src:engine/test/ uv run --no-sync mypy --namespace-packages engine/test/unit/
-	MYPYPATH=engine/src:engine/test/ uv run --no-sync mypy --namespace-packages engine/test/integration/
+	PYTHONPATH=engine/src MYPYPATH=engine/src/ uv run --no-sync mypy --namespace-packages -p hopeit
+	PYTHONPATH=engine/src:engine/test MYPYPATH=engine/src:engine/test/ uv run --no-sync mypy --namespace-packages engine/test/unit/
+	PYTHONPATH=engine/src:engine/test MYPYPATH=engine/src:engine/test/ uv run --no-sync mypy --namespace-packages engine/test/integration/
 
 lint-plugin:
 	uv run --no-sync ruff format --check $(PLUGINFOLDER)/src/ $(PLUGINFOLDER)/test/

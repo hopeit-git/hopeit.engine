@@ -1,13 +1,13 @@
 [project]
 name = "hopeit.redis-storage"
-version = "0.29.0"
+version = "0.30.0"
 
 description = "Hopeit Engine Redis Storage Toolkit"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.29.0", 
-    "redis>=7.1.0",
+    "hopeit.engine>=0.30.0", 
+    "redis>=8.0.0",
 ]
 
 license = "Apache-2.0"

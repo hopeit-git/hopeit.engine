@@ -1,14 +1,11 @@
-"""
-Streams module. Handles reading and writing to streams.
-Backed by Redis Streams
-"""
+"""Redis Streams-backed implementation of the Hopeit stream manager."""
 
 import asyncio
 import json
 import base64
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Union
+from typing import Callable, Dict, List, Any, Optional, Union
 
 import redis.asyncio as redis
 from redis import RedisError, ResponseError
@@ -26,17 +23,34 @@ extra = extra_logger()
 
 DEFAULT_QUEUE = StreamQueue.AUTO.encode()
 
+ConnectionFactory = Callable[[str], redis.Redis]
+
 
 class RedisStreamManager(StreamManager):
-    """
-    Manages streams of a Hopeit App
-    """
+    """Manage Hopeit application streams using Redis Streams."""
+
+    # __connection_factory must be initialized during redis_streams plugin setup event
+    __connection_factory: Optional[ConnectionFactory] = None
+
+    @classmethod
+    def connection_factory(cls, address: str) -> redis.Redis:
+        assert cls.__connection_factory is not None, (
+            "Redis Streams connection factory not initialized. Check if Redis Streams plugin `setup_redis_pool` event not configured"
+        )
+        return cls.__connection_factory(address)
+
+    @classmethod
+    def setup_connection_factory(cls, connection_factory: ConnectionFactory):
+        assert cls.__connection_factory is None, (
+            "Redis Streams connection factory already initialized."
+        )
+        cls.__connection_factory = connection_factory
 
     def __init__(self, *, address: str):
         """
-        Creates an StreamManager instance backed by redis connection
-        specified in `address`.
-        After creation, `connect()` must be called to create connection pools.
+        Create a stream manager for the Redis server at ``address``.
+
+        ``connect()`` must be called before the manager is used.
         """
         self.address = address
         self.consumer_id = self._consumer_id()
@@ -45,35 +59,29 @@ class RedisStreamManager(StreamManager):
 
     async def connect(self, config: StreamsConfig) -> StreamManager:
         """
-        Connects to Redis using two connection pools, one to handle
-        writing to stream and one for reading.
-        :param config: StreamsConfig: The configuration object containing the Redis connection details.
+        Create separate Redis clients for stream reads and writes.
+
+        The clients and their connection pools are created by the factory initialized
+        by the Redis Streams plugin SETUP event.
+
+        :param config: Engine stream configuration required by the StreamManager interface.
+        :return: This connected stream manager.
         """
         logger.info(__name__, f"Connecting address={self.address}...")
         try:
-            self._write_pool = redis.from_url(
-                self.address,
-                username=config.username.get_secret_value(),
-                password=config.password.get_secret_value(),
-            )
-            self._read_pool = redis.from_url(
-                self.address,
-                username=config.username.get_secret_value(),
-                password=config.password.get_secret_value(),
-            )
+            self._write_pool = self.connection_factory(self.address)
+            self._read_pool = self.connection_factory(self.address)
             return self
         except (OSError, RedisError, RedisConnectionError) as e:  # pragma: no cover
             logger.error(__name__, e)
             raise StreamOSError(e) from e
 
     async def close(self):
-        """
-        Close connections to Redis
-        """
+        """Close both Redis clients and their connection pools."""
 
         async def _close(pool) -> None:
             if pool:
-                await pool.close()
+                await pool.aclose(close_connection_pool=True)
             return None
 
         self._read_pool = await _close(self._read_pool)
@@ -99,6 +107,7 @@ class RedisStreamManager(StreamManager):
         :param track_ids: dict with key and id values to track in stream event
         :param auth_info: dict with auth info to be tracked as part of stream event
         :param compression: Compression, supported compression algorithm from enum
+        :param serialization: Serialization, supported serialization format from enum
         :param target_max_len: int, max_len to indicate approx. target collection size to Redis,
             default 0 will not send max_len to Redis.
         :return: number of successful written messages
@@ -119,11 +128,12 @@ class RedisStreamManager(StreamManager):
 
     async def ensure_consumer_group(self, *, stream_name: str, consumer_group: str):
         """
-        Ensures a consumer_group exists for a given stream.
-        If group does not exists, XGROUP_CREATE will be executed in Redis and consumer group
-        created to consume event from beginning of stream (from id=0)
-        If group already exists a message will be logged and no action performed.
-        If stream does not exists and empty stream will be created.
+        Ensure a consumer group exists for a given stream.
+
+        If the group does not exist, ``XGROUP CREATE`` creates it at ID 0 so it consumes
+        from the beginning of the stream. If the stream does not exist, an empty stream
+        is created. If the group already exists, no action is performed.
+
         :param stream_name: str, stream name or key used by Redis
         :param consumer_group: str, consumer group passed to Redis
         """
@@ -154,12 +164,12 @@ class RedisStreamManager(StreamManager):
         batch_interval: int,
     ) -> List[Union[StreamEvent, Exception]]:
         """
-        Attempts reading streams using a consumer group,
-        blocks for `timeout` seconds
-        and yields asynchronously the deserialized objects gotten from the stream.
-        In case timeout is reached, nothing is yielded
-        and read_stream must be called again,
-        usually in an infinite loop while app is running.
+        Read a batch of events using a Redis consumer group.
+
+        The Redis read blocks for up to ``timeout`` milliseconds. If no messages are
+        returned, this method waits for ``batch_interval`` milliseconds and returns an
+        empty list.
+
         :param stream_name: str, stream name or key used by Redis, including queue suffix if necessary.
         :param consumer_group: str, consumer group registered in Redis
         :param datatypes: Dict[str, type] supported datatypes name: type to be extracted from stream.
@@ -171,8 +181,7 @@ class RedisStreamManager(StreamManager):
         :param timeout: time to block waiting for messages, in milliseconds
         :param batch_interval: int, time to sleep between requests to connection pool in case no
             messages are returned. In milliseconds. Used to prevent blocking the pool.
-        :param compression: Compression, supported compression algorithm from enum
-        :return: yields Tuples of message id (bytes) and deserialized DataObject
+        :return: A list containing decoded stream events or per-message decoding errors.
         """
         try:
             response = await self._read_pool.xreadgroup(
@@ -294,7 +303,7 @@ class RedisStreamManager(StreamManager):
         track_headers: List[str],
         read_ts: str,
     ):
-        """Decodes/deserialize message from stream"""
+        """Decode and deserialize a message from a Redis stream."""
         assert isinstance(msg[0], bytes) and isinstance(msg[1], dict), (
             "Invalid message format. Expected `[bytes, bytes, Dict[bytes, bytes]]`"
         )

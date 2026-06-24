@@ -9,9 +9,13 @@
             "args": [
                 "--port=8020",
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--config-files=engine/config/dev-local.json,plugins/streams/redis/config/plugin-config.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
                 "--api-file=apps/examples/simple-example/api/openapi.json"
             ],
+            "env": {
+                "REDIS_USERNAME": "",
+                "REDIS_PASSWORD": "",
+            },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },
@@ -23,9 +27,13 @@
             "args": [
                 "--port=8020",
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
+                "--config-files=engine/config/dev-local.json,plugins/streams/redis/config/plugin-config.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,apps/examples/simple-example/config/app-config.json",
                 "--api-auto=0.18;Simple Example;Simple Example OpenAPI specs"
             ],
+            "env": {
+                "REDIS_USERNAME": "",
+                "REDIS_PASSWORD": "",
+            },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },
@@ -52,10 +60,14 @@
             "module": "hopeit.server.web",
             "args": [
                 "--port=8040",
-                "--config-files=engine/config/dev-local.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/data/dataframes/config/plugin-config.json,apps/examples/dataframes-example/config/app-config.json",
+                "--config-files=engine/config/dev-local.json,plugins/streams/redis/config/plugin-config.json,plugins/auth/basic-auth/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/data/dataframes/config/plugin-config.json,apps/examples/dataframes-example/config/app-config.json",
                 "--api-file=apps/examples/dataframes-example/api/openapi.json",
                 "--start-streams",
             ],
+            "env": {
+                "REDIS_USERNAME": "",
+                "REDIS_PASSWORD": "",
+            },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },
@@ -66,10 +78,14 @@
             "module": "hopeit.server.job",
             "args": [
                 "--start-streams",
-                "--config-files=engine/config/dev-noauth.json,apps/examples/simple-example/config/job-config.json",
+                "--config-files=engine/config/dev-noauth.json,plugins/streams/redis/config/plugin-config.json,apps/examples/simple-example/config/job-config.json",
                 "--event-name=streams.something_event",
                 "--payload=@apps/examples/simple-example/resources/job-payload.json",
             ],
+            "env": {
+                "REDIS_USERNAME": "",
+                "REDIS_PASSWORD": "",
+            },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },
@@ -80,10 +96,14 @@
             "module": "hopeit.server.job",
             "args": [
                 "--start-streams",
-                "--config-files=engine/config/dev-noauth.json,apps/examples/simple-example/config/job-config.json",
+                "--config-files=engine/config/dev-noauth.json,plugins/streams/redis/config/plugin-config.json,apps/examples/simple-example/config/job-config.json",
                 "--event-name=streams.process_events",
                 "--max-events=2",
             ],
+            "env": {
+                "REDIS_USERNAME": "",
+                "REDIS_PASSWORD": "",
+            },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },
@@ -94,11 +114,15 @@
             "module": "hopeit.server.job",
             "args": [
                 "--start-streams",
-                "--config-files=engine/config/dev-noauth.json,apps/examples/simple-example/config/job-config.json",
+                "--config-files=engine/config/dev-noauth.json,plugins/streams/redis/config/plugin-config.json,apps/examples/simple-example/config/job-config.json",
                 "--event-name=shuffle.spawn_event",
                 "--payload=@apps/examples/simple-example/resources/spawn-payload.json",
                 "--track={\"something_id\":\"abc123\"}"
             ],
+            "env": {
+                "REDIS_USERNAME": "",
+                "REDIS_PASSWORD": "",
+            },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         },
@@ -108,12 +132,14 @@
             "request": "launch",
             "module": "hopeit.server.web",
             "env": {
-                "HOPEIT_APPS_VISUALIZER_HOSTS": "http://localhost:8020,http://localhost:8021,http://localhost:8030,http://localhost:8098,http://localhost:8099"
+                "HOPEIT_APPS_VISUALIZER_HOSTS": "http://localhost:8020,http://localhost:8021,http://localhost:8030,http://localhost:8098,http://localhost:8099",
+                "REDIS_USERNAME": "",
+                "REDIS_PASSWORD": "",
             },
             "args": [
                 "--port=8098",
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json",
+                "--config-files=engine/config/dev-local.json,plugins/streams/redis/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/apps-visualizer/config/plugin-config.json",
                 "--api-file=plugins/ops/apps-visualizer/api/openapi.json"
             ],
             "cwd": "${workspaceFolder}",
@@ -127,8 +153,12 @@
             "args": [
                 "--port=8099",
                 "--start-streams",
-                "--config-files=engine/config/dev-local.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/log-streamer/config/plugin-config.json"
+                "--config-files=engine/config/dev-local.json,plugins/streams/redis/config/plugin-config.json,plugins/ops/config-manager/config/plugin-config.json,plugins/ops/log-streamer/config/plugin-config.json"
             ],
+            "env": {
+                "REDIS_USERNAME": "",
+                "REDIS_PASSWORD": "",
+            },
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         }

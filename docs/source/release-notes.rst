@@ -1,6 +1,41 @@
 Release Notes
 =============
 
+Version 0.30.0
+______________
+
+- Engine:
+
+  - ``hopeit_job`` now executes standalone SETUP events in configuration-file order,
+    before starting dependent applications.
+
+- Plugins:
+
+  - redis-streams:
+
+    - Redis Stream connections now use configurable blocking connection pools.
+      Authentication, maximum connections, pool timeout, and Redis protocol version
+      are configured by the plugin's ``redis_auth`` and ``redis_pool`` settings.
+
+BREAKING CHANGES
+^^^^^^^^^^^^^^^^
+
+- Plugins:
+
+  - redis-streams:
+
+    - Redis Streams must now be initialized by its ``setup_redis_pool`` SETUP event.
+      Every server or job command that uses Redis Streams must include the Redis Streams
+      ``plugin-config.json`` after the server config and before any dependent application
+      configs::
+
+        --config-files=server-config.json,plugins/streams/redis/config/plugin-config.json,app-config.json
+
+    - ``username`` and ``password`` were removed from the engine ``streams`` configuration.
+      They must now be provided through the plugin's ``redis_auth`` settings. The supplied
+      plugin config reads them from ``REDIS_USERNAME`` and ``REDIS_PASSWORD``; both variables
+      must be defined, using empty values when Redis authentication is disabled.
+
 Version 0.29.0
 ______________
 

@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "0.29",
+    "version": "0.30",
     "title": "Client Example",
     "description": "Client Example"
   },
   "paths": {
-    "/api/config-manager/0x29/runtime-apps-config": {
+    "/api/config-manager/0x30/runtime-apps-config": {
       "get": {
         "summary": "Config Manager: Runtime Apps Config",
         "description": "Returns the runtime config for the Apps running on this server",
@@ -62,11 +62,11 @@
           }
         },
         "tags": [
-          "config_manager.0x29"
+          "config_manager.0x30"
         ]
       }
     },
-    "/api/config-manager/0x29/cluster-apps-config": {
+    "/api/config-manager/0x30/cluster-apps-config": {
       "get": {
         "summary": "Config Manager: Cluster Apps Config",
         "description": "Handle remote access to runtime configuration for a group of hosts",
@@ -122,11 +122,11 @@
           }
         },
         "tags": [
-          "config_manager.0x29"
+          "config_manager.0x30"
         ]
       }
     },
-    "/api/client-example/0x29/call-unsecured": {
+    "/api/client-example/0x30/call-unsecured": {
       "get": {
         "summary": "Client Example: Call Unsecured",
         "description": "List all available Something objects connecting to simple-example app",
@@ -196,11 +196,11 @@
           }
         },
         "tags": [
-          "client_example.0x29"
+          "client_example.0x30"
         ]
       }
     },
-    "/api/client-example/0x29/count-and-save": {
+    "/api/client-example/0x30/count-and-save": {
       "get": {
         "summary": "Client Example: Count Objects and Save new one",
         "description": "Count all available Something objects connecting to simple-example app",
@@ -267,7 +267,7 @@
           }
         },
         "tags": [
-          "client_example.0x29"
+          "client_example.0x30"
         ],
         "security": [
           {
@@ -276,7 +276,7 @@
         ]
       }
     },
-    "/api/client-example/0x29/handle-responses": {
+    "/api/client-example/0x30/handle-responses": {
       "get": {
         "summary": "Client Example: Handle Responses",
         "description": "Non default responses and UnhandledResponse exception\n\nTo manage different types of responses from the same endpoint we can use the `responses` parameter where we list the\nhttp response status codes expected and the corresponding data type for each one. In this example `app_call` expect\nand handle, 200 and 404 responses.\n\nAlso in the code you can see how to handle an expection of type `UnhandledResponse` and log as warining.",
@@ -361,7 +361,7 @@
           }
         },
         "tags": [
-          "client_example.0x29"
+          "client_example.0x30"
         ],
         "security": [
           {
@@ -892,7 +892,7 @@
             "$ref": "#/components/schemas/APIConfig"
           },
           "engine_version": {
-            "default": "0.29.0",
+            "default": "0.30.0",
             "title": "Engine Version",
             "type": "string"
           }
@@ -942,7 +942,7 @@
         "type": "string"
       },
       "StreamsConfig": {
-        "description": "Configuration class for stream connection settings.\n\n:stream_manager: str: Stream manager class name. Default is \"hopeit.streams.NoStreamManager\".\n:field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally\n:field username: SecretStr: Username for authentication. Default is an empty secret string.\n:field password: SecretStr: Password for authentication. Default is an empty secret string.\n:field delay_auto_start_seconds: int: Delay in seconds before auto-starting the stream.\n    Default is 3 seconds.\n:field initial_backoff_seconds: float: Initial backoff time in seconds for connection retries.\n    Default is 1.0 second.\n:field max_backoff_seconds: float: Maximum backoff time in seconds for connection retries.\n    Default is 60.0 seconds.\n:field num_failures_open_circuit_breaker: int: Number of failures before opening the circuit breaker.\n    Default is 1.\n\nNote:\n    hopeit.engine provides `hopeit.redis_streams.RedisStreamManager` as the default plugin for stream management.",
+        "description": "Configuration class for stream connection settings.\n\n:stream_manager: str: Stream manager class name. Default is \"hopeit.streams.NoStreamManager\".\n:field connection_str: str, url to connect to streams server: i.e. redis://localhost:6379\n    if using redis stream manager plugin to connect locally\n:field delay_auto_start_seconds: int: Delay in seconds before auto-starting the stream.\n    Default is 3 seconds.\n:field initial_backoff_seconds: float: Initial backoff time in seconds for connection retries.\n    Default is 1.0 second.\n:field max_backoff_seconds: float: Maximum backoff time in seconds for connection retries.\n    Default is 60.0 seconds.\n:field num_failures_open_circuit_breaker: int: Number of failures before opening the circuit breaker.\n    Default is 1.\n\nNote:\n    hopeit.engine provides `hopeit.redis_streams.RedisStreamManager` as the default plugin for stream management.",
         "properties": {
           "stream_manager": {
             "default": "hopeit.streams.NoStreamManager",
@@ -953,18 +953,6 @@
             "default": "<<NoStreamManager>>",
             "title": "Connection Str",
             "type": "string"
-          },
-          "username": {
-            "format": "password",
-            "title": "Username",
-            "type": "string",
-            "writeOnly": true
-          },
-          "password": {
-            "format": "password",
-            "title": "Password",
-            "type": "string",
-            "writeOnly": true
           },
           "delay_auto_start_seconds": {
             "default": 3,

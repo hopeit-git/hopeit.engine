@@ -77,7 +77,7 @@ extra = extra_logger()
 ResponseType = Union[web.Response, web.FileResponse, web.StreamResponse]
 
 web_server = web.Application()
-auth_info_default = {}
+auth_info_default: Dict[str, str] = {}
 
 
 def prepare_engine(

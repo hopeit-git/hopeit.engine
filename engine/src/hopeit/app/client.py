@@ -15,7 +15,7 @@ from hopeit.server.logger import engine_logger, extra_logger
 logger = engine_logger()
 extra = extra_logger()
 
-_registered_clients = {}
+_registered_clients: Dict[str, Dict[str, "Client"]] = {}
 
 
 class ClientException(Exception):
