@@ -248,6 +248,7 @@ async def test_connect_uses_blocking_pool_settings(monkeypatch):
         "password": "",
         "max_connections": 3,
         "timeout": 2.5,
+        "socket_timeout": None,
         "protocol": 2,
     }
     assert mgr._read_pool.connection_kwargs == mgr._write_pool.connection_kwargs
