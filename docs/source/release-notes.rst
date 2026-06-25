@@ -1,6 +1,19 @@
 Release Notes
 =============
 
+Version 0.30.1
+______________
+
+- Plugins:
+
+  - redis-streams:
+
+    - Redis Stream connections now expose Redis client socket settings through
+      ``redis_pool``. ``socket_timeout`` defaults to 30 seconds, giving large batches
+      and slower Redis responses more time to complete while still failing stuck
+      socket operations. ``socket_connect_timeout`` and ``health_check_interval`` are
+      also configurable.
+
 Version 0.30.0
 ______________
 
@@ -17,8 +30,7 @@ ______________
       Authentication, maximum connections, pool timeout, and Redis protocol version
       are configured by the plugin's ``redis_auth`` and ``redis_pool`` settings.
 
-BREAKING CHANGES
-^^^^^^^^^^^^^^^^
+**BREAKING CHANGES:**
 
 - Plugins:
 

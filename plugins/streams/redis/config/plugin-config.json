@@ -16,6 +16,9 @@
     "redis_pool": {
       "max_connections":  100,
       "pool_timeout":  10.0,
+      "socket_timeout":  30.0,
+      "socket_connect_timeout":  5.0,
+      "health_check_interval":  0.0,
       "protocol":  2
     }
   },
