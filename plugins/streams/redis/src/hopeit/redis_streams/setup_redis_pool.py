@@ -25,7 +25,9 @@ async def init_redis_streams(payload: None, context: EventContext) -> None:
                 password=auth_settings.password.get_secret_value(),
                 max_connections=pool_settings.max_connections,
                 timeout=pool_settings.pool_timeout,
-                socket_timeout=None,
+                socket_timeout=pool_settings.socket_timeout,
+                socket_connect_timeout=pool_settings.socket_connect_timeout,
+                health_check_interval=pool_settings.health_check_interval,
                 protocol=pool_settings.protocol,
             )
         )

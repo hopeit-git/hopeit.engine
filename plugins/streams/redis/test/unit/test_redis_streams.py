@@ -41,7 +41,13 @@ class MockInvalidDataEvent:
 
 
 async def create_stream_manager(
-    *, max_connections: int = 3, pool_timeout: float = 2.5, protocol: int = 2
+    *,
+    max_connections: int = 3,
+    pool_timeout: float = 2.5,
+    socket_timeout: float = 30.0,
+    socket_connect_timeout: float = 5.0,
+    health_check_interval: float = 0.0,
+    protocol: int = 2,
 ):
     stream_config = StreamsConfig()
     plugin_config = AppConfig(
@@ -55,6 +61,9 @@ async def create_stream_manager(
             "redis_pool": {
                 "max_connections": max_connections,
                 "pool_timeout": pool_timeout,
+                "socket_timeout": socket_timeout,
+                "socket_connect_timeout": socket_connect_timeout,
+                "health_check_interval": health_check_interval,
                 "protocol": protocol,
             },
         },
@@ -242,13 +251,22 @@ async def test_ack_read_stream(monkeypatch):
 
 async def test_connect_uses_blocking_pool_settings(monkeypatch):
     patch_redis_client(monkeypatch)
-    mgr = await create_stream_manager(max_connections=3, pool_timeout=2.5, protocol=2)
+    mgr = await create_stream_manager(
+        max_connections=3,
+        pool_timeout=2.5,
+        socket_timeout=30.0,
+        socket_connect_timeout=5.0,
+        health_check_interval=0.0,
+        protocol=2,
+    )
     assert mgr._write_pool.connection_kwargs == {
         "username": "",
         "password": "",
         "max_connections": 3,
         "timeout": 2.5,
-        "socket_timeout": None,
+        "socket_timeout": 30.0,
+        "socket_connect_timeout": 5.0,
+        "health_check_interval": 0.0,
         "protocol": 2,
     }
     assert mgr._read_pool.connection_kwargs == mgr._write_pool.connection_kwargs
