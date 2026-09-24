@@ -5,7 +5,7 @@ from copy import deepcopy
 
 import pytest
 from aiohttp import web
-from aiohttp_swagger3.swagger_route import SwaggerRoute
+from hopeit.server.openapi import OpenAPIRoute
 
 from hopeit.server import api
 from hopeit.server.api import APIError, app_route_name
@@ -178,7 +178,7 @@ def test_add_route_auto_name(mock_api_app_config, mock_api_spec, mock_plugin_con
     )
     route = app_route_name(mock_api_app_config.app, event_name="mock-app-api-get-list")
     handler = api.add_route("get", route, _test_handler_get)
-    assert isinstance(handler.args[0], SwaggerRoute)
+    assert isinstance(handler.__self__, OpenAPIRoute)
     route = app_route_name(mock_api_app_config.app, event_name="mock-app-noapi")
     handler = api.add_route("get", route, _test_handler_get)
     assert handler is _test_handler_get
@@ -199,11 +199,11 @@ def test_add_route_override_name(mock_api_app_config, mock_api_spec, mock_plugin
         override_route_name="mock-app-api/test/mock-app-api",
     )
     handler = api.add_route("get", route, _test_handler_get)
-    assert isinstance(handler.args[0], SwaggerRoute)
-    assert handler.args[0].path == route
+    assert isinstance(handler.__self__, OpenAPIRoute)
+    assert handler.__self__.path == route
     handler = api.add_route("post", route, _test_handler_post)
-    assert isinstance(handler.args[0], SwaggerRoute)
-    assert handler.args[0].path == route
+    assert isinstance(handler.__self__, OpenAPIRoute)
+    assert handler.__self__.path == route
     assert api.spec["paths"]["/api/mock-app-api/test/mock-app-api"].keys() == {
         "get",
         "post",

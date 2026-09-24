@@ -41,6 +41,7 @@ from hopeit.app.context import (
 )
 from hopeit.app.errors import BadRequest, Unauthorized
 from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType
+from hopeit.server.openapi import MULTIPART_FORM_FIELDS_KEY
 from hopeit.dataobjects.payload import Payload
 from hopeit.server import api, runtime
 from hopeit.server.config import AuthType, ServerConfig, parse_server_config_json
@@ -799,6 +800,7 @@ async def _handle_multipart_invocation(
         hook = PreprocessHook(  # type: ignore
             headers=request.headers,
             multipart_reader=await request.multipart(),  # type: ignore
+            form_fields=request.get(MULTIPART_FORM_FIELDS_KEY),
         )
         return await _request_execute(
             impl,

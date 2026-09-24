@@ -13,9 +13,14 @@ aiohttp-cors
     Link: https://github.com/aio-libs/aiohttp-cors
     License: Apache 2.0 (https://github.com/aio-libs/aiohttp-cors/blob/master/LICENSE)
 
-aiohttp-swagger3
-    Link: https://github.com/hh-h/aiohttp-swagger3
-    License: Apache 2.0 (https://github.com/hh-h/aiohttp-swagger3/blob/master/LICENSE)
+openapi-core
+    Link: https://github.com/python-openapi/openapi-core
+    License: BSD 3-Clause (https://github.com/python-openapi/openapi-core/blob/master/LICENSE)
+
+Swagger UI 5.33.0 (bundled documentation UI)
+    Link: https://github.com/swagger-api/swagger-ui
+    License: Apache 2.0 (engine/src/hopeit/server/static/swagger_ui/LICENSE)
+    Update: python engine/scripts/update_swagger_ui.py
 
 aiofiles
     Link: https://github.com/Tinche/aiofiles

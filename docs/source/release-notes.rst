@@ -4,6 +4,20 @@ Release Notes
 Version 0.30.1
 ______________
 
+- Engine:
+
+  - Replaced ``aiohttp-swagger3`` with ``openapi-core`` for OpenAPI 3.0
+    parameter and security validation. Payload schemas continue to be validated
+    by Pydantic, and multipart uploads remain available to streaming preprocess
+    hooks. Swagger UI is bundled locally and retains the configured documentation
+    path and ``swagger.json`` URL. Documentation paths work with and without a
+    trailing slash.
+  - OpenAPI specifications are validated at startup. Invalid requests still
+    return HTTP 400; validation error descriptions now come from ``openapi-core``.
+  - Multipart data fields declared in OpenAPI are parsed as data even when a
+    browser supplies a filename, as Swagger UI does for JSON Blobs. Binary
+    attachments, including JSON files, continue to be streamed as files.
+
 - Plugins:
 
   - redis-streams:

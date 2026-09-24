@@ -75,7 +75,11 @@ async def __preprocess__(
     if not all(x in args for x in ("id", "user", "attachment", "object")):
         request.status = 400
         return "Missing required fields"
-    something_obj = Payload.parse_form_field(args["object"], Something)
+    try:
+        something_obj = Payload.parse_form_field(args["object"], Something)
+    except ValueError:
+        request.status = 400
+        return "Invalid object field"
     return FileUploadInfo(
         id=args["id"], user=args["user"], object=something_obj, uploaded_files=uploaded_files
     )

@@ -16,10 +16,7 @@ from typing import (
 )
 
 from aiohttp import web
-from aiohttp_swagger3 import RapiDocUiSettings, validators
-from aiohttp_swagger3.swagger import Swagger, _handle_swagger_call
-from aiohttp_swagger3.swagger_route import SwaggerRoute
-from aiohttp_swagger3.validators import _MissingType
+from openapi_core import OpenAPI
 from pydantic import TypeAdapter
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaValue
 from pydantic_core import core_schema
@@ -37,6 +34,7 @@ from hopeit.server.errors import ErrorInfo
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger
 from hopeit.server.names import route_name, titlecase
+from hopeit.server.openapi import OpenAPIRoute, setup_docs
 from hopeit.server.steps import (
     StepInfo,
     extract_module_steps,
@@ -59,7 +57,7 @@ __all__ = [
 
 logger = engine_logger()
 
-swagger: Swagger | None = None
+swagger: OpenAPI | None = None
 spec: dict | None = None
 static_spec: dict | None = None
 runtime_schemas: dict[str, JsonSchemaValue] = {}
@@ -226,21 +224,6 @@ def diff_specs() -> bool:
     return static_spec != spec
 
 
-async def _passthru_handler(request: web.Request) -> tuple[web.Request, bool]:
-    return request, True
-
-
-def bypass_payload_validation(
-    self, raw_value: None | dict | _MissingType, raw: bool
-) -> None | dict | _MissingType:
-    return raw_value
-
-
-# Bypass swagger3 module payload validation since is done
-# when deserializing payload in web.py module
-validators.Object.validate = bypass_payload_validation  # type: ignore[method-assign]  # Override third-party validation with Hopeit payload validation.
-
-
 def enable_swagger(server_config: ServerConfig, app: web.Application):
     """
     Enables Open API (a.k.a Swagger) on this server. This consists of:
@@ -263,21 +246,9 @@ def enable_swagger(server_config: ServerConfig, app: web.Application):
         raise err
     static_spec = None
     logger.info(__name__, "Enabling OpenAPI endpoints...")
-    app["AIOHTTP_SWAGGER3_SWAGGER_SPECIFICATION"] = spec
-    api_docs_ui = None
+    swagger = OpenAPI.from_dict(spec)
     if server_config.api.docs_path:
-        api_docs_ui = RapiDocUiSettings(
-            path=server_config.api.docs_path,
-            heading_text=spec["info"]["title"],
-            theme="dark",
-            render_style="read",
-            layout="column",
-            schema_style="tree",
-            allow_spec_url_load=False,
-            allow_spec_file_load=False,
-            allow_server_selection=False,
-            show_header=False,
-        )
+        setup_docs(app, spec, server_config.api.docs_path)
         logger.info(
             __name__,
             f"OpenAPI documentation available in {server_config.api.docs_path}",
@@ -288,16 +259,6 @@ def enable_swagger(server_config: ServerConfig, app: web.Application):
             "OpenAPI documentation path not specified in server config. API docs endpoint disabled.",
         )
 
-    swagger = Swagger(
-        app,
-        validate=True,
-        spec=spec,
-        request_key="data",
-        rapidoc_ui_settings=api_docs_ui,
-        redoc_ui_settings=None,
-        swagger_ui_settings=None,
-    )
-    swagger.register_media_type_handler("multipart/form-data", _passthru_handler)
     logger.info(__name__, "OpenAPI validations enabled.")
 
 
@@ -318,9 +279,7 @@ def add_route(
     assert swagger is not None, "API module not initialized. Call `api.enable_swagger(...)`"
     method_lower = method.lower()
     if method_lower in spec["paths"].get(path, {}):
-        route = SwaggerRoute(method_lower, path, handler, swagger=swagger)
-        api_handler = partial(_handle_swagger_call, route)
-        return api_handler
+        return OpenAPIRoute(method_lower, path, handler, swagger).handle
     logger.warning(__name__, f"No API Spec defined for path={path}")
     return handler
 
