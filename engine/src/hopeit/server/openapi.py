@@ -5,13 +5,24 @@ by hopeit's Pydantic deserializer, and multipart streams belong to preprocess ho
 """
 
 import json
+from collections.abc import Awaitable, Callable
 from html import escape
 from pathlib import Path
-from typing import Any, Awaitable, Callable
+from typing import Any
 
 from aiohttp import web
+from jsonschema_path import SchemaPath
 from openapi_core import OpenAPI
+from openapi_core.casting.schemas import oas30_write_schema_casters_factory
+from openapi_core.casting.schemas.casters import BooleanCaster, TypesCaster
+from openapi_core.casting.schemas.factories import SchemaCastersFactory
 from openapi_core.contrib.aiohttp import AIOHTTPOpenAPIWebRequest
+from openapi_core.templating.paths.finders import BasePathFinder
+from openapi_core.templating.paths.iterators import (
+    SimpleOperationsIterator,
+    SimplePathsIterator,
+    SimpleServersIterator,
+)
 from openapi_core.unmarshalling.request.unmarshallers import (
     V30RequestParametersUnmarshaller,
     V30RequestSecurityUnmarshaller,
@@ -29,12 +40,84 @@ class RequestValidationFailed(web.HTTPBadRequest):
         super().__init__(reason=json.dumps(errors))
 
 
+class _RegisteredPathFinder(BasePathFinder):
+    """aiohttp has already selected the route; public servers are documentation."""
+
+    paths_iterator = SimplePathsIterator("paths")
+    operations_iterator = SimpleOperationsIterator()
+    servers_iterator = SimpleServersIterator()
+
+
+class _StrictBooleanCaster(BooleanCaster):
+    """Preserve hopeit's case-sensitive true/false wire representation."""
+
+    def validate(self, value: Any) -> None:
+        if not isinstance(value, bool) and value not in ("true", "false"):
+            raise ValueError("expected true or false")
+
+
+_default_casters = oas30_write_schema_casters_factory
+_parameter_casters = SchemaCastersFactory(
+    _default_casters.schema_validators_factory,
+    TypesCaster(
+        {**_default_casters.types_caster.casters, "boolean": _StrictBooleanCaster},
+        _default_casters.types_caster.default,
+    ),
+)
+
+
+def _validation_spec(spec: SchemaPath, path: str, method: str) -> SchemaPath:
+    """Adapt parameter semantics without changing the published specification.
+
+    Required parameters must be present even when their schema supplies a default.
+    Empty query strings are values, subject to the schema's string constraints.
+    Keep references rooted in the original document and operation overrides intact.
+    """
+    path_spec = spec / "paths" / path
+    operation = path_spec / method
+
+    def parameters(owner: SchemaPath) -> list[dict]:
+        result = []
+        for param in owner.get("parameters", []):
+            value = dict(param.read_value())
+            if "schema" in param:
+                schema = dict((param / "schema").read_value())
+                if value.get("required"):
+                    schema.pop("default", None)
+                if value["in"] == "query" and schema.get("type") == "string":
+                    value["allowEmptyValue"] = True
+                value["schema"] = schema
+            result.append(value)
+        return result
+
+    document = dict(spec.read_value())
+    document["paths"] = {
+        **(spec / "paths").read_value(),
+        path: {
+            **path_spec.read_value(),
+            "parameters": parameters(path_spec),
+            method: {**operation.read_value(), "parameters": parameters(operation)},
+        },
+    }
+    return SchemaPath.from_dict(document)
+
+
 class _RouteRequest(AIOHTTPOpenAPIWebRequest):
     """Use the registered operation, including aiohttp's implicit HEAD on GET."""
 
-    def __init__(self, request: web.Request, method: str):
+    def __init__(self, request: web.Request, method: str, path: str):
         super().__init__(request, body=None)
         self.route_method = method
+        self.route_path = path
+        self.parameters.path = dict(request.match_info)
+
+    @property
+    def host_url(self) -> str:
+        return ""
+
+    @property
+    def path(self) -> str:
+        return self.route_path
 
     @property
     def method(self) -> str:
@@ -54,8 +137,15 @@ class OpenAPIRoute:
         self.method = method
         self.path = path
         self.handler = handler
-        self.parameters = V30RequestParametersUnmarshaller(api.spec)
-        self.security = V30RequestSecurityUnmarshaller(api.spec)
+        validation_spec = _validation_spec(api.spec, path, method)
+        self.parameters = V30RequestParametersUnmarshaller(
+            validation_spec,
+            path_finder_cls=_RegisteredPathFinder,
+            schema_casters_factory=_parameter_casters,
+        )
+        self.security = V30RequestSecurityUnmarshaller(
+            validation_spec, path_finder_cls=_RegisteredPathFinder
+        )
         self.body = (api.spec / "paths" / path / method).get("requestBody")
         self.form_fields: set[str] = set()
         if self.body is not None and "multipart/form-data" in self.body["content"]:
@@ -65,7 +155,7 @@ class OpenAPIRoute:
                     self.form_fields.add(name)
 
     async def handle(self, request: web.Request) -> web.StreamResponse:
-        adapted = _RouteRequest(request, self.method)
+        adapted = _RouteRequest(request, self.method, self.path)
         security = self.security.unmarshal(adapted)
         if security.errors:
             raise RequestValidationFailed({"authorization": str(next(iter(security.errors)))})

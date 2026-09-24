@@ -14,6 +14,12 @@ ______________
     trailing slash.
   - OpenAPI specifications are validated at startup. Invalid requests still
     return HTTP 400; validation error descriptions now come from ``openapi-core``.
+  - Request validation uses the route selected by aiohttp, independently of
+    documented ``servers`` URLs, ports or reverse proxy prefixes. Required
+    parameters remain required even with schema defaults. Empty query strings
+    remain valid when their schema allows them, and boolean parameters retain
+    the case-sensitive ``true``/``false`` representation. These compatibility
+    settings do not alter the published OpenAPI specification.
   - Multipart data fields declared in OpenAPI are parsed as data even when a
     browser supplies a filename, as Swagger UI does for JSON Blobs. Binary
     attachments, including JSON files, continue to be streamed as files.
