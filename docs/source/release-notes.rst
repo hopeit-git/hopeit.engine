@@ -1,10 +1,15 @@
 Release Notes
 =============
 
-Version 0.30.1
+Version 0.31.0
 ______________
 
 - Engine:
+
+  - Generated and checked-in OpenAPI specifications now use version 3.0.4,
+    retaining the OpenAPI 3.0 schema format.
+  - Documented request media types without a body parser are explicitly rejected
+    with HTTP 400 instead of reaching handlers without a parsed body.
 
   - Replaced ``aiohttp-swagger3`` with ``openapi-core`` for OpenAPI 3.0
     parameter and security validation. Payload schemas continue to be validated

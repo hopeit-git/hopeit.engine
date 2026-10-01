@@ -63,7 +63,7 @@ static_spec: dict | None = None
 runtime_schemas: dict[str, JsonSchemaValue] = {}
 _options = {"generate_mode": False}
 
-OPEN_API_VERSION = "3.0.3"
+OPEN_API_VERSION = "3.0.4"
 
 OPEN_API_DEFAULTS = [
     "hopeit.engine automatic OpenAPI title",

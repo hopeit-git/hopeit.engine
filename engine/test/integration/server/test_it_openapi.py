@@ -15,7 +15,7 @@ from mock_app import mock_api_app_config
 @pytest.fixture
 def specification():
     return {
-        "openapi": "3.0.3",
+        "openapi": "3.0.4",
         "info": {"title": "Validation <test>", "version": "1.0"},
         "paths": {
             "/items/{item}": {
@@ -149,6 +149,23 @@ async def test_json_body(aiohttp_client, specification):
     ]:
         response = await client.post("/payload", **kwargs)
         assert response.status == 400
+
+
+@pytest.mark.parametrize("content_type", ["application/merge-patch+json", "text/plain"])
+async def test_unsupported_documented_body(aiohttp_client, specification, content_type):
+    specification["components"]["requestBodies"]["Payload"]["content"][content_type] = {
+        "schema": {"type": "string"}
+    }
+
+    async def unexpected_handler(request):
+        pytest.fail("Unsupported body must be rejected before calling the handler")
+
+    client = await make_client(aiohttp_client, specification, unexpected_handler)
+    response = await client.post(
+        "/payload", data='{"value":"ok"}', headers={"Content-Type": content_type}
+    )
+    assert response.status == 400
+    assert f"no handler for {content_type}" in await response.text()
 
 
 async def test_optional_body(aiohttp_client, specification):

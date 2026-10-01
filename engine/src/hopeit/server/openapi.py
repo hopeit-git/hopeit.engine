@@ -85,6 +85,8 @@ def _validation_spec(spec: SchemaPath, path: str, method: str) -> SchemaPath:
                 if value.get("required"):
                     schema.pop("default", None)
                 if value["in"] == "query" and schema.get("type") == "string":
+                    # TODO: Replace deprecated allowEmptyValue before upgrading openapi-core
+                    # beyond 0.23.x; retain empty-string schema validation (follow-up #224).
                     value["allowEmptyValue"] = True
                 value["schema"] = schema
             result.append(value)
@@ -188,6 +190,8 @@ class OpenAPIRoute:
                     data["body"] = await request.json()
                 except (ValueError, UnicodeError) as error:
                     raise RequestValidationFailed({"body": "invalid JSON"}) from error
+            else:
+                raise RequestValidationFailed({"body": f"no handler for {request.content_type}"})
         return await self.handler(request)
 
 
