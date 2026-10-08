@@ -17,10 +17,10 @@ openapi-core
     Link: https://github.com/python-openapi/openapi-core
     License: BSD 3-Clause (https://github.com/python-openapi/openapi-core/blob/master/LICENSE)
 
-Swagger UI 5.33.0 (bundled documentation UI)
-    Link: https://github.com/swagger-api/swagger-ui
-    License: Apache 2.0 (engine/src/hopeit/server/static/swagger_ui/LICENSE)
-    Update: python engine/scripts/update_swagger_ui.py
+RapiDoc 10.1.0 (bundled documentation UI)
+    Link: https://github.com/rapi-doc/RapiDoc
+    License: MIT (engine/src/hopeit/server/static/rapidoc/LICENSE.txt)
+    Update: python engine/scripts/update_rapidoc.py
 
 aiofiles
     Link: https://github.com/Tinche/aiofiles

@@ -73,4 +73,4 @@ version = { attr = "hopeit.server.version.ENGINE_VERSION" }
 readme = { file = ["README.md"], content-type = "text/markdown" }
 
 [tool.setuptools.package-data]
-"hopeit.server" = ["static/swagger_ui/*"]
+"hopeit.server" = ["static/rapidoc/*"]

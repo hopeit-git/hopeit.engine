@@ -248,19 +248,17 @@ async def test_documentation(aiohttp_client, specification, docs_path):
     assert response.status == 200
     html = await response.text()
     assert "Validation &lt;test&gt;" in html
-    assert '<div id="swagger-ui">' in html
-    assert 'src="./swagger_ui_static/initializer.js"' in html
+    assert '<rapi-doc spec-url="./swagger.json"' in html
+    assert 'type="module" src="./rapidoc_static/rapidoc-min.js"' in html
+    assert 'load-fonts="false"' in html
+    assert 'allow-spec-url-load="false"' in html
+    assert 'allow-spec-file-load="false"' in html
     response = await client.get(f"{path}/swagger.json")
     assert await response.json() == specification
-    response = await client.get(f"{path}/swagger_ui_static/swagger-ui-bundle.js")
+    response = await client.get(f"{path}/rapidoc_static/rapidoc-min.js")
     assert response.status == 200
-    assert "SwaggerUIBundle" in await response.text()
-    response = await client.get(f"{path}/swagger_ui_static/swagger-ui.css")
-    assert response.status == 200
-    assert response.content_type == "text/css"
-    response = await client.get(f"{path}/swagger_ui_static/initializer.js")
-    assert response.status == 200
-    assert 'new URL("./swagger.json", window.location.href)' in await response.text()
+    assert response.content_type in {"text/javascript", "application/javascript"}
+    assert "rapidoc v10.1.0" in await response.text()
 
 
 async def test_documentation_disabled(aiohttp_client, specification):

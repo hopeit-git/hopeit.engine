@@ -196,18 +196,16 @@ class OpenAPIRoute:
 
 
 def setup_docs(app: web.Application, spec: dict, docs_path: str) -> None:
-    """Serve Swagger UI and the spec locally, independently of request validation."""
+    """Serve RapiDoc and the spec locally, independently of request validation."""
     path = docs_path.rstrip("/")
     title = escape(spec["info"]["title"])
     html = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>{title}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="./swagger_ui_static/favicon-32x32.png">
-<link rel="stylesheet" href="./swagger_ui_static/swagger-ui.css">
-<script defer src="./swagger_ui_static/swagger-ui-bundle.js"></script>
-<script defer src="./swagger_ui_static/initializer.js"></script>
+<script type="module" src="./rapidoc_static/rapidoc-min.js"></script>
 </head><body>
-<div id="swagger-ui"></div>
+<rapi-doc spec-url="./swagger.json" render-style="read" theme="light"
+  load-fonts="false" allow-spec-url-load="false" allow-spec-file-load="false"></rapi-doc>
 </body></html>"""
 
     async def docs(request: web.Request) -> web.Response:
@@ -224,6 +222,4 @@ def setup_docs(app: web.Application, spec: dict, docs_path: str) -> None:
         app.router.add_get(path, redirect)
     app.router.add_get(f"{path}/", docs)
     app.router.add_get(f"{path}/swagger.json", specification)
-    app.router.add_static(
-        f"{path}/swagger_ui_static", Path(__file__).parent / "static" / "swagger_ui"
-    )
+    app.router.add_static(f"{path}/rapidoc_static", Path(__file__).parent / "static" / "rapidoc")

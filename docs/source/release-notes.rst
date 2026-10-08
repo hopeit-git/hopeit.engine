@@ -14,9 +14,10 @@ ______________
   - Replaced ``aiohttp-swagger3`` with ``openapi-core`` for OpenAPI 3.0
     parameter and security validation. Payload schemas continue to be validated
     by Pydantic, and multipart uploads remain available to streaming preprocess
-    hooks. Swagger UI is bundled locally and retains the configured documentation
-    path and ``swagger.json`` URL. Documentation paths work with and without a
-    trailing slash.
+    hooks. RapiDoc is served locally as a single JavaScript file, with no
+    external fonts or frontend build dependencies. It retains the
+    configured documentation path and ``swagger.json`` URL. Documentation paths
+    work with and without a trailing slash.
   - OpenAPI specifications are validated at startup. Invalid requests still
     return HTTP 400; validation error descriptions now come from ``openapi-core``.
   - Request validation uses the route selected by aiohttp, independently of
