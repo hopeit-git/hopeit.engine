@@ -20,7 +20,7 @@ openapi-core
 RapiDoc 10.1.0 (bundled documentation UI)
     Link: https://github.com/rapi-doc/RapiDoc
     License: MIT (engine/src/hopeit/server/static/rapidoc/LICENSE.txt)
-    Update: python engine/scripts/update_rapidoc.py
+    Update: python engine/scripts/rapidoc/update_rapidoc.py
 
 aiofiles
     Link: https://github.com/Tinche/aiofiles

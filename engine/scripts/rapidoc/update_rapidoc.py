@@ -18,7 +18,7 @@ INTEGRITY = (
     "vXP/2japlcSXr4EUYHW1mA=="
 )
 FILES = {"dist/rapidoc-min.js": "rapidoc-min.js", "LICENSE.txt": "LICENSE.txt"}
-DESTINATION = Path(__file__).resolve().parents[1] / "src/hopeit/server/static/rapidoc"
+DESTINATION = Path(__file__).resolve().parents[2] / "src/hopeit/server/static/rapidoc"
 
 
 def install(archive: bytes) -> None:
