@@ -2,7 +2,7 @@
 Mock hooks for testing apps
 """
 
-from typing import Optional, AsyncGenerator, Dict, AsyncIterator, Union, Mapping
+from typing import AsyncGenerator, AsyncIterator, Dict, Mapping, Optional, Union
 
 from multidict import CIMultiDict
 

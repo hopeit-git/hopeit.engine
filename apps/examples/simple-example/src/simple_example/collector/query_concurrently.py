@@ -6,16 +6,15 @@ using `collector` steps constructor (instantiating an `AsyncCollector`)
 """
 
 import asyncio
-from typing import Union, Optional, List
+from typing import List, Optional, Union
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.events import collector_step
 from hopeit.app.logger import app_extra_logger
-from hopeit.server.collector import Collector
 from hopeit.fs_storage import FileStorage, FileStorageSettings
+from hopeit.server.collector import Collector
 from model import ItemsInfo, Something, SomethingNotFound
-
 
 __steps__ = [
     collector_step(payload=ItemsInfo).gather("load_first", "load_second", "combine"),

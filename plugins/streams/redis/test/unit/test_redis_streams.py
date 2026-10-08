@@ -1,10 +1,9 @@
 import asyncio
+from copy import deepcopy
+from datetime import datetime, timezone
 
-from hopeit.redis_streams import setup_redis_pool
 import redis.asyncio as redis
 from redis import ResponseError
-
-from datetime import datetime, timezone
 
 from hopeit.app.config import (
     AppConfig,
@@ -16,16 +15,14 @@ from hopeit.app.config import (
     Serialization,
 )
 from hopeit.dataobjects import dataclass, dataobject
+from hopeit.redis_streams import RedisStreamManager, setup_redis_pool
+from hopeit.redis_streams.setup_redis_pool import BlockingConnectionPool
 from hopeit.server.config import AuthType, StreamsConfig
 from hopeit.server.version import APPS_API_VERSION
+from hopeit.streams import StreamEvent
 from hopeit.testing.apps import create_test_context
 
-from hopeit.streams import StreamEvent
-from hopeit.redis_streams import RedisStreamManager
-from hopeit.redis_streams.setup_redis_pool import BlockingConnectionPool
-
 from . import MockEventHandler, TestStreamData
-from copy import deepcopy
 
 
 @dataobject(event_id="value", event_ts="ts")

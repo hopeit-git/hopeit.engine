@@ -24,10 +24,9 @@ except ImportError:
     import hopeit.dataframes.polars as pl  # type: ignore  # Polars is optional; set to a mock if not installed
 
 from hopeit.dataframes.dataframe import DataTypeMapping
-from hopeit.dataobjects import dataobject, dataclass, fields
-
 from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
 from hopeit.dataframes.setup.registry import get_dataset_storage
+from hopeit.dataobjects import dataclass, dataobject, fields
 
 DataBlockType = TypeVar("DataBlockType")
 DataBlockItemType = TypeVar("DataBlockItemType")

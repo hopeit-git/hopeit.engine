@@ -6,9 +6,9 @@ import subprocess
 import pytest
 from click.testing import CliRunner
 
+import hopeit.cli.job as cli_job
 from hopeit.cli.job import job
 from hopeit.dataobjects.payload import Payload
-import hopeit.cli.job as cli_job
 
 
 def test_missing_config_files():

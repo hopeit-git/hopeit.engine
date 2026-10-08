@@ -3,12 +3,12 @@ Base class and helper functions to defined and invoke external apps
 using clients plugins.
 """
 
-from typing import Optional, Type, List, Dict
 from abc import ABC
 from importlib import import_module
+from typing import Dict, List, Optional, Type
 
-from hopeit.app.context import EventContext
 from hopeit.app.config import AppConfig
+from hopeit.app.context import EventContext
 from hopeit.dataobjects import EventPayload, EventPayloadType
 from hopeit.server.logger import engine_logger, extra_logger
 

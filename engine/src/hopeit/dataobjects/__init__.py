@@ -22,12 +22,12 @@ import pickle
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, Type, TypeVar, Optional, Union, Any
+from typing import Any, Dict, Optional, Type, TypeVar, Union
 
-from pydantic import RootModel, Field as field
+from pydantic import Field as field
+from pydantic import RootModel
 from pydantic.dataclasses import dataclass
 from pydantic.fields import FieldInfo
-
 
 __all__ = [
     "EventPayload",

@@ -7,9 +7,8 @@ from types import ModuleType
 from typing import Type
 
 from hopeit.app.config import AppConfig, EventDescriptor
-from hopeit.server.names import module_name
-
 from hopeit.dataobjects import DataObject
+from hopeit.server.names import module_name
 
 __all__ = ["find_event_handler"]
 

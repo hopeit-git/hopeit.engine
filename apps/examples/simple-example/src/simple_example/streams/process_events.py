@@ -4,13 +4,13 @@ Simple Example: Process Events
 Process events submitted by something_event app event
 """
 
+import asyncio
+import random
 from datetime import datetime, timezone
 from typing import Optional
-import random
-import asyncio
 
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
+from hopeit.app.logger import app_extra_logger
 from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import Something, SomethingStored, Status, StatusType
 

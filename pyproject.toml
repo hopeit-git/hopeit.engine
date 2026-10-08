@@ -136,6 +136,17 @@ reportCallIssue = "warning"
 
 [tool.ruff]
 line-length = 100
+src = [
+    "engine/src",
+    "engine/test",
+    "plugins/*/*/src",
+    "plugins/*/*/test",
+    "apps/examples/*/src",
+    "apps/examples/*/test",
+]
+
+[tool.ruff.lint.isort]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.ruff.lint.extend-per-file-ignores]
 "engine/test/**/test_*.py" = ["F401", "F811"]

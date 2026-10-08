@@ -9,14 +9,14 @@ import time
 from datetime import datetime
 from functools import partial
 from logging.handlers import WatchedFileHandler
-from typing import Dict, Iterable, Union, List, Tuple, Callable, Any
-from hopeit.server.names import snakecase
+from typing import Any, Callable, Dict, Iterable, List, Tuple, Union
 
-from hopeit.server import version
-from hopeit.app.config import AppDescriptor, AppConfig, EventSettings
+from hopeit.app.config import AppConfig, AppDescriptor, EventSettings
 from hopeit.app.context import EventContext
+from hopeit.server import version
+from hopeit.server.config import LoggingConfig, ServerConfig
 from hopeit.server.errors import json_exc
-from hopeit.server.config import ServerConfig, LoggingConfig
+from hopeit.server.names import snakecase
 
 DEFAULT_ENGINE_LOGGER = "engine_logger_default"
 LOG_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(message)s | %(extra)s"

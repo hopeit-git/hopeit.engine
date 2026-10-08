@@ -1,12 +1,13 @@
 import logging
+import os
 import subprocess
 import sys
-import os
 from time import sleep
 from typing import List, Optional
 
 import pytest
 from click.testing import CliRunner
+
 from hopeit.cli.server import run
 from hopeit.server import wsgi
 

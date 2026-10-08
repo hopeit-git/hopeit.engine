@@ -8,16 +8,15 @@ from typing import Dict, List, Optional
 from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn
 from hopeit.app.logger import app_extra_logger
-from hopeit.server.names import auto_path
-
 from hopeit.log_streamer import (
-    LogReaderConfig,
-    LogRawBatch,
-    LogEntry,
     LogBatch,
+    LogEntry,
     LogFileHandler,
+    LogRawBatch,
+    LogReaderConfig,
     start_observer,
 )
+from hopeit.server.names import auto_path
 
 logger, extra = app_extra_logger()
 

@@ -2,7 +2,7 @@
 Payload tools to serialize and deserialze event payloads and responses, including dataobjects
 """
 
-from typing import Type, Generic, Union, Dict
+from typing import Dict, Generic, Type, Union
 
 from pydantic import RootModel, ValidationError
 

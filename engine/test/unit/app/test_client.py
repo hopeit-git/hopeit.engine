@@ -2,14 +2,13 @@ import pytest
 
 from hopeit.app.client import (
     AppConnectionNotFound,
-    register_app_connections,
-    app_client,
-    stop_app_connections,
     app_call,
     app_call_list,
+    app_client,
+    register_app_connections,
+    stop_app_connections,
 )
 from hopeit.testing.apps import create_test_context
-
 from mock_client_app import mock_client_app_config
 
 

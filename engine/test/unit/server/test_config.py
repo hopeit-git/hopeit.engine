@@ -2,8 +2,13 @@ import os
 
 import pytest  # type: ignore
 
-from hopeit.server.config import ServerConfig, StreamsConfig, LoggingConfig, AuthConfig
-from hopeit.server.config import parse_server_config_json
+from hopeit.server.config import (
+    AuthConfig,
+    LoggingConfig,
+    ServerConfig,
+    StreamsConfig,
+    parse_server_config_json,
+)
 
 
 @pytest.fixture

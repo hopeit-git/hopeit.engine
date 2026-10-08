@@ -1,15 +1,14 @@
 import asyncio
-import pytest
 import signal
 from asyncio.exceptions import CancelledError
-from typing import List, Any
+from typing import Any, List
 from unittest.mock import MagicMock
 
 import nest_asyncio  # type: ignore
+import pytest
 
-from hopeit.server import web, runtime, engine
+from hopeit.server import engine, runtime, web
 from hopeit.server.web import parse_args
-
 
 test_lock = asyncio.Lock()
 

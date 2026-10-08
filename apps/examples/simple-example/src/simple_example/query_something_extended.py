@@ -5,14 +5,14 @@ Loads Something from disk, update status base on POST body.
 Objects is saved with updated status and history.
 """
 
-from typing import Union, Optional
+from typing import Optional, Union
 
+from common.validation import validate
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.logger import app_extra_logger
 from hopeit.fs_storage import FileStorage, FileStorageSettings
-from common.validation import validate
-from model import Something, Status, SomethingNotFound
+from model import Something, SomethingNotFound, Status
 
 __steps__ = ["load", "save_with_updated_status"]
 

@@ -1,8 +1,9 @@
 from typing import Optional
 
-from hopeit.app.events import Spawn, SHUFFLE
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
+from hopeit.app.events import SHUFFLE, Spawn
+from hopeit.app.logger import app_extra_logger
+
 from . import MockData, MockResult
 
 __steps__ = ["produce_messages", SHUFFLE, "consume_stream", "generate_default"]

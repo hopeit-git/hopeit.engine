@@ -6,11 +6,10 @@ Returns runtime configuration of running server
 
 from typing import Optional
 
+from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-
 from hopeit.config_manager import RuntimeApps
-from hopeit.app.api import event_api
 from hopeit.config_manager.runtime import get_in_process_config
 
 logger, extra = app_extra_logger()

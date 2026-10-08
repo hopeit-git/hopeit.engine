@@ -2,16 +2,15 @@
 Server configuration utility
 """
 
-from enum import Enum
-from typing import TypeVar, List, Optional
-import re
 import os
+import re
+from enum import Enum
+from typing import List, Optional, TypeVar
 
 from hopeit.dataobjects import dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
 from hopeit.server.names import auto_path_prefixed
 from hopeit.server.version import ENGINE_VERSION
-
 
 __all__ = [
     "StreamsConfig",

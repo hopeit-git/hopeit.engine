@@ -6,7 +6,7 @@ import base64
 import pickle
 from typing import Type
 
-from hopeit.app.config import Serialization, Compression
+from hopeit.app.config import Compression, Serialization
 
 __all__ = ["serialize", "deserialize"]
 

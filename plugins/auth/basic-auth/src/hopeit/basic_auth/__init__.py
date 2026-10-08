@@ -2,8 +2,8 @@
 basic-auth plugin app, helper classes and methods
 """
 
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
 
 from hopeit.app.api import app_base_route_name
 from hopeit.app.config import AppDescriptor

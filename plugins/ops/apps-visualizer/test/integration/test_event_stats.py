@@ -1,12 +1,10 @@
-from typing import Deque
 from collections import deque
+from typing import Deque
 
-
-from hopeit.testing.apps import execute_event
-from hopeit.server.version import APPS_ROUTE_VERSION
-
-from hopeit.log_streamer import LogBatch, LogEntry
 from hopeit.apps_visualizer.apps.events_graph import EventsGraphResult
+from hopeit.log_streamer import LogBatch, LogEntry
+from hopeit.server.version import APPS_ROUTE_VERSION
+from hopeit.testing.apps import execute_event
 
 from . import mock_runtime
 

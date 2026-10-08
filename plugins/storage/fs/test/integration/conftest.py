@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
 import uuid
+from datetime import datetime, timezone
+
 import pytest  # type: ignore
 
 from hopeit.testing.apps import config

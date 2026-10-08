@@ -1,4 +1,3 @@
-from hopeit.apps_client import AppsClientSettings, ClientAuthStrategy
 import pytest
 
 from hopeit.app.config import (
@@ -11,6 +10,7 @@ from hopeit.app.config import (
     EventDescriptor,
     EventType,
 )
+from hopeit.apps_client import AppsClientSettings, ClientAuthStrategy
 from hopeit.dataobjects.payload import Payload
 from hopeit.server.config import LoggingConfig, ServerConfig
 from hopeit.server.version import APPS_API_VERSION

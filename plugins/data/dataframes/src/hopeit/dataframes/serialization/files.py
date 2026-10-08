@@ -1,12 +1,12 @@
 """Support for `@dataframes` serialization to files"""
 
+import io
+import os
 from datetime import datetime, timedelta, timezone
 from glob import glob
-import os
-import io
+from pathlib import Path
 from typing import AsyncGenerator, Generic, Literal, Optional, Type, TypeVar
 from uuid import uuid4
-from pathlib import Path
 
 import aiofiles
 from pydantic import TypeAdapter

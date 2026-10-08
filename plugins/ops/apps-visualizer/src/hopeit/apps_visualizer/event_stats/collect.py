@@ -2,15 +2,14 @@
 Collect Event Stats from log stream
 """
 
-from typing import Deque, Dict, Set, Tuple
 from collections import defaultdict, deque
 from datetime import datetime, timedelta, timezone
+from typing import Deque, Dict, Set, Tuple
 
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import dataclass, dataobject
-from hopeit.server.names import auto_path
-
 from hopeit.log_streamer import LogBatch, LogEntry
+from hopeit.server.names import auto_path
 
 
 @dataobject

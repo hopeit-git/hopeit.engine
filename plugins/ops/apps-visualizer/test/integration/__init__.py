@@ -1,12 +1,12 @@
 from typing import Dict
-from hopeit.app.config import AppConfig, EventDescriptor
-from hopeit.dataobjects.payload import Payload
-from hopeit.server.version import APPS_API_VERSION, APPS_ROUTE_VERSION
-from hopeit.server import config as server_config
-from hopeit.testing.apps import config
 
-from hopeit.config_manager.runtime import runtime
+from hopeit.app.config import AppConfig, EventDescriptor
 from hopeit.apps_visualizer import apps
+from hopeit.config_manager.runtime import runtime
+from hopeit.dataobjects.payload import Payload
+from hopeit.server import config as server_config
+from hopeit.server.version import APPS_API_VERSION, APPS_ROUTE_VERSION
+from hopeit.testing.apps import config
 
 
 class MockAppEngine:

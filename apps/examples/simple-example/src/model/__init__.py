@@ -3,8 +3,8 @@ Data model for simple-example test application
 """
 
 from datetime import datetime
-from typing import List, Optional
 from enum import Enum
+from typing import List, Optional
 
 from hopeit.dataobjects import dataclass, dataobject, field
 

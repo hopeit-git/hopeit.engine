@@ -8,7 +8,6 @@ types
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_logger
 from hopeit.dataframes.serialization.settings import DataframesSettings
-
 from hopeit.dataframes.setup import registry
 
 logger = app_logger()

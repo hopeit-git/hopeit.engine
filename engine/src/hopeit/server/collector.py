@@ -5,10 +5,10 @@ Use `hopeit.app.events` `collector_step(...)` constructor to define steps implem
 """
 
 import asyncio
-from typing import Callable, Dict, Any, Tuple, Optional, Coroutine
-from hopeit.dataobjects import copy_payload
+from typing import Any, Callable, Coroutine, Dict, Optional, Tuple
 
 from hopeit.app.context import EventContext
+from hopeit.dataobjects import copy_payload
 
 __all__ = ["Collector", "AsyncCollector", "CollectorStepType"]
 

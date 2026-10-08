@@ -1,17 +1,18 @@
 import dataclasses
-from datetime import datetime, timezone
 import uuid
+from datetime import datetime, timezone
 
-from hopeit.dataobjects import StreamEventParams, copy_payload, dataobject
 import pytest
 
+from hopeit.dataobjects import StreamEventParams, copy_payload, dataobject
+
 from . import (
-    MockNested,
     MockData,
-    MockDataWithoutTs,
-    MockDataWithAutoEventId,
     MockDataImmutable,
     MockDataUnsafe,
+    MockDataWithAutoEventId,
+    MockDataWithoutTs,
+    MockNested,
 )
 
 

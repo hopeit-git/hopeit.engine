@@ -3,11 +3,11 @@ import pytest  # type: ignore
 from hopeit.app.config import (
     AppConfig,
     AppDescriptor,
+    AppEngineConfig,
     EventDescriptor,
     EventType,
     ReadStreamDescriptor,
     WriteStreamDescriptor,
-    AppEngineConfig,
 )
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.config import (

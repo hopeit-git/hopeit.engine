@@ -12,8 +12,8 @@ except ImportError:
 
 from pydantic import TypeAdapter
 
-from hopeit.dataframes.setup.registry import get_dataset_storage
 from hopeit.dataframes.serialization.protocol import find_dataframe_type
+from hopeit.dataframes.setup.registry import get_dataset_storage
 
 DataFrameT = TypeVar("DataFrameT")
 GenericDataFrameT = TypeVar("GenericDataFrameT")

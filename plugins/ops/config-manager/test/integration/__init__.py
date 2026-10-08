@@ -3,12 +3,12 @@ from typing import Dict, Optional
 import aiohttp
 
 from hopeit.app.config import AppConfig, EventDescriptor
+from hopeit.app.context import EventContext
 from hopeit.config_manager import RuntimeApps
 from hopeit.dataobjects.payload import Payload
-from hopeit.server.version import APPS_ROUTE_VERSION
-from hopeit.app.context import EventContext
-from hopeit.server.events import get_event_settings
 from hopeit.server.config import AuthType
+from hopeit.server.events import get_event_settings
+from hopeit.server.version import APPS_ROUTE_VERSION
 from hopeit.testing.apps import config
 
 

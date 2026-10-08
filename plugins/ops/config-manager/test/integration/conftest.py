@@ -1,15 +1,15 @@
-import socket
-import os
 import json
+import os
+import socket
 from pathlib import Path
 from typing import Dict
 
 import pytest
-from hopeit.app.config import EventDescriptor
-from hopeit.server.version import APPS_API_VERSION, ENGINE_VERSION, APPS_ROUTE_VERSION
-from hopeit.dataobjects.payload import Payload
-from hopeit.config_manager import RuntimeApps, ServerStatus
 
+from hopeit.app.config import EventDescriptor
+from hopeit.config_manager import RuntimeApps, ServerStatus
+from hopeit.dataobjects.payload import Payload
+from hopeit.server.version import APPS_API_VERSION, APPS_ROUTE_VERSION, ENGINE_VERSION
 
 EFFECTIVE_EVENTS_EXAMPLE = """
 {

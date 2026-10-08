@@ -3,9 +3,8 @@ import uuid
 
 import pytest  # type: ignore
 
-from hopeit.testing.apps import execute_event
 from hopeit.server.version import APPS_API_VERSION
-
+from hopeit.testing.apps import execute_event
 from model import Something, SomethingNotFound
 
 APP_VERSION = APPS_API_VERSION.replace(".", "x")

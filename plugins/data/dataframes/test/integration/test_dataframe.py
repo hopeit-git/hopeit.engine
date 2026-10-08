@@ -1,8 +1,8 @@
-from datetime import datetime, timezone, date
+from datetime import date, datetime, timezone
 
 import polars as pl
-from polars.testing import assert_series_equal
 import pytest
+from polars.testing import assert_series_equal
 
 from conftest import DEFAULT_DATE, DEFAULT_DATETIME, MyTestAllTypesData, MyTestAllTypesDefaultValues
 

@@ -2,8 +2,8 @@
 Server error handling convenience module
 """
 
-import traceback
 import json
+import traceback
 import urllib.parse
 from typing import List
 

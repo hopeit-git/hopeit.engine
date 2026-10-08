@@ -1,10 +1,9 @@
-from glob import glob
 import asyncio
-from hopeit.fs_storage.events.stream_batch_storage import FlushSignal
+from glob import glob
 
-
-from hopeit.testing.apps import execute_event
 from hopeit.dataobjects.payload import Payload
+from hopeit.fs_storage.events.stream_batch_storage import FlushSignal
+from hopeit.testing.apps import execute_event
 
 from . import MyObject
 

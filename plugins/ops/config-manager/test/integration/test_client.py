@@ -1,7 +1,7 @@
+import hopeit.server.logger as server_logging
 from hopeit.config_manager import ServerStatus, client
 
-from . import mock_client, mock_context, app_config
-import hopeit.server.logger as server_logging
+from . import app_config, mock_client, mock_context
 
 
 async def test_client(

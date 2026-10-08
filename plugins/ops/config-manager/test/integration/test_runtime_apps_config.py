@@ -1,5 +1,4 @@
 from hopeit.app.config import EventPlugMode
-
 from hopeit.server import runtime
 from hopeit.testing.apps import config, execute_event
 

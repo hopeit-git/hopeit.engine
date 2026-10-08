@@ -1,7 +1,8 @@
 from typing import Optional
 
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
+from hopeit.app.logger import app_extra_logger
+
 from . import MockData, MockResult
 
 __steps__ = ["consume_stream"]

@@ -2,14 +2,14 @@
 Streams module. Handles reading and writing to streams.
 """
 
-from abc import ABC
 import asyncio
 import dataclasses
 import os
 import socket
+from abc import ABC
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Union
 from importlib import import_module
+from typing import Any, Dict, List, Union
 
 from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import EventPayload

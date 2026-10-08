@@ -1,15 +1,15 @@
-from typing import List, Type, Union
-import pytest
 from base64 import b64encode
+from typing import List, Type, Union
 
-from hopeit.app.context import EventContext
+import pytest
+
+from client_example import CountAndSaveResult
 from hopeit.app.client import UnhandledResponse
+from hopeit.app.context import EventContext
 from hopeit.dataobjects import EventPayload, dataclass, dataobject
 from hopeit.server.web import Unauthorized
-from hopeit.testing.apps import execute_event, create_test_context
-
-from model import Something, User, SomethingParams, SomethingNotFound
-from client_example import CountAndSaveResult
+from hopeit.testing.apps import create_test_context, execute_event
+from model import Something, SomethingNotFound, SomethingParams, User
 
 
 @dataobject

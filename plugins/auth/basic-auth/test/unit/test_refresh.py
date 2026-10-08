@@ -1,15 +1,19 @@
-import pytest  # type: ignore
 from datetime import datetime, timedelta, timezone
+
+import pytest  # type: ignore
 
 import hopeit.toolkit.auth as auth
 from hopeit.app.context import EventContext, PostprocessHook
-
 from hopeit.app.errors import Unauthorized
+from hopeit.basic_auth import (  # type: ignore  # type: ignore
+    AuthInfo,
+    AuthInfoExtended,
+    AuthSettings,
+    ContextUserInfo,
+    refresh,
+)
 from hopeit.server.config import AuthType
 from hopeit.server.events import get_event_settings
-
-from hopeit.basic_auth import AuthSettings, refresh  # type: ignore
-from hopeit.basic_auth import ContextUserInfo, AuthInfoExtended, AuthInfo  # type: ignore
 
 from . import mock_app_config, plugin_config  # noqa: F401
 

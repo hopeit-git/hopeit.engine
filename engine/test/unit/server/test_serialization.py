@@ -2,11 +2,12 @@ import base64
 import pickle
 import sys
 
-from hopeit.app.config import Serialization, Compression
+import pytest
+
+from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.dataobjects.payload import Payload
-from hopeit.server.serialization import serialize, deserialize
-import pytest
+from hopeit.server.serialization import deserialize, serialize
 
 pickle5_available = (sys.version_info.major > 3) or (
     (sys.version_info.major == 3) and (sys.version_info.minor >= 8)

@@ -1,7 +1,6 @@
-from hopeit.server.version import APPS_ROUTE_VERSION  # type: ignore
-
-from hopeit.testing.apps import execute_event
 from hopeit.fs_storage.partition import get_partition_key
+from hopeit.server.version import APPS_ROUTE_VERSION  # type: ignore
+from hopeit.testing.apps import execute_event
 from simple_example.streams.process_events import SomethingStored
 
 

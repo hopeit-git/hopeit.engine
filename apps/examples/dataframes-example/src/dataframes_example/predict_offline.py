@@ -1,6 +1,10 @@
 """Endpoint to run predictions and store a datablock"""
 
 import uuid
+
+import polars as pl
+from sklearn.tree import DecisionTreeClassifier  # type: ignore
+
 from dataframes_example.iris import (
     IrisBatchPredictionRequest,
     IrisFeatures,
@@ -8,13 +12,9 @@ from dataframes_example.iris import (
     IrisOfflinePredictionDataBlock,
 )
 from dataframes_example.model_storage import load_experiment_model
-
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
-from hopeit.dataframes import DataFrames, DataBlocks
-
-import polars as pl
-from sklearn.tree import DecisionTreeClassifier  # type: ignore
+from hopeit.dataframes import DataBlocks, DataFrames
 
 __steps__ = ["predict"]
 

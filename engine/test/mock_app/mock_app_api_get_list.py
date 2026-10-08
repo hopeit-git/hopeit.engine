@@ -4,10 +4,11 @@ NO TITLE HERE, Title in __api__
 Description of Test app api list
 """
 
-from typing import Optional, List
+from typing import List, Optional
+
 from hopeit.app.api import event_api
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
+from hopeit.app.logger import app_extra_logger
 from mock_app import MockData
 
 logger, extra = app_extra_logger()

@@ -4,7 +4,7 @@ Helpers to provide uniform logging to engine and apps
 
 import logging
 from functools import partial
-from typing import Tuple, Callable
+from typing import Callable, Tuple
 
 from hopeit.server.logger import extra_values
 

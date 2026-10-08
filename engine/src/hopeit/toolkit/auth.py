@@ -4,20 +4,17 @@ auth module, provides functionallity to create, validate and decode access and r
 call init() to load or create RSA keys before using token manipulation methods
 """
 
+import os
+import pathlib
 from typing import Dict, Optional, Set
 
-import pathlib
-import os
-
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey, RSAPrivateKey
-from cryptography.hazmat.primitives.serialization import load_pem_private_key
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
-
 import jwt
-from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
+from cryptography.hazmat.primitives.serialization import load_pem_private_key, load_pem_public_key
+from jwt import DecodeError, ExpiredSignatureError, InvalidSignatureError
 
 from hopeit.app.context import EventContext
 from hopeit.server.config import AuthConfig, AuthType

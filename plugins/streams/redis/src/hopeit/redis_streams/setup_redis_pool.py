@@ -1,12 +1,11 @@
 """SETUP event that configures Redis Streams clients with blocking connection pools."""
 
-from hopeit.app.context import EventContext
-from hopeit.redis_streams import RedisStreamManager
-from hopeit.redis_streams.settings import RedisAuthSettings, RedisPoolSettings
-
 import redis.asyncio as redis
 from redis.asyncio import BlockingConnectionPool
 
+from hopeit.app.context import EventContext
+from hopeit.redis_streams import RedisStreamManager
+from hopeit.redis_streams.settings import RedisAuthSettings, RedisPoolSettings
 
 __steps__ = [
     "init_redis_streams",

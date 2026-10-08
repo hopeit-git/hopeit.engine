@@ -4,15 +4,15 @@ Config module: apps config data model and json loader
 
 from copy import deepcopy
 from enum import Enum
-from typing import Any, Dict, Optional, Type, Union, List, Generic
+from typing import Any, Dict, Generic, List, Optional, Type, Union
 
 from hopeit.dataobjects import EventPayloadType, dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
 from hopeit.server.config import (
+    AuthType,
+    ServerConfig,
     replace_config_args,
     replace_env_vars,
-    ServerConfig,
-    AuthType,
 )
 from hopeit.server.names import auto_path
 

@@ -1,15 +1,14 @@
 """Prepares input data for training pipeline"""
 
+import polars as pl
+from sklearn import datasets  # type: ignore
+
+from dataframes_example.iris import InputData, Iris
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 from hopeit.dataframes import DataFrames, Dataset
 from hopeit.dataobjects import fields
-
-import polars as pl
-from sklearn import datasets  # type: ignore
-
-from dataframes_example.iris import InputData, Iris
 
 logger, extra = app_extra_logger()
 

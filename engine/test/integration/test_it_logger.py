@@ -1,18 +1,19 @@
 import logging
 import os
 import socket
+
 import pytest  # type: ignore
 
-from hopeit.app.config import EventSettings, EventLoggingConfig
 import hopeit.server.logger as server_logging
 import hopeit.server.version as version
+from hopeit.app.config import EventLoggingConfig, EventSettings
 from hopeit.app.context import EventContext
+from hopeit.app.logger import app_extra_logger, app_logger
 from hopeit.server.config import AuthType
 from hopeit.server.events import get_event_settings
 from hopeit.server.logger import setup_app_logger
-from hopeit.app.logger import app_logger, app_extra_logger
-
-from mock_app import mock_event_logging as mock_event, mock_app_config  # type: ignore
+from mock_app import mock_app_config
+from mock_app import mock_event_logging as mock_event  # type: ignore
 
 FILE_BASE_PATH = "/tmp"
 

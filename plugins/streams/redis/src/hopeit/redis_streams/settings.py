@@ -1,7 +1,8 @@
 from functools import partial
 
-from hopeit.dataobjects import dataclass, dataobject, field
 from pydantic import SecretStr
+
+from hopeit.dataobjects import dataclass, dataobject, field
 
 
 @dataobject

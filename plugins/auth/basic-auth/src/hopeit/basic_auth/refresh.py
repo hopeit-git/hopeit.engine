@@ -8,17 +8,17 @@ with no need to re-login the user if there is a valid refresh token active.
 from datetime import datetime, timezone
 
 from hopeit.app.api import event_api
+from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.errors import Unauthorized
+from hopeit.app.logger import app_logger
 from hopeit.basic_auth import (
-    ContextUserInfo,
     AuthInfo,
     AuthInfoExtended,
+    ContextUserInfo,
     authorize,
     set_refresh_token,
 )
-from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.app.logger import app_logger
 from hopeit.toolkit.auth import AuthType
-from hopeit.app.errors import Unauthorized
 
 logger = app_logger()
 

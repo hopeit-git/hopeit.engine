@@ -5,6 +5,7 @@ CLI server commands
 from typing import List
 
 import click
+
 from hopeit.server import wsgi
 
 

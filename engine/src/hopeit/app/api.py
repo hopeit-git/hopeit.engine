@@ -3,31 +3,30 @@ API Definition helpers for user apps
 """
 
 import inspect
+import re
 from functools import partial
 from typing import (
-    Optional,
-    List,
-    Type,
-    Dict,
-    Callable,
-    Union,
-    Tuple,
     Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Type,
     TypeVar,
+    Union,
     get_args,
     get_origin,
 )
 
-import re
-
-from hopeit.dataobjects import BinaryDownload
 from hopeit.app.config import AppConfig, AppDescriptor, EventType
+from hopeit.dataobjects import BinaryDownload
 from hopeit.server.api import (
-    spec,
-    app_route_name,
-    APIError,
     BUILTIN_TYPES,
+    APIError,
+    app_route_name,
     datatype_schema,
+    spec,
 )
 from hopeit.server.names import route_name
 

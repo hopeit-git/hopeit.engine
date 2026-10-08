@@ -3,10 +3,11 @@ Webrunner module based on gunicorn
 """
 
 import asyncio
-from typing import List, Optional
 import multiprocessing
-from aiohttp.worker import GunicornWebWorker as AiohttpGunicornWebWorker
+from typing import List, Optional
+
 import gunicorn.app.base  # type: ignore
+from aiohttp.worker import GunicornWebWorker as AiohttpGunicornWebWorker
 from gunicorn.workers.base import Worker as GunicornWorker
 
 from hopeit.server.web import init_web_server

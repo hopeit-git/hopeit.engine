@@ -1,13 +1,13 @@
-import pytest  # type: ignore
 from datetime import datetime, timedelta, timezone
+
+import pytest  # type: ignore
 
 import hopeit.toolkit.auth as auth
 from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.server.events import get_event_settings
 from hopeit.app.errors import Unauthorized
+from hopeit.basic_auth import AuthSettings, logout  # type: ignore
 from hopeit.server.config import AuthType
-
-from hopeit.basic_auth import logout, AuthSettings  # type: ignore
+from hopeit.server.events import get_event_settings
 
 from . import mock_app_config, plugin_config  # noqa: F401
 

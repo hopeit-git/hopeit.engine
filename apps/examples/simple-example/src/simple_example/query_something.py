@@ -4,14 +4,14 @@ Simple Example: Query Something
 Loads Something from disk
 """
 
-from typing import Union, Optional
 from datetime import datetime, timezone
+from typing import Optional, Union
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.logger import app_extra_logger
 from hopeit.fs_storage import FileStorage, FileStorageSettings
-from model import Something, StatusType, Status, SomethingNotFound
+from model import Something, SomethingNotFound, Status, StatusType
 
 __steps__ = ["load", "update_status_history"]
 

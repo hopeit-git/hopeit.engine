@@ -10,9 +10,8 @@ from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.config import AuthType
 from hopeit.server.events import EventHandler, get_event_settings
-from mock_engine import MockStreamManager
-
 from mock_app import MockData, MockResult, mock_app_config  # type: ignore
+from mock_engine import MockStreamManager
 from mock_plugin import mock_plugin_config  # type: ignore
 
 

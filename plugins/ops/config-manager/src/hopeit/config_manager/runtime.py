@@ -2,14 +2,13 @@
 Manage access to server runtime running applications
 """
 
-import socket
 import os
+import socket
 from typing import Dict
+
 from hopeit.app.config import EventDescriptor, EventPlugMode
-
-from hopeit.server import runtime
-
 from hopeit.config_manager import RuntimeAppInfo, RuntimeApps, ServerInfo, ServerStatus
+from hopeit.server import runtime
 from hopeit.server.engine import AppEngine
 
 

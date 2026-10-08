@@ -1,11 +1,11 @@
 """Redis Streams-backed implementation of the Hopeit stream manager."""
 
 import asyncio
-import json
 import base64
+import json
 import uuid
 from datetime import datetime, timezone
-from typing import Callable, Dict, List, Any, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import redis.asyncio as redis
 from redis import RedisError, ResponseError
@@ -14,9 +14,9 @@ from redis.exceptions import ConnectionError as RedisConnectionError
 from hopeit.app.config import Compression, Serialization, StreamQueue
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import StreamsConfig
-from hopeit.server.serialization import deserialize, serialize
 from hopeit.server.logger import engine_logger, extra_logger
-from hopeit.streams import StreamManager, StreamEvent, StreamOSError
+from hopeit.server.serialization import deserialize, serialize
+from hopeit.streams import StreamEvent, StreamManager, StreamOSError
 
 logger = engine_logger()
 extra = extra_logger()

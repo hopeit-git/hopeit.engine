@@ -6,12 +6,13 @@ import hopeit.app.api as api
 from hopeit.app.config import EventType
 from hopeit.server.api import APIError
 from mock_app import (
-    mock_app_api_get,
     MockData,
-    mock_app_api_post,
+    mock_api_app_config,
+    mock_api_spec,
+    mock_app_api_get,
     mock_app_api_get_list,
+    mock_app_api_post,
 )
-from mock_app import mock_api_app_config, mock_api_spec
 
 
 def test_api_from_config(monkeypatch, mock_api_spec, mock_api_app_config):

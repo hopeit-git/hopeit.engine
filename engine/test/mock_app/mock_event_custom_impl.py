@@ -1,7 +1,8 @@
 from typing import Union
 
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.logger import app_extra_logger
+
 from . import MockData
 
 __steps__ = ["entry_point", "handle_ok_case", "handle_special_case"]

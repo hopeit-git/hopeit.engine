@@ -1,17 +1,16 @@
 import asyncio
 import json
 import os
-from pathlib import Path
-from datetime import datetime, timezone
 import socket
+from datetime import datetime, timezone
+from pathlib import Path
 
 import pytest
 
-from hopeit.server.version import APPS_API_VERSION, APPS_ROUTE_VERSION
+from hopeit.log_streamer import LogBatch, LogRawBatch
 from hopeit.server import config as server_config
+from hopeit.server.version import APPS_API_VERSION, APPS_ROUTE_VERSION
 from hopeit.testing.apps import config, execute_event
-
-from hopeit.log_streamer import LogRawBatch, LogBatch
 
 from . import mock_getenv
 

@@ -5,13 +5,13 @@ Creates and publish Something object every 10 seconds
 """
 
 import asyncio
-import random
 import os
+import random
+
 from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn, service_running
 from hopeit.app.logger import app_extra_logger
-
-from model import Something, User, SomethingParams
+from model import Something, SomethingParams, User
 
 __steps__ = ["create_something"]
 

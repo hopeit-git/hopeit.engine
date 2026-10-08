@@ -77,9 +77,9 @@ try:
 except ImportError:
     import hopeit.dataframes.polars as pl  # type: ignore  # Polars is optional; set to a mock if not installed
 
+from hopeit.dataframes.datablocks import DataBlocks
 from hopeit.dataframes.dataframe import DataFrameT, dataframe
 from hopeit.dataframes.serialization.dataset import Dataset
-from hopeit.dataframes.datablocks import DataBlocks
 from hopeit.dataobjects import DataObject
 
 __all__ = ["DataBlocks", "DataFrames", "Dataset", "dataframe"]

@@ -1,9 +1,10 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 from hopeit.app import context as context_mod
 from hopeit.app.context import PostprocessHook, PreprocessFileHook, PreprocessHook
-from hopeit.testing.hooks import MockMultipartReader, MockFileHook
+from hopeit.testing.hooks import MockFileHook, MockMultipartReader
 
 
 class MockData:

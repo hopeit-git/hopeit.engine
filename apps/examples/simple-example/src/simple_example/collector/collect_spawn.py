@@ -7,16 +7,16 @@ then spawn the items found individually into a stream
 """
 
 import asyncio
-from typing import Union, Optional, List
+from typing import List, Optional, Union
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.app.events import collector_step, Spawn
+from hopeit.app.events import Spawn, collector_step
 from hopeit.app.logger import app_extra_logger
 from hopeit.dataobjects import dataclass, dataobject
+from hopeit.fs_storage import FileStorage, FileStorageSettings
 from hopeit.server.collector import Collector
 from hopeit.server.steps import SHUFFLE
-from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import ItemsInfo, Something, SomethingNotFound
 
 

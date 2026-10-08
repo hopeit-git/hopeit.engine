@@ -8,8 +8,8 @@ from hopeit.app.context import EventContext
 from hopeit.dataobjects import EventPayloadType
 from hopeit.server.collector import Collector
 from hopeit.server.engine import AppEngine
-from hopeit.server.steps import SHUFFLE, CollectorStepsDescriptor
 from hopeit.server.runtime import server
+from hopeit.server.steps import SHUFFLE, CollectorStepsDescriptor
 
 __all__ = ["Spawn", "SHUFFLE", "collector_step", "Collector"]
 

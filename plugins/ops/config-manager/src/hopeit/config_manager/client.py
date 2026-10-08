@@ -2,20 +2,19 @@
 Config Manager Client
 """
 
-from typing import Dict, Union, Tuple
 import asyncio
 import random
+from typing import Dict, Tuple, Union
 
 import aiohttp
 
-from hopeit.dataobjects.payload import Payload
-from hopeit.server.version import APPS_ROUTE_VERSION
 from hopeit.app.context import EventContext
-from hopeit.dataobjects import dataclass, dataobject
-from hopeit.server.logger import engine_extra_logger
-
 from hopeit.config_manager import RuntimeAppInfo, RuntimeApps, ServerStatus
 from hopeit.config_manager.runtime import get_in_process_config
+from hopeit.dataobjects import dataclass, dataobject
+from hopeit.dataobjects.payload import Payload
+from hopeit.server.logger import engine_extra_logger
+from hopeit.server.version import APPS_ROUTE_VERSION
 
 logger, extra = engine_extra_logger()
 

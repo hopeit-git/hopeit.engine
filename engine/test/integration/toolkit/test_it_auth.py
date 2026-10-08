@@ -1,19 +1,18 @@
-import pytest  # type: ignore
-import uuid
 import os
-import time
 import pathlib
+import time
+import uuid
 from datetime import datetime, timedelta, timezone
-from hopeit.server.events import get_event_settings
 
-from jwt import ExpiredSignatureError, DecodeError, InvalidSignatureError
+import pytest  # type: ignore
+from jwt import DecodeError, ExpiredSignatureError, InvalidSignatureError
 
 import hopeit.server.logger as server_logging
 from hopeit.app.config import AppConfig
 from hopeit.app.context import EventContext
-from hopeit.toolkit import auth
 from hopeit.server.config import AuthConfig, AuthType
-
+from hopeit.server.events import get_event_settings
+from hopeit.toolkit import auth
 from mock_app import mock_app_config, mock_client_app_config
 
 

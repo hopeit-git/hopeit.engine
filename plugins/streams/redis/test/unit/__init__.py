@@ -1,9 +1,9 @@
-from typing import AsyncGenerator, Dict, List, Optional
 import asyncio
+from typing import AsyncGenerator, Dict, List, Optional
 
-from hopeit.dataobjects import EventPayload, dataclass, dataobject
 from hopeit.app.config import AppConfig, EventDescriptor
 from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.dataobjects import EventPayload, dataclass, dataobject
 from hopeit.server.events import EventHandler
 
 

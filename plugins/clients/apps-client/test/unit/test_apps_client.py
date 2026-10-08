@@ -3,16 +3,16 @@ import asyncio
 import pytest
 
 import hopeit.apps_client as apps_client_module
-from hopeit.apps_client import AppsClientException, ClientLoadBalancerException
 from hopeit.app.client import (
     AppConnectionNotFound,
+    UnhandledResponse,
     app_call,
     app_call_list,
     app_client,
-    UnhandledResponse,
 )
 from hopeit.app.config import AppConfig
 from hopeit.app.errors import Unauthorized
+from hopeit.apps_client import AppsClientException, ClientLoadBalancerException
 from hopeit.server.config import AuthType
 from hopeit.testing.apps import create_test_context
 

@@ -1,10 +1,10 @@
-import pytest
 import asyncio
 
-from hopeit.app.context import EventContext
-from hopeit.server.collector import Collector, AsyncCollector
-from hopeit.server.events import get_event_settings
+import pytest
 
+from hopeit.app.context import EventContext
+from hopeit.server.collector import AsyncCollector, Collector
+from hopeit.server.events import get_event_settings
 from mock_app import mock_app_config  # type: ignore
 
 

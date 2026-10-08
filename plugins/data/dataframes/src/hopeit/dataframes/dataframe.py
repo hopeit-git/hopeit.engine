@@ -25,6 +25,7 @@ except ImportError:
 
 from pydantic import create_model
 from pydantic.fields import FieldInfo
+from pydantic_core import PydanticUndefined
 
 from hopeit.dataobjects import (
     DataObject,
@@ -34,7 +35,6 @@ from hopeit.dataobjects import (
     fields,
 )
 from hopeit.dataobjects.payload import Payload
-from pydantic_core import PydanticUndefined
 
 DataFrameT = TypeVar("DataFrameT")
 

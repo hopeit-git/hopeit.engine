@@ -2,38 +2,37 @@
 Context information and handling
 """
 
+import re
+from abc import ABC, abstractmethod
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import (
+    Any,
     AsyncGenerator,
     AsyncIterator,
     Callable,
-    Generic,
-    TypeVar,
     Dict,
-    Optional,
-    Any,
-    Tuple,
-    Union,
+    Generic,
     List,
     Mapping,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
 )
-from abc import ABC, abstractmethod
-from pathlib import Path
-from datetime import datetime, timezone
-import re
 
 from aiohttp import web
-from multidict import CIMultiDictProxy, MultiDict, CIMultiDict, MultiMapping, istr
-from hopeit.server.names import titlecase
+from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiMapping, istr
 
 from hopeit.app.config import (
     AppConfig,
     AppDescriptor,
-    EventDescriptor,
     Env,
+    EventDescriptor,
     EventSettings,
     EventType,
 )
-
+from hopeit.server.names import titlecase
 
 __all__ = ["EventContext", "PostprocessHook", "PreprocessHook", "NoopMultiparReader"]
 

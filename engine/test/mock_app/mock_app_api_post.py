@@ -3,8 +3,8 @@ Test app api part 2
 """
 
 from hopeit.app.api import event_api
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
+from hopeit.app.logger import app_extra_logger
 
 __steps__ = ["entry_point"]
 

@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
-from hopeit.dataobjects import dataclass, dataobject
+
 import hopeit.fs_storage.partition as partition
+from hopeit.dataobjects import dataclass, dataobject
 
 
 @dataobject(event_id="object_id", event_ts="object_ts")

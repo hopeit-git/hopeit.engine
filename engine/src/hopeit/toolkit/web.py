@@ -2,8 +2,8 @@
 Utilities for handling Web requests
 """
 
-from typing import Union
 from pathlib import Path
+from typing import Union
 
 from hopeit.app.context import PreprocessFileHook
 

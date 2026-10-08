@@ -1,7 +1,8 @@
-from typing import Union, Optional
+import importlib
+from copy import deepcopy
+from typing import Optional, Union
 
 import pytest  # type: ignore
-import importlib
 
 from hopeit.app.config import (
     AppConfig,
@@ -13,22 +14,25 @@ from hopeit.app.config import (
     WriteStreamDescriptor,
 )
 from hopeit.app.context import EventContext
-from hopeit.app.events import Spawn, SHUFFLE
+from hopeit.app.events import SHUFFLE, Spawn
 from hopeit.server.events import get_event_settings
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import (
+    CollectorStepsDescriptor,
+    effective_steps,
+    execute_steps,
+    extract_input_type,
     extract_module_steps,
     extract_postprocess_handler,
-    extract_input_type,
-    execute_steps,
     invoke_single_step,
-    effective_steps,
     split_event_stages,
-    CollectorStepsDescriptor,
 )
-from mock_app import MockData, MockResult, mock_collector  # type: ignore
-from mock_app import mock_app_config  # type: ignore
-from copy import deepcopy
+from mock_app import (  # type: ignore
+    MockData,
+    MockResult,
+    mock_app_config,  # type: ignore
+    mock_collector,
+)
 
 
 def test_extract_event_steps():

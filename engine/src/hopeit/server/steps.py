@@ -3,21 +3,21 @@ Handling sequencing and execution of steps from events
 """
 
 import asyncio
+import inspect
 from datetime import datetime, timezone
 from functools import partial
 from types import ModuleType
 from typing import (
-    Type,
-    Dict,
     Any,
-    Optional,
-    Callable,
-    Tuple,
     AsyncGenerator,
+    Callable,
+    Dict,
     List,
+    Optional,
+    Tuple,
+    Type,
     Union,
 )
-import inspect
 
 from hopeit.app.config import (
     AppConfig,
@@ -30,10 +30,10 @@ from hopeit.app.config import (
 )
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType, copy_payload
+from hopeit.server.collector import AsyncCollector, Collector, CollectorStepType
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger, extra_logger
 from hopeit.server.names import auto_path
-from hopeit.server.collector import Collector, AsyncCollector, CollectorStepType
 
 __all__ = [
     "extract_module_steps",

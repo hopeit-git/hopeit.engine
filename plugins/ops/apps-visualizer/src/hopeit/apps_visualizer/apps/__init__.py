@@ -2,17 +2,15 @@
 Apps Visualizer apps state
 """
 
-from typing import Optional
 import asyncio
 from datetime import datetime, timezone
+from typing import Optional
 
 from hopeit.app.context import EventContext
-from hopeit.server.logger import engine_extra_logger
-
+from hopeit.apps_visualizer import AppsVisualizerSettings
 from hopeit.config_manager import RuntimeApps
 from hopeit.config_manager.client import get_apps_config
-
-from hopeit.apps_visualizer import AppsVisualizerSettings
+from hopeit.server.logger import engine_extra_logger
 
 logger, extra = engine_extra_logger()
 

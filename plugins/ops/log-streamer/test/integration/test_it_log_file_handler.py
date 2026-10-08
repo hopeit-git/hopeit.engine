@@ -1,10 +1,10 @@
-import pytest
-
 import asyncio
-import uuid
 import os
 import platform
+import uuid
 from pathlib import Path
+
+import pytest
 
 from hopeit.log_streamer import LogFileHandler, start_observer
 

@@ -1,8 +1,7 @@
-from hopeit.app.context import EventContext
-from hopeit.server import metrics
-
 import datetime
 
+from hopeit.app.context import EventContext
+from hopeit.server import metrics
 from hopeit.server.config import AuthType
 from hopeit.server.events import get_event_settings
 from hopeit.server.metrics import StreamStats

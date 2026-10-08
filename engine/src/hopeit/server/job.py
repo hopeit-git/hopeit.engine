@@ -2,12 +2,12 @@
 Job runner module to execute a single event without starting a web server.
 """
 
-from collections import namedtuple
 import argparse
 import asyncio
 import json
 import sys
 import uuid
+from collections import namedtuple
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Type
 
@@ -19,8 +19,8 @@ from hopeit.app.config import (
     EventPlugMode,
     EventSettings,
     EventType,
+    parse_app_config_json,
 )
-from hopeit.app.config import parse_app_config_json
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import EventPayload, EventPayloadType
 from hopeit.dataobjects.payload import Payload

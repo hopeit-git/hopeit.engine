@@ -2,11 +2,11 @@
 Provides generic `compress` and `decompress` methods for payloads
 """
 
-from functools import partial
-import zlib
-import gzip
 import bz2
+import gzip
 import lzma
+import zlib
+from functools import partial
 from typing import Callable, Tuple
 
 import lz4.frame  # type: ignore

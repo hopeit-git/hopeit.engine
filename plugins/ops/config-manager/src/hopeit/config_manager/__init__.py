@@ -2,8 +2,8 @@
 Config Manager dataclasses
 """
 
-from typing import Dict, List
 from enum import Enum
+from typing import Dict, List
 
 from hopeit.app.config import AppConfig, EventDescriptor
 from hopeit.dataobjects import dataclass, dataobject, field

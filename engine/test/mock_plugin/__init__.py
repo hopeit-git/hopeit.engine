@@ -4,10 +4,10 @@ from hopeit.app.config import (
     AppConfig,
     AppDescriptor,
     EventDescriptor,
-    EventType,
     EventPlugMode,
+    EventType,
 )
-from hopeit.server.config import ServerConfig, LoggingConfig
+from hopeit.server.config import LoggingConfig, ServerConfig
 
 
 @pytest.fixture

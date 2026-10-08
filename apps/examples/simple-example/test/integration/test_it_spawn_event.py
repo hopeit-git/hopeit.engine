@@ -1,9 +1,7 @@
 from hopeit.dataobjects import copy_payload
-from hopeit.testing.apps import execute_event
-from hopeit.server.version import APPS_API_VERSION
-
 from hopeit.fs_storage.partition import get_partition_key
-
+from hopeit.server.version import APPS_API_VERSION
+from hopeit.testing.apps import execute_event
 from simple_example.shuffle.spawn_event import SomethingStored
 
 APP_VERSION = APPS_API_VERSION.replace(".", "x")

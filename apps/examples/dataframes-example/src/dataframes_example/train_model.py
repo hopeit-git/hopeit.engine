@@ -5,14 +5,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from hopeit.app.api import event_api
-from hopeit.app.context import EventContext
-from hopeit.app.logger import app_extra_logger
-from hopeit.dataframes import DataFrames, Dataset
-from hopeit.server.steps import SHUFFLE
-
 import polars as pl
-
 from sklearn.metrics import accuracy_score  # type: ignore
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.tree import DecisionTreeClassifier  # type: ignore
@@ -26,6 +19,11 @@ from dataframes_example.iris import (
     IrisFeatures,
     IrisLabels,
 )
+from hopeit.app.api import event_api
+from hopeit.app.context import EventContext
+from hopeit.app.logger import app_extra_logger
+from hopeit.dataframes import DataFrames, Dataset
+from hopeit.server.steps import SHUFFLE
 
 logger, extra = app_extra_logger()
 

@@ -2,38 +2,35 @@
 Open API spec creation and server helpers
 """
 
-from enum import Enum
 import json
 import re
 from copy import deepcopy
+from datetime import date, datetime
+from enum import Enum
 from functools import partial
 from pathlib import Path
 from typing import (
+    Awaitable,
+    Callable,
     Dict,
     List,
+    Optional,
     Tuple,
     Type,
-    Optional,
-    Callable,
-    Awaitable,
     Union,
     get_args,
     get_origin,
 )
-from datetime import date, datetime
 
 from aiohttp import web
-from aiohttp_swagger3 import RapiDocUiSettings
+from aiohttp_swagger3 import RapiDocUiSettings, validators
 from aiohttp_swagger3.swagger import Swagger, _handle_swagger_call
-from aiohttp_swagger3 import validators
-from aiohttp_swagger3.validators import _MissingType
 from aiohttp_swagger3.swagger_route import SwaggerRoute
+from aiohttp_swagger3.validators import _MissingType
 from pydantic import TypeAdapter
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaValue
 from pydantic_core import core_schema
-from hopeit.server.names import titlecase
 
-from hopeit.dataobjects import BinaryAttachment, BinaryDownload
 from hopeit.app.config import (
     AppConfig,
     AppDescriptor,
@@ -41,18 +38,18 @@ from hopeit.app.config import (
     EventPlugMode,
     EventType,
 )
-from hopeit.server.config import ServerConfig, AuthType
+from hopeit.dataobjects import BinaryAttachment, BinaryDownload
+from hopeit.server.config import AuthType, ServerConfig
 from hopeit.server.errors import ErrorInfo
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger
-from hopeit.server.names import route_name
+from hopeit.server.names import route_name, titlecase
 from hopeit.server.steps import (
+    StepInfo,
     extract_module_steps,
     extract_postprocess_handler,
     extract_preprocess_handler,
-    StepInfo,
 )
-
 
 __all__ = [
     "init_empty_spec",

@@ -1,10 +1,10 @@
 import pytest
 
 from hopeit.server.names import (
-    route_name,
-    module_name,
     auto_path,
     auto_path_prefixed,
+    module_name,
+    route_name,
     snakecase,
     spinalcase,
     titlecase,

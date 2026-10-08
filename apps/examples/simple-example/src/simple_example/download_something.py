@@ -7,11 +7,10 @@ Download image file. The PostprocessHook return the requested file as stream.
 import os
 import shutil
 
-from hopeit.dataobjects import BinaryDownload, dataclass
 from hopeit.app.api import event_api
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PostprocessHook
-
+from hopeit.app.logger import app_extra_logger
+from hopeit.dataobjects import BinaryDownload, dataclass
 
 __steps__ = ["find_image"]
 

@@ -1,5 +1,5 @@
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
+from hopeit.app.logger import app_extra_logger
 from hopeit.dataobjects import DataObject
 from hopeit.dataobjects.payload import Payload
 

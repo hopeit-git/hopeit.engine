@@ -3,17 +3,16 @@ Log Stramer dataclasses and file handler implementation based on watchdog librar
 """
 
 import asyncio
-from typing import Dict, List, TextIO
 from datetime import datetime, timezone
+from typing import Dict, List, TextIO
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.utils import BaseThread
 
-from hopeit.dataobjects import dataclass, dataobject
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.fs_storage import FileStorage
 
 logger, extra = app_extra_logger()

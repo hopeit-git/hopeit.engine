@@ -2,10 +2,9 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
-from hopeit.dataframes.serialization.settings import DataframesSettings
-
 import polars as pl
 import pytest
+
 from hopeit.app.config import (
     AppConfig,
     AppDescriptor,
@@ -15,6 +14,7 @@ from hopeit.app.config import (
 )
 from hopeit.app.context import EventContext
 from hopeit.dataframes import Dataset, dataframe
+from hopeit.dataframes.serialization.settings import DataframesSettings
 from hopeit.dataobjects import dataclass, dataobject, field
 from hopeit.testing.apps import create_test_context, execute_event, server_config
 

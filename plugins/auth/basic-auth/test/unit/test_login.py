@@ -2,13 +2,16 @@ import pytest
 
 import hopeit.toolkit.auth as auth
 from hopeit.app.context import EventContext, PostprocessHook
-
-from hopeit.server.events import get_event_settings
 from hopeit.app.errors import Unauthorized
+from hopeit.basic_auth import (  # type: ignore  # type: ignore
+    AuthInfo,
+    AuthInfoExtended,
+    AuthSettings,
+    ContextUserInfo,
+    login,
+)
 from hopeit.server.config import AuthType
-
-from hopeit.basic_auth import AuthSettings, login  # type: ignore
-from hopeit.basic_auth import ContextUserInfo, AuthInfoExtended, AuthInfo  # type: ignore
+from hopeit.server.events import get_event_settings
 
 from . import mock_app_config, plugin_config  # noqa: F401
 

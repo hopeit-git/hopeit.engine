@@ -1,6 +1,8 @@
 from typing import List, Optional, Type
+
 import pytest
 
+from hopeit.app.client import Client
 from hopeit.app.config import (
     AppConfig,
     AppConnection,
@@ -11,12 +13,11 @@ from hopeit.app.config import (
     EventDescriptor,
     EventType,
 )
+from hopeit.app.context import EventContext
+from hopeit.app.events import EventPayloadType
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import LoggingConfig, ServerConfig
 from hopeit.server.version import APPS_API_VERSION
-from hopeit.app.context import EventContext
-from hopeit.app.events import EventPayloadType
-from hopeit.app.client import Client
 
 
 @pytest.fixture

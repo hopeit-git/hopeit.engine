@@ -1,12 +1,10 @@
-from hopeit.dataobjects.payload import Payload
-
 import asyncio
 import os
 from pathlib import Path
 
-from hopeit.testing.apps import config, execute_event
-
+from hopeit.dataobjects.payload import Payload
 from hopeit.log_streamer import log_reader
+from hopeit.testing.apps import config, execute_event
 
 
 async def test_log_reader(raw_log_entries, expected_log_entries):

@@ -11,10 +11,11 @@ Also in the code you can see how to handle an expection of type `UnhandledRespon
 """
 
 from typing import Union
+
 from hopeit.app.api import event_api
+from hopeit.app.client import UnhandledResponse, app_call
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-from hopeit.app.client import app_call, UnhandledResponse
 from hopeit.dataobjects import dataclass, dataobject
 from model import Something, SomethingNotFound
 
