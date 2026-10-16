@@ -88,9 +88,11 @@ async def _get_host_config(
 
     try:
         timeout = aiohttp.ClientTimeout(total=settings.client_timeout)
-        async with aiohttp.ClientSession(timeout=timeout) as client:
-            async with client.get(url) as response:
-                return host, Payload.from_obj(await response.json(), RuntimeApps)
+        async with (
+            aiohttp.ClientSession(timeout=timeout) as client,
+            client.get(url) as response,
+        ):
+            return host, Payload.from_obj(await response.json(), RuntimeApps)
     except TimeoutError as e:  # pylint: disable=broad-except
         logger.error(
             context,
