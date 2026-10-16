@@ -4,8 +4,6 @@ Simple Example: Save Something
 Creates and saves Something
 """
 
-from typing import Optional
-
 from common.validation import validate
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PreprocessHook

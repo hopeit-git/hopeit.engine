@@ -4,7 +4,7 @@ Simple Example: List Objects
 Lists all available Something objects
 """
 
-from typing import List, Optional
+from typing import Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext

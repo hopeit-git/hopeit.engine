@@ -1,5 +1,3 @@
-from typing import List
-
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.events import Collector, collector_step

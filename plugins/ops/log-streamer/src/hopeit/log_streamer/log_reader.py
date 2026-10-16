@@ -3,7 +3,6 @@ Log Reader service: watches log files and emit batches of Log entries to a strea
 """
 
 import asyncio
-from typing import Dict, List, Optional
 
 from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn

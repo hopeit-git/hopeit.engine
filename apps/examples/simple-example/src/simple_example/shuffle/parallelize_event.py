@@ -7,7 +7,6 @@ then submitted to other stream to be updated and saved
 """
 
 from datetime import datetime, timezone
-from typing import Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook

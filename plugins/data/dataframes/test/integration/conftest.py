@@ -1,6 +1,5 @@
 from datetime import date, datetime, timezone
 from pathlib import Path
-from typing import List, Optional
 
 import polars as pl
 import pytest

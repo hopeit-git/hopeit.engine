@@ -1,7 +1,5 @@
 """Simple storage for training experiments using fs storage"""
 
-from typing import Optional
-
 from dataframes_example.iris import Experiment
 from hopeit.app.context import EventContext
 from hopeit.dataobjects.payload import Payload

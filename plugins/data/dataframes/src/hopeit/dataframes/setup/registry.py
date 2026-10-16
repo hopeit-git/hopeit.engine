@@ -1,5 +1,3 @@
-from typing import Optional
-
 from hopeit.dataframes.serialization.protocol import find_protocol_impl
 from hopeit.dataframes.serialization.settings import (
     DataframesDatabaseSettings,

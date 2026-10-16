@@ -6,7 +6,7 @@ and saved as a single flat polars DataFrame.
 
 from datetime import datetime
 from types import NoneType
-from typing import Any, Generic, Optional, Type, TypeVar, get_args, get_origin
+from typing import Any, Generic, TypeVar, get_args, get_origin
 from collections.abc import AsyncGenerator
 
 try:

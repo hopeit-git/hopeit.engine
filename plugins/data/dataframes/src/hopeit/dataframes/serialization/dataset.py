@@ -1,7 +1,7 @@
 """Dataset objects definition, used as a result of serialized dataframes"""
 
 from datetime import datetime
-from typing import Any, Dict, Generic, Optional, Type, TypeVar
+from typing import Any, Generic, TypeVar
 
 from hopeit.dataobjects import dataclass, dataobject
 

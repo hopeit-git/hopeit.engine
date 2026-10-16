@@ -5,8 +5,6 @@ Loads Something from disk, update status base on POST body.
 Objects is saved with updated status and history.
 """
 
-from typing import Optional
-
 from common.validation import validate
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook

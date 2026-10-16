@@ -6,7 +6,6 @@ and processed in asynchronously / in parallel if multiple nodes are available
 """
 
 from datetime import datetime, timezone
-from typing import Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook

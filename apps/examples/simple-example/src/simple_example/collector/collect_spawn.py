@@ -7,7 +7,6 @@ then spawn the items found individually into a stream
 """
 
 import asyncio
-from typing import List, Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook

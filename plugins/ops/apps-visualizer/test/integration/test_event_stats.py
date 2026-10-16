@@ -1,5 +1,4 @@
 from collections import deque
-from typing import Deque
 
 from hopeit.apps_visualizer.apps.events_graph import EventsGraphResult
 from hopeit.log_streamer import LogBatch, LogEntry

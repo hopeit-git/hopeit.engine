@@ -1,7 +1,6 @@
 """Iris datasets schemas"""
 
 from datetime import datetime
-from typing import List, Optional
 
 from hopeit.dataframes import Dataset, dataframe
 from hopeit.dataobjects import dataclass, dataobject, field

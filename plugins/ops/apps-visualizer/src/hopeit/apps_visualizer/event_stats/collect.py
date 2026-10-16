@@ -4,7 +4,6 @@ Collect Event Stats from log stream
 
 from collections import defaultdict, deque
 from datetime import datetime, timedelta, timezone
-from typing import Deque, Dict, Set, Tuple
 
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import dataclass, dataobject

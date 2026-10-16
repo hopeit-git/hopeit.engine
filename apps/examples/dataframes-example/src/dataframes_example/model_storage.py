@@ -4,7 +4,7 @@ import io
 import os
 import pickle
 from pathlib import Path
-from typing import Optional, Tuple, TypeVar
+from typing import TypeVar
 
 import aiofiles
 

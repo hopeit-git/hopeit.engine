@@ -5,7 +5,6 @@ Loads Something from disk
 """
 
 from datetime import datetime, timezone
-from typing import Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook

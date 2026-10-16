@@ -7,7 +7,6 @@ Uploads file using multipart upload support. Returns metadata Something object.
 
 import os
 from pathlib import Path
-from typing import List
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PreprocessHook

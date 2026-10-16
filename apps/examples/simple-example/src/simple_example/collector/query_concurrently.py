@@ -6,7 +6,6 @@ using `collector` steps constructor (instantiating an `AsyncCollector`)
 """
 
 import asyncio
-from typing import List, Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext

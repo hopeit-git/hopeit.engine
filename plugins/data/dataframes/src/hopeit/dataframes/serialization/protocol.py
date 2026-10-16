@@ -1,5 +1,5 @@
 from importlib import import_module
-from typing import Type, TypeVar
+from typing import TypeVar
 
 DataFrameT = TypeVar("DataFrameT")
 

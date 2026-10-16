@@ -5,7 +5,7 @@ Count all available Something objects connecting to simple-example app
 """
 
 from base64 import b64decode
-from typing import List, Optional
+from typing import Optional
 
 from client_example import CountAndSaveResult
 from hopeit.app.api import event_api

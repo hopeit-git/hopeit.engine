@@ -1,5 +1,4 @@
 from base64 import b64encode
-from typing import List, Type
 
 import pytest
 

@@ -7,7 +7,6 @@ Process events submitted by something_event app event
 import asyncio
 import random
 from datetime import datetime, timezone
-from typing import Optional
 
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger

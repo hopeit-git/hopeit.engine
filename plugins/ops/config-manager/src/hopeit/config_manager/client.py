@@ -4,7 +4,6 @@ Config Manager Client
 
 import asyncio
 import random
-from typing import Dict, Tuple
 
 import aiohttp
 
