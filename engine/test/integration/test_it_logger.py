@@ -5,10 +5,10 @@ import socket
 import pytest  # type: ignore
 
 import hopeit.server.logger as server_logging
-from hopeit.server import version
 from hopeit.app.config import EventLoggingConfig, EventSettings
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger, app_logger
+from hopeit.server import version
 from hopeit.server.config import AuthType
 from hopeit.server.events import get_event_settings
 from hopeit.server.logger import setup_app_logger
@@ -335,7 +335,7 @@ def test_engine_logger(monkeypatch, mock_app_config):
 def test_engine_logger_no_context(monkeypatch, mock_app_config):
     logger = _get_engine_logger(monkeypatch, mock_app_config)
 
-    logger.info(
+    logger.info(  # noqa: PLE1205 -- Hopeit logging accepts context before the message.
         "test_it_logging",
         "Log message",
         extra=server_logging.extra_values([], field1="value1", field2=42),
@@ -347,7 +347,7 @@ def test_engine_logger_no_context(monkeypatch, mock_app_config):
         "| extra.field1=value1 | extra.field2=42"
     )
 
-    logger.warning(
+    logger.warning(  # noqa: PLE1205 -- Hopeit logging accepts context before the message.
         "test_it_logging",
         "Log message",
         extra=server_logging.extra_values([], field1="value1", field2=42),
@@ -359,7 +359,7 @@ def test_engine_logger_no_context(monkeypatch, mock_app_config):
         "| extra.field1=value1 | extra.field2=42"
     )
 
-    logger.error(
+    logger.error(  # noqa: PLE1205 -- Hopeit logging accepts context before the message.
         "test_it_logging",
         "Log message",
         extra=server_logging.extra_values([], field1="value1", field2=42),
@@ -376,7 +376,7 @@ def test_engine_logger_traceback(monkeypatch, mock_app_config):
     logger = _get_engine_logger(monkeypatch, mock_app_config)
 
     exc = AssertionError("Test for error")
-    logger.info(
+    logger.info(  # noqa: PLE1205 -- Hopeit logging accepts context before the message.
         "test_it_logging",
         exc,
         extra=server_logging.extra_values([], field1="value1", field2=42),
@@ -389,7 +389,7 @@ def test_engine_logger_traceback(monkeypatch, mock_app_config):
         "| trace=%5B%22AssertionError%3A%20Test%20for%20error%5Cn%22%5D"
     )
 
-    logger.warning(
+    logger.warning(  # noqa: PLE1205 -- Hopeit logging accepts context before the message.
         "test_it_logging",
         exc,
         extra=server_logging.extra_values([], field1="value1", field2=42),
@@ -402,7 +402,7 @@ def test_engine_logger_traceback(monkeypatch, mock_app_config):
         "| trace=%5B%22AssertionError%3A%20Test%20for%20error%5Cn%22%5D"
     )
 
-    logger.error(
+    logger.error(  # noqa: PLE1205 -- Hopeit logging accepts context before the message.
         "test_it_logging",
         exc,
         extra=server_logging.extra_values([], field1="value1", field2=42),
@@ -507,7 +507,7 @@ def test_engine_extra_logger(monkeypatch, mock_app_config):
 def test_cli_logger(monkeypatch):
     logger = _get_cli_logger(monkeypatch)
 
-    logger.info(
+    logger.info(  # noqa: PLE1205 -- Hopeit logging accepts context before the message.
         "test_cli_logger",
         "Log message",
         extra=server_logging.extra_values([], field1="value1", field2=42),
@@ -518,7 +518,7 @@ def test_cli_logger(monkeypatch):
         "| [test_cli_logger] Log message | extra.field1=value1 | extra.field2=42"
     )
 
-    logger.warning(
+    logger.warning(  # noqa: PLE1205 -- Hopeit logging accepts context before the message.
         "test_cli_logger",
         "Log message",
         extra=server_logging.extra_values([], field1="value1", field2=42),
@@ -529,7 +529,7 @@ def test_cli_logger(monkeypatch):
         "| [test_cli_logger] Log message | extra.field1=value1 | extra.field2=42"
     )
 
-    logger.error(
+    logger.error(  # noqa: PLE1205 -- Hopeit logging accepts context before the message.
         "test_cli_logger",
         "Log message",
         extra=server_logging.extra_values([], field1="value1", field2=42),
