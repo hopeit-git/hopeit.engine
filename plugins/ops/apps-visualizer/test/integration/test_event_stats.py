@@ -11,7 +11,7 @@ recent_entries: deque[LogEntry] = deque()
 
 
 def mock_recent_entries(module, context):
-    setattr(module, "recent_entries", recent_entries)
+    module.recent_entries = recent_entries
 
 
 async def test_live_stats(

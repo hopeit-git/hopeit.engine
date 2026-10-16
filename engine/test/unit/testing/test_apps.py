@@ -139,7 +139,7 @@ async def test_execute_parallelize_event(mock_app_config):
 
 async def test_execute_parallelize_event_no_shuffle(mock_app_config):
     def mock_steps(module, context):
-        setattr(module, "__steps__", ["produce_messages", "process_a", "process_b"])
+        module.__steps__ = ["produce_messages", "process_a", "process_b"]
 
     result = await execute_event(
         mock_app_config,
@@ -159,7 +159,7 @@ def mock_module(module: ModuleType, context: EventContext):
     async def mock_handle_ok_case(payload: MockData, context: EventContext) -> str:
         return "mock: " + payload.value
 
-    setattr(module, "handle_ok_case", mock_handle_ok_case)
+    module.handle_ok_case = mock_handle_ok_case
 
 
 async def test_execute_event_with_mocks(mock_app_config):

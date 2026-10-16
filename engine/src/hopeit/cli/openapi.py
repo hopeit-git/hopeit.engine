@@ -13,7 +13,7 @@ from hopeit.server.config import parse_server_config_json
 from hopeit.server.logger import engine_logger
 
 logger = engine_logger().init_cli("openapi")
-setattr(api, "logger", logger)
+api.logger = logger
 
 
 @click.group()

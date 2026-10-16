@@ -243,7 +243,7 @@ def service_running_mock(context: EventContext):
 
 def apply_service_running_mock(module, context: EventContext):
     if hasattr(module, "service_running"):
-        setattr(module, "service_running", service_running_mock)
+        module.service_running = service_running_mock
     else:
         raise TestingException(
             "Service must loop using `hopeit.app.events.service_running` method."

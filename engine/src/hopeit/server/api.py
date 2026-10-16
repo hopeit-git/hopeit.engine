@@ -235,7 +235,7 @@ def bypass_payload_validation(
 
 # Bypass swagger3 module payload validation since is done
 # when deserializing payload in web.py module
-setattr(validators.Object, "validate", bypass_payload_validation)
+validators.Object.validate = bypass_payload_validation
 
 
 def enable_swagger(server_config: ServerConfig, app: web.Application):

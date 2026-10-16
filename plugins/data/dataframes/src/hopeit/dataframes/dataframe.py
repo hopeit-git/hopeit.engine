@@ -233,7 +233,7 @@ def dataframe(
                 (DataFrameMixin,) + cls.__mro__,
                 dict(cls.__dict__),
             )
-            setattr(amended_class, "__init__", DataFrameMixin.__init_from_series__)
+            amended_class.__init__ = DataFrameMixin.__init_from_series__
             return amended_class
         return cls
 
@@ -243,26 +243,18 @@ def dataframe(
         dataobject_type = create_model(dataobject_name, **serialized_fields)  # type: ignore[call-overload]
         dataobject_type = dataobject(dataobject_type, unsafe=True)
 
-        setattr(cls, "DataObject", dataobject_type)
-        setattr(
-            cls,
-            "__dataframe__",
-            DataFrameMetadata(
-                columns=list(fields(cls).keys()),
-                fields=dict(fields(cls).items()),
-                schema=None if pl is None else get_dataframe_schema(cls),
-            ),
+        cls.DataObject = dataobject_type
+        cls.__dataframe__ = DataFrameMetadata(
+            columns=list(fields(cls).keys()),
+            fields=dict(fields(cls).items()),
+            schema=None if pl is None else get_dataframe_schema(cls),
         )
 
     def add_dataobject_annotations(cls, unsafe: bool, validate: bool, schema: bool) -> None:
-        setattr(
-            cls,
-            "__data_object__",
-            {"unsafe": unsafe, "validate": validate, "schema": schema},
-        )
-        setattr(cls, "__stream_event__", StreamEventParams(None, None))
-        setattr(cls, "event_id", StreamEventMixin.event_id)
-        setattr(cls, "event_ts", StreamEventMixin.event_ts)
+        cls.__data_object__ = {"unsafe": unsafe, "validate": validate, "schema": schema}
+        cls.__stream_event__ = StreamEventParams(None, None)
+        cls.event_id = StreamEventMixin.event_id
+        cls.event_ts = StreamEventMixin.event_ts
 
     def wrap(cls) -> type[DataFrameMixin]:
         if hasattr(cls, "__dataframe__"):

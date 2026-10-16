@@ -184,10 +184,10 @@ def dataobject(
                 "\n\t`from hopeit.dataobjects import dataclass, dataobject, field`"
                 "\nPython `dataclasses.dataclass` is no longer supported with `@dataobject`"
             )
-        setattr(cls, "__data_object__", {"unsafe": unsafe, "schema": schema})
-        setattr(cls, "__stream_event__", StreamEventParams(event_id, event_ts))
-        setattr(cls, "event_id", StreamEventMixin.event_id)
-        setattr(cls, "event_ts", StreamEventMixin.event_ts)
+        cls.__data_object__ = {"unsafe": unsafe, "schema": schema}
+        cls.__stream_event__ = StreamEventParams(event_id, event_ts)
+        cls.event_id = StreamEventMixin.event_id
+        cls.event_ts = StreamEventMixin.event_ts
         return cls
 
     if decorated_class is None:

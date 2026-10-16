@@ -33,7 +33,7 @@ def mock_getenv(var_name):
 
 
 def mock_runtime(monkeypatch, effective_events):
-    setattr(apps, "_expire", 0.0)
+    apps._expire = 0.0
     monkeypatch.setattr(server_config.os, "getenv", mock_getenv)
     app_config = config("apps/examples/simple-example/config/app-config.json")
     basic_auth_config = config("plugins/auth/basic-auth/config/plugin-config.json")
