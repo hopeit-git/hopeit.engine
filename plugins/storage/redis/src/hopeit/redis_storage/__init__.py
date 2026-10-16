@@ -3,7 +3,7 @@ Storage/persistence asynchronous get/set key-values.
 Backed by Redis
 """
 
-from typing import Any, Generic, List, Optional, Type
+from typing import Any, Generic
 
 import redis.asyncio as redis
 

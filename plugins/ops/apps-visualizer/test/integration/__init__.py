@@ -1,5 +1,3 @@
-from typing import Dict
-
 from hopeit.app.config import AppConfig, EventDescriptor
 from hopeit.apps_visualizer import apps
 from hopeit.config_manager.runtime import runtime

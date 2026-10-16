@@ -1,6 +1,5 @@
 import pytest
 
-from hopeit.toolkit import auth
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.errors import Unauthorized
 from hopeit.basic_auth import (  # type: ignore  # type: ignore
@@ -12,8 +11,10 @@ from hopeit.basic_auth import (  # type: ignore  # type: ignore
 )
 from hopeit.server.config import AuthType
 from hopeit.server.events import get_event_settings
+from hopeit.toolkit import auth
 
-from . import mock_app_config, plugin_config
+from . import mock_app_config as mock_app_config
+from . import plugin_config as plugin_config
 
 
 async def invoke_login(context: EventContext):

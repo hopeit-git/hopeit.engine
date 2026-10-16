@@ -4,7 +4,7 @@ Log Stramer dataclasses and file handler implementation based on watchdog librar
 
 import asyncio
 from datetime import datetime, timezone
-from typing import Dict, List, TextIO
+from typing import TextIO
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer

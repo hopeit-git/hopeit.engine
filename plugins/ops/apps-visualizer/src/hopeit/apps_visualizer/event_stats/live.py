@@ -2,18 +2,16 @@ from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.events import Collector, collector_step
 from hopeit.apps_visualizer import AppsVisualizerSettings
-from hopeit.apps_visualizer.apps.events_graph import (
-    EventsGraphResult,
-    config_graph,
-    cytoscape_data,
-    runtime_apps,
-)
+from hopeit.apps_visualizer.apps.events_graph import EventsGraphResult
+from hopeit.apps_visualizer.apps.events_graph import config_graph as config_graph
+from hopeit.apps_visualizer.apps.events_graph import cytoscape_data as cytoscape_data
+from hopeit.apps_visualizer.apps.events_graph import runtime_apps as runtime_apps
 from hopeit.apps_visualizer.event_stats.collect import get_stats
 from hopeit.apps_visualizer.site.visualization import (
     VisualizationOptions,
-    visualization_options,
     visualization_options_api_args,
 )
+from hopeit.apps_visualizer.site.visualization import visualization_options as visualization_options
 
 __steps__ = [
     "visualization_options",

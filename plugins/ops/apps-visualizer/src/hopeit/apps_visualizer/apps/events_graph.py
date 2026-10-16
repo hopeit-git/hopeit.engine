@@ -18,9 +18,9 @@ from hopeit.apps_visualizer.graphs import (
 from hopeit.apps_visualizer.site.visualization import (
     CytoscapeGraph,
     VisualizationOptions,
-    visualization_options,
     visualization_options_api_args,
 )
+from hopeit.apps_visualizer.site.visualization import visualization_options as visualization_options
 from hopeit.config_manager import RuntimeAppInfo, RuntimeApps
 from hopeit.dataobjects import dataclass, dataobject
 

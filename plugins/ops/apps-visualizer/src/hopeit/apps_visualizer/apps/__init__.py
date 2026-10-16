@@ -4,7 +4,6 @@ Apps Visualizer apps state
 
 import asyncio
 from datetime import datetime, timezone
-from typing import Optional
 
 from hopeit.app.context import EventContext
 from hopeit.apps_visualizer import AppsVisualizerSettings

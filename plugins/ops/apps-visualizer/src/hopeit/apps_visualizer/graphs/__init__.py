@@ -3,7 +3,6 @@ Apps Visualizer: graph elements model
 """
 
 from enum import Enum
-from typing import Dict, List
 
 from hopeit.app.config import (
     AppConnection,

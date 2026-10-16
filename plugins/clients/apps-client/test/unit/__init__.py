@@ -1,6 +1,5 @@
 import asyncio
 from collections import defaultdict
-from typing import Dict, List
 
 from hopeit.app.config import AppConfig
 from hopeit.dataobjects import dataclass, dataobject

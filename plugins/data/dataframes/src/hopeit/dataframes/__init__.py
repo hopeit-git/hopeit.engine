@@ -71,7 +71,7 @@ print(Payload.to_json(my_json_response))
 """
 
 from collections.abc import Iterator
-from typing import Any, Dict, Generic, List, Type
+from typing import Any, Generic
 
 try:
     import polars as pl
