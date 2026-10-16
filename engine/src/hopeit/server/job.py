@@ -81,7 +81,9 @@ def _parse_json_kv_payload(payload: str | None, name: str) -> dict[str, str]:
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid {name} JSON payload: {e}") from e
     if not isinstance(data, dict):
-        raise ValueError(f"{name} payload must be a JSON object.")
+        raise ValueError(  # noqa: TRY004 -- The JSON string has an invalid value, not an invalid argument type.
+            f"{name} payload must be a JSON object."
+        )
     parsed: dict[str, str] = {}
     for key, value in data.items():
         if not isinstance(key, str) or not key.strip():
