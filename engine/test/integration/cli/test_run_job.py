@@ -95,10 +95,12 @@ def test_hopeit_job():
         "python",
         "-m",
         "hopeit.cli.job",
-        "--config-files=engine/config/dev-noauth.json"
-        ",plugins/streams/redis/config/plugin-config.json"
-        ",plugins/auth/basic-auth/config/plugin-config.json"
-        ",apps/examples/simple-example/config/app-config.json",
+        (
+            "--config-files=engine/config/dev-noauth.json"
+            ",plugins/streams/redis/config/plugin-config.json"
+            ",plugins/auth/basic-auth/config/plugin-config.json"
+            ",apps/examples/simple-example/config/app-config.json"
+        ),
         "--event-name=check_enum",
         '--query-args={"enum_value":"value1"}',
     ]

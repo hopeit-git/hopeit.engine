@@ -20,8 +20,10 @@ __api__ = event_api(
         (
             "wildcard",
             str | None,
-            "Wildcard to filter objects by name prefixed "
-            "by partition folder in format YYYY/MM/DD/HH/*",
+            (
+                "Wildcard to filter objects by name prefixed "
+                "by partition folder in format YYYY/MM/DD/HH/*"
+            ),
         )
     ],
     responses={

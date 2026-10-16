@@ -48,10 +48,12 @@ async def test_example_app_starts_ok(monkeypatch):
         run,
         [
             "--port=8021",
-            "--config-files=engine/config/dev-local.json"
-            ",plugins/auth/basic-auth/config/plugin-config.json"
-            ",plugins/ops/config-manager/config/plugin-config.json"
-            ",apps/examples/simple-example/config/app-config.json",
+            (
+                "--config-files=engine/config/dev-local.json"
+                ",plugins/auth/basic-auth/config/plugin-config.json"
+                ",plugins/ops/config-manager/config/plugin-config.json"
+                ",apps/examples/simple-example/config/app-config.json"
+            ),
             "--api-file=apps/examples/simple-example/api/openapi.json",
             "--enabled-groups=g1,g2",
         ],
@@ -90,8 +92,10 @@ def test_default_host_port(monkeypatch):
     result = runner.invoke(
         run,
         [
-            "--config-files=engine/config/dev-local.json"
-            ",plugins/auth/basic-auth/config/plugin-config.json"
+            (
+                "--config-files=engine/config/dev-local.json"
+                ",plugins/auth/basic-auth/config/plugin-config.json"
+            )
         ],
     )
     assert result.exit_code == 0
@@ -106,8 +110,10 @@ def test_custom_host_port(monkeypatch):
         [
             "--port=8888",
             "--host=myhost.mydomain",
-            "--config-files=engine/config/dev-local.json"
-            ",plugins/auth/basic-auth/config/plugin-config.json",
+            (
+                "--config-files=engine/config/dev-local.json"
+                ",plugins/auth/basic-auth/config/plugin-config.json"
+            ),
         ],
     )
     assert result.exit_code == 0
@@ -131,8 +137,10 @@ def test_hopeit_server(worker_class):
         "-m",
         "hopeit.cli.server",
         "run",
-        "--config-files=engine/config/dev-local.json"
-        ",plugins/auth/basic-auth/config/plugin-config.json",
+        (
+            "--config-files=engine/config/dev-local.json"
+            ",plugins/auth/basic-auth/config/plugin-config.json"
+        ),
         f"--worker-class={worker_class}",
     ]
 
