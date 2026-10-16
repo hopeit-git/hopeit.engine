@@ -61,13 +61,13 @@ from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
 
 __all__ = [
+    "app_startup_hook",
     "parse_args",
     "prepare_engine",
     "serve",
     "server_startup_hook",
-    "app_startup_hook",
-    "stream_startup_hook",
     "stop_server",
+    "stream_startup_hook",
 ]
 
 logger: EngineLoggerWrapper = logging.getLogger(__name__)  # type: ignore
