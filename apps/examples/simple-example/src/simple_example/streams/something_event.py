@@ -4,7 +4,7 @@ Simple Example: Something Event
 Submits a Something object to a stream to be processed asynchronously by process-events app event
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
@@ -26,5 +26,5 @@ def stream_event(payload: Something, context: EventContext) -> Something:
     logger.info(context, "streaming event", extra=extra(something_id=payload.id))
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.SUBMITTED)
+    payload.status = Status(ts=datetime.now(tz=UTC), type=StatusType.SUBMITTED)
     return payload

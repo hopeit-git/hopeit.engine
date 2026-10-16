@@ -7,7 +7,7 @@ plugged in with basic-auth plugin.
 """
 
 import base64
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
@@ -40,7 +40,7 @@ async def login(payload: None, context: EventContext) -> AuthInfoExtended:
     Returns a new access and refresh token for a set of given basic-auth credentials
     """
     assert context.auth_info["allowed"]
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     if context.auth_info["auth_type"] == AuthType.BASIC:
         data = base64.b64decode(context.auth_info["payload"].encode()).decode()
         user_info = ContextUserInfo(

@@ -7,7 +7,7 @@ import random
 import uuid
 from asyncio import CancelledError
 from collections.abc import Awaitable
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 
 from hopeit.app.client import register_app_connections, stop_app_connections
@@ -601,7 +601,7 @@ class AppEngine:
         if previous_context is None:
             track_ids = {
                 "track.request_id": str(uuid.uuid4()),
-                "track.request_ts": datetime.now(tz=timezone.utc).isoformat(),
+                "track.request_ts": datetime.now(tz=UTC).isoformat(),
             }
         else:
             track_ids = previous_context.track_ids

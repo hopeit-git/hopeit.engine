@@ -3,7 +3,7 @@ Collect Event Stats from log stream
 """
 
 from collections import defaultdict, deque
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import dataclass, dataobject
@@ -46,7 +46,7 @@ def get_stats(
     :param: recent_secs: int, events on the last seconds will be counted as recent
     """
     stats: dict[str, EventStats] = defaultdict(EventStats)
-    now_ts = datetime.now(tz=timezone.utc)
+    now_ts = datetime.now(tz=UTC)
     from_ts = (now_ts - timedelta(seconds=time_window_secs)).strftime("%Y-%m-%d %H:%M:%S")
     recent_ts = (now_ts - timedelta(seconds=recent_secs)).strftime("%Y-%m-%d %H:%M:%S")
     for entry in recent_entries:

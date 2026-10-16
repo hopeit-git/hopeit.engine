@@ -4,7 +4,7 @@ DataFrames type abstractions.
 
 import dataclasses
 from collections.abc import Callable, Iterator
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, UTC
 from typing import Any, ClassVar, Generic, Optional, TypeVar
 
 try:
@@ -64,13 +64,13 @@ class DataTypeMapping:
             float: (pl.Float64(), (not_null_check,)),
             str: (pl.String(), (not_null_check,)),
             date: (pl.Date(), (not_null_check,)),
-            datetime: (pl.Datetime(time_unit="us", time_zone=timezone.utc), (not_null_check,)),
+            datetime: (pl.Datetime(time_unit="us", time_zone=UTC), (not_null_check,)),
             int | None: (pl.Int64(), ()),
             bool | None: (pl.Boolean(), ()),
             float | None: (pl.Float64(), ()),
             str | None: (pl.String(), ()),
             date | None: (pl.Date(), ()),
-            datetime | None: (pl.Datetime(time_unit="us", time_zone=timezone.utc), ()),
+            datetime | None: (pl.Datetime(time_unit="us", time_zone=UTC), ()),
         }
 
     @classmethod
@@ -173,7 +173,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         return ""
 
     def event_ts(self, *args, **kwargs) -> datetime:
-        return datetime.now(tz=timezone.utc)
+        return datetime.now(tz=UTC)
 
     def __getattribute__(self, name: str) -> Any:
         if name[:2] == "__":

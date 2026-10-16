@@ -5,7 +5,7 @@ This example will spawn 3 data events, those are going to be send to a stream us
 and processed in asynchronously / in parallel if multiple nodes are available
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
@@ -45,7 +45,7 @@ async def spawn_many_events(payload: Something, context: EventContext) -> Spawn[
     if payload.status:
         payload.history.append(payload.status)
     for i in range(3):
-        payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.SUBMITTED)
+        payload.status = Status(ts=datetime.now(tz=UTC), type=StatusType.SUBMITTED)
         payload.id = str(i)
         yield payload
 
@@ -71,7 +71,7 @@ def update_status(payload: Something, context: EventContext) -> Something:
 
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.PROCESSED)
+    payload.status = Status(ts=datetime.now(tz=UTC), type=StatusType.PROCESSED)
     return payload
 
 

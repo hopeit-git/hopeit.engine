@@ -1,6 +1,6 @@
 import asyncio
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any, ClassVar
 
 import redis.asyncio as redis
@@ -88,7 +88,7 @@ def patch_redis_client(monkeypatch):
 
 async def write_stream():
     mgr = await create_stream_manager()
-    payload = MockData("test_value", datetime.fromtimestamp(0, tz=timezone.utc))
+    payload = MockData("test_value", datetime.fromtimestamp(0, tz=UTC))
     res = await mgr.write_stream(
         stream_name="test_stream",
         queue=TestStreamData.test_queue,
@@ -277,7 +277,7 @@ async def test_connect_uses_blocking_pool_settings(monkeypatch):
 async def test_write_stream_concurrent_low_max_connections(monkeypatch):
     patch_redis_client(monkeypatch)
     mgr = await create_stream_manager(max_connections=2, pool_timeout=2.5)
-    payload = MockData("test_value", datetime.fromtimestamp(0, tz=timezone.utc))
+    payload = MockData("test_value", datetime.fromtimestamp(0, tz=UTC))
     results = await asyncio.gather(
         *(
             mgr.write_stream(

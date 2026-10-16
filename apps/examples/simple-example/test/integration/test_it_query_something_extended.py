@@ -1,6 +1,6 @@
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 import pytest  # type: ignore
 
@@ -33,7 +33,7 @@ def sample_file_id():
 
 
 async def test_query_item(app_config, sample_file_id):
-    status = Status(datetime.now(tz=timezone.utc), StatusType.LOADED)
+    status = Status(datetime.now(tz=UTC), StatusType.LOADED)
     result, pp_result, _res = await execute_event(
         app_config=app_config,
         event_name="query_something_extended",
@@ -49,7 +49,7 @@ async def test_query_item(app_config, sample_file_id):
 
 
 async def test_query_item_not_found(app_config):
-    status = Status(datetime.now(tz=timezone.utc), StatusType.LOADED)
+    status = Status(datetime.now(tz=UTC), StatusType.LOADED)
     item_id = str(uuid.uuid4())
     result, pp_result, res = await execute_event(
         app_config=app_config,

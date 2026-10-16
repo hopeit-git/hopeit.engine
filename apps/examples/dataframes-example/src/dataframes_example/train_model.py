@@ -3,7 +3,7 @@
 # pylint: disable=invalid-name
 
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 import polars as pl
 from sklearn.metrics import accuracy_score  # type: ignore
@@ -55,7 +55,7 @@ async def prepare_experiment(input_data: InputData, context: EventContext) -> Ex
 
     experiment = Experiment(
         experiment_id=experiment_id,
-        experiment_dt=datetime.now(tz=timezone.utc),
+        experiment_dt=datetime.now(tz=UTC),
         input_data=input_data.iris,
     )
 

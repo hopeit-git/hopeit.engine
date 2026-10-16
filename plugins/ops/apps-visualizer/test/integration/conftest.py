@@ -2,7 +2,7 @@ import asyncio
 import json
 import os
 import socket
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from pathlib import Path
 
 import pytest
@@ -78,7 +78,7 @@ async def log_entries() -> LogBatch:
         ]
     )
     batch = await _process_log_entries(raw)
-    ts = datetime.now(tz=timezone.utc)
+    ts = datetime.now(tz=UTC)
     for entry in batch.entries:
         entry.ts = ts.strftime("%Y-%m-%d %H:%M:%S")
         entry.host = socket.gethostname()

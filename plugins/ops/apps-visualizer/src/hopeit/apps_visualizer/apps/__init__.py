@@ -3,7 +3,7 @@ Apps Visualizer apps state
 """
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 from hopeit.app.context import EventContext
 from hopeit.apps_visualizer import AppsVisualizerSettings
@@ -28,7 +28,7 @@ async def get_runtime_apps(
     if not refresh and _lock.locked():
         raise RuntimeError("Events graph request in process. Ignoring")
     settings = context.settings(key="apps_visualizer", datatype=AppsVisualizerSettings)
-    now_ts = datetime.now(tz=timezone.utc).timestamp()
+    now_ts = datetime.now(tz=UTC).timestamp()
     async with _lock:
         if _apps is None or refresh or now_ts > _expire:
             logger.info(context, "Contacting hosts config-manager...")

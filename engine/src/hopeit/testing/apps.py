@@ -3,7 +3,7 @@ Test utilities/wrappers for app development
 """
 
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -68,7 +68,7 @@ def create_test_context(
             **{k: "" for k in app_config.engine.track_headers},
             "track.operation_id": "test_operation_id",
             "track.request_id": "test_request_id",
-            "track.request_ts": datetime.now(tz=timezone.utc).isoformat(),
+            "track.request_ts": datetime.now(tz=UTC).isoformat(),
             **({} if track_ids is None else track_ids),
         },
         auth_info={

@@ -7,7 +7,7 @@ import dataclasses
 import os
 import socket
 from abc import ABC
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from importlib import import_module
 from typing import Any
 
@@ -187,7 +187,7 @@ class StreamManager(ABC):
         :return: str, concatenating current UTC ISO datetime, host name, process id
             and this StreamManager instance id
         """
-        ts = datetime.now(tz=timezone.utc).isoformat()
+        ts = datetime.now(tz=UTC).isoformat()
         host = socket.gethostname()
         pid = os.getpid()
         mgr = id(self)

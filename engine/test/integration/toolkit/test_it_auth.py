@@ -2,7 +2,7 @@ import os
 import pathlib
 import time
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 
 import pytest  # type: ignore
 from jwt import DecodeError, ExpiredSignatureError, InvalidSignatureError
@@ -48,8 +48,8 @@ def test_token_lifecycle(mock_app_config):
     context = _setup_server_context(mock_app_config)
     payload = {
         "test": "test_value",
-        "iat": datetime.now(tz=timezone.utc),
-        "exp": datetime.now(tz=timezone.utc) + timedelta(seconds=2),
+        "iat": datetime.now(tz=UTC),
+        "exp": datetime.now(tz=UTC) + timedelta(seconds=2),
     }
     token = auth.new_token(mock_app_config.app_key(), payload)
     assert token is not None
@@ -73,8 +73,8 @@ def test_token_lifecycle(mock_app_config):
         mock_app_config.app_key(),
         payload={
             "test": "test_value",
-            "iat": datetime.now(tz=timezone.utc),
-            "exp": datetime.now(tz=timezone.utc) + timedelta(seconds=2),
+            "iat": datetime.now(tz=UTC),
+            "exp": datetime.now(tz=UTC) + timedelta(seconds=2),
         },
     )
     auth.init(
@@ -104,8 +104,8 @@ def test_client_tokens(mock_app_config, mock_client_app_config):
 
     payload = {
         "test": "test_value",
-        "iat": datetime.now(tz=timezone.utc),
-        "exp": datetime.now(tz=timezone.utc) + timedelta(seconds=2),
+        "iat": datetime.now(tz=UTC),
+        "exp": datetime.now(tz=UTC) + timedelta(seconds=2),
     }
 
     # Client-generated token validated in server
@@ -130,8 +130,8 @@ def test_client_not_registered(mock_app_config, mock_client_app_config):
 
     payload = {
         "test": "test_value",
-        "iat": datetime.now(tz=timezone.utc),
-        "exp": datetime.now(tz=timezone.utc) + timedelta(seconds=2),
+        "iat": datetime.now(tz=UTC),
+        "exp": datetime.now(tz=UTC) + timedelta(seconds=2),
     }
 
     # Client-generated token validated in server
@@ -162,7 +162,7 @@ def test_auth_method_bearer(mock_app_config):
     context = _setup_server_context(mock_app_config)
     payload = {
         "test": "test_value",
-        "exp": datetime.now(tz=timezone.utc) + timedelta(seconds=2),
+        "exp": datetime.now(tz=UTC) + timedelta(seconds=2),
     }
     token = auth.new_token(mock_app_config.app_key(), payload)
     assert auth.validate_auth_method(AuthType.BEARER, data=token, context=context) is None
@@ -175,7 +175,7 @@ def test_auth_method_refresh(mock_app_config):
     context = _setup_server_context(mock_app_config)
     payload = {
         "test": "test_value",
-        "exp": datetime.now(tz=timezone.utc) + timedelta(seconds=2),
+        "exp": datetime.now(tz=UTC) + timedelta(seconds=2),
     }
     token = auth.new_token(mock_app_config.app_key(), payload)
     assert auth.validate_auth_method(AuthType.REFRESH, data=token, context=context) is None

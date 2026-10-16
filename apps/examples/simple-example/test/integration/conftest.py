@@ -1,11 +1,11 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 import pytest  # type: ignore
 
 from hopeit.testing.apps import config
 from model import Something, SomethingParams, Status, StatusType, User
 
-EVENT_TS = datetime.strptime("2020-05-01T00:00:00", "%Y-%m-%dT%H:%M:%S").astimezone(tz=timezone.utc)
+EVENT_TS = datetime.strptime("2020-05-01T00:00:00", "%Y-%m-%dT%H:%M:%S").astimezone(tz=UTC)
 
 
 @pytest.fixture

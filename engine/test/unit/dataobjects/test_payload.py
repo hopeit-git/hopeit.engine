@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from decimal import Decimal
 
 import pytest
@@ -43,12 +43,12 @@ def test_to_json_list_dataobject():
                 MockData(
                     id="1",
                     value="ok-1",
-                    nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc)),
+                    nested=MockNested(ts=datetime.fromtimestamp(0, tz=UTC)),
                 ),
                 MockData(
                     id="2",
                     value="ok-2",
-                    nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc)),
+                    nested=MockNested(ts=datetime.fromtimestamp(0, tz=UTC)),
                 ),
             ]
         )
@@ -59,7 +59,7 @@ def test_to_json_list_dataobject():
 
 
 def test_to_obj_list_dataobject():
-    ts = datetime.fromtimestamp(0, tz=timezone.utc)
+    ts = datetime.fromtimestamp(0, tz=UTC)
     assert Payload.to_obj(
         [
             MockData(id="1", value="ok-1", nested=MockNested(ts=ts)),
@@ -72,7 +72,7 @@ def test_to_obj_list_dataobject():
 
 
 def test_to_json_dict_dataobject():
-    ts = datetime.fromtimestamp(0, tz=timezone.utc)
+    ts = datetime.fromtimestamp(0, tz=UTC)
     assert Payload.to_json(
         {
             "item1": MockData(id="1", value="ok-1", nested=MockNested(ts=ts)),
@@ -85,7 +85,7 @@ def test_to_json_dict_dataobject():
 
 
 def test_to_obj_dict_dataobject():
-    ts = datetime.fromtimestamp(0, tz=timezone.utc)
+    ts = datetime.fromtimestamp(0, tz=UTC)
     assert Payload.to_obj(
         {
             "item1": MockData(id="1", value="ok-1", nested=MockNested(ts=ts)),
@@ -98,7 +98,7 @@ def test_to_obj_dict_dataobject():
 
 
 def test_to_json_list_mixed():
-    ts = datetime.fromtimestamp(0, tz=timezone.utc)
+    ts = datetime.fromtimestamp(0, tz=UTC)
     assert json.loads(
         Payload.to_json(
             [
@@ -133,7 +133,7 @@ def test_to_json_list_mixed():
 
 
 def test_to_obj_list_mixed():
-    ts = datetime.fromtimestamp(0, tz=timezone.utc)
+    ts = datetime.fromtimestamp(0, tz=UTC)
     assert Payload.to_obj(
         [
             {
@@ -160,7 +160,7 @@ def test_to_json_dict_mixed():
                     "data": MockData(
                         id="1",
                         value="ok-1",
-                        nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc)),
+                        nested=MockNested(ts=datetime.fromtimestamp(0, tz=UTC)),
                     ),
                 },
                 "item2": {
@@ -168,7 +168,7 @@ def test_to_json_dict_mixed():
                     "data": MockData(
                         id="2",
                         value="ok-2",
-                        nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc)),
+                        nested=MockNested(ts=datetime.fromtimestamp(0, tz=UTC)),
                     ),
                 },
             }
@@ -194,7 +194,7 @@ def test_to_json_dict_mixed():
 
 
 def test_to_obj_dict_mixed():
-    ts = datetime.fromtimestamp(0, tz=timezone.utc)
+    ts = datetime.fromtimestamp(0, tz=UTC)
     assert Payload.to_obj(
         {
             "item1": {
@@ -224,7 +224,7 @@ def test_to_json_dataobject():
             MockData(
                 id="test",
                 value="ok",
-                nested=MockNested(ts=datetime.fromtimestamp(0, tz=timezone.utc)),
+                nested=MockNested(ts=datetime.fromtimestamp(0, tz=UTC)),
             )
         )
         == '{"id":"test","value":"ok","nested":{"ts":"1970-01-01T00:00:00Z"}}'
@@ -232,7 +232,7 @@ def test_to_json_dataobject():
 
 
 def test_to_obj_dataobject():
-    ts = datetime.fromtimestamp(0, tz=timezone.utc)
+    ts = datetime.fromtimestamp(0, tz=UTC)
     assert Payload.to_obj(MockData(id="test", value="ok", nested=MockNested(ts=ts))) == {
         "id": "test",
         "value": "ok",
@@ -273,7 +273,7 @@ def test_from_json_dataobject():
     ) == MockData(
         id="test",
         value="ok",
-        nested=MockNested(ts=datetime.fromtimestamp(0.0).astimezone(timezone.utc)),
+        nested=MockNested(ts=datetime.fromtimestamp(0.0).astimezone(UTC)),
     )
 
 
@@ -284,12 +284,12 @@ def test_from_obj_dataobject():
     ) == MockData(
         id="test",
         value="ok",
-        nested=MockNested(ts=datetime.fromtimestamp(0.0).astimezone(timezone.utc)),
+        nested=MockNested(ts=datetime.fromtimestamp(0.0).astimezone(UTC)),
     )
 
 
 def test_from_obj_dataobject_dict():
-    ts = datetime.fromtimestamp(0.0).astimezone(timezone.utc)
+    ts = datetime.fromtimestamp(0.0).astimezone(UTC)
     assert Payload.from_obj(
         {
             "item1": {"id": "test1", "value": "ok", "nested": {"ts": ts}},
@@ -303,7 +303,7 @@ def test_from_obj_dataobject_dict():
 
 
 def test_from_obj_dataobject_list():
-    ts = datetime.fromtimestamp(0.0).astimezone(timezone.utc)
+    ts = datetime.fromtimestamp(0.0).astimezone(UTC)
     assert Payload.from_obj(
         [
             {"id": "test1", "value": "ok", "nested": {"ts": ts}},
@@ -451,7 +451,7 @@ def test_to_json_invalid_types():
             MockData(
                 id=42,
                 value="ok-value",
-                nested=MockNested(ts=datetime.now(tz=timezone.utc)),
+                nested=MockNested(ts=datetime.now(tz=UTC)),
             )
         )  # type: ignore
 
@@ -465,7 +465,7 @@ def test_to_obj_invalid_types():
             MockData(
                 id=42,
                 value="ok-value",
-                nested=MockNested(ts=datetime.now(tz=timezone.utc)),
+                nested=MockNested(ts=datetime.now(tz=UTC)),
             )
         )  # type: ignore
 
@@ -508,7 +508,7 @@ def test_to_obj_kwargs():
 
 
 def test_to_json_kwargs():
-    ts = datetime.fromtimestamp(0, tz=timezone.utc)
+    ts = datetime.fromtimestamp(0, tz=UTC)
     original = MockData(id="1", value="ok-1", nested=MockNested(ts=ts))
     exclude = Payload.to_json(original, exclude="nested")
     assert exclude == '{"id":"1","value":"ok-1"}'

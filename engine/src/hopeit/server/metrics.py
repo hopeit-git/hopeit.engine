@@ -2,7 +2,7 @@
 Metrics module
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 from hopeit.app.context import EventContext
 from hopeit.server.logger import format_extra_values
@@ -33,7 +33,7 @@ def stream_metrics(context: EventContext):
 
 
 def _calc_event_metrics(context: EventContext):
-    duration = 1000.0 * (datetime.now(tz=timezone.utc) - context.creation_ts).total_seconds()
+    duration = 1000.0 * (datetime.now(tz=UTC) - context.creation_ts).total_seconds()
     return {"duration": f"{duration:.3f}"}
 
 
@@ -59,7 +59,7 @@ def _calc_stream_metrics(context: EventContext):
     request_ts = context.track_ids.get("track.request_ts")
     if request_ts:
         request_dt = datetime.fromisoformat(request_ts)
-        elapsed = 1000.0 * (datetime.now(tz=timezone.utc) - request_dt).total_seconds()
+        elapsed = 1000.0 * (datetime.now(tz=UTC) - request_dt).total_seconds()
         result["request_elapsed"] = f"{elapsed:.3f}"
     return result
 
@@ -70,7 +70,7 @@ class StreamStats:
     """
 
     def __init__(self):
-        self.run_ts: datetime = datetime.now(tz=timezone.utc)
+        self.run_ts: datetime = datetime.now(tz=UTC)
         self.start_ts: datetime | None = None
         self.from_ts: datetime | None = None
         self.event_count: int = 0
@@ -80,8 +80,8 @@ class StreamStats:
 
     def ensure_start(self):
         if self.start_ts is None:
-            self.start_ts = datetime.now(tz=timezone.utc)
-            self.from_ts = datetime.now(tz=timezone.utc)
+            self.start_ts = datetime.now(tz=UTC)
+            self.from_ts = datetime.now(tz=UTC)
             self.event_count: int = 0
             self.error_count: int = 0
             self.total_event_count = 0
@@ -108,7 +108,7 @@ class StreamStats:
         assert self.start_ts is not None and self.from_ts is not None, (
             "StreamStats not initialized. Call `ensure_start()`"
         )
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         total_elapsed_td = now - self.start_ts
         total_elapsed = 1000.0 * total_elapsed_td.total_seconds()
         avg_rate = (1000.0 * self.total_event_count / total_elapsed) if total_elapsed else 0.0

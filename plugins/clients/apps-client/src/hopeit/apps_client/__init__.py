@@ -6,7 +6,7 @@ import asyncio
 import random
 from collections import defaultdict
 from contextlib import AbstractAsyncContextManager
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from functools import partial
 from typing import Any
@@ -331,7 +331,7 @@ class AppsClient(Client):
         raise RuntimeError("Unexpected missing result after retry loop")
 
     def _now_ts(self) -> int:
-        return int(datetime.now(tz=timezone.utc).timestamp())
+        return int(datetime.now(tz=UTC).timestamp())
 
     def _get_event_connection(self, context: EventContext, event_name: str):
         try:

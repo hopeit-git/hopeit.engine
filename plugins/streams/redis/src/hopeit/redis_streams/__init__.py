@@ -5,7 +5,7 @@ import base64
 import json
 import uuid
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 
 import redis.asyncio as redis
@@ -209,7 +209,7 @@ class RedisStreamManager(StreamManager):
                 )
                 stream_events: list[StreamEvent | Exception] = []
                 for msg in batch:
-                    read_ts = datetime.now(tz=timezone.utc).isoformat()
+                    read_ts = datetime.now(tz=UTC).isoformat()
                     msg_type = msg[1][b"type"].decode()
                     datatype = datatypes.get(msg_type)
                     if datatype is None:
@@ -279,7 +279,7 @@ class RedisStreamManager(StreamManager):
         event_fields = {
             "id": payload.event_id(),  # type: ignore
             "type": f"{datatype.__module__}.{datatype.__qualname__}",
-            "submit_ts": datetime.now(tz=timezone.utc).isoformat(),
+            "submit_ts": datetime.now(tz=UTC).isoformat(),
             "event_ts": "",
             **{k: v or "" for k, v in track_ids.items()},
             "auth_info": base64.b64encode(json.dumps(auth_info).encode()),
@@ -290,7 +290,7 @@ class RedisStreamManager(StreamManager):
         }
         event_ts = payload.event_ts()  # type: ignore
         if isinstance(event_ts, datetime):
-            event_fields["event_ts"] = event_ts.astimezone(tz=timezone.utc).isoformat()
+            event_fields["event_ts"] = event_ts.astimezone(tz=UTC).isoformat()
         elif isinstance(event_ts, str):
             event_fields["event_ts"] = event_ts
         return event_fields

@@ -8,7 +8,7 @@ import json
 import sys
 import uuid
 from collections import namedtuple
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 
 from multidict import CIMultiDict, CIMultiDictProxy
@@ -449,7 +449,7 @@ def _job_track_ids(
     event_name: str,
     extra_track_ids: dict[str, str] | None = None,
 ) -> dict[str, str]:
-    now = datetime.now(tz=timezone.utc).isoformat()
+    now = datetime.now(tz=UTC).isoformat()
     track_ids = {
         "track.operation_id": str(uuid.uuid4()),
         "track.request_id": str(uuid.uuid4()),

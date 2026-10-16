@@ -4,7 +4,7 @@ Simple Example: Query Something
 Loads Something from disk
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
@@ -68,7 +68,7 @@ async def load(
 async def update_status_history(payload: Something, context: EventContext) -> Something:
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.LOADED)
+    payload.status = Status(ts=datetime.now(tz=UTC), type=StatusType.LOADED)
     return payload
 
 

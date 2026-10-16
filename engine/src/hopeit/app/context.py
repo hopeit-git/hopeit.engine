@@ -5,7 +5,7 @@ Context information and handling
 import re
 from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator, AsyncIterator, Callable, Mapping
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from pathlib import Path
 from typing import (
     Any,
@@ -63,7 +63,7 @@ class EventContext:
         self.settings = settings
         base_event = event_name.split("$")[0]
         self.event_info: EventDescriptor = plugin_config.events[base_event]
-        self.creation_ts: datetime = datetime.now(tz=timezone.utc)
+        self.creation_ts: datetime = datetime.now(tz=UTC)
         self.auth_info = auth_info
         track_fields = [
             "track.operation_id",

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 
 import pytest  # type: ignore
 
@@ -75,7 +75,7 @@ async def execute_flow(context):
 def _event_context(mock_app_config, plugin_config):
     settings = get_event_settings(plugin_config.effective_settings, "refresh")
     cfg = settings(key="auth", datatype=AuthSettings)
-    iat = datetime.now(tz=timezone.utc)
+    iat = datetime.now(tz=UTC)
     timeout = cfg.access_token_expiration
     return EventContext(
         app_config=mock_app_config,

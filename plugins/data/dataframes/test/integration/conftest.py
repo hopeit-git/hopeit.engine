@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, UTC
 from pathlib import Path
 
 import polars as pl
@@ -112,8 +112,8 @@ class MyTestAllTypesData:
     bool_value_optional: bool | None
 
 
-DEFAULT_DATE = datetime.now(tz=timezone.utc).date()
-DEFAULT_DATETIME = datetime.now(tz=timezone.utc)
+DEFAULT_DATE = datetime.now(tz=UTC).date()
+DEFAULT_DATETIME = datetime.now(tz=UTC)
 
 
 @dataframe
@@ -232,7 +232,7 @@ def one_element_polars_df() -> pl.DataFrame:
             {
                 "number": 1,
                 "name": "test1",
-                "timestamp": datetime.now(tz=timezone.utc),
+                "timestamp": datetime.now(tz=UTC),
             }
         ]
     )
@@ -246,7 +246,7 @@ def two_element_polars_df_with_nulls() -> pl.DataFrame:
                 "id": "1",
                 "number": 1,
                 "name": "test1",
-                "timestamp": datetime.now(tz=timezone.utc),
+                "timestamp": datetime.now(tz=UTC),
             },
             {"id": "2", "number": None, "name": None, "timestamp": None},
         ]
@@ -260,7 +260,7 @@ def sample_df() -> pl.DataFrame:
             {
                 "number": n,
                 "name": f"test{n}",
-                "timestamp": datetime.now(tz=timezone.utc),
+                "timestamp": datetime.now(tz=UTC),
             }
             for n in range(100)
         ]
@@ -343,8 +343,8 @@ def partitioned_datablock_df() -> pl.DataFrame:
             "block_id": ["b1", "b1"],
             "block_field": [42, 42],
             "item_dt": [
-                datetime(2025, 1, 1, 10, 11, 12, tzinfo=timezone.utc),
-                datetime(2025, 1, 2, 13, 14, 15, tzinfo=timezone.utc),
+                datetime(2025, 1, 1, 10, 11, 12, tzinfo=UTC),
+                datetime(2025, 1, 2, 13, 14, 15, tzinfo=UTC),
             ],
             "field0": ["item1", "item2"],
             "field1": ["f11", "f12"],

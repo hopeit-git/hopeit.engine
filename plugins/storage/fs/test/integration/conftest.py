@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 import pytest  # type: ignore
 
@@ -16,7 +16,7 @@ def test_objs():
             object_id=f"obj{i}",
             object_ts=datetime.strptime(
                 f"2020-05-01T0{i // 2}:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"
-            ).astimezone(tz=timezone.utc),
+            ).astimezone(tz=UTC),
             value=i,
         )
         for i in range(10)

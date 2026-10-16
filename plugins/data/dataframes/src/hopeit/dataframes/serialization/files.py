@@ -3,7 +3,7 @@
 import io
 import os
 from collections.abc import AsyncGenerator
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from glob import glob
 from pathlib import Path
 from typing import Generic, Literal, TypeVar
@@ -103,7 +103,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
             collection = datatype.__qualname__.lower()
         path = path / collection
         if self.partition_dateformat:
-            partition_key = (partition_dt or datetime.now(tz=timezone.utc)).strftime(
+            partition_key = (partition_dt or datetime.now(tz=UTC)).strftime(
                 self.partition_dateformat
             )
             path = path / partition_key
