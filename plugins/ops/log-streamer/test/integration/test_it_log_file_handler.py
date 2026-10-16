@@ -15,8 +15,7 @@ async def test_read_one_batch(raw_log_entries, log_config, service_context):
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
     with open(path, "w") as f:
-        for line in raw_log_entries.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in raw_log_entries.data)
     await asyncio.sleep(2)
 
     lines = await handler.get_and_reset_batch()
@@ -40,8 +39,7 @@ async def test_checkpoint(raw_log_entries, raw_log_entries2, log_config, service
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
 
     with open(path, "w") as f:
-        for line in raw_log_entries.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in raw_log_entries.data)
         f.flush()
 
         await asyncio.sleep(1)
@@ -57,8 +55,7 @@ async def test_checkpoint(raw_log_entries, raw_log_entries2, log_config, service
         observer = start_observer(handler, log_config.logs_path)
 
         # with open(path, 'a') as f:
-        for line in raw_log_entries2.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in raw_log_entries2.data)
         f.flush()
 
         await asyncio.sleep(1)
@@ -85,8 +82,7 @@ async def test_checkpoint_expire(raw_log_entries, raw_log_entries2, log_config, 
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
 
     with open(path, "w") as f:
-        for line in raw_log_entries.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in raw_log_entries.data)
         f.flush()
 
         await asyncio.sleep(1)
@@ -103,8 +99,7 @@ async def test_checkpoint_expire(raw_log_entries, raw_log_entries2, log_config, 
         await asyncio.sleep(2)
 
         # with open(path, 'a') as f:
-        for line in raw_log_entries2.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in raw_log_entries2.data)
         f.flush()
 
         await asyncio.sleep(1)
@@ -140,8 +135,7 @@ async def test_checkpoint_same_timestamp(
     ]
 
     with open(path, "w") as f:
-        for line in raw_log_entries.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in raw_log_entries.data)
         f.write(special_cases[0] + "\n")
         f.flush()
 
@@ -159,10 +153,8 @@ async def test_checkpoint_same_timestamp(
         observer = start_observer(handler, log_config.logs_path)
 
         # with open(path, 'a') as f:
-        for line in special_cases:
-            f.write(line + "\n")
-        for line in raw_log_entries2.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in special_cases)
+        f.writelines(line + "\n" for line in raw_log_entries2.data)
         f.flush()
 
         await asyncio.sleep(1)
@@ -192,8 +184,7 @@ async def test_move_file(raw_log_entries, raw_log_entries2, log_config, service_
     move_path = Path(f"{log_config.logs_path}{str(uuid.uuid4())}")
 
     with open(path, "w") as f:
-        for line in raw_log_entries.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in raw_log_entries.data)
         f.flush()
 
         await asyncio.sleep(1)
@@ -206,8 +197,7 @@ async def test_move_file(raw_log_entries, raw_log_entries2, log_config, service_
     await asyncio.sleep(1)
 
     with open(path, "w") as f:
-        for line in raw_log_entries2.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in raw_log_entries2.data)
         f.flush()
 
         await asyncio.sleep(1)
@@ -233,8 +223,7 @@ async def test_delete_file(raw_log_entries, raw_log_entries2, log_config, servic
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
 
     with open(path, "w") as f:
-        for line in raw_log_entries.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in raw_log_entries.data)
         f.flush()
 
         await asyncio.sleep(1)
@@ -247,8 +236,7 @@ async def test_delete_file(raw_log_entries, raw_log_entries2, log_config, servic
     await asyncio.sleep(1)
 
     with open(path, "w") as f:
-        for line in raw_log_entries2.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in raw_log_entries2.data)
         f.flush()
 
         await asyncio.sleep(1)

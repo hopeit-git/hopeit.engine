@@ -18,8 +18,7 @@ async def write_logs(log_config, raw_log_entries):
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
     await asyncio.sleep(2)
     with open(path, "w") as f:
-        for line in raw_log_entries.data:
-            f.write(line + "\n")
+        f.writelines(line + "\n" for line in raw_log_entries.data)
         f.flush()
 
 
