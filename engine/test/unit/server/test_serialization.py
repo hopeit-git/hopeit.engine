@@ -9,9 +9,7 @@ from hopeit.dataobjects import dataclass, dataobject
 from hopeit.dataobjects.payload import Payload
 from hopeit.server.serialization import deserialize, serialize
 
-pickle5_available = (sys.version_info.major > 3) or (
-    (sys.version_info.major == 3) and (sys.version_info.minor >= 8)
-)
+pickle5_available = sys.version_info >= (3, 8)
 
 
 @dataobject
