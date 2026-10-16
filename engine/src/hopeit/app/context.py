@@ -25,6 +25,7 @@ from hopeit.app.config import (
     EventSettings,
     EventType,
 )
+from hopeit.app.errors import BadRequest
 from hopeit.server.names import titlecase
 
 __all__ = ["EventContext", "NoopMultiparReader", "PostprocessHook", "PreprocessHook"]
@@ -336,6 +337,7 @@ class PreprocessHook(Generic[_MultipartReader]):
         payload_raw: bytes | None = None,
         multipart_reader: _MultipartReader | None = None,
         file_hook_factory: Callable = PreprocessFileHook,
+        form_fields: set[str] | None = None,
     ):
         self.headers = PreprocessHeaders(headers)
         self.payload_raw = payload_raw
@@ -344,6 +346,9 @@ class PreprocessHook(Generic[_MultipartReader]):
         self._iterated = False
         self.status: int | None = None
         self.file_hook_factory = file_hook_factory
+        # Browsers may attach a filename to structured form fields (JSON Blobs).
+        # Only declared data fields override filename-based attachment detection.
+        self._form_fields = form_fields or set()
 
     def set_status(self, status: int):
         self.status = status
@@ -363,12 +368,19 @@ class PreprocessHook(Generic[_MultipartReader]):
         if self._multipart_reader is not None:
             async for field in self._multipart_reader:
                 if field.name is not None:
-                    if field.filename:
+                    content_type = field.headers.get(istr("Content-Type"), "")
+                    media_type = content_type.partition(";")[0].strip().lower()
+                    if field.filename and field.name not in self._form_fields:
                         self._args[field.name] = field.filename
                         yield self.file_hook_factory(
                             name=field.name, file_name=field.filename, data=field
                         )
-                    elif field.headers.get(istr("Content-Type")) == "application/json":
-                        self._args[field.name] = await field.json()
+                    elif media_type == "application/json" or media_type.endswith("+json"):
+                        try:
+                            self._args[field.name] = await field.json()
+                        except ValueError as error:
+                            raise BadRequest(
+                                f"Invalid JSON in multipart field '{field.name}'"
+                            ) from error
                     else:
                         self._args[field.name] = await field.text()

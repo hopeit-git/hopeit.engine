@@ -110,7 +110,7 @@ source libraries to deliver the features described above:
 -  HTTP endpoints are based on
    `aiohttp <https://pypi.org/project/aiohttp/>`__
 -  Open API / Swagger support is enabled by
-   `aiohttp_swagger3 <https://pypi.org/project/aiohttp-swagger3/>`__
+   `openapi-core <https://pypi.org/project/openapi-core/>`__
 -  Stream processing is supported using `Redis <https://redis.io/>`__
    and connected using `aioredis <https://pypi.org/project/aioredis/>`__
 -  To develop in Jupyter Notebooks we recommend using

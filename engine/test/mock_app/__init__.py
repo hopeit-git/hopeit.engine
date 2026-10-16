@@ -258,7 +258,7 @@ def mock_api_app_config():
 @pytest.fixture
 def mock_api_spec():
     return {
-        "openapi": "3.0.3",
+        "openapi": "3.0.4",
         "info": {
             "version": "1.0.1",
             "title": "Test API",
