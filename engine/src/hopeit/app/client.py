@@ -122,7 +122,7 @@ def app_client(app_connection: str, context: EventContext) -> Client:
     try:
         return _registered_clients[context.app_key][app_connection]
     except KeyError:
-        raise AppConnectionNotFound(  # pylint: disable=raise-missing-from
+        raise AppConnectionNotFound(
             f"Not found app_connection: {app_connection} for app: {context.app_key}"
         )
 

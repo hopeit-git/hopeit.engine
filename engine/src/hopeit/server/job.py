@@ -278,7 +278,7 @@ async def _execute_event(
             result = None
         logger.done(context, extra=metrics(context))
         return result
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:
         logger.error(context, e)
         logger.failed(context, extra=metrics(context))
         raise
@@ -393,7 +393,7 @@ async def run_job(
             )
             raise NotImplementedError(f"Unsupported event type for job runner: {event_info.type}")
 
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:
         logger.error(__name__, e)
         raise
     finally:

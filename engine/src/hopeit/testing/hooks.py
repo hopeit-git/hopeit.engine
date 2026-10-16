@@ -111,7 +111,7 @@ class MockMultipartReader:
         try:
             part = next(self.it)
         except StopIteration:
-            raise StopAsyncIteration  # pylint: disable=raise-missing-from
+            raise StopAsyncIteration
         return part
 
     async def next(self) -> MockField:

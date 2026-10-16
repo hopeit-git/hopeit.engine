@@ -98,7 +98,7 @@ class DataFrames(Generic[DataFrameT, DataObject]):
         """Create a `@dataframe` instance of a particular `datatype` from a polars DataFrame.
         Optionally, add or override series.
         """
-        return datatype._from_df(df, **series)  # type: ignore  # pylint: disable=protected-access
+        return datatype._from_df(df, **series)  # type: ignore
 
     @staticmethod
     def from_pandas(
@@ -113,36 +113,36 @@ class DataFrames(Generic[DataFrameT, DataObject]):
                 schema_overrides=datatype.__dataframe__.schema,  # type: ignore[attr-defined]
             ),
             **series,
-        )  # type: ignore  # pylint: disable=protected-access
+        )  # type: ignore
 
     @staticmethod
     def from_dataframe(
         datatype: type[DataFrameT], obj: DataFrameT, **series: dict[str, pl.Series]
     ) -> DataFrameT:
         """Creates a new `@dataframe` object extracting fields from another `@dataframe`"""
-        return datatype._from_df(obj._df, **series)  # type: ignore  # pylint: disable=protected-access
+        return datatype._from_df(obj._df, **series)  # type: ignore
 
     @staticmethod
     def from_dataobjects(
         datatype: type[DataFrameT], dataobjects: Iterator[DataObject]
     ) -> DataFrameT:
         """Converts standard json serializable `@dataobject`s to a single `@dataframe`"""
-        return datatype._from_dataobjects(dataobjects)  # type: ignore  # pylint: disable=protected-access
+        return datatype._from_dataobjects(dataobjects)  # type: ignore
 
     @staticmethod
     def to_dataobjects(obj: DataFrameT) -> list[DataObject]:
         """Converts `@dataframe` object to a list of standard `@dataobject`s"""
-        return obj._to_dataobjects()  # type: ignore  # pylint: disable=protected-access
+        return obj._to_dataobjects()  # type: ignore
 
     @staticmethod
     def df(obj: DataFrameT) -> pl.DataFrame:
         """Provides acces to the internal `polars` dataframe of a `@dataframe` object"""
-        return obj._df  # type: ignore  # pylint: disable=protected-access
+        return obj._df  # type: ignore
 
     @staticmethod
     def to_pandas(obj: DataFrameT) -> Any:
         """Returns internal dataframe converted to pandas"""
-        return obj._df.to_pandas()  # type: ignore  # pylint: disable=protected-access
+        return obj._df.to_pandas()  # type: ignore
 
     @staticmethod
     def schema(datatype: type[DataFrameT]) -> pl.Schema:
@@ -151,4 +151,4 @@ class DataFrames(Generic[DataFrameT, DataObject]):
                 "`polars` needs to be installed to access dataframe schema. "
                 "Run `pip install hopeit.dataframes[polars]`"
             )
-        return datatype.__dataframe__.schema  # type: ignore  # pylint: disable=protected-access
+        return datatype.__dataframe__.schema  # type: ignore

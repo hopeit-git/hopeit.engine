@@ -27,7 +27,7 @@ from hopeit.server.names import route_name
 
 __all__ = ["api_from_config", "app_base_route_name", "event_api"]
 
-ArgType = TypeVar("ArgType", bound=type)  # pylint: disable=invalid-name
+ArgType = TypeVar("ArgType", bound=type)
 ArgDef = str | tuple[str, ArgType] | tuple[str, ArgType, str]
 PayloadDef = type | tuple[type, str]
 

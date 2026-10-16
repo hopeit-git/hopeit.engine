@@ -1,7 +1,5 @@
 """Example training pipeline for the Iris dataset"""
 
-# pylint: disable=invalid-name
-
 import uuid
 from datetime import UTC, datetime
 

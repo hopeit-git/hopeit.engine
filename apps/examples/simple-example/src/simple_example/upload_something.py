@@ -56,7 +56,6 @@ async def __init_event__(context: EventContext):
     os.makedirs(save_path, exist_ok=True)
 
 
-# pylint: disable=invalid-name
 async def __preprocess__(
     payload: None, context: EventContext, request: PreprocessHook, *, something_id: str
 ) -> str | FileUploadInfo:

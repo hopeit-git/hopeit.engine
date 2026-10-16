@@ -116,7 +116,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(obj, **series: pl.Series) -> None:  # pylint: disable=bad-staticmethod-argument
+    def __init_from_series__(obj, **series: pl.Series) -> None:
         validate: bool = obj.__data_object__["validate"]
 
         # Assign default values for missing fields

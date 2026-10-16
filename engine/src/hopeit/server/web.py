@@ -3,7 +3,6 @@ Webserver module based on aiohttp to handle web/api requests
 """
 
 # flake8: noqa
-# pylint: disable=wrong-import-position, wrong-import-order
 from collections import namedtuple
 
 import aiohttp
@@ -26,7 +25,7 @@ from aiohttp import web
 from aiohttp.web_response import Response
 from aiohttp_cors import CorsConfig
 
-from hopeit.app.config import (  # pylint: disable=ungrouped-imports
+from hopeit.app.config import (
     AppConfig,
     EventDescriptor,
     EventPlugMode,
@@ -737,7 +736,7 @@ async def _handle_post_invocation(
         return _ignored_response(context, 401, e)
     except BadRequest as e:
         return _ignored_response(context, 400, e)
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:
         return _failed_response(context, e)
 
 
@@ -774,7 +773,7 @@ async def _handle_get_invocation(
         return _ignored_response(context, 401, e)
     except BadRequest as e:
         return _ignored_response(context, 400, e)
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:
         return _failed_response(context, e)
 
 
@@ -812,7 +811,7 @@ async def _handle_multipart_invocation(
         return _ignored_response(context, 401, e)
     except BadRequest as e:
         return _ignored_response(context, 400, e)
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:
         return _failed_response(context, e)
 
 

@@ -112,7 +112,7 @@ class Payload(Generic[EventPayloadType]):
         if isinstance(payload, _ATOMIC_TYPES):  # immutable supported types
             return {key: payload}
         try:
-            serialized = RootModel(payload).model_dump(**kwargs)  # pylint: disable=assignment-from-no-return
+            serialized = RootModel(payload).model_dump(**kwargs)
             if not isinstance(serialized, (dict, list, set)):
                 raise TypeError(f"Cannot serialize {type(payload)} as `dict`, `list` or `set`")
             return serialized

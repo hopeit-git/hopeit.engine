@@ -113,11 +113,11 @@ def diff(config_files: str, input_file: str, generate: bool):
             for item in items:
                 print("\t", item)
                 try:
-                    old_value = str(eval(item, None, {"root": api.static_spec}))  # pylint: disable=eval-used
+                    old_value = str(eval(item, None, {"root": api.static_spec}))
                 except Exception as e:  # noqa: BLE001 -- Display evaluation failures when comparing API specifications.
                     old_value = str(e)
                 try:
-                    new_value = str(eval(item, None, {"root": api.spec}))  # pylint: disable=eval-used
+                    new_value = str(eval(item, None, {"root": api.spec}))
                 except Exception as e:  # noqa: BLE001 -- Display evaluation failures when comparing API specifications.
                     new_value = str(e)
                 print("\t\t<<<", re.sub("\n", " ", old_value))

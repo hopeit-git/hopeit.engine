@@ -93,7 +93,7 @@ async def _get_host_config(
             client.get(url) as response,
         ):
             return host, Payload.from_obj(await response.json(), RuntimeApps)
-    except TimeoutError as e:  # pylint: disable=broad-except
+    except TimeoutError as e:
         logger.error(
             context,
             "Timeout contacting host: %s",

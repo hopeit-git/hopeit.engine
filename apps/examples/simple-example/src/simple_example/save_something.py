@@ -33,7 +33,6 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-# pylint: disable=invalid-name
 async def __preprocess__(
     payload: SomethingParams, context: EventContext, request: PreprocessHook
 ) -> str | SomethingParams:

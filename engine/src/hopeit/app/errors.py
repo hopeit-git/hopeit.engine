@@ -13,7 +13,7 @@ class BadRequest(BaseException):
     Exception that will return BadRequest (400) response in endpoint
     """
 
-    ErrorInfo = errors.ErrorInfo  # pylint: disable=invalid-name
+    ErrorInfo = errors.ErrorInfo
 
 
 class Unauthorized(BaseException):
@@ -21,4 +21,4 @@ class Unauthorized(BaseException):
     Exception that will return Unauthorized (401) response in endpoint
     """
 
-    ErrorInfo = errors.ErrorInfo  # pylint: disable=invalid-name
+    ErrorInfo = errors.ErrorInfo

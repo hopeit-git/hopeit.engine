@@ -25,7 +25,7 @@ __all__ = [
 
 
 DEFAULT_STR = "<<DEFAULT>>"
-ConfigType = TypeVar("ConfigType")  # pylint: disable=invalid-name
+ConfigType = TypeVar("ConfigType")
 
 
 @dataobject

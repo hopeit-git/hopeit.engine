@@ -337,7 +337,7 @@ class AppsClient(Client):
         try:
             return self.event_connections[context.event_name.split("$")[0]][event_name]
         except KeyError:
-            raise AppConnectionNotFound(  # pylint: disable=raise-missing-from
+            raise AppConnectionNotFound(
                 f"Event {event_name} not found in event connections for {context.event_name}"
             )
 
@@ -427,10 +427,10 @@ class AppsClient(Client):
             response_type = datatype if response.status == 200 else responses[response.status]  # type: ignore
         except (TypeError, KeyError):
             if response.status == 401:
-                raise Unauthorized(context.app_key)  # pylint: disable=raise-missing-from
+                raise Unauthorized(context.app_key)
             if response.status >= 500:
-                raise ServerException(await response.text())  # pylint: disable=raise-missing-from
-            raise UnhandledResponse(  # pylint: disable=raise-missing-from
+                raise ServerException(await response.text())
+            raise UnhandledResponse(
                 f"Missing {response.status} status handler, use `responses` to handle this exception",
                 await response.text(),
                 response.status,

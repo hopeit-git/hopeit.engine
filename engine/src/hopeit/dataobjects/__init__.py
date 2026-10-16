@@ -86,7 +86,7 @@ class StreamEventMixin:
 
 DataObject = TypeVar("DataObject", bound=RootModel)
 EventPayload: TypeAlias = str | int | float | bool | dict | set | list | DataObject
-EventPayloadType = TypeVar("EventPayloadType")  # pylint: disable=invalid-name
+EventPayloadType = TypeVar("EventPayloadType")
 
 
 class BinaryAttachment:

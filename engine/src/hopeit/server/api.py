@@ -319,7 +319,7 @@ def add_route(
     method_lower = method.lower()
     if method_lower in spec["paths"].get(path, {}):
         route = SwaggerRoute(method_lower, path, handler, swagger=swagger)
-        api_handler = partial(_handle_swagger_call, route)  # pylint: disable=protected-access
+        api_handler = partial(_handle_swagger_call, route)
         return api_handler
     logger.warning(__name__, f"No API Spec defined for path={path}")
     return handler
