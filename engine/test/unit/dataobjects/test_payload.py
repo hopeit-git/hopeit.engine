@@ -500,8 +500,8 @@ def test_to_obj_kwargs():
     pythonic = Payload.to_obj(original)
     json = Payload.to_obj(original, mode="json")
 
-    pythonic == {"number": Decimal("1.2")}
-    json == {"number": "1.2"}
+    assert pythonic == {"number": Decimal("1.2")}
+    assert json == {"number": "1.2"}
 
     assert Payload.from_obj(pythonic, MockWithDecimal) == original
     assert Payload.from_obj(json, MockWithDecimal) == original
