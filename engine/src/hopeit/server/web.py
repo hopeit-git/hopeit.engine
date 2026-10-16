@@ -41,7 +41,6 @@ from hopeit.app.context import (
 )
 from hopeit.app.errors import BadRequest, Unauthorized
 from hopeit.dataobjects import DataObject, EventPayload, EventPayloadType
-from hopeit.server.openapi import MULTIPART_FORM_FIELDS_KEY
 from hopeit.dataobjects.payload import Payload
 from hopeit.server import api, runtime
 from hopeit.server.config import AuthType, ServerConfig, parse_server_config_json
@@ -56,6 +55,7 @@ from hopeit.server.logger import (
 )
 from hopeit.server.metrics import metrics
 from hopeit.server.names import route_name, snakecase, titlecase
+from hopeit.server.openapi import MULTIPART_FORM_FIELDS_KEY
 from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
 

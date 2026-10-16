@@ -5,6 +5,7 @@ from copy import deepcopy
 import aiohttp
 import pytest
 from aiohttp import web
+
 from hopeit.app.context import PreprocessHook
 from hopeit.server import api
 from hopeit.server.config import APIConfig, ServerConfig

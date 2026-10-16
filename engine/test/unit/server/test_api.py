@@ -5,10 +5,10 @@ from copy import deepcopy
 
 import pytest
 from aiohttp import web
-from hopeit.server.openapi import OpenAPIRoute
 
 from hopeit.server import api
 from hopeit.server.api import APIError, app_route_name
+from hopeit.server.openapi import OpenAPIRoute
 from mock_app import mock_api_app_config, mock_api_spec, mock_app_api_generated
 from mock_plugin import mock_plugin_config
 
