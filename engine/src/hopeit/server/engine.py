@@ -154,8 +154,8 @@ class AppEngine:
                 self._execute_event(context, query_args, payload),
                 timeout=context.settings.response_timeout,
             )
-        except asyncio.TimeoutError as e:
-            raise asyncio.TimeoutError(
+        except TimeoutError as e:
+            raise TimeoutError(
                 f"Response timeout exceeded seconds={context.settings.response_timeout}"
             ) from e
 
@@ -314,8 +314,8 @@ class AppEngine:
                 ),
                 timeout=context.settings.stream.timeout,
             )
-        except (asyncio.TimeoutError, asyncio.CancelledError):
-            terr = asyncio.TimeoutError(
+        except (TimeoutError, asyncio.CancelledError):
+            terr = TimeoutError(
                 f"Stream processing timeout exceeded seconds={context.settings.stream.timeout}"
             )
             logger.error(
