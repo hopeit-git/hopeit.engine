@@ -16,7 +16,7 @@ import logging
 import re
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from functools import partial
 from typing import Any, Optional, Union
 from collections.abc import Callable, Coroutine
@@ -498,7 +498,7 @@ def _track_ids(request: web.Request) -> dict[str, str]:
     return {
         "track.operation_id": str(uuid.uuid4()),
         "track.request_id": str(uuid.uuid4()),
-        "track.request_ts": datetime.now(tz=timezone.utc).isoformat(),
+        "track.request_ts": datetime.now(tz=UTC).isoformat(),
         **{
             "track." + snakecase(k[8:].lower()): v
             for k, v in request.headers.items()
