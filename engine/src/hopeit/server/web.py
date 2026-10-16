@@ -342,7 +342,7 @@ def _create_post_event_route(
         plugin=None if plugin is None else plugin.app_config.app,
         override_route_name=event_info.route,
     )
-    logger.info(__name__, f"POST path={route} input={str(datatype)}")
+    logger.info(__name__, f"POST path={route} input={datatype!s}")
     impl = plugin if plugin else app_engine
     handler: Any = partial(
         _handle_post_invocation,
@@ -408,7 +408,7 @@ def _create_multipart_event_route(
         plugin=None if plugin is None else plugin.app_config.app,
         override_route_name=event_info.route,
     )
-    logger.info(__name__, f"MULTIPART path={route} input={str(datatype)}")
+    logger.info(__name__, f"MULTIPART path={route} input={datatype!s}")
     impl = plugin if plugin else app_engine
     handler: Any = partial(
         _handle_multipart_invocation,
