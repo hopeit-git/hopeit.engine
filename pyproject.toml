@@ -143,6 +143,8 @@ src = [
 [tool.ruff.lint]
 # Keep intentional naive-datetime suppressions valid across Ruff default changes.
 extend-select = ["DTZ001"]
+# Hopeit logger methods accept context before the format string.
+ignore = ["PLE1205"]
 
 [tool.ruff.lint.isort]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
