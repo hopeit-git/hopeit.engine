@@ -116,12 +116,12 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(self, **series: pl.Series) -> None:  # pylint: disable=bad-staticmethod-argument
-        validate: bool = self.__data_object__["validate"]
+    def __init_from_series__(obj, **series: pl.Series) -> None:  # pylint: disable=bad-staticmethod-argument
+        validate: bool = obj.__data_object__["validate"]
 
         # Assign default values for missing fields
         max_len: int | None = None
-        for field_name, field_info in self.__dataframe__.fields.items():
+        for field_name, field_info in obj.__dataframe__.fields.items():
             if series.get(field_name) is None:
                 max_len = max_len or max(len(data) for data in series.values() if data is not None)
                 default_value = field_info.get_default()
@@ -134,20 +134,20 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
         # Create dataframe using schema columns only
         df = pl.DataFrame(
-            {col: data for col, data in series.items() if col in self.__dataframe__.columns},
-            schema=self.__dataframe__.schema if validate else None,
+            {col: data for col, data in series.items() if col in obj.__dataframe__.columns},
+            schema=obj.__dataframe__.schema if validate else None,
         )
 
         # Validate (i.e. not nullable fields)
         if validate:
-            for field_name, field_info in self.__dataframe__.fields.items():
+            for field_name, field_info in obj.__dataframe__.fields.items():
                 for func in DataTypeMapping.get_validators(field_info.annotation):
                     if not func(df[field_name]):
                         raise TypeError(
-                            f"{type(self).__name__} validation failed for field: {field_name}: {func.__name__}"
+                            f"{type(obj).__name__} validation failed for field: {field_name}: {func.__name__}"
                         )
 
-        setattr(self, "__df", df)
+        setattr(obj, "__df", df)
 
     @classmethod
     def _from_df(cls, df: pl.DataFrame, **series: Any) -> DataFrameT:
