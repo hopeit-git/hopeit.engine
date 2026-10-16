@@ -39,9 +39,9 @@ from mock_app import (  # type: ignore
 
 def test_extract_event_steps():
     impl = importlib.import_module("mock_app.mock_event")
-    f1 = getattr(impl, "entry_point")
-    f2 = getattr(impl, "handle_ok_case")
-    f3 = getattr(impl, "handle_special_case")
+    f1 = impl.entry_point
+    f2 = impl.handle_ok_case
+    f3 = impl.handle_special_case
     steps = extract_module_steps(impl)
     assert steps == [
         ("entry_point", (f1, None, MockData | str, False)),
@@ -52,9 +52,9 @@ def test_extract_event_steps():
 
 def test_effective_steps():
     impl = importlib.import_module("mock_app.mock_event")
-    f1 = getattr(impl, "entry_point")
-    f2 = getattr(impl, "handle_ok_case")
-    f3 = getattr(impl, "handle_special_case")
+    f1 = impl.entry_point
+    f2 = impl.handle_ok_case
+    f3 = impl.handle_special_case
     module_steps = [
         ("entry_point", (f1, None, MockData | str, False)),
         ("handle_ok_case", (f2, MockData, str, False)),
@@ -70,9 +70,9 @@ def test_effective_steps():
 
 def test_extract_event_steps_with_shuffle():
     impl = importlib.import_module("mock_app.mock_shuffle_event")
-    f1 = getattr(impl, "produce_messages")
-    f2 = getattr(impl, "consume_stream")
-    f3 = getattr(impl, "generate_default")
+    f1 = impl.produce_messages
+    f2 = impl.consume_stream
+    f3 = impl.generate_default
     steps = extract_module_steps(impl)
     assert steps == [
         ("produce_messages", (f1, str, Spawn[MockData], True)),
@@ -123,9 +123,9 @@ def test_extract_spawn_step_annotations(monkeypatch, return_type, is_spawn):
 
 def test_effective_steps_shuffle_event():
     impl = importlib.import_module("mock_app.mock_shuffle_event")
-    f1 = getattr(impl, "produce_messages")
-    f2 = getattr(impl, "consume_stream")
-    f3 = getattr(impl, "generate_default")
+    f1 = impl.produce_messages
+    f2 = impl.consume_stream
+    f3 = impl.generate_default
     module_steps = [
         ("produce_messages", (f1, str, Spawn[MockData], True)),
         (SHUFFLE, None),
@@ -143,7 +143,7 @@ def test_effective_steps_shuffle_event():
 
 def test_extract_postprocess_handler():
     impl = importlib.import_module("mock_app.mock_event")
-    f1 = getattr(impl, "__postprocess__")
+    f1 = impl.__postprocess__
     pp_handler = extract_postprocess_handler(impl)
     assert pp_handler == (f1, str, str, False)
 

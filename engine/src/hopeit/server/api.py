@@ -601,7 +601,7 @@ def _extract_event_api_spec(
     """
     module = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
     if hasattr(module, "__api__"):
-        method_spec = getattr(module, "__api__")
+        method_spec = module.__api__
         if isinstance(method_spec, dict):
             return method_spec
         return method_spec(module, app_config, event_name, None)
@@ -648,7 +648,7 @@ def _explode_datatypes(datatypes: list[type]) -> list[type]:
     for datatype in datatypes:
         if datatype is not None:
             if hasattr(datatype, "__args__"):
-                for arg in getattr(datatype, "__args__"):
+                for arg in datatype.__args__:
                     result.extend(_explode_datatypes([arg]))
             else:
                 result.append(datatype)

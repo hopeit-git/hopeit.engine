@@ -166,7 +166,7 @@ class EventHandler:
     async def _init_module(self, *, module, context: EventContext):
         if hasattr(module, "__init_event__"):
             logger.info(context, f"__init_event__ module={module.__name__}...")
-            init_f = getattr(module, "__init_event__")
+            init_f = module.__init_event__
             coro_or_res = init_f(context)
             if iscoroutine(coro_or_res):
                 await coro_or_res  # type: ignore

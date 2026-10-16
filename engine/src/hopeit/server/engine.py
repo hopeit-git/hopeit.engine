@@ -648,7 +648,7 @@ class AppEngine:
         impl = find_event_handler(
             app_config=self.app_config, event_name=event_name, event_info=event_config
         )
-        service_handler = getattr(impl, "__service__")
+        service_handler = impl.__service__
         assert service_handler is not None, (
             f"{event_name} must implement method `__service__(context) -> Spawn[...]` to run as a service"
         )

@@ -58,7 +58,7 @@ def extract_module_steps(impl: ModuleType) -> list[tuple[str, StepInfo | None]]:
     assert hasattr(impl, "__steps__"), f"Missing `__steps__` definition in module={impl.__name__}"
     return [
         (step_name, None if step_name == SHUFFLE else _signature(impl, step_name))
-        for step_name in getattr(impl, "__steps__")
+        for step_name in impl.__steps__
     ]
 
 
@@ -98,7 +98,7 @@ def extract_event_stages(impl: ModuleType) -> list[str]:
     """
     assert hasattr(impl, "__steps__"), f"Missing `__steps__` definition in module={impl.__name__}"
     stages = []
-    steps = getattr(impl, "__steps__")
+    steps = impl.__steps__
     if len(steps) == 1:
         return steps
     stage = steps[0] if isinstance(steps[0], str) else steps[0].__name__
@@ -131,7 +131,7 @@ def extract_input_type(impl: ModuleType, from_step: str | None = None) -> type:
     if from_step is None and hasattr(impl, "__preprocess__"):
         _, input_type, _, _ = _signature(impl, "__preprocess__")
         return input_type
-    for step_name in getattr(impl, "__steps__"):
+    for step_name in impl.__steps__:
         if from_step is None or step_name == from_step:
             _, input_type, _, _ = _signature(impl, step_name)
             return input_type

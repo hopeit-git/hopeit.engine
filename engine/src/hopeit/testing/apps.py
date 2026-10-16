@@ -284,7 +284,7 @@ async def execute_service(
         None,
         [apply_service_running_mock],
     )
-    service_handler = getattr(impl, "__service__")
+    service_handler = impl.__service__
     count = 0
     results = []
     async for payload in service_handler(context):
