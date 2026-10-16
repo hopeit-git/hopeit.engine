@@ -798,7 +798,7 @@ class Server:
         Stops every active app in the engine instance.
         """
         logger.info(__name__, "Stopping engine...")
-        for _, app_engine in self.app_engines.items():
+        for app_engine in self.app_engines.values():
             await app_engine.stop()
         logger.info(__name__, "Engine stopped.")
 

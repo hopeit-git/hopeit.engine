@@ -53,7 +53,7 @@ async def test_client_expand_events(
         "http://test-server1,http://test-server2", context, expand_events=True
     )
 
-    for _, v in result.apps.items():
+    for v in result.apps.values():
         assert v.effective_events == effective_events_example
 
 

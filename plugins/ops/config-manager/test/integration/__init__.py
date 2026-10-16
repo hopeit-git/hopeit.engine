@@ -68,7 +68,7 @@ class MockClientSession:
 
 def mock_effective_events(response, effective_events=None):
     if effective_events:
-        for _, app_info in response.apps.items():
+        for app_info in response.apps.values():
             app_info.effective_events = effective_events
     return response
 

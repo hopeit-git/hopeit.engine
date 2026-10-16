@@ -110,7 +110,7 @@ async def stop_app_connections(app_key: str):
     """
     Used by the engine to signal client stop and close connections
     """
-    for _, client in _registered_clients[app_key].items():
+    for client in _registered_clients[app_key].values():
         await client.stop()
     del _registered_clients[app_key]
 

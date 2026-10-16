@@ -43,5 +43,5 @@ async def test_cluster_apps_config_expand_events(
         expand_events=True,
     )
 
-    for _, v in result.apps.items():
+    for v in result.apps.values():
         assert v.effective_events == effective_events_example
