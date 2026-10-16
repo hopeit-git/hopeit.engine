@@ -297,13 +297,12 @@ async def _setup_app_event_routes(app_engine: AppEngine, plugin: AppEngine | Non
                     )
                 ]
             )
-        elif event_info.type == EventType.STREAM and plugin is None:
-            web_server.add_routes(
-                _create_event_management_routes(
-                    app_engine, event_name=event_name, event_info=event_info
-                )
-            )
-        elif event_info.type == EventType.SERVICE and plugin is None:
+        elif (
+            event_info.type == EventType.STREAM
+            and plugin is None
+            or event_info.type == EventType.SERVICE
+            and plugin is None
+        ):
             web_server.add_routes(
                 _create_event_management_routes(
                     app_engine, event_name=event_name, event_info=event_info
