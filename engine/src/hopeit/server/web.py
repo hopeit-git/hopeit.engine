@@ -19,7 +19,7 @@ from typing import Any, Optional, Union
 import aiohttp
 
 # Initialize aiohttp before importing web handlers.
-setattr(aiohttp.http, "SERVER_SOFTWARE", "")
+aiohttp.http.SERVER_SOFTWARE = ""
 
 
 import aiohttp_cors  # type: ignore
@@ -344,7 +344,7 @@ def _create_post_event_route(
     )
     logger.info(__name__, f"POST path={route} input={str(datatype)}")
     impl = plugin if plugin else app_engine
-    handler = partial(
+    handler: Any = partial(
         _handle_post_invocation,
         app_engine,
         impl,
@@ -352,8 +352,8 @@ def _create_post_event_route(
         datatype,
         _auth_types(impl, event_name),
     )
-    setattr(handler, "__closure__", None)
-    setattr(handler, "__code__", _handle_post_invocation.__code__)
+    handler.__closure__ = None
+    handler.__code__ = _handle_post_invocation.__code__
     api_handler = api.add_route("post", route, handler)
     return web.post(route, api_handler)
 
@@ -376,15 +376,15 @@ def _create_get_event_route(
     )
     logger.info(__name__, f"GET path={route}")
     impl = plugin if plugin else app_engine
-    handler = partial(
+    handler: Any = partial(
         _handle_get_invocation,
         app_engine,
         impl,
         event_name,
         _auth_types(impl, event_name),
     )
-    setattr(handler, "__closure__", None)
-    setattr(handler, "__code__", _handle_get_invocation.__code__)
+    handler.__closure__ = None
+    handler.__code__ = _handle_get_invocation.__code__
     api_handler = api.add_route("get", route, handler)
     return web.get(route, api_handler)
 
@@ -410,7 +410,7 @@ def _create_multipart_event_route(
     )
     logger.info(__name__, f"MULTIPART path={route} input={str(datatype)}")
     impl = plugin if plugin else app_engine
-    handler = partial(
+    handler: Any = partial(
         _handle_multipart_invocation,
         app_engine,
         impl,
@@ -418,8 +418,8 @@ def _create_multipart_event_route(
         datatype,
         _auth_types(impl, event_name),
     )
-    setattr(handler, "__closure__", None)
-    setattr(handler, "__code__", _handle_multipart_invocation.__code__)
+    handler.__closure__ = None
+    handler.__code__ = _handle_multipart_invocation.__code__
     api_handler = api.add_route("post", route, handler)
     return web.post(route, api_handler)
 
