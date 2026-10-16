@@ -3,9 +3,9 @@ DataFrames type abstractions.
 """
 
 import dataclasses
+from collections.abc import Callable, Iterator
 from datetime import date, datetime, timezone
 from typing import Any, Generic, Optional, TypeVar
-from collections.abc import Callable, Iterator
 
 try:
     import polars as pl

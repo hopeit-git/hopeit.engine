@@ -4,10 +4,10 @@ that contain combined properties with one or multiple Datasets but can be manipu
 and saved as a single flat polars DataFrame.
 """
 
+from collections.abc import AsyncGenerator
 from datetime import datetime
 from types import NoneType
 from typing import Any, Generic, TypeVar, get_args, get_origin
-from collections.abc import AsyncGenerator
 
 try:
     import polars as pl

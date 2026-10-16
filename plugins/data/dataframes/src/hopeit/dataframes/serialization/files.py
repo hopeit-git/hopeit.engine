@@ -2,11 +2,11 @@
 
 import io
 import os
+from collections.abc import AsyncGenerator
 from datetime import datetime, timedelta, timezone
 from glob import glob
 from pathlib import Path
 from typing import Generic, Literal, TypeVar
-from collections.abc import AsyncGenerator
 from uuid import uuid4
 
 import aiofiles

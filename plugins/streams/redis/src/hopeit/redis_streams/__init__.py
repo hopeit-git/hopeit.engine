@@ -4,9 +4,9 @@ import asyncio
 import base64
 import json
 import uuid
+from collections.abc import Callable
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-from collections.abc import Callable
 
 import redis.asyncio as redis
 from redis import RedisError, ResponseError
