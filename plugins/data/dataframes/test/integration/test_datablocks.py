@@ -680,8 +680,12 @@ async def test_datablock_load_batch(plugin_config, datablock_df, datablock2_df) 
     async for batch_df in DataBlocks.load_batch(
         MyDataBlock,
         DataBlockQuery(
-            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
-            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+            from_partition_dt=datetime.strptime(
+                datablock1.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=timezone.utc),
+            to_partition_dt=datetime.strptime(
+                datablock2.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=timezone.utc),
         ),
         metadata=DataBlockMetadata(group_key=group_key),
     ):
@@ -712,8 +716,12 @@ async def test_datablock_load_batch(plugin_config, datablock_df, datablock2_df) 
     async for batch_df in DataBlocks.load_batch(
         MyDataBlock,
         DataBlockQuery(
-            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
-            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+            from_partition_dt=datetime.strptime(
+                datablock1.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=timezone.utc),
+            to_partition_dt=datetime.strptime(
+                datablock2.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=timezone.utc),
             select=["part1"],
         ),
         metadata=DataBlockMetadata(group_key=group_key),
@@ -742,8 +750,12 @@ async def test_datablock_load_batch(plugin_config, datablock_df, datablock2_df) 
     async for batch_df in DataBlocks.load_batch(
         MyDataBlock,
         DataBlockQuery(
-            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
-            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+            from_partition_dt=datetime.strptime(
+                datablock1.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=timezone.utc),
+            to_partition_dt=datetime.strptime(
+                datablock2.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=timezone.utc),
             select=["part2"],
         ),
         metadata=DataBlockMetadata(group_key=group_key),
