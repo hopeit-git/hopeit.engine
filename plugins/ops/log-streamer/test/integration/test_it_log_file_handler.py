@@ -14,7 +14,7 @@ async def test_read_one_batch(raw_log_entries, log_config, service_context):
     os.makedirs(log_config.logs_path, exist_ok=True)
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
-    with open(path, "w") as f:
+    with open(path, "w") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.writelines(line + "\n" for line in raw_log_entries.data)
     await asyncio.sleep(2)
 
@@ -38,7 +38,7 @@ async def test_checkpoint(raw_log_entries, raw_log_entries2, log_config, service
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
 
-    with open(path, "w") as f:
+    with open(path, "w") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.writelines(line + "\n" for line in raw_log_entries.data)
         f.flush()
 
@@ -81,7 +81,7 @@ async def test_checkpoint_expire(raw_log_entries, raw_log_entries2, log_config, 
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
 
-    with open(path, "w") as f:
+    with open(path, "w") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.writelines(line + "\n" for line in raw_log_entries.data)
         f.flush()
 
@@ -134,7 +134,7 @@ async def test_checkpoint_same_timestamp(
         raw_log_entries.data[-1][0:24] + raw_log_entries2.data[-1][24:],
     ]
 
-    with open(path, "w") as f:
+    with open(path, "w") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.writelines(line + "\n" for line in raw_log_entries.data)
         f.write(special_cases[0] + "\n")
         f.flush()
@@ -183,7 +183,7 @@ async def test_move_file(raw_log_entries, raw_log_entries2, log_config, service_
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
     move_path = Path(f"{log_config.logs_path}{uuid.uuid4()!s}")
 
-    with open(path, "w") as f:
+    with open(path, "w") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.writelines(line + "\n" for line in raw_log_entries.data)
         f.flush()
 
@@ -196,7 +196,7 @@ async def test_move_file(raw_log_entries, raw_log_entries2, log_config, service_
     os.rename(path, move_path)
     await asyncio.sleep(1)
 
-    with open(path, "w") as f:
+    with open(path, "w") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.writelines(line + "\n" for line in raw_log_entries2.data)
         f.flush()
 
@@ -222,7 +222,7 @@ async def test_delete_file(raw_log_entries, raw_log_entries2, log_config, servic
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
 
-    with open(path, "w") as f:
+    with open(path, "w") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.writelines(line + "\n" for line in raw_log_entries.data)
         f.flush()
 
@@ -235,7 +235,7 @@ async def test_delete_file(raw_log_entries, raw_log_entries2, log_config, servic
     os.remove(path)
     await asyncio.sleep(1)
 
-    with open(path, "w") as f:
+    with open(path, "w") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.writelines(line + "\n" for line in raw_log_entries2.data)
         f.flush()
 

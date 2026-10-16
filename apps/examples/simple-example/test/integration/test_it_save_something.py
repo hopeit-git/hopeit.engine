@@ -25,7 +25,7 @@ async def test_it_save_something(app_config, something_params_example):
         f"{app_config.env['storage']['base_path']}simple_example.{APP_VERSION}.fs_storage.path/"
         f"{partition_key}{something_params_example.id}.json"
     )
-    with open(str(result)) as f:
+    with open(str(result)) as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         fields = json.loads(f.read())
         assert fields["id"] == something_params_example.id
         assert fields["user"]["name"] == something_params_example.user

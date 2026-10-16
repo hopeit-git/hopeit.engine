@@ -3,6 +3,7 @@ Events graph showing events, stream and dependencies for specified apps
 """
 
 import os
+from asyncio import to_thread
 from pathlib import Path
 
 from hopeit.app.api import event_api
@@ -88,13 +89,12 @@ async def __postprocess__(
     refresh_endpoint += f"&expanded_view={str(result.options.expanded_view).lower()}"
     refresh_endpoint += f"&live={str(result.options.live).lower()}"
 
-    with open(_dir_path / "events_graph_template.html") as f:
-        template = f.read()
-        template = template.replace("{{ app_prefix }}", app_prefix)
-        template = template.replace("{{ host_filter }}", host_filter)
-        template = template.replace("{{ view_link }}", view_link)
-        template = template.replace("{{ live_link }}", live_link)
-        template = template.replace("{{ refresh_endpoint }}", refresh_endpoint)
-        template = template.replace("{{ view_type }}", view_type)
-        template = template.replace("{{ live_type }}", live_type)
-        return template
+    template = await to_thread((_dir_path / "events_graph_template.html").read_text)
+    template = template.replace("{{ app_prefix }}", app_prefix)
+    template = template.replace("{{ host_filter }}", host_filter)
+    template = template.replace("{{ view_link }}", view_link)
+    template = template.replace("{{ live_link }}", live_link)
+    template = template.replace("{{ refresh_endpoint }}", refresh_endpoint)
+    template = template.replace("{{ view_type }}", view_type)
+    template = template.replace("{{ live_type }}", live_type)
+    return template

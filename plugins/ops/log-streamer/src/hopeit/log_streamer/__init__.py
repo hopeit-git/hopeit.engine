@@ -190,8 +190,8 @@ class LogFileHandler(FileSystemEventHandler):
                         "Opening log file...",
                         extra=extra(src_path=src_path, checkpoint=checkpoint),
                     )
-                    self.open_files[src_path] = open(  # pylint: disable=consider-using-with
-                        src_path, "r", encoding="utf-8"
+                    self.open_files[src_path] = await asyncio.to_thread(
+                        open, src_path, "r", encoding="utf-8"
                     )
                     if checkpoint:
                         line = self.open_files[src_path].readline()

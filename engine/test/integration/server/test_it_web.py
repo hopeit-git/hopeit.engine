@@ -156,10 +156,10 @@ async def call_post_mock_event_preprocess_no_datatype(client):
 
 async def call_multipart_mock_event(client):
     os.makedirs("/tmp/call_multipart_mock_event/", exist_ok=True)
-    with open("/tmp/call_multipart_mock_event/test_attachment", "wb") as f:
+    with open("/tmp/call_multipart_mock_event/test_attachment", "wb") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.write(b"testdata")
 
-    attachment = open("/tmp/call_multipart_mock_event/test_attachment", "rb")
+    attachment = open("/tmp/call_multipart_mock_event/test_attachment", "rb")  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
     with aiohttp.MultipartWriter("form-data", boundary=":") as mp:
         mp.append("value1", headers={"Content-Disposition": 'form-data; name="field1"'})
         mp.append_json(
@@ -192,10 +192,10 @@ async def call_multipart_mock_event(client):
 
 async def call_multipart_mock_event_plain_text_json(client):
     os.makedirs("/tmp/call_multipart_mock_event/", exist_ok=True)
-    with open("/tmp/call_multipart_mock_event/test_attachment", "wb") as f:
+    with open("/tmp/call_multipart_mock_event/test_attachment", "wb") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.write(b"testdata")
 
-    attachment = open("/tmp/call_multipart_mock_event/test_attachment", "rb")
+    attachment = open("/tmp/call_multipart_mock_event/test_attachment", "rb")  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
     with aiohttp.MultipartWriter("form-data", boundary=":") as mp:
         mp.append("value1", headers={"Content-Disposition": 'form-data; name="field1"'})
         mp.append(

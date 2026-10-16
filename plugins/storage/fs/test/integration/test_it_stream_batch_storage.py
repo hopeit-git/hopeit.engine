@@ -23,7 +23,7 @@ async def test_buffer_objects_and_flush_partitions(app_config, test_objs):
     # Load saved data from disk and compare to input
     saved_objects = {}
     for file_name in glob(f"{test_save_path}/2020/05/01/**/*.jsonlines"):
-        with open(file_name) as f:
+        with open(file_name) as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
             for line in f:
                 obj = Payload.from_json(line, datatype=MyObject)
                 saved_objects[obj.object_id] = obj
@@ -55,7 +55,7 @@ async def test_buffer_object_and_flush_signal(app_config, test_objs):
     await asyncio.sleep(1)  # Allow aiofiles to save
     saved_objects = {}
     for file_name in glob(f"{test_save_path}/{partition_key}/*.jsonlines"):
-        with open(file_name) as f:
+        with open(file_name) as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
             for line in f:
                 obj = Payload.from_json(line, datatype=MyObject)
                 saved_objects[obj.object_id] = obj
