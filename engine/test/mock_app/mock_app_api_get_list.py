@@ -17,7 +17,7 @@ __steps__ = ["entry_point"]
 
 __api__ = event_api(
     summary="Test app api list",
-    query_args=[("arg1", Optional[int], "Argument 1")],
+    query_args=[("arg1", int | None, "Argument 1")],
     responses={200: (list[MockData], "MockData result")},
 )
 

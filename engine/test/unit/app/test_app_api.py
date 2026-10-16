@@ -51,7 +51,7 @@ def test_event_api(monkeypatch, mock_api_spec, mock_api_app_config):
     spec = api.event_api(
         description="Test app api",
         payload=(str, "Payload"),
-        query_args=[("arg1", Optional[int], "Argument 1")],
+        query_args=[("arg1", int | None, "Argument 1")],
         responses={200: (MockData, "MockData result")},
     )(
         mock_app_api_get,

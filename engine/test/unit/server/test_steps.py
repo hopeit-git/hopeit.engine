@@ -77,7 +77,7 @@ def test_extract_event_steps_with_shuffle():
     assert steps == [
         ("produce_messages", (f1, str, Spawn[MockData], True)),
         (SHUFFLE, None),
-        ("consume_stream", (f2, MockData, Optional[MockResult], False)),
+        ("consume_stream", (f2, MockData, MockResult | None, False)),
         ("generate_default", (f3, None, MockResult, False)),
     ]
 
@@ -129,14 +129,14 @@ def test_effective_steps_shuffle_event():
     module_steps = [
         ("produce_messages", (f1, str, Spawn[MockData], True)),
         (SHUFFLE, None),
-        ("consume_stream", (f2, MockData, Optional[MockResult], False)),
+        ("consume_stream", (f2, MockData, MockResult | None, False)),
         ("generate_default", (f3, None, MockResult, False)),
     ]
     steps = effective_steps("mock_shuffle_event", module_steps)
     assert steps == [(0, "produce_messages", (f1, str, Spawn[MockData], True))]
     steps = effective_steps("mock_shuffle_event$consume_stream", module_steps)
     assert steps == [
-        (0, "consume_stream", (f2, MockData, Optional[MockResult], False)),
+        (0, "consume_stream", (f2, MockData, MockResult | None, False)),
         (1, "generate_default", (f3, None, MockResult, False)),
     ]
 

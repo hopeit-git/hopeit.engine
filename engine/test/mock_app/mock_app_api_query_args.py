@@ -20,11 +20,11 @@ __api__ = event_api(
     summary="Test app api query args",
     description="Description of Test app queryargs",
     query_args=[
-        ("arg_str", Optional[str], "str argument"),
-        ("arg_int", Optional[int], "int argument"),
-        ("arg_float", Optional[float], "float argument"),
-        ("arg_date", Optional[date], "date argument"),
-        ("arg_datetime", Optional[datetime], "datetime argument"),
+        ("arg_str", str | None, "str argument"),
+        ("arg_int", int | None, "int argument"),
+        ("arg_float", float | None, "float argument"),
+        ("arg_date", date | None, "date argument"),
+        ("arg_datetime", datetime | None, "datetime argument"),
     ],
     responses={200: (list[MockData], "MockData result")},
 )

@@ -25,7 +25,7 @@ __api__ = event_api(
     query_args=[
         (
             "wildcard",
-            Optional[str],
+            str | None,
             "Wildcard to filter objects by name prefixed "
             "by partition folder in format YYYY/MM/DD/HH/*",
         )

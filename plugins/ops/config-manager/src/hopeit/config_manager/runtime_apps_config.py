@@ -20,8 +20,8 @@ __api__ = event_api(
     summary="Config Manager: Runtime Apps Config",
     description="Returns the runtime config for the Apps running on this server",
     query_args=[
-        ("url", Optional[str], "URL used to reach this server, informative"),
-        ("expand_events", Optional[bool], "Retrieve expanded effective events from event steps"),
+        ("url", str | None, "URL used to reach this server, informative"),
+        ("expand_events", bool | None, "Retrieve expanded effective events from event steps"),
     ],
     responses={
         200: (RuntimeApps, "Config info about running apps in current process"),

@@ -25,14 +25,14 @@ class VisualizationOptions:
 
 def visualization_options_api_args():
     return [
-        ("app_prefix", Optional[str], "app name prefix to filter"),
-        ("host_filter", Optional[str], "host name filter substring"),
+        ("app_prefix", str | None, "app name prefix to filter"),
+        ("host_filter", str | None, "host name filter substring"),
         (
             "expanded_view",
-            Optional[bool],
+            bool | None,
             "if `true` shows each stream queue as a separated stream",
         ),
-        ("live", Optional[bool], "if `true` enable live stats refreshing"),
+        ("live", bool | None, "if `true` enable live stats refreshing"),
     ]
 
 
