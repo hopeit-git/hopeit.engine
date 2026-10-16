@@ -193,6 +193,7 @@ class RedisStreamManager(StreamManager):
             )
 
             if len(response) != 0:
+                assert isinstance(response, list), "Redis Streams requires RESP2 stream responses"
                 batch = response[0][1]
                 logger.debug(
                     __name__,
