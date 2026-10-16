@@ -70,7 +70,8 @@ print(Payload.to_json(my_json_response))
 ```
 """
 
-from typing import Any, Dict, Generic, Iterator, List, Type
+from typing import Any, Dict, Generic, List, Type
+from collections.abc import Iterator
 
 try:
     import polars as pl

@@ -1,5 +1,6 @@
 import asyncio
-from typing import AsyncGenerator, Dict, List, Optional
+from typing import Dict, List, Optional
+from collections.abc import AsyncGenerator
 
 from hopeit.app.config import AppConfig, EventDescriptor
 from hopeit.app.context import EventContext, PostprocessHook

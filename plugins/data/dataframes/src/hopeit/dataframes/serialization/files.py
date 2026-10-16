@@ -5,7 +5,8 @@ import os
 from datetime import datetime, timedelta, timezone
 from glob import glob
 from pathlib import Path
-from typing import AsyncGenerator, Generic, Literal, Optional, Type, TypeVar
+from typing import Generic, Literal, Optional, Type, TypeVar
+from collections.abc import AsyncGenerator
 from uuid import uuid4
 
 import aiofiles
