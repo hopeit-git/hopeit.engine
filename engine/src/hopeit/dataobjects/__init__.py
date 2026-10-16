@@ -22,7 +22,7 @@ import pickle
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, TypeVar
+from typing import Any, TypeAlias, TypeVar
 
 from pydantic import Field as field
 from pydantic import RootModel
@@ -85,7 +85,7 @@ class StreamEventMixin:
 
 
 DataObject = TypeVar("DataObject", bound=RootModel)
-EventPayload = str | int | float | bool | dict | set | list | DataObject
+EventPayload: TypeAlias = str | int | float | bool | dict | set | list | DataObject
 EventPayloadType = TypeVar("EventPayloadType")  # pylint: disable=invalid-name
 
 
