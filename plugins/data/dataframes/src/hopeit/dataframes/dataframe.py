@@ -231,9 +231,8 @@ def dataframe(
             amended_class = type(
                 cls.__name__,
                 (DataFrameMixin,) + cls.__mro__,
-                dict(cls.__dict__),
+                dict(cls.__dict__, __init__=DataFrameMixin.__init_from_series__),
             )
-            amended_class.__init__ = DataFrameMixin.__init_from_series__
             return amended_class
         return cls
 
