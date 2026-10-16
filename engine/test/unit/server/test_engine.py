@@ -654,7 +654,7 @@ async def test_service_loop_timeout(monkeypatch, mock_app_config, mock_plugin_co
     monkeypatch.setattr(engine, "stream_manager", MockStreamManager(address="test"))
     res = await engine.service_loop(event_name="mock_service_timeout", test_mode=True)
     # Result could be TimeoutError ot CancelledError depending on execution environment
-    assert isinstance(res, asyncio.TimeoutError) or isinstance(res, asyncio.CancelledError)
+    assert isinstance(res, (asyncio.TimeoutError, asyncio.CancelledError))
     await engine.stop()
 
 
@@ -682,7 +682,7 @@ async def test_read_stream_timeout_fail(monkeypatch, mock_app_config, mock_plugi
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
     monkeypatch.setattr(engine, "stream_manager", MockStreamManager(address="test"))
     res = await engine.read_stream(event_name="mock_stream_timeout", test_mode=True)
-    assert isinstance(res, asyncio.TimeoutError) or isinstance(res, asyncio.CancelledError)
+    assert isinstance(res, (asyncio.TimeoutError, asyncio.CancelledError))
     await engine.stop()
 
 
