@@ -22,7 +22,7 @@ from hopeit.app.config import (
 )
 from hopeit.server.names import titlecase
 
-__all__ = ["EventContext", "PostprocessHook", "PreprocessHook", "NoopMultiparReader"]
+__all__ = ["EventContext", "NoopMultiparReader", "PostprocessHook", "PreprocessHook"]
 
 
 class EventContext:

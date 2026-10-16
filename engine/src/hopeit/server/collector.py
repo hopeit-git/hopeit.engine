@@ -11,7 +11,7 @@ from typing import Any
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import copy_payload
 
-__all__ = ["Collector", "AsyncCollector", "CollectorStepType"]
+__all__ = ["AsyncCollector", "Collector", "CollectorStepType"]
 
 
 class AbstractCollector:

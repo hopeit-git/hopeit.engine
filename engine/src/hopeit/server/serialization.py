@@ -7,7 +7,7 @@ import pickle
 
 from hopeit.app.config import Compression, Serialization
 
-__all__ = ["serialize", "deserialize"]
+__all__ = ["deserialize", "serialize"]
 
 from hopeit.dataobjects import EventPayload, EventPayloadType
 from hopeit.dataobjects.payload import Payload

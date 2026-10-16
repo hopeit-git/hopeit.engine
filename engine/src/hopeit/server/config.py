@@ -13,14 +13,14 @@ from hopeit.server.names import auto_path_prefixed
 from hopeit.server.version import ENGINE_VERSION
 
 __all__ = [
-    "StreamsConfig",
-    "LoggingConfig",
-    "AuthType",
     "AuthConfig",
+    "AuthType",
+    "LoggingConfig",
     "ServerConfig",
+    "StreamsConfig",
     "parse_server_config_json",
-    "replace_env_vars",
     "replace_config_args",
+    "replace_env_vars",
 ]
 
 

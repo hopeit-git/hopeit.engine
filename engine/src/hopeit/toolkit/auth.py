@@ -20,12 +20,12 @@ from hopeit.server.config import AuthConfig, AuthType
 from hopeit.server.logger import engine_extra_logger
 
 __all__ = [
+    "AuthType",
+    "decode_token",
     "init",
     "new_token",
-    "decode_token",
-    "validate_token",
     "validate_auth_method",
-    "AuthType",
+    "validate_token",
 ]
 
 logger, extra = engine_extra_logger()

@@ -19,7 +19,7 @@ from hopeit.server.logger import engine_logger, extra_logger
 logger = engine_logger()
 extra = extra_logger()
 
-__all__ = ["StreamEvent", "StreamManager", "stream_auth_info", "StreamOSError"]
+__all__ = ["StreamEvent", "StreamManager", "StreamOSError", "stream_auth_info"]
 
 
 @dataclasses.dataclass

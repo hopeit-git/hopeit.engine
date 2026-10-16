@@ -8,7 +8,7 @@ from functools import partial
 
 from hopeit.server.logger import extra_values
 
-__all__ = ["app_logger", "app_extra_logger"]
+__all__ = ["app_extra_logger", "app_logger"]
 
 DEFAULT_APP_LOGGER = "app_logger_default"
 

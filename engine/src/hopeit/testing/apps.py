@@ -21,7 +21,7 @@ from hopeit.server.logger import engine_logger
 from hopeit.server.steps import find_datatype_handler, split_event_stages
 from hopeit.testing.hooks import MockFileHook, MockMultipartReader
 
-__all__ = ["config", "server_config", "create_test_context", "execute_event"]
+__all__ = ["config", "create_test_context", "execute_event", "server_config"]
 
 logger = engine_logger()
 

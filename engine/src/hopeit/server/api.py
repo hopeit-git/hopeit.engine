@@ -42,16 +42,16 @@ from hopeit.server.steps import (
 )
 
 __all__ = [
+    "app_route_name",
+    "clear",
+    "diff_specs",
+    "enable_swagger",
     "init_empty_spec",
     "load_api_file",
+    "register_apps",
+    "register_server_config",
     "save_api_file",
     "setup",
-    "clear",
-    "app_route_name",
-    "register_server_config",
-    "register_apps",
-    "enable_swagger",
-    "diff_specs",
 ]
 
 logger = engine_logger()

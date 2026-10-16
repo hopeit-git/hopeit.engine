@@ -12,7 +12,7 @@ from hopeit.server.engine import AppEngine
 from hopeit.server.runtime import server
 from hopeit.server.steps import SHUFFLE, CollectorStepsDescriptor
 
-__all__ = ["Spawn", "SHUFFLE", "collector_step", "Collector"]
+__all__ = ["SHUFFLE", "Collector", "Spawn", "collector_step"]
 
 T = TypeVar("T")
 Spawn = AsyncGenerator[T, None]

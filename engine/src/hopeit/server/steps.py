@@ -27,20 +27,20 @@ from hopeit.server.logger import engine_logger, extra_logger
 from hopeit.server.names import auto_path
 
 __all__ = [
-    "extract_module_steps",
-    "effective_steps",
-    "event_and_step",
-    "extract_event_stages",
-    "extract_preprocess_handler",
-    "extract_postprocess_handler",
-    "extract_input_type",
-    "execute_steps",
-    "invoke_single_step",
-    "find_datatype_handler",
-    "StepInfo",
-    "split_event_stages",
     "SHUFFLE",
     "CollectorStepsDescriptor",
+    "StepInfo",
+    "effective_steps",
+    "event_and_step",
+    "execute_steps",
+    "extract_event_stages",
+    "extract_input_type",
+    "extract_module_steps",
+    "extract_postprocess_handler",
+    "extract_preprocess_handler",
+    "find_datatype_handler",
+    "invoke_single_step",
+    "split_event_stages",
 ]
 
 

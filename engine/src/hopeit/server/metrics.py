@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from hopeit.app.context import EventContext
 from hopeit.server.logger import format_extra_values
 
-__all__ = ["metrics", "stream_metrics", "StreamStats"]
+__all__ = ["StreamStats", "metrics", "stream_metrics"]
 
 
 def metrics(context: EventContext):

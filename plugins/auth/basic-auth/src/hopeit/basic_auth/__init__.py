@@ -13,7 +13,7 @@ from hopeit.dataobjects.payload import Payload
 from hopeit.server.config import AuthType
 from hopeit.toolkit import auth
 
-__all__ = ["ContextUserInfo", "AuthInfoExtended", "AuthInfo", "authorize", "set_refresh_token"]
+__all__ = ["AuthInfo", "AuthInfoExtended", "ContextUserInfo", "authorize", "set_refresh_token"]
 
 
 @dataobject

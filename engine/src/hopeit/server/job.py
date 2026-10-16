@@ -32,7 +32,7 @@ from hopeit.server.logger import engine_logger, extra_logger
 from hopeit.server.metrics import metrics
 from hopeit.server.steps import event_and_step, find_datatype_handler
 
-__all__ = ["parse_args", "parse_track_ids", "parse_query_args", "resolve_payload", "run_job"]
+__all__ = ["parse_args", "parse_query_args", "parse_track_ids", "resolve_payload", "run_job"]
 
 logger = engine_logger()
 extra = extra_logger()

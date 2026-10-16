@@ -6,7 +6,7 @@ from pathlib import Path
 
 from cryptography.fernet import Fernet
 
-__all__ = ["setup_encryption", "encrypt", "decrypt"]
+__all__ = ["decrypt", "encrypt", "setup_encryption"]
 
 key_file: Path = Path.home() / ".hopeit" / "test.key"
 

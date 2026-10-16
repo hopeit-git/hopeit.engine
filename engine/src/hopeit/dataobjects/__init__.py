@@ -30,13 +30,13 @@ from pydantic.dataclasses import dataclass
 from pydantic.fields import FieldInfo
 
 __all__ = [
+    "DataObject",
     "EventPayload",
     "EventPayloadType",
     "StreamEventParams",
-    "dataobject",
-    "DataObject",
     "copy_payload",
     "dataclass",
+    "dataobject",
     "field",
     "fields",
 ]
