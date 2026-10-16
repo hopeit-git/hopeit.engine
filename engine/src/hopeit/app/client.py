@@ -102,7 +102,7 @@ async def register_app_connections(app_config: AppConfig):
     """
     _registered_clients[app_config.app_key()] = {
         app_connection: await Client.create(app_config, app_connection).start()
-        for app_connection in app_config.app_connections.keys()
+        for app_connection in app_config.app_connections
     }
 
 

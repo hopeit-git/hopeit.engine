@@ -192,7 +192,7 @@ class EngineLoggerWrapper:
         assert app_config.server
         events = [
             *app_config.events.keys(),
-            *[k for plugin in plugins for k in plugin.events.keys()],
+            *[k for plugin in plugins for k in plugin.events],
         ]
         for event_name in events:
             logger_name = _logger_name(app_config.app, event_name)

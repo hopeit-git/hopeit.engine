@@ -410,7 +410,7 @@ def _update_server_default_auth_methods(server_config: ServerConfig):
     """
     assert spec is not None
     security = spec.get("security", [])
-    methods = {method for entry in security for method in entry.keys()}
+    methods = {method for entry in security for method in entry}
     for auth_method in server_config.auth.default_auth_methods:
         auth_str = f"auth.{auth_method.value.lower()}"
         if auth_str != "auth.unsecured" and auth_str not in methods:

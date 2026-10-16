@@ -861,9 +861,7 @@ async def test_start_all_groups(monkeypatch, mock_app_config, mock_plugin_config
     engine = await create_engine(
         app_config=mock_app_config, plugin=mock_plugin_config, enabled_groups=None
     )
-    assert all(
-        event_name in engine.effective_events for event_name in mock_app_config.events.keys()
-    )
+    assert all(event_name in engine.effective_events for event_name in mock_app_config.events)
 
 
 async def test_start_single_group(monkeypatch, mock_app_config, mock_plugin_config):

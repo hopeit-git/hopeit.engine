@@ -50,7 +50,7 @@ class MockEventHandler(EventHandler):
         self, *, context: EventContext, query_args: dict | None, payload: EventPayload | None
     ) -> AsyncGenerator[EventPayload | None, None]:
         assert payload == MockEventHandler.input_payload
-        assert all(x in context.track_ids.keys() for x in self.app_config.engine.track_headers)
+        assert all(x in context.track_ids for x in self.app_config.engine.track_headers)
         if isinstance(payload, MockData) and payload.value == "fail":  # type: ignore
             raise ValueError("Test for error")
         if isinstance(payload, MockData) and payload.value == "timeout":  # type: ignore

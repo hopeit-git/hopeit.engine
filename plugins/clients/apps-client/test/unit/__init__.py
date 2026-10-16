@@ -96,7 +96,7 @@ class MockClientSession:
     def setup(cls, responses: dict[str, str], headers: dict[str, str]):
         cls.responses = responses
         cls.headers = headers
-        cls.failure = {cls._host(url): 0 for url in responses.keys()}
+        cls.failure = {cls._host(url): 0 for url in responses}
         cls.call_log = defaultdict(int)
         cls.session_open = False
         return cls
