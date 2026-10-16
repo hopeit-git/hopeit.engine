@@ -313,7 +313,7 @@ class AppsClient(Client):
 
                 raise NotImplementedError(f"Event type {event_info.type.value} not supported")
 
-            except (ServerException, IOError) as e:
+            except (OSError, ServerException) as e:
                 self.conn_state.load_balancer.failure(
                     host_index,
                     now_ts,

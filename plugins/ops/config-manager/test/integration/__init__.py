@@ -63,7 +63,7 @@ class MockClientSession:
             raise TimeoutError()
         if url in self.responses:
             return MockResponse(self.responses[url])
-        raise IOError("Test error")
+        raise OSError("Test error")
 
 
 def mock_effective_events(response, effective_events=None):

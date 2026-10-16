@@ -41,7 +41,7 @@ async def find_image(payload: None, context: EventContext, *, file_name: str) ->
     tgt_file_path = os.path.join(str(context.env["storage"]["base_path"]), file_name)
     try:
         shutil.copy(src_file_path, tgt_file_path)
-    except IOError as msg:
+    except OSError as msg:
         print(f"Unable to copy file. {msg}")
 
     return ImagePng(file_name=file_name, file_path=tgt_file_path)

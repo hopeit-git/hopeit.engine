@@ -73,7 +73,7 @@ class Dataset(Generic[DataFrameT]):
             storage = await get_dataset_storage(database_key)
             df = await dataset._load_df(storage)
             return dataset._convert(df)
-        except (RuntimeError, IOError, KeyError, TypeError) as e:
+        except (OSError, RuntimeError, KeyError, TypeError) as e:
             raise DatasetLoadError(
                 f"Error {type(e).__name__}: {e} loading dataset of type {dataset.datatype} "
                 f"at location {dataset.partition_key}/{dataset.key}"

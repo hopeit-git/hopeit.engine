@@ -163,7 +163,7 @@ class MockClientSession:
                     log=dict(self.call_log),
                 ),
             )
-        raise IOError("Test error")
+        raise OSError("Test error")
 
     def post(
         self, url: str, data: str, headers: dict, params: dict
@@ -201,7 +201,7 @@ class MockClientSession:
                     )
                 ],
             )
-        raise IOError("Test error")
+        raise OSError("Test error")
 
 
 async def init_mock_client_app(module, monkeypatch, mock_auth, app_config, event_name, response):

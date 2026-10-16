@@ -536,7 +536,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     ) -> pl.DataFrame:
         try:
             return await dataset._load_df(storage, columns)
-        except (RuntimeError, IOError, KeyError) as e:
+        except (OSError, RuntimeError, KeyError) as e:
             raise DatasetLoadError(
                 f"Error {type(e).__name__}: {e} loading datablock of type {dataset.datatype} "
                 f"at location {dataset.partition_key}/{dataset.key}"
@@ -550,7 +550,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     ) -> pl.LazyFrame:
         try:
             return dataset._scan_df(storage, schema=schema)
-        except (RuntimeError, IOError, KeyError) as e:
+        except (OSError, RuntimeError, KeyError) as e:
             raise DatasetLoadError(
                 f"Error {type(e).__name__}: {e} loading datablock of type {dataset.datatype} "
                 f"at location {dataset.partition_key}/{dataset.key}"
