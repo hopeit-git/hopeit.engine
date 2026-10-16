@@ -106,7 +106,7 @@ async def test_execute(monkeypatch, mock_app_config, mock_plugin_config):
 async def test_execute_plugin(monkeypatch, mock_app_config, mock_plugin_config):
     expected = "PluginEvent"
     expected_response = {
-        "cookies": {"PluginCookie": ("PluginCookieValue", tuple(), {})},
+        "cookies": {"PluginCookie": ("PluginCookieValue", (), {})},
         "headers": {"PluginHeader": "PluginHeaderValue"},
         "status": 999,
     }

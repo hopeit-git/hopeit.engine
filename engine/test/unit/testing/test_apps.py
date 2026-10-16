@@ -66,7 +66,7 @@ async def test_execute_event_and_postprocess(mock_app_config):
     assert pp_result == "ok: ok"
     assert response.status == 200
     assert response.headers == {"X-Status": "ok"}
-    assert response.cookies == {"Test-Cookie": ("ok", tuple(), {})}
+    assert response.cookies == {"Test-Cookie": ("ok", (), {})}
 
 
 async def test_execute_event_failed_case(mock_app_config):

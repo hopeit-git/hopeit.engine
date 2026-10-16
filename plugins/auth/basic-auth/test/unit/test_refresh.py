@@ -55,7 +55,7 @@ async def invoke_postprocess(payload: AuthInfoExtended, context: EventContext):
     result = await refresh.__postprocess__(payload, context, response=hook)
     assert hook.cookies["test_app.test.refresh"] == (
         f"Refresh {payload.refresh_token}",
-        tuple(),
+        (),
         {
             "httponly": "true",
             "expires": 3600,

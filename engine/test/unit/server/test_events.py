@@ -120,7 +120,7 @@ async def test_postprocess(mock_plugin_config):
         payload=MockData("ok"),
         expected="PluginEvent.postprocess",
         expected_response={
-            "cookies": {"PluginCookie": ("PluginCookieValue", tuple(), {})},
+            "cookies": {"PluginCookie": ("PluginCookieValue", (), {})},
             "headers": {"PluginHeader": "PluginHeaderValue"},
             "status": 999,
         },
