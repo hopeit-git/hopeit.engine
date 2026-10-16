@@ -733,7 +733,7 @@ async def _handle_post_invocation(
         return _ignored_response(context, 401, e)
     except BadRequest as e:
         return _ignored_response(context, 400, e)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 -- Convert application failures into HTTP error responses.
         return _failed_response(context, e)
 
 
@@ -770,7 +770,7 @@ async def _handle_get_invocation(
         return _ignored_response(context, 401, e)
     except BadRequest as e:
         return _ignored_response(context, 400, e)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 -- Convert application failures into HTTP error responses.
         return _failed_response(context, e)
 
 
@@ -808,7 +808,7 @@ async def _handle_multipart_invocation(
         return _ignored_response(context, 401, e)
     except BadRequest as e:
         return _ignored_response(context, 400, e)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 -- Convert application failures into HTTP error responses.
         return _failed_response(context, e)
 
 
