@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-import hopeit.fs_storage.partition as partition
+from hopeit.fs_storage import partition
 from hopeit.dataobjects import dataclass, dataobject
 
 

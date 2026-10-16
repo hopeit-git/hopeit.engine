@@ -2,7 +2,7 @@ from typing import Optional
 
 import pytest
 
-import hopeit.app.api as api
+from hopeit.app import api
 from hopeit.app.config import EventType
 from hopeit.server.api import APIError
 from mock_app import (

@@ -5,7 +5,7 @@ import socket
 import pytest  # type: ignore
 
 import hopeit.server.logger as server_logging
-import hopeit.server.version as version
+from hopeit.server import version
 from hopeit.app.config import EventLoggingConfig, EventSettings
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger, app_logger

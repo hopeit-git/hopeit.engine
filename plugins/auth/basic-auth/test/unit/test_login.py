@@ -1,6 +1,6 @@
 import pytest
 
-import hopeit.toolkit.auth as auth
+from hopeit.toolkit import auth
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.errors import Unauthorized
 from hopeit.basic_auth import (  # type: ignore  # type: ignore
