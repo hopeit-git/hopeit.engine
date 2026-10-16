@@ -76,7 +76,7 @@ async def create_stream_manager(
         },
     ).setup()
     context = create_test_context(plugin_config, "setup_redis_pool")
-    RedisStreamManager._RedisStreamManager__connection_factory = None
+    RedisStreamManager._RedisStreamManager__connection_factory = None  # type: ignore[attr-defined]  # Reset the name-mangled factory between tests.
     await setup_redis_pool.init_redis_streams(None, context)
     return await RedisStreamManager(address=MockRedisPool.test_url).connect(stream_config)
 

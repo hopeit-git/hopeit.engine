@@ -159,7 +159,7 @@ def mock_module(module: ModuleType, context: EventContext):
     async def mock_handle_ok_case(payload: MockData, context: EventContext) -> str:
         return "mock: " + payload.value
 
-    module.handle_ok_case = mock_handle_ok_case
+    vars(module)["handle_ok_case"] = mock_handle_ok_case
 
 
 async def test_execute_event_with_mocks(mock_app_config):
