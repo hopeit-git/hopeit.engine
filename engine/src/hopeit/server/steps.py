@@ -8,7 +8,7 @@ from collections.abc import AsyncGenerator, Callable
 from datetime import datetime, timezone
 from functools import partial
 from types import ModuleType
-from typing import Any
+from typing import Any, get_origin
 
 from hopeit.app.config import (
     AppConfig,
@@ -458,7 +458,4 @@ def _signature(
 
 
 def _is_iterable(annotation: type) -> bool:
-    try:
-        return annotation._name == "AsyncGenerator"  # pylint: disable=protected-access
-    except AttributeError:
-        return False
+    return (get_origin(annotation) or annotation) is AsyncGenerator

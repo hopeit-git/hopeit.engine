@@ -1,4 +1,6 @@
 import importlib
+import typing
+from collections.abc import AsyncGenerator
 from copy import deepcopy
 from typing import Optional
 
@@ -78,6 +80,45 @@ def test_extract_event_steps_with_shuffle():
         ("consume_stream", (f2, MockData, Optional[MockResult], False)),
         ("generate_default", (f3, None, MockResult, False)),
     ]
+
+
+@pytest.mark.parametrize(
+    "return_type,is_spawn",
+    [
+        (AsyncGenerator[int, None], True),
+        (typing.AsyncGenerator[int, None], True),
+        (Spawn[int], True),
+        (AsyncGenerator, True),
+        (typing.AsyncGenerator, True),
+        (list[int], False),
+        (int, False),
+        (None, False),
+        ("AsyncGenerator[int, None]", False),
+    ],
+    ids=[
+        "collections-parameterized",
+        "typing-parameterized",
+        "spawn-alias",
+        "collections-bare",
+        "typing-bare",
+        "list",
+        "scalar",
+        "none",
+        "string-annotation",
+    ],
+)
+def test_extract_spawn_step_annotations(monkeypatch, return_type, is_spawn):
+    impl = importlib.import_module("mock_app.mock_shuffle_event")
+    monkeypatch.setattr(
+        impl.produce_messages,
+        "__annotations__",
+        {**impl.produce_messages.__annotations__, "return": return_type},
+    )
+
+    step_name, step_info = extract_module_steps(impl)[0]
+    assert step_name == "produce_messages"
+    assert step_info is not None
+    assert step_info[3] is is_spawn
 
 
 def test_effective_steps_shuffle_event():
