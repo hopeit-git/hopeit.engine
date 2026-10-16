@@ -3,7 +3,6 @@ Webserver module based on aiohttp to handle web/api requests
 """
 
 import argparse
-import asyncio
 import gc
 import logging
 import re
@@ -128,7 +127,7 @@ def prepare_engine(
         for config in apps_config:
             web_server.on_startup.append(partial(stream_startup_hook, config))
 
-    web_server.on_shutdown.append(_shutdown_hook)
+    web_server.cleanup_ctx.append(_engine_cleanup_context)
     logger.debug(__name__, "Performing forced garbage collection...")
     gc.collect()
 
@@ -137,6 +136,13 @@ async def _shutdown_hook(app):
     logger.debug(__name__, "Calling shutdown hook...")
     await runtime.server.stop()
     logger.debug(__name__, "Done shutdown hook...")
+
+
+async def _engine_cleanup_context(app):
+    try:
+        yield
+    finally:
+        await _shutdown_hook(app)
 
 
 def init_logger():
@@ -208,10 +214,10 @@ async def stream_startup_hook(app_config: AppConfig, *args, **kwargs):
                 __name__,
                 f"STREAM start event_name={event_name} read_stream={event_info.read_stream.name}",
             )
-            asyncio.create_task(app_engine.read_stream(event_name=event_name))
+            app_engine.start_event(event_name)
         elif event_info.type == EventType.SERVICE:
             logger.info(__name__, f"SERVICE start event_name={event_name}")
-            asyncio.create_task(app_engine.service_loop(event_name=event_name))
+            app_engine.start_event(event_name)
 
 
 def _effective_events(app_engine: AppEngine, plugin: AppEngine | None = None):
@@ -822,7 +828,7 @@ async def _handle_stream_start_invocation(
     assert request
     if app_engine.is_running(event_name):
         return web.Response(status=500, body=f"Stream already running: {event_name}")
-    asyncio.create_task(app_engine.read_stream(event_name=event_name))
+    app_engine.start_event(event_name)
     return web.Response()
 
 
@@ -837,7 +843,7 @@ async def _handle_service_start_invocation(
     assert request
     if app_engine.is_running(event_name):
         return web.Response(status=500, body=f"Service already running: {event_name}")
-    asyncio.create_task(app_engine.service_loop(event_name=event_name))
+    app_engine.start_event(event_name)
     return web.Response()
 
 

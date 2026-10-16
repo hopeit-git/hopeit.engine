@@ -7,7 +7,9 @@ import random
 import uuid
 from asyncio import CancelledError
 from collections.abc import Awaitable
+from contextlib import aclosing
 from datetime import UTC, datetime
+from functools import partial
 from typing import Any
 
 from hopeit.app.client import register_app_connections, stop_app_connections
@@ -80,6 +82,10 @@ class AppEngine:
         self.streams_enabled = streams_enabled
         self.streams_wait_on_stop = streams_wait_on_stop
         self.stream_manager: StreamManager | None = None
+        self._event_tasks: dict[str, asyncio.Task[EventPayload | Exception | None]] = {}
+        self._stop_lock = asyncio.Lock()
+        self._stopping = False
+        self._stopped = False
         self._running: dict[str, asyncio.Lock] = {
             event_name: asyncio.Lock()
             for event_name, event_info in self.effective_events.items()
@@ -121,16 +127,56 @@ class AppEngine:
         """
         Stops and clean handlers
         """
-        logger.info(__name__, f"Stopping app={self.app_key}...")
-        for event_name, running in self._running.items():
-            if running.locked():
-                await self.stop_event(event_name)
-        if self.stream_manager:
-            if self.streams_wait_on_stop:
-                await asyncio.sleep((self.app_config.engine.read_stream_timeout + 5000) / 1000)
-            await self.stream_manager.close()
-        await stop_app_connections(self.app_key)
-        logger.info(__name__, f"Stopped app={self.app_key}")
+        async with self._stop_lock:
+            if self._stopped:
+                return
+            self._stopping = True
+            logger.info(__name__, f"Stopping app={self.app_key}...")
+            tasks = list(self._event_tasks.values())
+            for event_name in self._running:
+                if self.is_running(event_name):
+                    await self.stop_event(event_name)
+            if tasks:
+                grace = (
+                    (self.app_config.engine.read_stream_timeout + 5000) / 1000
+                    if self.streams_wait_on_stop
+                    else 0
+                )
+                _, pending = await asyncio.wait(tasks, timeout=grace)
+                for task in pending:
+                    task.cancel()
+                await asyncio.gather(*tasks, return_exceptions=True)
+            if self.stream_manager:
+                await self.stream_manager.close()
+            await stop_app_connections(self.app_key)
+            self._stopped = True
+            logger.info(__name__, f"Stopped app={self.app_key}")
+
+    def start_event(self, event_name: str) -> asyncio.Task[EventPayload | Exception | None]:
+        """Start an owned stream or service task, including its startup delay."""
+        if self._stopping:
+            raise RuntimeError(f"Cannot start event while stopping app={self.app_key}.")
+        if self.is_running(event_name):
+            raise RuntimeError(f"Event already running: {event_name}.")
+        event_type = self.effective_events[event_name].type
+        if event_type == EventType.STREAM:
+            coroutine = self.read_stream(event_name=event_name)
+        elif event_type == EventType.SERVICE:
+            coroutine = self.service_loop(event_name=event_name)
+        else:
+            raise ValueError(f"Cannot start background event of type {event_type}.")
+        task = asyncio.create_task(coroutine, name=f"{self.app_key}:{event_name}")
+        self._event_tasks[event_name] = task
+        task.add_done_callback(partial(self._event_task_done, event_name))
+        return task
+
+    def _event_task_done(
+        self, event_name: str, task: asyncio.Task[EventPayload | Exception | None]
+    ) -> None:
+        if self._event_tasks.get(event_name) is task:
+            del self._event_tasks[event_name]
+        if not task.cancelled() and (error := task.exception()) is not None:
+            logger.error(__name__, f"Background event failed: {event_name}: {error}")
 
     async def execute(
         self,
@@ -314,7 +360,7 @@ class AppEngine:
                 ),
                 timeout=context.settings.stream.timeout,
             )
-        except (TimeoutError, asyncio.CancelledError):
+        except TimeoutError:
             terr = TimeoutError(
                 f"Stream processing timeout exceeded seconds={context.settings.stream.timeout}"
             )
@@ -460,6 +506,7 @@ class AppEngine:
             "Starting reading stream...",
             extra=extra(prefix="stream.", **log_info),
         )
+        acquired = False
         try:
             assert self.event_handler, "event_handler not created. Call `start()`."
             assert self.stream_manager, "No active stream manager. Call `start()`"
@@ -473,6 +520,7 @@ class AppEngine:
             event_settings = get_event_settings(self.settings, event_name)
             assert not self._running[event_name].locked(), f"Event already running {event_name}"
             await self._running[event_name].acquire()
+            acquired = True
 
             for queue in stream_info.queues:
                 while self._running[event_name].locked():
@@ -531,7 +579,7 @@ class AppEngine:
             logger.error(__name__, f"Unexpectedly stopped read stream for event={event_name}")
             return e
         finally:
-            if (stop_when_empty or max_events is not None) and self._running[event_name].locked():
+            if acquired and self._running[event_name].locked():
                 self._running[event_name].release()
 
     async def _process_stream_event(
@@ -578,12 +626,12 @@ class AppEngine:
             )
             stats.inc()
             return result
-        except CancelledError as e:
+        except CancelledError:
             extra_info = {**log_info, "name": stream_name, "queue": queue}
             logger.error(context, "Cancelled", extra=extra(prefix="stream.", **extra_info))
             logger.failed(context, extra=extra(prefix="stream.", **extra_info))
             stats.inc(error=True)
-            return e
+            raise
         except Exception as e:  # noqa: BLE001 -- Log event failures without terminating the worker loop.
             extra_info = {**log_info, "name": stream_name, "queue": queue}
             logger.error(context, e, extra=extra(prefix="stream.", **extra_info))
@@ -634,65 +682,72 @@ class AppEngine:
             f"Cannot start service, event already running {event_name}"
         )
         await self._running[event_name].acquire()
-        wait = self.app_config.server.streams.delay_auto_start_seconds
-        if wait > 0:
-            wait = int(wait / 2) + random.randint(0, wait) - random.randint(0, int(wait / 2))
-            logger.info(
-                __name__,
-                f"Start service: waiting seconds={wait}...",
-                extra=extra(prefix="service.", **log_info),
+        try:
+            wait = self.app_config.server.streams.delay_auto_start_seconds
+            if wait > 0:
+                wait = int(wait / 2) + random.randint(0, wait) - random.randint(0, int(wait / 2))
+                logger.info(
+                    __name__,
+                    f"Start service: waiting seconds={wait}...",
+                    extra=extra(prefix="service.", **log_info),
+                )
+                await asyncio.sleep(wait)
+            logger.info(__name__, "Starting service...", extra=extra(prefix="service.", **log_info))
+            event_config = self.effective_events[event_name]
+            impl = find_event_handler(
+                app_config=self.app_config, event_name=event_name, event_info=event_config
             )
-            await asyncio.sleep(wait)
-        logger.info(__name__, "Starting service...", extra=extra(prefix="service.", **log_info))
-        event_config = self.effective_events[event_name]
-        impl = find_event_handler(
-            app_config=self.app_config, event_name=event_name, event_info=event_config
-        )
-        service_handler = impl.__service__
-        assert service_handler is not None, (
-            f"{event_name} must implement method `__service__(context) -> Spawn[...]` to run as a service"
-        )
-        event_settings = get_event_settings(self.settings, event_name)
-        context = self._service_event_context(event_name=event_name, event_settings=event_settings)
-        last_result = None
-        if self._running[event_name].locked():
-            async for payload in service_handler(context):
-                try:
-                    context = self._service_event_context(
-                        event_name=event_name,
-                        event_settings=event_settings,
-                        previous_context=context,
-                    )
-                    logger.start(context, extra=extra(prefix="service.", **log_info))
-                    last_result = await self.execute(
-                        context=context, query_args=None, payload=payload
-                    )
-                    logger.done(context, extra=extra(prefix="service.", **log_info))
-                    if not self._running[event_name].locked():
-                        logger.info(
-                            __name__,
-                            "Stopping service loop...",
-                            extra=extra(prefix="service.", **log_info),
-                        )
-                        break
-                except CancelledError as e:
-                    logger.error(context, "Cancelled", extra=extra(prefix="service.", **log_info))
-                    logger.failed(context, extra=extra(prefix="service.", **log_info))
-                    last_result = e
-                except Exception as e:  # noqa: BLE001 -- Log event failures without terminating the worker loop.
-                    logger.error(context, e, extra=extra(prefix="service.", **log_info))
-                    logger.failed(context, extra=extra(prefix="service.", **log_info))
-                    last_result = e
-                if test_mode:
-                    self._running[event_name].release()
-                    return last_result
-        else:
-            logger.info(__name__, "Stopped service.", extra=extra(prefix="service.", **log_info))
-        logger.info(__name__, "Finished service.", extra=extra(prefix="service.", **log_info))
-        return last_result
+            service_handler = impl.__service__
+            assert service_handler is not None, (
+                f"{event_name} must implement method `__service__(context) -> Spawn[...]` to run as a service"
+            )
+            event_settings = get_event_settings(self.settings, event_name)
+            context = self._service_event_context(
+                event_name=event_name, event_settings=event_settings
+            )
+            last_result = None
+            if self._running[event_name].locked():
+                async with aclosing(service_handler(context)) as service:
+                    async for payload in service:
+                        try:
+                            context = self._service_event_context(
+                                event_name=event_name,
+                                event_settings=event_settings,
+                                previous_context=context,
+                            )
+                            logger.start(context, extra=extra(prefix="service.", **log_info))
+                            last_result = await self.execute(
+                                context=context, query_args=None, payload=payload
+                            )
+                            logger.done(context, extra=extra(prefix="service.", **log_info))
+                        except CancelledError:
+                            logger.error(
+                                context, "Cancelled", extra=extra(prefix="service.", **log_info)
+                            )
+                            logger.failed(context, extra=extra(prefix="service.", **log_info))
+                            raise
+                        except Exception as e:  # noqa: BLE001 -- Log event failures without terminating the worker loop.
+                            logger.error(context, e, extra=extra(prefix="service.", **log_info))
+                            logger.failed(context, extra=extra(prefix="service.", **log_info))
+                            last_result = e
+                        if not self._running[event_name].locked():
+                            break
+                        if test_mode:
+                            self._running[event_name].release()
+                            return last_result
+            else:
+                logger.info(
+                    __name__, "Stopped service.", extra=extra(prefix="service.", **log_info)
+                )
+            logger.info(__name__, "Finished service.", extra=extra(prefix="service.", **log_info))
+            return last_result
+        finally:
+            if self._running[event_name].locked():
+                self._running[event_name].release()
 
     def is_running(self, event_name) -> bool:
-        return self._running[event_name].locked()
+        task = self._event_tasks.get(event_name)
+        return self._running[event_name].locked() or (task is not None and not task.done())
 
     async def stop_event(self, event_name: str):
         """
@@ -703,6 +758,8 @@ class AppEngine:
         """
         if self._running[event_name].locked():
             self._running[event_name].release()
+        elif (task := self._event_tasks.get(event_name)) is not None and not task.done():
+            task.cancel()
         else:
             raise RuntimeError(f"Cannot stop non running event: {event_name}.")
 

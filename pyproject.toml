@@ -75,11 +75,10 @@ dev = [
     "pytest",
     "pytest-cov",
     "pytest-aiohttp",
-    "pytest-asyncio>=1.0.0,<1.1",  # Newer versions hang during HTTP integration teardown
+    "pytest-asyncio",
     "pytest-order",
     "pytest-mock",
     "ruff",
-    "nest-asyncio",
     # type stubs
     "types-aiofiles",
     "types-gunicorn",
@@ -154,6 +153,7 @@ section-order = ["future", "standard-library", "third-party", "first-party", "lo
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.setuptools.dynamic]
 readme = { file = ["README.md"], content-type = "text/markdown" }

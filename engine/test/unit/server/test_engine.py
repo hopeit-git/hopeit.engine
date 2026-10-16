@@ -8,7 +8,7 @@ from hopeit.dataobjects import DataObject
 from hopeit.server.config import AuthType
 from hopeit.server.engine import AppEngine
 from hopeit.server.events import EventHandler, get_event_settings
-from hopeit.streams import StreamCircuitBreaker, StreamOSError
+from hopeit.streams import StreamCircuitBreaker, StreamEvent, StreamOSError
 from hopeit.testing.apps import service_running_mock
 from mock_app import (  # type: ignore
     MockData,
@@ -653,8 +653,7 @@ async def test_service_loop_timeout(monkeypatch, mock_app_config, mock_plugin_co
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
     monkeypatch.setattr(engine, "stream_manager", MockStreamManager(address="test"))
     res = await engine.service_loop(event_name="mock_service_timeout", test_mode=True)
-    # Result could be TimeoutError ot CancelledError depending on execution environment
-    assert isinstance(res, (asyncio.TimeoutError, asyncio.CancelledError))
+    assert isinstance(res, TimeoutError)
     await engine.stop()
 
 
@@ -682,7 +681,7 @@ async def test_read_stream_timeout_fail(monkeypatch, mock_app_config, mock_plugi
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
     monkeypatch.setattr(engine, "stream_manager", MockStreamManager(address="test"))
     res = await engine.read_stream(event_name="mock_stream_timeout", test_mode=True)
-    assert isinstance(res, (asyncio.TimeoutError, asyncio.CancelledError))
+    assert isinstance(res, TimeoutError)
     await engine.stop()
 
 
@@ -698,8 +697,9 @@ async def test_read_stream_event_fail_and_process_next(
     monkeypatch.setattr(MockStreamManager, "test_payload", payload)
     engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
     monkeypatch.setattr(engine, "stream_manager", MockStreamManager(address="test"))
-    res = await engine.read_stream(event_name="mock_stream_timeout", test_mode=True)
-    assert isinstance(res, asyncio.CancelledError)
+    with pytest.raises(asyncio.CancelledError):
+        await engine.read_stream(event_name="mock_stream_timeout", test_mode=True)
+    await engine.stop()
 
     payload = MockData("fail")
     expected = MockResult("none")
@@ -937,3 +937,113 @@ async def test_start_default_group(monkeypatch, mock_app_config, mock_plugin_con
         for event_name, event_info in mock_app_config.events.items()
         if event_info.group == "DEFAULT"
     )
+
+
+@pytest.fixture
+async def background_engine(monkeypatch, mock_app_config, mock_plugin_config):
+    setup_mocks(monkeypatch)
+    app_engine = await create_engine(app_config=mock_app_config, plugin=mock_plugin_config)
+    app_engine.streams_wait_on_stop = False
+    try:
+        yield app_engine
+    finally:
+        await app_engine.stop()
+
+
+@pytest.mark.parametrize("event_name", ["mock_stream_event", "mock_service_event"])
+@pytest.mark.parametrize("started", [False, True])
+async def test_stop_background_event_during_startup(background_engine, event_name, started):
+    app_engine = background_engine
+    app_engine.app_config.server.streams.delay_auto_start_seconds = 60
+    task = app_engine.start_event(event_name)
+    with pytest.raises(RuntimeError, match="already running"):
+        app_engine.start_event(event_name)
+    if started:
+        await asyncio.sleep(0)
+    await asyncio.wait_for(app_engine.stop(), timeout=1)
+    await app_engine.stop()
+    assert task.cancelled()
+    assert not app_engine._event_tasks
+    assert not app_engine.is_running(event_name)
+    with pytest.raises(RuntimeError, match="stopping"):
+        app_engine.start_event(event_name)
+
+
+async def prepare_blocked_event(monkeypatch, app_engine):
+    started, finish, cleaned, generator_closed = (asyncio.Event() for _ in range(4))
+
+    async def service(context):
+        try:
+            while True:
+                yield MockData("ok")
+        finally:
+            generator_closed.set()
+
+    async def execute(*args, **kwargs):
+        started.set()
+        try:
+            await finish.wait()
+        finally:
+            cleaned.set()
+
+    async def read_stream(**kwargs):
+        return [StreamEvent(b"test", "AUTO", MockData("ok"), {}, {})]
+
+    monkeypatch.setattr(mock_service_event, "__service__", service)
+    monkeypatch.setattr(app_engine, "_execute_event", execute)
+    monkeypatch.setattr(app_engine.stream_manager, "read_stream", read_stream)
+    return started, finish, cleaned, generator_closed
+
+
+@pytest.mark.parametrize("event_name", ["mock_stream_event", "mock_service_event"])
+async def test_background_cancellation_propagates(monkeypatch, background_engine, event_name):
+    started, _, cleaned, generator_closed = await prepare_blocked_event(
+        monkeypatch, background_engine
+    )
+    task = background_engine.start_event(event_name)
+    await asyncio.wait_for(started.wait(), timeout=1)
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    assert cleaned.is_set()
+    if event_name == "mock_service_event":
+        assert generator_closed.is_set()
+    assert not background_engine.is_running(event_name)
+
+
+@pytest.mark.parametrize("fail", [False, True])
+async def test_shutdown_drains_service_before_closing_resources(
+    monkeypatch, background_engine, fail
+):
+    app_engine = background_engine
+    app_engine.streams_wait_on_stop = True
+    started, finish, cleaned, generator_closed = await prepare_blocked_event(
+        monkeypatch, app_engine
+    )
+    close_calls = []
+
+    async def close():
+        assert cleaned.is_set()
+        assert generator_closed.is_set()
+        close_calls.append(True)
+
+    original_execute = app_engine._execute_event
+
+    async def execute(*args, **kwargs):
+        await original_execute(*args, **kwargs)
+        if fail:
+            raise ValueError("Failed step during shutdown")
+
+    monkeypatch.setattr(app_engine, "_execute_event", execute)
+    monkeypatch.setattr(app_engine.stream_manager, "close", close)
+    task = app_engine.start_event("mock_service_event")
+    await asyncio.wait_for(started.wait(), timeout=1)
+    stop = asyncio.create_task(app_engine.stop())
+    await asyncio.sleep(0)
+    assert not close_calls
+    finish.set()
+    await asyncio.wait_for(stop, timeout=1)
+    await app_engine.stop()
+    assert task.done() and not task.cancelled()
+    assert close_calls == [True]
+    assert not app_engine._event_tasks

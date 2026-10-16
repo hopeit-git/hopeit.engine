@@ -1,21 +1,14 @@
-import asyncio
-import signal
-from asyncio.exceptions import CancelledError
+import os
+import subprocess
+import sys
+from pathlib import Path
 from typing import Any, ClassVar
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
-import nest_asyncio  # type: ignore
 import pytest
 
 from hopeit.server import engine, runtime, web
 from hopeit.server.web import parse_args
-
-test_lock = asyncio.Lock()
-
-
-async def cleanup_test_server():
-    runtime.server = engine.Server()
-    web.web_server = web.web.Application()
 
 
 def test_port_path():
@@ -131,67 +124,87 @@ async def _stream_startup_hook(*args, **kwargs):
     ],
 )
 async def test_server_initialization(monkeypatch, api_file, api_auto):
-    async def _shutdown(*args, **kwargs):
-        await asyncio.sleep(1)
-        signal.raise_signal(signal.SIGTERM)
+    app = web.web.Application()
+    monkeypatch.setattr(web, "web_server", app)
+    monkeypatch.setattr(runtime, "server", engine.Server())
+    _load_engine_config = MagicMock()
+    _load_api_file = MagicMock()
+    _enable_swagger = MagicMock()
+    _register_server_config = MagicMock()
+    _register_apps = MagicMock()
+    _load_app_config = MagicMock()
 
-    def _serve():
-        web.init_web_server(
-            config_files=[
-                "test_server_file.json",
-                "test_app_file.json",
-                "test_app_file2.json",
-            ],
-            api_file=api_file,
-            api_auto=api_auto,
-            enabled_groups=[],
-            start_streams=True,
-        )
-        web.web_server.on_startup.append(_shutdown)
-        web.web.run_app(web.web_server, host="localhost", port=8020, path=None)
+    monkeypatch.setattr(web, "_load_engine_config", _load_engine_config)
+    monkeypatch.setattr(web.api, "load_api_file", _load_api_file)
+    monkeypatch.setattr(web.api, "enable_swagger", _enable_swagger)
+    monkeypatch.setattr(web.api, "register_server_config", _register_server_config)
+    monkeypatch.setattr(web.api, "register_apps", _register_apps)
+    monkeypatch.setattr(web, "_load_app_config", _load_app_config)
+    monkeypatch.setattr(web, "server_startup_hook", _server_startup_hook)
+    monkeypatch.setattr(web, "app_startup_hook", _app_startup_hook)
+    monkeypatch.setattr(web, "stream_startup_hook", _stream_startup_hook)
 
-    async with test_lock:  # Ensures this part does not run concurrently
-        nest_asyncio.apply()
+    web.init_web_server(
+        config_files=["test_server_file.json", "test_app_file.json", "test_app_file2.json"],
+        api_file=api_file,
+        api_auto=api_auto,
+        enabled_groups=[],
+        start_streams=True,
+    )
+    runner = web.web.AppRunner(app)
+    try:
+        await runner.setup()
+        assert len(MockHooks._server_startup_hook_calls) == 1
+        assert len(MockHooks._app_startup_hook_calls) == 2
+        assert len(MockHooks._stream_startup_hook_calls) == 2
+        assert _load_engine_config.call_args[0] == ("test_server_file.json",)
+        if api_file:
+            assert _load_api_file.call_args[0] == ("test_api_file.json",)
+        assert _register_server_config.call_count == (1 if api_file or api_auto else 0)
+        assert _load_app_config.call_args_list[0][0] == ("test_app_file.json",)
+        assert _load_app_config.call_args_list[1][0] == ("test_app_file2.json",)
+        assert _register_apps.call_count == 1
+        assert _enable_swagger.call_count == 1
+    finally:
+        await runner.cleanup()
+        MockHooks._stream_startup_hook_calls = []
+        MockHooks._server_startup_hook_calls = []
+        MockHooks._app_startup_hook_calls = []
 
-        _load_engine_config = MagicMock()
-        _load_api_file = MagicMock()
-        _enable_swagger = MagicMock()
-        _register_server_config = MagicMock()
-        _register_apps = MagicMock()
-        _load_app_config = MagicMock()
 
-        monkeypatch.setattr(web, "_load_engine_config", _load_engine_config)
-        monkeypatch.setattr(web.api, "load_api_file", _load_api_file)
-        monkeypatch.setattr(web.api, "register_server_config", _register_server_config)
-        monkeypatch.setattr(web.api, "register_apps", _register_apps)
-        monkeypatch.setattr(web.api, "enable_swagger", _enable_swagger)
-        monkeypatch.setattr(web, "_load_app_config", _load_app_config)
-        monkeypatch.setattr(web, "server_startup_hook", _server_startup_hook)
-        monkeypatch.setattr(web, "app_startup_hook", _app_startup_hook)
-        monkeypatch.setattr(web, "stream_startup_hook", _stream_startup_hook)
+async def test_engine_cleanup_after_startup_failure(monkeypatch):
+    app = web.web.Application()
+    server = engine.Server()
+    stop = AsyncMock()
+    monkeypatch.setattr(runtime, "server", server)
+    monkeypatch.setattr(server, "stop", stop)
+    app.cleanup_ctx.append(web._engine_cleanup_context)
 
-        try:
-            await asyncio.sleep(1)
-            _serve()
-            await cleanup_test_server()
-        except CancelledError:
-            return  # Needed in linux
-        except Exception:
-            raise  # Unexpected error
-        finally:
-            assert len(MockHooks._server_startup_hook_calls) == 1
-            assert len(MockHooks._app_startup_hook_calls) == 2
-            assert len(MockHooks._stream_startup_hook_calls) == 2
+    async def fail_startup(app):
+        raise ValueError("Startup failed")
 
-            assert _load_engine_config.call_args[0] == ("test_server_file.json",)
-            if api_file:
-                assert _load_api_file.call_args[0] == ("test_api_file.json",)
-            assert _register_server_config.call_count == (1 if api_file or api_auto else 0)
-            assert _load_app_config.call_args_list[0][0] == ("test_app_file.json",)
-            assert _load_app_config.call_args_list[1][0] == ("test_app_file2.json",)
-            assert _register_apps.call_count == 1
-            assert _enable_swagger.call_count == 1
+    app.on_startup.append(fail_startup)
+    runner = web.web.AppRunner(app)
+    try:
+        with pytest.raises(ValueError, match="Startup failed"):
+            await runner.setup()
+    finally:
+        await runner.cleanup()
+    stop.assert_awaited_once()
 
-            MockHooks._stream_startup_hook_calls = []
-            MockHooks._server_startup_hook_calls = []
-            MockHooks._app_startup_hook_calls = []
+
+def test_http_teardown_finishes():
+    """Runner teardown must finish after HTTP tests, including on cancellation."""
+    root = Path(__file__).resolve().parents[4]
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join([str(root / "engine/src"), str(root / "engine/test")])
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", "-q", "engine/test/integration/server/test_it_web.py"],
+        cwd=root,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
