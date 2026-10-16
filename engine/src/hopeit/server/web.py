@@ -3,12 +3,6 @@ Webserver module based on aiohttp to handle web/api requests
 """
 
 # flake8: noqa
-from collections import namedtuple
-
-import aiohttp
-
-setattr(aiohttp.http, "SERVER_SOFTWARE", "")
-
 import argparse
 import asyncio
 import gc
@@ -16,10 +10,17 @@ import logging
 import re
 import sys
 import uuid
-from datetime import datetime, timezone, UTC
+from collections import namedtuple
+from collections.abc import Callable, Coroutine
+from datetime import UTC, datetime, timezone
 from functools import partial
 from typing import Any, Optional, Union
-from collections.abc import Callable, Coroutine
+
+import aiohttp
+
+# Initialize aiohttp before importing web handlers.
+setattr(aiohttp.http, "SERVER_SOFTWARE", "")
+
 
 import aiohttp_cors  # type: ignore
 from aiohttp import web
@@ -55,11 +56,9 @@ from hopeit.server.logger import (
     extra_logger,
 )
 from hopeit.server.metrics import metrics
-from hopeit.server.names import route_name
+from hopeit.server.names import route_name, snakecase, titlecase
 from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
-
-from hopeit.server.names import snakecase, titlecase
 
 __all__ = [
     "parse_args",
