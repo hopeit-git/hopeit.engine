@@ -18,7 +18,7 @@ __steps__ = ["update_status", "save"]
 
 
 logger, extra = app_extra_logger()
-fs: Optional[FileStorage] = None
+fs: FileStorage | None = None
 
 
 async def __init_event__(context):

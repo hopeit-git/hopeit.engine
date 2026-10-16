@@ -135,7 +135,7 @@ async def __service__(context: EventContext) -> Spawn[FlushSignal]:
             logger.info(context, "Flushing partitions by time disabled.")
 
 
-async def buffer_item(payload: DataObject, context: EventContext) -> Optional[FlushSignal]:
+async def buffer_item(payload: DataObject, context: EventContext) -> FlushSignal | None:
     """
     Consumes any Dataobject type from stream and put it local memory buffer to be flushed later
     """

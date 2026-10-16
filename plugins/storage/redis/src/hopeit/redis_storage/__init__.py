@@ -27,7 +27,7 @@ class RedisStorage(Generic[DataObject]):
         """
         Setups Redis connection
         """
-        self._conn: Optional[redis.Redis] = None
+        self._conn: redis.Redis | None = None
 
     def connect(self, *, address: str, username: str = "", password: str = "") -> Any:
         """
@@ -41,7 +41,7 @@ class RedisStorage(Generic[DataObject]):
         self._conn = redis.from_url(address, username=username, password=password)
         return self
 
-    async def get(self, key: str, *, datatype: type[DataObject]) -> Optional[DataObject]:
+    async def get(self, key: str, *, datatype: type[DataObject]) -> DataObject | None:
         """
         Retrieves value under specified key, converted to datatype
 

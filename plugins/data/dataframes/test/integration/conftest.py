@@ -31,9 +31,9 @@ class MyTestData:
 @dataclass
 class MyTestDataAllOptional:
     id: str
-    number: Optional[int]
-    name: Optional[str]
-    timestamp: Optional[datetime]
+    number: int | None
+    name: str | None
+    timestamp: datetime | None
 
 
 @dataframe
@@ -42,8 +42,8 @@ class MyTestDataOptionalValues:
     number: int
     name: str
     timestamp: datetime
-    optional_value: Optional[float]
-    optional_label: Optional[str]
+    optional_value: float | None
+    optional_label: str | None
 
 
 @dataframe
@@ -52,8 +52,8 @@ class MyTestDataDefaultValues:
     number: int
     name: str
     timestamp: datetime
-    optional_value: Optional[float] = 0.0
-    optional_label: Optional[str] = "(default)"
+    optional_value: float | None = 0.0
+    optional_label: str | None = "(default)"
 
 
 @dataframe
@@ -105,12 +105,12 @@ class MyTestAllTypesData:
     date_value: date
     datetime_value: datetime
     bool_value: bool
-    int_value_optional: Optional[int]
-    float_value_optional: Optional[float]
-    str_value_optional: Optional[str]
-    date_value_optional: Optional[date]
-    datetime_value_optional: Optional[datetime]
-    bool_value_optional: Optional[bool]
+    int_value_optional: int | None
+    float_value_optional: float | None
+    str_value_optional: str | None
+    date_value_optional: date | None
+    datetime_value_optional: datetime | None
+    bool_value_optional: bool | None
 
 
 DEFAULT_DATE = datetime.now().date()
@@ -127,12 +127,12 @@ class MyTestAllTypesDefaultValues:
     date_value: date = DEFAULT_DATE
     datetime_value: datetime = DEFAULT_DATETIME
     bool_value: bool = False
-    int_value_optional: Optional[int] = None
-    float_value_optional: Optional[float] = None
-    str_value_optional: Optional[str] = None
-    date_value_optional: Optional[date] = None
-    datetime_value_optional: Optional[datetime] = None
-    bool_value_optional: Optional[bool] = None
+    int_value_optional: int | None = None
+    float_value_optional: float | None = None
+    str_value_optional: str | None = None
+    date_value_optional: date | None = None
+    datetime_value_optional: datetime | None = None
+    bool_value_optional: bool | None = None
 
 
 @dataframe
@@ -156,7 +156,7 @@ class Part2:
     field0: str  # common field
     field3: str
     field4: float
-    field5_opt: Optional[float] = None
+    field5_opt: float | None = None
 
 
 @dataframe
@@ -165,9 +165,9 @@ class Part2Compat:
     field0: str  # common field
     field3: str
     field4: float
-    field5_opt: Optional[float] = None
-    field6_opt: Optional[int] = None
-    field7_opt: Optional[str] = None
+    field5_opt: float | None = None
+    field6_opt: int | None = None
+    field7_opt: str | None = None
 
 
 @dataframe
@@ -183,7 +183,7 @@ class Part1NoCompat:
 @dataclass
 class MyDataBlock:
     block_id: str
-    block_field: Optional[int]
+    block_field: int | None
     part1: Dataset[Part1]
     part2: Dataset[Part2]
 
@@ -192,7 +192,7 @@ class MyDataBlock:
 @dataclass
 class MyPartitionedDataBlock:
     block_id: str
-    block_field: Optional[int]
+    block_field: int | None
     part0: Dataset[Part0]
     part1: Dataset[Part1]
     part2: Dataset[Part2]
@@ -203,7 +203,7 @@ class MyPartitionedDataBlock:
 @dataclass
 class MyDataBlockCompat:
     block_id: str
-    block_field: Optional[int]
+    block_field: int | None
     part1: Dataset[Part1]
     part2: Dataset[Part2Compat]
 
@@ -212,7 +212,7 @@ class MyDataBlockCompat:
 @dataclass
 class MyDataBlockNoCompat:
     block_id: str
-    block_field: Optional[int]
+    block_field: int | None
     part1: Dataset[Part1NoCompat]
     part2: Dataset[Part2Compat]
 
@@ -221,7 +221,7 @@ class MyDataBlockNoCompat:
 @dataclass
 class MyDataBlockItem:
     block_id: str
-    block_field: Optional[int]
+    block_field: int | None
     part1: Part1.DataObject  # type: ignore[name-defined]
     part2: Part2.DataObject  # type: ignore[name-defined]
 

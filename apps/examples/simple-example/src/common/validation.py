@@ -8,5 +8,5 @@ from hopeit.app.context import EventContext
 from model import Something
 
 
-def validate(payload: Optional[Something], *, context: EventContext) -> Optional[Something]:
+def validate(payload: Something | None, *, context: EventContext) -> Something | None:
     return payload

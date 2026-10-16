@@ -46,8 +46,8 @@ class MockEventHandler(EventHandler):
         self.effective_events = effective_events
 
     async def handle_async_event(
-        self, *, context: EventContext, query_args: Optional[dict], payload: Optional[EventPayload]
-    ) -> AsyncGenerator[Optional[EventPayload], None]:
+        self, *, context: EventContext, query_args: dict | None, payload: EventPayload | None
+    ) -> AsyncGenerator[EventPayload | None, None]:
         assert payload == MockEventHandler.input_payload
         assert all(x in context.track_ids.keys() for x in self.app_config.engine.track_headers)
         if isinstance(payload, MockData) and payload.value == "fail":  # type: ignore
@@ -57,8 +57,8 @@ class MockEventHandler(EventHandler):
         yield MockEventHandler.expected_result
 
     async def postprocess(
-        self, *, context: EventContext, payload: Optional[EventPayload], response: PostprocessHook
-    ) -> Optional[EventPayload]:
+        self, *, context: EventContext, payload: EventPayload | None, response: PostprocessHook
+    ) -> EventPayload | None:
         response.set_header("PluginHeader", "PluginHeaderValue")
         response.set_cookie("PluginCookie", "PluginCookieValue")
         response.set_status(999)

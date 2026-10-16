@@ -31,7 +31,7 @@ DataFrameT = TypeVar("DataFrameT")
 class DataFrameMetadata:
     columns: list[str]
     fields: dict[str, FieldInfo]
-    schema: Optional[pl.Schema]
+    schema: pl.Schema | None
 
 
 # Validation

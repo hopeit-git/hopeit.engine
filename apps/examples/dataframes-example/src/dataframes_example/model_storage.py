@@ -15,7 +15,7 @@ from hopeit.server.logger import engine_extra_logger
 
 logger, extra = engine_extra_logger()
 
-model_storage: Optional[ModelStorage] = None
+model_storage: ModelStorage | None = None
 
 ModelT = TypeVar("ModelT")
 

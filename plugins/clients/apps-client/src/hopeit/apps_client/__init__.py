@@ -180,9 +180,9 @@ class AppsClient(Client):
             for conn in event_info.connections
             if conn.app_connection == app_connection
         }
-        self.conn_state: Optional[AppConnectionState] = None
-        self.session: Optional[Any] = None
-        self.token: Optional[str] = None
+        self.conn_state: AppConnectionState | None = None
+        self.session: Any | None = None
+        self.token: str | None = None
         self.token_expire: int = 0
 
     def _get_route(self, event_name: str):
@@ -251,9 +251,9 @@ class AppsClient(Client):
         event_name: str,
         *,
         datatype: type[EventPayloadType],
-        payload: Optional[EventPayload],
+        payload: EventPayload | None,
         context: EventContext,
-        responses: Optional[dict[int, type[EventPayloadType]]] = None,
+        responses: dict[int, type[EventPayloadType]] | None = None,
         **kwargs,
     ) -> list[EventPayloadType]:
         """
@@ -417,7 +417,7 @@ class AppsClient(Client):
         context: EventContext,
         datatype: type[EventPayloadType],
         target_event_name: str,
-        responses: Optional[dict[int, type[EventPayloadType]]],
+        responses: dict[int, type[EventPayloadType]] | None,
     ) -> list[EventPayloadType]:
         """
         Parses http response from external App, catching Unathorized errors
@@ -451,7 +451,7 @@ class AppsClient(Client):
         datatype: type[EventPayloadType],
         target_event_name: str,
         host_index: int,
-        responses: Optional[dict[int, type[EventPayloadType]]],
+        responses: dict[int, type[EventPayloadType]] | None,
     ) -> list[EventPayloadType]:
         async with request_func as response:
             result = await self._parse_response(

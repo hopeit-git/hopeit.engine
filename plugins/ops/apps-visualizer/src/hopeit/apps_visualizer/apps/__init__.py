@@ -15,7 +15,7 @@ from hopeit.server.logger import engine_extra_logger
 logger, extra = engine_extra_logger()
 
 _lock = asyncio.Lock()
-_apps: Optional[RuntimeApps] = None
+_apps: RuntimeApps | None = None
 _expire: float = 0.0
 
 

@@ -36,21 +36,21 @@ class Dataset(Generic[DataFrameT]):
     partition_key: str
     key: str
     datatype: str
-    partition_dt: Optional[datetime] = None
-    database_key: Optional[str] = None
-    group_key: Optional[str] = None
-    collection: Optional[str] = None
-    schema: Optional[dict[str, Any]] = None
+    partition_dt: datetime | None = None
+    database_key: str | None = None
+    group_key: str | None = None
+    collection: str | None = None
+    schema: dict[str, Any] | None = None
 
     @classmethod
     async def save(
         cls,
         dataframe: DataFrameT,
         *,
-        partition_dt: Optional[datetime] = None,
-        database_key: Optional[str] = None,
-        group_key: Optional[str] = None,
-        collection: Optional[str] = None,
+        partition_dt: datetime | None = None,
+        database_key: str | None = None,
+        group_key: str | None = None,
+        collection: str | None = None,
         save_schema: bool = False,
     ) -> "Dataset[DataFrameT]":
         storage = await get_dataset_storage(database_key)
@@ -67,7 +67,7 @@ class Dataset(Generic[DataFrameT]):
     async def load(
         cls,
         dataset: "Dataset[DataFrameT]",
-        database_key: Optional[str] = None,
+        database_key: str | None = None,
     ) -> DataFrameT:
         try:
             storage = await get_dataset_storage(database_key)
@@ -79,10 +79,10 @@ class Dataset(Generic[DataFrameT]):
                 f"at location {dataset.partition_key}/{dataset.key}"
             ) from e
 
-    async def _load_df(self, storage: object, columns: Optional[list[str]] = None) -> pl.DataFrame:
+    async def _load_df(self, storage: object, columns: list[str] | None = None) -> pl.DataFrame:
         return await storage.load_df(self, columns)  # type: ignore[attr-defined]
 
-    def _scan_df(self, storage: object, schema: Optional[pl.Schema] = None) -> pl.LazyFrame:
+    def _scan_df(self, storage: object, schema: pl.Schema | None = None) -> pl.LazyFrame:
         return storage.scan_df(self, schema)  # type: ignore[attr-defined]
 
     def _convert(self, df: pl.DataFrame) -> DataFrameT:
@@ -111,10 +111,10 @@ class Dataset(Generic[DataFrameT]):
         df: pl.DataFrame,
         datatype: type[GenericDataFrameT],
         *,
-        partition_dt: Optional[datetime],
-        database_key: Optional[str],
-        group_key: Optional[str],
-        collection: Optional[str],
+        partition_dt: datetime | None,
+        database_key: str | None,
+        group_key: str | None,
+        collection: str | None,
         save_schema: bool,
     ) -> "Dataset[GenericDataFrameT]":
         return await storage.save_df(  # type: ignore[attr-defined]

@@ -30,7 +30,7 @@ class RedisStreamManager(StreamManager):
     """Manage Hopeit application streams using Redis Streams."""
 
     # __connection_factory must be initialized during redis_streams plugin setup event
-    __connection_factory: Optional[ConnectionFactory] = None
+    __connection_factory: ConnectionFactory | None = None
 
     @classmethod
     def connection_factory(cls, address: str) -> redis.Redis:

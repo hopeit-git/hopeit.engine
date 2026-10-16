@@ -27,10 +27,10 @@ PolarsDataFrameT = TypeVar("PolarsDataFrameT", bound=pl.DataFrame | pl.LazyFrame
 @dataobject
 @dataclass
 class DataBlockMetadata:
-    partition_dt: Optional[datetime] = None
-    database_key: Optional[str] = None
-    group_key: Optional[str] = None
-    collection: Optional[str] = None
+    partition_dt: datetime | None = None
+    database_key: str | None = None
+    group_key: str | None = None
+    collection: str | None = None
 
     @classmethod
     def default(cls) -> "DataBlockMetadata":
@@ -147,9 +147,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         cls,
         datablock: DataBlockType,
         *,
-        select: Optional[list[str]] = None,
+        select: list[str] | None = None,
         schema_validation: bool = True,
-        database_key: Optional[str] = None,
+        database_key: str | None = None,
     ) -> pl.DataFrame:
         """
         Converts a DataBlockType object to a polars DataFrame, by reading the subyacent Dataset/s and
@@ -198,9 +198,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         cls,
         datablock: DataBlockType,
         *,
-        select: Optional[list[str]] = None,
+        select: list[str] | None = None,
         schema_validation: bool = True,
-        database_key: Optional[str] = None,
+        database_key: str | None = None,
     ) -> pl.LazyFrame:
         """
         Converts a DataBlockType object to a polars LazyFrame, by reading the subyacent Dataset/s and
@@ -518,7 +518,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     def _get_datablock_keys(
         datablocktype: type[DataBlockType],
         *,
-        select: Optional[list[str]] = None,
+        select: list[str] | None = None,
     ) -> list[str]:
         return [
             field_name
@@ -531,7 +531,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     async def _load_datablock_df(
         storage: object,
         dataset: Dataset,
-        columns: Optional[list[str]] = None,
+        columns: list[str] | None = None,
     ) -> pl.DataFrame:
         try:
             return await dataset._load_df(storage, columns)
@@ -545,7 +545,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     def _scan_datablock_df(
         storage: object,
         dataset: Dataset,
-        schema: Optional[pl.Schema] = None,
+        schema: pl.Schema | None = None,
     ) -> pl.LazyFrame:
         try:
             return dataset._scan_df(storage, schema=schema)

@@ -41,7 +41,7 @@ class Something:
 
     id: str
     user: User
-    status: Optional[Status] = None
+    status: Status | None = None
     history: list[Status] = field(default_factory=list)
 
 

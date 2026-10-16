@@ -15,7 +15,7 @@ from hopeit.fs_storage import FileStorage, FileStorageSettings, ItemLocator
 @dataclass
 class FsMockData:
     test: str
-    ts: Optional[datetime] = None
+    ts: datetime | None = None
 
 
 @dataobject

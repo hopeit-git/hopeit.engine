@@ -102,7 +102,7 @@ def mock_client(
     )
 
 
-def mock_context(event_name: str, timeout: Optional[float] = None) -> EventContext:
+def mock_context(event_name: str, timeout: float | None = None) -> EventContext:
     plugin_config = config("plugins/ops/config-manager/config/plugin-config.json")
     if timeout:
         plugin_config.settings["config_manager_client"]["client_timeout"] = timeout

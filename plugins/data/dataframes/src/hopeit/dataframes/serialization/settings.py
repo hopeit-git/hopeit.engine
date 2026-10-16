@@ -10,7 +10,7 @@ from hopeit.dataobjects import dataclass, dataobject, field
 class DatasetSerialization:
     protocol: str
     location: str
-    partition_dateformat: Optional[str] = None
+    partition_dateformat: str | None = None
     storage_settings: dict[str, str | int] = field(default_factory=dict)
 
 

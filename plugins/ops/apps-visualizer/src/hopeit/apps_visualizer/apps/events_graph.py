@@ -71,7 +71,7 @@ def _filter_hosts(runtime_info: RuntimeAppInfo, options: VisualizationOptions) -
     )
 
 
-async def config_graph(collector: Collector, context: EventContext) -> Optional[Graph]:
+async def config_graph(collector: Collector, context: EventContext) -> Graph | None:
     """
     Generates Graph object with nodes and edges from server runtime active configuration
     """

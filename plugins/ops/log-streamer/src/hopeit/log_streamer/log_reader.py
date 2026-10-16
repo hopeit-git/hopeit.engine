@@ -66,7 +66,7 @@ def _parse_extras(extras: list[str]) -> dict[str, str]:
     return items
 
 
-async def _process_log_entry(entry: str, context: EventContext) -> Optional[LogEntry]:
+async def _process_log_entry(entry: str, context: EventContext) -> LogEntry | None:
     """
     Parses log line into a LogEntry
 
@@ -99,7 +99,7 @@ async def _process_log_entry(entry: str, context: EventContext) -> Optional[LogE
         return None
 
 
-async def process_log_data(payload: LogRawBatch, context: EventContext) -> Optional[LogBatch]:
+async def process_log_data(payload: LogRawBatch, context: EventContext) -> LogBatch | None:
     """
     Receives emitted batch of raw log lines from service handler, process and filter in order
     to emit processed batch to a stream.
