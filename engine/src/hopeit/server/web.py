@@ -631,7 +631,7 @@ def _validate_authorization(
         if method.upper() == auth_type.name.upper():
             auth.validate_auth_method(auth_type, data, context)
             if context.auth_info.get("allowed"):
-                return None
+                return
     raise Unauthorized(method)
 
 
