@@ -92,7 +92,7 @@ class DataFrames(Generic[DataFrameT, DataObject]):
 
     @staticmethod
     def from_df(
-        datatype: Type[DataFrameT], df: pl.DataFrame, **series: Dict[str, pl.Series]
+        datatype: type[DataFrameT], df: pl.DataFrame, **series: dict[str, pl.Series]
     ) -> DataFrameT:
         """Create a `@dataframe` instance of a particular `datatype` from a polars DataFrame.
         Optionally, add or override series.
@@ -101,7 +101,7 @@ class DataFrames(Generic[DataFrameT, DataObject]):
 
     @staticmethod
     def from_pandas(
-        datatype: Type[DataFrameT], pandas_df: Any, **series: Dict[str, pl.Series]
+        datatype: type[DataFrameT], pandas_df: Any, **series: dict[str, pl.Series]
     ) -> DataFrameT:
         """Create a `@dataframe` instance of a particular `datatype` from a polars DataFrame.
         Optionally, add or override series.
@@ -116,20 +116,20 @@ class DataFrames(Generic[DataFrameT, DataObject]):
 
     @staticmethod
     def from_dataframe(
-        datatype: Type[DataFrameT], obj: DataFrameT, **series: Dict[str, pl.Series]
+        datatype: type[DataFrameT], obj: DataFrameT, **series: dict[str, pl.Series]
     ) -> DataFrameT:
         """Creates a new `@dataframe` object extracting fields from another `@dataframe`"""
         return datatype._from_df(obj._df, **series)  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
     def from_dataobjects(
-        datatype: Type[DataFrameT], dataobjects: Iterator[DataObject]
+        datatype: type[DataFrameT], dataobjects: Iterator[DataObject]
     ) -> DataFrameT:
         """Converts standard json serializable `@dataobject`s to a single `@dataframe`"""
         return datatype._from_dataobjects(dataobjects)  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
-    def to_dataobjects(obj: DataFrameT) -> List[DataObject]:
+    def to_dataobjects(obj: DataFrameT) -> list[DataObject]:
         """Converts `@dataframe` object to a list of standard `@dataobject`s"""
         return obj._to_dataobjects()  # type: ignore  # pylint: disable=protected-access
 
@@ -144,7 +144,7 @@ class DataFrames(Generic[DataFrameT, DataObject]):
         return obj._df.to_pandas()  # type: ignore  # pylint: disable=protected-access
 
     @staticmethod
-    def schema(datatype: Type[DataFrameT]) -> pl.Schema:
+    def schema(datatype: type[DataFrameT]) -> pl.Schema:
         if pl is None:
             raise RuntimeError(
                 "`polars` needs to be installed to access dataframe schema. "

@@ -38,8 +38,8 @@ class MockEventHandler(EventHandler):
         self,
         *,
         app_config: AppConfig,
-        plugins: List[AppConfig],
-        effective_events: Dict[str, EventDescriptor],
+        plugins: list[AppConfig],
+        effective_events: dict[str, EventDescriptor],
     ):
         self.app_config = app_config
         self.plugins = plugins

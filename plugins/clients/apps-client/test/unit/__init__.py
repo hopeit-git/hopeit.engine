@@ -15,7 +15,7 @@ class MockResponseData:
     value: str
     param: str
     host: str
-    log: Dict[str, int]
+    log: dict[str, int]
 
 
 @dataobject
@@ -62,7 +62,7 @@ class MockResponseList:
     def __init__(
         self,
         status: int,
-        items: List[MockResponseData],
+        items: list[MockResponseData],
         content_type: str = "application/json",
     ):
         self.status = status
@@ -85,15 +85,15 @@ class MockResponseList:
 class MockClientSession:
     lock = asyncio.Lock()
     session_open = False
-    responses: Dict[str, str] = {}
-    headers: Dict[str, str] = {}
-    failure: Dict[str, int] = {}
-    alternate: Dict[str, int] = {}
-    call_log: Dict[str, int] = defaultdict(int)
+    responses: dict[str, str] = {}
+    headers: dict[str, str] = {}
+    failure: dict[str, int] = {}
+    alternate: dict[str, int] = {}
+    call_log: dict[str, int] = defaultdict(int)
     content_type: str = "application/json"
 
     @classmethod
-    def setup(cls, responses: Dict[str, str], headers: Dict[str, str]):
+    def setup(cls, responses: dict[str, str], headers: dict[str, str]):
         cls.responses = responses
         cls.headers = headers
         cls.failure = {cls._host(url): 0 for url in responses.keys()}

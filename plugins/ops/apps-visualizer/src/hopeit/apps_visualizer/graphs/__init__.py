@@ -29,9 +29,9 @@ class Node:
     id: str
     label: str
     type: NodeType
-    inputs: List[str] = field(default_factory=list)
-    outputs: List[str] = field(default_factory=list)
-    slots: List[str] = field(default_factory=list)
+    inputs: list[str] = field(default_factory=list)
+    outputs: list[str] = field(default_factory=list)
+    slots: list[str] = field(default_factory=list)
 
 
 @dataobject
@@ -46,13 +46,13 @@ class Edge:
 @dataobject
 @dataclass
 class Graph:
-    nodes: List[Node]
-    edges: List[Edge]
+    nodes: list[Node]
+    edges: list[Edge]
 
 
 def get_nodes(
-    events: Dict[str, EventDescriptor], *, expanded_view: bool = False
-) -> Dict[str, Node]:
+    events: dict[str, EventDescriptor], *, expanded_view: bool = False
+) -> dict[str, Node]:
     """
     Create Node metadata from EventDescriptors from app_config,
     expanding effective events using engine functionallity.
@@ -131,10 +131,10 @@ def get_nodes(
 
 
 def add_app_connections(
-    nodes: Dict[str, Node],
+    nodes: dict[str, Node],
     *,
-    app_connections: Dict[str, AppConnection],
-    events: Dict[str, EventDescriptor],
+    app_connections: dict[str, AppConnection],
+    events: dict[str, EventDescriptor],
 ):
     """
     Add to nodes map, input/output ports for app_connections in order to show call
@@ -166,7 +166,7 @@ def add_app_connections(
                     dest_node.inputs.append(port)
 
 
-def get_edges(nodes: Dict[str, Node]):
+def get_edges(nodes: dict[str, Node]):
     """
     Builds Edge list from list of Nodes
     """

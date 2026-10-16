@@ -102,11 +102,11 @@ __steps__ = ["buffer_item", "flush"]
 @dataclasses.dataclass
 class Partition:
     lock: asyncio.Lock = dataclasses.field(default_factory=asyncio.Lock)
-    items: List[DataObject] = dataclasses.field(default_factory=list)  # type: ignore
+    items: list[DataObject] = dataclasses.field(default_factory=list)  # type: ignore
 
 
 SUFFIX = ".jsonlines"
-buffer: Dict[str, Partition] = {}
+buffer: dict[str, Partition] = {}
 buffer_lock: asyncio.Lock = asyncio.Lock()
 
 
@@ -162,7 +162,7 @@ async def flush(signal: FlushSignal, context: EventContext):
     logger.info(context, f"Flush {signal.partition_key} done.")
 
 
-async def _save_partition(partition_key: str, items: List[DataObject], context: EventContext):
+async def _save_partition(partition_key: str, items: list[DataObject], context: EventContext):
     settings = context.settings(datatype=FileStorageSettings)
     path = Path(settings.path) / partition_key
     file = path / f"{uuid.uuid4()}{SUFFIX}"

@@ -40,7 +40,7 @@ class Dataset(Generic[DataFrameT]):
     database_key: Optional[str] = None
     group_key: Optional[str] = None
     collection: Optional[str] = None
-    schema: Optional[Dict[str, Any]] = None
+    schema: Optional[dict[str, Any]] = None
 
     @classmethod
     async def save(
@@ -87,7 +87,7 @@ class Dataset(Generic[DataFrameT]):
 
     def _convert(self, df: pl.DataFrame) -> DataFrameT:
         """Converts loaded polars Dataframe to @dataframe annotated object using Dataset metadata"""
-        datatype: Type[DataFrameT] = find_dataframe_type(self.datatype)
+        datatype: type[DataFrameT] = find_dataframe_type(self.datatype)
         return datatype._from_df(df)  # type: ignore[attr-defined]
 
     def _adapt(self, datatype: DataFrameT) -> "Dataset[DataFrameT]":
@@ -109,7 +109,7 @@ class Dataset(Generic[DataFrameT]):
         cls,
         storage: object,
         df: pl.DataFrame,
-        datatype: Type[GenericDataFrameT],
+        datatype: type[GenericDataFrameT],
         *,
         partition_dt: Optional[datetime],
         database_key: Optional[str],

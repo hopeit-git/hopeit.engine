@@ -65,7 +65,7 @@ class AppsClientSettings:
     max_connections_per_host: int = 0
     dns_cache_ttl: int = 10
     auth_strategy: ClientAuthStrategy = ClientAuthStrategy.CLIENT_APP_PUBLIC_KEY
-    routes_override: Dict[str, str] = field(default_factory=dict)
+    routes_override: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -86,11 +86,11 @@ class CircuitBreakLoadBalancer:
     After one sucessfull call to a host when `cb_open_ttl` expired, failure counter will be reset.
     """
 
-    hosts: List[str]
+    hosts: list[str]
     host_index: int = 0
-    cb_failures: List[int] = field(default_factory=list)
-    cb_failure_reset_ttl: List[int] = field(default_factory=list)
-    cb_open_ttl: List[int] = field(default_factory=list)
+    cb_failures: list[int] = field(default_factory=list)
+    cb_failure_reset_ttl: list[int] = field(default_factory=list)
+    cb_open_ttl: list[int] = field(default_factory=list)
 
     def __post_init__(self):
         self.cb_failures = [0] * len(self.hosts)
@@ -100,7 +100,7 @@ class CircuitBreakLoadBalancer:
     def host(self, i: int) -> str:
         return self.hosts[i]
 
-    def next_host(self, now_ts: int) -> Tuple[int, bool]:
+    def next_host(self, now_ts: int) -> tuple[int, bool]:
         i = self.host_index
         self.host_index = (self.host_index + 1) % len(self.hosts)
         return i, self.cb_open_ttl[i] < now_ts
@@ -148,7 +148,7 @@ class ServerException(ClientException):
 class AppConnectionState:
     app_connection: str
     load_balancer: CircuitBreakLoadBalancer
-    events: Dict[str, Dict[str, EventConnection]] = field(
+    events: dict[str, dict[str, EventConnection]] = field(
         default_factory=partial(defaultdict, dict)  # type: ignore
     )
 
@@ -250,12 +250,12 @@ class AppsClient(Client):
         self,
         event_name: str,
         *,
-        datatype: Type[EventPayloadType],
+        datatype: type[EventPayloadType],
         payload: Optional[EventPayload],
         context: EventContext,
-        responses: Optional[Dict[int, Type[EventPayloadType]]] = None,
+        responses: Optional[dict[int, type[EventPayloadType]]] = None,
         **kwargs,
-    ) -> List[EventPayloadType]:
+    ) -> list[EventPayloadType]:
         """
         Invokes event on external app linked in config `app_connections` section.
         Target event must also be configured in event `client` section
@@ -415,10 +415,10 @@ class AppsClient(Client):
         self,
         response,
         context: EventContext,
-        datatype: Type[EventPayloadType],
+        datatype: type[EventPayloadType],
         target_event_name: str,
-        responses: Optional[Dict[int, Type[EventPayloadType]]],
-    ) -> List[EventPayloadType]:
+        responses: Optional[dict[int, type[EventPayloadType]]],
+    ) -> list[EventPayloadType]:
         """
         Parses http response from external App, catching Unathorized errors
         and converting the result to the desired datatype
@@ -441,18 +441,18 @@ class AppsClient(Client):
         else:
             data = await response.json()
         if isinstance(data, list):
-            return Payload.from_obj(data, List[response_type])  # type: ignore[valid-type]
+            return Payload.from_obj(data, list[response_type])  # type: ignore[valid-type]
         return [Payload.from_obj(data, response_type, key=target_event_name)]
 
     async def _request(
         self,
         request_func: AbstractAsyncContextManager,
         context: EventContext,
-        datatype: Type[EventPayloadType],
+        datatype: type[EventPayloadType],
         target_event_name: str,
         host_index: int,
-        responses: Optional[Dict[int, Type[EventPayloadType]]],
-    ) -> List[EventPayloadType]:
+        responses: Optional[dict[int, type[EventPayloadType]]],
+    ) -> list[EventPayloadType]:
         async with request_func as response:
             result = await self._parse_response(
                 response, context, datatype, target_event_name, responses

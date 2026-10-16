@@ -93,7 +93,7 @@ class MyTestDataObject:
 @dataclass
 class MyTestJsonDataObject:
     name: str
-    data: List[MyTestData.DataObject]  # type: ignore[name-defined]
+    data: list[MyTestData.DataObject]  # type: ignore[name-defined]
 
 
 @dataframe

@@ -47,8 +47,8 @@ async def get_apps_config(hosts: str, context: EventContext, **kwargs) -> Runtim
         *[_get_host_config(host, context, **kwargs) for host in hosts.split(",")]
     )
 
-    apps: Dict[str, RuntimeAppInfo] = {}
-    server_status: Dict[str, ServerStatus] = {}
+    apps: dict[str, RuntimeAppInfo] = {}
+    server_status: dict[str, ServerStatus] = {}
     for host, runtime_apps_response in responses:
         if isinstance(runtime_apps_response, RuntimeApps):
             _combine_apps(apps, runtime_apps_response)
@@ -61,7 +61,7 @@ async def get_apps_config(hosts: str, context: EventContext, **kwargs) -> Runtim
 
 async def _get_host_config(
     host: str, context: EventContext, **kwargs
-) -> Tuple[str, RuntimeApps | ServerStatus]:
+) -> tuple[str, RuntimeApps | ServerStatus]:
     """
     Invokes config-manager runtime-apps-config endpoint in a given host
     """
@@ -110,7 +110,7 @@ async def _get_host_config(
         return host, ServerStatus.ERROR
 
 
-def _combine_apps(apps: Dict[str, RuntimeAppInfo], runtime_apps: RuntimeApps):
+def _combine_apps(apps: dict[str, RuntimeAppInfo], runtime_apps: RuntimeApps):
     for app_key, app_info in runtime_apps.apps.items():
         app = apps.get(app_key)
         if app is None:

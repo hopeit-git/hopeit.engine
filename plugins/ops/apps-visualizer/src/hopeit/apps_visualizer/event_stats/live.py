@@ -33,7 +33,7 @@ __api__ = event_api(
 )
 
 
-def _classes(item: dict, new_classes: List[str]) -> str:
+def _classes(item: dict, new_classes: list[str]) -> str:
     return " ".join(sorted({*item.get("classes", "").split(" "), *new_classes})).lstrip(" ")
 
 

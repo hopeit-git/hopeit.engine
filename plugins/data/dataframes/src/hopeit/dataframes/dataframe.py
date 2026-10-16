@@ -29,8 +29,8 @@ DataFrameT = TypeVar("DataFrameT")
 
 @dataclasses.dataclass
 class DataFrameMetadata:
-    columns: List[str]
-    fields: Dict[str, FieldInfo]
+    columns: list[str]
+    fields: dict[str, FieldInfo]
     schema: Optional[pl.Schema]
 
 
@@ -40,7 +40,7 @@ def not_null_check(series: pl.Series) -> bool:
 
 
 class DataTypeMapping:
-    mapping: Dict[Type, Tuple[Optional["pl.DataType"], Tuple[Callable, ...]]] = {
+    mapping: dict[type, tuple[Optional["pl.DataType"], tuple[Callable, ...]]] = {
         int: (None, ()),
         bool: (None, ()),
         float: (None, ()),
@@ -73,14 +73,14 @@ class DataTypeMapping:
         }
 
     @classmethod
-    def get_validators(cls, field_type: Type) -> Tuple[Callable, ...]:
+    def get_validators(cls, field_type: type) -> tuple[Callable, ...]:
         entry = cls.mapping.get(field_type)
         if entry:
             return entry[1]
         return ()
 
     @classmethod
-    def get_schema_type(cls, field_type: Type) -> Optional["pl.DataType"]:
+    def get_schema_type(cls, field_type: type) -> Optional["pl.DataType"]:
         entry = cls.mapping.get(field_type)
         if entry:
             return entry[0]
@@ -109,7 +109,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
     def __init__(self, **series: pl.Series) -> None:
         # Fields added here only to allow mypy to provide correct type hints
-        self.__data_object__: Dict[str, Any] = {}
+        self.__data_object__: dict[str, Any] = {}
         self.__dataframe__: DataFrameMetadata = None  # type: ignore
         self.__df = pl.DataFrame()
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
@@ -165,7 +165,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     def __getitem__(self, key) -> "DataFrameT":
         return self._from_df(self.__df[key])
 
-    def _to_dataobjects(self) -> List[DataObject]:
+    def _to_dataobjects(self) -> list[DataObject]:
         return [Payload.from_obj(obj, datatype=self.DataObject) for obj in self.__df.to_dicts()]
 
     def event_id(self, *args, **kwargs) -> str:
@@ -209,7 +209,7 @@ def dataframe(
     unsafe: bool = False,
     validate: bool = True,
     schema: bool = True,
-) -> Callable[[Type], Type[DataFrameMixin]]:
+) -> Callable[[type], type[DataFrameMixin]]:
     """
     Decorator for dataclasses intended to be used as dataframes.
     """
@@ -225,7 +225,7 @@ def dataframe(
             schema_fields[field_name] = datatype
         return pl.Schema(schema_fields)
 
-    def add_dataframe_mixin(cls) -> Type[DataFrameMixin]:
+    def add_dataframe_mixin(cls) -> type[DataFrameMixin]:
         if hasattr(cls, "__annotations__") and hasattr(cls, "__dataclass_fields__"):
             amended_class = type(
                 cls.__name__,
@@ -263,7 +263,7 @@ def dataframe(
         setattr(cls, "event_id", StreamEventMixin.event_id)
         setattr(cls, "event_ts", StreamEventMixin.event_ts)
 
-    def wrap(cls) -> Type[DataFrameMixin]:
+    def wrap(cls) -> type[DataFrameMixin]:
         if hasattr(cls, "__dataframe__"):
             return cls
         add_dataframe_metadata(cls)

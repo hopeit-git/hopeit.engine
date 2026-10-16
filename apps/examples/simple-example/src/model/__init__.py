@@ -42,7 +42,7 @@ class Something:
     id: str
     user: User
     status: Optional[Status] = None
-    history: List[Status] = field(default_factory=list)
+    history: list[Status] = field(default_factory=list)
 
 
 @dataobject

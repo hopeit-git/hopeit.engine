@@ -41,7 +41,7 @@ class LogRawBatch:
     Batch of raw lines read from logs
     """
 
-    data: List[str]
+    data: list[str]
 
 
 @dataobject
@@ -57,7 +57,7 @@ class LogEntry:
     app_version: str
     event_name: str
     event: str
-    extra: Dict[str, str]
+    extra: dict[str, str]
     host: str = ""
     pid: str = ""
 
@@ -69,7 +69,7 @@ class LogBatch:
     Batch of parsed log entries
     """
 
-    entries: List[LogEntry]
+    entries: list[LogEntry]
 
 
 @dataobject
@@ -97,9 +97,9 @@ class LogFileHandler(FileSystemEventHandler):
         self.prefix = config.logs_path + config.prefix
         self.checkpoint_storage = FileStorage(path=config.checkpoint_path)  # type: ignore
         self.context = context
-        self.batch: List[str] = []
-        self.open_files: Dict[str, TextIO] = {}
-        self.last_access: Dict[str, float] = {}
+        self.batch: list[str] = []
+        self.open_files: dict[str, TextIO] = {}
+        self.last_access: dict[str, float] = {}
         self.loop = asyncio.get_event_loop()
         self.lock = asyncio.Lock()
         self.file_open_timeout = config.file_open_timeout_secs
@@ -128,7 +128,7 @@ class LogFileHandler(FileSystemEventHandler):
         except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
             logger.error(self.context, e)
 
-    def _add_line(self, lines: List[str], line: str):
+    def _add_line(self, lines: list[str], line: str):
         if (
             ("| START |" in line)
             or ("| DONE |" in line)
@@ -238,7 +238,7 @@ class LogFileHandler(FileSystemEventHandler):
     async def _read_line(self, src_path: str):
         return self.open_files[src_path].readline()
 
-    async def _emit(self, lines: List[str]):
+    async def _emit(self, lines: list[str]):
         async with self.lock:
             self.batch.extend(lines)
 

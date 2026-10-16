@@ -27,7 +27,7 @@ class ItemsCollected:
     Collected items. Need a dataclass in order to publish to stream
     """
 
-    items: List[Something]
+    items: list[Something]
 
 
 __steps__ = [
@@ -104,7 +104,7 @@ async def load_second(collector: Collector, context: EventContext) -> Something 
     return something
 
 
-async def combine(collector: Collector, context: EventContext) -> List[Something]:
+async def combine(collector: Collector, context: EventContext) -> list[Something]:
     """
     Awaits for first and second items to be loaded an combine results in list
     if the objects are found. This step combines the results of load_first

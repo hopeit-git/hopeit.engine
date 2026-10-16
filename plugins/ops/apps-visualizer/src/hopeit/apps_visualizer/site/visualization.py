@@ -11,7 +11,7 @@ from hopeit.dataobjects import dataclass, dataobject, field
 @dataobject
 @dataclass
 class CytoscapeGraph:
-    data: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    data: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 @dataobject

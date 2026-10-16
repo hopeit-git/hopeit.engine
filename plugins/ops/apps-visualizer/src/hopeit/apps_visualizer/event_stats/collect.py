@@ -26,7 +26,7 @@ class EventStats:
         return max(0, self.started - self.done - self.failed - self.ignored)
 
 
-recent_entries: Deque[LogEntry] = deque(maxlen=2000)
+recent_entries: deque[LogEntry] = deque(maxlen=2000)
 
 __steps__ = ["consume"]
 
@@ -36,8 +36,8 @@ async def consume(batch: LogBatch, context: EventContext) -> None:
 
 
 def get_stats(
-    host_pids: Set[Tuple[str, str]], time_window_secs: int, recent_secs: int
-) -> Dict[str, EventStats]:
+    host_pids: set[tuple[str, str]], time_window_secs: int, recent_secs: int
+) -> dict[str, EventStats]:
     """
     Collect node event stats, counting for each node with recent entries
     number of started, done, pending and failed events.
@@ -46,7 +46,7 @@ def get_stats(
     :param: time_window_secs: int, consider events not older than this
     :param: recent_secs: int, events on the last seconds will be counted as recent
     """
-    stats: Dict[str, EventStats] = defaultdict(EventStats)
+    stats: dict[str, EventStats] = defaultdict(EventStats)
     now_ts = datetime.now(tz=timezone.utc)
     from_ts = (now_ts - timedelta(seconds=time_window_secs)).strftime("%Y-%m-%d %H:%M:%S")
     recent_ts = (now_ts - timedelta(seconds=recent_secs)).strftime("%Y-%m-%d %H:%M:%S")

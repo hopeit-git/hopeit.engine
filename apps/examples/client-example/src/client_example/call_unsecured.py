@@ -24,15 +24,15 @@ __api__ = event_api(
             "by partition folder in format YYYY/MM/DD/HH/*",
         )
     ],
-    responses={200: (List[Something], "List Something objects returned by simple-example call")},
+    responses={200: (list[Something], "List Something objects returned by simple-example call")},
 )
 
 logger, extra = app_extra_logger()
 
 
-async def list_something(payload: None, context: EventContext, wildcard: str) -> List[Something]:
+async def list_something(payload: None, context: EventContext, wildcard: str) -> list[Something]:
     """Call simple-example endpoint and return list of Something"""
-    response: List[Something] = await app_call_list(
+    response: list[Something] = await app_call_list(
         "simple_example_conn_unsecured",
         event="list_somethings_unsecured",
         datatype=Something,

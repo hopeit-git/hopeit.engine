@@ -45,7 +45,7 @@ class DataBlockQuery:
     select: list[str] | None = None
 
 
-def get_datablock_schema(cls: Type[DataBlockType], *, datasets_only: bool = False) -> pl.Schema:
+def get_datablock_schema(cls: type[DataBlockType], *, datasets_only: bool = False) -> pl.Schema:
     schema_fields: dict[str, pl.DataType] = {}
     for block_field, block_info in fields(cls).items():  # type: ignore[type-var]
         if get_origin(block_info.annotation) is Dataset:
@@ -75,13 +75,13 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
     dataframe, an object containing subsections of the data can be created.
     """
 
-    def __init__(self, datatype: Type[DataBlockType], df: pl.DataFrame) -> None:
+    def __init__(self, datatype: type[DataBlockType], df: pl.DataFrame) -> None:
         self.datatype = datatype
         self.df = df
 
     @classmethod
     def from_dataobjects(
-        cls, datatype: Type[DataBlockType], items: list[DataBlockItemType], *, strict=True
+        cls, datatype: type[DataBlockType], items: list[DataBlockItemType], *, strict=True
     ) -> "TempDataBlock[DataBlockType, DataBlockItemType]":
         schema = get_datablock_schema(datatype)
         result_df = pl.DataFrame(schema=schema)
@@ -116,7 +116,7 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
 
     def to_dataobjects(
         self,
-        item_type: Type[DataBlockItemType],
+        item_type: type[DataBlockItemType],
     ) -> list[DataBlockItemType]:
         keys: list[str] = []
         entries: list[list] = []
@@ -263,7 +263,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     @classmethod
     async def save(
         cls,
-        datatype: Type[DataBlockType],
+        datatype: type[DataBlockType],
         df: pl.DataFrame,
         metadata: DataBlockMetadata | None = None,
         enforce_schema: bool = True,
@@ -321,7 +321,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
     @staticmethod
     async def sink_partitions(
-        datatype: Type[DataBlockType],
+        datatype: type[DataBlockType],
         df: pl.LazyFrame,
         partition_by: list[str],
         partition_interval: str = "1d",
@@ -404,7 +404,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
     @staticmethod
     def _get_dataset_types(
-        datatype: Type[DataBlockType], *, select: list[str] | None = None
+        datatype: type[DataBlockType], *, select: list[str] | None = None
     ) -> list[tuple[str, DataFrameType]]:
         return [
             (field_name, get_args(field_info.annotation)[0])
@@ -426,13 +426,13 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         )
 
     @staticmethod
-    def default(datatype: Type[DataBlockType]) -> DataBlockType:
+    def default(datatype: type[DataBlockType]) -> DataBlockType:
         return datatype(**{field_name: [] for field_name in list(fields(datatype))})  # type: ignore[type-var]
 
     @classmethod
     async def query(
         cls,
-        datatype: Type[DataBlockType],
+        datatype: type[DataBlockType],
         query: DataBlockQuery,
         metadata: DataBlockMetadata | None = None,
         schema_validation: bool = True,
@@ -476,7 +476,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     @classmethod
     async def load_batch(
         cls,
-        datatype: Type[DataBlockType],
+        datatype: type[DataBlockType],
         query: DataBlockQuery,
         metadata: DataBlockMetadata | None = None,
         schema_validation: bool = True,
@@ -516,7 +516,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
     @staticmethod
     def _get_datablock_keys(
-        datablocktype: Type[DataBlockType],
+        datablocktype: type[DataBlockType],
         *,
         select: Optional[list[str]] = None,
     ) -> list[str]:
@@ -575,7 +575,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         return df.select([pl.col(field_name) for field_name in select_cols])
 
     @staticmethod
-    def schema(datablocktype: Type[DataBlockType]) -> pl.Schema:
+    def schema(datablocktype: type[DataBlockType]) -> pl.Schema:
         return get_datablock_schema(datablocktype)
 
     @staticmethod

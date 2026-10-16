@@ -15,14 +15,14 @@ from hopeit.testing.apps import config
 class MockAppEngine:
     def __init__(self, app_config: AppConfig):
         self.app_config = app_config
-        self.effective_events: Dict[str, EventDescriptor] = {}
+        self.effective_events: dict[str, EventDescriptor] = {}
 
 
 class MockServer:
     def __init__(self, *app_config: AppConfig):
         self.app_engines = {cfg.app_key(): MockAppEngine(cfg) for cfg in app_config}
 
-    def set_effective_events(self, app_key: str, effective_events: Dict[str, EventDescriptor]):
+    def set_effective_events(self, app_key: str, effective_events: dict[str, EventDescriptor]):
         self.app_engines[app_key].effective_events = effective_events
 
 
@@ -41,11 +41,11 @@ class MockResponse:
 
 
 class MockClientSession:
-    responses: Dict[str, RuntimeApps] = {}
+    responses: dict[str, RuntimeApps] = {}
     # timeout: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=10.0)
 
     @classmethod
-    def setup(cls, responses: Dict[str, RuntimeApps]):
+    def setup(cls, responses: dict[str, RuntimeApps]):
         cls.responses = responses
         return cls
 

@@ -31,7 +31,7 @@ async def custom_app_call(
     app_connection: str,
     *,
     event: str,
-    datatype: Type[str],
+    datatype: type[str],
     payload: EventPayload,
     context: EventContext,
     **kwargs,
@@ -60,11 +60,11 @@ async def custom_app_call_list(
     app_connection: str,
     *,
     event: str,
-    datatype: Type[Something],
+    datatype: type[Something],
     payload: EventPayload,
     context: EventContext,
     **kwargs,
-) -> List[Something]:
+) -> list[Something]:
     if app_connection == "simple_example_conn" and event == "list_somethings":
         return [
             Something(id="test1", user=User(id="test", name="test")),

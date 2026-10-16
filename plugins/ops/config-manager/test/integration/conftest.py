@@ -76,7 +76,7 @@ def effective_events_example():
     res = res.replace("${APPS_ROUTE_VERSION}", APPS_ROUTE_VERSION)
     res = json.loads(res)
 
-    result = Payload.from_obj(res, datatype=Dict[str, EventDescriptor])
+    result = Payload.from_obj(res, datatype=dict[str, EventDescriptor])
 
     return result
 

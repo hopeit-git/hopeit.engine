@@ -93,8 +93,8 @@ class RedisStreamManager(StreamManager):
         stream_name: str,
         queue: str,
         payload: EventPayload,
-        track_ids: Dict[str, str],
-        auth_info: Dict[str, Any],
+        track_ids: dict[str, str],
+        auth_info: dict[str, Any],
         compression: Compression,
         serialization: Serialization,
         target_max_len: int = 0,
@@ -156,13 +156,13 @@ class RedisStreamManager(StreamManager):
         *,
         stream_name: str,
         consumer_group: str,
-        datatypes: Dict[str, type],
-        track_headers: List[str],
+        datatypes: dict[str, type],
+        track_headers: list[str],
         offset: str,
         batch_size: int,
         timeout: int,
         batch_interval: int,
-    ) -> List[StreamEvent | Exception]:
+    ) -> list[StreamEvent | Exception]:
         """
         Read a batch of events using a Redis consumer group.
 
@@ -206,7 +206,7 @@ class RedisStreamManager(StreamManager):
                         tail=batch[-1][0],
                     ),
                 )
-                stream_events: List[StreamEvent | Exception] = []
+                stream_events: list[StreamEvent | Exception] = []
                 for msg in batch:
                     read_ts = datetime.now(tz=timezone.utc).isoformat()
                     msg_type = msg[1][b"type"].decode()
@@ -259,8 +259,8 @@ class RedisStreamManager(StreamManager):
         self,
         payload: EventPayload,
         queue: str,
-        track_ids: Dict[str, str],
-        auth_info: Dict[str, Any],
+        track_ids: dict[str, str],
+        auth_info: dict[str, Any],
         compression: Compression,
         serialization: Serialization,
     ) -> dict:
@@ -297,10 +297,10 @@ class RedisStreamManager(StreamManager):
     async def _decode_message(
         self,
         stream_name: str,
-        msg: List[bytes | Dict[bytes, bytes]],
+        msg: list[bytes | dict[bytes, bytes]],
         datatype: type,
         consumer_group: str,
-        track_headers: List[str],
+        track_headers: list[str],
         read_ts: str,
     ):
         """Decode and deserialize a message from a Redis stream."""

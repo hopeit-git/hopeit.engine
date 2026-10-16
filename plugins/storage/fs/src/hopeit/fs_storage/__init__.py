@@ -75,7 +75,7 @@ class FileStorage(Generic[DataObject]):
         self,
         key: str,
         *,
-        datatype: Type[DataObject],
+        datatype: type[DataObject],
         partition_key: Optional[str] = None,
     ) -> Optional[DataObject]:
         """
@@ -149,7 +149,7 @@ class FileStorage(Generic[DataObject]):
             await f.write(value.read())
             return file_path.as_posix()
 
-    async def list_objects(self, wildcard: str = "*") -> List[ItemLocator]:
+    async def list_objects(self, wildcard: str = "*") -> list[ItemLocator]:
         """
         Retrieves list of objects keys from the file storage
 
@@ -161,7 +161,7 @@ class FileStorage(Generic[DataObject]):
         n_part_comps = len(self.partition_dateformat.split("/"))
         return [self._get_item_locator(item_path, n_part_comps, SUFFIX) for item_path in glob(path)]
 
-    async def list_files(self, wildcard: str = "*") -> List[ItemLocator]:
+    async def list_files(self, wildcard: str = "*") -> list[ItemLocator]:
         """
         Retrieves list of objects keys from the file storage
 

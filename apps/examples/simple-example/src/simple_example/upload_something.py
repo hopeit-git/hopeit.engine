@@ -25,7 +25,7 @@ __api__ = event_api(
     query_args=[("something_id", str)],
     fields=[("id", str), ("user", str), ("attachment", BinaryAttachment), ("object", Something)],
     responses={
-        200: (List[Something], "list of created Something objects"),
+        200: (list[Something], "list of created Something objects"),
         400: (str, "Missing or invalid fields"),
     },
 )
@@ -49,7 +49,7 @@ class FileUploadInfo:
     id: str
     user: str
     object: Something
-    uploaded_files: List[UploadedFile] = field(default_factory=list)
+    uploaded_files: list[UploadedFile] = field(default_factory=list)
 
 
 async def __init_event__(context: EventContext):
@@ -85,7 +85,7 @@ async def __preprocess__(
 
 async def create_items(
     payload: FileUploadInfo, context: EventContext, *, something_id: str
-) -> List[Something]:
+) -> list[Something]:
     """
     Create Something objects to be returned for each uploaded file
     """

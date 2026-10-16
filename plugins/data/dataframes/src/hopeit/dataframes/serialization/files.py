@@ -68,7 +68,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         """Saves @dataframe annotated object as parquet to file system
         and returns Dataset metadata to be used for retrieval
         """
-        datatype: Type[DataFrameT] = type(dataframe)
+        datatype: type[DataFrameT] = type(dataframe)
         return await self.save_df(
             dataframe._df.select(datatype.__dataframe__.columns),  # type: ignore[misc]
             datatype,
@@ -82,7 +82,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
     async def save_df(
         self,
         df: pl.DataFrame,
-        datatype: Type[DataFrameT],
+        datatype: type[DataFrameT],
         *,
         partition_dt: Optional[datetime],
         database_key: Optional[str],
@@ -134,7 +134,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
 
     async def _get_batch(
         self,
-        datatype: Type[DataFrameT],
+        datatype: type[DataFrameT],
         *,
         from_partition_dt: datetime,
         to_partition_dt: datetime,

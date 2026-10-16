@@ -54,7 +54,7 @@ async def __service__(context: EventContext) -> Spawn[LogRawBatch]:
         observer.join()
 
 
-def _parse_extras(extras: List[str]) -> Dict[str, str]:
+def _parse_extras(extras: list[str]) -> dict[str, str]:
     items = {}
     for entry in extras:
         entry = entry.strip("\n")
@@ -109,7 +109,7 @@ async def process_log_data(payload: LogRawBatch, context: EventContext) -> Optio
         context, "Processing batch of log entries...", extra=extra(batch_size=len(payload.data))
     )
     try:
-        entries: List[LogEntry] = []
+        entries: list[LogEntry] = []
         for entry in payload.data:
             processed_entry = await _process_log_entry(entry, context)
             if processed_entry is not None:

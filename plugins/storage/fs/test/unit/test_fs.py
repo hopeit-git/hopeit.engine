@@ -178,7 +178,7 @@ class MockOs:
         pass
 
 
-def mock_glob(wc: str) -> List[str]:
+def mock_glob(wc: str) -> list[str]:
     if wc == "/path/*.json":
         return ["/path/1.json", "/path/2.json", "/path/3.json"]
     elif wc == "/path/1*.json":
@@ -190,7 +190,7 @@ def mock_glob(wc: str) -> List[str]:
     raise ValueError(f"glob received unexpected wildcard: {wc}")
 
 
-def mock_glob_partitions(wc: str) -> List[str]:
+def mock_glob_partitions(wc: str) -> list[str]:
     if wc == "/path/*.json":
         return []
     elif wc == "/path/2022/03/01/*.json":

@@ -26,7 +26,7 @@ __api__ = event_api(
     payload=(ItemsInfo, "Items to read concurrently"),
     responses={
         200: (
-            List[Something],
+            list[Something],
             "List of one or two Something objects returned found, empty list if none is found",
         ),
     },
@@ -91,7 +91,7 @@ async def load_second(collector: Collector, context: EventContext) -> Something 
     return something
 
 
-async def combine(collector: Collector, context: EventContext) -> List[Something]:
+async def combine(collector: Collector, context: EventContext) -> list[Something]:
     """
     Awaits for first and second items to be loaded an combine results in list
     if the objects are found. This step combines the results of load_first
@@ -111,7 +111,7 @@ async def combine(collector: Collector, context: EventContext) -> List[Something
     return results
 
 
-async def result(collector: Collector, context: EventContext) -> List[Something]:
+async def result(collector: Collector, context: EventContext) -> list[Something]:
     items = await collector["combine"]
     logger.info(context, f"Found {len(items)} items.")
     return items

@@ -8,7 +8,7 @@ from hopeit.testing.apps import execute_event
 
 from . import mock_runtime
 
-recent_entries: Deque[LogEntry] = deque()
+recent_entries: deque[LogEntry] = deque()
 
 
 def mock_recent_entries(module, context):

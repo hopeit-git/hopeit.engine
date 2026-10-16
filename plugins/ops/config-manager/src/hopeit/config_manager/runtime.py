@@ -12,7 +12,7 @@ from hopeit.server import runtime
 from hopeit.server.engine import AppEngine
 
 
-def _effective_events(app_engine: AppEngine, expand_events: bool) -> Dict[str, EventDescriptor]:
+def _effective_events(app_engine: AppEngine, expand_events: bool) -> dict[str, EventDescriptor]:
     """
     Build effective events reponse section, which contains unique keys to indentify events from
     multiple apps.

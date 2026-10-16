@@ -12,7 +12,7 @@ from hopeit.testing.apps import config
 class MockAppEngine:
     def __init__(self, app_config: AppConfig):
         self.app_config = app_config
-        self.effective_events: Dict[str, EventDescriptor] = {}
+        self.effective_events: dict[str, EventDescriptor] = {}
 
 
 class MockServer:
@@ -41,6 +41,6 @@ def mock_runtime(monkeypatch, effective_events):
     server = MockServer(basic_auth_config, app_config, client_app_config)
     for app_key, app_effective_events in effective_events.items():
         server.app_engines[app_key].effective_events = Payload.from_obj(
-            app_effective_events, datatype=Dict[str, EventDescriptor]
+            app_effective_events, datatype=dict[str, EventDescriptor]
         )
     monkeypatch.setattr(runtime, "server", server)

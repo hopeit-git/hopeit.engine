@@ -71,7 +71,7 @@ class IrisPredictionRequest:
 @dataobject(unsafe=True)
 @dataclass
 class IrisBatchPredictionRequest:
-    items: List[IrisPredictionRequest]
+    items: list[IrisPredictionRequest]
 
 
 @dataobject
@@ -84,7 +84,7 @@ class IrisPredictionResponse:
 @dataobject
 @dataclass
 class IrisBatchPredictionResponse:
-    items: List[IrisPredictionResponse]
+    items: list[IrisPredictionResponse]
 
 
 @dataobject

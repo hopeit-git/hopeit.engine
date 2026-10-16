@@ -52,7 +52,7 @@ async def load_experiment_model(experiment_id: str, context: EventContext) -> Mo
     return await load_model(model_location_str, context)
 
 
-def _get_model_location(experiment_id: str) -> Tuple[Path, Path, str]:
+def _get_model_location(experiment_id: str) -> tuple[Path, Path, str]:
     assert model_storage is not None
     model_path = Path(model_storage.path)
     model_location = model_path / f"model_{experiment_id}.pkl5"

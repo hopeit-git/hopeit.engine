@@ -66,7 +66,7 @@ async def ensure_login(payload: None, context: EventContext, wildcard: str = "*"
 
 
 async def count_objects(options: ListOptions, context: EventContext) -> int:
-    response: List[Something] = await app_call_list(
+    response: list[Something] = await app_call_list(
         "simple_example_conn",
         event="list_somethings",
         datatype=Something,

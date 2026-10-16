@@ -41,7 +41,7 @@ class RedisStorage(Generic[DataObject]):
         self._conn = redis.from_url(address, username=username, password=password)
         return self
 
-    async def get(self, key: str, *, datatype: Type[DataObject]) -> Optional[DataObject]:
+    async def get(self, key: str, *, datatype: type[DataObject]) -> Optional[DataObject]:
         """
         Retrieves value under specified key, converted to datatype
 
@@ -93,7 +93,7 @@ class RedisStorage(Generic[DataObject]):
         assert self._conn
         await self._conn.delete(*keys)
 
-    async def list_objects(self, wildcard: str = "*") -> List[str]:
+    async def list_objects(self, wildcard: str = "*") -> list[str]:
         """
         Returns a list of keys matching `wildcard`
 
