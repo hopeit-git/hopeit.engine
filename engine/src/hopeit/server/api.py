@@ -428,7 +428,7 @@ def _update_api_schemas(app_config: AppConfig):
         event_schemas = _generate_schemas(app_config, event_name, event_info)
         for name, event_schema in event_schemas.items():
             if name in runtime_schemas:
-                if not event_schema == schemas.get(name):
+                if event_schema != schemas.get(name):
                     logger.warning(
                         __name__,
                         f"Schema ignored: same schema name has non-compatible implementations: "
