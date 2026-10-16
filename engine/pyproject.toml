@@ -1,6 +1,7 @@
 [project]
 name = "hopeit.engine"
 description = "Hopeit Engine: Microservices with Streams"
+requires-python = ">=3.11,<3.15"
 
 dynamic = ["version", "readme"]
 
@@ -27,7 +28,6 @@ authors = [
 classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",

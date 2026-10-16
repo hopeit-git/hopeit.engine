@@ -3,6 +3,7 @@ name = "hopeit.fs-storage"
 version = "0.30.1"
 
 description = "Hopeit Engine File System Storage Toolkit"
+requires-python = ">=3.11,<3.15"
 dynamic = ["readme"]
 
 dependencies = [
@@ -19,7 +20,6 @@ authors = [
 classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
