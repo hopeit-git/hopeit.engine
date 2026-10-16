@@ -879,8 +879,8 @@ async def test_datablock_query_no_data(plugin_config, datablock_df, datablock2_d
     result_df = await DataBlocks.query(
         MyDataBlock,
         DataBlockQuery(
-            from_partition_dt=datetime(1999, 1, 1),
-            to_partition_dt=datetime(1999, 1, 31),
+            from_partition_dt=datetime(1999, 1, 1),  # noqa: DTZ001 -- Exercise naive timestamp inputs.
+            to_partition_dt=datetime(1999, 1, 31),  # noqa: DTZ001 -- Exercise naive timestamp inputs.
         ),
         metadata=DataBlockMetadata(group_key=group_key),
     )

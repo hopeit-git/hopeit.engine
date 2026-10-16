@@ -39,14 +39,14 @@ class MockStreamManager(StreamManager):
                 StreamEvent(
                     b"test1",
                     "test-queue",
-                    payload=MockData(value="mock1", ts=datetime(2020, 1, 1)),
+                    payload=MockData(value="mock1", ts=datetime(2020, 1, 1)),  # noqa: DTZ001 -- Exercise naive timestamp inputs.
                     track_ids={},
                     auth_info={},
                 ),
                 StreamEvent(
                     b"test1",
                     "test-queue",
-                    payload=MockData(value="mock2", ts=datetime(2020, 1, 1)),
+                    payload=MockData(value="mock2", ts=datetime(2020, 1, 1)),  # noqa: DTZ001 -- Exercise naive timestamp inputs.
                     track_ids={},
                     auth_info={},
                 ),
