@@ -12,9 +12,9 @@ import sys
 import uuid
 from collections import namedtuple
 from collections.abc import Callable, Coroutine
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from functools import partial
-from typing import Any, Optional, Union
+from typing import Any
 
 import aiohttp
 
