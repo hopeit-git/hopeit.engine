@@ -6,21 +6,21 @@ and generate access tokens for external services invoking apps
 plugged in with basic-auth plugin.
 """
 
-from datetime import datetime, timezone
 import base64
+from datetime import UTC, datetime
 
 from hopeit.app.api import event_api
+from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.errors import Unauthorized
+from hopeit.app.logger import app_logger
 from hopeit.basic_auth import (
-    ContextUserInfo,
     AuthInfo,
     AuthInfoExtended,
+    ContextUserInfo,
     authorize,
     set_refresh_token,
 )
-from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.app.logger import app_logger
 from hopeit.toolkit.auth import AuthType
-from hopeit.app.errors import Unauthorized
 
 logger = app_logger()
 
@@ -40,7 +40,7 @@ async def login(payload: None, context: EventContext) -> AuthInfoExtended:
     Returns a new access and refresh token for a set of given basic-auth credentials
     """
     assert context.auth_info["allowed"]
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     if context.auth_info["auth_type"] == AuthType.BASIC:
         data = base64.b64decode(context.auth_info["payload"].encode()).decode()
         user_info = ContextUserInfo(

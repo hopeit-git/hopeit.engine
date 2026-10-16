@@ -3,14 +3,14 @@ Storage/persistence asynchronous stores and gets dataobjects from filesystem.
 
 """
 
-from datetime import datetime
 import io
 import os
 import shutil
+import uuid
+from datetime import datetime
 from glob import glob
 from pathlib import Path
-import uuid
-from typing import Optional, Type, Generic, List
+from typing import Generic
 
 import aiofiles
 import aiofiles.os
@@ -41,7 +41,7 @@ class FileStorageSettings:
     """
 
     path: str
-    partition_dateformat: Optional[str] = None
+    partition_dateformat: str | None = None
     flush_seconds: float = 0.0
     flush_max_size: int = 1
 
@@ -50,7 +50,7 @@ class FileStorageSettings:
 @dataclass
 class ItemLocator:
     item_id: str
-    partition_key: Optional[str] = None
+    partition_key: str | None = None
 
 
 class FileStorage(Generic[DataObject]):
@@ -58,7 +58,7 @@ class FileStorage(Generic[DataObject]):
     Stores and retrieves dataobjects from filesystem
     """
 
-    def __init__(self, *, path: str, partition_dateformat: Optional[str] = None):
+    def __init__(self, *, path: str, partition_dateformat: str | None = None):
         """
         Setups a file storage
 
@@ -75,9 +75,9 @@ class FileStorage(Generic[DataObject]):
         self,
         key: str,
         *,
-        datatype: Type[DataObject],
-        partition_key: Optional[str] = None,
-    ) -> Optional[DataObject]:
+        datatype: type[DataObject],
+        partition_key: str | None = None,
+    ) -> DataObject | None:
         """
         Retrieves value under specified key, converted to datatype
 
@@ -96,8 +96,8 @@ class FileStorage(Generic[DataObject]):
         self,
         file_name: str,
         *,
-        partition_key: Optional[str] = None,
-    ) -> Optional[bytes]:
+        partition_key: str | None = None,
+    ) -> bytes | None:
         """
         Retrieves bytes for the specified file_name.
 
@@ -149,7 +149,7 @@ class FileStorage(Generic[DataObject]):
             await f.write(value.read())
             return file_path.as_posix()
 
-    async def list_objects(self, wildcard: str = "*") -> List[ItemLocator]:
+    async def list_objects(self, wildcard: str = "*") -> list[ItemLocator]:
         """
         Retrieves list of objects keys from the file storage
 
@@ -161,7 +161,7 @@ class FileStorage(Generic[DataObject]):
         n_part_comps = len(self.partition_dateformat.split("/"))
         return [self._get_item_locator(item_path, n_part_comps, SUFFIX) for item_path in glob(path)]
 
-    async def list_files(self, wildcard: str = "*") -> List[ItemLocator]:
+    async def list_files(self, wildcard: str = "*") -> list[ItemLocator]:
         """
         Retrieves list of objects keys from the file storage
 
@@ -173,7 +173,7 @@ class FileStorage(Generic[DataObject]):
         n_part_comps = len(self.partition_dateformat.split("/"))
         return [self._get_item_locator(item_path, n_part_comps) for item_path in glob(path)]
 
-    async def delete(self, *keys: str, partition_key: Optional[str] = None):
+    async def delete(self, *keys: str, partition_key: str | None = None):
         """
         Delete specified keys
 
@@ -183,7 +183,7 @@ class FileStorage(Generic[DataObject]):
         for key in keys:
             await aiofiles.os.remove(path / (key + SUFFIX))
 
-    async def delete_files(self, *file_names: str, partition_key: Optional[str] = None):
+    async def delete_files(self, *file_names: str, partition_key: str | None = None):
         """
         Delete specified file_names
 
@@ -207,7 +207,7 @@ class FileStorage(Generic[DataObject]):
         return partition_key
 
     @staticmethod
-    async def _load_file(*, path: Path, file_name: str) -> Optional[str]:
+    async def _load_file(*, path: Path, file_name: str) -> str | None:
         """
         Read contents from file `path/file_name` asynchronously.
         Returns string with contents or None is file is not found.
@@ -236,7 +236,7 @@ class FileStorage(Generic[DataObject]):
         return file_path.as_posix()
 
     def _get_item_locator(
-        self, item_path: str, n_part_comps: int, suffix: Optional[str] = None
+        self, item_path: str, n_part_comps: int, suffix: str | None = None
     ) -> ItemLocator:
         """This method generates an `ItemLocator` object from a given `item_path`"""
         comps = item_path.split("/")

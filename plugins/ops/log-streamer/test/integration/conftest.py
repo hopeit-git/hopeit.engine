@@ -1,8 +1,8 @@
-import pytest
 import uuid
 
-from hopeit.dataobjects.payload import Payload
+import pytest
 
+from hopeit.dataobjects.payload import Payload
 from hopeit.log_streamer import LogBatch, LogRawBatch, LogReaderConfig
 from hopeit.testing.apps import config, create_test_context
 
@@ -13,11 +13,11 @@ from . import APP_VERSION, APPS_API_VERSION
 def raw_log_entries() -> LogRawBatch:
     return LogRawBatch(
         data=[
-            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:01:44,294 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | __init_event__ module=simple_example.query_something... | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:01:44,295 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | load | extra.something_id=1 | extra.path=/tmp/simple_example.{APP_VERSION}.fs.data_path | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:01:44,298 | WARNING | simple-example {APPS_API_VERSION} query_something host 17031 | item not found | extra.something_id=1 | extra.path=/tmp/simple_example.{APP_VERSION}.fs.data_path | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
+            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:01:44,294 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | __init_event__ module=simple_example.query_something... | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:01:44,295 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | load | extra.something_id=1 | extra.path=/tmp/simple_example.{APP_VERSION}.fs.data_path | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:01:44,298 | WARNING | simple-example {APPS_API_VERSION} query_something host 17031 | item not found | extra.something_id=1 | extra.path=/tmp/simple_example.{APP_VERSION}.fs.data_path | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
         ]
     )
 
@@ -26,11 +26,11 @@ def raw_log_entries() -> LogRawBatch:
 def raw_log_entries2() -> LogRawBatch:
     return LogRawBatch(
         data=[
-            f"2021-06-02 18:02:44,290 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:02:44,294 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | __init_event__ module=simple_example.query_something... | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:02:44,295 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | load | extra.something_id=1 | extra.path=/tmp/simple_example.{APP_VERSION}.fs.data_path | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:02:44,298 | WARNING | simple-example {APPS_API_VERSION} query_something host 17031 | item not found | extra.something_id=1 | extra.path=/tmp/simple_example.{APP_VERSION}.fs.data_path | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:02:44,303 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
+            f"2021-06-02 18:02:44,290 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:02:44,294 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | __init_event__ module=simple_example.query_something... | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:02:44,295 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | load | extra.something_id=1 | extra.path=/tmp/simple_example.{APP_VERSION}.fs.data_path | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:02:44,298 | WARNING | simple-example {APPS_API_VERSION} query_something host 17031 | item not found | extra.something_id=1 | extra.path=/tmp/simple_example.{APP_VERSION}.fs.data_path | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:02:44,303 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
         ]
     )
 
@@ -88,7 +88,7 @@ def expected_log_entries() -> LogBatch:
 def log_config():
     return LogReaderConfig(
         logs_path="/tmp/test_it_log_file_handler/",
-        prefix=f"{str(uuid.uuid4())}.log",
+        prefix=f"{uuid.uuid4()!s}.log",
         checkpoint_path="/tmp/test_it_log_file_handler/log_streamer/checkpoints/",
         file_open_timeout_secs=600,
         file_checkpoint_expire_secs=86400,

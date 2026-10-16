@@ -2,27 +2,27 @@
 Client to invoke events in configured connected Apps
 """
 
-from contextlib import AbstractAsyncContextManager
-from enum import Enum
-import random
-from typing import Any, Dict, List, Optional, Tuple, Type
 import asyncio
+import random
 from collections import defaultdict
-from datetime import datetime, timezone
+from contextlib import AbstractAsyncContextManager
+from datetime import UTC, datetime
+from enum import Enum
 from functools import partial
+from typing import Any
 
 import aiohttp
 
 from hopeit.app.client import AppConnectionNotFound, Client, ClientException, UnhandledResponse
-from hopeit.app.context import EventContext
 from hopeit.app.config import AppConfig, AppDescriptor, EventConnection, EventConnectionType
+from hopeit.app.context import EventContext
 from hopeit.app.errors import Unauthorized
 from hopeit.dataobjects import EventPayload, EventPayloadType, dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
-from hopeit.toolkit import auth
 from hopeit.server.api import app_route_name
 from hopeit.server.logger import engine_extra_logger
 from hopeit.server.names import spinalcase
+from hopeit.toolkit import auth
 
 logger, extra = engine_extra_logger()
 
@@ -65,7 +65,7 @@ class AppsClientSettings:
     max_connections_per_host: int = 0
     dns_cache_ttl: int = 10
     auth_strategy: ClientAuthStrategy = ClientAuthStrategy.CLIENT_APP_PUBLIC_KEY
-    routes_override: Dict[str, str] = field(default_factory=dict)
+    routes_override: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -86,11 +86,11 @@ class CircuitBreakLoadBalancer:
     After one sucessfull call to a host when `cb_open_ttl` expired, failure counter will be reset.
     """
 
-    hosts: List[str]
+    hosts: list[str]
     host_index: int = 0
-    cb_failures: List[int] = field(default_factory=list)
-    cb_failure_reset_ttl: List[int] = field(default_factory=list)
-    cb_open_ttl: List[int] = field(default_factory=list)
+    cb_failures: list[int] = field(default_factory=list)
+    cb_failure_reset_ttl: list[int] = field(default_factory=list)
+    cb_open_ttl: list[int] = field(default_factory=list)
 
     def __post_init__(self):
         self.cb_failures = [0] * len(self.hosts)
@@ -100,7 +100,7 @@ class CircuitBreakLoadBalancer:
     def host(self, i: int) -> str:
         return self.hosts[i]
 
-    def next_host(self, now_ts: int) -> Tuple[int, bool]:
+    def next_host(self, now_ts: int) -> tuple[int, bool]:
         i = self.host_index
         self.host_index = (self.host_index + 1) % len(self.hosts)
         return i, self.cb_open_ttl[i] < now_ts
@@ -148,7 +148,7 @@ class ServerException(ClientException):
 class AppConnectionState:
     app_connection: str
     load_balancer: CircuitBreakLoadBalancer
-    events: Dict[str, Dict[str, EventConnection]] = field(
+    events: dict[str, dict[str, EventConnection]] = field(
         default_factory=partial(defaultdict, dict)  # type: ignore
     )
 
@@ -180,9 +180,9 @@ class AppsClient(Client):
             for conn in event_info.connections
             if conn.app_connection == app_connection
         }
-        self.conn_state: Optional[AppConnectionState] = None
-        self.session: Optional[Any] = None
-        self.token: Optional[str] = None
+        self.conn_state: AppConnectionState | None = None
+        self.session: Any | None = None
+        self.token: str | None = None
         self.token_expire: int = 0
 
     def _get_route(self, event_name: str):
@@ -233,7 +233,7 @@ class AppsClient(Client):
         )
         try:
             await self.session.close()
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:  # noqa: BLE001 -- Log close failures and always release the client state.
             logger.error(__name__, str(e))
         finally:
             await asyncio.sleep(1.0)
@@ -250,12 +250,12 @@ class AppsClient(Client):
         self,
         event_name: str,
         *,
-        datatype: Type[EventPayloadType],
-        payload: Optional[EventPayload],
+        datatype: type[EventPayloadType],
+        payload: EventPayload | None,
         context: EventContext,
-        responses: Optional[Dict[int, Type[EventPayloadType]]] = None,
+        responses: dict[int, type[EventPayloadType]] | None = None,
         **kwargs,
-    ) -> List[EventPayloadType]:
+    ) -> list[EventPayloadType]:
         """
         Invokes event on external app linked in config `app_connections` section.
         Target event must also be configured in event `client` section
@@ -313,7 +313,7 @@ class AppsClient(Client):
 
                 raise NotImplementedError(f"Event type {event_info.type.value} not supported")
 
-            except (ServerException, IOError) as e:
+            except (OSError, ServerException) as e:
                 self.conn_state.load_balancer.failure(
                     host_index,
                     now_ts,
@@ -331,13 +331,13 @@ class AppsClient(Client):
         raise RuntimeError("Unexpected missing result after retry loop")
 
     def _now_ts(self) -> int:
-        return int(datetime.now(tz=timezone.utc).timestamp())
+        return int(datetime.now(tz=UTC).timestamp())
 
     def _get_event_connection(self, context: EventContext, event_name: str):
         try:
             return self.event_connections[context.event_name.split("$")[0]][event_name]
         except KeyError:
-            raise AppConnectionNotFound(  # pylint: disable=raise-missing-from
+            raise AppConnectionNotFound(
                 f"Event {event_name} not found in event connections for {context.event_name}"
             )
 
@@ -415,10 +415,10 @@ class AppsClient(Client):
         self,
         response,
         context: EventContext,
-        datatype: Type[EventPayloadType],
+        datatype: type[EventPayloadType],
         target_event_name: str,
-        responses: Optional[Dict[int, Type[EventPayloadType]]],
-    ) -> List[EventPayloadType]:
+        responses: dict[int, type[EventPayloadType]] | None,
+    ) -> list[EventPayloadType]:
         """
         Parses http response from external App, catching Unathorized errors
         and converting the result to the desired datatype
@@ -427,10 +427,10 @@ class AppsClient(Client):
             response_type = datatype if response.status == 200 else responses[response.status]  # type: ignore
         except (TypeError, KeyError):
             if response.status == 401:
-                raise Unauthorized(context.app_key)  # pylint: disable=raise-missing-from
+                raise Unauthorized(context.app_key)
             if response.status >= 500:
-                raise ServerException(await response.text())  # pylint: disable=raise-missing-from
-            raise UnhandledResponse(  # pylint: disable=raise-missing-from
+                raise ServerException(await response.text())
+            raise UnhandledResponse(
                 f"Missing {response.status} status handler, use `responses` to handle this exception",
                 await response.text(),
                 response.status,
@@ -441,18 +441,18 @@ class AppsClient(Client):
         else:
             data = await response.json()
         if isinstance(data, list):
-            return Payload.from_obj(data, List[response_type])  # type: ignore[valid-type]
+            return Payload.from_obj(data, list[response_type])  # type: ignore[valid-type]
         return [Payload.from_obj(data, response_type, key=target_event_name)]
 
     async def _request(
         self,
         request_func: AbstractAsyncContextManager,
         context: EventContext,
-        datatype: Type[EventPayloadType],
+        datatype: type[EventPayloadType],
         target_event_name: str,
         host_index: int,
-        responses: Optional[Dict[int, Type[EventPayloadType]]],
-    ) -> List[EventPayloadType]:
+        responses: dict[int, type[EventPayloadType]] | None,
+    ) -> list[EventPayloadType]:
         async with request_func as response:
             result = await self._parse_response(
                 response, context, datatype, target_event_name, responses

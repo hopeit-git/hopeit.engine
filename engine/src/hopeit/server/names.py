@@ -4,7 +4,7 @@ Convenience methods to normalize endpoint names, module names from configuration
 
 import re
 
-__all__ = ["route_name", "module_name", "auto_path", "auto_path_prefixed"]
+__all__ = ["auto_path", "auto_path_prefixed", "module_name", "route_name"]
 
 
 def route_name(*args: str) -> str:

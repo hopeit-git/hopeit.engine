@@ -3,6 +3,7 @@ name = "hopeit.apps-visualizer"
 version = "0.30.1"
 
 description = "Hopeit Engine Apps Visualizer Plugin"
+requires-python = ">=3.11"
 dynamic = ["readme"]
 
 dependencies = [
@@ -20,7 +21,6 @@ authors = [
 classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",

@@ -3,19 +3,18 @@ Base class and helper functions to defined and invoke external apps
 using clients plugins.
 """
 
-from typing import Optional, Type, List, Dict
 from abc import ABC
 from importlib import import_module
 
-from hopeit.app.context import EventContext
 from hopeit.app.config import AppConfig
+from hopeit.app.context import EventContext
 from hopeit.dataobjects import EventPayload, EventPayloadType
 from hopeit.server.logger import engine_logger, extra_logger
 
 logger = engine_logger()
 extra = extra_logger()
 
-_registered_clients: Dict[str, Dict[str, "Client"]] = {}
+_registered_clients: dict[str, dict[str, "Client"]] = {}
 
 
 class ClientException(Exception):
@@ -70,12 +69,12 @@ class Client(ABC):
         self,
         event_name: str,
         *,
-        datatype: Type[EventPayloadType],
-        payload: Optional[EventPayload],
+        datatype: type[EventPayloadType],
+        payload: EventPayload | None,
         context: EventContext,
-        responses: Optional[Dict[int, Type[EventPayloadType]]],
+        responses: dict[int, type[EventPayloadType]] | None,
         **kwargs,
-    ) -> List[EventPayloadType]:
+    ) -> list[EventPayloadType]:
         """
         Implement invocation to external apps in the configured app_connection.
 
@@ -103,7 +102,7 @@ async def register_app_connections(app_config: AppConfig):
     """
     _registered_clients[app_config.app_key()] = {
         app_connection: await Client.create(app_config, app_connection).start()
-        for app_connection in app_config.app_connections.keys()
+        for app_connection in app_config.app_connections
     }
 
 
@@ -111,7 +110,7 @@ async def stop_app_connections(app_key: str):
     """
     Used by the engine to signal client stop and close connections
     """
-    for _, client in _registered_clients[app_key].items():
+    for client in _registered_clients[app_key].values():
         await client.stop()
     del _registered_clients[app_key]
 
@@ -123,7 +122,7 @@ def app_client(app_connection: str, context: EventContext) -> Client:
     try:
         return _registered_clients[context.app_key][app_connection]
     except KeyError:
-        raise AppConnectionNotFound(  # pylint: disable=raise-missing-from
+        raise AppConnectionNotFound(
             f"Not found app_connection: {app_connection} for app: {context.app_key}"
         )
 
@@ -132,10 +131,10 @@ async def app_call(
     app_connection: str,
     *,
     event: str,
-    datatype: Type[EventPayloadType],
+    datatype: type[EventPayloadType],
     payload: EventPayload,
     context: EventContext,
-    responses: Optional[Dict[int, Type[EventPayloadType]]] = None,
+    responses: dict[int, type[EventPayloadType]] | None = None,
     **kwargs,
 ) -> EventPayloadType:
     """
@@ -167,12 +166,12 @@ async def app_call_list(
     app_connection: str,
     *,
     event: str,
-    datatype: Type[EventPayloadType],
+    datatype: type[EventPayloadType],
     payload: EventPayload,
     context: EventContext,
-    responses: Optional[Dict[int, Type[EventPayloadType]]] = None,
+    responses: dict[int, type[EventPayloadType]] | None = None,
     **kwargs,
-) -> List[EventPayloadType]:
+) -> list[EventPayloadType]:
     """
     Invokes event in external app using configured app_connection, for events that return
     a list or collection of items.

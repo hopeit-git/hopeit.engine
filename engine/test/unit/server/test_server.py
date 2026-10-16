@@ -1,13 +1,10 @@
 import pytest  # type: ignore
 
 from hopeit.app.config import AppConfig
-from hopeit.server import runtime
-from hopeit.server import engine
-
-
+from hopeit.server import engine, runtime
 from mock_app import mock_app_config  # type: ignore
-from mock_plugin import mock_plugin_config  # type: ignore
 from mock_engine import MockAppEngine
+from mock_plugin import mock_plugin_config  # type: ignore
 
 
 async def start_server(app_config: AppConfig, plugin: AppConfig) -> engine.Server:

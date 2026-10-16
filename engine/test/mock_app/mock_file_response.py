@@ -8,7 +8,7 @@ __steps__ = ["create_file"]
 async def create_file(payload: None, context: EventContext, file_name: str) -> str:
     path = Path("/tmp") / file_name
     path = path.absolute()
-    with open(path, "w") as f:
+    with open(path, "w") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.write("mock_file_response test file_response")
     return str(path)
 

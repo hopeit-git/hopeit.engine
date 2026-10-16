@@ -4,11 +4,11 @@ Basic Auth: Logout
 Invalidates previous refresh cookies.
 """
 
-from hopeit.app.api import event_api, app_base_route_name
+from hopeit.app.api import app_base_route_name, event_api
 from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.errors import Unauthorized
 from hopeit.app.logger import app_logger
 from hopeit.toolkit.auth import AuthType
-from hopeit.app.errors import Unauthorized
 
 logger = app_logger()
 

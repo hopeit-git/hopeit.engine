@@ -1,15 +1,15 @@
-from datetime import datetime, timezone, date
+from datetime import UTC, date, datetime
 
 import polars as pl
-from polars.testing import assert_series_equal
 import pytest
+from polars.testing import assert_series_equal
 
 from conftest import DEFAULT_DATE, DEFAULT_DATETIME, MyTestAllTypesData, MyTestAllTypesDefaultValues
 
 
 def test_coerce_types_happy():
-    test_date = datetime.now().date()
-    test_datetime = datetime.now(tz=timezone.utc)
+    test_date = datetime.now(tz=UTC).date()
+    test_datetime = datetime.now(tz=UTC)
 
     data = MyTestAllTypesData(
         int_value=[0, 1, 2],
@@ -143,7 +143,7 @@ def test_coerce_types_defaults():
         pl.Series(
             name="datetime_value_optional",
             values=[None, None, None],
-            dtype=pl.Datetime(time_zone=timezone.utc),
+            dtype=pl.Datetime(time_zone=UTC),
         ),
     )
     assert_series_equal(
@@ -204,14 +204,14 @@ def test_coerce_types_none_to_defaults():
         pl.Series(
             name="datetime_value_optional",
             values=[None, None, None],
-            dtype=pl.Datetime(time_zone=timezone.utc),
+            dtype=pl.Datetime(time_zone=UTC),
         ),
     )
 
 
 def test_coerce_types_unhappy_bad_types():
-    test_date = datetime.now().date()
-    test_datetime = datetime.now(tz=timezone.utc)
+    test_date = datetime.now(tz=UTC).date()
+    test_datetime = datetime.now(tz=UTC)
 
     with pytest.raises(TypeError):
         MyTestAllTypesDefaultValues(
@@ -257,8 +257,8 @@ def test_coerce_types_unhappy_bad_types():
 
 
 def test_coerce_types_unhappy_none_fields():
-    test_date = datetime.now().date()
-    test_datetime = datetime.now(tz=timezone.utc)
+    test_date = datetime.now(tz=UTC).date()
+    test_datetime = datetime.now(tz=UTC)
 
     with pytest.raises(TypeError):
         MyTestAllTypesData(
@@ -322,8 +322,8 @@ def test_coerce_types_unhappy_none_fields():
 
 
 def test_coerce_types_unhappy_none_values():
-    test_date = datetime.now().date()
-    test_datetime = datetime.now(tz=timezone.utc)
+    test_date = datetime.now(tz=UTC).date()
+    test_datetime = datetime.now(tz=UTC)
 
     with pytest.raises(TypeError):
         MyTestAllTypesData(
@@ -372,8 +372,8 @@ def test_coerce_types_unhappy_none_values():
 
 
 def test_coerce_types_unhappy_missing_fields():
-    test_date = datetime.now().date()
-    test_datetime = datetime.now(tz=timezone.utc)
+    test_date = datetime.now(tz=UTC).date()
+    test_datetime = datetime.now(tz=UTC)
 
     with pytest.raises(TypeError):
         MyTestAllTypesData(

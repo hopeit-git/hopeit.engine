@@ -1,10 +1,10 @@
-from hopeit.testing.apps import execute_event
 from hopeit.server.version import APPS_API_VERSION
+from hopeit.testing.apps import execute_event
 
 APP_VERSION = APPS_API_VERSION.replace(".", "x")
 
 
-async def test_it_save_something(app_config, something_params_example, something_upload_example):  # noqa: F811
+async def test_it_save_something(app_config, something_params_example, something_upload_example):
     fields = {
         "id": something_params_example.id,
         "user": something_params_example.user,
@@ -26,7 +26,7 @@ async def test_it_save_something(app_config, something_params_example, something
 
     assert result == [something_upload_example]
 
-    with open(
+    with open(  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f"/tmp/hopeit/simple_example.{APP_VERSION}.upload_something.save_path/attachment-test_file_name.bytes",
         "rb",
     ) as f:
@@ -37,7 +37,7 @@ async def test_it_save_something(app_config, something_params_example, something
 
 async def test_it_save_something_missing_field(
     app_config, something_params_example, something_upload_example
-):  # noqa: F811
+):
     fields = {
         "id": something_params_example.id,
         "user": something_params_example.user,

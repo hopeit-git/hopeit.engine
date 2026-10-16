@@ -1,7 +1,10 @@
-from typing import Union, Optional
+import importlib
+import typing
+from collections.abc import AsyncGenerator
+from copy import deepcopy
+from typing import Optional
 
 import pytest  # type: ignore
-import importlib
 
 from hopeit.app.config import (
     AppConfig,
@@ -13,32 +16,35 @@ from hopeit.app.config import (
     WriteStreamDescriptor,
 )
 from hopeit.app.context import EventContext
-from hopeit.app.events import Spawn, SHUFFLE
+from hopeit.app.events import SHUFFLE, Spawn
 from hopeit.server.events import get_event_settings
 from hopeit.server.imports import find_event_handler
 from hopeit.server.steps import (
+    CollectorStepsDescriptor,
+    effective_steps,
+    execute_steps,
+    extract_input_type,
     extract_module_steps,
     extract_postprocess_handler,
-    extract_input_type,
-    execute_steps,
     invoke_single_step,
-    effective_steps,
     split_event_stages,
-    CollectorStepsDescriptor,
 )
-from mock_app import MockData, MockResult, mock_collector  # type: ignore
-from mock_app import mock_app_config  # type: ignore
-from copy import deepcopy
+from mock_app import (  # type: ignore
+    MockData,
+    MockResult,
+    mock_app_config,  # type: ignore
+    mock_collector,
+)
 
 
 def test_extract_event_steps():
     impl = importlib.import_module("mock_app.mock_event")
-    f1 = getattr(impl, "entry_point")
-    f2 = getattr(impl, "handle_ok_case")
-    f3 = getattr(impl, "handle_special_case")
+    f1 = impl.entry_point
+    f2 = impl.handle_ok_case
+    f3 = impl.handle_special_case
     steps = extract_module_steps(impl)
     assert steps == [
-        ("entry_point", (f1, None, Union[MockData, str], False)),
+        ("entry_point", (f1, None, MockData | str, False)),
         ("handle_ok_case", (f2, MockData, str, False)),
         ("handle_special_case", (f3, str, str, False)),
     ]
@@ -46,17 +52,17 @@ def test_extract_event_steps():
 
 def test_effective_steps():
     impl = importlib.import_module("mock_app.mock_event")
-    f1 = getattr(impl, "entry_point")
-    f2 = getattr(impl, "handle_ok_case")
-    f3 = getattr(impl, "handle_special_case")
+    f1 = impl.entry_point
+    f2 = impl.handle_ok_case
+    f3 = impl.handle_special_case
     module_steps = [
-        ("entry_point", (f1, None, Union[MockData, str], False)),
+        ("entry_point", (f1, None, MockData | str, False)),
         ("handle_ok_case", (f2, MockData, str, False)),
         ("handle_special_case", (f3, str, str, False)),
     ]
     steps = effective_steps("mock_event", module_steps)
     assert steps == [
-        (0, "entry_point", (f1, None, Union[MockData, str], False)),
+        (0, "entry_point", (f1, None, MockData | str, False)),
         (1, "handle_ok_case", (f2, MockData, str, False)),
         (2, "handle_special_case", (f3, str, str, False)),
     ]
@@ -64,41 +70,80 @@ def test_effective_steps():
 
 def test_extract_event_steps_with_shuffle():
     impl = importlib.import_module("mock_app.mock_shuffle_event")
-    f1 = getattr(impl, "produce_messages")
-    f2 = getattr(impl, "consume_stream")
-    f3 = getattr(impl, "generate_default")
+    f1 = impl.produce_messages
+    f2 = impl.consume_stream
+    f3 = impl.generate_default
     steps = extract_module_steps(impl)
     assert steps == [
         ("produce_messages", (f1, str, Spawn[MockData], True)),
         (SHUFFLE, None),
-        ("consume_stream", (f2, MockData, Optional[MockResult], False)),
+        ("consume_stream", (f2, MockData, MockResult | None, False)),
         ("generate_default", (f3, None, MockResult, False)),
     ]
 
 
+@pytest.mark.parametrize(
+    "return_type,is_spawn",
+    [
+        (AsyncGenerator[int, None], True),
+        (typing.AsyncGenerator[int, None], True),
+        (Spawn[int], True),
+        (AsyncGenerator, True),
+        (typing.AsyncGenerator, True),
+        (list[int], False),
+        (int, False),
+        (None, False),
+        ("AsyncGenerator[int, None]", False),
+    ],
+    ids=[
+        "collections-parameterized",
+        "typing-parameterized",
+        "spawn-alias",
+        "collections-bare",
+        "typing-bare",
+        "list",
+        "scalar",
+        "none",
+        "string-annotation",
+    ],
+)
+def test_extract_spawn_step_annotations(monkeypatch, return_type, is_spawn):
+    impl = importlib.import_module("mock_app.mock_shuffle_event")
+    monkeypatch.setattr(
+        impl.produce_messages,
+        "__annotations__",
+        {**impl.produce_messages.__annotations__, "return": return_type},
+    )
+
+    step_name, step_info = extract_module_steps(impl)[0]
+    assert step_name == "produce_messages"
+    assert step_info is not None
+    assert step_info[3] is is_spawn
+
+
 def test_effective_steps_shuffle_event():
     impl = importlib.import_module("mock_app.mock_shuffle_event")
-    f1 = getattr(impl, "produce_messages")
-    f2 = getattr(impl, "consume_stream")
-    f3 = getattr(impl, "generate_default")
+    f1 = impl.produce_messages
+    f2 = impl.consume_stream
+    f3 = impl.generate_default
     module_steps = [
         ("produce_messages", (f1, str, Spawn[MockData], True)),
         (SHUFFLE, None),
-        ("consume_stream", (f2, MockData, Optional[MockResult], False)),
+        ("consume_stream", (f2, MockData, MockResult | None, False)),
         ("generate_default", (f3, None, MockResult, False)),
     ]
     steps = effective_steps("mock_shuffle_event", module_steps)
     assert steps == [(0, "produce_messages", (f1, str, Spawn[MockData], True))]
     steps = effective_steps("mock_shuffle_event$consume_stream", module_steps)
     assert steps == [
-        (0, "consume_stream", (f2, MockData, Optional[MockResult], False)),
+        (0, "consume_stream", (f2, MockData, MockResult | None, False)),
         (1, "generate_default", (f3, None, MockResult, False)),
     ]
 
 
 def test_extract_postprocess_handler():
     impl = importlib.import_module("mock_app.mock_event")
-    f1 = getattr(impl, "__postprocess__")
+    f1 = impl.__postprocess__
     pp_handler = extract_postprocess_handler(impl)
     assert pp_handler == (f1, str, str, False)
 
@@ -145,7 +190,7 @@ def step3(payload: MockData, context: EventContext) -> MockData:
     return MockData(payload.value + " step3")
 
 
-def step4(payload: MockData, context: EventContext) -> Union[MockData, str]:
+def step4(payload: MockData, context: EventContext) -> MockData | str:
     if payload.value.startswith("a"):
         return MockData(payload.value + " step4")
     else:
@@ -206,7 +251,7 @@ async def test_execute_decision_steps():
         (0, "step1", (step1, MockData, MockData, False)),
         (1, "step2", (step2, MockData, MockData, False)),
         (2, "step3", (step3, MockData, MockData, False)),
-        (3, "step4", (step4, MockData, Union[MockData, str], False)),
+        (3, "step4", (step4, MockData, MockData | str, False)),
         (4, "step5a", (step5a, MockData, MockResult, False)),
         (5, "step5b", (step5b, str, MockResult, False)),
         (6, "step6", (step6, MockResult, MockResult, False)),
@@ -228,7 +273,7 @@ async def test_execute_spawn_initial_steps():
         (1, "step1", (step1, MockData, MockData, False)),
         (2, "step2", (step2, MockData, MockData, False)),
         (3, "step3", (step3, MockData, MockData, False)),
-        (4, "step4", (step4, MockData, Union[MockData, str], False)),
+        (4, "step4", (step4, MockData, MockData | str, False)),
         (5, "step5a", (step5a, MockData, MockResult, False)),
         (6, "step5b", (step5b, str, MockResult, False)),
         (7, "step6", (step6, MockResult, MockResult, False)),
@@ -257,7 +302,7 @@ async def test_execute_multiple_spawn_steps():
         (2, "step2", (step2, MockData, MockData, False)),
         (3, "step3", (step3, MockData, MockData, False)),
         (4, "step_respawn", (step_respawn, MockData, Spawn[MockData], True)),
-        (5, "step4", (step4, MockData, Union[MockData, str], False)),
+        (5, "step4", (step4, MockData, MockData | str, False)),
         (6, "step5a", (step5a, MockData, MockResult, False)),
         (7, "step5b", (step5b, str, MockResult, False)),
         (8, "step6", (step6, MockResult, MockResult, False)),

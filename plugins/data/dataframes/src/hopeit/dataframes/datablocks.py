@@ -4,19 +4,10 @@ that contain combined properties with one or multiple Datasets but can be manipu
 and saved as a single flat polars DataFrame.
 """
 
+from collections.abc import AsyncGenerator
 from datetime import datetime
 from types import NoneType
-from typing import (
-    Any,
-    AsyncGenerator,
-    Generic,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
-    get_args,
-    get_origin,
-)
+from typing import Any, Generic, TypeVar, get_args, get_origin
 
 try:
     import polars as pl
@@ -24,24 +15,23 @@ except ImportError:
     import hopeit.dataframes.polars as pl  # type: ignore  # Polars is optional; set to a mock if not installed
 
 from hopeit.dataframes.dataframe import DataTypeMapping
-from hopeit.dataobjects import dataobject, dataclass, fields
-
 from hopeit.dataframes.serialization.dataset import Dataset, DatasetLoadError
 from hopeit.dataframes.setup.registry import get_dataset_storage
+from hopeit.dataobjects import dataclass, dataobject, fields
 
 DataBlockType = TypeVar("DataBlockType")
 DataBlockItemType = TypeVar("DataBlockItemType")
 DataFrameType = TypeVar("DataFrameType")
-PolarsDataFrameT = TypeVar("PolarsDataFrameT", bound=Union[pl.DataFrame, pl.LazyFrame])
+PolarsDataFrameT = TypeVar("PolarsDataFrameT", bound=pl.DataFrame | pl.LazyFrame)
 
 
 @dataobject
 @dataclass
 class DataBlockMetadata:
-    partition_dt: Optional[datetime] = None
-    database_key: Optional[str] = None
-    group_key: Optional[str] = None
-    collection: Optional[str] = None
+    partition_dt: datetime | None = None
+    database_key: str | None = None
+    group_key: str | None = None
+    collection: str | None = None
 
     @classmethod
     def default(cls) -> "DataBlockMetadata":
@@ -56,7 +46,7 @@ class DataBlockQuery:
     select: list[str] | None = None
 
 
-def get_datablock_schema(cls: Type[DataBlockType], *, datasets_only: bool = False) -> pl.Schema:
+def get_datablock_schema(cls: type[DataBlockType], *, datasets_only: bool = False) -> pl.Schema:
     schema_fields: dict[str, pl.DataType] = {}
     for block_field, block_info in fields(cls).items():  # type: ignore[type-var]
         if get_origin(block_info.annotation) is Dataset:
@@ -86,13 +76,13 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
     dataframe, an object containing subsections of the data can be created.
     """
 
-    def __init__(self, datatype: Type[DataBlockType], df: pl.DataFrame) -> None:
+    def __init__(self, datatype: type[DataBlockType], df: pl.DataFrame) -> None:
         self.datatype = datatype
         self.df = df
 
     @classmethod
     def from_dataobjects(
-        cls, datatype: Type[DataBlockType], items: list[DataBlockItemType], *, strict=True
+        cls, datatype: type[DataBlockType], items: list[DataBlockItemType], *, strict=True
     ) -> "TempDataBlock[DataBlockType, DataBlockItemType]":
         schema = get_datablock_schema(datatype)
         result_df = pl.DataFrame(schema=schema)
@@ -127,7 +117,7 @@ class TempDataBlock(Generic[DataBlockType, DataBlockItemType]):
 
     def to_dataobjects(
         self,
-        item_type: Type[DataBlockItemType],
+        item_type: type[DataBlockItemType],
     ) -> list[DataBlockItemType]:
         keys: list[str] = []
         entries: list[list] = []
@@ -158,9 +148,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         cls,
         datablock: DataBlockType,
         *,
-        select: Optional[list[str]] = None,
+        select: list[str] | None = None,
         schema_validation: bool = True,
-        database_key: Optional[str] = None,
+        database_key: str | None = None,
     ) -> pl.DataFrame:
         """
         Converts a DataBlockType object to a polars DataFrame, by reading the subyacent Dataset/s and
@@ -209,9 +199,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         cls,
         datablock: DataBlockType,
         *,
-        select: Optional[list[str]] = None,
+        select: list[str] | None = None,
         schema_validation: bool = True,
-        database_key: Optional[str] = None,
+        database_key: str | None = None,
     ) -> pl.LazyFrame:
         """
         Converts a DataBlockType object to a polars LazyFrame, by reading the subyacent Dataset/s and
@@ -265,7 +255,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         )
 
     @staticmethod
-    def _get_col_type(field_name: str, annotation: type):
+    def _get_col_type(field_name: str, annotation: Any):
         typedef = DataTypeMapping.get_schema_type(annotation)
         if typedef is None:
             raise TypeError(f"Datablocks: unsupported field type: {field_name}: {annotation}")
@@ -274,7 +264,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     @classmethod
     async def save(
         cls,
-        datatype: Type[DataBlockType],
+        datatype: type[DataBlockType],
         df: pl.DataFrame,
         metadata: DataBlockMetadata | None = None,
         enforce_schema: bool = True,
@@ -332,7 +322,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
     @staticmethod
     async def sink_partitions(
-        datatype: Type[DataBlockType],
+        datatype: type[DataBlockType],
         df: pl.LazyFrame,
         partition_by: list[str],
         partition_interval: str = "1d",
@@ -415,7 +405,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
     @staticmethod
     def _get_dataset_types(
-        datatype: Type[DataBlockType], *, select: list[str] | None = None
+        datatype: type[DataBlockType], *, select: list[str] | None = None
     ) -> list[tuple[str, DataFrameType]]:
         return [
             (field_name, get_args(field_info.annotation)[0])
@@ -437,13 +427,13 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         )
 
     @staticmethod
-    def default(datatype: Type[DataBlockType]) -> DataBlockType:
+    def default(datatype: type[DataBlockType]) -> DataBlockType:
         return datatype(**{field_name: [] for field_name in list(fields(datatype))})  # type: ignore[type-var]
 
     @classmethod
     async def query(
         cls,
-        datatype: Type[DataBlockType],
+        datatype: type[DataBlockType],
         query: DataBlockQuery,
         metadata: DataBlockMetadata | None = None,
         schema_validation: bool = True,
@@ -487,7 +477,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     @classmethod
     async def load_batch(
         cls,
-        datatype: Type[DataBlockType],
+        datatype: type[DataBlockType],
         query: DataBlockQuery,
         metadata: DataBlockMetadata | None = None,
         schema_validation: bool = True,
@@ -527,9 +517,9 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
 
     @staticmethod
     def _get_datablock_keys(
-        datablocktype: Type[DataBlockType],
+        datablocktype: type[DataBlockType],
         *,
-        select: Optional[list[str]] = None,
+        select: list[str] | None = None,
     ) -> list[str]:
         return [
             field_name
@@ -542,11 +532,11 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     async def _load_datablock_df(
         storage: object,
         dataset: Dataset,
-        columns: Optional[list[str]] = None,
+        columns: list[str] | None = None,
     ) -> pl.DataFrame:
         try:
             return await dataset._load_df(storage, columns)
-        except (RuntimeError, IOError, KeyError) as e:
+        except (OSError, RuntimeError, KeyError) as e:
             raise DatasetLoadError(
                 f"Error {type(e).__name__}: {e} loading datablock of type {dataset.datatype} "
                 f"at location {dataset.partition_key}/{dataset.key}"
@@ -556,11 +546,11 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
     def _scan_datablock_df(
         storage: object,
         dataset: Dataset,
-        schema: Optional[pl.Schema] = None,
+        schema: pl.Schema | None = None,
     ) -> pl.LazyFrame:
         try:
             return dataset._scan_df(storage, schema=schema)
-        except (RuntimeError, IOError, KeyError) as e:
+        except (OSError, RuntimeError, KeyError) as e:
             raise DatasetLoadError(
                 f"Error {type(e).__name__}: {e} loading datablock of type {dataset.datatype} "
                 f"at location {dataset.partition_key}/{dataset.key}"
@@ -586,7 +576,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         return df.select([pl.col(field_name) for field_name in select_cols])
 
     @staticmethod
-    def schema(datablocktype: Type[DataBlockType]) -> pl.Schema:
+    def schema(datablocktype: type[DataBlockType]) -> pl.Schema:
         return get_datablock_schema(datablocktype)
 
     @staticmethod

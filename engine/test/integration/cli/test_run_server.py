@@ -1,12 +1,12 @@
 import logging
+import os
 import subprocess
 import sys
-import os
 from time import sleep
-from typing import List, Optional
 
 import pytest
 from click.testing import CliRunner
+
 from hopeit.cli.server import run
 from hopeit.server import wsgi
 
@@ -14,12 +14,12 @@ from hopeit.server import wsgi
 def run_app(
     host: str,
     port: int,
-    path: Optional[str],
-    config_files: List[str],
+    path: str | None,
+    config_files: list[str],
     api_file: str,
-    api_auto: List[str],
+    api_auto: list[str],
     start_streams: bool,
-    enabled_groups: List[str],
+    enabled_groups: list[str],
     workers: int,
     worker_class: str,
     worker_timeout: int,
@@ -48,10 +48,12 @@ async def test_example_app_starts_ok(monkeypatch):
         run,
         [
             "--port=8021",
-            "--config-files=engine/config/dev-local.json"
-            ",plugins/auth/basic-auth/config/plugin-config.json"
-            ",plugins/ops/config-manager/config/plugin-config.json"
-            ",apps/examples/simple-example/config/app-config.json",
+            (
+                "--config-files=engine/config/dev-local.json"
+                ",plugins/auth/basic-auth/config/plugin-config.json"
+                ",plugins/ops/config-manager/config/plugin-config.json"
+                ",apps/examples/simple-example/config/app-config.json"
+            ),
             "--api-file=apps/examples/simple-example/api/openapi.json",
             "--enabled-groups=g1,g2",
         ],
@@ -90,8 +92,10 @@ def test_default_host_port(monkeypatch):
     result = runner.invoke(
         run,
         [
-            "--config-files=engine/config/dev-local.json"
-            ",plugins/auth/basic-auth/config/plugin-config.json"
+            (
+                "--config-files=engine/config/dev-local.json"
+                ",plugins/auth/basic-auth/config/plugin-config.json"
+            )
         ],
     )
     assert result.exit_code == 0
@@ -106,8 +110,10 @@ def test_custom_host_port(monkeypatch):
         [
             "--port=8888",
             "--host=myhost.mydomain",
-            "--config-files=engine/config/dev-local.json"
-            ",plugins/auth/basic-auth/config/plugin-config.json",
+            (
+                "--config-files=engine/config/dev-local.json"
+                ",plugins/auth/basic-auth/config/plugin-config.json"
+            ),
         ],
     )
     assert result.exit_code == 0
@@ -131,8 +137,10 @@ def test_hopeit_server(worker_class):
         "-m",
         "hopeit.cli.server",
         "run",
-        "--config-files=engine/config/dev-local.json"
-        ",plugins/auth/basic-auth/config/plugin-config.json",
+        (
+            "--config-files=engine/config/dev-local.json"
+            ",plugins/auth/basic-auth/config/plugin-config.json"
+        ),
         f"--worker-class={worker_class}",
     ]
 

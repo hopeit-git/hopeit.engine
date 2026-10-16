@@ -2,18 +2,21 @@
 Utilities for handling Web requests
 """
 
-from typing import Union
+from asyncio import to_thread
 from pathlib import Path
 
 from hopeit.app.context import PreprocessFileHook
 
 
 async def save_multipart_attachment(
-    file_hook: PreprocessFileHook, path: Union[str, Path], *, chunk_size: int = 8192
+    file_hook: PreprocessFileHook, path: str | Path, *, chunk_size: int = 8192
 ):
     """
     Save file using chunks from multipart upload to specified path
     """
-    with open(path, "wb") as f:
+    file = await to_thread(open, path, "wb")
+    try:
         async for chunk in file_hook.read_chunks(chunk_size=chunk_size):
-            f.write(chunk)
+            await to_thread(file.write, chunk)
+    finally:
+        await to_thread(file.close)

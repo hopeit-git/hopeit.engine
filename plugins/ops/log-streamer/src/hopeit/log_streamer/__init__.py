@@ -3,17 +3,16 @@ Log Stramer dataclasses and file handler implementation based on watchdog librar
 """
 
 import asyncio
-from typing import Dict, List, TextIO
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import ClassVar, TextIO
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.utils import BaseThread
 
-from hopeit.dataobjects import dataclass, dataobject
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
-
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.fs_storage import FileStorage
 
 logger, extra = app_extra_logger()
@@ -42,7 +41,7 @@ class LogRawBatch:
     Batch of raw lines read from logs
     """
 
-    data: List[str]
+    data: list[str]
 
 
 @dataobject
@@ -58,7 +57,7 @@ class LogEntry:
     app_version: str
     event_name: str
     event: str
-    extra: Dict[str, str]
+    extra: dict[str, str]
     host: str = ""
     pid: str = ""
 
@@ -70,7 +69,7 @@ class LogBatch:
     Batch of parsed log entries
     """
 
-    entries: List[LogEntry]
+    entries: list[LogEntry]
 
 
 @dataobject
@@ -90,7 +89,7 @@ class LogFileHandler(FileSystemEventHandler):
     allowing to work combined with `logrotate`.
     """
 
-    EVENTS_SORT_ORDER = ["START", "", "DONE", "FAILED", "IGNORED"]
+    EVENTS_SORT_ORDER: ClassVar[list[str]] = ["START", "", "DONE", "FAILED", "IGNORED"]
 
     def __init__(self, config: LogReaderConfig, context: EventContext):
         super().__init__()
@@ -98,9 +97,9 @@ class LogFileHandler(FileSystemEventHandler):
         self.prefix = config.logs_path + config.prefix
         self.checkpoint_storage = FileStorage(path=config.checkpoint_path)  # type: ignore
         self.context = context
-        self.batch: List[str] = []
-        self.open_files: Dict[str, TextIO] = {}
-        self.last_access: Dict[str, float] = {}
+        self.batch: list[str] = []
+        self.open_files: dict[str, TextIO] = {}
+        self.last_access: dict[str, float] = {}
         self.loop = asyncio.get_event_loop()
         self.lock = asyncio.Lock()
         self.file_open_timeout = config.file_open_timeout_secs
@@ -111,7 +110,7 @@ class LogFileHandler(FileSystemEventHandler):
             if event.src_path in self.open_files:
                 self.last_access[event.src_path] = 0
                 self.close_inactive_files()
-        except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+        except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
             logger.error(self.context, e)
 
     def on_deleted(self, event):
@@ -119,17 +118,17 @@ class LogFileHandler(FileSystemEventHandler):
             if event.src_path in self.open_files:
                 self.last_access[event.src_path] = 0
                 self.close_inactive_files()
-        except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+        except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
             logger.error(self.context, e)
 
     def on_modified(self, event):
         try:
             if event.src_path.find(self.prefix) >= 0:
                 asyncio.run_coroutine_threadsafe(self._on_event(event), self.loop)
-        except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+        except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
             logger.error(self.context, e)
 
-    def _add_line(self, lines: List[str], line: str):
+    def _add_line(self, lines: list[str], line: str):
         if (
             ("| START |" in line)
             or ("| DONE |" in line)
@@ -155,7 +154,7 @@ class LogFileHandler(FileSystemEventHandler):
                     if len(lines) > 0:
                         await self._emit(lines)
                         await self._save_checkpoint(src_path, lines[-1])
-        except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+        except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
             logger.error(self.context, e)
 
     async def _save_checkpoint(self, src_path: str, line: str):
@@ -163,7 +162,7 @@ class LogFileHandler(FileSystemEventHandler):
             key = f"{self.context.app_key}.{src_path}.checkpoint".replace("/", "x")
             cp = Checkpoint(
                 line=line,
-                expire=int(datetime.now(tz=timezone.utc).timestamp()) + self.file_checkpoint_expire,
+                expire=int(datetime.now(tz=UTC).timestamp()) + self.file_checkpoint_expire,
             )
             await self.checkpoint_storage.store(key, cp)
 
@@ -172,7 +171,7 @@ class LogFileHandler(FileSystemEventHandler):
         cp = await self.checkpoint_storage.get(key, datatype=Checkpoint)
         if cp is None:
             return ""
-        if int(cp.expire) < int(datetime.now(tz=timezone.utc).timestamp()):
+        if int(cp.expire) < int(datetime.now(tz=UTC).timestamp()):
             return ""
         return cp.line
 
@@ -183,7 +182,7 @@ class LogFileHandler(FileSystemEventHandler):
         """
         try:
             async with self.lock:
-                self.last_access[src_path] = datetime.now(tz=timezone.utc).timestamp()
+                self.last_access[src_path] = datetime.now(tz=UTC).timestamp()
                 if self.open_files.get(src_path) is None:
                     checkpoint = await self._load_checkpoint(src_path)
                     logger.info(
@@ -191,8 +190,8 @@ class LogFileHandler(FileSystemEventHandler):
                         "Opening log file...",
                         extra=extra(src_path=src_path, checkpoint=checkpoint),
                     )
-                    self.open_files[src_path] = open(  # pylint: disable=consider-using-with
-                        src_path, "r", encoding="utf-8"
+                    self.open_files[src_path] = await asyncio.to_thread(
+                        open, src_path, "r", encoding="utf-8"
                     )
                     if checkpoint:
                         line = self.open_files[src_path].readline()
@@ -214,7 +213,7 @@ class LogFileHandler(FileSystemEventHandler):
                         else:
                             self.open_files[src_path].seek(0)
                 return True
-        except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+        except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
             logger.error(self.context, e)
             return False
 
@@ -222,7 +221,7 @@ class LogFileHandler(FileSystemEventHandler):
         """
         Closes files that are inactive (deleted of with no activity)
         """
-        exp = datetime.now(tz=timezone.utc).timestamp()
+        exp = datetime.now(tz=UTC).timestamp()
         for key, last_ts in list(self.last_access.items()):
             if (last_ts + self.file_open_timeout) < exp:
                 try:
@@ -232,14 +231,14 @@ class LogFileHandler(FileSystemEventHandler):
                     if key in self.open_files:
                         self.open_files[key].close()
                         del self.open_files[key]
-                except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+                except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
                     logger.error(self.context, e)
                 del self.last_access[key]
 
     async def _read_line(self, src_path: str):
         return self.open_files[src_path].readline()
 
-    async def _emit(self, lines: List[str]):
+    async def _emit(self, lines: list[str]):
         async with self.lock:
             self.batch.extend(lines)
 

@@ -1,7 +1,5 @@
 """Simple storage for training experiments using fs storage"""
 
-from typing import Optional
-
 from dataframes_example.iris import Experiment
 from hopeit.app.context import EventContext
 from hopeit.dataobjects.payload import Payload
@@ -11,7 +9,7 @@ from hopeit.server.logger import engine_extra_logger
 
 logger, extra = engine_extra_logger()
 
-fs: Optional[FileStorage] = None
+fs: FileStorage | None = None
 
 
 async def init_experiment_storage(context: EventContext):

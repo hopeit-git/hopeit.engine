@@ -1,7 +1,7 @@
+import hopeit.server.logger as server_logging
 from hopeit.config_manager import ServerStatus, client
 
-from . import mock_client, mock_context, app_config
-import hopeit.server.logger as server_logging
+from . import app_config, mock_client, mock_context
 
 
 async def test_client(
@@ -53,7 +53,7 @@ async def test_client_expand_events(
         "http://test-server1,http://test-server2", context, expand_events=True
     )
 
-    for _, v in result.apps.items():
+    for v in result.apps.values():
         assert v.effective_events == effective_events_example
 
 
@@ -77,7 +77,7 @@ async def test_client_ignore_hosts_errors(
     }
 
 
-def _init_engine_logger(mock_app_config):  # noqa: F811
+def _init_engine_logger(mock_app_config):
     logger = server_logging.engine_logger()
     logger.init_server(mock_app_config.server)
     logger.init_app(mock_app_config, plugins=[])

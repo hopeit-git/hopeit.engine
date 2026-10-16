@@ -3,20 +3,9 @@ DataFrames type abstractions.
 """
 
 import dataclasses
-from datetime import date, datetime, timezone
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generic,
-    Iterator,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-)
+from collections.abc import Callable, Iterator
+from datetime import UTC, date, datetime
+from typing import Any, ClassVar, Generic, Optional, TypeVar
 
 try:
     import polars as pl
@@ -25,6 +14,7 @@ except ImportError:
 
 from pydantic import create_model
 from pydantic.fields import FieldInfo
+from pydantic_core import PydanticUndefined
 
 from hopeit.dataobjects import (
     DataObject,
@@ -34,16 +24,15 @@ from hopeit.dataobjects import (
     fields,
 )
 from hopeit.dataobjects.payload import Payload
-from pydantic_core import PydanticUndefined
 
 DataFrameT = TypeVar("DataFrameT")
 
 
 @dataclasses.dataclass
 class DataFrameMetadata:
-    columns: List[str]
-    fields: Dict[str, FieldInfo]
-    schema: Optional[pl.Schema]
+    columns: list[str]
+    fields: dict[str, FieldInfo]
+    schema: pl.Schema | None
 
 
 # Validation
@@ -52,19 +41,19 @@ def not_null_check(series: pl.Series) -> bool:
 
 
 class DataTypeMapping:
-    mapping: Dict[Type, Tuple[Optional["pl.DataType"], Tuple[Callable, ...]]] = {
+    mapping: ClassVar[dict[type, tuple[Optional["pl.DataType"], tuple[Callable, ...]]]] = {
         int: (None, ()),
         bool: (None, ()),
         float: (None, ()),
         str: (None, ()),
         date: (None, ()),
         datetime: (None, ()),
-        Union[int, None]: (None, ()),  # type: ignore[dict-item]
-        Union[bool, None]: (None, ()),  # type: ignore[dict-item]
-        Union[float, None]: (None, ()),  # type: ignore[dict-item]
-        Union[str, None]: (None, ()),  # type: ignore[dict-item]
-        Union[date, None]: (None, ()),  # type: ignore[dict-item]
-        Union[datetime, None]: (None, ()),  # type: ignore[dict-item]
+        int | None: (None, ()),  # type: ignore[dict-item]
+        bool | None: (None, ()),  # type: ignore[dict-item]
+        float | None: (None, ()),  # type: ignore[dict-item]
+        str | None: (None, ()),  # type: ignore[dict-item]
+        date | None: (None, ()),  # type: ignore[dict-item]
+        datetime | None: (None, ()),  # type: ignore[dict-item]
     }
 
     @classmethod
@@ -75,24 +64,24 @@ class DataTypeMapping:
             float: (pl.Float64(), (not_null_check,)),
             str: (pl.String(), (not_null_check,)),
             date: (pl.Date(), (not_null_check,)),
-            datetime: (pl.Datetime(time_unit="us", time_zone=timezone.utc), (not_null_check,)),
-            Union[int, None]: (pl.Int64(), ()),
-            Union[bool, None]: (pl.Boolean(), ()),
-            Union[float, None]: (pl.Float64(), ()),
-            Union[str, None]: (pl.String(), ()),
-            Union[date, None]: (pl.Date(), ()),
-            Union[datetime, None]: (pl.Datetime(time_unit="us", time_zone=timezone.utc), ()),
+            datetime: (pl.Datetime(time_unit="us", time_zone=UTC), (not_null_check,)),
+            int | None: (pl.Int64(), ()),
+            bool | None: (pl.Boolean(), ()),
+            float | None: (pl.Float64(), ()),
+            str | None: (pl.String(), ()),
+            date | None: (pl.Date(), ()),
+            datetime | None: (pl.Datetime(time_unit="us", time_zone=UTC), ()),
         }
 
     @classmethod
-    def get_validators(cls, field_type: Type) -> Tuple[Callable, ...]:
+    def get_validators(cls, field_type: type) -> tuple[Callable, ...]:
         entry = cls.mapping.get(field_type)
         if entry:
             return entry[1]
         return ()
 
     @classmethod
-    def get_schema_type(cls, field_type: Type) -> Optional["pl.DataType"]:
+    def get_schema_type(cls, field_type: type) -> Optional["pl.DataType"]:
         entry = cls.mapping.get(field_type)
         if entry:
             return entry[0]
@@ -117,22 +106,22 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     Do not use this class directly, instead use `@dataframe` class decorator.
     """
 
-    DataFrameValueType = Union[int, bool, float, str, date, datetime, None]
+    DataFrameValueType = int | bool | float | str | date | datetime | None
 
     def __init__(self, **series: pl.Series) -> None:
         # Fields added here only to allow mypy to provide correct type hints
-        self.__data_object__: Dict[str, Any] = {}
+        self.__data_object__: dict[str, Any] = {}
         self.__dataframe__: DataFrameMetadata = None  # type: ignore
         self.__df = pl.DataFrame()
         raise NotImplementedError  # must use @dataframe decorator  # pragma: no cover
 
     @staticmethod
-    def __init_from_series__(self, **series: pl.Series) -> None:  # pylint: disable=bad-staticmethod-argument
-        validate: bool = self.__data_object__["validate"]
+    def __init_from_series__(obj, **series: pl.Series) -> None:
+        validate: bool = obj.__data_object__["validate"]
 
         # Assign default values for missing fields
         max_len: int | None = None
-        for field_name, field_info in self.__dataframe__.fields.items():
+        for field_name, field_info in obj.__dataframe__.fields.items():
             if series.get(field_name) is None:
                 max_len = max_len or max(len(data) for data in series.values() if data is not None)
                 default_value = field_info.get_default()
@@ -145,20 +134,20 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
 
         # Create dataframe using schema columns only
         df = pl.DataFrame(
-            {col: data for col, data in series.items() if col in self.__dataframe__.columns},
-            schema=self.__dataframe__.schema if validate else None,
+            {col: data for col, data in series.items() if col in obj.__dataframe__.columns},
+            schema=obj.__dataframe__.schema if validate else None,
         )
 
         # Validate (i.e. not nullable fields)
         if validate:
-            for field_name, field_info in self.__dataframe__.fields.items():
+            for field_name, field_info in obj.__dataframe__.fields.items():
                 for func in DataTypeMapping.get_validators(field_info.annotation):
                     if not func(df[field_name]):
                         raise TypeError(
-                            f"{type(self).__name__} validation failed for field: {field_name}: {func.__name__}"
+                            f"{type(obj).__name__} validation failed for field: {field_name}: {func.__name__}"
                         )
 
-        setattr(self, "__df", df)
+        setattr(obj, "__df", df)
 
     @classmethod
     def _from_df(cls, df: pl.DataFrame, **series: Any) -> DataFrameT:
@@ -177,14 +166,14 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     def __getitem__(self, key) -> "DataFrameT":
         return self._from_df(self.__df[key])
 
-    def _to_dataobjects(self) -> List[DataObject]:
+    def _to_dataobjects(self) -> list[DataObject]:
         return [Payload.from_obj(obj, datatype=self.DataObject) for obj in self.__df.to_dicts()]
 
     def event_id(self, *args, **kwargs) -> str:
         return ""
 
     def event_ts(self, *args, **kwargs) -> datetime:
-        return datetime.now(tz=timezone.utc)
+        return datetime.now(tz=UTC)
 
     def __getattribute__(self, name: str) -> Any:
         if name[:2] == "__":
@@ -221,7 +210,7 @@ def dataframe(
     unsafe: bool = False,
     validate: bool = True,
     schema: bool = True,
-) -> Callable[[Type], Type[DataFrameMixin]]:
+) -> Callable[[type], type[DataFrameMixin]]:
     """
     Decorator for dataclasses intended to be used as dataframes.
     """
@@ -237,14 +226,13 @@ def dataframe(
             schema_fields[field_name] = datatype
         return pl.Schema(schema_fields)
 
-    def add_dataframe_mixin(cls) -> Type[DataFrameMixin]:
+    def add_dataframe_mixin(cls) -> type[DataFrameMixin]:
         if hasattr(cls, "__annotations__") and hasattr(cls, "__dataclass_fields__"):
             amended_class = type(
                 cls.__name__,
                 (DataFrameMixin,) + cls.__mro__,
-                dict(cls.__dict__),
+                dict(cls.__dict__, __init__=DataFrameMixin.__init_from_series__),
             )
-            setattr(amended_class, "__init__", DataFrameMixin.__init_from_series__)
             return amended_class
         return cls
 
@@ -254,28 +242,20 @@ def dataframe(
         dataobject_type = create_model(dataobject_name, **serialized_fields)  # type: ignore[call-overload]
         dataobject_type = dataobject(dataobject_type, unsafe=True)
 
-        setattr(cls, "DataObject", dataobject_type)
-        setattr(
-            cls,
-            "__dataframe__",
-            DataFrameMetadata(
-                columns=list(fields(cls).keys()),
-                fields=dict(fields(cls).items()),
-                schema=None if pl is None else get_dataframe_schema(cls),
-            ),
+        cls.DataObject = dataobject_type
+        cls.__dataframe__ = DataFrameMetadata(
+            columns=list(fields(cls).keys()),
+            fields=dict(fields(cls).items()),
+            schema=None if pl is None else get_dataframe_schema(cls),
         )
 
     def add_dataobject_annotations(cls, unsafe: bool, validate: bool, schema: bool) -> None:
-        setattr(
-            cls,
-            "__data_object__",
-            {"unsafe": unsafe, "validate": validate, "schema": schema},
-        )
-        setattr(cls, "__stream_event__", StreamEventParams(None, None))
-        setattr(cls, "event_id", StreamEventMixin.event_id)
-        setattr(cls, "event_ts", StreamEventMixin.event_ts)
+        cls.__data_object__ = {"unsafe": unsafe, "validate": validate, "schema": schema}
+        cls.__stream_event__ = StreamEventParams(None, None)
+        cls.event_id = StreamEventMixin.event_id
+        cls.event_ts = StreamEventMixin.event_ts
 
-    def wrap(cls) -> Type[DataFrameMixin]:
+    def wrap(cls) -> type[DataFrameMixin]:
         if hasattr(cls, "__dataframe__"):
             return cls
         add_dataframe_metadata(cls)

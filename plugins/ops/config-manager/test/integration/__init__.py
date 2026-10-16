@@ -1,28 +1,28 @@
-from typing import Dict, Optional
+from typing import ClassVar
 
 import aiohttp
 
 from hopeit.app.config import AppConfig, EventDescriptor
+from hopeit.app.context import EventContext
 from hopeit.config_manager import RuntimeApps
 from hopeit.dataobjects.payload import Payload
-from hopeit.server.version import APPS_ROUTE_VERSION
-from hopeit.app.context import EventContext
-from hopeit.server.events import get_event_settings
 from hopeit.server.config import AuthType
+from hopeit.server.events import get_event_settings
+from hopeit.server.version import APPS_ROUTE_VERSION
 from hopeit.testing.apps import config
 
 
 class MockAppEngine:
     def __init__(self, app_config: AppConfig):
         self.app_config = app_config
-        self.effective_events: Dict[str, EventDescriptor] = {}
+        self.effective_events: dict[str, EventDescriptor] = {}
 
 
 class MockServer:
     def __init__(self, *app_config: AppConfig):
         self.app_engines = {cfg.app_key(): MockAppEngine(cfg) for cfg in app_config}
 
-    def set_effective_events(self, app_key: str, effective_events: Dict[str, EventDescriptor]):
+    def set_effective_events(self, app_key: str, effective_events: dict[str, EventDescriptor]):
         self.app_engines[app_key].effective_events = effective_events
 
 
@@ -41,11 +41,11 @@ class MockResponse:
 
 
 class MockClientSession:
-    responses: Dict[str, RuntimeApps] = {}
+    responses: ClassVar[dict[str, RuntimeApps]] = {}
     # timeout: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=10.0)
 
     @classmethod
-    def setup(cls, responses: Dict[str, RuntimeApps]):
+    def setup(cls, responses: dict[str, RuntimeApps]):
         cls.responses = responses
         return cls
 
@@ -63,12 +63,12 @@ class MockClientSession:
             raise TimeoutError()
         if url in self.responses:
             return MockResponse(self.responses[url])
-        raise IOError("Test error")
+        raise OSError("Test error")
 
 
 def mock_effective_events(response, effective_events=None):
     if effective_events:
-        for _, app_info in response.apps.items():
+        for app_info in response.apps.values():
             app_info.effective_events = effective_events
     return response
 
@@ -102,7 +102,7 @@ def mock_client(
     )
 
 
-def mock_context(event_name: str, timeout: Optional[float] = None) -> EventContext:
+def mock_context(event_name: str, timeout: float | None = None) -> EventContext:
     plugin_config = config("plugins/ops/config-manager/config/plugin-config.json")
     if timeout:
         plugin_config.settings["config_manager_client"]["client_timeout"] = timeout

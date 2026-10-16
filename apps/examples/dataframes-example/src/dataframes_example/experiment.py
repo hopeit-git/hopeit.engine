@@ -1,12 +1,9 @@
 """Retrieves stored experiment"""
 
-from typing import Union
-
+from dataframes_example.experiment_storage import load_experiment
 from dataframes_example.iris import (
     Experiment,
 )
-from dataframes_example.experiment_storage import load_experiment
-
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 
@@ -31,7 +28,7 @@ async def retrieve_experiment(
 
 def __postprocess__(
     experiment: Experiment, context: EventContext, response: PostprocessHook
-) -> Union[Experiment, str]:
+) -> Experiment | str:
     if experiment is None:
         response.status = 404
         return "Experiment not found"

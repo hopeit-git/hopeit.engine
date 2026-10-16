@@ -4,8 +4,6 @@ Simple Example: List Objects
 Lists all available Something objects
 """
 
-from typing import List, Optional
-
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
@@ -19,18 +17,20 @@ __api__ = event_api(
     query_args=[
         (
             "wildcard",
-            Optional[str],
-            "Wildcard to filter objects by name prefixed "
-            "by partition folder in format YYYY/MM/DD/HH/*",
+            str | None,
+            (
+                "Wildcard to filter objects by name prefixed "
+                "by partition folder in format YYYY/MM/DD/HH/*"
+            ),
         )
     ],
     responses={
-        200: (List[Something], "list of Something objects"),
+        200: (list[Something], "list of Something objects"),
     },
 )
 
 logger, extra = app_extra_logger()
-fs: Optional[FileStorage] = None
+fs: FileStorage | None = None
 
 
 async def __init_event__(context):
@@ -42,13 +42,13 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-async def load_all(payload: None, context: EventContext, wildcard: str = "*") -> List[Something]:
+async def load_all(payload: None, context: EventContext, wildcard: str = "*") -> list[Something]:
     """
     Load objects that match the given wildcard
     """
     assert fs
     logger.info(context, "load_all", extra=extra(path=fs.path))
-    items: List[Something] = []
+    items: list[Something] = []
     for item_loc in await fs.list_objects(wildcard):
         something = await fs.get(
             key=item_loc.item_id, datatype=Something, partition_key=item_loc.partition_key

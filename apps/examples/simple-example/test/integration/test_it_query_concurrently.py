@@ -3,9 +3,8 @@ import uuid
 
 import pytest  # type: ignore
 
-from hopeit.testing.apps import execute_event
 from hopeit.server.version import APPS_API_VERSION
-
+from hopeit.testing.apps import execute_event
 from simple_example.collector.query_concurrently import ItemsInfo
 
 APP_VERSION = APPS_API_VERSION.replace(".", "x")
@@ -34,7 +33,7 @@ def sample_file_ids():
     return ids
 
 
-async def test_find_two_items(app_config, sample_file_ids):  # noqa: F811
+async def test_find_two_items(app_config, sample_file_ids):
     payload = ItemsInfo(*sample_file_ids)
     payload.partition_key = "2020/05/01/00/"
     result = await execute_event(
@@ -46,7 +45,7 @@ async def test_find_two_items(app_config, sample_file_ids):  # noqa: F811
     assert result[1].id == sample_file_ids[1]
 
 
-async def test_find_one_item(app_config, sample_file_ids):  # noqa: F811
+async def test_find_one_item(app_config, sample_file_ids):
     payload = ItemsInfo(sample_file_ids[0], str(uuid.uuid4()))
     payload.partition_key = "2020/05/01/00/"
     result = await execute_event(
@@ -57,7 +56,7 @@ async def test_find_one_item(app_config, sample_file_ids):  # noqa: F811
     assert result[0].id == sample_file_ids[0]
 
 
-async def test_find_no_items(app_config, sample_file_ids):  # noqa: F811
+async def test_find_no_items(app_config, sample_file_ids):
     payload = ItemsInfo(str(uuid.uuid4()), str(uuid.uuid4()))
     payload.partition_key = "2020/05/01/00/"
     result = await execute_event(

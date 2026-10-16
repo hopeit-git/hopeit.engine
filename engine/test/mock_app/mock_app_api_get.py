@@ -2,10 +2,8 @@
 Test app api
 """
 
-from typing import Optional
-
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
+from hopeit.app.logger import app_extra_logger
 from mock_app import MockData
 
 logger, extra = app_extra_logger()
@@ -56,6 +54,6 @@ __api__ = {
 }
 
 
-def entry_point(payload: None, context: EventContext, arg1: Optional[int] = None) -> MockData:
+def entry_point(payload: None, context: EventContext, arg1: int | None = None) -> MockData:
     logger.info(context, "mock_app_api_get.entry_point")
     return MockData(f"get-{arg1}")

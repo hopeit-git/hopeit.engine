@@ -3,9 +3,8 @@ import uuid
 
 import pytest  # type: ignore
 
-from hopeit.testing.apps import execute_event
 from hopeit.server.version import APPS_API_VERSION
-
+from hopeit.testing.apps import execute_event
 from model import Something, SomethingNotFound
 
 APP_VERSION = APPS_API_VERSION.replace(".", "x")
@@ -32,8 +31,8 @@ def sample_file_id():
     return test_id, "2020/05/01/00"
 
 
-async def test_query_item(app_config, sample_file_id):  # noqa: F811
-    result, pp_result, res = await execute_event(
+async def test_query_item(app_config, sample_file_id):
+    result, pp_result, _res = await execute_event(
         app_config=app_config,
         event_name="query_something",
         payload=None,
@@ -46,7 +45,7 @@ async def test_query_item(app_config, sample_file_id):  # noqa: F811
     assert result.id == sample_file_id[0]
 
 
-async def test_query_item_not_found(app_config):  # noqa: F811
+async def test_query_item_not_found(app_config):
     item_id = str(uuid.uuid4())
     result, pp_result, res = await execute_event(
         app_config=app_config,

@@ -1,17 +1,16 @@
 import asyncio
 import json
 import os
-from pathlib import Path
-from datetime import datetime, timezone
 import socket
+from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 
-from hopeit.server.version import APPS_API_VERSION, APPS_ROUTE_VERSION
+from hopeit.log_streamer import LogBatch, LogRawBatch
 from hopeit.server import config as server_config
+from hopeit.server.version import APPS_API_VERSION, APPS_ROUTE_VERSION
 from hopeit.testing.apps import config, execute_event
-
-from hopeit.log_streamer import LogRawBatch, LogBatch
 
 from . import mock_getenv
 
@@ -63,23 +62,23 @@ def mock_lock():
 async def log_entries() -> LogBatch:
     raw = LogRawBatch(
         data=[
-            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} save_something host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} service.something_generator host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test |  stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event | stream.queue=AUTO",  # noqa: E501
-            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} service.something_generator host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test | stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event | stream.queue=AUTO",  # noqa: E501
-            f"2021-06-02 18:01:44,290 | INFO | client-example {APPS_API_VERSION} count_and_save host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:01:44,303 | INFO | client-example {APPS_API_VERSION} count_and_save host 17031 | IGNORED | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",  # noqa: E501
-            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} streams.something_event host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test |  stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event.high-prio | stream.queue=high-prio",  # noqa: E501
-            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} streams.something_event host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test | stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event.high-prio | stream.queue=high-prio",  # noqa: E501
-            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} streams.process_events host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test | stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event.high-prio | stream.queue=high-prio",  # noqa: E501
-            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} streams.process_events host 17031 | FAILED | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test |  stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event.high-prio | stream.queue=high-prio",  # noqa: E501
-            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} login host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test | event.app=simple_example.{APPS_ROUTE_VERSION} | event.plugin=basic_auth.{APPS_ROUTE_VERSION}",  # noqa: E501
-            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} login host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test | event.app=simple_example.{APPS_ROUTE_VERSION} | event.plugin=basic_auth.{APPS_ROUTE_VERSION}",  # noqa: E501
+            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} query_something host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} save_something host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} service.something_generator host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test |  stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event | stream.queue=AUTO",
+            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} service.something_generator host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test | stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event | stream.queue=AUTO",
+            f"2021-06-02 18:01:44,290 | INFO | client-example {APPS_API_VERSION} count_and_save host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:01:44,303 | INFO | client-example {APPS_API_VERSION} count_and_save host 17031 | IGNORED | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test",
+            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} streams.something_event host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test |  stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event.high-prio | stream.queue=high-prio",
+            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} streams.something_event host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test | stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event.high-prio | stream.queue=high-prio",
+            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} streams.process_events host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test | stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event.high-prio | stream.queue=high-prio",
+            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} streams.process_events host 17031 | FAILED | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test |  stream.name=simple_example.{APPS_ROUTE_VERSION}.streams.something_event.high-prio | stream.queue=high-prio",
+            f"2021-06-02 18:01:44,290 | INFO | simple-example {APPS_API_VERSION} login host 17031 | START | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test | event.app=simple_example.{APPS_ROUTE_VERSION} | event.plugin=basic_auth.{APPS_ROUTE_VERSION}",
+            f"2021-06-02 18:01:44,303 | INFO | simple-example {APPS_API_VERSION} login host 17031 | DONE | response.status=404 | metrics.duration=13.057 | track.operation_id=f2659a30-5ac4-4dd4-b1f7-9a00db0bf7d5 | track.request_id=7ee59fa7-c1e4-4a60-a79b-a25dbbd6cb82 | track.request_ts=2021-06-02T18:01:44.289394+00:00 | track.caller=test | track.session_id=test | event.app=simple_example.{APPS_ROUTE_VERSION} | event.plugin=basic_auth.{APPS_ROUTE_VERSION}",
         ]
     )
     batch = await _process_log_entries(raw)
-    ts = datetime.now(tz=timezone.utc)
+    ts = datetime.now(tz=UTC)
     for entry in batch.entries:
         entry.ts = ts.strftime("%Y-%m-%d %H:%M:%S")
         entry.host = socket.gethostname()

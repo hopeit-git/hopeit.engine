@@ -5,9 +5,9 @@ Returns decoded auth info
 """
 
 from hopeit.app.api import event_api
-from hopeit.basic_auth import ContextUserInfo
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_logger
+from hopeit.basic_auth import ContextUserInfo
 
 logger = app_logger()
 

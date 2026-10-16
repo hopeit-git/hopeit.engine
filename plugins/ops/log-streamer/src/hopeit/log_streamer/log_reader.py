@@ -3,21 +3,19 @@ Log Reader service: watches log files and emit batches of Log entries to a strea
 """
 
 import asyncio
-from typing import Dict, List, Optional
 
 from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn
 from hopeit.app.logger import app_extra_logger
-from hopeit.server.names import auto_path
-
 from hopeit.log_streamer import (
-    LogReaderConfig,
-    LogRawBatch,
-    LogEntry,
     LogBatch,
+    LogEntry,
     LogFileHandler,
+    LogRawBatch,
+    LogReaderConfig,
     start_observer,
 )
+from hopeit.server.names import auto_path
 
 logger, extra = app_extra_logger()
 
@@ -48,14 +46,14 @@ async def __service__(context: EventContext) -> Spawn[LogRawBatch]:
             event_handler.close_inactive_files()
     except KeyboardInterrupt:  # pragma: no cover
         pass
-    except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+    except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
         logger.error(context, e)
     finally:
         observer.stop()
         observer.join()
 
 
-def _parse_extras(extras: List[str]) -> Dict[str, str]:
+def _parse_extras(extras: list[str]) -> dict[str, str]:
     items = {}
     for entry in extras:
         entry = entry.strip("\n")
@@ -67,7 +65,7 @@ def _parse_extras(extras: List[str]) -> Dict[str, str]:
     return items
 
 
-async def _process_log_entry(entry: str, context: EventContext) -> Optional[LogEntry]:
+async def _process_log_entry(entry: str, context: EventContext) -> LogEntry | None:
     """
     Parses log line into a LogEntry
 
@@ -95,12 +93,12 @@ async def _process_log_entry(entry: str, context: EventContext) -> Optional[LogE
                     pid=pid,
                 )
         return None
-    except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+    except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
         logger.error(context, e)
         return None
 
 
-async def process_log_data(payload: LogRawBatch, context: EventContext) -> Optional[LogBatch]:
+async def process_log_data(payload: LogRawBatch, context: EventContext) -> LogBatch | None:
     """
     Receives emitted batch of raw log lines from service handler, process and filter in order
     to emit processed batch to a stream.
@@ -110,7 +108,7 @@ async def process_log_data(payload: LogRawBatch, context: EventContext) -> Optio
         context, "Processing batch of log entries...", extra=extra(batch_size=len(payload.data))
     )
     try:
-        entries: List[LogEntry] = []
+        entries: list[LogEntry] = []
         for entry in payload.data:
             processed_entry = await _process_log_entry(entry, context)
             if processed_entry is not None:
@@ -119,7 +117,7 @@ async def process_log_data(payload: LogRawBatch, context: EventContext) -> Optio
             return LogBatch(entries=entries)
         logger.info("Filtered out all entries in batch.")
         return None
-    except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+    except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
         logger.error(context, e)
         return None
     finally:

@@ -1,12 +1,12 @@
-from typing import Dict, List, Union
-from collections import defaultdict
 import asyncio
+from collections import defaultdict
+from typing import ClassVar
 
 from hopeit.app.config import AppConfig
-from hopeit.server import engine
-from hopeit.server.version import APPS_ROUTE_VERSION
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.dataobjects.payload import Payload
+from hopeit.server import engine
+from hopeit.server.version import APPS_ROUTE_VERSION
 
 
 @dataobject
@@ -15,7 +15,7 @@ class MockResponseData:
     value: str
     param: str
     host: str
-    log: Dict[str, int]
+    log: dict[str, int]
 
 
 @dataobject
@@ -38,7 +38,7 @@ class MockResponse:
     def __init__(
         self,
         status: int,
-        response: Union[MockResponseData, str],
+        response: MockResponseData | str,
         content_type: str = "application/json",
     ):
         self.status = status
@@ -62,7 +62,7 @@ class MockResponseList:
     def __init__(
         self,
         status: int,
-        items: List[MockResponseData],
+        items: list[MockResponseData],
         content_type: str = "application/json",
     ):
         self.status = status
@@ -85,18 +85,18 @@ class MockResponseList:
 class MockClientSession:
     lock = asyncio.Lock()
     session_open = False
-    responses: Dict[str, str] = {}
-    headers: Dict[str, str] = {}
-    failure: Dict[str, int] = {}
-    alternate: Dict[str, int] = {}
-    call_log: Dict[str, int] = defaultdict(int)
+    responses: ClassVar[dict[str, str]] = {}
+    headers: ClassVar[dict[str, str]] = {}
+    failure: ClassVar[dict[str, int]] = {}
+    alternate: ClassVar[dict[str, int]] = {}
+    call_log: ClassVar[dict[str, int]] = defaultdict(int)
     content_type: str = "application/json"
 
     @classmethod
-    def setup(cls, responses: Dict[str, str], headers: Dict[str, str]):
+    def setup(cls, responses: dict[str, str], headers: dict[str, str]):
         cls.responses = responses
         cls.headers = headers
-        cls.failure = {cls._host(url): 0 for url in responses.keys()}
+        cls.failure = {cls._host(url): 0 for url in responses}
         cls.call_log = defaultdict(int)
         cls.session_open = False
         return cls
@@ -124,7 +124,6 @@ class MockClientSession:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         type(self).session_open = False
-        return None
 
     @staticmethod
     def _host(url: str):
@@ -163,11 +162,11 @@ class MockClientSession:
                     log=dict(self.call_log),
                 ),
             )
-        raise IOError("Test error")
+        raise OSError("Test error")
 
     def post(
         self, url: str, data: str, headers: dict, params: dict
-    ) -> Union[MockResponseList, MockResponse]:
+    ) -> MockResponseList | MockResponse:
         self._check_headers(headers)
         host = self._host(url)
         self.call_log[host] += 1
@@ -201,7 +200,7 @@ class MockClientSession:
                     )
                 ],
             )
-        raise IOError("Test error")
+        raise OSError("Test error")
 
 
 async def init_mock_client_app(module, monkeypatch, mock_auth, app_config, event_name, response):

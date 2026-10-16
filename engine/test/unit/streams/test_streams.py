@@ -1,5 +1,4 @@
-from datetime import datetime, timezone
-from typing import List, Union
+from datetime import UTC, datetime, timezone
 
 import pytest
 
@@ -34,20 +33,20 @@ class MockStreamManager(StreamManager):
         else:
             raise StreamOSError()
 
-    async def read_stream(self, **kwargs) -> List[Union[StreamEvent, Exception]]:
+    async def read_stream(self, **kwargs) -> list[StreamEvent | Exception]:
         if self.connected:
             return [
                 StreamEvent(
                     b"test1",
                     "test-queue",
-                    payload=MockData(value="mock1", ts=datetime(2020, 1, 1)),
+                    payload=MockData(value="mock1", ts=datetime(2020, 1, 1)),  # noqa: DTZ001 -- Exercise naive timestamp inputs.
                     track_ids={},
                     auth_info={},
                 ),
                 StreamEvent(
                     b"test1",
                     "test-queue",
-                    payload=MockData(value="mock2", ts=datetime(2020, 1, 1)),
+                    payload=MockData(value="mock2", ts=datetime(2020, 1, 1)),  # noqa: DTZ001 -- Exercise naive timestamp inputs.
                     track_ids={},
                     auth_info={},
                 ),
@@ -63,7 +62,7 @@ class MockStreamManager(StreamManager):
 
 
 def test_as_data_event():
-    test_data = MockData("ok", datetime.now(tz=timezone.utc))
+    test_data = MockData("ok", datetime.now(tz=UTC))
     assert StreamManager.as_data_event(test_data) == test_data
     with pytest.raises(NotImplementedError):
         StreamManager.as_data_event(MockInvalidDataEvent("ok"))

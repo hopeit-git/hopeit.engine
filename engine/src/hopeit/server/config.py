@@ -2,31 +2,30 @@
 Server configuration utility
 """
 
-from enum import Enum
-from typing import TypeVar, List, Optional
-import re
 import os
+import re
+from enum import Enum
+from typing import TypeVar
 
 from hopeit.dataobjects import dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
 from hopeit.server.names import auto_path_prefixed
 from hopeit.server.version import ENGINE_VERSION
 
-
 __all__ = [
-    "StreamsConfig",
-    "LoggingConfig",
-    "AuthType",
     "AuthConfig",
+    "AuthType",
+    "LoggingConfig",
     "ServerConfig",
+    "StreamsConfig",
     "parse_server_config_json",
-    "replace_env_vars",
     "replace_config_args",
+    "replace_env_vars",
 ]
 
 
 DEFAULT_STR = "<<DEFAULT>>"
-ConfigType = TypeVar("ConfigType")  # pylint: disable=invalid-name
+ConfigType = TypeVar("ConfigType")
 
 
 @dataobject
@@ -89,9 +88,9 @@ class AuthConfig:
     auth_passphrase: str
     enabled: bool = True
     create_keys: bool = False
-    domain: Optional[str] = None
+    domain: str | None = None
     encryption_algorithm: str = "RS256"
-    default_auth_methods: List[AuthType] = field(default_factory=list)
+    default_auth_methods: list[AuthType] = field(default_factory=list)
 
     def __post_init__(self):
         if len(self.default_auth_methods) == 0:
@@ -109,7 +108,7 @@ class APIConfig:
     Config for Open API docs page
     """
 
-    docs_path: Optional[str] = None
+    docs_path: str | None = None
 
 
 @dataobject
@@ -137,7 +136,7 @@ def parse_server_config_json(config_json: str) -> ServerConfig:
     """
     effective_json = replace_env_vars(config_json)
     parsed_config: ServerConfig = Payload.from_json(effective_json, datatype=ServerConfig)
-    replace_config_args(parsed_config=parsed_config, config_classes=tuple([StreamsConfig]))
+    replace_config_args(parsed_config=parsed_config, config_classes=(StreamsConfig,))
     return parsed_config
 
 

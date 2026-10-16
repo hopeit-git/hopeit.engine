@@ -1,15 +1,14 @@
-from typing import List, Type, Union
-import pytest
 from base64 import b64encode
 
-from hopeit.app.context import EventContext
+import pytest
+
+from client_example import CountAndSaveResult
 from hopeit.app.client import UnhandledResponse
+from hopeit.app.context import EventContext
 from hopeit.dataobjects import EventPayload, dataclass, dataobject
 from hopeit.server.web import Unauthorized
-from hopeit.testing.apps import execute_event, create_test_context
-
-from model import Something, User, SomethingParams, SomethingNotFound
-from client_example import CountAndSaveResult
+from hopeit.testing.apps import create_test_context, execute_event
+from model import Something, SomethingNotFound, SomethingParams, User
 
 
 @dataobject
@@ -31,11 +30,11 @@ async def custom_app_call(
     app_connection: str,
     *,
     event: str,
-    datatype: Type[str],
+    datatype: type[str],
     payload: EventPayload,
     context: EventContext,
     **kwargs,
-) -> Union[str, MockAuthInfo, SomethingNotFound, Something]:
+) -> str | MockAuthInfo | SomethingNotFound | Something:
     if app_connection == "simple_example_conn" and event == "save_something":
         assert payload == SomethingParams(id="id2", user="test-user")
         return "test_path"
@@ -60,11 +59,11 @@ async def custom_app_call_list(
     app_connection: str,
     *,
     event: str,
-    datatype: Type[Something],
+    datatype: type[Something],
     payload: EventPayload,
     context: EventContext,
     **kwargs,
-) -> List[Something]:
+) -> list[Something]:
     if app_connection == "simple_example_conn" and event == "list_somethings":
         return [
             Something(id="test1", user=User(id="test", name="test")),
@@ -75,7 +74,7 @@ async def custom_app_call_list(
     raise NotImplementedError("Test case not implemented in mock_app_call")
 
 
-async def test_query_item(monkeypatch, client_app_config):  # noqa: F811
+async def test_query_item(monkeypatch, client_app_config):
     def mock_client_calls(module, context: EventContext):
         monkeypatch.setattr(module, "app_call", custom_app_call)
         monkeypatch.setattr(module, "app_call_list", custom_app_call_list)
@@ -98,7 +97,7 @@ async def test_query_item(monkeypatch, client_app_config):  # noqa: F811
     assert result == CountAndSaveResult(count=2, save_path="test_path")
 
 
-async def test_login_response_not_recognized(monkeypatch, client_app_config):  # noqa: F811
+async def test_login_response_not_recognized(monkeypatch, client_app_config):
     def mock_client_calls(module, context: EventContext):
         monkeypatch.setattr(module, "app_call", custom_app_call)
         monkeypatch.setattr(module, "app_call_list", custom_app_call_list)
@@ -120,7 +119,7 @@ async def test_login_response_not_recognized(monkeypatch, client_app_config):  #
         )
 
 
-async def test_handle_responses_something(monkeypatch, client_app_config):  # noqa: F811
+async def test_handle_responses_something(monkeypatch, client_app_config):
     def mock_client_calls(module, context: EventContext):
         monkeypatch.setattr(module, "app_call", custom_app_call)
 
@@ -146,7 +145,7 @@ async def test_handle_responses_something(monkeypatch, client_app_config):  # no
     )
 
 
-async def test_handle_responses_something_not_found(monkeypatch, client_app_config):  # noqa: F811
+async def test_handle_responses_something_not_found(monkeypatch, client_app_config):
     def mock_client_calls(module, context: EventContext):
         monkeypatch.setattr(module, "app_call", custom_app_call)
 
@@ -169,7 +168,7 @@ async def test_handle_responses_something_not_found(monkeypatch, client_app_conf
     assert result == "Got 404 response with: 'SomethingNotFound(path='', id='id_not_found')'"
 
 
-async def test_call_unsecure(monkeypatch, client_app_config):  # noqa: F811
+async def test_call_unsecure(monkeypatch, client_app_config):
     def mock_client_calls(module, context: EventContext):
         monkeypatch.setattr(module, "app_call_list", custom_app_call_list)
 

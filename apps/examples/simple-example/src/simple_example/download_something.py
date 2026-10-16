@@ -7,11 +7,10 @@ Download image file. The PostprocessHook return the requested file as stream.
 import os
 import shutil
 
-from hopeit.dataobjects import BinaryDownload, dataclass
 from hopeit.app.api import event_api
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PostprocessHook
-
+from hopeit.app.logger import app_extra_logger
+from hopeit.dataobjects import BinaryDownload, dataclass
 
 __steps__ = ["find_image"]
 
@@ -42,7 +41,7 @@ async def find_image(payload: None, context: EventContext, *, file_name: str) ->
     tgt_file_path = os.path.join(str(context.env["storage"]["base_path"]), file_name)
     try:
         shutil.copy(src_file_path, tgt_file_path)
-    except IOError as msg:
+    except OSError as msg:
         print(f"Unable to copy file. {msg}")
 
     return ImagePng(file_name=file_name, file_path=tgt_file_path)

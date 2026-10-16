@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
 import uuid
+from datetime import UTC, datetime
+
 import pytest  # type: ignore
 
 from hopeit.testing.apps import config
@@ -15,7 +16,7 @@ def test_objs():
             object_id=f"obj{i}",
             object_ts=datetime.strptime(
                 f"2020-05-01T0{i // 2}:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"
-            ).astimezone(tz=timezone.utc),
+            ).astimezone(tz=UTC),
             value=i,
         )
         for i in range(10)
@@ -26,5 +27,5 @@ def test_objs():
 def app_config():
     cfg = config("plugins/storage/fs/test/integration/app_config.json")
     # Set unique folder for each test run
-    cfg.settings["test_stream_batch_storage"]["path"] += f"/{str(uuid.uuid4())}"
+    cfg.settings["test_stream_batch_storage"]["path"] += f"/{uuid.uuid4()!s}"
     return cfg

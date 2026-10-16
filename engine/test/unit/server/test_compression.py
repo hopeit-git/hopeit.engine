@@ -1,10 +1,12 @@
+import bz2
+import gzip
+import lzma
+import zlib
+
+import lz4.frame  # type: ignore
+
 from hopeit.app.config import Compression
 from hopeit.server.compression import compress, decompress
-import zlib
-import gzip
-import bz2
-import lzma
-import lz4.frame  # type: ignore
 
 data = bytes([65] * 1000)
 

@@ -4,5 +4,4 @@ Server runtime: module to keep a reference to current runtime hopeit engine Serv
 
 from hopeit.server.engine import Server
 
-
 server = Server()

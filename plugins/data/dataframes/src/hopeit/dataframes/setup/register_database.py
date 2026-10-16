@@ -1,9 +1,8 @@
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_logger
-
-from hopeit.dataframes.setup import registry
 from hopeit.dataframes.serialization.settings import DataframesDatabaseSettings
+from hopeit.dataframes.setup import registry
 
 logger = app_logger()
 

@@ -4,11 +4,10 @@ Provides generic `serialize`, `deserialize` methods to handle payloads
 
 import base64
 import pickle
-from typing import Type
 
-from hopeit.app.config import Serialization, Compression
+from hopeit.app.config import Compression, Serialization
 
-__all__ = ["serialize", "deserialize"]
+__all__ = ["deserialize", "serialize"]
 
 from hopeit.dataobjects import EventPayload, EventPayloadType
 from hopeit.dataobjects.payload import Payload
@@ -19,7 +18,7 @@ async def _ser_json_utf8(data: EventPayload, level: int) -> bytes:
     return Payload.to_json(data).encode("utf-8")
 
 
-async def _deser_json_utf8(data: bytes, datatype: Type[EventPayloadType]) -> EventPayload:
+async def _deser_json_utf8(data: bytes, datatype: type[EventPayloadType]) -> EventPayload:
     return Payload.from_json(data.decode("utf-8"), datatype)
 
 
@@ -27,7 +26,7 @@ async def _ser_pickle(data: EventPayload, level: int) -> bytes:
     return pickle.dumps(data, protocol=level)
 
 
-async def _deser_pickle(data: bytes, datatype: Type[EventPayloadType]) -> EventPayload:
+async def _deser_pickle(data: bytes, datatype: type[EventPayloadType]) -> EventPayload:
     return pickle.loads(data)
 
 
@@ -35,7 +34,7 @@ async def _ser_json_base64(data: EventPayload, level: int) -> bytes:
     return base64.b64encode(await _ser_json_utf8(data, level))
 
 
-async def _deser_json_base64(data: bytes, datatype: Type[EventPayloadType]) -> EventPayload:
+async def _deser_json_base64(data: bytes, datatype: type[EventPayloadType]) -> EventPayload:
     return await _deser_json_utf8(base64.b64decode(data), datatype)
 
 
@@ -60,7 +59,7 @@ async def deserialize(
     data: bytes,
     serialization: Serialization,
     compression: Compression,
-    datatype: Type[EventPayloadType],
+    datatype: type[EventPayloadType],
 ) -> EventPayload:
     algos = _SERDESER[serialization]
     decomp = decompress(data, compression)

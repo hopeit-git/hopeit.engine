@@ -1,8 +1,6 @@
-from typing import Union
-
-from hopeit.app.events import Spawn, SHUFFLE
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.app.events import SHUFFLE, Spawn
+from hopeit.app.logger import app_extra_logger
 from hopeit.dataobjects import dataclass, dataobject
 
 __steps__ = ["produce_messages", SHUFFLE, "process_a", "process_b"]
@@ -22,7 +20,7 @@ class B:
     b: str
 
 
-async def produce_messages(payload: str, context: EventContext) -> Spawn[Union[A, B]]:
+async def produce_messages(payload: str, context: EventContext) -> Spawn[A | B]:
     logger.info(context, f"producing messages of type A and B from {payload}")
     a, b = payload.split(".")[:2]
     yield A(a)

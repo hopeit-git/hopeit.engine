@@ -1,6 +1,7 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from hopeit.dataobjects import dataclass, dataobject
-import hopeit.fs_storage.partition as partition
+from hopeit.fs_storage import partition
 
 
 @dataobject(event_id="object_id", event_ts="object_ts")
@@ -21,9 +22,7 @@ class UntimedObject:
 def test_get_partition_timed_object():
     obj = TimedObject(
         "obj1",
-        datetime.strptime("2020-05-01T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z").astimezone(
-            tz=timezone.utc
-        ),
+        datetime.strptime("2020-05-01T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z").astimezone(tz=UTC),
         value=1,
     )
     partition_key = partition.get_partition_key(obj, "%Y/%m/%d/%H")
@@ -34,7 +33,7 @@ class MockDatetime:
     @staticmethod
     def now(*args, **kwargs):
         return datetime.strptime("2021-06-02T01:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z").astimezone(
-            tz=timezone.utc
+            tz=UTC
         )
 
 

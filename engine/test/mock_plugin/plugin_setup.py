@@ -5,7 +5,6 @@ test setup event plugin mode
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 
-
 __steps__ = ["setup"]
 
 initialized = False

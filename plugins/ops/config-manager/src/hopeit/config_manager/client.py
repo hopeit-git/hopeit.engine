@@ -2,20 +2,18 @@
 Config Manager Client
 """
 
-from typing import Dict, Union, Tuple
 import asyncio
 import random
 
 import aiohttp
 
-from hopeit.dataobjects.payload import Payload
-from hopeit.server.version import APPS_ROUTE_VERSION
 from hopeit.app.context import EventContext
-from hopeit.dataobjects import dataclass, dataobject
-from hopeit.server.logger import engine_extra_logger
-
 from hopeit.config_manager import RuntimeAppInfo, RuntimeApps, ServerStatus
 from hopeit.config_manager.runtime import get_in_process_config
+from hopeit.dataobjects import dataclass, dataobject
+from hopeit.dataobjects.payload import Payload
+from hopeit.server.logger import engine_extra_logger
+from hopeit.server.version import APPS_ROUTE_VERSION
 
 logger, extra = engine_extra_logger()
 
@@ -48,8 +46,8 @@ async def get_apps_config(hosts: str, context: EventContext, **kwargs) -> Runtim
         *[_get_host_config(host, context, **kwargs) for host in hosts.split(",")]
     )
 
-    apps: Dict[str, RuntimeAppInfo] = {}
-    server_status: Dict[str, ServerStatus] = {}
+    apps: dict[str, RuntimeAppInfo] = {}
+    server_status: dict[str, ServerStatus] = {}
     for host, runtime_apps_response in responses:
         if isinstance(runtime_apps_response, RuntimeApps):
             _combine_apps(apps, runtime_apps_response)
@@ -62,7 +60,7 @@ async def get_apps_config(hosts: str, context: EventContext, **kwargs) -> Runtim
 
 async def _get_host_config(
     host: str, context: EventContext, **kwargs
-) -> Tuple[str, Union[RuntimeApps, ServerStatus]]:
+) -> tuple[str, RuntimeApps | ServerStatus]:
     """
     Invokes config-manager runtime-apps-config endpoint in a given host
     """
@@ -90,10 +88,12 @@ async def _get_host_config(
 
     try:
         timeout = aiohttp.ClientTimeout(total=settings.client_timeout)
-        async with aiohttp.ClientSession(timeout=timeout) as client:
-            async with client.get(url) as response:
-                return host, Payload.from_obj(await response.json(), RuntimeApps)
-    except TimeoutError as e:  # pylint: disable=broad-except
+        async with (
+            aiohttp.ClientSession(timeout=timeout) as client,
+            client.get(url) as response,
+        ):
+            return host, Payload.from_obj(await response.json(), RuntimeApps)
+    except TimeoutError as e:
         logger.error(
             context,
             "Timeout contacting host: %s",
@@ -101,7 +101,7 @@ async def _get_host_config(
             extra=extra(host=host, url=url, error=str(e)),
         )
         return host, ServerStatus.ERROR
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:  # noqa: BLE001 -- Report unreachable or invalid remote applications as server errors.
         logger.error(
             context,
             "Error contacting host: %s",
@@ -111,7 +111,7 @@ async def _get_host_config(
         return host, ServerStatus.ERROR
 
 
-def _combine_apps(apps: Dict[str, RuntimeAppInfo], runtime_apps: RuntimeApps):
+def _combine_apps(apps: dict[str, RuntimeAppInfo], runtime_apps: RuntimeApps):
     for app_key, app_info in runtime_apps.apps.items():
         app = apps.get(app_key)
         if app is None:

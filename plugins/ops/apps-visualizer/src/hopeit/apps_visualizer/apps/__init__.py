@@ -2,22 +2,19 @@
 Apps Visualizer apps state
 """
 
-from typing import Optional
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from hopeit.app.context import EventContext
-from hopeit.server.logger import engine_extra_logger
-
+from hopeit.apps_visualizer import AppsVisualizerSettings
 from hopeit.config_manager import RuntimeApps
 from hopeit.config_manager.client import get_apps_config
-
-from hopeit.apps_visualizer import AppsVisualizerSettings
+from hopeit.server.logger import engine_extra_logger
 
 logger, extra = engine_extra_logger()
 
 _lock = asyncio.Lock()
-_apps: Optional[RuntimeApps] = None
+_apps: RuntimeApps | None = None
 _expire: float = 0.0
 
 
@@ -31,7 +28,7 @@ async def get_runtime_apps(
     if not refresh and _lock.locked():
         raise RuntimeError("Events graph request in process. Ignoring")
     settings = context.settings(key="apps_visualizer", datatype=AppsVisualizerSettings)
-    now_ts = datetime.now(tz=timezone.utc).timestamp()
+    now_ts = datetime.now(tz=UTC).timestamp()
     async with _lock:
         if _apps is None or refresh or now_ts > _expire:
             logger.info(context, "Contacting hosts config-manager...")

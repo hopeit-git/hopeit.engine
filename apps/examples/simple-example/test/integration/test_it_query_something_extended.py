@@ -1,12 +1,11 @@
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest  # type: ignore
 
-from hopeit.testing.apps import execute_event
 from hopeit.server.version import APPS_API_VERSION
-
+from hopeit.testing.apps import execute_event
 from model import Something, SomethingNotFound, Status, StatusType
 
 APP_VERSION = APPS_API_VERSION.replace(".", "x")
@@ -33,9 +32,9 @@ def sample_file_id():
     return test_id, "2020/05/01/00"
 
 
-async def test_query_item(app_config, sample_file_id):  # noqa: F811
-    status = Status(datetime.now(tz=timezone.utc), StatusType.LOADED)
-    result, pp_result, res = await execute_event(
+async def test_query_item(app_config, sample_file_id):
+    status = Status(datetime.now(tz=UTC), StatusType.LOADED)
+    result, pp_result, _res = await execute_event(
         app_config=app_config,
         event_name="query_something_extended",
         payload=status,
@@ -49,8 +48,8 @@ async def test_query_item(app_config, sample_file_id):  # noqa: F811
     assert result.status == status
 
 
-async def test_query_item_not_found(app_config):  # noqa: F811
-    status = Status(datetime.now(tz=timezone.utc), StatusType.LOADED)
+async def test_query_item_not_found(app_config):
+    status = Status(datetime.now(tz=UTC), StatusType.LOADED)
     item_id = str(uuid.uuid4())
     result, pp_result, res = await execute_event(
         app_config=app_config,

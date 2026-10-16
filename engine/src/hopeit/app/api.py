@@ -3,43 +3,37 @@ API Definition helpers for user apps
 """
 
 import inspect
+import re
+from collections.abc import Callable
 from functools import partial
 from typing import (
-    Optional,
-    List,
-    Type,
-    Dict,
-    Callable,
-    Union,
-    Tuple,
     Any,
     TypeVar,
+    Union,
     get_args,
     get_origin,
 )
 
-import re
-
-from hopeit.dataobjects import BinaryDownload
 from hopeit.app.config import AppConfig, AppDescriptor, EventType
+from hopeit.dataobjects import BinaryDownload
 from hopeit.server.api import (
-    spec,
-    app_route_name,
-    APIError,
     BUILTIN_TYPES,
+    APIError,
+    app_route_name,
     datatype_schema,
+    spec,
 )
 from hopeit.server.names import route_name
 
-__all__ = ["api_from_config", "event_api", "app_base_route_name"]
+__all__ = ["api_from_config", "app_base_route_name", "event_api"]
 
-ArgType = TypeVar("ArgType", bound=Type)  # pylint: disable=invalid-name
-ArgDef = Union[str, Tuple[str, ArgType], Tuple[str, ArgType, str]]
-PayloadDef = Union[Type, Tuple[Type, str]]
+ArgType = TypeVar("ArgType", bound=type)
+ArgDef = str | tuple[str, ArgType] | tuple[str, ArgType, str]
+PayloadDef = type | tuple[type, str]
 
 
 def api_from_config(
-    module, *, app_config: AppConfig, event_name: str, plugin: Optional[AppConfig]
+    module, *, app_config: AppConfig, event_name: str, plugin: AppConfig | None
 ) -> dict:
     """
     Uses api definition exactly as it comes from --api-file specified at runtime.
@@ -73,7 +67,7 @@ def api_from_config(
 
 
 def app_base_route_name(
-    app: AppDescriptor, *, plugin: Optional[AppDescriptor] = None, prefix="api"
+    app: AppDescriptor, *, plugin: AppDescriptor | None = None, prefix="api"
 ) -> str:
     """
     Returns base route name for paths in a given app
@@ -93,7 +87,7 @@ def _arg_name(arg: ArgDef) -> str:
     return arg[0]
 
 
-def _arg_type(arg: ArgDef) -> Tuple[str, Optional[str], bool]:
+def _arg_type(arg: ArgDef) -> tuple[str, str | None, bool]:
     if isinstance(arg, str):
         return (*BUILTIN_TYPES[str], True)
     datatype, required = arg[1], True
@@ -126,7 +120,7 @@ def _payload_description(arg: PayloadDef) -> str:
     return str(arg)
 
 
-def _method_summary(module: str, summary: Optional[str] = None) -> str:
+def _method_summary(module: str, summary: str | None = None) -> str:
     if summary is not None:
         return summary
     doc_str = inspect.getdoc(module)
@@ -136,7 +130,7 @@ def _method_summary(module: str, summary: Optional[str] = None) -> str:
 
 
 def _method_description(
-    module: str, description: Optional[str] = None, summary: Optional[str] = None
+    module: str, description: str | None = None, summary: str | None = None
 ) -> str:
     if description is not None:
         return description
@@ -146,7 +140,7 @@ def _method_description(
     return _method_summary(module, summary)
 
 
-def _parse_args_schema(query_args: Optional[List[ArgDef]]):
+def _parse_args_schema(query_args: list[ArgDef] | None):
     """
     Parse query args schema
     """
@@ -168,7 +162,7 @@ def _parse_args_schema(query_args: Optional[List[ArgDef]]):
     return parameters
 
 
-def _parse_fields_schema(fields: Optional[List[ArgDef]]):
+def _parse_fields_schema(fields: list[ArgDef] | None):
     """
     Parse form fields schema
     """
@@ -196,23 +190,23 @@ def _parse_fields_schema(fields: Optional[List[ArgDef]]):
 
 
 def _event_api(
-    summary: Optional[str],
-    description: Optional[str],
-    payload: Optional[Union[Type, tuple[type[Any], str]]],
-    query_args: Optional[List[ArgDef]],
-    fields: Optional[List[ArgDef]],
-    responses: Optional[Dict[int, PayloadDef]],
+    summary: str | None,
+    description: str | None,
+    payload: type | tuple[type[Any], str] | None,
+    query_args: list[ArgDef] | None,
+    fields: list[ArgDef] | None,
+    responses: dict[int, PayloadDef] | None,
     module,
     app_config: AppConfig,
     event_name: str,
-    plugin: Optional[AppConfig],
+    plugin: AppConfig | None,
 ) -> dict:
     """
     Handler returned by event_api(...)
     """
     parameters = _parse_args_schema(query_args)
 
-    method_spec: Dict[str, Any] = {
+    method_spec: dict[str, Any] = {
         "summary": _method_summary(module, summary),
         "description": _method_description(module, description, summary),
         "parameters": parameters,
@@ -229,7 +223,7 @@ def _event_api(
             "content": {content_type: {"schema": _payload_schema(event_name, payload)}},
         }
 
-    def _payload_content_type(arg: PayloadDef) -> Tuple[PayloadDef, str]:
+    def _payload_content_type(arg: PayloadDef) -> tuple[PayloadDef, str]:
         dt = arg[0] if isinstance(arg, tuple) else arg
         if inspect.isclass(dt) and issubclass(dt, BinaryDownload):
             return (BinaryDownload, arg[1]) if isinstance(
@@ -264,12 +258,12 @@ def _event_api(
 
 def event_api(
     *,
-    summary: Optional[str] = None,
-    description: Optional[str] = None,
-    payload: Optional[PayloadDef] = None,
-    query_args: Optional[List[ArgDef]] = None,
-    fields: Optional[List[ArgDef]] = None,
-    responses: Optional[Dict[int, PayloadDef]] = None,
+    summary: str | None = None,
+    description: str | None = None,
+    payload: PayloadDef | None = None,
+    query_args: list[ArgDef] | None = None,
+    fields: list[ArgDef] | None = None,
+    responses: dict[int, PayloadDef] | None = None,
 ) -> Callable[..., dict]:
     """
     Provides a convenient way to define Open API specification using Python types for a given app event

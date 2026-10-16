@@ -4,16 +4,12 @@ Simple Example: Save Something
 Creates and saves Something
 """
 
-from typing import Optional, Union
-
-from hopeit.app.api import event_api
-from hopeit.app.logger import app_extra_logger
-from hopeit.app.context import EventContext, PreprocessHook
-from hopeit.fs_storage import FileStorage, FileStorageSettings
-
-from model import Something, User, SomethingParams
 from common.validation import validate
-
+from hopeit.app.api import event_api
+from hopeit.app.context import EventContext, PreprocessHook
+from hopeit.app.logger import app_extra_logger
+from hopeit.fs_storage import FileStorage, FileStorageSettings
+from model import Something, SomethingParams, User
 
 __steps__ = ["create_something", "save"]
 
@@ -25,7 +21,7 @@ __api__ = event_api(
 
 
 logger, extra = app_extra_logger()
-fs: Optional[FileStorage] = None
+fs: FileStorage | None = None
 
 
 async def __init_event__(context):
@@ -37,10 +33,9 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-# pylint: disable=invalid-name
 async def __preprocess__(
     payload: SomethingParams, context: EventContext, request: PreprocessHook
-) -> Union[str, SomethingParams]:
+) -> str | SomethingParams:
     user_agent = request.headers.get("user-agent")
     if (user_agent is None) or (user_agent.strip() == ""):
         logger.error(context, "Missing required user-agent")

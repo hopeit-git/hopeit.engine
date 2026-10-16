@@ -1,7 +1,6 @@
 """Iris datasets schemas"""
 
 from datetime import datetime
-from typing import List, Optional
 
 from hopeit.dataframes import Dataset, dataframe
 from hopeit.dataobjects import dataclass, dataobject, field
@@ -52,13 +51,13 @@ class Experiment:
     experiment_id: str
     experiment_dt: datetime
     input_data: Dataset[Iris]
-    train_features: Optional[Dataset[IrisFeatures]] = None
-    train_labels: Optional[Dataset[IrisLabels]] = None
-    test_features: Optional[Dataset[IrisFeatures]] = None
-    test_labels: Optional[Dataset[IrisLabels]] = None
-    eval_metrics: Optional[EvalMetrics] = None
-    trained_model_location: Optional[str] = None
-    experiment_partition_key: Optional[str] = None
+    train_features: Dataset[IrisFeatures] | None = None
+    train_labels: Dataset[IrisLabels] | None = None
+    test_features: Dataset[IrisFeatures] | None = None
+    test_labels: Dataset[IrisLabels] | None = None
+    eval_metrics: EvalMetrics | None = None
+    trained_model_location: str | None = None
+    experiment_partition_key: str | None = None
 
 
 @dataobject
@@ -71,7 +70,7 @@ class IrisPredictionRequest:
 @dataobject(unsafe=True)
 @dataclass
 class IrisBatchPredictionRequest:
-    items: List[IrisPredictionRequest]
+    items: list[IrisPredictionRequest]
 
 
 @dataobject
@@ -84,7 +83,7 @@ class IrisPredictionResponse:
 @dataobject
 @dataclass
 class IrisBatchPredictionResponse:
-    items: List[IrisPredictionResponse]
+    items: list[IrisPredictionResponse]
 
 
 @dataobject

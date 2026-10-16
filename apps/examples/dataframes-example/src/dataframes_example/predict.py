@@ -1,5 +1,8 @@
 """Endpoint to run predictions using trained model"""
 
+import polars as pl
+from sklearn.tree import DecisionTreeClassifier  # type: ignore
+
 from dataframes_example.iris import (
     IrisBatchPredictionRequest,
     IrisBatchPredictionResponse,
@@ -8,14 +11,9 @@ from dataframes_example.iris import (
     IrisPredictionResponse,
 )
 from dataframes_example.model_storage import load_experiment_model
-
-import polars as pl
-
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.dataframes import DataFrames
-
-from sklearn.tree import DecisionTreeClassifier  # type: ignore
 
 __steps__ = ["predict"]
 

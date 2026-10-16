@@ -5,12 +5,13 @@ Use `hopeit.app.events` `collector_step(...)` constructor to define steps implem
 """
 
 import asyncio
-from typing import Callable, Dict, Any, Tuple, Optional, Coroutine
-from hopeit.dataobjects import copy_payload
+from collections.abc import Callable, Coroutine
+from typing import Any, ClassVar
 
 from hopeit.app.context import EventContext
+from hopeit.dataobjects import copy_payload
 
-__all__ = ["Collector", "AsyncCollector", "CollectorStepType"]
+__all__ = ["AsyncCollector", "Collector", "CollectorStepType"]
 
 
 class AbstractCollector:
@@ -53,18 +54,22 @@ class AsyncCollector(AbstractCollector):
     Please check the sequence your code is accessing/awaiting results from the collector to avoid cycles.
     """
 
-    __data_object__ = {"unsafe": True, "validate": False, "schema": False}
+    __data_object__: ClassVar[dict[str, bool]] = {
+        "unsafe": True,
+        "validate": False,
+        "schema": False,
+    }
 
     def __init__(self):
-        self.items: Dict[str, CollectorItem] = {}
+        self.items: dict[str, CollectorItem] = {}
         self.executed: bool = False
-        self.payload: Optional[Any] = None
+        self.payload: Any | None = None
 
     def input(self, payload: Any):
         self.payload = payload
         return self
 
-    def steps(self, *funcs: Tuple[str, CollectorStepType]):
+    def steps(self, *funcs: tuple[str, CollectorStepType]):
         for name, func in funcs:
             self.items[name] = CollectorItem(func)
         return self

@@ -1,9 +1,9 @@
-from hopeit.app.context import PreprocessHeaders, PreprocessHook
-from hopeit.fs_storage.partition import get_partition_key
 import json
 
-from hopeit.testing.apps import execute_event
+from hopeit.app.context import PreprocessHeaders, PreprocessHook
+from hopeit.fs_storage.partition import get_partition_key
 from hopeit.server.version import APPS_API_VERSION
+from hopeit.testing.apps import execute_event
 
 APP_VERSION = APPS_API_VERSION.replace(".", "x")
 
@@ -12,7 +12,7 @@ def mock_user_agent_header(module, context, *, preprocess_hook: PreprocessHook):
     preprocess_hook.headers = PreprocessHeaders.from_dict({"user-agent": "Testing!"})
 
 
-async def test_it_save_something(app_config, something_params_example):  # noqa: F811
+async def test_it_save_something(app_config, something_params_example):
     result = await execute_event(
         app_config=app_config,
         event_name="save_something",
@@ -25,13 +25,13 @@ async def test_it_save_something(app_config, something_params_example):  # noqa:
         f"{app_config.env['storage']['base_path']}simple_example.{APP_VERSION}.fs_storage.path/"
         f"{partition_key}{something_params_example.id}.json"
     )
-    with open(str(result)) as f:
+    with open(str(result)) as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         fields = json.loads(f.read())
         assert fields["id"] == something_params_example.id
         assert fields["user"]["name"] == something_params_example.user
 
 
-async def test_it_save_something_missing_user_agent(app_config, something_params_example):  # noqa: F811
+async def test_it_save_something_missing_user_agent(app_config, something_params_example):
     result = await execute_event(
         app_config=app_config,
         event_name="save_something",

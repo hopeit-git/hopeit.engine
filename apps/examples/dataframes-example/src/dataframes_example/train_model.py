@@ -1,18 +1,9 @@
 """Example training pipeline for the Iris dataset"""
 
-# pylint: disable=invalid-name
-
 import uuid
-from datetime import datetime, timezone
-
-from hopeit.app.api import event_api
-from hopeit.app.context import EventContext
-from hopeit.app.logger import app_extra_logger
-from hopeit.dataframes import DataFrames, Dataset
-from hopeit.server.steps import SHUFFLE
+from datetime import UTC, datetime
 
 import polars as pl
-
 from sklearn.metrics import accuracy_score  # type: ignore
 from sklearn.model_selection import train_test_split  # type: ignore
 from sklearn.tree import DecisionTreeClassifier  # type: ignore
@@ -26,6 +17,11 @@ from dataframes_example.iris import (
     IrisFeatures,
     IrisLabels,
 )
+from hopeit.app.api import event_api
+from hopeit.app.context import EventContext
+from hopeit.app.logger import app_extra_logger
+from hopeit.dataframes import DataFrames, Dataset
+from hopeit.server.steps import SHUFFLE
 
 logger, extra = app_extra_logger()
 
@@ -57,7 +53,7 @@ async def prepare_experiment(input_data: InputData, context: EventContext) -> Ex
 
     experiment = Experiment(
         experiment_id=experiment_id,
-        experiment_dt=datetime.now(tz=timezone.utc),
+        experiment_dt=datetime.now(tz=UTC),
         input_data=input_data.iris,
     )
 

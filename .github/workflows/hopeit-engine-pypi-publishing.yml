@@ -7,7 +7,31 @@ on:
     types: [published]
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+
+    - name: make ci-deps
+      run: PYTHONVERSION=${{ matrix.python-version }} make ci-deps
+
+    - name: lint
+      run: make lint
+
+    - name: test
+      run: make test
+
   upload:
+    needs: validate
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,17 +44,9 @@ jobs:
       uses: astral-sh/setup-uv@v3
       with:
         version: "latest"
-    
+
     - name: make ci-deps
       run: PYTHONVERSION=${{ matrix.python-version }} make ci-deps
-
-    - name: lint
-      run: |
-        make lint
-
-    - name: test
-      run: |
-        make test
 
     - name: make hopeit.engine package
       run: |
@@ -55,69 +71,69 @@ jobs:
     - name: make dist-plugin log-streamer
       run: |
         make PLUGINFOLDER=plugins/ops/log-streamer/ dist-plugin
-    
+
     - name: make dist-plugin apps-visualizer
       run: |
         make PLUGINFOLDER=plugins/ops/apps-visualizer/ dist-plugin
-    
+
     - name: make plugin apps-client
       run: |
         make PLUGINFOLDER=plugins/clients/apps-client/ dist-plugin
-    
+
     - name: make plugin dataframes
       run: |
         make PLUGINFOLDER=plugins/data/dataframes/ dist-plugin
 
     - name: publish hopeit.engine on PyPI
-      env: 
+      env:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make publish-engine-pypi
 
     - name: publish plugin redis-streams on PyPI
-      env: 
+      env:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make PLUGINFOLDER=plugins/streams/redis publish-plugin-pypi
 
     - name: publish plugin redis-storage on PyPI
-      env: 
+      env:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make PLUGINFOLDER=plugins/storage/redis publish-plugin-pypi
 
     - name: publish plugin fs-storage on PyPI
-      env: 
+      env:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make PLUGINFOLDER=plugins/storage/fs publish-plugin-pypi
 
     - name: publish plugin config-manager on PyPI
-      env: 
+      env:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make PLUGINFOLDER=plugins/ops/config-manager publish-plugin-pypi
 
     - name: publish plugin log-streamer on PyPI
-      env: 
+      env:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make PLUGINFOLDER=plugins/ops/log-streamer publish-plugin-pypi
 
     - name: publish plugin apps-visualizer on PyPI
-      env: 
+      env:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make PLUGINFOLDER=plugins/ops/apps-visualizer publish-plugin-pypi
 
     - name: publish plugin apps-client on PyPI
-      env: 
+      env:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make PLUGINFOLDER=plugins/clients/apps-client publish-plugin-pypi
 
     - name: publish plugin dataframes on PyPI
-      env: 
+      env:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         make PLUGINFOLDER=plugins/data/dataframes publish-plugin-pypi

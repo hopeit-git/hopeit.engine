@@ -10,9 +10,8 @@ from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.config import AuthType
 from hopeit.server.events import EventHandler, get_event_settings
-from mock_engine import MockStreamManager
-
 from mock_app import MockData, MockResult, mock_app_config  # type: ignore
+from mock_engine import MockStreamManager
 from mock_plugin import mock_plugin_config  # type: ignore
 
 
@@ -121,7 +120,7 @@ async def test_postprocess(mock_plugin_config):
         payload=MockData("ok"),
         expected="PluginEvent.postprocess",
         expected_response={
-            "cookies": {"PluginCookie": ("PluginCookieValue", tuple(), {})},
+            "cookies": {"PluginCookie": ("PluginCookieValue", (), {})},
             "headers": {"PluginHeader": "PluginHeaderValue"},
             "status": 999,
         },

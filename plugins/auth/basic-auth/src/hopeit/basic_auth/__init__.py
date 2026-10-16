@@ -2,8 +2,8 @@
 basic-auth plugin app, helper classes and methods
 """
 
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
 
 from hopeit.app.api import app_base_route_name
 from hopeit.app.config import AppDescriptor
@@ -13,7 +13,7 @@ from hopeit.dataobjects.payload import Payload
 from hopeit.server.config import AuthType
 from hopeit.toolkit import auth
 
-__all__ = ["ContextUserInfo", "AuthInfoExtended", "AuthInfo", "authorize", "set_refresh_token"]
+__all__ = ["AuthInfo", "AuthInfoExtended", "ContextUserInfo", "authorize", "set_refresh_token"]
 
 
 @dataobject

@@ -1,10 +1,10 @@
 import asyncio
+from copy import deepcopy
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
-from hopeit.redis_streams import setup_redis_pool
 import redis.asyncio as redis
 from redis import ResponseError
-
-from datetime import datetime, timezone
 
 from hopeit.app.config import (
     AppConfig,
@@ -16,16 +16,14 @@ from hopeit.app.config import (
     Serialization,
 )
 from hopeit.dataobjects import dataclass, dataobject
+from hopeit.redis_streams import RedisStreamManager, setup_redis_pool
+from hopeit.redis_streams.setup_redis_pool import BlockingConnectionPool
 from hopeit.server.config import AuthType, StreamsConfig
 from hopeit.server.version import APPS_API_VERSION
+from hopeit.streams import StreamEvent
 from hopeit.testing.apps import create_test_context
 
-from hopeit.streams import StreamEvent
-from hopeit.redis_streams import RedisStreamManager
-from hopeit.redis_streams.setup_redis_pool import BlockingConnectionPool
-
 from . import MockEventHandler, TestStreamData
-from copy import deepcopy
 
 
 @dataobject(event_id="value", event_ts="ts")
@@ -78,7 +76,7 @@ async def create_stream_manager(
         },
     ).setup()
     context = create_test_context(plugin_config, "setup_redis_pool")
-    setattr(RedisStreamManager, "_RedisStreamManager__connection_factory", None)
+    RedisStreamManager._RedisStreamManager__connection_factory = None  # type: ignore[attr-defined]  # Reset the name-mangled factory between tests.
     await setup_redis_pool.init_redis_streams(None, context)
     return await RedisStreamManager(address=MockRedisPool.test_url).connect(stream_config)
 
@@ -90,7 +88,7 @@ def patch_redis_client(monkeypatch):
 
 async def write_stream():
     mgr = await create_stream_manager()
-    payload = MockData("test_value", datetime.fromtimestamp(0, tz=timezone.utc))
+    payload = MockData("test_value", datetime.fromtimestamp(0, tz=UTC))
     res = await mgr.write_stream(
         stream_name="test_stream",
         queue=TestStreamData.test_queue,
@@ -117,7 +115,7 @@ async def write_stream():
         "comp": "none",
         "ser": "json",
         "auth_info": b"eyJhdXRoX3R5cGUiOiAiVW5zZWN1cmVkIiwgImFsbG93ZWQiOiAidHJ1ZSJ9",
-        "payload": '{"value":"test_value","ts":"1970-01-01T00:00:00Z"}'.encode(),
+        "payload": b'{"value":"test_value","ts":"1970-01-01T00:00:00Z"}',
         "queue": TestStreamData.test_queue.encode(),
     }
     res = await mgr.write_stream(
@@ -279,7 +277,7 @@ async def test_connect_uses_blocking_pool_settings(monkeypatch):
 async def test_write_stream_concurrent_low_max_connections(monkeypatch):
     patch_redis_client(monkeypatch)
     mgr = await create_stream_manager(max_connections=2, pool_timeout=2.5)
-    payload = MockData("test_value", datetime.fromtimestamp(0, tz=timezone.utc))
+    payload = MockData("test_value", datetime.fromtimestamp(0, tz=UTC))
     results = await asyncio.gather(
         *(
             mgr.write_stream(
@@ -302,7 +300,7 @@ async def test_write_stream_concurrent_low_max_connections(monkeypatch):
 class MockRedisPool:
     test_url: str = "redis://test_url"
     message_count = 10
-    test_msg = [
+    test_msg: ClassVar[list[Any]] = [
         b"0000000000-0",
         {
             b"type": b"unit.test_redis_streams.MockData",

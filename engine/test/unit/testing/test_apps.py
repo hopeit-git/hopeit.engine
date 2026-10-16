@@ -1,10 +1,9 @@
-import uuid
-import os
 import importlib
+import os
+import uuid
 from pathlib import Path
 from types import ModuleType
 
-from hopeit.dataobjects.payload import Payload
 import pytest  # type: ignore
 
 from hopeit.app.context import (
@@ -13,16 +12,17 @@ from hopeit.app.context import (
     PreprocessHeaders,
     PreprocessHook,
 )
+from hopeit.dataobjects.payload import Payload
 from hopeit.server.config import AuthType
 from hopeit.testing.apps import (
+    TestingException,
     config,
-    server_config,
     create_test_context,
     execute_event,
     execute_service,
-    TestingException,
+    server_config,
 )
-from mock_app import mock_app_config, MockData, mock_event, MockResult
+from mock_app import MockData, MockResult, mock_app_config, mock_event
 
 
 def test_config(mock_app_config):
@@ -66,7 +66,7 @@ async def test_execute_event_and_postprocess(mock_app_config):
     assert pp_result == "ok: ok"
     assert response.status == 200
     assert response.headers == {"X-Status": "ok"}
-    assert response.cookies == {"Test-Cookie": ("ok", tuple(), {})}
+    assert response.cookies == {"Test-Cookie": ("ok", (), {})}
 
 
 async def test_execute_event_failed_case(mock_app_config):
@@ -127,7 +127,7 @@ async def test_execute_shuffle_event_default_step(mock_app_config):
 
 
 async def test_execute_parallelize_event(mock_app_config):
-    result, pp_result, response = await execute_event(
+    result, pp_result, _response = await execute_event(
         mock_app_config,
         "mock_parallelize_event",
         payload="part-a.part-b",
@@ -139,7 +139,7 @@ async def test_execute_parallelize_event(mock_app_config):
 
 async def test_execute_parallelize_event_no_shuffle(mock_app_config):
     def mock_steps(module, context):
-        setattr(module, "__steps__", ["produce_messages", "process_a", "process_b"])
+        module.__steps__ = ["produce_messages", "process_a", "process_b"]
 
     result = await execute_event(
         mock_app_config,
@@ -159,7 +159,7 @@ def mock_module(module: ModuleType, context: EventContext):
     async def mock_handle_ok_case(payload: MockData, context: EventContext) -> str:
         return "mock: " + payload.value
 
-    setattr(module, "handle_ok_case", mock_handle_ok_case)
+    vars(module)["handle_ok_case"] = mock_handle_ok_case
 
 
 async def test_execute_event_with_mocks(mock_app_config):

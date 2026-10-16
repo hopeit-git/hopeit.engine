@@ -82,9 +82,9 @@ import dataclasses
 import os
 import uuid
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import aiofiles
+
 from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn
 from hopeit.app.logger import app_extra_logger
@@ -101,11 +101,11 @@ __steps__ = ["buffer_item", "flush"]
 @dataclasses.dataclass
 class Partition:
     lock: asyncio.Lock = dataclasses.field(default_factory=asyncio.Lock)
-    items: List[DataObject] = dataclasses.field(default_factory=list)  # type: ignore
+    items: list[DataObject] = dataclasses.field(default_factory=list)  # type: ignore
 
 
 SUFFIX = ".jsonlines"
-buffer: Dict[str, Partition] = {}
+buffer: dict[str, Partition] = {}
 buffer_lock: asyncio.Lock = asyncio.Lock()
 
 
@@ -134,7 +134,7 @@ async def __service__(context: EventContext) -> Spawn[FlushSignal]:
             logger.info(context, "Flushing partitions by time disabled.")
 
 
-async def buffer_item(payload: DataObject, context: EventContext) -> Optional[FlushSignal]:
+async def buffer_item(payload: DataObject, context: EventContext) -> FlushSignal | None:
     """
     Consumes any Dataobject type from stream and put it local memory buffer to be flushed later
     """
@@ -161,7 +161,7 @@ async def flush(signal: FlushSignal, context: EventContext):
     logger.info(context, f"Flush {signal.partition_key} done.")
 
 
-async def _save_partition(partition_key: str, items: List[DataObject], context: EventContext):
+async def _save_partition(partition_key: str, items: list[DataObject], context: EventContext):
     settings = context.settings(datatype=FileStorageSettings)
     path = Path(settings.path) / partition_key
     file = path / f"{uuid.uuid4()}{SUFFIX}"

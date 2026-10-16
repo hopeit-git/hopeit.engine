@@ -1,5 +1,5 @@
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
+from hopeit.app.logger import app_extra_logger
 
 from . import MockData
 

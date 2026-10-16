@@ -3,16 +3,16 @@ import asyncio
 import pytest
 
 import hopeit.apps_client as apps_client_module
-from hopeit.apps_client import AppsClientException, ClientLoadBalancerException
 from hopeit.app.client import (
     AppConnectionNotFound,
+    UnhandledResponse,
     app_call,
     app_call_list,
     app_client,
-    UnhandledResponse,
 )
 from hopeit.app.config import AppConfig
 from hopeit.app.errors import Unauthorized
+from hopeit.apps_client import AppsClientException, ClientLoadBalancerException
 from hopeit.server.config import AuthType
 from hopeit.testing.apps import create_test_context
 
@@ -404,7 +404,7 @@ async def test_load_balancer_no_hosts_available(monkeypatch, mock_client_app_con
         client = app_client("test_app_connection", context)
 
         for _ in range(10):
-            try:
+            with pytest.raises((AppsClientException, ClientLoadBalancerException)):
                 await client.call(
                     "test_event_get",
                     datatype=MockResponseData,
@@ -412,8 +412,6 @@ async def test_load_balancer_no_hosts_available(monkeypatch, mock_client_app_con
                     context=context,
                     test_param="test_param_value",
                 )
-            except:  # noqa: E722
-                pass  # Opening circuit breakers
 
         assert MockClientSession.call_log == {"http://test-host1": 10, "http://test-host2": 10}
         with pytest.raises(ClientLoadBalancerException):

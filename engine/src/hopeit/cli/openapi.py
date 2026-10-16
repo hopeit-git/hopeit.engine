@@ -13,7 +13,7 @@ from hopeit.server.config import parse_server_config_json
 from hopeit.server.logger import engine_logger
 
 logger = engine_logger().init_cli("openapi")
-setattr(api, "logger", logger)
+api.logger = logger
 
 
 @click.group()
@@ -113,12 +113,12 @@ def diff(config_files: str, input_file: str, generate: bool):
             for item in items:
                 print("\t", item)
                 try:
-                    old_value = str(eval(item, None, {"root": api.static_spec}))  # pylint: disable=eval-used
-                except Exception as e:  # pylint: disable=broad-except
+                    old_value = str(eval(item, None, {"root": api.static_spec}))
+                except Exception as e:  # noqa: BLE001 -- Display evaluation failures when comparing API specifications.
                     old_value = str(e)
                 try:
-                    new_value = str(eval(item, None, {"root": api.spec}))  # pylint: disable=eval-used
-                except Exception as e:  # pylint: disable=broad-except
+                    new_value = str(eval(item, None, {"root": api.spec}))
+                except Exception as e:  # noqa: BLE001 -- Display evaluation failures when comparing API specifications.
                     new_value = str(e)
                 print("\t\t<<<", re.sub("\n", " ", old_value))
                 print("\t\t>>>", re.sub("\n", " ", new_value))

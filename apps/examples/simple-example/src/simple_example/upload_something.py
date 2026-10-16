@@ -5,20 +5,16 @@ Uploads file using multipart upload support. Returns metadata Something object.
 ```
 """
 
-from typing import List, Union
-
 import os
 from pathlib import Path
 
 from hopeit.app.api import event_api
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
+from hopeit.app.logger import app_extra_logger
 from hopeit.dataobjects import BinaryAttachment, dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
 from hopeit.toolkit.web import save_multipart_attachment
-
 from model import Something
-
 
 __steps__ = ["create_items"]
 
@@ -28,7 +24,7 @@ __api__ = event_api(
     query_args=[("something_id", str)],
     fields=[("id", str), ("user", str), ("attachment", BinaryAttachment), ("object", Something)],
     responses={
-        200: (List[Something], "list of created Something objects"),
+        200: (list[Something], "list of created Something objects"),
         400: (str, "Missing or invalid fields"),
     },
 )
@@ -52,7 +48,7 @@ class FileUploadInfo:
     id: str
     user: str
     object: Something
-    uploaded_files: List[UploadedFile] = field(default_factory=list)
+    uploaded_files: list[UploadedFile] = field(default_factory=list)
 
 
 async def __init_event__(context: EventContext):
@@ -60,10 +56,9 @@ async def __init_event__(context: EventContext):
     os.makedirs(save_path, exist_ok=True)
 
 
-# pylint: disable=invalid-name
 async def __preprocess__(
     payload: None, context: EventContext, request: PreprocessHook, *, something_id: str
-) -> Union[str, FileUploadInfo]:
+) -> str | FileUploadInfo:
     uploaded_files = []
     save_path = Path(str(context.env["upload_something"]["save_path"]))
     chunk_size = int(context.env["upload_something"]["chunk_size"])
@@ -88,7 +83,7 @@ async def __preprocess__(
 
 async def create_items(
     payload: FileUploadInfo, context: EventContext, *, something_id: str
-) -> List[Something]:
+) -> list[Something]:
     """
     Create Something objects to be returned for each uploaded file
     """

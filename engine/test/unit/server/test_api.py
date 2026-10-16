@@ -8,8 +8,8 @@ from aiohttp import web
 from aiohttp_swagger3.swagger_route import SwaggerRoute
 
 from hopeit.server import api
-from hopeit.server.api import app_route_name, APIError
-from mock_app import mock_api_spec, mock_api_app_config, mock_app_api_generated
+from hopeit.server.api import APIError, app_route_name
+from mock_app import mock_api_app_config, mock_api_spec, mock_app_api_generated
 from mock_plugin import mock_plugin_config
 
 
@@ -47,7 +47,7 @@ def test_generate_mode(
 
 def test_load_api_file(mock_api_spec):
     api.clear()
-    file_name = f"/tmp/{str(uuid.uuid4())}.json"
+    file_name = f"/tmp/{uuid.uuid4()!s}.json"
     with open(file_name, "w") as fp:
         json.dump(mock_api_spec, fp)
     api.load_api_file(file_name)
@@ -59,7 +59,7 @@ def test_load_api_file(mock_api_spec):
 
 def test_save_api_file(mock_api_spec):
     api.clear()
-    file_name = f"/tmp/{str(uuid.uuid4())}.json"
+    file_name = f"/tmp/{uuid.uuid4()!s}.json"
     api.spec = mock_api_spec
     api.static_spec = deepcopy(mock_api_spec)
     api.save_api_file(file_name, api_version=mock_api_spec["info"]["version"])

@@ -1,20 +1,20 @@
 import json
 import os
 
-from pydantic import ValidationError
 import pytest  # type: ignore
+from pydantic import ValidationError
 
-from hopeit.server.version import APPS_API_VERSION, ENGINE_VERSION
 from hopeit.app.config import (
     AppConfig,
     AppDescriptor,
-    EventDescriptor,
     AppEngineConfig,
+    EventDescriptor,
     EventType,
     ReadStreamDescriptor,
     WriteStreamDescriptor,
+    parse_app_config_json,
 )
-from hopeit.app.config import parse_app_config_json
+from hopeit.server.version import APPS_API_VERSION, ENGINE_VERSION
 
 APP_VERSION = APPS_API_VERSION.replace(".", "x")
 

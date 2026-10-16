@@ -1,10 +1,11 @@
-from typing import Any, Dict, Optional
-from uuid import uuid4
 from fnmatch import fnmatch
+from typing import Any
+from uuid import uuid4
+
 import redis.asyncio as redis
+
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.dataobjects.payload import Payload
-
 from hopeit.redis_storage import RedisStorage
 
 
@@ -85,9 +86,9 @@ async def connect():
 class MockRedisPool:
     def __init__(self) -> None:
         self.items: dict = {test_key: payload_str}
-        self.set_called_with: Optional[Dict[str, Any]] = None
+        self.set_called_with: dict[str, Any] | None = None
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         return self.items.get(key, None)
 
     async def set(self, key: str, payload: str, **kwargs):

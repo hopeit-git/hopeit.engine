@@ -1,12 +1,10 @@
-from hopeit.dataobjects.payload import Payload
-
 import asyncio
 import os
 from pathlib import Path
 
-from hopeit.testing.apps import config, execute_event
-
+from hopeit.dataobjects.payload import Payload
 from hopeit.log_streamer import log_reader
+from hopeit.testing.apps import config, execute_event
 
 
 async def test_log_reader(raw_log_entries, expected_log_entries):
@@ -19,9 +17,8 @@ async def write_logs(log_config, raw_log_entries):
     os.makedirs(log_config.logs_path, exist_ok=True)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
     await asyncio.sleep(2)
-    with open(path, "w") as f:
-        for line in raw_log_entries.data:
-            f.write(line + "\n")
+    with open(path, "w") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
+        f.writelines(line + "\n" for line in raw_log_entries.data)
         f.flush()
 
 

@@ -1,15 +1,14 @@
-from glob import glob
 import asyncio
-from hopeit.fs_storage.events.stream_batch_storage import FlushSignal
+from glob import glob
 
-
-from hopeit.testing.apps import execute_event
 from hopeit.dataobjects.payload import Payload
+from hopeit.fs_storage.events.stream_batch_storage import FlushSignal
+from hopeit.testing.apps import execute_event
 
 from . import MyObject
 
 
-async def test_buffer_objects_and_flush_partitions(app_config, test_objs):  # noqa: F811
+async def test_buffer_objects_and_flush_partitions(app_config, test_objs):
     test_save_path = app_config.settings["test_stream_batch_storage"]["path"]
 
     # Buffer 10 objects that should create 5 partitions
@@ -24,7 +23,7 @@ async def test_buffer_objects_and_flush_partitions(app_config, test_objs):  # no
     # Load saved data from disk and compare to input
     saved_objects = {}
     for file_name in glob(f"{test_save_path}/2020/05/01/**/*.jsonlines"):
-        with open(file_name) as f:
+        with open(file_name) as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
             for line in f:
                 obj = Payload.from_json(line, datatype=MyObject)
                 saved_objects[obj.object_id] = obj
@@ -34,7 +33,7 @@ async def test_buffer_objects_and_flush_partitions(app_config, test_objs):  # no
         assert obj == saved
 
 
-async def test_buffer_object_and_flush_signal(app_config, test_objs):  # noqa: F811
+async def test_buffer_object_and_flush_signal(app_config, test_objs):
     test_save_path = app_config.settings["test_stream_batch_storage"]["path"]
 
     # Buffer single object
@@ -56,7 +55,7 @@ async def test_buffer_object_and_flush_signal(app_config, test_objs):  # noqa: F
     await asyncio.sleep(1)  # Allow aiofiles to save
     saved_objects = {}
     for file_name in glob(f"{test_save_path}/{partition_key}/*.jsonlines"):
-        with open(file_name) as f:
+        with open(file_name) as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
             for line in f:
                 obj = Payload.from_json(line, datatype=MyObject)
                 saved_objects[obj.object_id] = obj

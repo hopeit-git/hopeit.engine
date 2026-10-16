@@ -22,21 +22,21 @@ import pickle
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, Type, TypeVar, Optional, Union, Any
+from typing import Any, TypeAlias, TypeVar
 
-from pydantic import RootModel, Field as field
+from pydantic import Field as field
+from pydantic import RootModel
 from pydantic.dataclasses import dataclass
 from pydantic.fields import FieldInfo
 
-
 __all__ = [
+    "DataObject",
     "EventPayload",
     "EventPayloadType",
     "StreamEventParams",
-    "dataobject",
-    "DataObject",
     "copy_payload",
     "dataclass",
+    "dataobject",
     "field",
     "fields",
 ]
@@ -49,8 +49,8 @@ class StreamEventParams:
     decorated objects, based on dot notation expressions
     """
 
-    event_id_expr: Optional[str]
-    event_ts_expr: Optional[str]
+    event_id_expr: str | None
+    event_ts_expr: str | None
 
     @staticmethod
     def extract_attr(obj, expr):
@@ -78,15 +78,15 @@ class StreamEventMixin:
             return self.__stream_event__.extract_attr(self, self.__stream_event__.event_id_expr)
         return str(uuid.uuid4())
 
-    def event_ts(self) -> Optional[datetime]:
+    def event_ts(self) -> datetime | None:
         if self.__stream_event__.event_ts_expr:
             return self.__stream_event__.extract_attr(self, self.__stream_event__.event_ts_expr)
         return None
 
 
 DataObject = TypeVar("DataObject", bound=RootModel)
-EventPayload = Union[str, int, float, bool, dict, set, list, DataObject]
-EventPayloadType = TypeVar("EventPayloadType")  # pylint: disable=invalid-name
+EventPayload: TypeAlias = str | int | float | bool | dict | set | list | DataObject
+EventPayloadType = TypeVar("EventPayloadType")
 
 
 class BinaryAttachment:
@@ -114,8 +114,8 @@ class BinaryDownload:
 def dataobject(
     decorated_class=None,
     *,
-    event_id: Optional[str] = None,
-    event_ts: Optional[str] = None,
+    event_id: str | None = None,
+    event_ts: str | None = None,
     unsafe: bool = False,
     schema: bool = True,
 ):
@@ -184,10 +184,10 @@ def dataobject(
                 "\n\t`from hopeit.dataobjects import dataclass, dataobject, field`"
                 "\nPython `dataclasses.dataclass` is no longer supported with `@dataobject`"
             )
-        setattr(cls, "__data_object__", {"unsafe": unsafe, "schema": schema})
-        setattr(cls, "__stream_event__", StreamEventParams(event_id, event_ts))
-        setattr(cls, "event_id", StreamEventMixin.event_id)
-        setattr(cls, "event_ts", StreamEventMixin.event_ts)
+        cls.__data_object__ = {"unsafe": unsafe, "schema": schema}
+        cls.__stream_event__ = StreamEventParams(event_id, event_ts)
+        cls.event_id = StreamEventMixin.event_id
+        cls.event_ts = StreamEventMixin.event_ts
         return cls
 
     if decorated_class is None:
@@ -199,7 +199,7 @@ def _binary_copy(payload: Any) -> Any:
     return pickle.loads(pickle.dumps(payload, protocol=4))
 
 
-def copy_payload(original: Optional[EventPayload]) -> Optional[EventPayload]:
+def copy_payload(original: EventPayload | None) -> EventPayload | None:
     """
     Creates a copy of the original DataObject in case it is mutable.
     Returns original object in case it is a frozen dataclass
@@ -218,6 +218,6 @@ def copy_payload(original: Optional[EventPayload]) -> Optional[EventPayload]:
 
 
 def fields(
-    cls_or_instance: Union[DataObject, Type[DataObject]],
-) -> Dict[str, FieldInfo]:
+    cls_or_instance: DataObject | type[DataObject],
+) -> dict[str, FieldInfo]:
     return cls_or_instance.__pydantic_fields__  # type: ignore[union-attr]

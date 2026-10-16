@@ -2,22 +2,23 @@
 Events handling
 """
 
-from typing import AsyncGenerator, Type, TypeVar
+from collections.abc import AsyncGenerator
+from typing import TypeVar
 
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import EventPayloadType
 from hopeit.server.collector import Collector
 from hopeit.server.engine import AppEngine
-from hopeit.server.steps import SHUFFLE, CollectorStepsDescriptor
 from hopeit.server.runtime import server
+from hopeit.server.steps import SHUFFLE, CollectorStepsDescriptor
 
-__all__ = ["Spawn", "SHUFFLE", "collector_step", "Collector"]
+__all__ = ["SHUFFLE", "Collector", "Spawn", "collector_step"]
 
 T = TypeVar("T")
 Spawn = AsyncGenerator[T, None]
 
 
-def collector_step(*, payload: Type[EventPayloadType]) -> CollectorStepsDescriptor:
+def collector_step(*, payload: type[EventPayloadType]) -> CollectorStepsDescriptor:
     """
     Specifies a set of steps that would be run using `AsyncCollector` implementation. AsyncCollector ensures
     all steps are run as concurrently as possible using `asyncio.gather(...)` mechanism.

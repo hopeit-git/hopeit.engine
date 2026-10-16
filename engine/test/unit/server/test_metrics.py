@@ -1,16 +1,15 @@
-from hopeit.app.context import EventContext
-from hopeit.server import metrics
-
 import datetime
 
+from hopeit.app.context import EventContext
+from hopeit.server import metrics
 from hopeit.server.config import AuthType
 from hopeit.server.events import get_event_settings
 from hopeit.server.metrics import StreamStats
 from mock_app import mock_app_config  # type: ignore
 
-ZERO_TS = datetime.datetime.fromtimestamp(0.0).astimezone(datetime.timezone.utc)
-ONE_TS = datetime.datetime.fromtimestamp(1.0).astimezone(datetime.timezone.utc)
-TWO_TS = datetime.datetime.fromtimestamp(2.0).astimezone(datetime.timezone.utc)
+ZERO_TS = datetime.datetime.fromtimestamp(0.0).astimezone(datetime.UTC)
+ONE_TS = datetime.datetime.fromtimestamp(1.0).astimezone(datetime.UTC)
+TWO_TS = datetime.datetime.fromtimestamp(2.0).astimezone(datetime.UTC)
 
 
 class MockDatetime(datetime.datetime):

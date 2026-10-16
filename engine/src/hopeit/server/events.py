@@ -2,27 +2,28 @@
 Events base classes and low level handlers to execute events specified by apps
 """
 
-from types import ModuleType
-from typing import Dict, Optional, List, Tuple, AsyncGenerator, Any
 from asyncio import iscoroutine
+from collections.abc import AsyncGenerator
+from types import ModuleType
+from typing import Any
 
+from hopeit.app.config import AppConfig, EventDescriptor, EventSettings
+from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 from hopeit.dataobjects import EventPayload
 from hopeit.dataobjects.payload import Payload
+from hopeit.server.imports import find_event_handler
+from hopeit.server.logger import engine_logger, extra_logger, setup_app_logger
 from hopeit.server.steps import (
     StepExecutionList,
     StepInfo,
-    extract_postprocess_handler,
-    extract_preprocess_handler,
-    execute_steps,
-    invoke_single_step,
-    extract_module_steps,
     effective_steps,
     event_and_step,
+    execute_steps,
+    extract_module_steps,
+    extract_postprocess_handler,
+    extract_preprocess_handler,
+    invoke_single_step,
 )
-from hopeit.server.logger import setup_app_logger, engine_logger, extra_logger
-from hopeit.server.imports import find_event_handler
-from hopeit.app.config import AppConfig, EventDescriptor, EventSettings
-from hopeit.app.context import EventContext, PostprocessHook, PreprocessHook
 
 __all__ = ["EventHandler"]
 
@@ -39,9 +40,9 @@ class EventHandler:
         self,
         *,
         app_config: AppConfig,
-        plugins: List[AppConfig],
-        effective_events: Dict[str, EventDescriptor],
-        settings: Dict[str, Any],
+        plugins: list[AppConfig],
+        effective_events: dict[str, EventDescriptor],
+        settings: dict[str, Any],
     ):
         """
         Creates an EventHandler for a Hopeit App
@@ -49,15 +50,15 @@ class EventHandler:
         :param app_config: AppConfig, configuration for the App
         """
         self.app_config = app_config
-        self.modules: Dict[str, Tuple[ModuleType, bool, list]] = {}
-        self.steps: Dict[str, StepExecutionList] = {}
-        self.preprocess_handlers: Dict[str, Optional[StepInfo]] = {}
-        self.postprocess_handlers: Dict[str, Optional[StepInfo]] = {}
+        self.modules: dict[str, tuple[ModuleType, bool, list]] = {}
+        self.steps: dict[str, StepExecutionList] = {}
+        self.preprocess_handlers: dict[str, StepInfo | None] = {}
+        self.postprocess_handlers: dict[str, StepInfo | None] = {}
         self.settings = settings
         logger.init_app(app_config, plugins)
         self.load_modules(effective_events)
 
-    def load_modules(self, effective_events: Dict[str, EventDescriptor]):
+    def load_modules(self, effective_events: dict[str, EventDescriptor]):
         """
         Load and setup event implementation modules. Set logger and load settings.
         """
@@ -90,9 +91,9 @@ class EventHandler:
         self,
         *,
         context: EventContext,
-        query_args: Optional[Dict[str, Any]],
-        payload: Optional[EventPayload],
-    ) -> AsyncGenerator[Optional[EventPayload], None]:
+        query_args: dict[str, Any] | None,
+        payload: EventPayload | None,
+    ) -> AsyncGenerator[EventPayload | None, None]:
         """
         Handles execution of engine defined event.
         Executes event handler code deployed with app.
@@ -120,9 +121,9 @@ class EventHandler:
         self,
         *,
         context: EventContext,
-        payload: Optional[EventPayload],
+        payload: EventPayload | None,
         response: PostprocessHook,
-    ) -> Optional[EventPayload]:
+    ) -> EventPayload | None:
         """
         Invokes postprocess method in event if defined in event configuration,
         allowing events to append headers, cookies and status to a response
@@ -142,10 +143,10 @@ class EventHandler:
         self,
         *,
         context: EventContext,
-        query_args: Optional[Dict[str, Any]],
-        payload: Optional[EventPayload],
+        query_args: dict[str, Any] | None,
+        payload: EventPayload | None,
         request: PreprocessHook,
-    ) -> Optional[EventPayload]:
+    ) -> EventPayload | None:
         """
         Invokes __preprocess__ method in event if defined in event,
         allowing events to process elements from requests.
@@ -165,14 +166,14 @@ class EventHandler:
     async def _init_module(self, *, module, context: EventContext):
         if hasattr(module, "__init_event__"):
             logger.info(context, f"__init_event__ module={module.__name__}...")
-            init_f = getattr(module, "__init_event__")
+            init_f = module.__init_event__
             coro_or_res = init_f(context)
             if iscoroutine(coro_or_res):
                 await coro_or_res  # type: ignore
 
 
-def get_runtime_settings(app_config: AppConfig, plugins: List[AppConfig]) -> Dict[str, Any]:
-    settings: Dict[str, Any] = {}
+def get_runtime_settings(app_config: AppConfig, plugins: list[AppConfig]) -> dict[str, Any]:
+    settings: dict[str, Any] = {}
     for plugin in plugins:
         assert plugin.effective_settings is not None
         settings.update(plugin.effective_settings)
@@ -181,6 +182,6 @@ def get_runtime_settings(app_config: AppConfig, plugins: List[AppConfig]) -> Dic
     return settings
 
 
-def get_event_settings(settings: Dict[str, Any], event_name: str) -> EventSettings:
+def get_event_settings(settings: dict[str, Any], event_name: str) -> EventSettings:
     data = settings[event_name.split("$")[0]]  # Removes auto-generated event suffixes
     return Payload.from_obj(data, datatype=EventSettings)

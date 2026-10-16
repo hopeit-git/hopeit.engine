@@ -3,12 +3,12 @@ Helpers to provide uniform logging to engine and apps
 """
 
 import logging
+from collections.abc import Callable
 from functools import partial
-from typing import Tuple, Callable
 
 from hopeit.server.logger import extra_values
 
-__all__ = ["app_logger", "app_extra_logger"]
+__all__ = ["app_extra_logger", "app_logger"]
 
 DEFAULT_APP_LOGGER = "app_logger_default"
 
@@ -28,7 +28,7 @@ def app_logger() -> logging.Logger:
     return logging.getLogger(DEFAULT_APP_LOGGER)
 
 
-def app_extra_logger() -> Tuple[logging.Logger, Callable]:
+def app_extra_logger() -> tuple[logging.Logger, Callable]:
     """
     Returns a placeholder to allow engine to setup later proper logger
     Allows to reference `logger` as a module variable,

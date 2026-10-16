@@ -2,7 +2,7 @@
 Mock hooks for testing apps
 """
 
-from typing import Optional, AsyncGenerator, Dict, AsyncIterator, Union, Mapping
+from collections.abc import AsyncGenerator, AsyncIterator, Mapping
 
 from multidict import CIMultiDict
 
@@ -15,9 +15,9 @@ class MockField:
     def __init__(
         self,
         name: str,
-        value: Union[str, dict],
-        file_data: Optional[bytes] = None,
-        headers: Optional[CIMultiDict] = None,
+        value: str | dict,
+        file_data: bytes | None = None,
+        headers: CIMultiDict | None = None,
     ) -> None:
         self.name = name
         self._value = value
@@ -68,7 +68,7 @@ class MockFileHook:
         if self.file_data is None:
             return
         for i in range(0, len(self.file_data), chunk_size):
-            yield self.file_data[i : min(len(self.file_data), i + chunk_size)]  # noqa: E203
+            yield self.file_data[i : min(len(self.file_data), i + chunk_size)]
 
     async def read(self, chunk_size: int = -1) -> bytes:
         """
@@ -85,7 +85,7 @@ class MockFileHook:
         if chunk_size > 0:
             current = self.position
             self.position = current + chunk_size
-            return self.file_data[current : self.position]  # noqa: E203
+            return self.file_data[current : self.position]
         if chunk_size == -1:
             current = self.position
             self.position = self.size
@@ -98,7 +98,7 @@ class MockMultipartReader:
     Replacement for Multipart reader
     """
 
-    def __init__(self, fields: Dict[str, str], attachments: Dict[str, bytes]):
+    def __init__(self, fields: dict[str, str], attachments: dict[str, bytes]):
         self.fields = fields
         self.it = iter(
             [MockField(name=k, value=v, file_data=attachments.get(k)) for k, v in fields.items()]
@@ -111,7 +111,7 @@ class MockMultipartReader:
         try:
             part = next(self.it)
         except StopIteration:
-            raise StopAsyncIteration  # pylint: disable=raise-missing-from
+            raise StopAsyncIteration
         return part
 
     async def next(self) -> MockField:

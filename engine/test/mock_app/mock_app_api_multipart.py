@@ -3,8 +3,8 @@ Test app api multipart post form
 """
 
 from hopeit.app.api import event_api
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
+from hopeit.app.logger import app_extra_logger
 from hopeit.dataobjects import BinaryAttachment
 from hopeit.dataobjects.payload import Payload
 

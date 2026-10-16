@@ -1,9 +1,10 @@
-import uuid
 import os
+import uuid
 from pathlib import Path
+
 from cryptography.fernet import Fernet
 
-from hopeit.testing.encryption import encrypt, decrypt, setup_encryption
+from hopeit.testing.encryption import decrypt, encrypt, setup_encryption
 
 
 def test_encryption():

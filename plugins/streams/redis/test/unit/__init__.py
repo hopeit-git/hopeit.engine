@@ -1,9 +1,10 @@
-from typing import AsyncGenerator, Dict, List, Optional
 import asyncio
+from collections.abc import AsyncGenerator
+from typing import Any, ClassVar
 
-from hopeit.dataobjects import EventPayload, dataclass, dataobject
 from hopeit.app.config import AppConfig, EventDescriptor
 from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.dataobjects import EventPayload, dataclass, dataobject
 from hopeit.server.events import EventHandler
 
 
@@ -23,10 +24,10 @@ class MockResult:
 
 
 class MockEventHandler(EventHandler):
-    input_query_args = {"query_arg1": "ok"}
+    input_query_args: ClassVar[dict[str, Any]] = {"query_arg1": "ok"}
     input_payload = MockData("ok")
     expected_result = MockResult("ok: ok", processed=True)
-    test_track_ids = {
+    test_track_ids: ClassVar[dict[str, Any]] = {
         "track.operation_id": "test_operation_id",
         "track.request_id": "test_request_id",
         "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
@@ -38,18 +39,18 @@ class MockEventHandler(EventHandler):
         self,
         *,
         app_config: AppConfig,
-        plugins: List[AppConfig],
-        effective_events: Dict[str, EventDescriptor],
+        plugins: list[AppConfig],
+        effective_events: dict[str, EventDescriptor],
     ):
         self.app_config = app_config
         self.plugins = plugins
         self.effective_events = effective_events
 
     async def handle_async_event(
-        self, *, context: EventContext, query_args: Optional[dict], payload: Optional[EventPayload]
-    ) -> AsyncGenerator[Optional[EventPayload], None]:
+        self, *, context: EventContext, query_args: dict | None, payload: EventPayload | None
+    ) -> AsyncGenerator[EventPayload | None, None]:
         assert payload == MockEventHandler.input_payload
-        assert all(x in context.track_ids.keys() for x in self.app_config.engine.track_headers)
+        assert all(x in context.track_ids for x in self.app_config.engine.track_headers)
         if isinstance(payload, MockData) and payload.value == "fail":  # type: ignore
             raise ValueError("Test for error")
         if isinstance(payload, MockData) and payload.value == "timeout":  # type: ignore
@@ -57,8 +58,8 @@ class MockEventHandler(EventHandler):
         yield MockEventHandler.expected_result
 
     async def postprocess(
-        self, *, context: EventContext, payload: Optional[EventPayload], response: PostprocessHook
-    ) -> Optional[EventPayload]:
+        self, *, context: EventContext, payload: EventPayload | None, response: PostprocessHook
+    ) -> EventPayload | None:
         response.set_header("PluginHeader", "PluginHeaderValue")
         response.set_cookie("PluginCookie", "PluginCookieValue")
         response.set_status(999)
@@ -68,7 +69,7 @@ class MockEventHandler(EventHandler):
 class TestStreamData:
     test_queue = "AUTO"
     test_payload = MockResult("ok: ok", processed=True)
-    test_track_ids = {
+    test_track_ids: ClassVar[dict[str, Any]] = {
         "track.request_id": "test_request_id",
         "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
         "track.session_id": "test_session_id",
@@ -80,4 +81,4 @@ class TestStreamData:
         "stream.read_ts": "2020-02-05T17:07:39.771396+00:00",
         "stream.submit_ts": "2020-02-05T17:07:38.771396+00:00",
     }
-    test_auth_info = {"allowed": True, "auth_type": "Unsecured"}
+    test_auth_info: ClassVar[dict[str, Any]] = {"allowed": True, "auth_type": "Unsecured"}

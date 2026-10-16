@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Any
 
-
 try:
     import polars
 

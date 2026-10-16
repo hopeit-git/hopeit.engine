@@ -6,16 +6,14 @@ using `collector` steps constructor (instantiating an `AsyncCollector`)
 """
 
 import asyncio
-from typing import Union, Optional, List
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.events import collector_step
 from hopeit.app.logger import app_extra_logger
-from hopeit.server.collector import Collector
 from hopeit.fs_storage import FileStorage, FileStorageSettings
+from hopeit.server.collector import Collector
 from model import ItemsInfo, Something, SomethingNotFound
-
 
 __steps__ = [
     collector_step(payload=ItemsInfo).gather("load_first", "load_second", "combine"),
@@ -27,14 +25,14 @@ __api__ = event_api(
     payload=(ItemsInfo, "Items to read concurrently"),
     responses={
         200: (
-            List[Something],
+            list[Something],
             "List of one or two Something objects returned found, empty list if none is found",
         ),
     },
 )
 
 logger, extra = app_extra_logger()
-fs: Optional[FileStorage] = None
+fs: FileStorage | None = None
 
 
 async def __init_event__(context):
@@ -46,9 +44,7 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-async def load_first(
-    collector: Collector, context: EventContext
-) -> Union[Something, SomethingNotFound]:
+async def load_first(collector: Collector, context: EventContext) -> Something | SomethingNotFound:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -71,9 +67,7 @@ async def load_first(
     return something
 
 
-async def load_second(
-    collector: Collector, context: EventContext
-) -> Union[Something, SomethingNotFound]:
+async def load_second(collector: Collector, context: EventContext) -> Something | SomethingNotFound:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -96,7 +90,7 @@ async def load_second(
     return something
 
 
-async def combine(collector: Collector, context: EventContext) -> List[Something]:
+async def combine(collector: Collector, context: EventContext) -> list[Something]:
     """
     Awaits for first and second items to be loaded an combine results in list
     if the objects are found. This step combines the results of load_first
@@ -116,7 +110,7 @@ async def combine(collector: Collector, context: EventContext) -> List[Something
     return results
 
 
-async def result(collector: Collector, context: EventContext) -> List[Something]:
+async def result(collector: Collector, context: EventContext) -> list[Something]:
     items = await collector["combine"]
     logger.info(context, f"Found {len(items)} items.")
     return items

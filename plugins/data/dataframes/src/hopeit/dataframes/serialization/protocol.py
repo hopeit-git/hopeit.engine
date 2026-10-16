@@ -1,10 +1,10 @@
 from importlib import import_module
-from typing import Type, TypeVar
+from typing import TypeVar
 
 DataFrameT = TypeVar("DataFrameT")
 
 
-def find_protocol_impl(qual_type_name: str) -> Type:
+def find_protocol_impl(qual_type_name: str) -> type:
     mod_name, type_name = (
         ".".join(qual_type_name.split(".")[:-1]),
         qual_type_name.split(".")[-1],
@@ -14,7 +14,7 @@ def find_protocol_impl(qual_type_name: str) -> Type:
     return datatype
 
 
-def find_dataframe_type(qual_type_name: str) -> Type[DataFrameT]:
+def find_dataframe_type(qual_type_name: str) -> type[DataFrameT]:
     """Returns dataframe class based on type name used during serialization"""
     mod_name, type_name = (
         ".".join(qual_type_name.split(".")[:-1]),

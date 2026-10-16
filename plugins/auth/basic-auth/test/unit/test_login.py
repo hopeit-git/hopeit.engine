@@ -1,16 +1,17 @@
 import pytest
 
-import hopeit.toolkit.auth as auth
 from hopeit.app.context import EventContext, PostprocessHook
-
-from hopeit.server.events import get_event_settings
 from hopeit.app.errors import Unauthorized
+from hopeit.basic_auth import (  # type: ignore
+    AuthInfo,
+    AuthInfoExtended,
+    AuthSettings,
+    ContextUserInfo,
+    login,
+)
 from hopeit.server.config import AuthType
-
-from hopeit.basic_auth import AuthSettings, login  # type: ignore
-from hopeit.basic_auth import ContextUserInfo, AuthInfoExtended, AuthInfo  # type: ignore
-
-from . import mock_app_config, plugin_config  # noqa: F401
+from hopeit.server.events import get_event_settings
+from hopeit.toolkit import auth
 
 
 async def invoke_login(context: EventContext):
@@ -49,7 +50,7 @@ async def invoke_postprocess(payload: AuthInfoExtended, context: EventContext):
     result = await login.__postprocess__(payload, context, response=hook)
     assert hook.cookies["test_app.test.refresh"] == (
         f"Refresh {payload.refresh_token}",
-        tuple(),
+        (),
         {
             "domain": None,
             "expires": 3600,
@@ -68,7 +69,7 @@ async def execute_flow(context):
     await invoke_postprocess(auth_info, context)
 
 
-def _event_context(mock_app_config, plugin_config):  # noqa: F811
+def _event_context(mock_app_config, plugin_config):
     return EventContext(
         app_config=mock_app_config,
         plugin_config=plugin_config,
@@ -79,13 +80,13 @@ def _event_context(mock_app_config, plugin_config):  # noqa: F811
     )
 
 
-async def test_login(mock_app_config, plugin_config):  # noqa: F811
+async def test_login(mock_app_config, plugin_config):
     auth.init(mock_app_config.app_key(), mock_app_config.server.auth)
     context = _event_context(mock_app_config, plugin_config)
     await execute_flow(context)
 
 
-async def test_login_unauthorized(mock_app_config, plugin_config):  # noqa: F811
+async def test_login_unauthorized(mock_app_config, plugin_config):
     auth.init(mock_app_config.app_key(), mock_app_config.server.auth)
     context = _event_context(mock_app_config, plugin_config)
     context.auth_info["auth_type"] = "UNKNOWN"

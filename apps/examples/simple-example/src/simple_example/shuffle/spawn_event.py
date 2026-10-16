@@ -5,12 +5,11 @@ This example will spawn 3 data events, those are going to be send to a stream us
 and processed in asynchronously / in parallel if multiple nodes are available
 """
 
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.app.events import Spawn, SHUFFLE
+from hopeit.app.events import SHUFFLE, Spawn
 from hopeit.app.logger import app_extra_logger
 from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import Something, SomethingStored, Status, StatusType
@@ -26,7 +25,7 @@ __api__ = event_api(
 )
 
 
-fs: Optional[FileStorage] = None
+fs: FileStorage | None = None
 
 
 async def __init_event__(context):
@@ -46,7 +45,7 @@ async def spawn_many_events(payload: Something, context: EventContext) -> Spawn[
     if payload.status:
         payload.history.append(payload.status)
     for i in range(3):
-        payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.SUBMITTED)
+        payload.status = Status(ts=datetime.now(tz=UTC), type=StatusType.SUBMITTED)
         payload.id = str(i)
         yield payload
 
@@ -72,7 +71,7 @@ def update_status(payload: Something, context: EventContext) -> Something:
 
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.PROCESSED)
+    payload.status = Status(ts=datetime.now(tz=UTC), type=StatusType.PROCESSED)
     return payload
 
 

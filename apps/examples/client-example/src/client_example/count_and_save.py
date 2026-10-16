@@ -5,7 +5,6 @@ Count all available Something objects connecting to simple-example app
 """
 
 from base64 import b64decode
-from typing import List, Optional
 
 from client_example import CountAndSaveResult
 from hopeit.app.api import event_api
@@ -25,9 +24,11 @@ __api__ = event_api(
     query_args=[
         (
             "wildcard",
-            Optional[str],
-            "Wildcard to filter objects by name prefixed "
-            "by partition folder in format YYYY/MM/DD/HH/*",
+            str | None,
+            (
+                "Wildcard to filter objects by name prefixed "
+                "by partition folder in format YYYY/MM/DD/HH/*"
+            ),
         )
     ],
     responses={
@@ -66,7 +67,7 @@ async def ensure_login(payload: None, context: EventContext, wildcard: str = "*"
 
 
 async def count_objects(options: ListOptions, context: EventContext) -> int:
-    response: List[Something] = await app_call_list(
+    response: list[Something] = await app_call_list(
         "simple_example_conn",
         event="list_somethings",
         datatype=Something,

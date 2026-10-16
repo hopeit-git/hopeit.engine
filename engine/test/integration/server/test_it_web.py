@@ -1,24 +1,22 @@
 import json
+import logging
 import os
 import uuid
-import asyncio
-import logging
-from typing import List
+
 import aiohttp
 import pytest
 from aiohttp import ClientResponse
 from aiohttp.web import Application
 
-from hopeit.server import api, runtime, engine, web
+from hopeit.app import events as app_events
+from hopeit.server import api, engine, runtime, web
 from hopeit.server.web import (
-    server_startup_hook,
-    stop_server,
     app_startup_hook,
+    server_startup_hook,
     stream_startup_hook,
 )
-
-from mock_engine import MockStreamManager, MockEventHandler
 from mock_app import MockResult, mock_app_config, mock_event_setup  # type: ignore
+from mock_engine import MockEventHandler, MockStreamManager
 from mock_plugin import mock_plugin_config, plugin_setup  # type: ignore
 
 
@@ -157,11 +155,13 @@ async def call_post_mock_event_preprocess_no_datatype(client):
 
 async def call_multipart_mock_event(client):
     os.makedirs("/tmp/call_multipart_mock_event/", exist_ok=True)
-    with open("/tmp/call_multipart_mock_event/test_attachment", "wb") as f:
+    with open("/tmp/call_multipart_mock_event/test_attachment", "wb") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.write(b"testdata")
 
-    attachment = open("/tmp/call_multipart_mock_event/test_attachment", "rb")
-    with aiohttp.MultipartWriter("form-data", boundary=":") as mp:
+    with (
+        open("/tmp/call_multipart_mock_event/test_attachment", "rb") as attachment,  # noqa: ASYNC230 -- Small synchronous upload fixture.
+        aiohttp.MultipartWriter("form-data", boundary=":") as mp,
+    ):
         mp.append("value1", headers={"Content-Disposition": 'form-data; name="field1"'})
         mp.append_json(
             {"value": "value2"},
@@ -193,11 +193,13 @@ async def call_multipart_mock_event(client):
 
 async def call_multipart_mock_event_plain_text_json(client):
     os.makedirs("/tmp/call_multipart_mock_event/", exist_ok=True)
-    with open("/tmp/call_multipart_mock_event/test_attachment", "wb") as f:
+    with open("/tmp/call_multipart_mock_event/test_attachment", "wb") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.write(b"testdata")
 
-    attachment = open("/tmp/call_multipart_mock_event/test_attachment", "rb")
-    with aiohttp.MultipartWriter("form-data", boundary=":") as mp:
+    with (
+        open("/tmp/call_multipart_mock_event/test_attachment", "rb") as attachment,  # noqa: ASYNC230 -- Small synchronous upload fixture.
+        aiohttp.MultipartWriter("form-data", boundary=":") as mp,
+    ):
         mp.append("value1", headers={"Content-Disposition": 'form-data; name="field1"'})
         mp.append(
             '{"value": "value2"}',
@@ -521,75 +523,48 @@ async def call_stop_service(client):
     assert res.status == 200
 
 
-async def stop_test_server():
-    await stop_server()
-    runtime.server = engine.Server()
-    web.web_server = Application()
-
-
-async def start_test_server(
-    mock_app_config,
-    mock_plugin_config,
-    streams: bool,
-    enabled_groups: List[str],
-):
-    await server_startup_hook(mock_app_config.server)
-    await app_startup_hook(mock_plugin_config, enabled_groups)
-    await app_startup_hook(mock_app_config, enabled_groups)
-    if streams:
-        await stream_startup_hook(mock_app_config, enabled_groups)
-    print("Test engine started.", web.web_server)
-    await asyncio.sleep(5)
-
-
-async def _setup(
-    monkeypatch,
-    mock_app_config,
-    mock_plugin_config,
-    aiohttp_client,
-    streams: bool,
-    enabled_groups: List[str],
-):
-    stream_event = MockResult("ok: ok")
-    monkeypatch.setattr(MockStreamManager, "test_payload", stream_event)
-    monkeypatch.setattr(MockEventHandler, "test_track_ids", None)
-
-    api.clear()
-    if enabled_groups is None:
-        enabled_groups = []
-    await start_test_server(mock_app_config, mock_plugin_config, streams, enabled_groups)
-    return await aiohttp_client(web.web_server)
-
-
 @pytest.fixture
-def loop():
-    """Ensure usable event loop for everyone.
+async def app_client(monkeypatch, mock_app_config, mock_plugin_config, aiohttp_client):
+    app = Application()
+    server = engine.Server()
+    monkeypatch.setattr(web, "web_server", app)
+    monkeypatch.setattr(runtime, "server", server)
+    monkeypatch.setattr(app_events, "server", server)
+    monkeypatch.setattr(MockStreamManager, "test_payload", MockResult("ok: ok"))
+    monkeypatch.setattr(MockEventHandler, "test_track_ids", None)
+    api.clear()
+    clients = []
 
-    If you comment this fixture out, default pytest-aiohttp one is used
-    and things start failing (when redis pool is in place).
-    """
+    async def create(*, streams=False):
+        app.cleanup_ctx.append(web._engine_cleanup_context)
+        app.on_startup.append(lambda app: server_startup_hook(mock_app_config.server))
+        app.on_startup.append(lambda app: app_startup_hook(mock_plugin_config, []))
+        app.on_startup.append(lambda app: app_startup_hook(mock_app_config, []))
+        if streams:
+            app.on_startup.append(lambda app: stream_startup_hook(mock_app_config))
+        client = await aiohttp_client(app)
+        clients.append(client)
+        return client
+
     try:
-        return asyncio.get_event_loop()
-    except RuntimeError:
-        return asyncio.new_event_loop()
+        yield create
+    finally:
+        for client in reversed(clients):
+            await client.close()
+        # Cleanup contexts also run if application startup failed before a client
+        # could be returned by pytest-aiohttp.
+        await app.cleanup()
+        await server.stop()
+        assert all(not app_engine._event_tasks for app_engine in server.app_engines.values())
 
 
 @pytest.mark.order(1)
-#
 async def test_endpoints(
-    monkeypatch,
-    mock_app_config,
-    mock_plugin_config,
-    aiohttp_client,
+    app_client,
 ):
-    test_client = await _setup(
-        monkeypatch, mock_app_config, mock_plugin_config, aiohttp_client, False, []
-    )
+    test_client = await app_client()
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    logger.addHandler(ch)
 
     test_list = [
         check_setup_event_on_start,
@@ -631,20 +606,11 @@ async def test_endpoints(
         logger.debug("Running web test %s...", test_func)
         await test_func(test_client)
 
-    await stop_test_server()
-
 
 @pytest.mark.order(2)
-#
 async def test_start_streams_on_startup(
-    monkeypatch,
-    mock_app_config,
-    mock_plugin_config,
-    aiohttp_client,
+    app_client,
 ):
-    test_client = await _setup(
-        monkeypatch, mock_app_config, mock_plugin_config, aiohttp_client, True, []
-    )
+    test_client = await app_client(streams=True)
     await call_stop_stream(test_client)
     await call_stop_service(test_client)
-    await stop_test_server()

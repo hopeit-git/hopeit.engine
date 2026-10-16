@@ -1,7 +1,7 @@
 """Dataset objects definition, used as a result of serialized dataframes"""
 
 from datetime import datetime
-from typing import Any, Dict, Generic, Optional, Type, TypeVar
+from typing import Any, Generic, TypeVar
 
 from hopeit.dataobjects import dataclass, dataobject
 
@@ -12,8 +12,8 @@ except ImportError:
 
 from pydantic import TypeAdapter
 
-from hopeit.dataframes.setup.registry import get_dataset_storage
 from hopeit.dataframes.serialization.protocol import find_dataframe_type
+from hopeit.dataframes.setup.registry import get_dataset_storage
 
 DataFrameT = TypeVar("DataFrameT")
 GenericDataFrameT = TypeVar("GenericDataFrameT")
@@ -36,21 +36,21 @@ class Dataset(Generic[DataFrameT]):
     partition_key: str
     key: str
     datatype: str
-    partition_dt: Optional[datetime] = None
-    database_key: Optional[str] = None
-    group_key: Optional[str] = None
-    collection: Optional[str] = None
-    schema: Optional[Dict[str, Any]] = None
+    partition_dt: datetime | None = None
+    database_key: str | None = None
+    group_key: str | None = None
+    collection: str | None = None
+    schema: dict[str, Any] | None = None
 
     @classmethod
     async def save(
         cls,
         dataframe: DataFrameT,
         *,
-        partition_dt: Optional[datetime] = None,
-        database_key: Optional[str] = None,
-        group_key: Optional[str] = None,
-        collection: Optional[str] = None,
+        partition_dt: datetime | None = None,
+        database_key: str | None = None,
+        group_key: str | None = None,
+        collection: str | None = None,
         save_schema: bool = False,
     ) -> "Dataset[DataFrameT]":
         storage = await get_dataset_storage(database_key)
@@ -67,30 +67,30 @@ class Dataset(Generic[DataFrameT]):
     async def load(
         cls,
         dataset: "Dataset[DataFrameT]",
-        database_key: Optional[str] = None,
+        database_key: str | None = None,
     ) -> DataFrameT:
         try:
             storage = await get_dataset_storage(database_key)
             df = await dataset._load_df(storage)
             return dataset._convert(df)
-        except (RuntimeError, IOError, KeyError, TypeError) as e:
+        except (OSError, RuntimeError, KeyError, TypeError) as e:
             raise DatasetLoadError(
                 f"Error {type(e).__name__}: {e} loading dataset of type {dataset.datatype} "
                 f"at location {dataset.partition_key}/{dataset.key}"
             ) from e
 
-    async def _load_df(self, storage: object, columns: Optional[list[str]] = None) -> pl.DataFrame:
+    async def _load_df(self, storage: object, columns: list[str] | None = None) -> pl.DataFrame:
         return await storage.load_df(self, columns)  # type: ignore[attr-defined]
 
-    def _scan_df(self, storage: object, schema: Optional[pl.Schema] = None) -> pl.LazyFrame:
+    def _scan_df(self, storage: object, schema: pl.Schema | None = None) -> pl.LazyFrame:
         return storage.scan_df(self, schema)  # type: ignore[attr-defined]
 
     def _convert(self, df: pl.DataFrame) -> DataFrameT:
         """Converts loaded polars Dataframe to @dataframe annotated object using Dataset metadata"""
-        datatype: Type[DataFrameT] = find_dataframe_type(self.datatype)
+        datatype: type[DataFrameT] = find_dataframe_type(self.datatype)
         return datatype._from_df(df)  # type: ignore[attr-defined]
 
-    def _adapt(self, datatype: DataFrameT) -> "Dataset[DataFrameT]":
+    def _adapt(self, datatype: type[DataFrameT]) -> "Dataset[DataFrameT]":
         """Adapts a more generic dataset that contains combined fields to be type specific"""
         return Dataset(
             protocol=self.protocol,
@@ -109,12 +109,12 @@ class Dataset(Generic[DataFrameT]):
         cls,
         storage: object,
         df: pl.DataFrame,
-        datatype: Type[GenericDataFrameT],
+        datatype: type[GenericDataFrameT],
         *,
-        partition_dt: Optional[datetime],
-        database_key: Optional[str],
-        group_key: Optional[str],
-        collection: Optional[str],
+        partition_dt: datetime | None,
+        database_key: str | None,
+        group_key: str | None,
+        collection: str | None,
         save_schema: bool,
     ) -> "Dataset[GenericDataFrameT]":
         return await storage.save_df(  # type: ignore[attr-defined]

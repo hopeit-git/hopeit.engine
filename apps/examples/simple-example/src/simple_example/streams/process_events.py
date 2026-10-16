@@ -4,13 +4,12 @@ Simple Example: Process Events
 Process events submitted by something_event app event
 """
 
-from datetime import datetime, timezone
-from typing import Optional
-import random
 import asyncio
+import random
+from datetime import UTC, datetime
 
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
+from hopeit.app.logger import app_extra_logger
 from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import Something, SomethingStored, Status, StatusType
 
@@ -18,7 +17,7 @@ __steps__ = ["update_status", "save"]
 
 
 logger, extra = app_extra_logger()
-fs: Optional[FileStorage] = None
+fs: FileStorage | None = None
 
 
 async def __init_event__(context):
@@ -41,7 +40,7 @@ def update_status(payload: Something, context: EventContext) -> Something:
 
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.PROCESSED)
+    payload.status = Status(ts=datetime.now(tz=UTC), type=StatusType.PROCESSED)
     return payload
 
 

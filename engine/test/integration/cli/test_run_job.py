@@ -6,9 +6,9 @@ import subprocess
 import pytest
 from click.testing import CliRunner
 
+import hopeit.cli.job as cli_job
 from hopeit.cli.job import job
 from hopeit.dataobjects.payload import Payload
-import hopeit.cli.job as cli_job
 
 
 def test_missing_config_files():
@@ -95,10 +95,12 @@ def test_hopeit_job():
         "python",
         "-m",
         "hopeit.cli.job",
-        "--config-files=engine/config/dev-noauth.json"
-        ",plugins/streams/redis/config/plugin-config.json"
-        ",plugins/auth/basic-auth/config/plugin-config.json"
-        ",apps/examples/simple-example/config/app-config.json",
+        (
+            "--config-files=engine/config/dev-noauth.json"
+            ",plugins/streams/redis/config/plugin-config.json"
+            ",plugins/auth/basic-auth/config/plugin-config.json"
+            ",apps/examples/simple-example/config/app-config.json"
+        ),
         "--event-name=check_enum",
         '--query-args={"enum_value":"value1"}',
     ]

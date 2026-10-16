@@ -2,40 +2,32 @@
 Context information and handling
 """
 
+import re
+from abc import ABC, abstractmethod
+from collections.abc import AsyncGenerator, AsyncIterator, Callable, Mapping
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import (
-    AsyncGenerator,
-    AsyncIterator,
-    Callable,
+    Any,
     Generic,
     TypeVar,
-    Dict,
-    Optional,
-    Any,
-    Tuple,
     Union,
-    List,
-    Mapping,
 )
-from abc import ABC, abstractmethod
-from pathlib import Path
-from datetime import datetime, timezone
-import re
 
 from aiohttp import web
-from multidict import CIMultiDictProxy, MultiDict, CIMultiDict, MultiMapping, istr
-from hopeit.server.names import titlecase
+from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiMapping, istr
 
 from hopeit.app.config import (
     AppConfig,
     AppDescriptor,
-    EventDescriptor,
     Env,
+    EventDescriptor,
     EventSettings,
     EventType,
 )
+from hopeit.server.names import titlecase
 
-
-__all__ = ["EventContext", "PostprocessHook", "PreprocessHook", "NoopMultiparReader"]
+__all__ = ["EventContext", "NoopMultiparReader", "PostprocessHook", "PreprocessHook"]
 
 
 class EventContext:
@@ -60,8 +52,8 @@ class EventContext:
         plugin_config: AppConfig,
         event_name: str,
         settings: EventSettings,
-        track_ids: Dict[str, str],
-        auth_info: Dict[str, Any],
+        track_ids: dict[str, str],
+        auth_info: dict[str, Any],
     ):
         self.app_key: str = app_config.app_key()
         self.plugin_key: str = plugin_config.app_key()
@@ -71,7 +63,7 @@ class EventContext:
         self.settings = settings
         base_event = event_name.split("$")[0]
         self.event_info: EventDescriptor = plugin_config.events[base_event]
-        self.creation_ts: datetime = datetime.now(tz=timezone.utc)
+        self.creation_ts: datetime = datetime.now(tz=UTC)
         self.auth_info = auth_info
         track_fields = [
             "track.operation_id",
@@ -150,13 +142,13 @@ class PostprocessHook:
     Useful to set cookies, change status and set additional headers in web responses.
     """
 
-    def __init__(self, request: Optional[web.BaseRequest] = None):
-        self.headers: Dict[str, str] = {}
-        self.cookies: Dict[str, Tuple[str, tuple, dict]] = {}
-        self.del_cookies: List[Tuple[str, tuple, dict]] = []
-        self.status: Optional[int] = None
-        self.file_response: Optional[Union[str, Path]] = None
-        self.stream_response: Optional[PostprocessStreamResponseHook] = None
+    def __init__(self, request: web.BaseRequest | None = None):
+        self.headers: dict[str, str] = {}
+        self.cookies: dict[str, tuple[str, tuple, dict]] = {}
+        self.del_cookies: list[tuple[str, tuple, dict]] = []
+        self.status: int | None = None
+        self.file_response: str | Path | None = None
+        self.stream_response: PostprocessStreamResponseHook | None = None
         self.content_type: str = "application/json"
         self.request = request
 
@@ -205,7 +197,7 @@ class PostprocessHook:
     def set_status(self, status: int):
         self.status = status
 
-    def set_file_response(self, path: Union[str, Path]):
+    def set_file_response(self, path: str | Path):
         self.file_response = path
 
 
@@ -216,21 +208,21 @@ class BodyPartReaderProtocol(ABC):
     """
 
     @abstractmethod
-    async def read_chunk(self, size: Optional[int] = None) -> bytes: ...
+    async def read_chunk(self, size: int | None = None) -> bytes: ...
 
     @abstractmethod
-    async def text(self, *, encoding: Optional[str] = None) -> str: ...
+    async def text(self, *, encoding: str | None = None) -> str: ...
 
     @abstractmethod
-    async def json(self, *, encoding: Optional[str] = None) -> Optional[Dict[str, Any]]: ...
-
-    @property
-    @abstractmethod
-    def name(self) -> Optional[str]: ...
+    async def json(self, *, encoding: str | None = None) -> dict[str, Any] | None: ...
 
     @property
     @abstractmethod
-    def filename(self) -> Optional[str]: ...
+    def name(self) -> str | None: ...
+
+    @property
+    @abstractmethod
+    def filename(self) -> str | None: ...
 
     @property
     @abstractmethod
@@ -251,7 +243,7 @@ class MultipartReaderProtocol(ABC):
     @abstractmethod
     async def __anext__(
         self,
-    ) -> Optional[Union["MultipartReaderProtocol", BodyPartReaderProtocol]]: ...
+    ) -> Union["MultipartReaderProtocol", BodyPartReaderProtocol] | None: ...
 
 
 class NoopMultiparReader(MultipartReaderProtocol):
@@ -327,7 +319,7 @@ class PreprocessHeaders:
         return self._headers.__repr__()
 
     @classmethod
-    def from_dict(cls, data: Dict[str, str]):
+    def from_dict(cls, data: dict[str, str]):
         return cls(CIMultiDictProxy(CIMultiDict(data)))
 
 
@@ -341,16 +333,16 @@ class PreprocessHook(Generic[_MultipartReader]):
         self,
         *,
         headers: MultiMapping[str],
-        payload_raw: Optional[bytes] = None,
-        multipart_reader: Optional[_MultipartReader] = None,
+        payload_raw: bytes | None = None,
+        multipart_reader: _MultipartReader | None = None,
         file_hook_factory: Callable = PreprocessFileHook,
     ):
         self.headers = PreprocessHeaders(headers)
         self.payload_raw = payload_raw
         self._multipart_reader = multipart_reader
-        self._args: Dict[str, Any] = {}
+        self._args: dict[str, Any] = {}
         self._iterated = False
-        self.status: Optional[int] = None
+        self.status: int | None = None
         self.file_hook_factory = file_hook_factory
 
     def set_status(self, status: int):

@@ -2,7 +2,7 @@
 Payload tools to serialize and deserialze event payloads and responses, including dataobjects
 """
 
-from typing import Type, Generic, Union, Dict
+from typing import Generic
 
 from pydantic import RootModel, ValidationError
 
@@ -18,8 +18,8 @@ class Payload(Generic[EventPayloadType]):
 
     @staticmethod
     def from_json(
-        json_str: Union[str, bytes],
-        datatype: Type[EventPayloadType],
+        json_str: str | bytes,
+        datatype: type[EventPayloadType],
         key: str = "value",
         **kwargs,
     ) -> EventPayloadType:
@@ -34,7 +34,7 @@ class Payload(Generic[EventPayloadType]):
         """
         if datatype in _ATOMIC_TYPES:
             return (
-                RootModel[Dict[str, datatype]]  # type: ignore[valid-type]
+                RootModel[dict[str, datatype]]  # type: ignore[valid-type]
                 .model_validate_json(json_str, **kwargs)
                 .root[key]
             )
@@ -49,8 +49,8 @@ class Payload(Generic[EventPayloadType]):
 
     @staticmethod
     def from_obj(
-        data: Union[dict, list],
-        datatype: Type[EventPayloadType],
+        data: dict | list,
+        datatype: type[EventPayloadType],
         key: str = "value",
         **kwargs,
     ) -> EventPayloadType:
@@ -97,7 +97,7 @@ class Payload(Generic[EventPayloadType]):
             raise  # Raises unexpected exceptions, if does not catch missing @dataobject
 
     @staticmethod
-    def to_obj(payload: EventPayloadType, key: str = "value", **kwargs) -> Union[dict, list, set]:
+    def to_obj(payload: EventPayloadType, key: str = "value", **kwargs) -> dict | list | set:
         """
         Converts event payload to dictionary or list
 
@@ -112,7 +112,7 @@ class Payload(Generic[EventPayloadType]):
         if isinstance(payload, _ATOMIC_TYPES):  # immutable supported types
             return {key: payload}
         try:
-            serialized = RootModel(payload).model_dump(**kwargs)  # pylint: disable=assignment-from-no-return
+            serialized = RootModel(payload).model_dump(**kwargs)
             if not isinstance(serialized, (dict, list, set)):
                 raise TypeError(f"Cannot serialize {type(payload)} as `dict`, `list` or `set`")
             return serialized
@@ -123,8 +123,8 @@ class Payload(Generic[EventPayloadType]):
 
     @staticmethod
     def parse_form_field(
-        field_data: Union[str, dict],
-        datatype: Type[EventPayloadType],
+        field_data: str | dict,
+        datatype: type[EventPayloadType],
         key: str = "value",
     ) -> EventPayloadType:
         """Helper to parse dataobjects from form-fields where encoding type is not correctly set to json"""

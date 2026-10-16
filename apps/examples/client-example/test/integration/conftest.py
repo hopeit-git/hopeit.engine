@@ -1,7 +1,9 @@
 from typing import Any
+
 import pytest
 
-from hopeit.server import config as server_config, version
+from hopeit.server import config as server_config
+from hopeit.server import version
 from hopeit.testing.apps import config
 
 

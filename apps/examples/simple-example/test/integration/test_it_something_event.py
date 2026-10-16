@@ -2,10 +2,10 @@ from hopeit.testing.apps import execute_event
 
 
 async def test_it_process_something(
-    app_config,  # noqa: F811
+    app_config,
     something_submitted,
     something_example,
-):  # noqa: F811
+):
     result = await execute_event(
         app_config=app_config, event_name="streams.something_event", payload=something_example
     )
@@ -14,10 +14,10 @@ async def test_it_process_something(
 
 
 async def test_it_process_something_check_history(
-    app_config,  # noqa: F811
-    something_with_status_submitted_example,  # noqa: F811
+    app_config,
+    something_with_status_submitted_example,
     something_with_status_example,
-):  # noqa: F811, E501
+):
     result = await execute_event(
         app_config=app_config,
         event_name="streams.something_event",

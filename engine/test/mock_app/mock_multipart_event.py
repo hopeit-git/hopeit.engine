@@ -2,10 +2,8 @@
 Test multipart post form
 """
 
-from typing import Union
-
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext, PreprocessHook
+from hopeit.app.logger import app_extra_logger
 from hopeit.dataobjects.payload import Payload
 
 __steps__ = ["entry_point"]
@@ -17,7 +15,7 @@ logger, extra = app_extra_logger()
 
 async def __preprocess__(
     payload: None, context: EventContext, request: PreprocessHook, *, query_arg1: str
-) -> Union[str, MockData]:
+) -> str | MockData:
     fields = await request.parsed_args()
     if any(x not in fields for x in ("field1", "field2", "attachment")):
         request.set_status(400)

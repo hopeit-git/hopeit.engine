@@ -2,14 +2,14 @@
 Streams module. Handles reading and writing to streams.
 """
 
-from abc import ABC
 import asyncio
 import dataclasses
 import os
 import socket
-from datetime import datetime, timezone
-from typing import Dict, List, Any, Union
+from abc import ABC
+from datetime import UTC, datetime
 from importlib import import_module
+from typing import Any
 
 from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import EventPayload
@@ -19,7 +19,7 @@ from hopeit.server.logger import engine_logger, extra_logger
 logger = engine_logger()
 extra = extra_logger()
 
-__all__ = ["StreamEvent", "StreamManager", "stream_auth_info", "StreamOSError"]
+__all__ = ["StreamEvent", "StreamManager", "StreamOSError", "stream_auth_info"]
 
 
 @dataclasses.dataclass
@@ -27,8 +27,8 @@ class StreamEvent:
     msg_internal_id: bytes
     queue: str
     payload: EventPayload
-    track_ids: Dict[str, str]
-    auth_info: Dict[str, Any]
+    track_ids: dict[str, str]
+    auth_info: dict[str, Any]
 
 
 class StreamOSError(Exception):
@@ -86,12 +86,12 @@ class StreamManager(ABC):
         stream_name: str,
         queue: str,
         payload: EventPayload,
-        track_ids: Dict[str, str],
-        auth_info: Dict[str, Any],
+        track_ids: dict[str, str],
+        auth_info: dict[str, Any],
         compression: Compression,
         serialization: Serialization,
         target_max_len: int = 0,
-    ) -> int:
+    ) -> int | bytes | str:
         """
         Writes event to a stream
         :param stream_name: stream name or key used
@@ -101,7 +101,7 @@ class StreamManager(ABC):
         :param compression: Compression, supported compression algorithm from enum
         :param target_max_len: int, max_len to indicate approx. target collection size
             default 0 will not send max_len to stream service.
-        :return: number of successful written messages
+        :return: backend write result, such as a count or message identifier
         """
         raise NotImplementedError()
 
@@ -121,13 +121,13 @@ class StreamManager(ABC):
         *,
         stream_name: str,
         consumer_group: str,
-        datatypes: Dict[str, type],
-        track_headers: List[str],
+        datatypes: dict[str, type],
+        track_headers: list[str],
         offset: str,
         batch_size: int,
         timeout: int,
         batch_interval: int,
-    ) -> List[Union[StreamEvent, Exception]]:
+    ) -> list[StreamEvent | Exception]:
         """
         Attempts reading streams using a consumer group,
         blocks for `timeout` seconds
@@ -187,7 +187,7 @@ class StreamManager(ABC):
         :return: str, concatenating current UTC ISO datetime, host name, process id
             and this StreamManager instance id
         """
-        ts = datetime.now(tz=timezone.utc).isoformat()
+        ts = datetime.now(tz=UTC).isoformat()
         host = socket.gethostname()
         pid = os.getpid()
         mgr = id(self)
@@ -249,7 +249,7 @@ class StreamCircuitBreaker(StreamManager):
     async def close(self) -> None:
         await self.stream_manager.close()
 
-    async def write_stream(self, **kwargs) -> int:
+    async def write_stream(self, **kwargs) -> int | bytes | str:
         if self.lock.locked():
             raise StreamOSError("Stream circuit breaker open. Cannot write to stream.")
         try:
@@ -261,7 +261,7 @@ class StreamCircuitBreaker(StreamManager):
             asyncio.create_task(self._start_backoff_wait())
             raise
 
-    async def read_stream(self, **kwargs) -> List[Union[StreamEvent, Exception]]:
+    async def read_stream(self, **kwargs) -> list[StreamEvent | Exception]:
         await self._wait_backoff()
         try:
             res = await self.stream_manager.read_stream(**kwargs)

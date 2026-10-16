@@ -1,15 +1,11 @@
-from datetime import datetime, timezone
 import os
-from typing import cast
 import uuid
-
-from hopeit.dataframes import DataBlocks, Dataset
-from hopeit.dataframes.datablocks import DataBlockMetadata, DataBlockQuery, TempDataBlock
+from datetime import UTC, datetime
+from typing import cast
 
 import polars as pl
-from polars.testing import assert_frame_equal
 import pytest
-
+from polars.testing import assert_frame_equal
 
 from conftest import (
     MyDataBlock,
@@ -23,6 +19,8 @@ from conftest import (
     get_saved_file_path,
     setup_serialization_context,
 )
+from hopeit.dataframes import DataBlocks, Dataset
+from hopeit.dataframes.datablocks import DataBlockMetadata, DataBlockQuery, TempDataBlock
 
 
 async def test_datablock_creation_and_load(plugin_config, datablock_df) -> None:
@@ -242,9 +240,7 @@ async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> N
     datablock = await DataBlocks.save(
         MyDataBlock,
         datablock_df,
-        DataBlockMetadata(
-            database_key="test_db", partition_dt=datetime(2024, 1, 1, tzinfo=timezone.utc)
-        ),
+        DataBlockMetadata(database_key="test_db", partition_dt=datetime(2024, 1, 1, tzinfo=UTC)),
         block_id="b1",
         block_field=42,
     )
@@ -257,7 +253,7 @@ async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> N
             partition_key="2024/01/01/00/",
             key=datablock.part1.key,
             datatype="conftest.Part1",
-            partition_dt=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            partition_dt=datetime(2024, 1, 1, tzinfo=UTC),
             database_key="test_db",
             collection="mydatablock",
             schema={
@@ -276,7 +272,7 @@ async def test_datablock_custom_partition_date(plugin_config, datablock_df) -> N
             partition_key="2024/01/01/00/",
             key=datablock.part1.key,
             datatype="conftest.Part2",
-            partition_dt=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            partition_dt=datetime(2024, 1, 1, tzinfo=UTC),
             database_key="test_db",
             collection="mydatablock",
             schema={
@@ -682,8 +678,12 @@ async def test_datablock_load_batch(plugin_config, datablock_df, datablock2_df) 
     async for batch_df in DataBlocks.load_batch(
         MyDataBlock,
         DataBlockQuery(
-            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
-            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+            from_partition_dt=datetime.strptime(
+                datablock1.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=UTC),
+            to_partition_dt=datetime.strptime(
+                datablock2.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=UTC),
         ),
         metadata=DataBlockMetadata(group_key=group_key),
     ):
@@ -714,8 +714,12 @@ async def test_datablock_load_batch(plugin_config, datablock_df, datablock2_df) 
     async for batch_df in DataBlocks.load_batch(
         MyDataBlock,
         DataBlockQuery(
-            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
-            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+            from_partition_dt=datetime.strptime(
+                datablock1.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=UTC),
+            to_partition_dt=datetime.strptime(
+                datablock2.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=UTC),
             select=["part1"],
         ),
         metadata=DataBlockMetadata(group_key=group_key),
@@ -744,8 +748,12 @@ async def test_datablock_load_batch(plugin_config, datablock_df, datablock2_df) 
     async for batch_df in DataBlocks.load_batch(
         MyDataBlock,
         DataBlockQuery(
-            from_partition_dt=datetime.strptime(datablock1.part1.partition_key, "%Y/%m/%d/%H/"),
-            to_partition_dt=datetime.strptime(datablock2.part1.partition_key, "%Y/%m/%d/%H/"),
+            from_partition_dt=datetime.strptime(
+                datablock1.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=UTC),
+            to_partition_dt=datetime.strptime(
+                datablock2.part1.partition_key, "%Y/%m/%d/%H/"
+            ).replace(tzinfo=UTC),
             select=["part2"],
         ),
         metadata=DataBlockMetadata(group_key=group_key),
@@ -780,7 +788,7 @@ async def test_datablock_query(plugin_config, datablock_df, datablock2_df) -> No
         block_id="b1",
         block_field=42,
         metadata=DataBlockMetadata(
-            group_key=group_key, partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+            group_key=group_key, partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=UTC)
         ),
     )
     datablock2 = await DataBlocks.save(
@@ -789,7 +797,7 @@ async def test_datablock_query(plugin_config, datablock_df, datablock2_df) -> No
         block_id="b2",
         block_field=43,
         metadata=DataBlockMetadata(
-            group_key=group_key, partition_dt=datetime(2025, 1, 31, 0, 0, 0, tzinfo=timezone.utc)
+            group_key=group_key, partition_dt=datetime(2025, 1, 31, 0, 0, 0, tzinfo=UTC)
         ),
     )
 
@@ -881,8 +889,8 @@ async def test_datablock_query_no_data(plugin_config, datablock_df, datablock2_d
     result_df = await DataBlocks.query(
         MyDataBlock,
         DataBlockQuery(
-            from_partition_dt=datetime(1999, 1, 1),
-            to_partition_dt=datetime(1999, 1, 31),
+            from_partition_dt=datetime(1999, 1, 1),  # noqa: DTZ001 -- Exercise naive timestamp inputs.
+            to_partition_dt=datetime(1999, 1, 31),  # noqa: DTZ001 -- Exercise naive timestamp inputs.
         ),
         metadata=DataBlockMetadata(group_key=group_key),
     )
@@ -903,7 +911,7 @@ async def test_datablock_sink_partitions(plugin_config, partitioned_datablock_df
         partition_by=["item_dt", "field0"],
         partition_interval="1d",
         metadata=DataBlockMetadata(
-            group_key=group_key, partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+            group_key=group_key, partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=UTC)
         ),
         block_id="b1",
         block_field=42,
@@ -916,8 +924,8 @@ async def test_datablock_sink_partitions(plugin_config, partitioned_datablock_df
             await DataBlocks.query(
                 MyPartitionedDataBlock,
                 DataBlockQuery(
-                    from_partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
-                    to_partition_dt=datetime(2025, 1, 3, 0, 0, 0, 0, tzinfo=timezone.utc),
+                    from_partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=UTC),
+                    to_partition_dt=datetime(2025, 1, 3, 0, 0, 0, 0, tzinfo=UTC),
                 ),
                 metadata=DataBlockMetadata(group_key=group_key),
             )
@@ -937,8 +945,8 @@ async def test_datablock_sink_partitions(plugin_config, partitioned_datablock_df
     async for df in DataBlocks.load_batch(
         MyPartitionedDataBlock,
         DataBlockQuery(
-            from_partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
-            to_partition_dt=datetime(2025, 1, 3, 0, 0, 0, 0, tzinfo=timezone.utc),
+            from_partition_dt=datetime(2025, 1, 1, 0, 0, 0, tzinfo=UTC),
+            to_partition_dt=datetime(2025, 1, 3, 0, 0, 0, 0, tzinfo=UTC),
         ),
         metadata=DataBlockMetadata(group_key=group_key),
     ):

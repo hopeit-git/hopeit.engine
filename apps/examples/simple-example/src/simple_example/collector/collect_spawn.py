@@ -7,16 +7,15 @@ then spawn the items found individually into a stream
 """
 
 import asyncio
-from typing import Union, Optional, List
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.app.events import collector_step, Spawn
+from hopeit.app.events import Spawn, collector_step
 from hopeit.app.logger import app_extra_logger
 from hopeit.dataobjects import dataclass, dataobject
+from hopeit.fs_storage import FileStorage, FileStorageSettings
 from hopeit.server.collector import Collector
 from hopeit.server.steps import SHUFFLE
-from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import ItemsInfo, Something, SomethingNotFound
 
 
@@ -27,7 +26,7 @@ class ItemsCollected:
     Collected items. Need a dataclass in order to publish to stream
     """
 
-    items: List[Something]
+    items: list[Something]
 
 
 __steps__ = [
@@ -46,7 +45,7 @@ __api__ = event_api(
 )
 
 logger, extra = app_extra_logger()
-fs: Optional[FileStorage] = None
+fs: FileStorage | None = None
 
 
 async def __init_event__(context):
@@ -58,9 +57,7 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-async def load_first(
-    collector: Collector, context: EventContext
-) -> Union[Something, SomethingNotFound]:
+async def load_first(collector: Collector, context: EventContext) -> Something | SomethingNotFound:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -83,9 +80,7 @@ async def load_first(
     return something
 
 
-async def load_second(
-    collector: Collector, context: EventContext
-) -> Union[Something, SomethingNotFound]:
+async def load_second(collector: Collector, context: EventContext) -> Something | SomethingNotFound:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -108,7 +103,7 @@ async def load_second(
     return something
 
 
-async def combine(collector: Collector, context: EventContext) -> List[Something]:
+async def combine(collector: Collector, context: EventContext) -> list[Something]:
     """
     Awaits for first and second items to be loaded an combine results in list
     if the objects are found. This step combines the results of load_first

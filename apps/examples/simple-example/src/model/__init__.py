@@ -3,7 +3,6 @@ Data model for simple-example test application
 """
 
 from datetime import datetime
-from typing import List, Optional
 from enum import Enum
 
 from hopeit.dataobjects import dataclass, dataobject, field
@@ -41,8 +40,8 @@ class Something:
 
     id: str
     user: User
-    status: Optional[Status] = None
-    history: List[Status] = field(default_factory=list)
+    status: Status | None = None
+    history: list[Status] = field(default_factory=list)
 
 
 @dataobject

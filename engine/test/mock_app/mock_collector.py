@@ -1,9 +1,10 @@
 import asyncio
 
+from hopeit.app.context import EventContext
 from hopeit.app.events import collector_step
 from hopeit.app.logger import app_extra_logger
-from hopeit.app.context import EventContext
 from hopeit.server.collector import Collector
+
 from . import MockData, MockResult
 
 __steps__ = [

@@ -1,12 +1,13 @@
 """Support for `@dataframes` serialization to files"""
 
-from datetime import datetime, timedelta, timezone
-from glob import glob
-import os
 import io
-from typing import AsyncGenerator, Generic, Literal, Optional, Type, TypeVar
-from uuid import uuid4
+import os
+from collections.abc import AsyncGenerator
+from datetime import UTC, datetime, timedelta
+from glob import glob
 from pathlib import Path
+from typing import Generic, Literal, TypeVar
+from uuid import uuid4
 
 import aiofiles
 from pydantic import TypeAdapter
@@ -29,10 +30,10 @@ DataFrameT = TypeVar("DataFrameT", bound=DataFrameMixin)
 class DatasetFileStorageEngineSettings:
     """Pyarrow settings for parquet file storage"""
 
-    compression: Optional[
-        Literal["lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd"]
-    ] = "zstd"
-    compression_level: Optional[int] = None
+    compression: (
+        Literal["lz4", "uncompressed", "snappy", "gzip", "lzo", "brotli", "zstd"] | None
+    ) = "zstd"
+    compression_level: int | None = None
     read_chunk_size: int = 2**20  # 1Mb
 
 
@@ -45,7 +46,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         self,
         *,
         location: str,
-        partition_dateformat: Optional[str],
+        partition_dateformat: str | None,
         storage_settings: dict[str, str | int],
         **kwargs,  # Needed to support other storage implementations
     ):
@@ -59,16 +60,16 @@ class DatasetFileStorage(Generic[DataFrameT]):
         self,
         dataframe: DataFrameT,
         *,
-        partition_dt: Optional[datetime],
-        database_key: Optional[str],
-        group_key: Optional[str],
-        collection: Optional[str],
+        partition_dt: datetime | None,
+        database_key: str | None,
+        group_key: str | None,
+        collection: str | None,
         save_schema: bool,
     ) -> Dataset:
         """Saves @dataframe annotated object as parquet to file system
         and returns Dataset metadata to be used for retrieval
         """
-        datatype: Type[DataFrameT] = type(dataframe)
+        datatype: type[DataFrameT] = type(dataframe)
         return await self.save_df(
             dataframe._df.select(datatype.__dataframe__.columns),  # type: ignore[misc]
             datatype,
@@ -82,12 +83,12 @@ class DatasetFileStorage(Generic[DataFrameT]):
     async def save_df(
         self,
         df: pl.DataFrame,
-        datatype: Type[DataFrameT],
+        datatype: type[DataFrameT],
         *,
-        partition_dt: Optional[datetime],
-        database_key: Optional[str],
-        group_key: Optional[str],
-        collection: Optional[str],
+        partition_dt: datetime | None,
+        database_key: str | None,
+        group_key: str | None,
+        collection: str | None,
         save_schema: bool,
     ) -> Dataset:
         """Saves polars df object as parquet to file system
@@ -102,7 +103,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
             collection = datatype.__qualname__.lower()
         path = path / collection
         if self.partition_dateformat:
-            partition_key = (partition_dt or datetime.now(tz=timezone.utc)).strftime(
+            partition_key = (partition_dt or datetime.now(tz=UTC)).strftime(
                 self.partition_dateformat
             )
             path = path / partition_key
@@ -134,13 +135,13 @@ class DatasetFileStorage(Generic[DataFrameT]):
 
     async def _get_batch(
         self,
-        datatype: Type[DataFrameT],
+        datatype: type[DataFrameT],
         *,
         from_partition_dt: datetime,
         to_partition_dt: datetime,
-        database_key: Optional[str],
-        group_key: Optional[str],
-        collection: Optional[str],
+        database_key: str | None,
+        group_key: str | None,
+        collection: str | None,
     ) -> AsyncGenerator[Dataset, None]:
         """
         Returns a list of Dataset found in a range of partitions
@@ -191,7 +192,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
 
             partition_dt += partition_increments
 
-    async def load_df(self, dataset: Dataset, columns: Optional[list[str]] = None) -> pl.DataFrame:
+    async def load_df(self, dataset: Dataset, columns: list[str] | None = None) -> pl.DataFrame:
         path = self.path
         if dataset.group_key:
             path = path / dataset.group_key
@@ -211,7 +212,7 @@ class DatasetFileStorage(Generic[DataFrameT]):
         buf.seek(0)
         return pl.read_parquet(buf, columns=columns)
 
-    def scan_df(self, dataset: Dataset, schema: Optional[pl.Schema] = None) -> pl.LazyFrame:
+    def scan_df(self, dataset: Dataset, schema: pl.Schema | None = None) -> pl.LazyFrame:
         path = self.path
         if dataset.group_key:
             path = path / dataset.group_key

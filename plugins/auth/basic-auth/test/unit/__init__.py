@@ -3,12 +3,12 @@ import pytest  # type: ignore
 from hopeit.app.config import (
     AppConfig,
     AppDescriptor,
+    AppEngineConfig,
     EventDescriptor,
     EventType,
     parse_app_config_json,
-    AppEngineConfig,
 )
-from hopeit.server.config import ServerConfig, AuthConfig
+from hopeit.server.config import AuthConfig, ServerConfig
 
 
 @pytest.fixture

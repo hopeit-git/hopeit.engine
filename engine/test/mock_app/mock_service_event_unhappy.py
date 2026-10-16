@@ -1,6 +1,7 @@
+from hopeit.app.context import EventContext
 from hopeit.app.events import Spawn
 from hopeit.app.logger import app_extra_logger
-from hopeit.app.context import EventContext
+
 from . import MockData
 
 __steps__ = ["message"]

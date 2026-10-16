@@ -6,14 +6,13 @@ and processed in asynchronously / in parallel if multiple nodes are available,
 then submitted to other stream to be updated and saved
 """
 
-from datetime import datetime, timezone
-from typing import Optional, Union
+from datetime import UTC, datetime
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
-from hopeit.dataobjects import dataclass, dataobject
-from hopeit.app.events import Spawn, SHUFFLE
+from hopeit.app.events import SHUFFLE, Spawn
 from hopeit.app.logger import app_extra_logger
+from hopeit.dataobjects import dataclass, dataobject
 from hopeit.fs_storage import FileStorage, FileStorageSettings
 from model import Something, SomethingStored, Status, StatusType
 
@@ -48,7 +47,7 @@ class SecondPart:
     data: Something
 
 
-fs: Optional[FileStorage] = None
+fs: FileStorage | None = None
 
 
 async def __init_event__(context):
@@ -62,14 +61,14 @@ async def __init_event__(context):
 
 async def fork_something(
     payload: Something, context: EventContext
-) -> Spawn[Union[FirstPart, SecondPart]]:
+) -> Spawn[FirstPart | SecondPart]:
     """
     Produces 2 variants from payload to be processed in parallel
     """
     logger.info(context, "producing 2 variants of payload", extra=extra(something_id=payload.id))
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.SUBMITTED)
+    payload.status = Status(ts=datetime.now(tz=UTC), type=StatusType.SUBMITTED)
     yield FirstPart(payload)
     yield SecondPart(payload)
 
@@ -107,7 +106,7 @@ def update_status(payload: Something, context: EventContext) -> Something:
 
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(ts=datetime.now(timezone.utc), type=StatusType.PROCESSED)
+    payload.status = Status(ts=datetime.now(UTC), type=StatusType.PROCESSED)
     return payload
 
 

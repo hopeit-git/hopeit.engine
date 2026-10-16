@@ -1,8 +1,6 @@
-from datetime import datetime, timezone
 import io
-from typing import List, Optional
-
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 
 import aiofiles
@@ -16,7 +14,7 @@ from hopeit.fs_storage import FileStorage, FileStorageSettings, ItemLocator
 @dataclass
 class FsMockData:
     test: str
-    ts: Optional[datetime] = None
+    ts: datetime | None = None
 
 
 @dataobject
@@ -29,7 +27,7 @@ payload_str = """{"test":"test_fs"}"""
 test_fs = FsMockData(test="test_fs")
 
 payload_str_with_ts = """{"test":"test_fs", "ts":"2022-03-01T00:00:00+00:00"}"""
-test_fs_with_ts = FsMockData(test="test_fs", ts=datetime(2022, 3, 1, tzinfo=timezone.utc))
+test_fs_with_ts = FsMockData(test="test_fs", ts=datetime(2022, 3, 1, tzinfo=UTC))
 test_fs_without_ts = FsMockDataNoTs(test="test_fs")
 
 binary_file = b"Binary file content"
@@ -66,7 +64,7 @@ async def delete_files_in_partition():
     key1 = "VALIDFILE1"
     key2 = "VALIDFILE2"
     fs = FileStorage(path="/tmp/DELETE/", partition_dateformat="%Y/%m/%d")
-    partition_key = datetime.now(tz=timezone.utc).strftime("%Y/%m/%d")
+    partition_key = datetime.now(tz=UTC).strftime("%Y/%m/%d")
     assert await fs.store(key1, test_fs) is not None
     assert await fs.store(key2, test_fs) is not None
     assert await fs.get(key1, datatype=FsMockData, partition_key=partition_key) == test_fs
@@ -90,7 +88,7 @@ async def save_and_load_file_in_partition_without_ts():
     key = "VALIDFILEWITHTS"
     fs = FileStorage(path=f"/tmp/{key}/", partition_dateformat="%Y/%m/%d")
     path = await fs.store(key, test_fs_without_ts)
-    partition_key = datetime.now(tz=timezone.utc).strftime("%Y/%m/%d")
+    partition_key = datetime.now(tz=UTC).strftime("%Y/%m/%d")
     assert path == f"/tmp/{key}/{partition_key}/{key}.json"
     loaded = await fs.get(key, datatype=FsMockDataNoTs, partition_key="2022/03/01")
     assert loaded == test_fs_without_ts
@@ -101,7 +99,7 @@ async def save_and_load_file_in_partition_default_ts():
     key = "VALIDFILE"
     fs = FileStorage(path=f"/tmp/{key}/", partition_dateformat="%Y/%m/%d")
     path = await fs.store(key, test_fs)
-    partition_key = datetime.now(tz=timezone.utc).strftime("%Y/%m/%d")
+    partition_key = datetime.now(tz=UTC).strftime("%Y/%m/%d")
     assert path == f"/tmp/{key}/{partition_key}/{key}.json"
     loaded = await fs.get(key, datatype=FsMockData, partition_key=partition_key)
     assert loaded == test_fs
@@ -179,7 +177,7 @@ class MockOs:
         pass
 
 
-def mock_glob(wc: str) -> List[str]:
+def mock_glob(wc: str) -> list[str]:
     if wc == "/path/*.json":
         return ["/path/1.json", "/path/2.json", "/path/3.json"]
     elif wc == "/path/1*.json":
@@ -191,7 +189,7 @@ def mock_glob(wc: str) -> List[str]:
     raise ValueError(f"glob received unexpected wildcard: {wc}")
 
 
-def mock_glob_partitions(wc: str) -> List[str]:
+def mock_glob_partitions(wc: str) -> list[str]:
     if wc == "/path/*.json":
         return []
     elif wc == "/path/2022/03/01/*.json":
@@ -305,7 +303,7 @@ async def test_get_store_file():
 async def test_get_store_file_in_partition():
     key = "BINARYFILE"
     fs = FileStorage(path=f"/tmp/{key}/", partition_dateformat="%Y/%m/%d")
-    partition_key = datetime.now(tz=timezone.utc).strftime("%Y/%m/%d")
+    partition_key = datetime.now(tz=UTC).strftime("%Y/%m/%d")
     file_obj = io.BytesIO(binary_file)
     location = await fs.store_file(key, file_obj)
     assert location == str(fs.path / f"{partition_key}/{key}")

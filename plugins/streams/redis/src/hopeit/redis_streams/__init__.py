@@ -1,11 +1,12 @@
 """Redis Streams-backed implementation of the Hopeit stream manager."""
 
 import asyncio
-import json
 import base64
+import json
 import uuid
-from datetime import datetime, timezone
-from typing import Callable, Dict, List, Any, Optional, Union
+from collections.abc import Callable
+from datetime import UTC, datetime
+from typing import Any
 
 import redis.asyncio as redis
 from redis import RedisError, ResponseError
@@ -14,9 +15,9 @@ from redis.exceptions import ConnectionError as RedisConnectionError
 from hopeit.app.config import Compression, Serialization, StreamQueue
 from hopeit.dataobjects import EventPayload
 from hopeit.server.config import StreamsConfig
-from hopeit.server.serialization import deserialize, serialize
 from hopeit.server.logger import engine_logger, extra_logger
-from hopeit.streams import StreamManager, StreamEvent, StreamOSError
+from hopeit.server.serialization import deserialize, serialize
+from hopeit.streams import StreamEvent, StreamManager, StreamOSError
 
 logger = engine_logger()
 extra = extra_logger()
@@ -30,7 +31,7 @@ class RedisStreamManager(StreamManager):
     """Manage Hopeit application streams using Redis Streams."""
 
     # __connection_factory must be initialized during redis_streams plugin setup event
-    __connection_factory: Optional[ConnectionFactory] = None
+    __connection_factory: ConnectionFactory | None = None
 
     @classmethod
     def connection_factory(cls, address: str) -> redis.Redis:
@@ -82,7 +83,6 @@ class RedisStreamManager(StreamManager):
         async def _close(pool) -> None:
             if pool:
                 await pool.aclose(close_connection_pool=True)
-            return None
 
         self._read_pool = await _close(self._read_pool)
         self._write_pool = await _close(self._write_pool)
@@ -93,12 +93,12 @@ class RedisStreamManager(StreamManager):
         stream_name: str,
         queue: str,
         payload: EventPayload,
-        track_ids: Dict[str, str],
-        auth_info: Dict[str, Any],
+        track_ids: dict[str, str],
+        auth_info: dict[str, Any],
         compression: Compression,
         serialization: Serialization,
         target_max_len: int = 0,
-    ) -> int:
+    ) -> int | bytes | str:
         """
         Writes event to a Redis stream using XADD
         :param stream_name: stream name or key used by Redis
@@ -110,7 +110,7 @@ class RedisStreamManager(StreamManager):
         :param serialization: Serialization, supported serialization format from enum
         :param target_max_len: int, max_len to indicate approx. target collection size to Redis,
             default 0 will not send max_len to Redis.
-        :return: number of successful written messages
+        :return: backend write result, such as a count or message identifier
         """
         try:
             event_fields = await self._encode_message(
@@ -156,13 +156,13 @@ class RedisStreamManager(StreamManager):
         *,
         stream_name: str,
         consumer_group: str,
-        datatypes: Dict[str, type],
-        track_headers: List[str],
+        datatypes: dict[str, type],
+        track_headers: list[str],
         offset: str,
         batch_size: int,
         timeout: int,
         batch_interval: int,
-    ) -> List[Union[StreamEvent, Exception]]:
+    ) -> list[StreamEvent | Exception]:
         """
         Read a batch of events using a Redis consumer group.
 
@@ -193,6 +193,7 @@ class RedisStreamManager(StreamManager):
             )
 
             if len(response) != 0:
+                assert isinstance(response, list), "Redis Streams requires RESP2 stream responses"
                 batch = response[0][1]
                 logger.debug(
                     __name__,
@@ -206,9 +207,9 @@ class RedisStreamManager(StreamManager):
                         tail=batch[-1][0],
                     ),
                 )
-                stream_events: List[Union[StreamEvent, Exception]] = []
+                stream_events: list[StreamEvent | Exception] = []
                 for msg in batch:
-                    read_ts = datetime.now(tz=timezone.utc).isoformat()
+                    read_ts = datetime.now(tz=UTC).isoformat()
                     msg_type = msg[1][b"type"].decode()
                     datatype = datatypes.get(msg_type)
                     if datatype is None:
@@ -259,8 +260,8 @@ class RedisStreamManager(StreamManager):
         self,
         payload: EventPayload,
         queue: str,
-        track_ids: Dict[str, str],
-        auth_info: Dict[str, Any],
+        track_ids: dict[str, str],
+        auth_info: dict[str, Any],
         compression: Compression,
         serialization: Serialization,
     ) -> dict:
@@ -278,7 +279,7 @@ class RedisStreamManager(StreamManager):
         event_fields = {
             "id": payload.event_id(),  # type: ignore
             "type": f"{datatype.__module__}.{datatype.__qualname__}",
-            "submit_ts": datetime.now(tz=timezone.utc).isoformat(),
+            "submit_ts": datetime.now(tz=UTC).isoformat(),
             "event_ts": "",
             **{k: v or "" for k, v in track_ids.items()},
             "auth_info": base64.b64encode(json.dumps(auth_info).encode()),
@@ -289,7 +290,7 @@ class RedisStreamManager(StreamManager):
         }
         event_ts = payload.event_ts()  # type: ignore
         if isinstance(event_ts, datetime):
-            event_fields["event_ts"] = event_ts.astimezone(tz=timezone.utc).isoformat()
+            event_fields["event_ts"] = event_ts.astimezone(tz=UTC).isoformat()
         elif isinstance(event_ts, str):
             event_fields["event_ts"] = event_ts
         return event_fields
@@ -297,10 +298,10 @@ class RedisStreamManager(StreamManager):
     async def _decode_message(
         self,
         stream_name: str,
-        msg: List[Union[bytes, Dict[bytes, bytes]]],
+        msg: list[bytes | dict[bytes, bytes]],
         datatype: type,
         consumer_group: str,
-        track_headers: List[str],
+        track_headers: list[str],
         read_ts: str,
     ):
         """Decode and deserialize a message from a Redis stream."""

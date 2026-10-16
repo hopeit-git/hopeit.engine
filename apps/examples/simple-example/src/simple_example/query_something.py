@@ -4,14 +4,13 @@ Simple Example: Query Something
 Loads Something from disk
 """
 
-from typing import Union, Optional
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.logger import app_extra_logger
 from hopeit.fs_storage import FileStorage, FileStorageSettings
-from model import Something, StatusType, Status, SomethingNotFound
+from model import Something, SomethingNotFound, Status, StatusType
 
 __steps__ = ["load", "update_status_history"]
 
@@ -28,7 +27,7 @@ __api__ = event_api(
 )
 
 logger, extra = app_extra_logger()
-fs: Optional[FileStorage] = None
+fs: FileStorage | None = None
 
 
 async def __init_event__(context):
@@ -47,7 +46,7 @@ async def load(
     item_id: str,
     partition_key: str,
     update_status: bool = False,
-) -> Union[Something, SomethingNotFound]:
+) -> Something | SomethingNotFound:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -69,13 +68,13 @@ async def load(
 async def update_status_history(payload: Something, context: EventContext) -> Something:
     if payload.status:
         payload.history.append(payload.status)
-    payload.status = Status(ts=datetime.now(tz=timezone.utc), type=StatusType.LOADED)
+    payload.status = Status(ts=datetime.now(tz=UTC), type=StatusType.LOADED)
     return payload
 
 
 async def __postprocess__(
-    payload: Union[Something, SomethingNotFound], context: EventContext, response: PostprocessHook
-) -> Union[Something, SomethingNotFound]:
+    payload: Something | SomethingNotFound, context: EventContext, response: PostprocessHook
+) -> Something | SomethingNotFound:
     if isinstance(payload, SomethingNotFound):
         response.status = 404
     return payload

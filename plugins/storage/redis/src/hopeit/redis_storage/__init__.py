@@ -3,7 +3,7 @@ Storage/persistence asynchronous get/set key-values.
 Backed by Redis
 """
 
-from typing import Optional, Type, Generic, Any, List
+from typing import Any, Generic
 
 import redis.asyncio as redis
 
@@ -27,7 +27,7 @@ class RedisStorage(Generic[DataObject]):
         """
         Setups Redis connection
         """
-        self._conn: Optional[redis.Redis] = None
+        self._conn: redis.Redis | None = None
 
     def connect(self, *, address: str, username: str = "", password: str = "") -> Any:
         """
@@ -41,7 +41,7 @@ class RedisStorage(Generic[DataObject]):
         self._conn = redis.from_url(address, username=username, password=password)
         return self
 
-    async def get(self, key: str, *, datatype: Type[DataObject]) -> Optional[DataObject]:
+    async def get(self, key: str, *, datatype: type[DataObject]) -> DataObject | None:
         """
         Retrieves value under specified key, converted to datatype
 
@@ -93,11 +93,14 @@ class RedisStorage(Generic[DataObject]):
         assert self._conn
         await self._conn.delete(*keys)
 
-    async def list_objects(self, wildcard: str = "*") -> List[str]:
+    async def list_objects(self, wildcard: str = "*") -> list[str]:
         """
         Returns a list of keys matching `wildcard`
 
         :param wildcard: str, expected glob-style wildcards
         """
         assert self._conn
-        return [obj.decode("utf-8") for obj in await self._conn.keys(wildcard)]
+        return [
+            obj.decode("utf-8") if isinstance(obj, bytes) else obj
+            for obj in await self._conn.keys(wildcard)
+        ]

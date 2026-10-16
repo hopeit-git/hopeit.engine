@@ -2,21 +2,15 @@
 Events graph showing events, stream and dependencies for specified apps
 """
 
-from typing import Optional
-
-from hopeit.app.context import EventContext
 from hopeit.app.api import event_api
-from hopeit.dataobjects import dataclass, dataobject
-from hopeit.app.events import collector_step, Collector
+from hopeit.app.context import EventContext
+from hopeit.app.events import Collector, collector_step
 from hopeit.app.logger import app_extra_logger
-
-from hopeit.config_manager import RuntimeApps, RuntimeAppInfo
-
 from hopeit.apps_visualizer.apps import get_runtime_apps
 from hopeit.apps_visualizer.graphs import (
     Edge,
-    Node,
     Graph,
+    Node,
     add_app_connections,
     get_edges,
     get_nodes,
@@ -24,9 +18,11 @@ from hopeit.apps_visualizer.graphs import (
 from hopeit.apps_visualizer.site.visualization import (
     CytoscapeGraph,
     VisualizationOptions,
+    visualization_options,  # noqa: F401 -- Hopeit resolves these event steps by name.
     visualization_options_api_args,
-    visualization_options,  # noqa: F401
 )
+from hopeit.config_manager import RuntimeAppInfo, RuntimeApps
+from hopeit.dataobjects import dataclass, dataobject
 
 logger, extra = app_extra_logger()
 
@@ -73,7 +69,7 @@ def _filter_hosts(runtime_info: RuntimeAppInfo, options: VisualizationOptions) -
     )
 
 
-async def config_graph(collector: Collector, context: EventContext) -> Optional[Graph]:
+async def config_graph(collector: Collector, context: EventContext) -> Graph | None:
     """
     Generates Graph object with nodes and edges from server runtime active configuration
     """

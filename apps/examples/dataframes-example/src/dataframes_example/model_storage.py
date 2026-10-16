@@ -4,9 +4,10 @@ import io
 import os
 import pickle
 from pathlib import Path
-from typing import Optional, Tuple, TypeVar
+from typing import TypeVar
 
 import aiofiles
+
 from dataframes_example.settings import ModelStorage
 from hopeit.app.context import EventContext
 from hopeit.dataobjects.payload import Payload
@@ -14,7 +15,7 @@ from hopeit.server.logger import engine_extra_logger
 
 logger, extra = engine_extra_logger()
 
-model_storage: Optional[ModelStorage] = None
+model_storage: ModelStorage | None = None
 
 ModelT = TypeVar("ModelT")
 
@@ -51,7 +52,7 @@ async def load_experiment_model(experiment_id: str, context: EventContext) -> Mo
     return await load_model(model_location_str, context)
 
 
-def _get_model_location(experiment_id: str) -> Tuple[Path, Path, str]:
+def _get_model_location(experiment_id: str) -> tuple[Path, Path, str]:
     assert model_storage is not None
     model_path = Path(model_storage.path)
     model_location = model_path / f"model_{experiment_id}.pkl5"

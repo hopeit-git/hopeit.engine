@@ -1,7 +1,8 @@
 from pathlib import Path
+
 from hopeit.app.api import event_api
-from hopeit.dataobjects import BinaryDownload, dataclass
 from hopeit.app.context import EventContext, PostprocessHook
+from hopeit.dataobjects import BinaryDownload, dataclass
 
 __steps__ = ["create_file"]
 
@@ -24,7 +25,7 @@ async def create_file(payload: None, context: EventContext, file_name: str) -> I
     path = Path("/tmp") / file_name
     img_file = ImagePng(file_name=file_name, file_path=path)
     path = path.absolute()
-    with open(path, "w") as f:
+    with open(path, "w") as f:  # noqa: ASYNC230 -- Small synchronous test fixture with controlled file lifetime.
         f.write(b"mock_file_response test file_response")
     return img_file
 

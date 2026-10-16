@@ -4,40 +4,36 @@ auth module, provides functionallity to create, validate and decode access and r
 call init() to load or create RSA keys before using token manipulation methods
 """
 
-from typing import Dict, Optional, Set
-
-import pathlib
 import os
-
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey, RSAPrivateKey
-from cryptography.hazmat.primitives.serialization import load_pem_private_key
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
+import pathlib
 
 import jwt
-from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
+from cryptography.hazmat.primitives.serialization import load_pem_private_key, load_pem_public_key
+from jwt import DecodeError, ExpiredSignatureError, InvalidSignatureError
 
 from hopeit.app.context import EventContext
 from hopeit.server.config import AuthConfig, AuthType
 from hopeit.server.logger import engine_extra_logger
 
 __all__ = [
+    "AuthType",
+    "decode_token",
     "init",
     "new_token",
-    "decode_token",
-    "validate_token",
     "validate_auth_method",
-    "AuthType",
+    "validate_token",
 ]
 
 logger, extra = engine_extra_logger()
 
-auth_config: Optional[AuthConfig] = None
-private_keys: Dict[str, RSAPrivateKey] = {}
-public_keys: Dict[str, RSAPublicKey] = {}
-rejected_apps: Set[str] = set()
+auth_config: AuthConfig | None = None
+private_keys: dict[str, RSAPrivateKey] = {}
+public_keys: dict[str, RSAPublicKey] = {}
+rejected_apps: set[str] = set()
 
 
 def init(app_key: str, app_auth_config: AuthConfig):
@@ -66,7 +62,7 @@ def init(app_key: str, app_auth_config: AuthConfig):
                 f"Found keys in {auth_config.secrets_location}",
                 extra=extra(app_key=app_key),
             )
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             if auth_config.create_keys:
                 logger.info(
                     __name__,
@@ -98,7 +94,7 @@ def init(app_key: str, app_auth_config: AuthConfig):
                 private_keys[app_key] = private_key
                 logger.debug(__name__, "Saved generated key pair.", extra=extra(app_key=app_key))
             else:
-                raise e
+                raise
     else:
         public_keys = {}
         private_keys = {}
@@ -166,7 +162,7 @@ def decode_token(token: str) -> dict:
     return jwt.decode(token, public_key, algorithms=["RS256"])  # type: ignore
 
 
-def validate_token(token: str, context: EventContext) -> Optional[dict]:
+def validate_token(token: str, context: EventContext) -> dict | None:
     try:
         return decode_token(token)
     except (

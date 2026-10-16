@@ -1,22 +1,19 @@
-from typing import List
-
-from hopeit.apps_visualizer.site.visualization import VisualizationOptions
 from hopeit.app.api import event_api
-from hopeit.app.events import collector_step, Collector
 from hopeit.app.context import EventContext
-
-from hopeit.apps_visualizer.event_stats.collect import get_stats
-from hopeit.apps_visualizer.site.visualization import (
-    visualization_options_api_args,
-    visualization_options,  # noqa: F401
-)
+from hopeit.app.events import Collector, collector_step
+from hopeit.apps_visualizer import AppsVisualizerSettings
 from hopeit.apps_visualizer.apps.events_graph import (
     EventsGraphResult,
-    runtime_apps,  # noqa: F401
-    config_graph,  # noqa: F401
-    cytoscape_data,  # noqa: F401
+    config_graph,  # noqa: F401 -- Hopeit resolves these event steps by name.
+    cytoscape_data,  # noqa: F401 -- Hopeit resolves these event steps by name.
+    runtime_apps,  # noqa: F401 -- Hopeit resolves these event steps by name.
 )
-from hopeit.apps_visualizer import AppsVisualizerSettings
+from hopeit.apps_visualizer.event_stats.collect import get_stats
+from hopeit.apps_visualizer.site.visualization import (
+    VisualizationOptions,
+    visualization_options,  # noqa: F401 -- Hopeit resolves these event steps by name.
+    visualization_options_api_args,
+)
 
 __steps__ = [
     "visualization_options",
@@ -34,7 +31,7 @@ __api__ = event_api(
 )
 
 
-def _classes(item: dict, new_classes: List[str]) -> str:
+def _classes(item: dict, new_classes: list[str]) -> str:
     return " ".join(sorted({*item.get("classes", "").split(" "), *new_classes})).lstrip(" ")
 
 
@@ -42,12 +39,12 @@ async def live_stats(collector: Collector, context: EventContext) -> Collector:
     settings = context.settings(key="apps_visualizer", datatype=AppsVisualizerSettings)
     apps = await collector["runtime_apps"]
     options = await collector["payload"]
-    host_pids = set(
+    host_pids = {
         (server.host_name, server.pid)
         for _, runtime_info in apps.apps.items()
         for server in runtime_info.servers
         if options.host_filter in server.url
-    )
+    }
     event_stats = get_stats(
         host_pids=host_pids,
         time_window_secs=settings.live_active_treshold_seconds,

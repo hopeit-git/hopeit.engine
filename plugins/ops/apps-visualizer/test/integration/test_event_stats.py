@@ -1,20 +1,17 @@
-from typing import Deque
 from collections import deque
 
-
-from hopeit.testing.apps import execute_event
-from hopeit.server.version import APPS_ROUTE_VERSION
-
-from hopeit.log_streamer import LogBatch, LogEntry
 from hopeit.apps_visualizer.apps.events_graph import EventsGraphResult
+from hopeit.log_streamer import LogBatch, LogEntry
+from hopeit.server.version import APPS_ROUTE_VERSION
+from hopeit.testing.apps import execute_event
 
 from . import mock_runtime
 
-recent_entries: Deque[LogEntry] = deque()
+recent_entries: deque[LogEntry] = deque()
 
 
 def mock_recent_entries(module, context):
-    setattr(module, "recent_entries", recent_entries)
+    module.recent_entries = recent_entries
 
 
 async def test_live_stats(

@@ -1,9 +1,11 @@
 import pytest  # type: ignore
-from mock_app import mock_app_config  # type: ignore
-import mock_app.mock_event as mock_event  # type: ignore
-import mock_app.mock_event_custom_impl as mock_event_custom_impl  # type: ignore
 
 from hopeit.server.imports import find_event_handler
+from mock_app import (
+    mock_app_config,  # type: ignore
+    mock_event,  # type: ignore
+    mock_event_custom_impl,  # type: ignore
+)
 
 
 def test_find_event_handler(mock_app_config):

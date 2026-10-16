@@ -2,7 +2,6 @@
 Config Manager dataclasses
 """
 
-from typing import Dict, List
 from enum import Enum
 
 from hopeit.app.config import AppConfig, EventDescriptor
@@ -33,9 +32,9 @@ class RuntimeAppInfo:
     Application config information associated to servers at runtime
     """
 
-    servers: List[ServerInfo]
+    servers: list[ServerInfo]
     app_config: AppConfig
-    effective_events: Dict[str, EventDescriptor]
+    effective_events: dict[str, EventDescriptor]
 
 
 @dataobject
@@ -45,5 +44,5 @@ class RuntimeApps:
     Combined App Config and Server Status information for running apps
     """
 
-    apps: Dict[str, RuntimeAppInfo]
-    server_status: Dict[str, ServerStatus] = field(default_factory=dict)
+    apps: dict[str, RuntimeAppInfo]
+    server_status: dict[str, ServerStatus] = field(default_factory=dict)

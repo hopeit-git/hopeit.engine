@@ -1,11 +1,9 @@
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import List, Optional
-
-from hopeit.dataframes.serialization.settings import DataframesSettings
 
 import polars as pl
 import pytest
+
 from hopeit.app.config import (
     AppConfig,
     AppDescriptor,
@@ -15,6 +13,7 @@ from hopeit.app.config import (
 )
 from hopeit.app.context import EventContext
 from hopeit.dataframes import Dataset, dataframe
+from hopeit.dataframes.serialization.settings import DataframesSettings
 from hopeit.dataobjects import dataclass, dataobject, field
 from hopeit.testing.apps import create_test_context, execute_event, server_config
 
@@ -31,9 +30,9 @@ class MyTestData:
 @dataclass
 class MyTestDataAllOptional:
     id: str
-    number: Optional[int]
-    name: Optional[str]
-    timestamp: Optional[datetime]
+    number: int | None
+    name: str | None
+    timestamp: datetime | None
 
 
 @dataframe
@@ -42,8 +41,8 @@ class MyTestDataOptionalValues:
     number: int
     name: str
     timestamp: datetime
-    optional_value: Optional[float]
-    optional_label: Optional[str]
+    optional_value: float | None
+    optional_label: str | None
 
 
 @dataframe
@@ -52,8 +51,8 @@ class MyTestDataDefaultValues:
     number: int
     name: str
     timestamp: datetime
-    optional_value: Optional[float] = 0.0
-    optional_label: Optional[str] = "(default)"
+    optional_value: float | None = 0.0
+    optional_label: str | None = "(default)"
 
 
 @dataframe
@@ -93,7 +92,7 @@ class MyTestDataObject:
 @dataclass
 class MyTestJsonDataObject:
     name: str
-    data: List[MyTestData.DataObject]  # type: ignore[name-defined]
+    data: list[MyTestData.DataObject]  # type: ignore[name-defined]
 
 
 @dataframe
@@ -105,16 +104,16 @@ class MyTestAllTypesData:
     date_value: date
     datetime_value: datetime
     bool_value: bool
-    int_value_optional: Optional[int]
-    float_value_optional: Optional[float]
-    str_value_optional: Optional[str]
-    date_value_optional: Optional[date]
-    datetime_value_optional: Optional[datetime]
-    bool_value_optional: Optional[bool]
+    int_value_optional: int | None
+    float_value_optional: float | None
+    str_value_optional: str | None
+    date_value_optional: date | None
+    datetime_value_optional: datetime | None
+    bool_value_optional: bool | None
 
 
-DEFAULT_DATE = datetime.now().date()
-DEFAULT_DATETIME = datetime.now(tz=timezone.utc)
+DEFAULT_DATE = datetime.now(tz=UTC).date()
+DEFAULT_DATETIME = datetime.now(tz=UTC)
 
 
 @dataframe
@@ -127,12 +126,12 @@ class MyTestAllTypesDefaultValues:
     date_value: date = DEFAULT_DATE
     datetime_value: datetime = DEFAULT_DATETIME
     bool_value: bool = False
-    int_value_optional: Optional[int] = None
-    float_value_optional: Optional[float] = None
-    str_value_optional: Optional[str] = None
-    date_value_optional: Optional[date] = None
-    datetime_value_optional: Optional[datetime] = None
-    bool_value_optional: Optional[bool] = None
+    int_value_optional: int | None = None
+    float_value_optional: float | None = None
+    str_value_optional: str | None = None
+    date_value_optional: date | None = None
+    datetime_value_optional: datetime | None = None
+    bool_value_optional: bool | None = None
 
 
 @dataframe
@@ -156,7 +155,7 @@ class Part2:
     field0: str  # common field
     field3: str
     field4: float
-    field5_opt: Optional[float] = None
+    field5_opt: float | None = None
 
 
 @dataframe
@@ -165,9 +164,9 @@ class Part2Compat:
     field0: str  # common field
     field3: str
     field4: float
-    field5_opt: Optional[float] = None
-    field6_opt: Optional[int] = None
-    field7_opt: Optional[str] = None
+    field5_opt: float | None = None
+    field6_opt: int | None = None
+    field7_opt: str | None = None
 
 
 @dataframe
@@ -183,7 +182,7 @@ class Part1NoCompat:
 @dataclass
 class MyDataBlock:
     block_id: str
-    block_field: Optional[int]
+    block_field: int | None
     part1: Dataset[Part1]
     part2: Dataset[Part2]
 
@@ -192,7 +191,7 @@ class MyDataBlock:
 @dataclass
 class MyPartitionedDataBlock:
     block_id: str
-    block_field: Optional[int]
+    block_field: int | None
     part0: Dataset[Part0]
     part1: Dataset[Part1]
     part2: Dataset[Part2]
@@ -203,7 +202,7 @@ class MyPartitionedDataBlock:
 @dataclass
 class MyDataBlockCompat:
     block_id: str
-    block_field: Optional[int]
+    block_field: int | None
     part1: Dataset[Part1]
     part2: Dataset[Part2Compat]
 
@@ -212,7 +211,7 @@ class MyDataBlockCompat:
 @dataclass
 class MyDataBlockNoCompat:
     block_id: str
-    block_field: Optional[int]
+    block_field: int | None
     part1: Dataset[Part1NoCompat]
     part2: Dataset[Part2Compat]
 
@@ -221,7 +220,7 @@ class MyDataBlockNoCompat:
 @dataclass
 class MyDataBlockItem:
     block_id: str
-    block_field: Optional[int]
+    block_field: int | None
     part1: Part1.DataObject  # type: ignore[name-defined]
     part2: Part2.DataObject  # type: ignore[name-defined]
 
@@ -233,7 +232,7 @@ def one_element_polars_df() -> pl.DataFrame:
             {
                 "number": 1,
                 "name": "test1",
-                "timestamp": datetime.now(tz=timezone.utc),
+                "timestamp": datetime.now(tz=UTC),
             }
         ]
     )
@@ -247,7 +246,7 @@ def two_element_polars_df_with_nulls() -> pl.DataFrame:
                 "id": "1",
                 "number": 1,
                 "name": "test1",
-                "timestamp": datetime.now(tz=timezone.utc),
+                "timestamp": datetime.now(tz=UTC),
             },
             {"id": "2", "number": None, "name": None, "timestamp": None},
         ]
@@ -261,7 +260,7 @@ def sample_df() -> pl.DataFrame:
             {
                 "number": n,
                 "name": f"test{n}",
-                "timestamp": datetime.now(tz=timezone.utc),
+                "timestamp": datetime.now(tz=UTC),
             }
             for n in range(100)
         ]
@@ -344,8 +343,8 @@ def partitioned_datablock_df() -> pl.DataFrame:
             "block_id": ["b1", "b1"],
             "block_field": [42, 42],
             "item_dt": [
-                datetime(2025, 1, 1, 10, 11, 12, tzinfo=timezone.utc),
-                datetime(2025, 1, 2, 13, 14, 15, tzinfo=timezone.utc),
+                datetime(2025, 1, 1, 10, 11, 12, tzinfo=UTC),
+                datetime(2025, 1, 2, 13, 14, 15, tzinfo=UTC),
             ],
             "field0": ["item1", "item2"],
             "field1": ["f11", "f12"],

@@ -2,31 +2,30 @@
 Webserver module based on aiohttp to handle web/api requests
 """
 
-# flake8: noqa
-# pylint: disable=wrong-import-position, wrong-import-order
-from collections import namedtuple
-
-import aiohttp
-
-setattr(aiohttp.http, "SERVER_SOFTWARE", "")
-
 import argparse
-import asyncio
 import gc
 import logging
 import re
 import sys
 import uuid
-from datetime import datetime, timezone
+from collections import namedtuple
+from collections.abc import Callable, Coroutine
+from datetime import UTC, datetime
 from functools import partial
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Type, Union
+from typing import Any
+
+import aiohttp
+
+# Initialize aiohttp before importing web handlers.
+aiohttp.http.SERVER_SOFTWARE = ""
+
 
 import aiohttp_cors  # type: ignore
 from aiohttp import web
 from aiohttp.web_response import Response
 from aiohttp_cors import CorsConfig
 
-from hopeit.app.config import (  # pylint: disable=ungrouped-imports
+from hopeit.app.config import (
     AppConfig,
     EventDescriptor,
     EventPlugMode,
@@ -55,37 +54,35 @@ from hopeit.server.logger import (
     extra_logger,
 )
 from hopeit.server.metrics import metrics
-from hopeit.server.names import route_name
+from hopeit.server.names import route_name, snakecase, titlecase
 from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
 
-from hopeit.server.names import snakecase, titlecase
-
 __all__ = [
+    "app_startup_hook",
     "parse_args",
     "prepare_engine",
     "serve",
     "server_startup_hook",
-    "app_startup_hook",
-    "stream_startup_hook",
     "stop_server",
+    "stream_startup_hook",
 ]
 
 logger: EngineLoggerWrapper = logging.getLogger(__name__)  # type: ignore
 extra = extra_logger()
 
-ResponseType = Union[web.Response, web.FileResponse, web.StreamResponse]
+ResponseType = web.Response | web.FileResponse | web.StreamResponse
 
 web_server = web.Application()
-auth_info_default: Dict[str, str] = {}
+auth_info_default: dict[str, str] = {}
 
 
 def prepare_engine(
     *,
-    config_files: List[str],
-    api_file: Optional[str],
-    api_auto: List[str],
-    enabled_groups: List[str],
+    config_files: list[str],
+    api_file: str | None,
+    api_auto: list[str],
+    enabled_groups: list[str],
     start_streams: bool,
 ):
     """
@@ -130,7 +127,7 @@ def prepare_engine(
         for config in apps_config:
             web_server.on_startup.append(partial(stream_startup_hook, config))
 
-    web_server.on_shutdown.append(_shutdown_hook)
+    web_server.cleanup_ctx.append(_engine_cleanup_context)
     logger.debug(__name__, "Performing forced garbage collection...")
     gc.collect()
 
@@ -139,6 +136,13 @@ async def _shutdown_hook(app):
     logger.debug(__name__, "Calling shutdown hook...")
     await runtime.server.stop()
     logger.debug(__name__, "Done shutdown hook...")
+
+
+async def _engine_cleanup_context(app):
+    try:
+        yield
+    finally:
+        await _shutdown_hook(app)
 
 
 def init_logger():
@@ -160,7 +164,7 @@ async def stop_server():
     await web_server.cleanup()
 
 
-async def app_startup_hook(config: AppConfig, enabled_groups: List[str], *args, **kwargs):
+async def app_startup_hook(config: AppConfig, enabled_groups: list[str], *args, **kwargs):
     """
     Start Hopeit app specified by config
 
@@ -210,13 +214,13 @@ async def stream_startup_hook(app_config: AppConfig, *args, **kwargs):
                 __name__,
                 f"STREAM start event_name={event_name} read_stream={event_info.read_stream.name}",
             )
-            asyncio.create_task(app_engine.read_stream(event_name=event_name))
+            app_engine.start_event(event_name)
         elif event_info.type == EventType.SERVICE:
             logger.info(__name__, f"SERVICE start event_name={event_name}")
-            asyncio.create_task(app_engine.service_loop(event_name=event_name))
+            app_engine.start_event(event_name)
 
 
-def _effective_events(app_engine: AppEngine, plugin: Optional[AppEngine] = None):
+def _effective_events(app_engine: AppEngine, plugin: AppEngine | None = None):
     if plugin is None:
         return {
             k: v
@@ -248,7 +252,7 @@ def _enable_cors(prefix: str, cors: CorsConfig):
             cors.add(route)
 
 
-async def _setup_app_event_routes(app_engine: AppEngine, plugin: Optional[AppEngine] = None):
+async def _setup_app_event_routes(app_engine: AppEngine, plugin: AppEngine | None = None):
     """
     Setup http routes for existing events in app,
     in existing web_server global instance.
@@ -298,13 +302,12 @@ async def _setup_app_event_routes(app_engine: AppEngine, plugin: Optional[AppEng
                     )
                 ]
             )
-        elif event_info.type == EventType.STREAM and plugin is None:
-            web_server.add_routes(
-                _create_event_management_routes(
-                    app_engine, event_name=event_name, event_info=event_info
-                )
-            )
-        elif event_info.type == EventType.SERVICE and plugin is None:
+        elif (
+            event_info.type == EventType.STREAM
+            and plugin is None
+            or event_info.type == EventType.SERVICE
+            and plugin is None
+        ):
             web_server.add_routes(
                 _create_event_management_routes(
                     app_engine, event_name=event_name, event_info=event_info
@@ -327,7 +330,7 @@ def _auth_types(app_engine: AppEngine, event_name: str):
 def _create_post_event_route(
     app_engine: AppEngine,
     *,
-    plugin: Optional[AppEngine] = None,
+    plugin: AppEngine | None = None,
     event_name: str,
     event_info: EventDescriptor,
 ) -> web.RouteDef:
@@ -343,9 +346,9 @@ def _create_post_event_route(
         plugin=None if plugin is None else plugin.app_config.app,
         override_route_name=event_info.route,
     )
-    logger.info(__name__, f"POST path={route} input={str(datatype)}")
+    logger.info(__name__, f"POST path={route} input={datatype!s}")
     impl = plugin if plugin else app_engine
-    handler = partial(
+    handler: Any = partial(
         _handle_post_invocation,
         app_engine,
         impl,
@@ -353,8 +356,8 @@ def _create_post_event_route(
         datatype,
         _auth_types(impl, event_name),
     )
-    setattr(handler, "__closure__", None)
-    setattr(handler, "__code__", _handle_post_invocation.__code__)
+    handler.__closure__ = None
+    handler.__code__ = _handle_post_invocation.__code__
     api_handler = api.add_route("post", route, handler)
     return web.post(route, api_handler)
 
@@ -362,7 +365,7 @@ def _create_post_event_route(
 def _create_get_event_route(
     app_engine: AppEngine,
     *,
-    plugin: Optional[AppEngine] = None,
+    plugin: AppEngine | None = None,
     event_name: str,
     event_info: EventDescriptor,
 ) -> web.RouteDef:
@@ -377,15 +380,15 @@ def _create_get_event_route(
     )
     logger.info(__name__, f"GET path={route}")
     impl = plugin if plugin else app_engine
-    handler = partial(
+    handler: Any = partial(
         _handle_get_invocation,
         app_engine,
         impl,
         event_name,
         _auth_types(impl, event_name),
     )
-    setattr(handler, "__closure__", None)
-    setattr(handler, "__code__", _handle_get_invocation.__code__)
+    handler.__closure__ = None
+    handler.__code__ = _handle_get_invocation.__code__
     api_handler = api.add_route("get", route, handler)
     return web.get(route, api_handler)
 
@@ -393,7 +396,7 @@ def _create_get_event_route(
 def _create_multipart_event_route(
     app_engine: AppEngine,
     *,
-    plugin: Optional[AppEngine] = None,
+    plugin: AppEngine | None = None,
     event_name: str,
     event_info: EventDescriptor,
 ) -> web.RouteDef:
@@ -409,9 +412,9 @@ def _create_multipart_event_route(
         plugin=None if plugin is None else plugin.app_config.app,
         override_route_name=event_info.route,
     )
-    logger.info(__name__, f"MULTIPART path={route} input={str(datatype)}")
+    logger.info(__name__, f"MULTIPART path={route} input={datatype!s}")
     impl = plugin if plugin else app_engine
-    handler = partial(
+    handler: Any = partial(
         _handle_multipart_invocation,
         app_engine,
         impl,
@@ -419,15 +422,15 @@ def _create_multipart_event_route(
         datatype,
         _auth_types(impl, event_name),
     )
-    setattr(handler, "__closure__", None)
-    setattr(handler, "__code__", _handle_multipart_invocation.__code__)
+    handler.__closure__ = None
+    handler.__code__ = _handle_multipart_invocation.__code__
     api_handler = api.add_route("post", route, handler)
     return web.post(route, api_handler)
 
 
 def _create_event_management_routes(
     app_engine: AppEngine, *, event_name: str, event_info: EventDescriptor
-) -> List[web.RouteDef]:
+) -> list[web.RouteDef]:
     """
     Create routes to start and stop processing of STREAM events
     """
@@ -440,7 +443,7 @@ def _create_event_management_routes(
     )
     logger.info(__name__, f"{event_info.type.value.upper()} path={base_route}/[start|stop]")
 
-    handler: Optional[partial[Coroutine[Any, Any, Response]]] = None
+    handler: partial[Coroutine[Any, Any, Response]] | None = None
     if event_info.type == EventType.STREAM:
         handler = partial(_handle_stream_start_invocation, app_engine, event_name)
     elif event_info.type == EventType.SERVICE:
@@ -456,7 +459,7 @@ def _create_event_management_routes(
 
 
 def _response(
-    *, track_ids: Dict[str, str], key: str, payload: EventPayload, hook: PostprocessHook
+    *, track_ids: dict[str, str], key: str, payload: EventPayload, hook: PostprocessHook
 ) -> ResponseType:
     """
     Creates a web response object from a given payload (body), header track ids
@@ -494,11 +497,11 @@ def _response_info(response: ResponseType):
     return extra(prefix="response.", status=str(response.status))
 
 
-def _track_ids(request: web.Request) -> Dict[str, str]:
+def _track_ids(request: web.Request) -> dict[str, str]:
     return {
         "track.operation_id": str(uuid.uuid4()),
         "track.request_id": str(uuid.uuid4()),
-        "track.request_ts": datetime.now(tz=timezone.utc).isoformat(),
+        "track.request_ts": datetime.now(tz=UTC).isoformat(),
         **{
             "track." + snakecase(k[8:].lower()): v
             for k, v in request.headers.items()
@@ -507,7 +510,7 @@ def _track_ids(request: web.Request) -> Dict[str, str]:
     }
 
 
-def _failed_response(context: Optional[EventContext], e: Exception) -> web.Response:
+def _failed_response(context: EventContext | None, e: Exception) -> web.Response:
     if context:
         logger.error(context, e)
         logger.failed(context)
@@ -517,9 +520,7 @@ def _failed_response(context: Optional[EventContext], e: Exception) -> web.Respo
     return web.Response(status=500, body=Payload.to_json(info))
 
 
-def _ignored_response(
-    context: Optional[EventContext], status: int, e: BaseException
-) -> web.Response:
+def _ignored_response(context: EventContext | None, status: int, e: BaseException) -> web.Response:
     if context:
         logger.error(context, e)
         logger.ignored(context)
@@ -531,7 +532,7 @@ def _ignored_response(
 
 async def _execute_setup_event(
     app_engine: AppEngine,
-    plugin: Optional[AppEngine],
+    plugin: AppEngine | None,
     event_name: str,
 ) -> None:
     """
@@ -578,11 +579,11 @@ def _request_start(
     return context
 
 
-def _extract_auth_header(request: web.Request, context: EventContext) -> Optional[str]:
+def _extract_auth_header(request: web.Request, context: EventContext) -> str | None:
     return request.headers.get("Authorization")
 
 
-def _extract_refresh_cookie(request: web.Request, context: EventContext) -> Optional[str]:
+def _extract_refresh_cookie(request: web.Request, context: EventContext) -> str | None:
     return request.cookies.get(f"{context.app_key}.refresh")
 
 
@@ -599,7 +600,7 @@ AUTH_HEADER_EXTRACTORS = {
 
 
 def _extract_authorization(
-    auth_methods: List[AuthType], request: web.Request, context: EventContext
+    auth_methods: list[AuthType], request: web.Request, context: EventContext
 ):
     for auth_type in auth_methods:
         auth_header = AUTH_HEADER_EXTRACTORS[auth_type](request, context)
@@ -611,7 +612,7 @@ def _extract_authorization(
 def _validate_authorization(
     app_config: AppConfig,
     context: EventContext,
-    auth_types: List[AuthType],
+    auth_types: list[AuthType],
     request: web.Request,
 ):
     """
@@ -635,7 +636,7 @@ def _validate_authorization(
         if method.upper() == auth_type.name.upper():
             auth.validate_auth_method(auth_type, data, context)
             if context.auth_info.get("allowed"):
-                return None
+                return
     raise Unauthorized(method)
 
 
@@ -647,7 +648,7 @@ def _text_response(result: str, *args, **kwargs) -> str:
     return str(result)
 
 
-CONTENT_TYPE_BODY_SER: Dict[str, Callable[..., str]] = {
+CONTENT_TYPE_BODY_SER: dict[str, Callable[..., str]] = {
     "application/json": _application_json_response,
     "text/html": _text_response,
     "text/plain": _text_response,
@@ -658,8 +659,8 @@ async def _request_execute(
     app_engine: AppEngine,
     event_name: str,
     context: EventContext,
-    query_args: Dict[str, Any],
-    payload: Optional[EventPayloadType],
+    query_args: dict[str, Any],
+    payload: EventPayloadType | None,
     preprocess_hook: PreprocessHook,
     request: web.Request,
 ) -> ResponseType:
@@ -686,9 +687,9 @@ async def _request_execute(
 
 async def _request_process_payload(
     context: EventContext,
-    datatype: Optional[Type[EventPayloadType]],
+    datatype: type[EventPayloadType] | None,
     request: web.Request,
-) -> Tuple[Optional[EventPayloadType], Optional[bytes]]:
+) -> tuple[EventPayloadType | None, bytes | None]:
     """
     Extract payload from request.
     Returns payload if parsing succeeded. Raises BadRequest if payload fails to parse
@@ -707,8 +708,8 @@ async def _handle_post_invocation(
     app_engine: AppEngine,
     impl: AppEngine,
     event_name: str,
-    datatype: Optional[Type[DataObject]],
-    auth_types: List[AuthType],
+    datatype: type[DataObject] | None,
+    auth_types: list[AuthType],
     request: web.Request,
 ) -> ResponseType:
     """
@@ -737,7 +738,7 @@ async def _handle_post_invocation(
         return _ignored_response(context, 401, e)
     except BadRequest as e:
         return _ignored_response(context, 400, e)
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:  # noqa: BLE001 -- Convert application failures into HTTP error responses.
         return _failed_response(context, e)
 
 
@@ -745,7 +746,7 @@ async def _handle_get_invocation(
     app_engine: AppEngine,
     impl: AppEngine,
     event_name: str,
-    auth_types: List[AuthType],
+    auth_types: list[AuthType],
     request: web.Request,
 ) -> ResponseType:
     """
@@ -774,7 +775,7 @@ async def _handle_get_invocation(
         return _ignored_response(context, 401, e)
     except BadRequest as e:
         return _ignored_response(context, 400, e)
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:  # noqa: BLE001 -- Convert application failures into HTTP error responses.
         return _failed_response(context, e)
 
 
@@ -782,8 +783,8 @@ async def _handle_multipart_invocation(
     app_engine: AppEngine,
     impl: AppEngine,
     event_name: str,
-    datatype: Optional[Type[DataObject]],
-    auth_types: List[AuthType],
+    datatype: type[DataObject] | None,
+    auth_types: list[AuthType],
     request: web.Request,
 ) -> ResponseType:
     """
@@ -812,7 +813,7 @@ async def _handle_multipart_invocation(
         return _ignored_response(context, 401, e)
     except BadRequest as e:
         return _ignored_response(context, 400, e)
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:  # noqa: BLE001 -- Convert application failures into HTTP error responses.
         return _failed_response(context, e)
 
 
@@ -827,7 +828,7 @@ async def _handle_stream_start_invocation(
     assert request
     if app_engine.is_running(event_name):
         return web.Response(status=500, body=f"Stream already running: {event_name}")
-    asyncio.create_task(app_engine.read_stream(event_name=event_name))
+    app_engine.start_event(event_name)
     return web.Response()
 
 
@@ -842,7 +843,7 @@ async def _handle_service_start_invocation(
     assert request
     if app_engine.is_running(event_name):
         return web.Response(status=500, body=f"Service already running: {event_name}")
-    asyncio.create_task(app_engine.service_loop(event_name=event_name))
+    app_engine.start_event(event_name)
     return web.Response()
 
 
@@ -927,10 +928,10 @@ def parse_args(args) -> ParsedArgs:
 
 
 def init_web_server(
-    config_files: List[str],
+    config_files: list[str],
     api_file: str,
-    api_auto: List[str],
-    enabled_groups: List[str],
+    api_auto: list[str],
+    enabled_groups: list[str],
     start_streams: bool,
 ) -> web.Application:
     """
@@ -952,11 +953,11 @@ def serve(
     host: str,
     path: str,
     port: int,
-    config_files: List[str],
+    config_files: list[str],
     api_file: str,
-    api_auto: List[str],
+    api_auto: list[str],
     start_streams: bool,
-    enabled_groups: List[str],
+    enabled_groups: list[str],
 ):
     """
     Serve hopeit.engine

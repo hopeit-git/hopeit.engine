@@ -2,38 +2,28 @@
 Open API spec creation and server helpers
 """
 
-from enum import Enum
 import json
 import re
+from collections.abc import Awaitable, Callable
 from copy import deepcopy
+from datetime import date, datetime
+from enum import Enum
 from functools import partial
 from pathlib import Path
 from typing import (
-    Dict,
-    List,
-    Tuple,
-    Type,
-    Optional,
-    Callable,
-    Awaitable,
-    Union,
     get_args,
     get_origin,
 )
-from datetime import date, datetime
 
 from aiohttp import web
-from aiohttp_swagger3 import RapiDocUiSettings
+from aiohttp_swagger3 import RapiDocUiSettings, validators
 from aiohttp_swagger3.swagger import Swagger, _handle_swagger_call
-from aiohttp_swagger3 import validators
-from aiohttp_swagger3.validators import _MissingType
 from aiohttp_swagger3.swagger_route import SwaggerRoute
+from aiohttp_swagger3.validators import _MissingType
 from pydantic import TypeAdapter
 from pydantic.json_schema import GenerateJsonSchema, JsonSchemaValue
 from pydantic_core import core_schema
-from hopeit.server.names import titlecase
 
-from hopeit.dataobjects import BinaryAttachment, BinaryDownload
 from hopeit.app.config import (
     AppConfig,
     AppDescriptor,
@@ -41,38 +31,38 @@ from hopeit.app.config import (
     EventPlugMode,
     EventType,
 )
-from hopeit.server.config import ServerConfig, AuthType
+from hopeit.dataobjects import BinaryAttachment, BinaryDownload
+from hopeit.server.config import AuthType, ServerConfig
 from hopeit.server.errors import ErrorInfo
 from hopeit.server.imports import find_event_handler
 from hopeit.server.logger import engine_logger
-from hopeit.server.names import route_name
+from hopeit.server.names import route_name, titlecase
 from hopeit.server.steps import (
+    StepInfo,
     extract_module_steps,
     extract_postprocess_handler,
     extract_preprocess_handler,
-    StepInfo,
 )
 
-
 __all__ = [
+    "app_route_name",
+    "clear",
+    "diff_specs",
+    "enable_swagger",
     "init_empty_spec",
     "load_api_file",
+    "register_apps",
+    "register_server_config",
     "save_api_file",
     "setup",
-    "clear",
-    "app_route_name",
-    "register_server_config",
-    "register_apps",
-    "enable_swagger",
-    "diff_specs",
 ]
 
 logger = engine_logger()
 
-swagger: Optional[Swagger] = None
-spec: Optional[dict] = None
-static_spec: Optional[dict] = None
-runtime_schemas: Dict[str, JsonSchemaValue] = {}
+swagger: Swagger | None = None
+spec: dict | None = None
+static_spec: dict | None = None
+runtime_schemas: dict[str, JsonSchemaValue] = {}
 _options = {"generate_mode": False}
 
 OPEN_API_VERSION = "3.0.3"
@@ -146,7 +136,7 @@ def init_auto_api(version: str, title: str, description: str):
     static_spec = None
 
 
-def load_api_file(path: Union[str, Path]):
+def load_api_file(path: str | Path):
     """
     Loads OpenAPI spec from a json file. Spec is loaded into the module.
     @param path: path to json file
@@ -163,7 +153,7 @@ def load_api_file(path: Union[str, Path]):
         static_spec = deepcopy(spec)
 
 
-def save_api_file(path: Union[str, Path], api_version: str):
+def save_api_file(path: str | Path, api_version: str):
     """
     Saves module Open API spec to json file.
     :param path: path to json file
@@ -195,7 +185,7 @@ def register_server_config(server_config: ServerConfig):
         _update_server_default_auth_methods(server_config)
 
 
-def register_apps(apps_config: List[AppConfig]):
+def register_apps(apps_config: list[AppConfig]):
     """
     Register api definition for a list of apps that conform to a single API specification.
 
@@ -218,7 +208,7 @@ def register_apps(apps_config: List[AppConfig]):
         _cleanup_global_auth()
 
 
-def _register_api_spec(app_config: AppConfig, plugin: Optional[AppConfig] = None):
+def _register_api_spec(app_config: AppConfig, plugin: AppConfig | None = None):
     if spec is not None:
         if "components" not in spec:
             spec["components"] = {"schemas": {}}
@@ -236,19 +226,19 @@ def diff_specs() -> bool:
     return static_spec != spec
 
 
-async def _passthru_handler(request: web.Request) -> Tuple[web.Request, bool]:
+async def _passthru_handler(request: web.Request) -> tuple[web.Request, bool]:
     return request, True
 
 
 def bypass_payload_validation(
-    self, raw_value: Union[None, Dict, _MissingType], raw: bool
-) -> Union[None, Dict, _MissingType]:
+    self, raw_value: None | dict | _MissingType, raw: bool
+) -> None | dict | _MissingType:
     return raw_value
 
 
 # Bypass swagger3 module payload validation since is done
 # when deserializing payload in web.py module
-setattr(validators.Object, "validate", bypass_payload_validation)
+validators.Object.validate = bypass_payload_validation  # type: ignore[method-assign]  # Override third-party validation with Hopeit payload validation.
 
 
 def enable_swagger(server_config: ServerConfig, app: web.Application):
@@ -329,7 +319,7 @@ def add_route(
     method_lower = method.lower()
     if method_lower in spec["paths"].get(path, {}):
         route = SwaggerRoute(method_lower, path, handler, swagger=swagger)
-        api_handler = partial(_handle_swagger_call, route)  # pylint: disable=protected-access
+        api_handler = partial(_handle_swagger_call, route)
         return api_handler
     logger.warning(__name__, f"No API Spec defined for path={path}")
     return handler
@@ -339,9 +329,9 @@ def app_route_name(
     app: AppDescriptor,
     *,
     event_name: str,
-    plugin: Optional[AppDescriptor] = None,
+    plugin: AppDescriptor | None = None,
     prefix: str = "api",
-    override_route_name: Optional[str] = None,
+    override_route_name: str | None = None,
 ) -> str:
     """
     Returns the full route name for a given app event
@@ -375,7 +365,7 @@ def _schema_name(datatype: type) -> str:
     return f"#/components/schemas/{datatype.__name__}"
 
 
-def datatype_schema(event_name: str, datatype: Type) -> dict:
+def datatype_schema(event_name: str, datatype: type) -> dict:
     origin = get_origin(datatype)
     if origin is None:
         origin = datatype
@@ -423,7 +413,7 @@ def _update_server_default_auth_methods(server_config: ServerConfig):
     """
     assert spec is not None
     security = spec.get("security", [])
-    methods = {method for entry in security for method in entry.keys()}
+    methods = {method for entry in security for method in entry}
     for auth_method in server_config.auth.default_auth_methods:
         auth_str = f"auth.{auth_method.value.lower()}"
         if auth_str != "auth.unsecured" and auth_str not in methods:
@@ -441,7 +431,7 @@ def _update_api_schemas(app_config: AppConfig):
         event_schemas = _generate_schemas(app_config, event_name, event_info)
         for name, event_schema in event_schemas.items():
             if name in runtime_schemas:
-                if not event_schema == schemas.get(name):
+                if event_schema != schemas.get(name):
                     logger.warning(
                         __name__,
                         f"Schema ignored: same schema name has non-compatible implementations: "
@@ -494,7 +484,7 @@ def _cleanup_global_auth():
     spec["security"] = []
 
 
-def _update_api_paths(app_config: AppConfig, plugin: Optional[AppConfig] = None):
+def _update_api_paths(app_config: AppConfig, plugin: AppConfig | None = None):
     """
     Populates paths section of spec based on __api__ specified in implemented events
     """
@@ -608,13 +598,13 @@ def _set_path_security(event_api_spec: dict, app_config: AppConfig, event_info: 
 
 def _extract_event_api_spec(
     app_config: AppConfig, event_name: str, event_info: EventDescriptor
-) -> Optional[dict]:
+) -> dict | None:
     """
     Extract __api__ definition from event implementation
     """
     module = find_event_handler(app_config=app_config, event_name=event_name, event_info=event_info)
     if hasattr(module, "__api__"):
-        method_spec = getattr(module, "__api__")
+        method_spec = module.__api__
         if isinstance(method_spec, dict):
             return method_spec
         return method_spec(module, app_config, event_name, None)
@@ -637,31 +627,32 @@ def _generate_schemas(app_config: AppConfig, event_name: str, event_info: EventD
     return schemas
 
 
-def _update_step_schemas(schemas: dict, step_info: Optional[StepInfo]):
+def _update_step_schemas(schemas: dict, step_info: StepInfo | None):
     """Extract schemas from payload and return types"""
     if step_info is not None:
         _, input_type, ret_type, _ = step_info
         datatypes = _explode_datatypes([input_type, ret_type])
         for datatype in datatypes:
-            if datatype is not None and hasattr(datatype, "__data_object__"):
-                if datatype.__data_object__["schema"]:
-                    local_schema = TypeAdapter(datatype).json_schema(
-                        schema_generator=GenerateOpenAPI30Schema,
-                        ref_template="#/components/schemas/{model}",
-                    )
-                    defs = local_schema.get("$defs", {})
-                    defs[datatype.__name__] = {
-                        k: v for k, v in local_schema.items() if k != "$defs"
-                    }
-                    schemas.update(defs)
+            if (
+                datatype is not None
+                and hasattr(datatype, "__data_object__")
+                and datatype.__data_object__["schema"]
+            ):
+                local_schema = TypeAdapter(datatype).json_schema(
+                    schema_generator=GenerateOpenAPI30Schema,
+                    ref_template="#/components/schemas/{model}",
+                )
+                defs = local_schema.get("$defs", {})
+                defs[datatype.__name__] = {k: v for k, v in local_schema.items() if k != "$defs"}
+                schemas.update(defs)
 
 
-def _explode_datatypes(datatypes: List[Type]) -> List[Type]:
+def _explode_datatypes(datatypes: list[type]) -> list[type]:
     result = []
     for datatype in datatypes:
         if datatype is not None:
             if hasattr(datatype, "__args__"):
-                for arg in getattr(datatype, "__args__"):
+                for arg in datatype.__args__:
                     result.extend(_explode_datatypes([arg]))
             else:
                 result.append(datatype)
@@ -678,7 +669,7 @@ def _binary_download_schema(event_name: str, datatype: type):
 
 
 def _builtin_schema(
-    type_name: str, type_format: Optional[str], event_name: str, datatype: type
+    type_name: str, type_format: str | None, event_name: str, datatype: type
 ) -> dict:
     """
     Build type schema for predefined datatypes

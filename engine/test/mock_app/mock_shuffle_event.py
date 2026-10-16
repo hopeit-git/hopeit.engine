@@ -1,8 +1,7 @@
-from typing import Optional
-
-from hopeit.app.events import Spawn, SHUFFLE
-from hopeit.app.logger import app_extra_logger
 from hopeit.app.context import EventContext
+from hopeit.app.events import SHUFFLE, Spawn
+from hopeit.app.logger import app_extra_logger
+
 from . import MockData, MockResult
 
 __steps__ = ["produce_messages", SHUFFLE, "consume_stream", "generate_default"]
@@ -16,7 +15,7 @@ async def produce_messages(payload: str, context: EventContext) -> Spawn[MockDat
         yield MockData(f"stream.{payload}.{i}")
 
 
-async def consume_stream(payload: MockData, context: EventContext) -> Optional[MockResult]:
+async def consume_stream(payload: MockData, context: EventContext) -> MockResult | None:
     logger.info(context, "consuming message", extra=extra(value=payload.value))
     _, data, occ = payload.value.split(".")
     if data == "fail":

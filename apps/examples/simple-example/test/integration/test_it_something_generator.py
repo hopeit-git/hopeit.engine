@@ -4,7 +4,7 @@ from hopeit.testing.apps import execute_event, execute_service
 from model import Something, User
 
 
-async def test_it_something_generator_with_setup_service(app_config, something_params_example):  # noqa: F811
+async def test_it_something_generator_with_setup_service(app_config, something_params_example):
     results = await execute_event(app_config=app_config, event_name="setup_something", payload=None)
     results = await execute_service(
         app_config=app_config, event_name="service.something_generator", max_events=2
@@ -15,7 +15,7 @@ async def test_it_something_generator_with_setup_service(app_config, something_p
     ]
 
 
-async def test_it_something_generator(app_config, something_params_example):  # noqa: F811
+async def test_it_something_generator(app_config, something_params_example):
     result = await execute_event(
         app_config=app_config,
         event_name="service.something_generator",
