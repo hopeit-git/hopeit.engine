@@ -8,7 +8,10 @@ from collections.abc import AsyncGenerator, Callable
 from datetime import datetime, timezone
 from functools import partial
 from types import ModuleType
-from typing import Any, get_origin
+from typing import (
+    Any,
+    get_origin,
+)
 
 from hopeit.app.config import (
     AppConfig,

@@ -10,7 +10,10 @@ from datetime import date, datetime
 from enum import Enum
 from functools import partial
 from pathlib import Path
-from typing import get_args, get_origin
+from typing import (
+    get_args,
+    get_origin,
+)
 
 from aiohttp import web
 from aiohttp_swagger3 import RapiDocUiSettings, validators

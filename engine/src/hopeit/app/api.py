@@ -6,7 +6,13 @@ import inspect
 import re
 from collections.abc import Callable
 from functools import partial
-from typing import Any, TypeVar, Union, get_args, get_origin
+from typing import (
+    Any,
+    TypeVar,
+    Union,
+    get_args,
+    get_origin,
+)
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventType
 from hopeit.dataobjects import BinaryDownload

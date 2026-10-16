@@ -7,7 +7,12 @@ from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator, AsyncIterator, Callable, Mapping
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Generic, TypeVar, Union
+from typing import (
+    Any,
+    Generic,
+    TypeVar,
+    Union,
+)
 
 from aiohttp import web
 from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiMapping, istr
