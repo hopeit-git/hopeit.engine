@@ -404,7 +404,7 @@ async def test_load_balancer_no_hosts_available(monkeypatch, mock_client_app_con
         client = app_client("test_app_connection", context)
 
         for _ in range(10):
-            try:
+            with pytest.raises((AppsClientException, ClientLoadBalancerException)):
                 await client.call(
                     "test_event_get",
                     datatype=MockResponseData,
@@ -412,8 +412,6 @@ async def test_load_balancer_no_hosts_available(monkeypatch, mock_client_app_con
                     context=context,
                     test_param="test_param_value",
                 )
-            except:
-                pass  # Opening circuit breakers
 
         assert MockClientSession.call_log == {"http://test-host1": 10, "http://test-host2": 10}
         with pytest.raises(ClientLoadBalancerException):
