@@ -91,7 +91,7 @@ class StreamManager(ABC):
         compression: Compression,
         serialization: Serialization,
         target_max_len: int = 0,
-    ) -> int:
+    ) -> int | bytes | str:
         """
         Writes event to a stream
         :param stream_name: stream name or key used
@@ -101,7 +101,7 @@ class StreamManager(ABC):
         :param compression: Compression, supported compression algorithm from enum
         :param target_max_len: int, max_len to indicate approx. target collection size
             default 0 will not send max_len to stream service.
-        :return: number of successful written messages
+        :return: backend write result, such as a count or message identifier
         """
         raise NotImplementedError()
 
@@ -249,7 +249,7 @@ class StreamCircuitBreaker(StreamManager):
     async def close(self) -> None:
         await self.stream_manager.close()
 
-    async def write_stream(self, **kwargs) -> int:
+    async def write_stream(self, **kwargs) -> int | bytes | str:
         if self.lock.locked():
             raise StreamOSError("Stream circuit breaker open. Cannot write to stream.")
         try:

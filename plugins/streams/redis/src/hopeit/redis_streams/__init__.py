@@ -98,7 +98,7 @@ class RedisStreamManager(StreamManager):
         compression: Compression,
         serialization: Serialization,
         target_max_len: int = 0,
-    ) -> int:
+    ) -> int | bytes | str:
         """
         Writes event to a Redis stream using XADD
         :param stream_name: stream name or key used by Redis
@@ -110,7 +110,7 @@ class RedisStreamManager(StreamManager):
         :param serialization: Serialization, supported serialization format from enum
         :param target_max_len: int, max_len to indicate approx. target collection size to Redis,
             default 0 will not send max_len to Redis.
-        :return: number of successful written messages
+        :return: backend write result, such as a count or message identifier
         """
         try:
             event_fields = await self._encode_message(
