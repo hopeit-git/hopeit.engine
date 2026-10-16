@@ -2,7 +2,6 @@
 Webserver module based on aiohttp to handle web/api requests
 """
 
-# flake8: noqa
 import argparse
 import asyncio
 import gc
