@@ -4,10 +4,10 @@ from hopeit.testing.apps import execute_event
 
 async def test_parallelize_event(
     monkeypatch,
-    app_config,  # noqa: F811
+    app_config,
     something_with_status_processed_example,
     something_with_status_example,
-):  # noqa: F811
+):
     results, msg, response = await execute_event(
         app_config=app_config,
         event_name="shuffle.parallelize_event",

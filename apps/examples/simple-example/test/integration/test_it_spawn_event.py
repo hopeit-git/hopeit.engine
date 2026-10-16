@@ -9,10 +9,10 @@ APP_VERSION = APPS_API_VERSION.replace(".", "x")
 
 async def test_spawn_event(
     monkeypatch,
-    app_config,  # noqa: F811
+    app_config,
     something_with_status_processed_example,
     something_with_status_example,
-):  # noqa: F811
+):
     results, msg, response = await execute_event(
         app_config=app_config,
         event_name="shuffle.spawn_event",

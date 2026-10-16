@@ -10,7 +10,7 @@ from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.apps_visualizer.apps import get_runtime_apps
 from hopeit.apps_visualizer.site.visualization import (
     VisualizationOptions,
-    visualization_options,  # noqa: F401
+    visualization_options,
     visualization_options_api_args,
 )
 from hopeit.config_manager import RuntimeApps

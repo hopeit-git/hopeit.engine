@@ -8,7 +8,7 @@ from hopeit.testing.apps import execute_event
 from . import MyObject
 
 
-async def test_buffer_objects_and_flush_partitions(app_config, test_objs):  # noqa: F811
+async def test_buffer_objects_and_flush_partitions(app_config, test_objs):
     test_save_path = app_config.settings["test_stream_batch_storage"]["path"]
 
     # Buffer 10 objects that should create 5 partitions
@@ -33,7 +33,7 @@ async def test_buffer_objects_and_flush_partitions(app_config, test_objs):  # no
         assert obj == saved
 
 
-async def test_buffer_object_and_flush_signal(app_config, test_objs):  # noqa: F811
+async def test_buffer_object_and_flush_signal(app_config, test_objs):
     test_save_path = app_config.settings["test_stream_batch_storage"]["path"]
 
     # Buffer single object

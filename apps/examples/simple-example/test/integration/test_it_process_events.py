@@ -5,10 +5,10 @@ from simple_example.streams.process_events import SomethingStored
 
 
 async def test_it_process_events(
-    app_config,  # noqa: F811
+    app_config,
     something_submitted,
     something_processed,
-):  # noqa: F811
+):
     result: SomethingStored = await execute_event(
         app_config=app_config, event_name="streams.process_events", payload=something_submitted
     )

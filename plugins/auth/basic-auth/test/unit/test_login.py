@@ -13,7 +13,7 @@ from hopeit.basic_auth import (  # type: ignore  # type: ignore
 from hopeit.server.config import AuthType
 from hopeit.server.events import get_event_settings
 
-from . import mock_app_config, plugin_config  # noqa: F401
+from . import mock_app_config, plugin_config
 
 
 async def invoke_login(context: EventContext):
@@ -71,7 +71,7 @@ async def execute_flow(context):
     await invoke_postprocess(auth_info, context)
 
 
-def _event_context(mock_app_config, plugin_config):  # noqa: F811
+def _event_context(mock_app_config, plugin_config):
     return EventContext(
         app_config=mock_app_config,
         plugin_config=plugin_config,
@@ -82,13 +82,13 @@ def _event_context(mock_app_config, plugin_config):  # noqa: F811
     )
 
 
-async def test_login(mock_app_config, plugin_config):  # noqa: F811
+async def test_login(mock_app_config, plugin_config):
     auth.init(mock_app_config.app_key(), mock_app_config.server.auth)
     context = _event_context(mock_app_config, plugin_config)
     await execute_flow(context)
 
 
-async def test_login_unauthorized(mock_app_config, plugin_config):  # noqa: F811
+async def test_login_unauthorized(mock_app_config, plugin_config):
     auth.init(mock_app_config.app_key(), mock_app_config.server.auth)
     context = _event_context(mock_app_config, plugin_config)
     context.auth_info["auth_type"] = "UNKNOWN"

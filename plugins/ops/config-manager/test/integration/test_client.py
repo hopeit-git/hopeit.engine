@@ -77,7 +77,7 @@ async def test_client_ignore_hosts_errors(
     }
 
 
-def _init_engine_logger(mock_app_config):  # noqa: F811
+def _init_engine_logger(mock_app_config):
     logger = server_logging.engine_logger()
     logger.init_server(mock_app_config.server)
     logger.init_app(mock_app_config, plugins=[])

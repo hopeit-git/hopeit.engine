@@ -412,7 +412,7 @@ async def test_load_balancer_no_hosts_available(monkeypatch, mock_client_app_con
                     context=context,
                     test_param="test_param_value",
                 )
-            except:  # noqa: E722
+            except:
                 pass  # Opening circuit breakers
 
         assert MockClientSession.call_log == {"http://test-host1": 10, "http://test-host2": 10}

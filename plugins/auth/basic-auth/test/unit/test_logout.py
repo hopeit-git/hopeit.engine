@@ -9,7 +9,7 @@ from hopeit.basic_auth import AuthSettings, logout  # type: ignore
 from hopeit.server.config import AuthType
 from hopeit.server.events import get_event_settings
 
-from . import mock_app_config, plugin_config  # noqa: F401
+from . import mock_app_config, plugin_config
 
 
 async def invoke_logout(context: EventContext):
@@ -31,7 +31,7 @@ async def execute_flow(context):
     await invoke_postprocess(None, context)
 
 
-def _event_context(mock_app_config, plugin_config):  # noqa: F811
+def _event_context(mock_app_config, plugin_config):
     settings = get_event_settings(plugin_config.effective_settings, "logout")
     cfg = settings(key="auth", datatype=AuthSettings)
     iat = datetime.now(tz=timezone.utc)
@@ -56,13 +56,13 @@ def _event_context(mock_app_config, plugin_config):  # noqa: F811
     )
 
 
-async def test_logout(mock_app_config, plugin_config):  # noqa: F811
+async def test_logout(mock_app_config, plugin_config):
     auth.init(mock_app_config.app_key(), mock_app_config.server.auth)
     context = _event_context(mock_app_config, plugin_config)
     await execute_flow(context)
 
 
-async def test_logout_unauthorized(mock_app_config, plugin_config):  # noqa: F811
+async def test_logout_unauthorized(mock_app_config, plugin_config):
     auth.init(mock_app_config.app_key(), mock_app_config.server.auth)
     context = _event_context(mock_app_config, plugin_config)
     context.auth_info["auth_type"] = "UNKNOWN"

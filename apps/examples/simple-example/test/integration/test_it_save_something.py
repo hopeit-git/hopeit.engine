@@ -12,7 +12,7 @@ def mock_user_agent_header(module, context, *, preprocess_hook: PreprocessHook):
     preprocess_hook.headers = PreprocessHeaders.from_dict({"user-agent": "Testing!"})
 
 
-async def test_it_save_something(app_config, something_params_example):  # noqa: F811
+async def test_it_save_something(app_config, something_params_example):
     result = await execute_event(
         app_config=app_config,
         event_name="save_something",
@@ -31,7 +31,7 @@ async def test_it_save_something(app_config, something_params_example):  # noqa:
         assert fields["user"]["name"] == something_params_example.user
 
 
-async def test_it_save_something_missing_user_agent(app_config, something_params_example):  # noqa: F811
+async def test_it_save_something_missing_user_agent(app_config, something_params_example):
     result = await execute_event(
         app_config=app_config,
         event_name="save_something",

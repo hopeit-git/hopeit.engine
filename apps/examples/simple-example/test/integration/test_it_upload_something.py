@@ -4,7 +4,7 @@ from hopeit.testing.apps import execute_event
 APP_VERSION = APPS_API_VERSION.replace(".", "x")
 
 
-async def test_it_save_something(app_config, something_params_example, something_upload_example):  # noqa: F811
+async def test_it_save_something(app_config, something_params_example, something_upload_example):
     fields = {
         "id": something_params_example.id,
         "user": something_params_example.user,
@@ -37,7 +37,7 @@ async def test_it_save_something(app_config, something_params_example, something
 
 async def test_it_save_something_missing_field(
     app_config, something_params_example, something_upload_example
-):  # noqa: F811
+):
     fields = {
         "id": something_params_example.id,
         "user": something_params_example.user,

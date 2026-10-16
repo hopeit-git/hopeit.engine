@@ -45,7 +45,7 @@ def sample_file_id():
     return test_id
 
 
-async def test_query_item(app_config, sample_file_id):  # noqa: F811
+async def test_query_item(app_config, sample_file_id):
     results = await execute_event(
         app_config=app_config,
         event_name="list_somethings",

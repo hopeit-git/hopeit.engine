@@ -68,7 +68,7 @@ class MockFileHook:
         if self.file_data is None:
             return
         for i in range(0, len(self.file_data), chunk_size):
-            yield self.file_data[i : min(len(self.file_data), i + chunk_size)]  # noqa: E203
+            yield self.file_data[i : min(len(self.file_data), i + chunk_size)]
 
     async def read(self, chunk_size: int = -1) -> bytes:
         """
@@ -85,7 +85,7 @@ class MockFileHook:
         if chunk_size > 0:
             current = self.position
             self.position = current + chunk_size
-            return self.file_data[current : self.position]  # noqa: E203
+            return self.file_data[current : self.position]
         if chunk_size == -1:
             current = self.position
             self.position = self.size

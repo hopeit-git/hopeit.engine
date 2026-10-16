@@ -74,7 +74,7 @@ async def custom_app_call_list(
     raise NotImplementedError("Test case not implemented in mock_app_call")
 
 
-async def test_query_item(monkeypatch, client_app_config):  # noqa: F811
+async def test_query_item(monkeypatch, client_app_config):
     def mock_client_calls(module, context: EventContext):
         monkeypatch.setattr(module, "app_call", custom_app_call)
         monkeypatch.setattr(module, "app_call_list", custom_app_call_list)
@@ -97,7 +97,7 @@ async def test_query_item(monkeypatch, client_app_config):  # noqa: F811
     assert result == CountAndSaveResult(count=2, save_path="test_path")
 
 
-async def test_login_response_not_recognized(monkeypatch, client_app_config):  # noqa: F811
+async def test_login_response_not_recognized(monkeypatch, client_app_config):
     def mock_client_calls(module, context: EventContext):
         monkeypatch.setattr(module, "app_call", custom_app_call)
         monkeypatch.setattr(module, "app_call_list", custom_app_call_list)
@@ -119,7 +119,7 @@ async def test_login_response_not_recognized(monkeypatch, client_app_config):  #
         )
 
 
-async def test_handle_responses_something(monkeypatch, client_app_config):  # noqa: F811
+async def test_handle_responses_something(monkeypatch, client_app_config):
     def mock_client_calls(module, context: EventContext):
         monkeypatch.setattr(module, "app_call", custom_app_call)
 
@@ -145,7 +145,7 @@ async def test_handle_responses_something(monkeypatch, client_app_config):  # no
     )
 
 
-async def test_handle_responses_something_not_found(monkeypatch, client_app_config):  # noqa: F811
+async def test_handle_responses_something_not_found(monkeypatch, client_app_config):
     def mock_client_calls(module, context: EventContext):
         monkeypatch.setattr(module, "app_call", custom_app_call)
 
@@ -168,7 +168,7 @@ async def test_handle_responses_something_not_found(monkeypatch, client_app_conf
     assert result == "Got 404 response with: 'SomethingNotFound(path='', id='id_not_found')'"
 
 
-async def test_call_unsecure(monkeypatch, client_app_config):  # noqa: F811
+async def test_call_unsecure(monkeypatch, client_app_config):
     def mock_client_calls(module, context: EventContext):
         monkeypatch.setattr(module, "app_call_list", custom_app_call_list)
 
