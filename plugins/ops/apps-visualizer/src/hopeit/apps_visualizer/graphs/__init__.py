@@ -86,7 +86,7 @@ def get_nodes(
                 stream_node = nodes.get(
                     stream_id, Node(id=stream_id, label=stream_name, type=NodeType.STREAM)
                 )
-                stream_node.slots = sorted(set([*stream_node.slots, *queue.split("|")]))
+                stream_node.slots = sorted({*stream_node.slots, *queue.split("|")})
                 nodes[stream_id] = stream_node
 
                 for q in [queue] if expanded_view else queues:
@@ -115,7 +115,7 @@ def get_nodes(
                 stream_node = nodes.get(
                     stream_id, Node(id=stream_id, label=stream_name, type=NodeType.STREAM)
                 )
-                stream_node.slots = sorted(set([*stream_node.slots, *queue.split("|")]))
+                stream_node.slots = sorted({*stream_node.slots, *queue.split("|")})
                 nodes[stream_id] = stream_node
 
                 for q in [queue] if expanded_view else queues:
