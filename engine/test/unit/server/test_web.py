@@ -177,7 +177,7 @@ async def test_server_initialization(monkeypatch, api_file, api_auto):
         except CancelledError:
             return  # Needed in linux
         except Exception as e:
-            raise e  # Unexpected error
+            raise  # Unexpected error
         finally:
             assert len(MockHooks._server_startup_hook_calls) == 1
             assert len(MockHooks._app_startup_hook_calls) == 2

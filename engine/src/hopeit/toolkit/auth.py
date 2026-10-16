@@ -94,7 +94,7 @@ def init(app_key: str, app_auth_config: AuthConfig):
                 private_keys[app_key] = private_key
                 logger.debug(__name__, "Saved generated key pair.", extra=extra(app_key=app_key))
             else:
-                raise e
+                raise
     else:
         public_keys = {}
         private_keys = {}
