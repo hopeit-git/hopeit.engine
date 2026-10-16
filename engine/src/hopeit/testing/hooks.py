@@ -2,7 +2,7 @@
 Mock hooks for testing apps
 """
 
-from typing import AsyncGenerator, AsyncIterator, Dict, Mapping, Optional, Union
+from collections.abc import AsyncGenerator, AsyncIterator, Mapping
 
 from multidict import CIMultiDict
 
@@ -15,9 +15,9 @@ class MockField:
     def __init__(
         self,
         name: str,
-        value: Union[str, dict],
-        file_data: Optional[bytes] = None,
-        headers: Optional[CIMultiDict] = None,
+        value: str | dict,
+        file_data: bytes | None = None,
+        headers: CIMultiDict | None = None,
     ) -> None:
         self.name = name
         self._value = value
@@ -98,7 +98,7 @@ class MockMultipartReader:
     Replacement for Multipart reader
     """
 
-    def __init__(self, fields: Dict[str, str], attachments: Dict[str, bytes]):
+    def __init__(self, fields: dict[str, str], attachments: dict[str, bytes]):
         self.fields = fields
         self.it = iter(
             [MockField(name=k, value=v, file_data=attachments.get(k)) for k, v in fields.items()]

@@ -1,6 +1,6 @@
 import asyncio
 from collections import defaultdict
-from typing import Dict, List, Union
+from typing import Dict, List
 
 from hopeit.app.config import AppConfig
 from hopeit.dataobjects import dataclass, dataobject
@@ -38,7 +38,7 @@ class MockResponse:
     def __init__(
         self,
         status: int,
-        response: Union[MockResponseData, str],
+        response: MockResponseData | str,
         content_type: str = "application/json",
     ):
         self.status = status
@@ -167,7 +167,7 @@ class MockClientSession:
 
     def post(
         self, url: str, data: str, headers: dict, params: dict
-    ) -> Union[MockResponseList, MockResponse]:
+    ) -> MockResponseList | MockResponse:
         self._check_headers(headers)
         host = self._host(url)
         self.call_log[host] += 1

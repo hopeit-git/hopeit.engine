@@ -1,5 +1,3 @@
-from typing import List, Optional, Type
-
 import pytest
 
 from hopeit.app.client import Client
@@ -66,11 +64,11 @@ class MockClient(Client):
         self,
         event_name: str,
         *,
-        datatype: Type[EventPayloadType],
-        payload: Optional[EventPayload],
+        datatype: type[EventPayloadType],
+        payload: EventPayload | None,
         context: EventContext,
         **kwargs,
-    ) -> List[EventPayloadType]:
+    ) -> list[EventPayloadType]:
         return [
             {  # type: ignore
                 "app_connection": self.app_connection,

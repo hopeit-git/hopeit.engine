@@ -5,7 +5,7 @@ Server configuration utility
 import os
 import re
 from enum import Enum
-from typing import List, Optional, TypeVar
+from typing import TypeVar
 
 from hopeit.dataobjects import dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
@@ -88,9 +88,9 @@ class AuthConfig:
     auth_passphrase: str
     enabled: bool = True
     create_keys: bool = False
-    domain: Optional[str] = None
+    domain: str | None = None
     encryption_algorithm: str = "RS256"
-    default_auth_methods: List[AuthType] = field(default_factory=list)
+    default_auth_methods: list[AuthType] = field(default_factory=list)
 
     def __post_init__(self):
         if len(self.default_auth_methods) == 0:
@@ -108,7 +108,7 @@ class APIConfig:
     Config for Open API docs page
     """
 
-    docs_path: Optional[str] = None
+    docs_path: str | None = None
 
 
 @dataobject

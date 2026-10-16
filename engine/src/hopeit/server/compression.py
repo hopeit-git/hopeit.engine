@@ -6,8 +6,8 @@ import bz2
 import gzip
 import lzma
 import zlib
+from collections.abc import Callable
 from functools import partial
-from typing import Callable, Tuple
 
 import lz4.frame  # type: ignore
 
@@ -76,7 +76,7 @@ _ALGOS = {
 
 def _compressors(
     compression: Compression,
-) -> Tuple[Callable[[bytes], bytes], Callable[[bytes], bytes]]:
+) -> tuple[Callable[[bytes], bytes], Callable[[bytes], bytes]]:
     info = compression.value.split(":")
     algo = info[0]
     comp, default_level, decomp = _ALGOS[algo]

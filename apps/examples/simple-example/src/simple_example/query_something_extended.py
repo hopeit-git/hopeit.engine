@@ -5,7 +5,7 @@ Loads Something from disk, update status base on POST body.
 Objects is saved with updated status and history.
 """
 
-from typing import Optional, Union
+from typing import Optional
 
 from common.validation import validate
 from hopeit.app.api import event_api
@@ -49,7 +49,7 @@ async def load(
     item_id: str,
     partition_key: str,
     update_status: bool = False,
-) -> Union[Something, SomethingNotFound]:
+) -> Something | SomethingNotFound:
     """
     Loads json file from filesystem as `Something` instance,
     sets status to specified payload
@@ -88,8 +88,8 @@ async def save_with_updated_status(payload: Something, context: EventContext) ->
 
 
 async def __postprocess__(
-    payload: Union[Something, SomethingNotFound], context: EventContext, response: PostprocessHook
-) -> Union[Something, SomethingNotFound]:
+    payload: Something | SomethingNotFound, context: EventContext, response: PostprocessHook
+) -> Something | SomethingNotFound:
     if isinstance(payload, SomethingNotFound):
         logger.debug(context, "404 - File %s not found", payload.id)
         response.status = 404

@@ -6,7 +6,7 @@ using `collector` steps constructor (instantiating an `AsyncCollector`)
 """
 
 import asyncio
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
@@ -45,9 +45,7 @@ async def __init_event__(context):
         fs = FileStorage.with_settings(settings)
 
 
-async def load_first(
-    collector: Collector, context: EventContext
-) -> Union[Something, SomethingNotFound]:
+async def load_first(collector: Collector, context: EventContext) -> Something | SomethingNotFound:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -70,9 +68,7 @@ async def load_first(
     return something
 
 
-async def load_second(
-    collector: Collector, context: EventContext
-) -> Union[Something, SomethingNotFound]:
+async def load_second(collector: Collector, context: EventContext) -> Something | SomethingNotFound:
     """
     Loads json file from filesystem as `Something` instance
 

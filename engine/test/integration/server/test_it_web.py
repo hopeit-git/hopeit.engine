@@ -3,7 +3,6 @@ import json
 import logging
 import os
 import uuid
-from typing import List
 
 import aiohttp
 import pytest
@@ -531,7 +530,7 @@ async def start_test_server(
     mock_app_config,
     mock_plugin_config,
     streams: bool,
-    enabled_groups: List[str],
+    enabled_groups: list[str],
 ):
     await server_startup_hook(mock_app_config.server)
     await app_startup_hook(mock_plugin_config, enabled_groups)
@@ -548,7 +547,7 @@ async def _setup(
     mock_plugin_config,
     aiohttp_client,
     streams: bool,
-    enabled_groups: List[str],
+    enabled_groups: list[str],
 ):
     stream_event = MockResult("ok: ok")
     monkeypatch.setattr(MockStreamManager, "test_payload", stream_event)

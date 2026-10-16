@@ -5,7 +5,6 @@ Server error handling convenience module
 import json
 import traceback
 import urllib.parse
-from typing import List
 
 from hopeit.dataobjects import dataclass, dataobject
 
@@ -20,14 +19,14 @@ class ErrorInfo:
     """
 
     msg: str
-    tb: List[str]
+    tb: list[str]
 
     @staticmethod
     def from_exception(e: BaseException):
         return ErrorInfo(msg=str(e), tb=traceback.format_exception_only(type(e), e))
 
 
-def format_exc(e: Exception) -> List[str]:
+def format_exc(e: Exception) -> list[str]:
     traceback.print_exception(None, e, e.__traceback__)
     return traceback.format_exception(None, e, e.__traceback__)
 

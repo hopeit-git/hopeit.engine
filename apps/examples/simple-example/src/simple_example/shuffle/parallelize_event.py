@@ -7,7 +7,7 @@ then submitted to other stream to be updated and saved
 """
 
 from datetime import datetime, timezone
-from typing import Optional, Union
+from typing import Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
@@ -62,7 +62,7 @@ async def __init_event__(context):
 
 async def fork_something(
     payload: Something, context: EventContext
-) -> Spawn[Union[FirstPart, SecondPart]]:
+) -> Spawn[FirstPart | SecondPart]:
     """
     Produces 2 variants from payload to be processed in parallel
     """

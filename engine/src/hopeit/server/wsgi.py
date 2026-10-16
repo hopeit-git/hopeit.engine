@@ -4,7 +4,6 @@ Webrunner module based on gunicorn
 
 import asyncio
 import multiprocessing
-from typing import List, Optional
 
 import gunicorn.app.base  # type: ignore
 from aiohttp.worker import GunicornWebWorker as AiohttpGunicornWebWorker
@@ -74,12 +73,12 @@ class WSGIApplication(gunicorn.app.base.BaseApplication):
 def run_app(
     host: str,
     port: int,
-    path: Optional[str],
-    config_files: List[str],
+    path: str | None,
+    config_files: list[str],
     api_file: str,
-    api_auto: List[str],
+    api_auto: list[str],
     start_streams: bool,
-    enabled_groups: List[str],
+    enabled_groups: list[str],
     workers: int,
     worker_class: str,
     worker_timeout: int,

@@ -9,7 +9,7 @@ import socket
 from abc import ABC
 from datetime import datetime, timezone
 from importlib import import_module
-from typing import Any, Dict, List, Union
+from typing import Any
 
 from hopeit.app.config import Compression, Serialization
 from hopeit.dataobjects import EventPayload
@@ -27,8 +27,8 @@ class StreamEvent:
     msg_internal_id: bytes
     queue: str
     payload: EventPayload
-    track_ids: Dict[str, str]
-    auth_info: Dict[str, Any]
+    track_ids: dict[str, str]
+    auth_info: dict[str, Any]
 
 
 class StreamOSError(Exception):
@@ -86,8 +86,8 @@ class StreamManager(ABC):
         stream_name: str,
         queue: str,
         payload: EventPayload,
-        track_ids: Dict[str, str],
-        auth_info: Dict[str, Any],
+        track_ids: dict[str, str],
+        auth_info: dict[str, Any],
         compression: Compression,
         serialization: Serialization,
         target_max_len: int = 0,
@@ -121,13 +121,13 @@ class StreamManager(ABC):
         *,
         stream_name: str,
         consumer_group: str,
-        datatypes: Dict[str, type],
-        track_headers: List[str],
+        datatypes: dict[str, type],
+        track_headers: list[str],
         offset: str,
         batch_size: int,
         timeout: int,
         batch_interval: int,
-    ) -> List[Union[StreamEvent, Exception]]:
+    ) -> list[StreamEvent | Exception]:
         """
         Attempts reading streams using a consumer group,
         blocks for `timeout` seconds
@@ -261,7 +261,7 @@ class StreamCircuitBreaker(StreamManager):
             asyncio.create_task(self._start_backoff_wait())
             raise
 
-    async def read_stream(self, **kwargs) -> List[Union[StreamEvent, Exception]]:
+    async def read_stream(self, **kwargs) -> list[StreamEvent | Exception]:
         await self._wait_backoff()
         try:
             res = await self.stream_manager.read_stream(**kwargs)

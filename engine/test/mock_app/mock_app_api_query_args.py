@@ -5,7 +5,7 @@ Description of Test app queryargs
 """
 
 from datetime import date, datetime
-from typing import List, Optional
+from typing import Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
@@ -26,7 +26,7 @@ __api__ = event_api(
         ("arg_date", Optional[date], "date argument"),
         ("arg_datetime", Optional[datetime], "datetime argument"),
     ],
-    responses={200: (List[MockData], "MockData result")},
+    responses={200: (list[MockData], "MockData result")},
 )
 
 
@@ -34,12 +34,12 @@ def entry_point(
     payload: None,
     context: EventContext,
     *,
-    arg_str: Optional[str] = None,
-    arg_int: Optional[int] = None,
-    arg_float: Optional[float] = None,
-    arg_date: Optional[date] = None,
-    arg_datetime: Optional[datetime] = None,
-) -> List[MockData]:
+    arg_str: str | None = None,
+    arg_int: int | None = None,
+    arg_float: float | None = None,
+    arg_date: date | None = None,
+    arg_datetime: datetime | None = None,
+) -> list[MockData]:
     logger.info(context, "mock_app_api_query_args.entry_point")
     return [
         MockData(f"get-{arg_str} get-{arg_int}, get-{arg_float}, get-{arg_date}, get{arg_datetime}")

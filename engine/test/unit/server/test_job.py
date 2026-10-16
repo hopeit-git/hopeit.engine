@@ -1,7 +1,7 @@
 import io
 import re
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -21,9 +21,9 @@ from mock_plugin import mock_plugin_config  # type: ignore
 
 
 def _make_app_engine(app_config: AppConfig):
-    preprocess_calls: List[Any] = []
-    execute_calls: List[Any] = []
-    postprocess_calls: List[Any] = []
+    preprocess_calls: list[Any] = []
+    execute_calls: list[Any] = []
+    postprocess_calls: list[Any] = []
 
     async def preprocess(*, context, query_args, payload, request):
         preprocess_calls.append((context, query_args, payload, request))

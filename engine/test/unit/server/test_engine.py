@@ -1,5 +1,4 @@
 import asyncio
-from typing import Dict, List, Optional
 
 import pytest  # type: ignore
 
@@ -22,7 +21,7 @@ from mock_plugin import mock_plugin_config  # type: ignore
 
 
 async def create_engine(
-    app_config: AppConfig, plugin: AppConfig, enabled_groups: Optional[List[str]] = None
+    app_config: AppConfig, plugin: AppConfig, enabled_groups: list[str] | None = None
 ) -> AppEngine:
     if enabled_groups is None:
         enabled_groups = []
@@ -34,7 +33,7 @@ async def create_engine(
 
 
 async def create_plugin_engine(
-    plugin: AppConfig, enabled_groups: Optional[List[str]] = None
+    plugin: AppConfig, enabled_groups: list[str] | None = None
 ) -> AppEngine:
     if enabled_groups is None:
         enabled_groups = []
@@ -50,8 +49,8 @@ async def invoke_execute(
     query_args: dict,
     payload: DataObject,
     expected: DataObject,
-    track_ids: Dict[str, str],
-    postprocess_expected: Optional[dict] = None,
+    track_ids: dict[str, str],
+    postprocess_expected: dict | None = None,
 ):
     event_settings = get_event_settings(from_app.effective_settings, event_name)  # type: ignore
     context = EventContext(

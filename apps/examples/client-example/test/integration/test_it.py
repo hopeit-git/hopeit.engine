@@ -1,5 +1,5 @@
 from base64 import b64encode
-from typing import List, Type, Union
+from typing import List, Type
 
 import pytest
 
@@ -35,7 +35,7 @@ async def custom_app_call(
     payload: EventPayload,
     context: EventContext,
     **kwargs,
-) -> Union[str, MockAuthInfo, SomethingNotFound, Something]:
+) -> str | MockAuthInfo | SomethingNotFound | Something:
     if app_connection == "simple_example_conn" and event == "save_something":
         assert payload == SomethingParams(id="id2", user="test-user")
         return "test_path"

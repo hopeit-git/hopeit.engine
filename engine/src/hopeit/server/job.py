@@ -9,7 +9,7 @@ import sys
 import uuid
 from collections import namedtuple
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any
 
 from multidict import CIMultiDict, CIMultiDictProxy
 
@@ -58,7 +58,7 @@ def _read_payload_source(source: str) -> str:
         return f.read()
 
 
-def resolve_payload(payload: Optional[str]) -> Optional[str]:
+def resolve_payload(payload: str | None) -> str | None:
     """
     Returns payload string, optionally reading content from file.
     Supports curl syntax with @file or @- for stdin.
@@ -71,7 +71,7 @@ def resolve_payload(payload: Optional[str]) -> Optional[str]:
     return payload
 
 
-def _parse_json_kv_payload(payload: Optional[str], name: str) -> Dict[str, str]:
+def _parse_json_kv_payload(payload: str | None, name: str) -> dict[str, str]:
     if payload is None:
         return {}
     if not payload.strip():
@@ -82,7 +82,7 @@ def _parse_json_kv_payload(payload: Optional[str], name: str) -> Dict[str, str]:
         raise ValueError(f"Invalid {name} JSON payload: {e}") from e
     if not isinstance(data, dict):
         raise ValueError(f"{name} payload must be a JSON object.")
-    parsed: Dict[str, str] = {}
+    parsed: dict[str, str] = {}
     for key, value in data.items():
         if not isinstance(key, str) or not key.strip():
             raise ValueError(f"{name} key cannot be empty.")
@@ -97,12 +97,12 @@ def _parse_json_kv_payload(payload: Optional[str], name: str) -> Dict[str, str]:
     return parsed
 
 
-def parse_track_ids(track_payload: Optional[str]) -> Dict[str, str]:
+def parse_track_ids(track_payload: str | None) -> dict[str, str]:
     """
     Parse --track JSON object into a dict, normalizing keys to 'track.*'.
     """
     track_ids = _parse_json_kv_payload(track_payload, "track")
-    normalized: Dict[str, str] = {}
+    normalized: dict[str, str] = {}
     for key, value in track_ids.items():
         if not key.startswith("track."):
             key = f"track.{key}"
@@ -110,7 +110,7 @@ def parse_track_ids(track_payload: Optional[str]) -> Dict[str, str]:
     return normalized
 
 
-def parse_query_args(query_payload: Optional[str]) -> Dict[str, str]:
+def parse_query_args(query_payload: str | None) -> dict[str, str]:
     """
     Parse --query-args JSON object into a dict.
     """
@@ -170,7 +170,7 @@ def _load_app_config(path: str) -> AppConfig:
         return parse_app_config_json(f.read())
 
 
-def _select_app_config(app_configs: List[AppConfig], event_name: str) -> AppConfig:
+def _select_app_config(app_configs: list[AppConfig], event_name: str) -> AppConfig:
     """
     Find the single app config that owns the base event name.
     Raises if not found or if multiple apps define the same event.
@@ -185,13 +185,13 @@ def _select_app_config(app_configs: List[AppConfig], event_name: str) -> AppConf
     return matches[0]
 
 
-def _plugins_for_app(app_config: AppConfig, app_configs: List[AppConfig]) -> List[AppConfig]:
+def _plugins_for_app(app_config: AppConfig, app_configs: list[AppConfig]) -> list[AppConfig]:
     """
     Resolve plugin configs required by an app, preserving app plugin order.
     Raises if any plugin config is missing from the provided config list.
     """
     configs_by_key = {config.app_key(): config for config in app_configs}
-    plugins: List[AppConfig] = []
+    plugins: list[AppConfig] = []
     for plugin in app_config.plugins:
         key = plugin.app_key()
         if key not in configs_by_key:
@@ -205,7 +205,7 @@ def _create_context(
     app_config: AppConfig,
     event_name: str,
     event_settings: EventSettings,
-    track_ids: Optional[Dict[str, str]] = None,
+    track_ids: dict[str, str] | None = None,
 ) -> EventContext:
     return EventContext(
         app_config=app_config,
@@ -218,9 +218,9 @@ def _create_context(
 
 
 def _parse_payload(
-    payload: Optional[str],
-    datatype: Optional[Type[EventPayloadType]],
-) -> Tuple[Optional[EventPayloadType], Optional[bytes]]:
+    payload: str | None,
+    datatype: type[EventPayloadType] | None,
+) -> tuple[EventPayloadType | None, bytes | None]:
     if payload is None:
         return None, None
     payload_raw = payload.encode()
@@ -234,10 +234,10 @@ async def _execute_event(
     app_engine,
     event_name: str,
     event_info: EventDescriptor,
-    payload: Optional[str],
-    track_ids: Optional[Dict[str, str]] = None,
-    query_args: Optional[Dict[str, Any]] = None,
-) -> Optional[EventPayload]:
+    payload: str | None,
+    track_ids: dict[str, str] | None = None,
+    query_args: dict[str, Any] | None = None,
+) -> EventPayload | None:
     event_settings = get_event_settings(app_engine.settings, event_name)
     context = _create_context(
         app_config=app_engine.app_config,
@@ -284,14 +284,14 @@ async def _execute_event(
 
 async def run_job(
     *,
-    config_files: List[str],
+    config_files: list[str],
     event_name: str,
-    payload: Optional[str] = None,
+    payload: str | None = None,
     start_streams: bool = False,
-    max_events: Optional[int] = None,
-    track_ids: Optional[Dict[str, str]] = None,
-    query_args: Optional[Dict[str, Any]] = None,
-) -> Optional[EventPayload]:
+    max_events: int | None = None,
+    track_ids: dict[str, str] | None = None,
+    query_args: dict[str, Any] | None = None,
+) -> EventPayload | None:
     """
     Starts engine and apps from config files and executes a single event.
 
@@ -401,8 +401,8 @@ async def run_job(
 async def _execute_setup_event(
     app_engine: AppEngine,
     event_name: str,
-    plugin_engine: Optional[AppEngine] = None,
-    track_ids: Optional[Dict[str, str]] = None,
+    plugin_engine: AppEngine | None = None,
+    track_ids: dict[str, str] | None = None,
 ) -> None:
     event_settings = get_event_settings(app_engine.settings, event_name)
     context = EventContext(
@@ -424,9 +424,9 @@ async def _execute_setup_event(
 async def _run_setup_events(
     app_engine: AppEngine,
     *,
-    plugin_engine: Optional[AppEngine] = None,
-    plug_mode: Optional[EventPlugMode] = None,
-    track_ids: Optional[Dict[str, str]] = None,
+    plugin_engine: AppEngine | None = None,
+    plug_mode: EventPlugMode | None = None,
+    track_ids: dict[str, str] | None = None,
 ) -> None:
     engine = plugin_engine or app_engine
     for event_name, event_info in engine.effective_events.items():
@@ -445,8 +445,8 @@ async def _run_setup_events(
 def _job_track_ids(
     app_config: AppConfig,
     event_name: str,
-    extra_track_ids: Optional[Dict[str, str]] = None,
-) -> Dict[str, str]:
+    extra_track_ids: dict[str, str] | None = None,
+) -> dict[str, str]:
     now = datetime.now(tz=timezone.utc).isoformat()
     track_ids = {
         "track.operation_id": str(uuid.uuid4()),

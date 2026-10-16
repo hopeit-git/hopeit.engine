@@ -1,6 +1,6 @@
 import importlib
 from copy import deepcopy
-from typing import Optional, Union
+from typing import Optional
 
 import pytest  # type: ignore
 
@@ -42,7 +42,7 @@ def test_extract_event_steps():
     f3 = getattr(impl, "handle_special_case")
     steps = extract_module_steps(impl)
     assert steps == [
-        ("entry_point", (f1, None, Union[MockData, str], False)),
+        ("entry_point", (f1, None, MockData | str, False)),
         ("handle_ok_case", (f2, MockData, str, False)),
         ("handle_special_case", (f3, str, str, False)),
     ]
@@ -54,13 +54,13 @@ def test_effective_steps():
     f2 = getattr(impl, "handle_ok_case")
     f3 = getattr(impl, "handle_special_case")
     module_steps = [
-        ("entry_point", (f1, None, Union[MockData, str], False)),
+        ("entry_point", (f1, None, MockData | str, False)),
         ("handle_ok_case", (f2, MockData, str, False)),
         ("handle_special_case", (f3, str, str, False)),
     ]
     steps = effective_steps("mock_event", module_steps)
     assert steps == [
-        (0, "entry_point", (f1, None, Union[MockData, str], False)),
+        (0, "entry_point", (f1, None, MockData | str, False)),
         (1, "handle_ok_case", (f2, MockData, str, False)),
         (2, "handle_special_case", (f3, str, str, False)),
     ]
@@ -149,7 +149,7 @@ def step3(payload: MockData, context: EventContext) -> MockData:
     return MockData(payload.value + " step3")
 
 
-def step4(payload: MockData, context: EventContext) -> Union[MockData, str]:
+def step4(payload: MockData, context: EventContext) -> MockData | str:
     if payload.value.startswith("a"):
         return MockData(payload.value + " step4")
     else:
@@ -210,7 +210,7 @@ async def test_execute_decision_steps():
         (0, "step1", (step1, MockData, MockData, False)),
         (1, "step2", (step2, MockData, MockData, False)),
         (2, "step3", (step3, MockData, MockData, False)),
-        (3, "step4", (step4, MockData, Union[MockData, str], False)),
+        (3, "step4", (step4, MockData, MockData | str, False)),
         (4, "step5a", (step5a, MockData, MockResult, False)),
         (5, "step5b", (step5b, str, MockResult, False)),
         (6, "step6", (step6, MockResult, MockResult, False)),
@@ -232,7 +232,7 @@ async def test_execute_spawn_initial_steps():
         (1, "step1", (step1, MockData, MockData, False)),
         (2, "step2", (step2, MockData, MockData, False)),
         (3, "step3", (step3, MockData, MockData, False)),
-        (4, "step4", (step4, MockData, Union[MockData, str], False)),
+        (4, "step4", (step4, MockData, MockData | str, False)),
         (5, "step5a", (step5a, MockData, MockResult, False)),
         (6, "step5b", (step5b, str, MockResult, False)),
         (7, "step6", (step6, MockResult, MockResult, False)),
@@ -261,7 +261,7 @@ async def test_execute_multiple_spawn_steps():
         (2, "step2", (step2, MockData, MockData, False)),
         (3, "step3", (step3, MockData, MockData, False)),
         (4, "step_respawn", (step_respawn, MockData, Spawn[MockData], True)),
-        (5, "step4", (step4, MockData, Union[MockData, str], False)),
+        (5, "step4", (step4, MockData, MockData | str, False)),
         (6, "step5a", (step5a, MockData, MockResult, False)),
         (7, "step5b", (step5b, str, MockResult, False)),
         (8, "step6", (step6, MockResult, MockResult, False)),

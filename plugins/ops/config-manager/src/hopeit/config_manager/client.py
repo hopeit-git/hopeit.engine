@@ -4,7 +4,7 @@ Config Manager Client
 
 import asyncio
 import random
-from typing import Dict, Tuple, Union
+from typing import Dict, Tuple
 
 import aiohttp
 
@@ -61,7 +61,7 @@ async def get_apps_config(hosts: str, context: EventContext, **kwargs) -> Runtim
 
 async def _get_host_config(
     host: str, context: EventContext, **kwargs
-) -> Tuple[str, Union[RuntimeApps, ServerStatus]]:
+) -> Tuple[str, RuntimeApps | ServerStatus]:
     """
     Invokes config-manager runtime-apps-config endpoint in a given host
     """

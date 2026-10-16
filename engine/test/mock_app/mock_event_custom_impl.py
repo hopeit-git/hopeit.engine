@@ -1,5 +1,3 @@
-from typing import Union
-
 from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.app.logger import app_extra_logger
 
@@ -18,7 +16,7 @@ def __init_event__(context: EventContext):
     initialized = True
 
 
-def entry_point(payload: None, context: EventContext, *, query_arg1: str) -> Union[MockData, str]:
+def entry_point(payload: None, context: EventContext, *, query_arg1: str) -> MockData | str:
     logger.info(context, "mock_event.entry_point", extra=extra(query_arg1=query_arg1))
     assert initialized
     if query_arg1 == "fail":

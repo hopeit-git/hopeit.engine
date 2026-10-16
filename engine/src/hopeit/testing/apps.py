@@ -2,10 +2,11 @@
 Test utilities/wrappers for app development
 """
 
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 from multidict import CIMultiDict, CIMultiDictProxy
 
@@ -29,7 +30,7 @@ class TestingException(Exception):
     __test__ = False
 
 
-def config(path: Union[str, Path]) -> AppConfig:
+def config(path: str | Path) -> AppConfig:
     if isinstance(path, str):
         path = Path(path)
     with open(path, "r", encoding="utf-8") as f:
@@ -45,8 +46,8 @@ def server_config():
 def create_test_context(
     app_config: AppConfig,
     event_name: str,
-    track_ids: Optional[dict] = None,
-    auth_info: Optional[dict] = None,
+    track_ids: dict | None = None,
+    auth_info: dict | None = None,
 ) -> EventContext:
     """
     Creates an EventContext object to be used in tests
@@ -82,10 +83,10 @@ def _apply_mocks(
     context: EventContext,
     handler: EventHandler,
     event_name: str,
-    effective_events: Dict[str, EventDescriptor],
-    preprocess_hook: Optional[PreprocessHook],
-    postprocess_hook: Optional[PostprocessHook],
-    mocks: List[Callable[[ModuleType, EventContext], None]],
+    effective_events: dict[str, EventDescriptor],
+    preprocess_hook: PreprocessHook | None,
+    postprocess_hook: PostprocessHook | None,
+    mocks: list[Callable[[ModuleType, EventContext], None]],
 ):
     """
     Execute a list of functions to mock module properties.
@@ -93,7 +94,7 @@ def _apply_mocks(
     module, _, _ = handler.modules[event_name]
     logger.debug(context, f"[test.apps] executing mocks for module={module.__name__}...")
     for mock in mocks:
-        hooks: Dict[str, Any] = {}
+        hooks: dict[str, Any] = {}
         if preprocess_hook is not None:
             hooks["preprocess_hook"] = preprocess_hook
         if postprocess_hook is not None:
@@ -106,21 +107,22 @@ def _apply_mocks(
 async def execute_event(
     app_config: AppConfig,
     event_name: str,
-    payload: Optional[EventPayload],
-    mocks: Optional[List[Callable[[ModuleType, EventContext], None]]] = None,
+    payload: EventPayload | None,
+    mocks: list[Callable[[ModuleType, EventContext], None]] | None = None,
     *,
-    fields: Optional[Dict[str, str]] = None,
-    upload: Optional[Dict[str, bytes]] = None,
+    fields: dict[str, str] | None = None,
+    upload: dict[str, bytes] | None = None,
     preprocess: bool = False,
     postprocess: bool = False,
-    context: Optional[EventContext] = None,
+    context: EventContext | None = None,
     **kwargs,
-) -> Union[
-    Optional[EventPayload],
-    List[EventPayload],
-    Tuple[Optional[EventPayload], EventPayload, PostprocessHook],
-    Tuple[List[EventPayload], EventPayload, PostprocessHook],
-]:
+) -> (
+    EventPayload
+    | None
+    | list[EventPayload]
+    | tuple[EventPayload | None, EventPayload, PostprocessHook]
+    | tuple[list[EventPayload], EventPayload, PostprocessHook]
+):
     """
     Test executes an app event.
 
@@ -143,7 +145,7 @@ async def execute_event(
         with response information used during call to __postprocess__
     """
 
-    async def _postprocess(hook: PostprocessHook, results: List[EventPayload]) -> EventPayload:
+    async def _postprocess(hook: PostprocessHook, results: list[EventPayload]) -> EventPayload:
         assert context is not None
         pp_payload = results[-1] if len(results) > 0 else None
         return await handler.postprocess(context=context, payload=pp_payload, response=hook)
@@ -252,8 +254,8 @@ async def execute_service(
     app_config: AppConfig,
     event_name: str,
     max_events: int = 1,
-    mocks: Optional[List[Callable[[ModuleType, EventContext], None]]] = None,
-) -> List[Union[EventPayload, Exception]]:
+    mocks: list[Callable[[ModuleType, EventContext], None]] | None = None,
+) -> list[EventPayload | Exception]:
     """
     Executes __service__ handler of an event,
     and processes a maximum of `max_events`.

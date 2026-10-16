@@ -2,8 +2,6 @@
 CLI server commands
 """
 
-from typing import List
-
 import click
 
 from hopeit.server import wsgi
@@ -78,8 +76,8 @@ def run(
     """
     Runs web server hosting apps specified in config files.
     """
-    groups: List[str] = [] if enabled_groups == "" else enabled_groups.split(",")
-    files: List[str] = config_files.split(",")
+    groups: list[str] = [] if enabled_groups == "" else enabled_groups.split(",")
+    files: list[str] = config_files.split(",")
     api_spec = [] if api_auto is None else api_auto.split(";")
 
     wsgi.run_app(

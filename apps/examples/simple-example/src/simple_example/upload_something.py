@@ -7,7 +7,7 @@ Uploads file using multipart upload support. Returns metadata Something object.
 
 import os
 from pathlib import Path
-from typing import List, Union
+from typing import List
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PreprocessHook
@@ -60,7 +60,7 @@ async def __init_event__(context: EventContext):
 # pylint: disable=invalid-name
 async def __preprocess__(
     payload: None, context: EventContext, request: PreprocessHook, *, something_id: str
-) -> Union[str, FileUploadInfo]:
+) -> str | FileUploadInfo:
     uploaded_files = []
     save_path = Path(str(context.env["upload_something"]["save_path"]))
     chunk_size = int(context.env["upload_something"]["chunk_size"])

@@ -4,7 +4,7 @@ Simple Example: Save Something
 Creates and saves Something
 """
 
-from typing import Optional, Union
+from typing import Optional
 
 from common.validation import validate
 from hopeit.app.api import event_api
@@ -38,7 +38,7 @@ async def __init_event__(context):
 # pylint: disable=invalid-name
 async def __preprocess__(
     payload: SomethingParams, context: EventContext, request: PreprocessHook
-) -> Union[str, SomethingParams]:
+) -> str | SomethingParams:
     user_agent = request.headers.get("user-agent")
     if (user_agent is None) or (user_agent.strip() == ""):
         logger.error(context, "Missing required user-agent")

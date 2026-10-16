@@ -5,7 +5,7 @@ import base64
 import json
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional
 
 import redis.asyncio as redis
 from redis import RedisError, ResponseError
@@ -162,7 +162,7 @@ class RedisStreamManager(StreamManager):
         batch_size: int,
         timeout: int,
         batch_interval: int,
-    ) -> List[Union[StreamEvent, Exception]]:
+    ) -> List[StreamEvent | Exception]:
         """
         Read a batch of events using a Redis consumer group.
 
@@ -206,7 +206,7 @@ class RedisStreamManager(StreamManager):
                         tail=batch[-1][0],
                     ),
                 )
-                stream_events: List[Union[StreamEvent, Exception]] = []
+                stream_events: List[StreamEvent | Exception] = []
                 for msg in batch:
                     read_ts = datetime.now(tz=timezone.utc).isoformat()
                     msg_type = msg[1][b"type"].decode()
@@ -297,7 +297,7 @@ class RedisStreamManager(StreamManager):
     async def _decode_message(
         self,
         stream_name: str,
-        msg: List[Union[bytes, Dict[bytes, bytes]]],
+        msg: List[bytes | Dict[bytes, bytes]],
         datatype: type,
         consumer_group: str,
         track_headers: List[str],

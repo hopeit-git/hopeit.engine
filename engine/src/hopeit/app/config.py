@@ -4,7 +4,7 @@ Config module: apps config data model and json loader
 
 from copy import deepcopy
 from enum import Enum
-from typing import Any, Dict, Generic, List, Optional, Type, Union
+from typing import Any, Generic
 
 from hopeit.dataobjects import EventPayloadType, dataclass, dataobject, field
 from hopeit.dataobjects.payload import Payload
@@ -56,8 +56,8 @@ class AppDescriptor:
         return auto_path(self.name, self.version)
 
 
-Env = Dict[str, Dict[str, Union[str, float, int, bool]]]
-AppSettings = Dict[str, Dict[str, Any]]
+Env = dict[str, dict[str, str | float | int | bool]]
+AppSettings = dict[str, dict[str, Any]]
 
 
 class EventType(str, Enum):
@@ -112,7 +112,7 @@ class ReadStreamDescriptor:
 
     name: str
     consumer_group: str
-    queues: List[str] = field(default_factory=StreamQueue.default_queues)
+    queues: list[str] = field(default_factory=StreamQueue.default_queues)
 
 
 class StreamQueueStrategy(str, Enum):
@@ -152,7 +152,7 @@ class WriteStreamDescriptor:
     """
 
     name: str
-    queues: List[str] = field(default_factory=StreamQueue.default_queues)
+    queues: list[str] = field(default_factory=StreamQueue.default_queues)
     queue_strategy: StreamQueueStrategy = StreamQueueStrategy.DROP
 
 
@@ -175,8 +175,8 @@ class EventLoggingConfig:
             'read_ts': uct time when message was consumed from stream
     """
 
-    extra_fields: List[str] = field(default_factory=list)
-    stream_fields: List[str] = field(default_factory=list)
+    extra_fields: list[str] = field(default_factory=list)
+    stream_fields: list[str] = field(default_factory=list)
 
     def __post_init__(self):
         if len(self.stream_fields) == 0:
@@ -247,8 +247,8 @@ class EventStreamConfig:
     throttle_ms: int = 0
     step_delay: int = 0
     batch_size: int = 100
-    compression: Optional[Compression] = None
-    serialization: Optional[Serialization] = None
+    compression: Compression | None = None
+    serialization: Serialization | None = None
 
 
 @dataobject
@@ -269,9 +269,9 @@ class EventSettings(Generic[EventPayloadType]):
     response_timeout: float = 60.0
     logging: EventLoggingConfig = field(default_factory=EventLoggingConfig)
     stream: EventStreamConfig = field(default_factory=EventStreamConfig)
-    extras: Dict[str, Any] = field(default_factory=dict)
+    extras: dict[str, Any] = field(default_factory=dict)
 
-    def __call__(self, *, key: str = "_", datatype: Type[EventPayloadType]) -> EventPayloadType:
+    def __call__(self, *, key: str = "_", datatype: type[EventPayloadType]) -> EventPayloadType:
         return Payload.from_obj(self.extras.get(key, {}), datatype=datatype)
 
 
@@ -354,14 +354,14 @@ class EventDescriptor:
 
     type: EventType
     plug_mode: EventPlugMode = EventPlugMode.STANDALONE
-    route: Optional[str] = None
-    impl: Optional[str] = None
-    connections: List[EventConnection] = field(default_factory=list)
-    read_stream: Optional[ReadStreamDescriptor] = None
-    write_stream: Optional[WriteStreamDescriptor] = None
-    auth: List[AuthType] = field(default_factory=list)
-    setting_keys: List[str] = field(default_factory=list)
-    dataobjects: List[str] = field(default_factory=list)
+    route: str | None = None
+    impl: str | None = None
+    connections: list[EventConnection] = field(default_factory=list)
+    read_stream: ReadStreamDescriptor | None = None
+    write_stream: WriteStreamDescriptor | None = None
+    auth: list[AuthType] = field(default_factory=list)
+    setting_keys: list[str] = field(default_factory=list)
+    dataobjects: list[str] = field(default_factory=list)
     group: str = DEFAULT_GROUP
 
     def __post_init__(self):
@@ -387,14 +387,14 @@ class AppEngineConfig:
     :cors_routes_prefix: routes prefix to apply CORS origin to. If not specified `/api/app-name/version/` will be used
     """
 
-    import_modules: Optional[List[str]] = None
+    import_modules: list[str] | None = None
     read_stream_timeout: int = 1000
     read_stream_interval: int = 1000
     default_stream_compression: Compression = Compression.LZ4
     default_stream_serialization: Serialization = Serialization.JSON_BASE64
-    track_headers: List[str] = field(default_factory=list)
-    cors_origin: Optional[str] = None
-    cors_routes_prefix: Optional[str] = None
+    track_headers: list[str] = field(default_factory=list)
+    cors_origin: str | None = None
+    cors_routes_prefix: str | None = None
 
     def __post_init__(self):
         self.track_headers = [
@@ -424,9 +424,9 @@ class AppConnection:
     name: str
     version: str
     client: str = "<<NO CLIENT CONFIGURED>>"
-    settings: Optional[str] = None
-    plugin_name: Optional[str] = None
-    plugin_version: Optional[str] = None
+    settings: str | None = None
+    plugin_name: str | None = None
+    plugin_version: str | None = None
 
 
 @dataobject
@@ -438,13 +438,13 @@ class AppConfig:
 
     app: AppDescriptor
     engine: AppEngineConfig = field(default_factory=AppEngineConfig)
-    app_connections: Dict[str, AppConnection] = field(default_factory=dict)
+    app_connections: dict[str, AppConnection] = field(default_factory=dict)
     env: Env = field(default_factory=dict)
-    events: Dict[str, EventDescriptor] = field(default_factory=dict)
-    server: Optional[ServerConfig] = None
-    plugins: List[AppDescriptor] = field(default_factory=list)
+    events: dict[str, EventDescriptor] = field(default_factory=dict)
+    server: ServerConfig | None = None
+    plugins: list[AppDescriptor] = field(default_factory=list)
     settings: AppSettings = field(default_factory=dict)
-    effective_settings: Optional[AppSettings] = None
+    effective_settings: AppSettings | None = None
 
     def app_key(self) -> str:
         return self.app.app_key()

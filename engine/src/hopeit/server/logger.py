@@ -6,10 +6,11 @@ import logging
 import os
 import socket
 import time
+from collections.abc import Callable, Iterable
 from datetime import datetime
 from functools import partial
 from logging.handlers import WatchedFileHandler
-from typing import Any, Callable, Dict, Iterable, List, Tuple, Union
+from typing import Any
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventSettings
 from hopeit.app.context import EventContext
@@ -72,7 +73,7 @@ def _engine_logger_name(name: str):
     return f"{version.ENGINE_NAME} {version.ENGINE_VERSION} {name} {host} {pid}"
 
 
-def extra_values(required_fields: Iterable[str], *, prefix="extra.", **kwargs) -> Dict[str, str]:
+def extra_values(required_fields: Iterable[str], *, prefix="extra.", **kwargs) -> dict[str, str]:
     values = {**{k: kwargs[k] for k in required_fields}, **kwargs}
     return {"extra": format_extra_values(values, prefix=prefix)}
 
@@ -81,11 +82,11 @@ def extra_logger():
     return partial(extra_values, [])
 
 
-def combined(*args) -> Dict[str, str]:
+def combined(*args) -> dict[str, str]:
     return {"extra": " | ".join(x["extra"] for x in args)}
 
 
-def format_extra_values(values: Dict[str, Any], prefix: str = "") -> str:
+def format_extra_values(values: dict[str, Any], prefix: str = "") -> str:
     return " | ".join(f"{prefix}{k}={_format_value(v)}" for k, v in values.items())
 
 
@@ -97,7 +98,7 @@ def _format_value(v: Any) -> str:
     return str(v)
 
 
-def _enrich_extra(logger_kwargs, context: Union[str, EventContext], msg=None):
+def _enrich_extra(logger_kwargs, context: str | EventContext, msg=None):
     logger_kwargs["extra"] = logger_kwargs.get("extra", {"extra": ""})
     if isinstance(context, EventContext):
         logger_kwargs["extra"]["extra"] += f" | {format_extra_values(context.track_ids)}"
@@ -168,7 +169,7 @@ class EngineLoggerWrapper:
     """
 
     engine_logger: logging.Logger = logging.getLogger("bootstrap")
-    loggers: Dict[str, logging.Logger] = {}
+    loggers: dict[str, logging.Logger] = {}
 
     def init_cli(self, name: str):
         EngineLoggerWrapper.engine_logger = _setup_console_logger(_engine_logger_name(name))
@@ -184,7 +185,7 @@ class EngineLoggerWrapper:
         )
         return self
 
-    def init_app(self, app_config: AppConfig, plugins: List[AppConfig]):
+    def init_app(self, app_config: AppConfig, plugins: list[AppConfig]):
         """
         Initializes logger for an app and its plugins
         """
@@ -219,28 +220,28 @@ class EngineLoggerWrapper:
     def stats(self, context: EventContext, *args, **kwargs) -> None:
         self.info(context, "STATS", *args, **kwargs)
 
-    def debug(self, context: Union[str, EventContext], msg, *args, **kwargs) -> None:
+    def debug(self, context: str | EventContext, msg, *args, **kwargs) -> None:
         _enrich_extra(kwargs, context, msg)  # type: ignore
         if isinstance(context, str):
             self.engine_logger.debug(f"[{context}] {msg}", *args, **kwargs)
         else:
             self._logger(context).debug(msg, *args, **kwargs)  # type: ignore
 
-    def info(self, context: Union[str, EventContext], msg, *args, **kwargs) -> None:
+    def info(self, context: str | EventContext, msg, *args, **kwargs) -> None:
         _enrich_extra(kwargs, context, msg)  # type: ignore
         if isinstance(context, str):
             self.engine_logger.info(f"[{context}] {msg}", *args, **kwargs)
         else:
             self._logger(context).info(msg, *args, **kwargs)  # type: ignore
 
-    def warning(self, context: Union[str, EventContext], msg, *args, **kwargs) -> None:
+    def warning(self, context: str | EventContext, msg, *args, **kwargs) -> None:
         _enrich_extra(kwargs, context, msg)  # type: ignore
         if isinstance(context, str):
             self.engine_logger.warning(f"[{context}] {msg}", *args, **kwargs)
         else:
             self._logger(context).warning(msg, *args, **kwargs)  # type: ignore
 
-    def error(self, context: Union[str, EventContext], msg, *args, **kwargs) -> None:
+    def error(self, context: str | EventContext, msg, *args, **kwargs) -> None:
         _enrich_extra(kwargs, context, msg)  # type: ignore
         if isinstance(context, str):
             self.engine_logger.error(f"[{context}] {msg}", *args, **kwargs)
@@ -281,7 +282,7 @@ def engine_logger() -> EngineLoggerWrapper:
     return EngineLoggerWrapper()
 
 
-def engine_extra_logger() -> Tuple[EngineLoggerWrapper, Callable]:
+def engine_extra_logger() -> tuple[EngineLoggerWrapper, Callable]:
     """
     Returns logger wrapper for engine modules
     and a convenience function to submit extra values when logging.

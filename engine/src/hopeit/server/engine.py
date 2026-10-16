@@ -6,8 +6,9 @@ import asyncio
 import random
 import uuid
 from asyncio import CancelledError
+from collections.abc import Awaitable
 from datetime import datetime, timezone
-from typing import Any, Awaitable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 from hopeit.app.client import register_app_connections, stop_app_connections
 from hopeit.app.config import (
@@ -56,8 +57,8 @@ class AppEngine:
         self,
         *,
         app_config: AppConfig,
-        plugins: List[AppConfig],
-        enabled_groups: List[str],
+        plugins: list[AppConfig],
+        enabled_groups: list[str],
         streams_enabled: bool = True,
         streams_wait_on_stop: bool = True,
     ):
@@ -75,11 +76,11 @@ class AppEngine:
         self.effective_events = self._config_effective_events(app_config, enabled_groups)
         self.plugins = plugins
         self.settings = get_runtime_settings(app_config, plugins)
-        self.event_handler: Optional[EventHandler] = None
+        self.event_handler: EventHandler | None = None
         self.streams_enabled = streams_enabled
         self.streams_wait_on_stop = streams_wait_on_stop
-        self.stream_manager: Optional[StreamManager] = None
-        self._running: Dict[str, asyncio.Lock] = {
+        self.stream_manager: StreamManager | None = None
+        self._running: dict[str, asyncio.Lock] = {
             event_name: asyncio.Lock()
             for event_name, event_info in self.effective_events.items()
             if event_info.type in (EventType.STREAM, EventType.SERVICE)
@@ -135,9 +136,9 @@ class AppEngine:
         self,
         *,
         context: EventContext,
-        query_args: Optional[dict],
-        payload: Optional[EventPayload],
-    ) -> Optional[EventPayload]:
+        query_args: dict | None,
+        payload: EventPayload | None,
+    ) -> EventPayload | None:
         """
         Executes a configured Event of type GET or POST using received payload as input,
         considering configured timeout.
@@ -161,10 +162,10 @@ class AppEngine:
     async def _execute_event(
         self,
         context: EventContext,
-        query_args: Optional[dict],
-        payload: Optional[EventPayload],
+        query_args: dict | None,
+        payload: EventPayload | None,
         queue: str = StreamQueue.AUTO,
-    ) -> Optional[EventPayload]:
+    ) -> EventPayload | None:
         """
         Process results of executing event specified in context for a given input payload.
         In case event yield multiple results (i.e. Spawn[...]) they are collected in batches
@@ -199,7 +200,7 @@ class AppEngine:
     async def _write_stream_batch(
         self,
         *,
-        batch: List[EventPayload],
+        batch: list[EventPayload],
         context: EventContext,
         event_info: EventDescriptor,
         queue: str,
@@ -264,10 +265,10 @@ class AppEngine:
         self,
         *,
         context: EventContext,
-        query_args: Optional[Dict[str, Any]],
-        payload: Optional[EventPayload],
+        query_args: dict[str, Any] | None,
+        payload: EventPayload | None,
         request: PreprocessHook,
-    ) -> Optional[EventPayload]:
+    ) -> EventPayload | None:
         assert self.event_handler, "event_handler not created. Call `start()`."
         return await self.event_handler.preprocess(
             context=context, query_args=query_args, payload=payload, request=request
@@ -277,9 +278,9 @@ class AppEngine:
         self,
         *,
         context: EventContext,
-        payload: Optional[EventPayload],
+        payload: EventPayload | None,
         response: PostprocessHook,
-    ) -> Optional[EventPayload]:
+    ) -> EventPayload | None:
         assert self.event_handler, "event_handler not created. Call `start()`."
         return await self.event_handler.postprocess(
             context=context, payload=payload, response=response
@@ -293,8 +294,8 @@ class AppEngine:
         queue: str,
         context: EventContext,
         stats: StreamStats,
-        log_info: Dict[str, str],
-    ) -> Union[EventPayload, Exception]:
+        log_info: dict[str, str],
+    ) -> EventPayload | Exception:
         """
         Invokes _process_stream_event with a configured timeout
         :return: result of _process_stream_event
@@ -332,18 +333,18 @@ class AppEngine:
         event_name: str,
         event_settings: EventSettings,
         stream_info: ReadStreamDescriptor,
-        datatypes: Dict[str, type],
+        datatypes: dict[str, type],
         offset: str,
         stats: StreamStats,
-        log_info: Dict[str, str],
+        log_info: dict[str, str],
         test_mode: bool,
-        last_err: Optional[StreamOSError],
+        last_err: StreamOSError | None,
         *,
         batch_size: int,
-    ) -> Tuple[
-        Optional[Union[EventPayload, Exception]],
-        Optional[EventContext],
-        Optional[StreamOSError],
+    ) -> tuple[
+        EventPayload | Exception | None,
+        EventContext | None,
+        StreamOSError | None,
     ]:
         """
         Single read_stream cycle used from read_stream while loop to allow wait and retry/recover on failures
@@ -355,7 +356,7 @@ class AppEngine:
 
         last_res, last_context = None, None
 
-        batch: List[Awaitable[Union[EventPayload, Exception]]] = []
+        batch: list[Awaitable[EventPayload | Exception]] = []
         for queue in stream_info.queues:
             stream_name = stream_info.name
             if queue != StreamQueue.AUTO:
@@ -422,11 +423,11 @@ class AppEngine:
         self,
         *,
         event_name: str,
-        max_events: Optional[int] = None,
+        max_events: int | None = None,
         stop_when_empty: bool = False,
         wait_start: bool = True,
         test_mode: bool = False,
-    ) -> Optional[Union[EventPayload, Exception]]:
+    ) -> EventPayload | Exception | None:
         """
         Listens to a stream specified by event of type STREAM, and executes
         the event handler for each received event in the stream.
@@ -542,8 +543,8 @@ class AppEngine:
         queue: str,
         context: EventContext,
         stats: StreamStats,
-        log_info: Dict[str, str],
-    ) -> Optional[Union[EventPayload, Exception]]:
+        log_info: dict[str, str],
+    ) -> EventPayload | Exception | None:
         """
         Process a single stream event, execute events, ack if not failed, log error if fail
 
@@ -594,7 +595,7 @@ class AppEngine:
         self,
         event_name: str,
         event_settings: EventSettings,
-        previous_context: Optional[EventContext] = None,
+        previous_context: EventContext | None = None,
     ) -> EventContext:
         """Creates context for a service event"""
         if previous_context is None:
@@ -618,7 +619,7 @@ class AppEngine:
 
     async def service_loop(
         self, *, event_name: str, test_mode: bool = False
-    ) -> Optional[Union[EventPayload, Exception]]:
+    ) -> EventPayload | Exception | None:
         """
         Service loop, executes `__service__` handler in event and execute
         event steps for each yielded payload.
@@ -707,8 +708,8 @@ class AppEngine:
 
     @staticmethod
     def _config_effective_events(
-        app_config: AppConfig, enabled_groups: List[str]
-    ) -> Dict[str, EventDescriptor]:
+        app_config: AppConfig, enabled_groups: list[str]
+    ) -> dict[str, EventDescriptor]:
         """
         Return effective events computed from user app config.
 
@@ -719,7 +720,7 @@ class AppEngine:
         Only events with groups defined in `enabled_groups` list will be returned.
         If `enabled_groups` is empty, all events wil be considered.
         """
-        effective_events: Dict[str, EventDescriptor] = {}
+        effective_events: dict[str, EventDescriptor] = {}
         assert app_config.server
         for event_name, event_info in app_config.events.items():
             if (
@@ -744,7 +745,7 @@ class AppEngine:
 
     def _find_stream_datatype_handlers(
         self, event_name: str, event_info: EventDescriptor
-    ) -> Dict[str, type]:
+    ) -> dict[str, type]:
         """
         Computes a dictionary of `{datatype name: datatype class}` that event steps
         can be handle when consuming from an stream.
@@ -801,7 +802,7 @@ class Server:
             await app_engine.stop()
         logger.info(__name__, "Engine stopped.")
 
-    async def start_app(self, app_config: AppConfig, enabled_groups: List[str]):
+    async def start_app(self, app_config: AppConfig, enabled_groups: list[str]):
         """
         Starts and register a Hopeit App into this engine instance
 

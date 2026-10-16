@@ -3,7 +3,6 @@ Metrics module
 """
 
 from datetime import datetime, timezone
-from typing import Dict, Optional, Union
 
 from hopeit.app.context import EventContext
 from hopeit.server.logger import format_extra_values
@@ -72,8 +71,8 @@ class StreamStats:
 
     def __init__(self):
         self.run_ts: datetime = datetime.now(tz=timezone.utc)
-        self.start_ts: Optional[datetime] = None
-        self.from_ts: Optional[datetime] = None
+        self.start_ts: datetime | None = None
+        self.from_ts: datetime | None = None
         self.event_count: int = 0
         self.error_count: int = 0
         self.total_event_count = 0
@@ -101,7 +100,7 @@ class StreamStats:
             self.error_count += 1
             self.total_error_count += 1
 
-    def calc(self) -> Dict[str, Union[int, float]]:
+    def calc(self) -> dict[str, int | float]:
         """
         calculate stream stats to be logged
         :return: dict, with stream stats to be used as extra info for logging

@@ -6,17 +6,7 @@ and saved as a single flat polars DataFrame.
 
 from datetime import datetime
 from types import NoneType
-from typing import (
-    Any,
-    AsyncGenerator,
-    Generic,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
-    get_args,
-    get_origin,
-)
+from typing import Any, AsyncGenerator, Generic, Optional, Type, TypeVar, get_args, get_origin
 
 try:
     import polars as pl
@@ -31,7 +21,7 @@ from hopeit.dataobjects import dataclass, dataobject, fields
 DataBlockType = TypeVar("DataBlockType")
 DataBlockItemType = TypeVar("DataBlockItemType")
 DataFrameType = TypeVar("DataFrameType")
-PolarsDataFrameT = TypeVar("PolarsDataFrameT", bound=Union[pl.DataFrame, pl.LazyFrame])
+PolarsDataFrameT = TypeVar("PolarsDataFrameT", bound=pl.DataFrame | pl.LazyFrame)
 
 
 @dataobject

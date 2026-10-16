@@ -10,8 +10,6 @@ and handle, 200 and 404 responses.
 Also in the code you can see how to handle an expection of type `UnhandledResponse` and log as warining.
 """
 
-from typing import Union
-
 from hopeit.app.api import event_api
 from hopeit.app.client import UnhandledResponse, app_call
 from hopeit.app.context import EventContext
@@ -72,7 +70,7 @@ async def handle_responses(options: QueryArgs, context: EventContext) -> str:
     listed in the `responses` parameter.
     """
 
-    something: Union[Something, SomethingNotFound] = await app_call(
+    something: Something | SomethingNotFound = await app_call(
         "simple_example_conn",
         event="query_something",
         datatype=Something,

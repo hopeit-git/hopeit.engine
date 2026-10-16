@@ -6,7 +6,6 @@ call init() to load or create RSA keys before using token manipulation methods
 
 import os
 import pathlib
-from typing import Dict, Optional, Set
 
 import jwt
 from cryptography.hazmat.backends import default_backend
@@ -31,10 +30,10 @@ __all__ = [
 
 logger, extra = engine_extra_logger()
 
-auth_config: Optional[AuthConfig] = None
-private_keys: Dict[str, RSAPrivateKey] = {}
-public_keys: Dict[str, RSAPublicKey] = {}
-rejected_apps: Set[str] = set()
+auth_config: AuthConfig | None = None
+private_keys: dict[str, RSAPrivateKey] = {}
+public_keys: dict[str, RSAPublicKey] = {}
+rejected_apps: set[str] = set()
 
 
 def init(app_key: str, app_auth_config: AuthConfig):
@@ -163,7 +162,7 @@ def decode_token(token: str) -> dict:
     return jwt.decode(token, public_key, algorithms=["RS256"])  # type: ignore
 
 
-def validate_token(token: str, context: EventContext) -> Optional[dict]:
+def validate_token(token: str, context: EventContext) -> dict | None:
     try:
         return decode_token(token)
     except (

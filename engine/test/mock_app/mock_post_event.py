@@ -1,5 +1,3 @@
-from typing import Optional
-
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
 
@@ -19,7 +17,7 @@ async def __init_event__(context: EventContext):
 
 async def entry_point(
     payload: MockData, context: EventContext, *, query_arg1: str
-) -> Optional[MockData]:
+) -> MockData | None:
     logger.info(context, "mock_post_event.entry_point", extra=extra(query_arg1=query_arg1))
     assert initialized
     if query_arg1 == "fail":

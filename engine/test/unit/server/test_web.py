@@ -1,7 +1,7 @@
 import asyncio
 import signal
 from asyncio.exceptions import CancelledError
-from typing import Any, List
+from typing import Any
 from unittest.mock import MagicMock
 
 import nest_asyncio  # type: ignore
@@ -104,9 +104,9 @@ def test_config_with_groups():
 
 
 class MockHooks:
-    _server_startup_hook_calls: List[Any] = []
-    _app_startup_hook_calls: List[Any] = []
-    _stream_startup_hook_calls: List[Any] = []
+    _server_startup_hook_calls: list[Any] = []
+    _app_startup_hook_calls: list[Any] = []
+    _stream_startup_hook_calls: list[Any] = []
 
 
 async def _server_startup_hook(*args, **kwargs):

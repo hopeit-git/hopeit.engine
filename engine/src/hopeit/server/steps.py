@@ -4,20 +4,11 @@ Handling sequencing and execution of steps from events
 
 import asyncio
 import inspect
+from collections.abc import AsyncGenerator, Callable
 from datetime import datetime, timezone
 from functools import partial
 from types import ModuleType
-from typing import (
-    Any,
-    AsyncGenerator,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Any
 
 from hopeit.app.config import (
     AppConfig,
@@ -56,14 +47,14 @@ __all__ = [
 SHUFFLE = "__shuffle__"
 MAX_STEPS = 1000  # To protect for infinite loops up to 1000 sequential steps can be executed
 
-StepInfo = Tuple[Callable, Type, Type, bool]
-StepExecutionList = List[Tuple[int, str, StepInfo]]
+StepInfo = tuple[Callable, type, type, bool]
+StepExecutionList = list[tuple[int, str, StepInfo]]
 
 logger = engine_logger()
 extra = extra_logger()
 
 
-def extract_module_steps(impl: ModuleType) -> List[Tuple[str, Optional[StepInfo]]]:
+def extract_module_steps(impl: ModuleType) -> list[tuple[str, StepInfo | None]]:
     assert hasattr(impl, "__steps__"), f"Missing `__steps__` definition in module={impl.__name__}"
     return [
         (step_name, None if step_name == SHUFFLE else _signature(impl, step_name))
@@ -72,7 +63,7 @@ def extract_module_steps(impl: ModuleType) -> List[Tuple[str, Optional[StepInfo]
 
 
 def effective_steps(
-    event_name: str, module_steps: List[Tuple[str, Optional[StepInfo]]]
+    event_name: str, module_steps: list[tuple[str, StepInfo | None]]
 ) -> StepExecutionList:
     """
     Return list of steps given the possibility that event steps are splitted in stages
@@ -100,7 +91,7 @@ def effective_steps(
     return steps
 
 
-def extract_event_stages(impl: ModuleType) -> List[str]:
+def extract_event_stages(impl: ModuleType) -> list[str]:
     """
     Extract a list of step names consisting of the first step defined in __steps__ plus
     the subsequent step name after a SHUFFLE step if any in a given module
@@ -123,19 +114,19 @@ def extract_event_stages(impl: ModuleType) -> List[str]:
     return stages
 
 
-def extract_postprocess_handler(impl: ModuleType) -> Optional[StepInfo]:
+def extract_postprocess_handler(impl: ModuleType) -> StepInfo | None:
     if hasattr(impl, "__postprocess__"):
         return _signature(impl, "__postprocess__")
     return None
 
 
-def extract_preprocess_handler(impl: ModuleType) -> Optional[StepInfo]:
+def extract_preprocess_handler(impl: ModuleType) -> StepInfo | None:
     if hasattr(impl, "__preprocess__"):
         return _signature(impl, "__preprocess__")
     return None
 
 
-def extract_input_type(impl: ModuleType, from_step: Optional[str] = None) -> Type:
+def extract_input_type(impl: ModuleType, from_step: str | None = None) -> type:
     assert hasattr(impl, "__steps__"), f"Missing `__steps__` definition in module={impl.__name__}"
     if from_step is None and hasattr(impl, "__preprocess__"):
         _, input_type, _, _ = _signature(impl, "__preprocess__")
@@ -149,7 +140,7 @@ def extract_input_type(impl: ModuleType, from_step: Optional[str] = None) -> Typ
     )
 
 
-def event_and_step(event_name: str) -> Tuple[str, Optional[str]]:
+def event_and_step(event_name: str) -> tuple[str, str | None]:
     comps = event_name.split("$")
     if len(comps) > 1:
         return (
@@ -162,15 +153,15 @@ def event_and_step(event_name: str) -> Tuple[str, Optional[str]]:
 
 
 async def _execute_steps_recursion(
-    payload: Optional[EventPayload],
+    payload: EventPayload | None,
     context: EventContext,
     steps: StepExecutionList,
     step_index: int,
-    func: Optional[Callable],
+    func: Callable | None,
     is_spawn: bool,
     step_delay: float,
-    query_args: Dict[str, Any],
-) -> AsyncGenerator[Optional[EventPayload], None]:
+    query_args: dict[str, Any],
+) -> AsyncGenerator[EventPayload | None, None]:
     """
     Steps execution handler that allows processing Spawn events results using recursion,
     and sequential execution of events using iteration
@@ -230,9 +221,9 @@ async def execute_steps(
     steps: StepExecutionList,
     *,
     context: EventContext,
-    payload: Optional[EventPayload],
+    payload: EventPayload | None,
     **kwargs,
-) -> AsyncGenerator[Optional[EventPayload], None]:
+) -> AsyncGenerator[EventPayload | None, None]:
     """
     Invoke steps from a event.
     It will try to find next step in configuration order that matches input type of the payload,
@@ -251,8 +242,8 @@ async def execute_steps(
 
 
 async def _invoke_step(
-    payload: Optional[EventPayload], func: Callable, context: EventContext, **kwargs
-) -> Optional[EventPayload]:
+    payload: EventPayload | None, func: Callable, context: EventContext, **kwargs
+) -> EventPayload | None:
     """
     Invokes step handler method
     """
@@ -263,8 +254,8 @@ async def _invoke_step(
 
 
 async def _invoke_spawn_step(
-    payload: Optional[EventPayload], func: Callable, context: EventContext, **kwargs
-) -> AsyncGenerator[Optional[EventPayload], None]:
+    payload: EventPayload | None, func: Callable, context: EventContext, **kwargs
+) -> AsyncGenerator[EventPayload | None, None]:
     """
     Invokes step handler method that returns Spawn/AsyncGenerator type
     """
@@ -273,14 +264,14 @@ async def _invoke_spawn_step(
 
 
 async def invoke_single_step(
-    func: Callable, *, payload: Optional[EventPayload], context: EventContext, **kwargs
-) -> Optional[EventPayload]:
+    func: Callable, *, payload: EventPayload | None, context: EventContext, **kwargs
+) -> EventPayload | None:
     return await _invoke_step(payload=payload, func=func, context=context, **kwargs)
 
 
 def _find_next_step(
-    payload: Optional[EventPayload], steps: StepExecutionList, from_index: int
-) -> Tuple[int, Optional[Callable], bool]:
+    payload: EventPayload | None, steps: StepExecutionList, from_index: int
+) -> tuple[int, Callable | None, bool]:
     """
     Finds next step to exectute in pending_steps list, base on the payload data type
     """
@@ -330,7 +321,7 @@ async def _throttle(context: EventContext, throttle_ms: int, start_ts: datetime)
 
 def split_event_stages(
     app: AppDescriptor, event_name: str, event_info: EventDescriptor, impl: ModuleType
-) -> Dict[str, EventDescriptor]:
+) -> dict[str, EventDescriptor]:
     """
     Splits an event whose steps contain SHUFFLE step, in an initial event with same name as event_name
     plus sub_events with names `event_name.step_name' for each step after a SHUFFLE.
@@ -342,11 +333,11 @@ def split_event_stages(
     if len(event_stages) == 1:
         return {event_name: event_info}
 
-    effective_events: Dict[str, EventDescriptor] = {}
+    effective_events: dict[str, EventDescriptor] = {}
     event_type = event_info.type
     read_stream = event_info.read_stream
     queues = ["AUTO"] if read_stream is None else read_stream.queues
-    sub_event_name: Optional[str] = event_name
+    sub_event_name: str | None = event_name
     sub_event_info = event_info
     intermediate_stream = None
     for stage in event_stages:
@@ -401,10 +392,10 @@ class CollectorStepsDescriptor:
     `step_outside_collector`.
     """
 
-    def __init__(self, input_type: Type[EventPayloadType]):
+    def __init__(self, input_type: type[EventPayloadType]):
         self.input_type = input_type
-        self.step_names: List[str] = []
-        self.steps: Optional[List[Tuple[str, CollectorStepType]]] = None
+        self.step_names: list[str] = []
+        self.steps: list[tuple[str, CollectorStepType]] | None = None
         self.__name__ = f"collector@{id(self)}"
 
     def gather(self, *steps: str):
@@ -444,8 +435,8 @@ async def _run_collector(
 
 
 def _signature(
-    impl: ModuleType, step_name: Union[str, CollectorStepsDescriptor]
-) -> Tuple[Callable, Type, Type, bool]:
+    impl: ModuleType, step_name: str | CollectorStepsDescriptor
+) -> tuple[Callable, type, type, bool]:
     """
     Computes signature (`CollectorStepsDescriptor`) from a given step (def) in an event module. Results
     are used internally by the engine to compute input/output datatypes of events and find proper steps
@@ -466,7 +457,7 @@ def _signature(
     return func, annotation, return_annotation, _is_iterable(return_annotation)
 
 
-def _is_iterable(annotation: Type) -> bool:
+def _is_iterable(annotation: type) -> bool:
     try:
         return annotation._name == "AsyncGenerator"  # pylint: disable=protected-access
     except AttributeError:

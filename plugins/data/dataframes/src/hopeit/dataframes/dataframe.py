@@ -4,19 +4,7 @@ DataFrames type abstractions.
 
 import dataclasses
 from datetime import date, datetime, timezone
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generic,
-    Iterator,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-)
+from typing import Any, Callable, Dict, Generic, Iterator, List, Optional, Tuple, Type, TypeVar
 
 try:
     import polars as pl
@@ -59,12 +47,12 @@ class DataTypeMapping:
         str: (None, ()),
         date: (None, ()),
         datetime: (None, ()),
-        Union[int, None]: (None, ()),  # type: ignore[dict-item]
-        Union[bool, None]: (None, ()),  # type: ignore[dict-item]
-        Union[float, None]: (None, ()),  # type: ignore[dict-item]
-        Union[str, None]: (None, ()),  # type: ignore[dict-item]
-        Union[date, None]: (None, ()),  # type: ignore[dict-item]
-        Union[datetime, None]: (None, ()),  # type: ignore[dict-item]
+        int | None: (None, ()),  # type: ignore[dict-item]
+        bool | None: (None, ()),  # type: ignore[dict-item]
+        float | None: (None, ()),  # type: ignore[dict-item]
+        str | None: (None, ()),  # type: ignore[dict-item]
+        date | None: (None, ()),  # type: ignore[dict-item]
+        datetime | None: (None, ()),  # type: ignore[dict-item]
     }
 
     @classmethod
@@ -76,12 +64,12 @@ class DataTypeMapping:
             str: (pl.String(), (not_null_check,)),
             date: (pl.Date(), (not_null_check,)),
             datetime: (pl.Datetime(time_unit="us", time_zone=timezone.utc), (not_null_check,)),
-            Union[int, None]: (pl.Int64(), ()),
-            Union[bool, None]: (pl.Boolean(), ()),
-            Union[float, None]: (pl.Float64(), ()),
-            Union[str, None]: (pl.String(), ()),
-            Union[date, None]: (pl.Date(), ()),
-            Union[datetime, None]: (pl.Datetime(time_unit="us", time_zone=timezone.utc), ()),
+            int | None: (pl.Int64(), ()),
+            bool | None: (pl.Boolean(), ()),
+            float | None: (pl.Float64(), ()),
+            str | None: (pl.String(), ()),
+            date | None: (pl.Date(), ()),
+            datetime | None: (pl.Datetime(time_unit="us", time_zone=timezone.utc), ()),
         }
 
     @classmethod
@@ -117,7 +105,7 @@ class DataFrameMixin(Generic[DataFrameT, DataObject]):
     Do not use this class directly, instead use `@dataframe` class decorator.
     """
 
-    DataFrameValueType = Union[int, bool, float, str, date, datetime, None]
+    DataFrameValueType = int | bool | float | str | date | datetime | None
 
     def __init__(self, **series: pl.Series) -> None:
         # Fields added here only to allow mypy to provide correct type hints

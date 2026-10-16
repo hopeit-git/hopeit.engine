@@ -1,7 +1,6 @@
 import json
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Dict, List
 
 import pytest
 from pydantic import ValidationError
@@ -296,7 +295,7 @@ def test_from_obj_dataobject_dict():
             "item1": {"id": "test1", "value": "ok", "nested": {"ts": ts}},
             "item2": {"id": "test2", "value": "ok", "nested": {"ts": ts}},
         },
-        Dict[str, MockData],
+        dict[str, MockData],
     ) == {
         "item1": MockData(id="test1", value="ok", nested=MockNested(ts=ts)),
         "item2": MockData(id="test2", value="ok", nested=MockNested(ts=ts)),
@@ -310,7 +309,7 @@ def test_from_obj_dataobject_list():
             {"id": "test1", "value": "ok", "nested": {"ts": ts}},
             {"id": "test2", "value": "ok", "nested": {"ts": ts}},
         ],
-        List[MockData],
+        list[MockData],
     ) == [
         MockData(id="test1", value="ok", nested=MockNested(ts=ts)),
         MockData(id="test2", value="ok", nested=MockNested(ts=ts)),
@@ -318,7 +317,7 @@ def test_from_obj_dataobject_list():
 
 
 def test_from_obj_list():
-    assert Payload.from_obj([{"value": "ok1"}, {"value": "ok2"}], List[Dict[str, str]]) == [
+    assert Payload.from_obj([{"value": "ok1"}, {"value": "ok2"}], list[dict[str, str]]) == [
         {"value": "ok1"},
         {"value": "ok2"},
     ]
@@ -327,7 +326,7 @@ def test_from_obj_list():
 def test_from_obj_dict():
     assert Payload.from_obj(
         {"item1": {"value": "ok1"}, "item2": {"value": "ok2"}},
-        Dict[str, Dict[str, str]],
+        dict[str, dict[str, str]],
     ) == {"item1": {"value": "ok1"}, "item2": {"value": "ok2"}}
 
 

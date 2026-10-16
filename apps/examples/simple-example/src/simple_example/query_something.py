@@ -5,7 +5,7 @@ Loads Something from disk
 """
 
 from datetime import datetime, timezone
-from typing import Optional, Union
+from typing import Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
@@ -47,7 +47,7 @@ async def load(
     item_id: str,
     partition_key: str,
     update_status: bool = False,
-) -> Union[Something, SomethingNotFound]:
+) -> Something | SomethingNotFound:
     """
     Loads json file from filesystem as `Something` instance
 
@@ -74,8 +74,8 @@ async def update_status_history(payload: Something, context: EventContext) -> So
 
 
 async def __postprocess__(
-    payload: Union[Something, SomethingNotFound], context: EventContext, response: PostprocessHook
-) -> Union[Something, SomethingNotFound]:
+    payload: Something | SomethingNotFound, context: EventContext, response: PostprocessHook
+) -> Something | SomethingNotFound:
     if isinstance(payload, SomethingNotFound):
         response.status = 404
     return payload

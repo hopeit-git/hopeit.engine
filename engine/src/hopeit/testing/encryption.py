@@ -3,7 +3,6 @@ Simple encryption tools for testing development
 """
 
 from pathlib import Path
-from typing import Union
 
 from cryptography.fernet import Fernet
 
@@ -12,7 +11,7 @@ __all__ = ["setup_encryption", "encrypt", "decrypt"]
 key_file: Path = Path.home() / ".hopeit" / "test.key"
 
 
-def setup_encryption(path_to_key_file: Union[str, Path]):
+def setup_encryption(path_to_key_file: str | Path):
     global key_file
     if isinstance(path_to_key_file, str):
         path_to_key_file = Path(path_to_key_file)
