@@ -5,7 +5,6 @@ Description of Test app queryargs
 """
 
 from datetime import date, datetime
-from typing import Optional
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext

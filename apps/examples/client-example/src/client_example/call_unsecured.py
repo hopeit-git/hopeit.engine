@@ -4,8 +4,6 @@ Client Example: Call Unsecured
 List all available Something objects connecting to simple-example app
 """
 
-from typing import Optional
-
 from hopeit.app.api import event_api
 from hopeit.app.client import app_call_list
 from hopeit.app.context import EventContext

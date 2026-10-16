@@ -4,8 +4,6 @@ Config Manager: Runtime Apps Config
 Returns runtime configuration of running server
 """
 
-from typing import Optional
-
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext
 from hopeit.app.logger import app_extra_logger
