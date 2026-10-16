@@ -74,7 +74,7 @@ __all__ = [
 logger: EngineLoggerWrapper = logging.getLogger(__name__)  # type: ignore
 extra = extra_logger()
 
-ResponseType = Union[web.Response, web.FileResponse, web.StreamResponse]
+ResponseType = web.Response | web.FileResponse | web.StreamResponse
 
 web_server = web.Application()
 auth_info_default: dict[str, str] = {}
