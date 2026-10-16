@@ -62,7 +62,7 @@ def init(app_key: str, app_auth_config: AuthConfig):
                 f"Found keys in {auth_config.secrets_location}",
                 extra=extra(app_key=app_key),
             )
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             if auth_config.create_keys:
                 logger.info(
                     __name__,
