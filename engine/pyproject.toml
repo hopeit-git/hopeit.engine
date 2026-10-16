@@ -1,7 +1,7 @@
 [project]
 name = "hopeit.engine"
 description = "Hopeit Engine: Microservices with Streams"
-requires-python = ">=3.11,<3.15"
+requires-python = ">=3.11"
 
 dynamic = ["version", "readme"]
 
