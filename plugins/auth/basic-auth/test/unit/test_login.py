@@ -13,9 +13,6 @@ from hopeit.server.config import AuthType
 from hopeit.server.events import get_event_settings
 from hopeit.toolkit import auth
 
-from . import mock_app_config as mock_app_config
-from . import plugin_config as plugin_config
-
 
 async def invoke_login(context: EventContext):
     auth_info = await login.login(None, context)

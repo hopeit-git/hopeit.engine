@@ -11,9 +11,9 @@ from hopeit.app.context import EventContext, PostprocessHook
 from hopeit.apps_visualizer.apps import get_runtime_apps
 from hopeit.apps_visualizer.site.visualization import (
     VisualizationOptions,
+    visualization_options,  # noqa: F401 -- Hopeit resolves these event steps by name.
     visualization_options_api_args,
 )
-from hopeit.apps_visualizer.site.visualization import visualization_options as visualization_options
 from hopeit.config_manager import RuntimeApps
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.server.names import route_name
