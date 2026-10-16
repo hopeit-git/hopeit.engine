@@ -39,12 +39,12 @@ async def live_stats(collector: Collector, context: EventContext) -> Collector:
     settings = context.settings(key="apps_visualizer", datatype=AppsVisualizerSettings)
     apps = await collector["runtime_apps"]
     options = await collector["payload"]
-    host_pids = set(
+    host_pids = {
         (server.host_name, server.pid)
         for _, runtime_info in apps.apps.items()
         for server in runtime_info.servers
         if options.host_filter in server.url
-    )
+    }
     event_stats = get_stats(
         host_pids=host_pids,
         time_window_secs=settings.live_active_treshold_seconds,
