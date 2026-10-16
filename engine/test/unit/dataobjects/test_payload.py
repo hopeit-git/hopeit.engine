@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from decimal import Decimal
 
 import pytest

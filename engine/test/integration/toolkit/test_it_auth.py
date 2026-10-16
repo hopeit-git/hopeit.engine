@@ -2,7 +2,7 @@ import os
 import pathlib
 import time
 import uuid
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 import pytest  # type: ignore
 from jwt import DecodeError, ExpiredSignatureError, InvalidSignatureError
