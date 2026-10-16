@@ -630,17 +630,18 @@ def _update_step_schemas(schemas: dict, step_info: StepInfo | None):
         _, input_type, ret_type, _ = step_info
         datatypes = _explode_datatypes([input_type, ret_type])
         for datatype in datatypes:
-            if datatype is not None and hasattr(datatype, "__data_object__"):
-                if datatype.__data_object__["schema"]:
-                    local_schema = TypeAdapter(datatype).json_schema(
-                        schema_generator=GenerateOpenAPI30Schema,
-                        ref_template="#/components/schemas/{model}",
-                    )
-                    defs = local_schema.get("$defs", {})
-                    defs[datatype.__name__] = {
-                        k: v for k, v in local_schema.items() if k != "$defs"
-                    }
-                    schemas.update(defs)
+            if (
+                datatype is not None
+                and hasattr(datatype, "__data_object__")
+                and datatype.__data_object__["schema"]
+            ):
+                local_schema = TypeAdapter(datatype).json_schema(
+                    schema_generator=GenerateOpenAPI30Schema,
+                    ref_template="#/components/schemas/{model}",
+                )
+                defs = local_schema.get("$defs", {})
+                defs[datatype.__name__] = {k: v for k, v in local_schema.items() if k != "$defs"}
+                schemas.update(defs)
 
 
 def _explode_datatypes(datatypes: list[type]) -> list[type]:
