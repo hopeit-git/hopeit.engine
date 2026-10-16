@@ -584,7 +584,7 @@ class AppEngine:
             logger.failed(context, extra=extra(prefix="stream.", **extra_info))
             stats.inc(error=True)
             return e
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:  # noqa: BLE001 -- Log event failures without terminating the worker loop.
             extra_info = {**log_info, "name": stream_name, "queue": queue}
             logger.error(context, e, extra=extra(prefix="stream.", **extra_info))
             logger.failed(context, extra=extra(prefix="stream.", **extra_info))
@@ -679,7 +679,7 @@ class AppEngine:
                     logger.error(context, "Cancelled", extra=extra(prefix="service.", **log_info))
                     logger.failed(context, extra=extra(prefix="service.", **log_info))
                     last_result = e
-                except Exception as e:  # pylint: disable=broad-except
+                except Exception as e:  # noqa: BLE001 -- Log event failures without terminating the worker loop.
                     logger.error(context, e, extra=extra(prefix="service.", **log_info))
                     logger.failed(context, extra=extra(prefix="service.", **log_info))
                     last_result = e

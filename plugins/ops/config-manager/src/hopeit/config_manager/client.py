@@ -99,7 +99,7 @@ async def _get_host_config(
             extra=extra(host=host, url=url, error=str(e)),
         )
         return host, ServerStatus.ERROR
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:  # noqa: BLE001 -- Report unreachable or invalid remote applications as server errors.
         logger.error(
             context,
             "Error contacting host: %s",

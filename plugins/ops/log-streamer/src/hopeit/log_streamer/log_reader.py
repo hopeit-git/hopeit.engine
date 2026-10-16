@@ -46,7 +46,7 @@ async def __service__(context: EventContext) -> Spawn[LogRawBatch]:
             event_handler.close_inactive_files()
     except KeyboardInterrupt:  # pragma: no cover
         pass
-    except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+    except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
         logger.error(context, e)
     finally:
         observer.stop()
@@ -93,7 +93,7 @@ async def _process_log_entry(entry: str, context: EventContext) -> LogEntry | No
                     pid=pid,
                 )
         return None
-    except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+    except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
         logger.error(context, e)
         return None
 
@@ -117,7 +117,7 @@ async def process_log_data(payload: LogRawBatch, context: EventContext) -> LogBa
             return LogBatch(entries=entries)
         logger.info("Filtered out all entries in batch.")
         return None
-    except Exception as e:  # pylint: disable=broad-except  # pragma: no cover
+    except Exception as e:  # noqa: BLE001 -- Keep the file watcher running after logging handler failures.  # pragma: no cover
         logger.error(context, e)
         return None
     finally:

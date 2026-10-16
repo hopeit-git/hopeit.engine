@@ -233,7 +233,7 @@ class AppsClient(Client):
         )
         try:
             await self.session.close()
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:  # noqa: BLE001 -- Log close failures and always release the client state.
             logger.error(__name__, str(e))
         finally:
             await asyncio.sleep(1.0)

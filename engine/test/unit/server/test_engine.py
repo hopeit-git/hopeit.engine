@@ -763,7 +763,7 @@ async def test_read_stream_failed(monkeypatch, mock_app_config, mock_plugin_conf
     monkeypatch.setattr(engine, "stream_manager", MockStreamManager(address="test"))
     try:
         await engine.read_stream(event_name="mock_stream_event", test_mode=True)
-    except Exception as e:
+    except ValueError as e:
         assert isinstance(e, ValueError)
     await engine.stop()
 
