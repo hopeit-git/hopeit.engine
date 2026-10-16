@@ -27,5 +27,5 @@ def test_objs():
 def app_config():
     cfg = config("plugins/storage/fs/test/integration/app_config.json")
     # Set unique folder for each test run
-    cfg.settings["test_stream_batch_storage"]["path"] += f"/{str(uuid.uuid4())}"
+    cfg.settings["test_stream_batch_storage"]["path"] += f"/{uuid.uuid4()!s}"
     return cfg

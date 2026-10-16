@@ -181,7 +181,7 @@ async def test_move_file(raw_log_entries, raw_log_entries2, log_config, service_
     os.makedirs(log_config.logs_path, exist_ok=True)
     observer = start_observer(handler, log_config.logs_path)
     path = Path(f"{log_config.logs_path}{log_config.prefix}")
-    move_path = Path(f"{log_config.logs_path}{str(uuid.uuid4())}")
+    move_path = Path(f"{log_config.logs_path}{uuid.uuid4()!s}")
 
     with open(path, "w") as f:
         f.writelines(line + "\n" for line in raw_log_entries.data)
