@@ -244,10 +244,10 @@ def test_from_json_python_types():
     assert Payload.from_json('{"value": "str"}', str) == "str"
     with pytest.raises(ValidationError):
         assert Payload.from_json('{"value": "str"}', int) == "str"
-    assert Payload.from_json('{"value": 123}', int) == int(123)
+    assert Payload.from_json('{"value": 123}', int) == 123
     with pytest.raises(ValidationError):
         assert Payload.from_json('{"value": 123}', str) == "123"
-    assert Payload.from_json('{"value": 123.45}', float) == float(123.45)
+    assert Payload.from_json('{"value": 123.45}', float) == 123.45
     assert Payload.from_json('{"value": true}', bool) is True
     assert Payload.from_json('{"custom": "str"}', str, key="custom") == "str"
     assert Payload.from_json('{"test": "dict"}', dict) == {"test": "dict"}
@@ -257,8 +257,8 @@ def test_from_json_python_types():
 
 def test_from_obj_python_types():
     assert Payload.from_obj({"value": "str"}, str) == "str"
-    assert Payload.from_obj({"value": 123}, int) == int(123)
-    assert Payload.from_obj({"value": 123.45}, float) == float(123.45)
+    assert Payload.from_obj({"value": 123}, int) == 123
+    assert Payload.from_obj({"value": 123.45}, float) == 123.45
     assert Payload.from_obj({"value": True}, bool) is True
     assert Payload.from_obj({"custom": "str"}, str, key="custom") == "str"
     assert Payload.from_obj({"test": "dict"}, dict) == {"test": "dict"}
