@@ -255,7 +255,7 @@ class DataBlocks(Generic[DataBlockType, DataFrameType]):
         )
 
     @staticmethod
-    def _get_col_type(field_name: str, annotation: type):
+    def _get_col_type(field_name: str, annotation: Any):
         typedef = DataTypeMapping.get_schema_type(annotation)
         if typedef is None:
             raise TypeError(f"Datablocks: unsupported field type: {field_name}: {annotation}")

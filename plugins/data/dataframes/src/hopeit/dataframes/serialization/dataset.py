@@ -90,7 +90,7 @@ class Dataset(Generic[DataFrameT]):
         datatype: type[DataFrameT] = find_dataframe_type(self.datatype)
         return datatype._from_df(df)  # type: ignore[attr-defined]
 
-    def _adapt(self, datatype: DataFrameT) -> "Dataset[DataFrameT]":
+    def _adapt(self, datatype: type[DataFrameT]) -> "Dataset[DataFrameT]":
         """Adapts a more generic dataset that contains combined fields to be type specific"""
         return Dataset(
             protocol=self.protocol,
