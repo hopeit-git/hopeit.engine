@@ -83,7 +83,7 @@ auth_info_default: dict[str, str] = {}
 def prepare_engine(
     *,
     config_files: list[str],
-    api_file: Optional[str],
+    api_file: str | None,
     api_auto: list[str],
     enabled_groups: list[str],
     start_streams: bool,
@@ -216,7 +216,7 @@ async def stream_startup_hook(app_config: AppConfig, *args, **kwargs):
             asyncio.create_task(app_engine.service_loop(event_name=event_name))
 
 
-def _effective_events(app_engine: AppEngine, plugin: Optional[AppEngine] = None):
+def _effective_events(app_engine: AppEngine, plugin: AppEngine | None = None):
     if plugin is None:
         return {
             k: v
@@ -248,7 +248,7 @@ def _enable_cors(prefix: str, cors: CorsConfig):
             cors.add(route)
 
 
-async def _setup_app_event_routes(app_engine: AppEngine, plugin: Optional[AppEngine] = None):
+async def _setup_app_event_routes(app_engine: AppEngine, plugin: AppEngine | None = None):
     """
     Setup http routes for existing events in app,
     in existing web_server global instance.
@@ -327,7 +327,7 @@ def _auth_types(app_engine: AppEngine, event_name: str):
 def _create_post_event_route(
     app_engine: AppEngine,
     *,
-    plugin: Optional[AppEngine] = None,
+    plugin: AppEngine | None = None,
     event_name: str,
     event_info: EventDescriptor,
 ) -> web.RouteDef:
@@ -362,7 +362,7 @@ def _create_post_event_route(
 def _create_get_event_route(
     app_engine: AppEngine,
     *,
-    plugin: Optional[AppEngine] = None,
+    plugin: AppEngine | None = None,
     event_name: str,
     event_info: EventDescriptor,
 ) -> web.RouteDef:
@@ -393,7 +393,7 @@ def _create_get_event_route(
 def _create_multipart_event_route(
     app_engine: AppEngine,
     *,
-    plugin: Optional[AppEngine] = None,
+    plugin: AppEngine | None = None,
     event_name: str,
     event_info: EventDescriptor,
 ) -> web.RouteDef:
@@ -440,7 +440,7 @@ def _create_event_management_routes(
     )
     logger.info(__name__, f"{event_info.type.value.upper()} path={base_route}/[start|stop]")
 
-    handler: Optional[partial[Coroutine[Any, Any, Response]]] = None
+    handler: partial[Coroutine[Any, Any, Response]] | None = None
     if event_info.type == EventType.STREAM:
         handler = partial(_handle_stream_start_invocation, app_engine, event_name)
     elif event_info.type == EventType.SERVICE:
@@ -507,7 +507,7 @@ def _track_ids(request: web.Request) -> dict[str, str]:
     }
 
 
-def _failed_response(context: Optional[EventContext], e: Exception) -> web.Response:
+def _failed_response(context: EventContext | None, e: Exception) -> web.Response:
     if context:
         logger.error(context, e)
         logger.failed(context)
@@ -517,9 +517,7 @@ def _failed_response(context: Optional[EventContext], e: Exception) -> web.Respo
     return web.Response(status=500, body=Payload.to_json(info))
 
 
-def _ignored_response(
-    context: Optional[EventContext], status: int, e: BaseException
-) -> web.Response:
+def _ignored_response(context: EventContext | None, status: int, e: BaseException) -> web.Response:
     if context:
         logger.error(context, e)
         logger.ignored(context)
@@ -531,7 +529,7 @@ def _ignored_response(
 
 async def _execute_setup_event(
     app_engine: AppEngine,
-    plugin: Optional[AppEngine],
+    plugin: AppEngine | None,
     event_name: str,
 ) -> None:
     """
@@ -578,11 +576,11 @@ def _request_start(
     return context
 
 
-def _extract_auth_header(request: web.Request, context: EventContext) -> Optional[str]:
+def _extract_auth_header(request: web.Request, context: EventContext) -> str | None:
     return request.headers.get("Authorization")
 
 
-def _extract_refresh_cookie(request: web.Request, context: EventContext) -> Optional[str]:
+def _extract_refresh_cookie(request: web.Request, context: EventContext) -> str | None:
     return request.cookies.get(f"{context.app_key}.refresh")
 
 
@@ -659,7 +657,7 @@ async def _request_execute(
     event_name: str,
     context: EventContext,
     query_args: dict[str, Any],
-    payload: Optional[EventPayloadType],
+    payload: EventPayloadType | None,
     preprocess_hook: PreprocessHook,
     request: web.Request,
 ) -> ResponseType:
@@ -686,9 +684,9 @@ async def _request_execute(
 
 async def _request_process_payload(
     context: EventContext,
-    datatype: Optional[type[EventPayloadType]],
+    datatype: type[EventPayloadType] | None,
     request: web.Request,
-) -> tuple[Optional[EventPayloadType], Optional[bytes]]:
+) -> tuple[EventPayloadType | None, bytes | None]:
     """
     Extract payload from request.
     Returns payload if parsing succeeded. Raises BadRequest if payload fails to parse
@@ -707,7 +705,7 @@ async def _handle_post_invocation(
     app_engine: AppEngine,
     impl: AppEngine,
     event_name: str,
-    datatype: Optional[type[DataObject]],
+    datatype: type[DataObject] | None,
     auth_types: list[AuthType],
     request: web.Request,
 ) -> ResponseType:
@@ -782,7 +780,7 @@ async def _handle_multipart_invocation(
     app_engine: AppEngine,
     impl: AppEngine,
     event_name: str,
-    datatype: Optional[type[DataObject]],
+    datatype: type[DataObject] | None,
     auth_types: list[AuthType],
     request: web.Request,
 ) -> ResponseType:
