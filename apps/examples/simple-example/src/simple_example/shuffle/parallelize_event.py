@@ -6,7 +6,7 @@ and processed in asynchronously / in parallel if multiple nodes are available,
 then submitted to other stream to be updated and saved
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook

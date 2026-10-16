@@ -1,6 +1,6 @@
 import io
 import os
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 
 import aiofiles

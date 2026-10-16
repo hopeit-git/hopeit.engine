@@ -5,7 +5,7 @@ This example will spawn 3 data events, those are going to be send to a stream us
 and processed in asynchronously / in parallel if multiple nodes are available
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook

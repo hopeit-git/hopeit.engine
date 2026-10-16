@@ -7,7 +7,7 @@ import random
 import uuid
 from asyncio import CancelledError
 from collections.abc import Awaitable
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 from hopeit.app.client import register_app_connections, stop_app_connections

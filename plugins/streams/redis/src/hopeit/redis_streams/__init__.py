@@ -5,7 +5,7 @@ import base64
 import json
 import uuid
 from collections.abc import Callable
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import redis.asyncio as redis

@@ -3,7 +3,7 @@ Collect Event Stats from log stream
 """
 
 from collections import defaultdict, deque
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta
 
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import dataclass, dataobject

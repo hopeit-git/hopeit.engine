@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 
 from hopeit.dataobjects import dataclass, dataobject
 from hopeit.fs_storage import partition

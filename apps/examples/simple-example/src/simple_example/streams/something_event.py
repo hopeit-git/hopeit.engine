@@ -4,7 +4,7 @@ Simple Example: Something Event
 Submits a Something object to a stream to be processed asynchronously by process-events app event
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext

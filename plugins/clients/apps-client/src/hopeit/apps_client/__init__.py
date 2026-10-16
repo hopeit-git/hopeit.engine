@@ -6,7 +6,7 @@ import asyncio
 import random
 from collections import defaultdict
 from contextlib import AbstractAsyncContextManager
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 from enum import Enum
 from functools import partial
 from typing import Any

@@ -2,7 +2,7 @@
 Metrics module
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 
 from hopeit.app.context import EventContext
 from hopeit.server.logger import format_extra_values

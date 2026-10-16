@@ -3,7 +3,7 @@
 # pylint: disable=invalid-name
 
 import uuid
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 
 import polars as pl
 from sklearn.metrics import accuracy_score  # type: ignore

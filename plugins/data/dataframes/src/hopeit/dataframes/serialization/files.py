@@ -3,7 +3,7 @@
 import io
 import os
 from collections.abc import AsyncGenerator
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta
 from glob import glob
 from pathlib import Path
 from typing import Generic, Literal, TypeVar

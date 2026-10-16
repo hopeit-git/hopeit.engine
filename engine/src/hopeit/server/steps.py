@@ -5,7 +5,7 @@ Handling sequencing and execution of steps from events
 import asyncio
 import inspect
 from collections.abc import AsyncGenerator, Callable
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 from functools import partial
 from types import ModuleType
 from typing import (

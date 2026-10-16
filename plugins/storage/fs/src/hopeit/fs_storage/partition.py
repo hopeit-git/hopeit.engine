@@ -2,7 +2,7 @@
 FS Storage plugin package module
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 
 from hopeit.dataobjects import DataObject
 

@@ -3,7 +3,7 @@ Test utilities/wrappers for app development
 """
 
 from collections.abc import Callable
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 from types import ModuleType
 from typing import Any

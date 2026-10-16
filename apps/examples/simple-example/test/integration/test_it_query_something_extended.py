@@ -1,6 +1,6 @@
 import os
 import uuid
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 
 import pytest  # type: ignore
 

@@ -1,6 +1,6 @@
 import os
 import uuid
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 from typing import cast
 
 import polars as pl

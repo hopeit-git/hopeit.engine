@@ -1,6 +1,6 @@
 import asyncio
 from copy import deepcopy
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 from typing import Any, ClassVar
 
 import redis.asyncio as redis

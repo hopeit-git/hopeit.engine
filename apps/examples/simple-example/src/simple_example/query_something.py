@@ -4,7 +4,7 @@ Simple Example: Query Something
 Loads Something from disk
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook

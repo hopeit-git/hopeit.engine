@@ -5,7 +5,7 @@ This event can be used for obtain new access token and update refresh token (htt
 with no need to re-login the user if there is a valid refresh token active.
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime
 
 from hopeit.app.api import event_api
 from hopeit.app.context import EventContext, PostprocessHook
