@@ -127,7 +127,7 @@ async def test_execute_shuffle_event_default_step(mock_app_config):
 
 
 async def test_execute_parallelize_event(mock_app_config):
-    result, pp_result, response = await execute_event(
+    result, pp_result, _response = await execute_event(
         mock_app_config,
         "mock_parallelize_event",
         payload="part-a.part-b",

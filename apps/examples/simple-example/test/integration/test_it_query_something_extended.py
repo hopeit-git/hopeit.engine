@@ -34,7 +34,7 @@ def sample_file_id():
 
 async def test_query_item(app_config, sample_file_id):
     status = Status(datetime.now(tz=timezone.utc), StatusType.LOADED)
-    result, pp_result, res = await execute_event(
+    result, pp_result, _res = await execute_event(
         app_config=app_config,
         event_name="query_something_extended",
         payload=status,
