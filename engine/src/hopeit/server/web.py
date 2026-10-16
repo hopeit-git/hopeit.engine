@@ -18,7 +18,8 @@ import sys
 import uuid
 from datetime import datetime, timezone
 from functools import partial
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Optional, Union
+from collections.abc import Callable, Coroutine
 
 import aiohttp_cors  # type: ignore
 from aiohttp import web
