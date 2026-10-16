@@ -76,15 +76,15 @@ extra = extra_logger()
 ResponseType = Union[web.Response, web.FileResponse, web.StreamResponse]
 
 web_server = web.Application()
-auth_info_default: Dict[str, str] = {}
+auth_info_default: dict[str, str] = {}
 
 
 def prepare_engine(
     *,
-    config_files: List[str],
+    config_files: list[str],
     api_file: Optional[str],
-    api_auto: List[str],
-    enabled_groups: List[str],
+    api_auto: list[str],
+    enabled_groups: list[str],
     start_streams: bool,
 ):
     """
@@ -159,7 +159,7 @@ async def stop_server():
     await web_server.cleanup()
 
 
-async def app_startup_hook(config: AppConfig, enabled_groups: List[str], *args, **kwargs):
+async def app_startup_hook(config: AppConfig, enabled_groups: list[str], *args, **kwargs):
     """
     Start Hopeit app specified by config
 
@@ -426,7 +426,7 @@ def _create_multipart_event_route(
 
 def _create_event_management_routes(
     app_engine: AppEngine, *, event_name: str, event_info: EventDescriptor
-) -> List[web.RouteDef]:
+) -> list[web.RouteDef]:
     """
     Create routes to start and stop processing of STREAM events
     """
@@ -455,7 +455,7 @@ def _create_event_management_routes(
 
 
 def _response(
-    *, track_ids: Dict[str, str], key: str, payload: EventPayload, hook: PostprocessHook
+    *, track_ids: dict[str, str], key: str, payload: EventPayload, hook: PostprocessHook
 ) -> ResponseType:
     """
     Creates a web response object from a given payload (body), header track ids
@@ -493,7 +493,7 @@ def _response_info(response: ResponseType):
     return extra(prefix="response.", status=str(response.status))
 
 
-def _track_ids(request: web.Request) -> Dict[str, str]:
+def _track_ids(request: web.Request) -> dict[str, str]:
     return {
         "track.operation_id": str(uuid.uuid4()),
         "track.request_id": str(uuid.uuid4()),
@@ -598,7 +598,7 @@ AUTH_HEADER_EXTRACTORS = {
 
 
 def _extract_authorization(
-    auth_methods: List[AuthType], request: web.Request, context: EventContext
+    auth_methods: list[AuthType], request: web.Request, context: EventContext
 ):
     for auth_type in auth_methods:
         auth_header = AUTH_HEADER_EXTRACTORS[auth_type](request, context)
@@ -610,7 +610,7 @@ def _extract_authorization(
 def _validate_authorization(
     app_config: AppConfig,
     context: EventContext,
-    auth_types: List[AuthType],
+    auth_types: list[AuthType],
     request: web.Request,
 ):
     """
@@ -646,7 +646,7 @@ def _text_response(result: str, *args, **kwargs) -> str:
     return str(result)
 
 
-CONTENT_TYPE_BODY_SER: Dict[str, Callable[..., str]] = {
+CONTENT_TYPE_BODY_SER: dict[str, Callable[..., str]] = {
     "application/json": _application_json_response,
     "text/html": _text_response,
     "text/plain": _text_response,
@@ -657,7 +657,7 @@ async def _request_execute(
     app_engine: AppEngine,
     event_name: str,
     context: EventContext,
-    query_args: Dict[str, Any],
+    query_args: dict[str, Any],
     payload: Optional[EventPayloadType],
     preprocess_hook: PreprocessHook,
     request: web.Request,
@@ -685,9 +685,9 @@ async def _request_execute(
 
 async def _request_process_payload(
     context: EventContext,
-    datatype: Optional[Type[EventPayloadType]],
+    datatype: Optional[type[EventPayloadType]],
     request: web.Request,
-) -> Tuple[Optional[EventPayloadType], Optional[bytes]]:
+) -> tuple[Optional[EventPayloadType], Optional[bytes]]:
     """
     Extract payload from request.
     Returns payload if parsing succeeded. Raises BadRequest if payload fails to parse
@@ -706,8 +706,8 @@ async def _handle_post_invocation(
     app_engine: AppEngine,
     impl: AppEngine,
     event_name: str,
-    datatype: Optional[Type[DataObject]],
-    auth_types: List[AuthType],
+    datatype: Optional[type[DataObject]],
+    auth_types: list[AuthType],
     request: web.Request,
 ) -> ResponseType:
     """
@@ -744,7 +744,7 @@ async def _handle_get_invocation(
     app_engine: AppEngine,
     impl: AppEngine,
     event_name: str,
-    auth_types: List[AuthType],
+    auth_types: list[AuthType],
     request: web.Request,
 ) -> ResponseType:
     """
@@ -781,8 +781,8 @@ async def _handle_multipart_invocation(
     app_engine: AppEngine,
     impl: AppEngine,
     event_name: str,
-    datatype: Optional[Type[DataObject]],
-    auth_types: List[AuthType],
+    datatype: Optional[type[DataObject]],
+    auth_types: list[AuthType],
     request: web.Request,
 ) -> ResponseType:
     """
@@ -926,10 +926,10 @@ def parse_args(args) -> ParsedArgs:
 
 
 def init_web_server(
-    config_files: List[str],
+    config_files: list[str],
     api_file: str,
-    api_auto: List[str],
-    enabled_groups: List[str],
+    api_auto: list[str],
+    enabled_groups: list[str],
     start_streams: bool,
 ) -> web.Application:
     """
@@ -951,11 +951,11 @@ def serve(
     host: str,
     path: str,
     port: int,
-    config_files: List[str],
+    config_files: list[str],
     api_file: str,
-    api_auto: List[str],
+    api_auto: list[str],
     start_streams: bool,
-    enabled_groups: List[str],
+    enabled_groups: list[str],
 ):
     """
     Serve hopeit.engine
