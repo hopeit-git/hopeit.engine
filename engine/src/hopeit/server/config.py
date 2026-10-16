@@ -136,7 +136,7 @@ def parse_server_config_json(config_json: str) -> ServerConfig:
     """
     effective_json = replace_env_vars(config_json)
     parsed_config: ServerConfig = Payload.from_json(effective_json, datatype=ServerConfig)
-    replace_config_args(parsed_config=parsed_config, config_classes=tuple([StreamsConfig]))
+    replace_config_args(parsed_config=parsed_config, config_classes=(StreamsConfig,))
     return parsed_config
 
 
