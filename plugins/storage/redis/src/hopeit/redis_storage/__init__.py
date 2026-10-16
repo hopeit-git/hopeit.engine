@@ -100,4 +100,7 @@ class RedisStorage(Generic[DataObject]):
         :param wildcard: str, expected glob-style wildcards
         """
         assert self._conn
-        return [obj.decode("utf-8") for obj in await self._conn.keys(wildcard)]
+        return [
+            obj.decode("utf-8") if isinstance(obj, bytes) else obj
+            for obj in await self._conn.keys(wildcard)
+        ]
