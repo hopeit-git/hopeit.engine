@@ -8,7 +8,7 @@ from conftest import DEFAULT_DATE, DEFAULT_DATETIME, MyTestAllTypesData, MyTestA
 
 
 def test_coerce_types_happy():
-    test_date = datetime.now().date()
+    test_date = date.today()
     test_datetime = datetime.now(tz=timezone.utc)
 
     data = MyTestAllTypesData(
@@ -210,7 +210,7 @@ def test_coerce_types_none_to_defaults():
 
 
 def test_coerce_types_unhappy_bad_types():
-    test_date = datetime.now().date()
+    test_date = date.today()
     test_datetime = datetime.now(tz=timezone.utc)
 
     with pytest.raises(TypeError):
@@ -257,7 +257,7 @@ def test_coerce_types_unhappy_bad_types():
 
 
 def test_coerce_types_unhappy_none_fields():
-    test_date = datetime.now().date()
+    test_date = date.today()
     test_datetime = datetime.now(tz=timezone.utc)
 
     with pytest.raises(TypeError):
@@ -322,7 +322,7 @@ def test_coerce_types_unhappy_none_fields():
 
 
 def test_coerce_types_unhappy_none_values():
-    test_date = datetime.now().date()
+    test_date = date.today()
     test_datetime = datetime.now(tz=timezone.utc)
 
     with pytest.raises(TypeError):
@@ -372,7 +372,7 @@ def test_coerce_types_unhappy_none_values():
 
 
 def test_coerce_types_unhappy_missing_fields():
-    test_date = datetime.now().date()
+    test_date = date.today()
     test_datetime = datetime.now(tz=timezone.utc)
 
     with pytest.raises(TypeError):

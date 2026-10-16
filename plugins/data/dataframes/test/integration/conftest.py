@@ -112,7 +112,7 @@ class MyTestAllTypesData:
     bool_value_optional: bool | None
 
 
-DEFAULT_DATE = datetime.now().date()
+DEFAULT_DATE = date.today()
 DEFAULT_DATETIME = datetime.now(tz=timezone.utc)
 
 
