@@ -1,6 +1,7 @@
 import asyncio
 from copy import deepcopy
 from datetime import datetime, timezone
+from typing import Any, ClassVar
 
 import redis.asyncio as redis
 from redis import ResponseError
@@ -299,7 +300,7 @@ async def test_write_stream_concurrent_low_max_connections(monkeypatch):
 class MockRedisPool:
     test_url: str = "redis://test_url"
     message_count = 10
-    test_msg = [
+    test_msg: ClassVar[list[Any]] = [
         b"0000000000-0",
         {
             b"type": b"unit.test_redis_streams.MockData",

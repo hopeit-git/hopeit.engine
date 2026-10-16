@@ -6,7 +6,7 @@ Use `hopeit.app.events` `collector_step(...)` constructor to define steps implem
 
 import asyncio
 from collections.abc import Callable, Coroutine
-from typing import Any
+from typing import Any, ClassVar
 
 from hopeit.app.context import EventContext
 from hopeit.dataobjects import copy_payload
@@ -54,7 +54,11 @@ class AsyncCollector(AbstractCollector):
     Please check the sequence your code is accessing/awaiting results from the collector to avoid cycles.
     """
 
-    __data_object__ = {"unsafe": True, "validate": False, "schema": False}
+    __data_object__: ClassVar[dict[str, bool]] = {
+        "unsafe": True,
+        "validate": False,
+        "schema": False,
+    }
 
     def __init__(self):
         self.items: dict[str, CollectorItem] = {}

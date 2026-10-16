@@ -10,7 +10,7 @@ from collections.abc import Callable, Iterable
 from datetime import datetime
 from functools import partial
 from logging.handlers import WatchedFileHandler
-from typing import Any
+from typing import Any, ClassVar
 
 from hopeit.app.config import AppConfig, AppDescriptor, EventSettings
 from hopeit.app.context import EventContext
@@ -169,7 +169,7 @@ class EngineLoggerWrapper:
     """
 
     engine_logger: logging.Logger = logging.getLogger("bootstrap")
-    loggers: dict[str, logging.Logger] = {}
+    loggers: ClassVar[dict[str, logging.Logger]] = {}
 
     def init_cli(self, name: str):
         EngineLoggerWrapper.engine_logger = _setup_console_logger(_engine_logger_name(name))

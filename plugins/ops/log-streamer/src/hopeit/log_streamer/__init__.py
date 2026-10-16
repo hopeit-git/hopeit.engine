@@ -4,7 +4,7 @@ Log Stramer dataclasses and file handler implementation based on watchdog librar
 
 import asyncio
 from datetime import datetime, timezone
-from typing import TextIO
+from typing import ClassVar, TextIO
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -89,7 +89,7 @@ class LogFileHandler(FileSystemEventHandler):
     allowing to work combined with `logrotate`.
     """
 
-    EVENTS_SORT_ORDER = ["START", "", "DONE", "FAILED", "IGNORED"]
+    EVENTS_SORT_ORDER: ClassVar[list[str]] = ["START", "", "DONE", "FAILED", "IGNORED"]
 
     def __init__(self, config: LogReaderConfig, context: EventContext):
         super().__init__()

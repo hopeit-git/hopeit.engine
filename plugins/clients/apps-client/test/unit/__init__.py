@@ -1,5 +1,6 @@
 import asyncio
 from collections import defaultdict
+from typing import ClassVar
 
 from hopeit.app.config import AppConfig
 from hopeit.dataobjects import dataclass, dataobject
@@ -84,11 +85,11 @@ class MockResponseList:
 class MockClientSession:
     lock = asyncio.Lock()
     session_open = False
-    responses: dict[str, str] = {}
-    headers: dict[str, str] = {}
-    failure: dict[str, int] = {}
-    alternate: dict[str, int] = {}
-    call_log: dict[str, int] = defaultdict(int)
+    responses: ClassVar[dict[str, str]] = {}
+    headers: ClassVar[dict[str, str]] = {}
+    failure: ClassVar[dict[str, int]] = {}
+    alternate: ClassVar[dict[str, int]] = {}
+    call_log: ClassVar[dict[str, int]] = defaultdict(int)
     content_type: str = "application/json"
 
     @classmethod

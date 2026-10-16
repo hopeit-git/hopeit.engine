@@ -1,5 +1,6 @@
 import asyncio
 from collections.abc import AsyncGenerator
+from typing import Any, ClassVar
 
 from hopeit.app.config import AppConfig, EventDescriptor
 from hopeit.app.context import EventContext, PostprocessHook
@@ -23,10 +24,10 @@ class MockResult:
 
 
 class MockEventHandler(EventHandler):
-    input_query_args = {"query_arg1": "ok"}
+    input_query_args: ClassVar[dict[str, Any]] = {"query_arg1": "ok"}
     input_payload = MockData("ok")
     expected_result = MockResult("ok: ok", processed=True)
-    test_track_ids = {
+    test_track_ids: ClassVar[dict[str, Any]] = {
         "track.operation_id": "test_operation_id",
         "track.request_id": "test_request_id",
         "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
@@ -68,7 +69,7 @@ class MockEventHandler(EventHandler):
 class TestStreamData:
     test_queue = "AUTO"
     test_payload = MockResult("ok: ok", processed=True)
-    test_track_ids = {
+    test_track_ids: ClassVar[dict[str, Any]] = {
         "track.request_id": "test_request_id",
         "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
         "track.session_id": "test_session_id",
@@ -80,4 +81,4 @@ class TestStreamData:
         "stream.read_ts": "2020-02-05T17:07:39.771396+00:00",
         "stream.submit_ts": "2020-02-05T17:07:38.771396+00:00",
     }
-    test_auth_info = {"allowed": True, "auth_type": "Unsecured"}
+    test_auth_info: ClassVar[dict[str, Any]] = {"allowed": True, "auth_type": "Unsecured"}

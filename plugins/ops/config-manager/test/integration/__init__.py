@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 import aiohttp
 
 from hopeit.app.config import AppConfig, EventDescriptor
@@ -39,7 +41,7 @@ class MockResponse:
 
 
 class MockClientSession:
-    responses: dict[str, RuntimeApps] = {}
+    responses: ClassVar[dict[str, RuntimeApps]] = {}
     # timeout: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=10.0)
 
     @classmethod

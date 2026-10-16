@@ -1,7 +1,7 @@
 import asyncio
 from collections.abc import AsyncGenerator
 from copy import copy
-from typing import Any
+from typing import Any, ClassVar
 
 from hopeit.app.config import (
     AppConfig,
@@ -72,10 +72,10 @@ class MockAppEngine(AppEngine):
 
 
 class MockEventHandler(EventHandler):
-    input_query_args = {"query_arg1": "ok"}
+    input_query_args: ClassVar[dict[str, Any]] = {"query_arg1": "ok"}
     input_payload = MockData("ok")
     expected_result = MockResult("ok: ok", processed=True)
-    test_track_ids = {
+    test_track_ids: ClassVar[dict[str, Any]] = {
         "track.operation_id": "test_operation_id",
         "track.request_id": "test_request_id",
         "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
@@ -131,7 +131,7 @@ class MockEventHandler(EventHandler):
 class MockStreamManager(StreamManager):
     test_queue = StreamQueue.AUTO
     test_payload = MockResult("ok: ok", processed=True)
-    test_track_ids = {
+    test_track_ids: ClassVar[dict[str, Any]] = {
         "track.request_id": "test_request_id",
         "track.request_ts": "2020-02-05T17:07:37.771396+00:00",
         "track.session_id": "test_session_id",
@@ -143,16 +143,16 @@ class MockStreamManager(StreamManager):
         "stream.read_ts": "2020-02-05T17:07:39.771396+00:00",
         "stream.submit_ts": "2020-02-05T17:07:38.771396+00:00",
     }
-    test_auth_info = {"allowed": True, "auth_type": "Unsecured"}
+    test_auth_info: ClassVar[dict[str, Any]] = {"allowed": True, "auth_type": "Unsecured"}
     closed = True
     last_read_message = None
-    error_pattern = [None]
+    error_pattern: ClassVar[list[Any]] = [None]
 
-    last_write_stream_names: list[str] = []
-    last_write_queue_names: list[str] = []
+    last_write_stream_names: ClassVar[list[str]] = []
+    last_write_queue_names: ClassVar[list[str]] = []
 
-    last_read_stream_names: list[str] = []
-    last_read_queue_names: list[str] = []
+    last_read_stream_names: ClassVar[list[str]] = []
+    last_read_queue_names: ClassVar[list[str]] = []
 
     def __init__(self, address: str):
         self.address = address

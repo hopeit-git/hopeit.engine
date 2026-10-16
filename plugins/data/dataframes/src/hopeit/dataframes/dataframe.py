@@ -5,7 +5,7 @@ DataFrames type abstractions.
 import dataclasses
 from collections.abc import Callable, Iterator
 from datetime import date, datetime, timezone
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, ClassVar, Generic, Optional, TypeVar
 
 try:
     import polars as pl
@@ -41,7 +41,7 @@ def not_null_check(series: pl.Series) -> bool:
 
 
 class DataTypeMapping:
-    mapping: dict[type, tuple[Optional["pl.DataType"], tuple[Callable, ...]]] = {
+    mapping: ClassVar[dict[type, tuple[Optional["pl.DataType"], tuple[Callable, ...]]]] = {
         int: (None, ()),
         bool: (None, ()),
         float: (None, ()),
