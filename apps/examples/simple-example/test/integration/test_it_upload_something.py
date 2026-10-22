@@ -1,3 +1,5 @@
+import pytest
+
 from hopeit.server.version import APPS_API_VERSION
 from hopeit.testing.apps import execute_event
 
@@ -55,4 +57,20 @@ async def test_it_save_something_missing_field(
     )
 
     assert result == "Missing required fields"
+    assert response.status == 400
+
+
+@pytest.mark.parametrize("object_field", ["invalid JSON", {"id": "test", "user": "invalid"}])
+async def test_it_save_something_invalid_object(app_config, object_field):
+    result, _, response = await execute_event(
+        app_config=app_config,
+        event_name="upload_something",
+        payload=None,
+        fields={"id": "test", "user": "test", "attachment": "test.txt", "object": object_field},
+        upload={"attachment": b"test content"},
+        preprocess=True,
+        postprocess=True,
+        something_id="test_something_id",
+    )
+    assert result == "Invalid object field"
     assert response.status == 400

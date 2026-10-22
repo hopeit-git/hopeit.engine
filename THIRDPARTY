@@ -13,9 +13,14 @@ aiohttp-cors
     Link: https://github.com/aio-libs/aiohttp-cors
     License: Apache 2.0 (https://github.com/aio-libs/aiohttp-cors/blob/master/LICENSE)
 
-aiohttp-swagger3
-    Link: https://github.com/hh-h/aiohttp-swagger3
-    License: Apache 2.0 (https://github.com/hh-h/aiohttp-swagger3/blob/master/LICENSE)
+openapi-core
+    Link: https://github.com/python-openapi/openapi-core
+    License: BSD 3-Clause (https://github.com/python-openapi/openapi-core/blob/master/LICENSE)
+
+RapiDoc 11.0.1 (bundled documentation UI)
+    Link: https://github.com/rapi-doc/RapiDoc
+    License: MIT (engine/src/hopeit/server/static/rapidoc/LICENSE.txt)
+    Update: python engine/scripts/rapidoc/update_rapidoc.py
 
 aiofiles
     Link: https://github.com/Tinche/aiofiles

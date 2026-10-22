@@ -28,7 +28,9 @@ __api__ = event_api(
 )
 
 
-async def __preprocess__(payload: None, context: EventContext, request: PreprocessHook) -> MockData:
+async def __preprocess__(
+    payload: None, context: EventContext, request: PreprocessHook, *, arg1: str
+) -> MockData:
     args = await request.parsed_args()
     data = Payload.parse_form_field(args["field2"], MockData)
     return MockData(value=f"field1:{args['field1']} field2:{data.value} file:{args['file']}")

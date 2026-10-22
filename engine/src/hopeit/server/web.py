@@ -55,6 +55,7 @@ from hopeit.server.logger import (
 )
 from hopeit.server.metrics import metrics
 from hopeit.server.names import route_name, snakecase, titlecase
+from hopeit.server.openapi import MULTIPART_FORM_FIELDS_KEY
 from hopeit.server.steps import find_datatype_handler
 from hopeit.toolkit import auth
 
@@ -799,6 +800,7 @@ async def _handle_multipart_invocation(
         hook = PreprocessHook(  # type: ignore
             headers=request.headers,
             multipart_reader=await request.multipart(),  # type: ignore
+            form_fields=request.get(MULTIPART_FORM_FIELDS_KEY),
         )
         return await _request_execute(
             impl,

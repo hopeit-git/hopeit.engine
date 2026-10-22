@@ -1,8 +1,34 @@
 Release Notes
 =============
 
-Version 0.30.1
-______________
+Version 0.31.0b0
+________________
+
+- Engine:
+
+  - Generated and checked-in OpenAPI specifications now use version 3.0.4,
+    retaining the OpenAPI 3.0 schema format.
+  - Documented request media types without a body parser are explicitly rejected
+    with HTTP 400 instead of reaching handlers without a parsed body.
+
+  - Replaced ``aiohttp-swagger3`` with ``openapi-core`` for OpenAPI 3.0
+    parameter and security validation. Payload schemas continue to be validated
+    by Pydantic, and multipart uploads remain available to streaming preprocess
+    hooks. RapiDoc is served locally as a single JavaScript file, with no
+    external fonts or frontend build dependencies. It retains the
+    configured documentation path and ``swagger.json`` URL. Documentation paths
+    work with and without a trailing slash.
+  - OpenAPI specifications are validated at startup. Invalid requests still
+    return HTTP 400; validation error descriptions now come from ``openapi-core``.
+  - Request validation uses the route selected by aiohttp, independently of
+    documented ``servers`` URLs, ports or reverse proxy prefixes. Required
+    parameters remain required even with schema defaults. Empty query strings
+    remain valid when their schema allows them, and boolean parameters retain
+    the case-sensitive ``true``/``false`` representation. These compatibility
+    settings do not alter the published OpenAPI specification.
+  - Multipart data fields declared in OpenAPI are parsed as data even when a
+    browser supplies a filename. Binary attachments, including JSON files,
+    continue to be streamed as files.
 
 - Plugins:
 

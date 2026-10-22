@@ -1,6 +1,6 @@
 SRC = $(wildcard src/*.py)
 # Override with `make PYTHONVERSION=3.14`.
-PYTHONVERSION ?= 3.12
+PYTHONVERSION ?= 3.14
 
 .PHONY: env clean-env dev deps format lint test
 
