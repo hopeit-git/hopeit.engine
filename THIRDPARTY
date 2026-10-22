@@ -17,7 +17,7 @@ openapi-core
     Link: https://github.com/python-openapi/openapi-core
     License: BSD 3-Clause (https://github.com/python-openapi/openapi-core/blob/master/LICENSE)
 
-RapiDoc 10.1.0 (bundled documentation UI)
+RapiDoc 11.0.1 (bundled documentation UI)
     Link: https://github.com/rapi-doc/RapiDoc
     License: MIT (engine/src/hopeit/server/static/rapidoc/LICENSE.txt)
     Update: python engine/scripts/rapidoc/update_rapidoc.py

@@ -259,7 +259,7 @@ async def test_documentation(aiohttp_client, specification, docs_path):
     response = await client.get(f"{path}/rapidoc_static/rapidoc-min.js")
     assert response.status == 200
     assert response.content_type in {"text/javascript", "application/javascript"}
-    assert "rapidoc v10.1.0" in await response.text()
+    assert "rapidoc v11.0.1" in await response.text()
 
 
 async def test_documentation_disabled(aiohttp_client, specification):

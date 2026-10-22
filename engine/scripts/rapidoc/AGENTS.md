@@ -38,6 +38,10 @@ Run commands from the repository root, using the existing development environmen
    authentication declared by the generated spec, tracking headers, JSON requests,
    and multipart requests with data fields and streamed file attachments. Confirm
    that the UI assets and fonts do not require external requests.
+   Also test repeated Try requests with a response that sends headers immediately
+   and delays its JSON body by at least 150 ms. Confirm that the rendered body
+   replaces the hourglass each time and that the browser console has no rendering
+   errors. RapiDoc 10.1.0's highlighter removed Lit DOM markers, causing this race.
 
 Keep the existing `docs_path`, `swagger.json` URL, and relative asset URLs. Preserve
 `load-fonts="false"` and the simple HTML integration in

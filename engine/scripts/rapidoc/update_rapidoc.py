@@ -12,10 +12,10 @@ import tarfile
 from pathlib import Path
 from urllib.request import urlopen
 
-VERSION = "10.1.0"
+VERSION = "11.0.1"
 INTEGRITY = (
-    "sha512-yIlpC2/B3xlxf7Iivea3Db8QtHqFps1bkl7K8VVrEMbBKoh2vu7R8dYmiBI9tiSa"
-    "vXP/2japlcSXr4EUYHW1mA=="
+    "sha512-pN1hPEw9Aed3lYVh850MW5hxrpHWtM1dA/2UGQ42P6EWSXtD46LvtjPmhKnN/rZI"
+    "Cy97WgF6FBW8tmRVMsvZ3A=="
 )
 FILES = {"dist/rapidoc-min.js": "rapidoc-min.js", "LICENSE.txt": "LICENSE.txt"}
 DESTINATION = Path(__file__).resolve().parents[2] / "src/hopeit/server/static/rapidoc"

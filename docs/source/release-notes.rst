@@ -1,8 +1,8 @@
 Release Notes
 =============
 
-Version 0.31.0
-______________
+Version 0.31.0b0
+________________
 
 - Engine:
 
@@ -27,8 +27,8 @@ ______________
     the case-sensitive ``true``/``false`` representation. These compatibility
     settings do not alter the published OpenAPI specification.
   - Multipart data fields declared in OpenAPI are parsed as data even when a
-    browser supplies a filename, as Swagger UI does for JSON Blobs. Binary
-    attachments, including JSON files, continue to be streamed as files.
+    browser supplies a filename. Binary attachments, including JSON files,
+    continue to be streamed as files.
 
 - Plugins:
 

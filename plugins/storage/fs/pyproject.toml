@@ -1,13 +1,13 @@
 [project]
 name = "hopeit.fs-storage"
-version = "0.31.0"
+version = "0.31.0b0"
 
 description = "Hopeit Engine File System Storage Toolkit"
 requires-python = ">=3.11"
 dynamic = ["readme"]
 
 dependencies = [
-    "hopeit.engine>=0.31.0",
+    "hopeit.engine>=0.31.0b0",
     "aiofiles>=24.1.0",
 ]
 
