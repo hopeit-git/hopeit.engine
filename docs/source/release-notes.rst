@@ -30,6 +30,9 @@ ________________
     browser supplies a filename. Binary attachments, including JSON files,
     continue to be streamed as files.
 
+Version 0.31.0
+______________
+
 - Plugins:
 
   - redis-streams:
