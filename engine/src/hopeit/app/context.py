@@ -15,7 +15,7 @@ from typing import (
 )
 
 from aiohttp import web
-from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiMapping, istr
+from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiMapping
 
 from hopeit.app.config import (
     AppConfig,
@@ -368,7 +368,7 @@ class PreprocessHook(Generic[_MultipartReader]):
         if self._multipart_reader is not None:
             async for field in self._multipart_reader:
                 if field.name is not None:
-                    content_type = field.headers.get(istr("Content-Type"), "")
+                    content_type = field.headers.get("Content-Type", "")
                     media_type = content_type.partition(";")[0].strip().lower()
                     if field.filename and field.name not in self._form_fields:
                         self._args[field.name] = field.filename
