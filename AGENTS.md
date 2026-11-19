@@ -61,6 +61,10 @@ enforce 90% coverage; plugin targets enforce 80%.
 - For documentation-only changes, check links, examples, and
   `git diff --check`; a full runtime suite is unnecessary. Report the validation
   actually performed and any remaining limitations.
+- When addressing PR review comments, commit and push changes only at the user's
+  request. After those changes are committed and pushed, reply to each addressed
+  review comment, briefly explaining the change and linking the relevant commit.
+  Include validation or remaining limitations where relevant.
 
 ## Good practices when building Hopeit apps
 
